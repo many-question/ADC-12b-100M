@@ -117,3 +117,34 @@ def test_owner_change_rules(old, new, author, ok):
 
 def test_owners_in_repo_are_valid():
     assert checks.check_owners().errors == []
+
+
+def test_git_state_ignores_results_and_caps_paths():
+    from adcflow.runner import dirty_paths
+
+    porcelain = "\n".join([
+        " M results/adc_top/tb_top_sine/behav/tt_nom_27.json",
+        "?? results/adc_comp/tb_comp_noise/behav/tt_nom_27.noise.png",
+        " M specs/arch.yaml",
+        "M  tools/adcflow/model.py",
+        "?? analysis/new.py",
+        "R  docs/old.md -> docs/new.md",
+    ])
+    assert dirty_paths(porcelain) == ["specs/arch.yaml", "tools/adcflow/model.py", "analysis/new.py", "docs/new.md"]
+    assert dirty_paths(" M results/x.json\n") == []
+    assert dirty_paths("") == []
+
+
+def test_git_state_meta(monkeypatch):
+    import subprocess
+    from adcflow import runner
+
+    class R:
+        returncode = 0
+        stdout = ""
+
+    monkeypatch.setattr(subprocess, "run", lambda *a, **k: R)
+    assert runner.git_state() == {"git_clean": True}
+    R.stdout = " M results/a.json\n" + "".join(f"?? f{i}.txt\n" for i in range(25))
+    st = runner.git_state()
+    assert st["git_clean"] is False and len(st["git_dirty_paths"]) == 20 and st["git_dirty_paths"][0] == "f0.txt"
