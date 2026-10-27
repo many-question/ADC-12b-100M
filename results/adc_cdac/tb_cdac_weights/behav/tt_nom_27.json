@@ -92,14 +92,15 @@
   }
  ],
  "meta": {
-  "date": "2026-10-27T21:44:26",
-  "git": "3375040",
+  "date": "2026-10-27T23:01:11",
+  "git": "28df3ab",
+  "git_clean": true,
   "mode": "aps",
   "pdk": false,
   "mc": null,
-  "wall_s": 158.9,
+  "wall_s": 157.6,
   "rc": "0",
-  "sim_s": "51",
+  "sim_s": "50",
   "files": {
    "design/behav/adc_bootstrap.scs": "9458798199909fc5",
    "design/behav/adc_cdac.scs": "423386f9cc9bb2d0",

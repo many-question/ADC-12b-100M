@@ -79,14 +79,15 @@
   }
  ],
  "meta": {
-  "date": "2026-10-27T22:54:02",
-  "git": "3375040",
+  "date": "2026-10-28T00:10:19",
+  "git": "28df3ab",
+  "git_clean": true,
   "mode": "aps",
   "pdk": false,
   "mc": null,
-  "wall_s": 657.3,
+  "wall_s": 657.4,
   "rc": "0",
-  "sim_s": "305",
+  "sim_s": "304",
   "files": {
    "design/behav/adc_bootstrap.scs": "9458798199909fc5",
    "design/behav/adc_cdac.scs": "423386f9cc9bb2d0",
