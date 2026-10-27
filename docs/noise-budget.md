@@ -237,7 +237,7 @@ PHI_B/PHI_BB、CONV 负载不变（CDAC 内部缓冲三态使能）。
 | 文件 | 版本 | 改动 |
 |---|---|---|
 | `specs/arch.yaml` | 0.2.0 → 0.3.0 | `cdac.cu` 1.0e-15；`cdac.mismatch_sigma_1f` 0.005；`cdac.cal_n_sigma` 4；`targets.enob_design` 10.75 |
-| `adc_comp.yaml` | 0.1.0 → 0.2.0 | CMP-01 200 µV TT；CMP-13 240 µV 全角；CMP-10 200 fJ；CMP-11 测试电容 2.5 pF；CMP-12 20 fF；噪声测试 ±800 µV / 17 电平 / 128 次 |
+| `adc_comp.yaml` | 0.1.0 → 0.2.0 | CMP-01 200 µV TT；CMP-13 240 µV 全角；CMP-10 200 fJ；CMP-11 测试电容 2.5 pF；CMP-12 20 fF；噪声测试 ±800 µV / 17 电平 / 每电平 512 次，二项分布最大似然 probit 拟合，报告 σ 的 95 % 区间 `noise_ci95_uV` |
 | `adc_cdac.yaml` | 0.2.0 → 0.3.0 | cu 1.0 fF；DAC-01 1.98~2.12 pF；DAC-03 可校准性裕量 ≥ 0 LSB；DAC-14 校准后 ENOB 损失 ≤ 0.02 bit；DAC-12 1.2 pC；上极板负载 20 fF |
 | `adc_bootstrap.yaml` | 0.1.0 → 0.2.0 | 参考负载 96 µm（12.5 Ω）+ 2.057 pF；BST-07 50 µA |
 | `adc_ref.yaml` | 0.2.0 → 0.3.0 | 电荷 ×2；CDAC 底板 1.2 pF；VCM 负载 2 × 2.5 pF；行为级起点 4 mA + 3 pF；REF-08 不变 |
@@ -254,7 +254,7 @@ PHI_B/PHI_BB、CONV 负载不变（CDAC 内部缓冲三态使能）。
 
 | 模块 | 负责人 | 需要改动 |
 |---|---|---|
-| `adc_comp` | many-question | `mc12` 按新限值重新验收：TT 噪声应已满足（193.5 ≤ 200 µV），用新噪声测试台（±800 µV、17 × 128）重测 TT；跑 `--corners all` 噪声（CMP-13 ≤ 240 µV，此前无全角数据）；Cin ≤ 20 fF、能量 ≤ 200 fJ 可用来降全角噪声；回踢测试改在 2.5 pF 上重跑 |
+| `adc_comp` | many-question | `mc12` 按新限值重新验收：TT 噪声应已满足（193.5 ≤ 200 µV），用新噪声测试台（±800 µV、17 × 512，二项最大似然拟合，结果带 σ 的 95 % 区间 `noise_ci95_uV`；瞬态约为 v0.3 初版测试台的 4 倍）重测 TT；跑 `--corners all` 噪声（CMP-13 ≤ 240 µV，此前无全角数据）；Cin ≤ 20 fF、能量 ≤ 200 fJ 可用来降全角噪声；回踢测试改在 2.5 pF 上重跑 |
 | `adc_cdac` | many-question | cu 1.0 fF（LSB 半电容 0.5 fF），C_S 2.057 pF；输入开关、上极板开关、驱动器按电容加倍，保持 τ 与建立时间；控制输入仍 ≤ 6 fF（内部加缓冲）；新 DAC-03（可校准性）与 DAC-14（校准后损失）取代 0.5 % 权重误差；失配按 1 fF 单位 0.5 %；底板结电容尽量不随 C_S 加倍 |
 | `adc_bootstrap` | 未认领 | 负载加倍（参考开关 96 µm + 2.057 pF），自举电容加倍，电流目标 50 µA |
 | `adc_ref` | 未认领 | CDAC 电荷与底板电容加倍（回放与噪声测试台已更新）；起点 4 mA + 3 pF（或 3 mA + 2 pF） |
