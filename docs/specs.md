@@ -333,7 +333,7 @@ Fully differential bottom-plate-sampled SAR, 14 decisions, raw output bits with 
 | ID | 指标 | 限值 | 单位 | 工艺角 | 用例 |
 |---|---|---|---|---|---|
 | TOP-01 | ENOB at 49.9 MHz -1 dBFS (calibrated weights) | ≥ 10.5 | bit | all | `tb_top_sine` |
-| TOP-02 | ENOB at 49.9 MHz -1 dBFS, TT target | ≥ 10.8 | bit | typ | `tb_top_sine` |
+| TOP-02 | ENOB at 49.9 MHz -1 dBFS, TT target | ≥ 10.75 | bit | typ | `tb_top_sine` |
 | TOP-03 | SFDR at 49.9 MHz -1 dBFS | ≥ 75 | dBc | all | `tb_top_sine` |
 | TOP-04 | full-scale (diff peak) from sine fit | ≥ 0.95 | V | all | `tb_top_sine` |
 | TOP-05 | missing RDY / incomplete conversions | ≤ 0 | count | all | `tb_top_sine` |

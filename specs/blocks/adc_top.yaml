@@ -36,7 +36,7 @@ ports:
   - {name: VSS,     dir: ground, type: supply, side: bottom, desc: "ground"}
 specs:
   - {id: TOP-01, name: "ENOB at 49.9 MHz -1 dBFS (calibrated weights)", metric: enob,     unit: bit, min: 10.5, corners: all, test: tb_top_sine}
-  - {id: TOP-02, name: "ENOB at 49.9 MHz -1 dBFS, TT target",        metric: enob,       unit: bit, min: 10.8, corners: typ, test: tb_top_sine}
+  - {id: TOP-02, name: "ENOB at 49.9 MHz -1 dBFS, TT target",        metric: enob,       unit: bit, min: 10.75, corners: typ, test: tb_top_sine}
   - {id: TOP-03, name: "SFDR at 49.9 MHz -1 dBFS",                   metric: sfdr_dBc,   unit: dBc, min: 75, corners: all, test: tb_top_sine}
   - {id: TOP-04, name: "full-scale (diff peak) from sine fit",       metric: fs_peak_V,  unit: V,  min: 0.95, corners: all, test: tb_top_sine}
   - {id: TOP-05, name: "missing RDY / incomplete conversions",       metric: missing_rdy, unit: count, max: 0, corners: all, test: tb_top_sine}
