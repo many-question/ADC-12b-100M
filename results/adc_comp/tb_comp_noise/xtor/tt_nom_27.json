@@ -15,34 +15,34 @@
  },
  "metrics": {
   "p1": [
+   0.0,
    0.0469,
-   0.0938,
-   0.125,
-   0.2031,
-   0.3281,
-   0.3438,
-   0.4375,
-   0.6094,
+   0.0625,
+   0.1562,
+   0.375,
+   0.3125,
+   0.4062,
+   0.6406,
    0.7812,
-   0.7344,
-   0.8906,
-   0.9531,
-   0.9375
+   0.8438,
+   0.9844,
+   0.9688,
+   1.0
   ],
-  "noise_uV": 177.36704475517695,
-  "offset_abs_mV": 0.0025736163130226056,
-  "offset_mV": 0.0025736163130226056
+  "noise_uV": 142.99190092277772,
+  "offset_abs_mV": 0.000390912430458794,
+  "offset_mV": -0.000390912430458794
  },
  "specs": {
   "CMP-01": {
    "metric": "noise_uV",
-   "value": 177.36704475517695,
+   "value": 142.99190092277772,
    "limit": "<= 80",
    "pass": false
   },
   "CMP-02": {
    "metric": "offset_abs_mV",
-   "value": 0.0025736163130226056,
+   "value": 0.000390912430458794,
    "limit": "<= 2",
    "pass": true
   }
@@ -54,19 +54,19 @@
   }
  ],
  "meta": {
-  "date": "2026-10-27T17:33:27",
+  "date": "2026-10-27T17:42:45",
   "mode": "aps",
   "pdk": true,
   "mc": null,
   "rc": "0",
-  "sim_s": "30",
-  "experiment": "my03_cb",
+  "sim_s": "28",
+  "experiment": "mc14",
   "recorded_from_preserved_outputs": true,
   "files": {
    "design/behav/adc_bootstrap.scs": "066523e6d36e1090",
    "design/behav/adc_cdac.scs": "de8f65e2569cb9bf",
    "design/behav/adc_clkgen.scs": "dafb1c3438e33c9e",
-   "design/xtor/adc_comp/adc_comp.scs": "1b5078e89042cc88",
+   "design/xtor/adc_comp/adc_comp.scs": "3395e077cd2e4613",
    "design/behav/adc_ref.scs": "ad0159030e3a4f37",
    "design/behav/adc_sarlogic.scs": "356e911752c1b85e",
    "design/top/adc_top.scs": "362a964ffe162797",

@@ -7,7 +7,7 @@ return-to-zero output inverters. The embedded RNL records show every device,
 wire and body connection and identify the differential pair, matched devices,
 regenerative group and reset group.
 
-Current checkpoint `my03_cb` implements the self-timed core (M1-M15) of
+Current checkpoint `mc14` implements the self-timed core (M1-M15) of
 Miyahara et al., "A Low-Noise Self-Calibrating Dynamic Comparator for
 High-Speed ADCs," A-SSCC 2008, Fig. 2(b), DOI 10.1109/ASSCC.2008.4708780.
 The paper's offset-compensation devices and charge pump are omitted. P/N
@@ -116,3 +116,18 @@ Each instantiated unit was solved successfully without warnings. Its TT
 noise fit improves but still fails the 80 uV limit; 30 mV delay also fails.
 Earlier checkpoints remain useful as default-model comparisons, not as
 equivalent layouts. Noise differences use only one seed at this stage.
+
+
+## Measured allocation tradeoff checkpoints
+
+These callback-parameterized Miyahara variants are retained to support a
+system-level budget decision; none satisfies the current 80 uV noise limit.
+
+| Experiment | TT noise | Delay at 1 / 30 mV | Reset | Energy | Cin | Kickback |
+|---|---|---|---|---|---|---|
+| mc14 | 143.0 uV | 74.18 / 60.98 ps | 25.83 ps | 208.34 fJ | 28.56 fF | 0.108 uV |
+
+mc14 doubles the input-pair total width to 80 um per side, with a 3 um tail
+and 6 um precharge devices. Its lower noise requires more input capacitance
+and energy and still misses the 30 mV delay limit. All other measurements
+above are TT only for this checkpoint. It is a measured tradeoff, not signoff.

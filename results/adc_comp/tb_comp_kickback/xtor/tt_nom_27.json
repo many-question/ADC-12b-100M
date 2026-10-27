@@ -14,31 +14,31 @@
   "vref_in": 0.9
  },
  "metrics": {
-  "kickback_uV": 0.007578607899875675,
+  "kickback_uV": 0.10786048069998978,
   "vdiff_uV": [
-   999.998,
-   999.769,
-   999.762,
-   999.755,
-   999.748,
-   999.741,
-   999.734,
-   999.728
+   1000.002,
+   999.513,
+   999.405,
+   999.298,
+   999.19,
+   999.082,
+   998.974,
+   998.866
   ],
-  "cin_fF": 14.272362761214499
+  "cin_fF": 28.561786932328452
  },
  "specs": {
   "CMP-11": {
    "metric": "kickback_uV",
-   "value": 0.007578607899875675,
+   "value": 0.10786048069998978,
    "limit": "<= 40",
    "pass": true
   },
   "CMP-12": {
    "metric": "cin_fF",
-   "value": 14.272362761214499,
+   "value": 28.561786932328452,
    "limit": "<= 15",
-   "pass": true
+   "pass": false
   }
  },
  "figures": [
@@ -48,19 +48,19 @@
   }
  ],
  "meta": {
-  "date": "2026-10-27T17:33:27",
+  "date": "2026-10-27T17:42:45",
   "mode": "aps",
   "pdk": true,
   "mc": null,
   "rc": "0",
-  "sim_s": "13",
-  "experiment": "my03_cb",
+  "sim_s": "10",
+  "experiment": "mc14",
   "recorded_from_preserved_outputs": true,
   "files": {
    "design/behav/adc_bootstrap.scs": "066523e6d36e1090",
    "design/behav/adc_cdac.scs": "de8f65e2569cb9bf",
    "design/behav/adc_clkgen.scs": "dafb1c3438e33c9e",
-   "design/xtor/adc_comp/adc_comp.scs": "1b5078e89042cc88",
+   "design/xtor/adc_comp/adc_comp.scs": "3395e077cd2e4613",
    "design/behav/adc_ref.scs": "ad0159030e3a4f37",
    "design/behav/adc_sarlogic.scs": "356e911752c1b85e",
    "design/top/adc_top.scs": "362a964ffe162797",

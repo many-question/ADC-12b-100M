@@ -11,11 +11,11 @@ subckt adc_comp (INP INN CLKC OUTP OUTN AVDD VSS)
 // Falling P/N self-time the second stage: PMOS input devices and NMOS resets share P/N.
 // Logical MOS devices are parallel single-finger units (nf=1, integer m).
 // Based on M1-M15 of Miyahara et al., A-SSCC 2008, Fig. 2(b), DOI 10.1109/ASSCC.2008.4708780.
-MIP (P INP T1 VSS) nch_ulvt_mac w=1u l=30n nf=1 m=40 ad=7.5e-14 as=7.5e-14 pd=2.15e-06 ps=2.15e-06 nrd=0.289519 nrs=0.289519 sa=7.5e-08 sb=7.5e-08 sd=1e-07
-MIN (N INN T1 VSS) nch_ulvt_mac w=1u l=30n nf=1 m=40 ad=7.5e-14 as=7.5e-14 pd=2.15e-06 ps=2.15e-06 nrd=0.289519 nrs=0.289519 sa=7.5e-08 sb=7.5e-08 sd=1e-07
-MT1 (T1 CLKC VSS VSS) nch_ulvt_mac w=1u l=30n nf=1 m=2 ad=7.5e-14 as=7.5e-14 pd=2.15e-06 ps=2.15e-06 nrd=0.289519 nrs=0.289519 sa=7.5e-08 sb=7.5e-08 sd=1e-07
-MRP (P CLKC AVDD AVDD) pch_ulvt_mac w=1u l=30n nf=1 m=3 ad=7.5e-14 as=7.5e-14 pd=2.15e-06 ps=2.15e-06 nrd=0.165806 nrs=0.165806 sa=7.5e-08 sb=7.5e-08 sd=1e-07
-MRN (N CLKC AVDD AVDD) pch_ulvt_mac w=1u l=30n nf=1 m=3 ad=7.5e-14 as=7.5e-14 pd=2.15e-06 ps=2.15e-06 nrd=0.165806 nrs=0.165806 sa=7.5e-08 sb=7.5e-08 sd=1e-07
+MIP (P INP T1 VSS) nch_ulvt_mac w=1u l=30n nf=1 m=80 ad=7.5e-14 as=7.5e-14 pd=2.15e-06 ps=2.15e-06 nrd=0.289519 nrs=0.289519 sa=7.5e-08 sb=7.5e-08 sd=1e-07
+MIN (N INN T1 VSS) nch_ulvt_mac w=1u l=30n nf=1 m=80 ad=7.5e-14 as=7.5e-14 pd=2.15e-06 ps=2.15e-06 nrd=0.289519 nrs=0.289519 sa=7.5e-08 sb=7.5e-08 sd=1e-07
+MT1 (T1 CLKC VSS VSS) nch_ulvt_mac w=1u l=30n nf=1 m=3 ad=7.5e-14 as=7.5e-14 pd=2.15e-06 ps=2.15e-06 nrd=0.289519 nrs=0.289519 sa=7.5e-08 sb=7.5e-08 sd=1e-07
+MRP (P CLKC AVDD AVDD) pch_ulvt_mac w=1u l=30n nf=1 m=6 ad=7.5e-14 as=7.5e-14 pd=2.15e-06 ps=2.15e-06 nrd=0.165806 nrs=0.165806 sa=7.5e-08 sb=7.5e-08 sd=1e-07
+MRN (N CLKC AVDD AVDD) pch_ulvt_mac w=1u l=30n nf=1 m=6 ad=7.5e-14 as=7.5e-14 pd=2.15e-06 ps=2.15e-06 nrd=0.165806 nrs=0.165806 sa=7.5e-08 sb=7.5e-08 sd=1e-07
 M2P (UP P AVDD AVDD) pch_ulvt_mac w=1u l=30n nf=1 m=3 ad=7.5e-14 as=7.5e-14 pd=2.15e-06 ps=2.15e-06 nrd=0.165806 nrs=0.165806 sa=7.5e-08 sb=7.5e-08 sd=1e-07
 M2N (UN N AVDD AVDD) pch_ulvt_mac w=1u l=30n nf=1 m=3 ad=7.5e-14 as=7.5e-14 pd=2.15e-06 ps=2.15e-06 nrd=0.165806 nrs=0.165806 sa=7.5e-08 sb=7.5e-08 sd=1e-07
 MLPP (OUTP OUTN UP AVDD) pch_ulvt_mac w=1u l=30n nf=1 m=3 ad=7.5e-14 as=7.5e-14 pd=2.15e-06 ps=2.15e-06 nrd=0.165806 nrs=0.165806 sa=7.5e-08 sb=7.5e-08 sd=1e-07
@@ -45,15 +45,15 @@ CINTN (N VSS) cfmom_2t nr=24 lr=1u w=50n s=50n stm=1 spm=3 multi=2
 //   {#MROP #MRON} @AS $MATCHED;
 //   {#MRUP #MRUN #MROP #MRON} @GROUP;
 //   #MIP @PLACE(-12, 0) => @ORIENT("R0");
-//   #MIP @TEXT("40 x 1u/30n", key="model", size=0.65, dx=4, dy=-1, halign="start");
+//   #MIP @TEXT("80 x 1u/30n", key="model", size=0.65, dx=4, dy=-1, halign="start");
 //   %b_MIP = $GROUND @ATTACH &VSS => @PLACE(-10, -4);
 //   &VSS @WIRE {#MIP:b (-10, 0) %b_MIP:p};
 //   #MIN @PLACE(12, 0) => @ORIENT("MY");
-//   #MIN @TEXT("40 x 1u/30n", key="model", size=0.65, dx=-4, dy=-1, halign="end");
+//   #MIN @TEXT("80 x 1u/30n", key="model", size=0.65, dx=-4, dy=-1, halign="end");
 //   %b_MIN = $GROUND @ATTACH &VSS => @PLACE(10, -4);
 //   &VSS @WIRE {#MIN:b (10, 0) %b_MIN:p};
 //   #MT1 @PLACE(0, -12) => @ORIENT("R0");
-//   #MT1 @TEXT("2 x 1u/30n", key="model", size=0.65, dx=4, dy=-1, halign="start");
+//   #MT1 @TEXT("3 x 1u/30n", key="model", size=0.65, dx=4, dy=-1, halign="start");
 //   %b_MT1 = $GROUND @ATTACH &VSS => @PLACE(2, -16);
 //   &VSS @WIRE {#MT1:b (2, -12) %b_MT1:p};
 //   %s_MT1 = $GROUND @ATTACH &VSS => @PLACE(0, -18);
@@ -61,7 +61,7 @@ CINTN (N VSS) cfmom_2t nr=24 lr=1u w=50n s=50n stm=1 spm=3 multi=2
 //   %clk_MT1 = $IO_PORT @ATTACH &CLKC => @PLACE(-8, -12) => @ORIENT("R0");
 //   &CLKC @WIRE {%clk_MT1:p #MT1:g};
 //   #MRP @PLACE(-12, 12) => @ORIENT("R0");
-//   #MRP @TEXT("3 x 1u/30n", key="model", size=0.65, dx=4, dy=-1, halign="start");
+//   #MRP @TEXT("6 x 1u/30n", key="model", size=0.65, dx=4, dy=-1, halign="start");
 //   %b_MRP = $SUPPLY @ATTACH &AVDD => @PLACE(-10, 16);
 //   &AVDD @WIRE {#MRP:b (-10, 12) %b_MRP:p};
 //   %s_MRP = $SUPPLY @ATTACH &AVDD => @PLACE(-12, 18);
@@ -69,7 +69,7 @@ CINTN (N VSS) cfmom_2t nr=24 lr=1u w=50n s=50n stm=1 spm=3 multi=2
 //   %clk_MRP = $IO_PORT @ATTACH &CLKC => @PLACE(-20, 12) => @ORIENT("R0");
 //   &CLKC @WIRE {%clk_MRP:p #MRP:g};
 //   #MRN @PLACE(12, 12) => @ORIENT("MY");
-//   #MRN @TEXT("3 x 1u/30n", key="model", size=0.65, dx=-4, dy=-1, halign="end");
+//   #MRN @TEXT("6 x 1u/30n", key="model", size=0.65, dx=-4, dy=-1, halign="end");
 //   %b_MRN = $SUPPLY @ATTACH &AVDD => @PLACE(10, 16);
 //   &AVDD @WIRE {#MRN:b (10, 12) %b_MRN:p};
 //   %s_MRN = $SUPPLY @ATTACH &AVDD => @PLACE(12, 18);
