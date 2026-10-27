@@ -7,7 +7,7 @@ return-to-zero output inverters. The embedded RNL records show every device,
 wire and body connection and identify the differential pair, matched devices,
 regenerative group and reset group.
 
-Current checkpoint `my01` implements the self-timed core (M1-M15) of
+Current checkpoint `my02_c2` implements the self-timed core (M1-M15) of
 Miyahara et al., "A Low-Noise Self-Calibrating Dynamic Comparator for
 High-Speed ADCs," A-SSCC 2008, Fig. 2(b), DOI 10.1109/ASSCC.2008.4708780.
 The paper's offset-compensation devices and charge pump are omitted. P/N
@@ -76,9 +76,8 @@ the saved metrics. Recording verifies the staged netlists against the restored
 source. Temporary simulation jobs are removed only after local logs and
 outputs have been verified. Raw outputs are kept locally outside version control.
 
-No all-corner, mismatch or top-level acceptance is claimed. Next: exploit the
-speed margin through input-stage sizing and matched capacitive loading before
-considering a two-stage topology.
+No all-corner, mismatch or top-level acceptance is claimed. Both single-stage
+and two-stage experiments remain below the required noise performance.
 
 ## Two-stage comparison
 
@@ -86,6 +85,7 @@ considering a two-stage topology.
 |---|---|---|---|---|---|---|
 | dt01 | 251.9 uV | 56.25 / 44.27 ps | 14.70 ps | 115.32 fJ | 14.25 fF | 0.037 uV |
 | my01 | 262.1 uV | 59.34 / 48.31 ps | 31.06 ps | 115.16 fJ | 14.25 fF | 0.007 uV |
+| my02_c2 | 218.7 uV | 66.60 / 54.68 ps | 25.30 ps | 148.57 fJ | 14.22 fF | 0.019 uV |
 
 The two-stage clocked comparison meets the TT timing, energy, input-capacitance
 and kickback limits, but still fails noise. Its exact source and results are
@@ -96,3 +96,10 @@ The difference between its noise fit and dt01 is small relative to the
 limited number of noise decisions; neither is close to 80 uV. Its total MOS
 widths are 40 um (input), 1.5 um (tail), 3 um (second-stage PMOS input),
 3/2 um (PMOS/NMOS regeneration), and 2 um (reset), all at 30 nm length.
+
+The my02_c2 checkpoint uses a 2 um tail, 3 um reset devices and two identical
+MOM units on each preamplifier output; other sizes remain as in my01. Its
+noise is 218.7 uV against the 80 uV limit, and its 30 mV delay is 54.68 ps
+against the 50 ps limit. The energy of 148.57 fJ is close to the 150 fJ limit.
+This is a preserved experiment, not an accepted candidate. Its final RNL
+placement changes leave the electrical netlist hash unchanged.

@@ -13,19 +13,21 @@ subckt adc_comp (INP INN CLKC OUTP OUTN AVDD VSS)
 // Based on M1-M15 of Miyahara et al., A-SSCC 2008, Fig. 2(b), DOI 10.1109/ASSCC.2008.4708780.
 MIP (P INP T1 VSS) nch_ulvt_mac w=1u l=30n nf=1 m=40
 MIN (N INN T1 VSS) nch_ulvt_mac w=1u l=30n nf=1 m=40
-MT1 (T1 CLKC VSS VSS) nch_ulvt_mac w=0.75u l=30n nf=1 m=2
-MRP (P CLKC AVDD AVDD) pch_ulvt_mac w=1u l=30n nf=1 m=2
-MRN (N CLKC AVDD AVDD) pch_ulvt_mac w=1u l=30n nf=1 m=2
+MT1 (T1 CLKC VSS VSS) nch_ulvt_mac w=1u l=30n nf=1 m=2
+MRP (P CLKC AVDD AVDD) pch_ulvt_mac w=1u l=30n nf=1 m=3
+MRN (N CLKC AVDD AVDD) pch_ulvt_mac w=1u l=30n nf=1 m=3
 M2P (UP P AVDD AVDD) pch_ulvt_mac w=1u l=30n nf=1 m=3
 M2N (UN N AVDD AVDD) pch_ulvt_mac w=1u l=30n nf=1 m=3
 MLPP (OUTP OUTN UP AVDD) pch_ulvt_mac w=1u l=30n nf=1 m=3
 MLPN (OUTN OUTP UN AVDD) pch_ulvt_mac w=1u l=30n nf=1 m=3
 MLNP (OUTP OUTN VSS VSS) nch_ulvt_mac w=1u l=30n nf=1 m=2
 MLNN (OUTN OUTP VSS VSS) nch_ulvt_mac w=1u l=30n nf=1 m=2
-MRUP (UP P VSS VSS) nch_ulvt_mac w=1u l=30n nf=1 m=2
-MRUN (UN N VSS VSS) nch_ulvt_mac w=1u l=30n nf=1 m=2
-MROP (OUTP P VSS VSS) nch_ulvt_mac w=1u l=30n nf=1 m=2
-MRON (OUTN N VSS VSS) nch_ulvt_mac w=1u l=30n nf=1 m=2
+MRUP (UP P VSS VSS) nch_ulvt_mac w=1u l=30n nf=1 m=3
+MRUN (UN N VSS VSS) nch_ulvt_mac w=1u l=30n nf=1 m=3
+MROP (OUTP P VSS VSS) nch_ulvt_mac w=1u l=30n nf=1 m=3
+MRON (OUTN N VSS VSS) nch_ulvt_mac w=1u l=30n nf=1 m=3
+CINTP (P VSS) cfmom_2t nr=24 lr=1u w=50n s=50n stm=1 spm=3 multi=2
+CINTN (N VSS) cfmom_2t nr=24 lr=1u w=50n s=50n stm=1 spm=3 multi=2
 // @RNL {
 //   &AVDD @ADD-TO $SUPPLY_NET_SET;
 //   &VSS @ADD-TO $GROUND_NET_SET;
@@ -51,7 +53,7 @@ MRON (OUTN N VSS VSS) nch_ulvt_mac w=1u l=30n nf=1 m=2
 //   %b_MIN = $GROUND @ATTACH &VSS => @PLACE(10, -4);
 //   &VSS @WIRE {#MIN:b (10, 0) %b_MIN:p};
 //   #MT1 @PLACE(0, -12) => @ORIENT("R0");
-//   #MT1 @TEXT("2 x 0.75u/30n", key="model", size=0.65, dx=4, dy=-1, halign="start");
+//   #MT1 @TEXT("2 x 1u/30n", key="model", size=0.65, dx=4, dy=-1, halign="start");
 //   %b_MT1 = $GROUND @ATTACH &VSS => @PLACE(2, -16);
 //   &VSS @WIRE {#MT1:b (2, -12) %b_MT1:p};
 //   %s_MT1 = $GROUND @ATTACH &VSS => @PLACE(0, -18);
@@ -59,7 +61,7 @@ MRON (OUTN N VSS VSS) nch_ulvt_mac w=1u l=30n nf=1 m=2
 //   %clk_MT1 = $IO_PORT @ATTACH &CLKC => @PLACE(-8, -12) => @ORIENT("R0");
 //   &CLKC @WIRE {%clk_MT1:p #MT1:g};
 //   #MRP @PLACE(-12, 12) => @ORIENT("R0");
-//   #MRP @TEXT("2 x 1u/30n", key="model", size=0.65, dx=4, dy=-1, halign="start");
+//   #MRP @TEXT("3 x 1u/30n", key="model", size=0.65, dx=4, dy=-1, halign="start");
 //   %b_MRP = $SUPPLY @ATTACH &AVDD => @PLACE(-10, 16);
 //   &AVDD @WIRE {#MRP:b (-10, 12) %b_MRP:p};
 //   %s_MRP = $SUPPLY @ATTACH &AVDD => @PLACE(-12, 18);
@@ -67,7 +69,7 @@ MRON (OUTN N VSS VSS) nch_ulvt_mac w=1u l=30n nf=1 m=2
 //   %clk_MRP = $IO_PORT @ATTACH &CLKC => @PLACE(-20, 12) => @ORIENT("R0");
 //   &CLKC @WIRE {%clk_MRP:p #MRP:g};
 //   #MRN @PLACE(12, 12) => @ORIENT("MY");
-//   #MRN @TEXT("2 x 1u/30n", key="model", size=0.65, dx=-4, dy=-1, halign="end");
+//   #MRN @TEXT("3 x 1u/30n", key="model", size=0.65, dx=-4, dy=-1, halign="end");
 //   %b_MRN = $SUPPLY @ATTACH &AVDD => @PLACE(10, 16);
 //   &AVDD @WIRE {#MRN:b (10, 12) %b_MRN:p};
 //   %s_MRN = $SUPPLY @ATTACH &AVDD => @PLACE(12, 18);
@@ -106,24 +108,24 @@ MRON (OUTN N VSS VSS) nch_ulvt_mac w=1u l=30n nf=1 m=2
 //   &VSS @WIRE {#MLNN:b (84, -4) %b_MLNN:p};
 //   %s_MLNN = $GROUND @ATTACH &VSS => @PLACE(86, -10);
 //   &VSS @WIRE {#MLNN:s %s_MLNN:p};
-//   #MRUP @PLACE(38, 10) => @ORIENT("R0");
-//   #MRUP @TEXT("2 x 1u/30n", key="model", size=0.65, dx=4, dy=-1, halign="start");
-//   %b_MRUP = $GROUND @ATTACH &VSS => @PLACE(40, 6);
-//   &VSS @WIRE {#MRUP:b (40, 10) %b_MRUP:p};
-//   %s_MRUP = $GROUND @ATTACH &VSS => @PLACE(38, 4);
+//   #MRUP @PLACE(38, 16) => @ORIENT("R0");
+//   #MRUP @TEXT("3 x 1u/30n", key="model", size=0.65, dx=4, dy=-1, halign="start");
+//   %b_MRUP = $GROUND @ATTACH &VSS => @PLACE(40, 12);
+//   &VSS @WIRE {#MRUP:b (40, 16) %b_MRUP:p};
+//   %s_MRUP = $GROUND @ATTACH &VSS => @PLACE(38, 10);
 //   &VSS @WIRE {#MRUP:s %s_MRUP:p};
-//   %clk_MRUP = $IO_PORT @ATTACH &P => @PLACE(30, 10) => @ORIENT("R0");
+//   %clk_MRUP = $IO_PORT @ATTACH &P => @PLACE(30, 16) => @ORIENT("R0");
 //   &P @WIRE {%clk_MRUP:p #MRUP:g};
-//   #MRUN @PLACE(102, 10) => @ORIENT("MY");
-//   #MRUN @TEXT("2 x 1u/30n", key="model", size=0.65, dx=-4, dy=-1, halign="end");
-//   %b_MRUN = $GROUND @ATTACH &VSS => @PLACE(100, 6);
-//   &VSS @WIRE {#MRUN:b (100, 10) %b_MRUN:p};
-//   %s_MRUN = $GROUND @ATTACH &VSS => @PLACE(102, 4);
+//   #MRUN @PLACE(102, 16) => @ORIENT("MY");
+//   #MRUN @TEXT("3 x 1u/30n", key="model", size=0.65, dx=-4, dy=-1, halign="end");
+//   %b_MRUN = $GROUND @ATTACH &VSS => @PLACE(100, 12);
+//   &VSS @WIRE {#MRUN:b (100, 16) %b_MRUN:p};
+//   %s_MRUN = $GROUND @ATTACH &VSS => @PLACE(102, 10);
 //   &VSS @WIRE {#MRUN:s %s_MRUN:p};
-//   %clk_MRUN = $IO_PORT @ATTACH &N => @PLACE(110, 10) => @ORIENT("MY");
+//   %clk_MRUN = $IO_PORT @ATTACH &N => @PLACE(110, 16) => @ORIENT("MY");
 //   &N @WIRE {%clk_MRUN:p #MRUN:g};
 //   #MROP @PLACE(38, -4) => @ORIENT("R0");
-//   #MROP @TEXT("2 x 1u/30n", key="model", size=0.65, dx=4, dy=-1, halign="start");
+//   #MROP @TEXT("3 x 1u/30n", key="model", size=0.65, dx=4, dy=-1, halign="start");
 //   %b_MROP = $GROUND @ATTACH &VSS => @PLACE(40, -8);
 //   &VSS @WIRE {#MROP:b (40, -4) %b_MROP:p};
 //   %s_MROP = $GROUND @ATTACH &VSS => @PLACE(38, -10);
@@ -131,7 +133,7 @@ MRON (OUTN N VSS VSS) nch_ulvt_mac w=1u l=30n nf=1 m=2
 //   %clk_MROP = $IO_PORT @ATTACH &P => @PLACE(30, -4) => @ORIENT("R0");
 //   &P @WIRE {%clk_MROP:p #MROP:g};
 //   #MRON @PLACE(102, -4) => @ORIENT("MY");
-//   #MRON @TEXT("2 x 1u/30n", key="model", size=0.65, dx=-4, dy=-1, halign="end");
+//   #MRON @TEXT("3 x 1u/30n", key="model", size=0.65, dx=-4, dy=-1, halign="end");
 //   %b_MRON = $GROUND @ATTACH &VSS => @PLACE(100, -8);
 //   &VSS @WIRE {#MRON:b (100, -4) %b_MRON:p};
 //   %s_MRON = $GROUND @ATTACH &VSS => @PLACE(102, -10);
@@ -151,11 +153,22 @@ MRON (OUTN N VSS VSS) nch_ulvt_mac w=1u l=30n nf=1 m=2
 //   &P @WIRE {#MIP:d %pa_P #MRP:d};
 //   %pa_port_P = $IO_PORT @ATTACH &P => @PLACE(-4, 6) => @ORIENT("MY");
 //   &P @WIRE {%pa_P %pa_port_P:p};
+//   #CINTP @PLACE(-29, 2) => @ORIENT("R0");
+//   #CINTP @TEXT("2 MOM units", key="value", size=0.65);
+//   &P @WIRE {%pa_P (-29, 6) #CINTP:p};
+//   %cg_P = $GROUND @ATTACH &VSS => @PLACE(-29, -4);
+//   &VSS @WIRE {#CINTP:n %cg_P:p};
 //   %pa_N = (12, 6);
 //   $JUNCTION @ATTACH %pa_N;
 //   &N @WIRE {#MIN:d %pa_N #MRN:d};
 //   %pa_port_N = $IO_PORT @ATTACH &N => @PLACE(4, 6) => @ORIENT("R0");
 //   &N @WIRE {%pa_N %pa_port_N:p};
+//   #CINTN @PLACE(29, 2) => @ORIENT("R0");
+//   #CINTN @TEXT("2 MOM units", key="value", size=0.65);
+//   &N @WIRE {%pa_N (29, 6) #CINTN:p};
+//   %cg_N = $GROUND @ATTACH &VSS => @PLACE(29, -4);
+//   &VSS @WIRE {#CINTN:n %cg_N:p};
+//   {#CINTP #CINTN} @AS $MATCHED;
 //   %s2p = $IO_PORT @ATTACH &P => @PLACE(44, 24) => @ORIENT("R0");
 //   &P @WIRE {%s2p:p #M2P:g};
 //   %s2n = $IO_PORT @ATTACH &N => @PLACE(96, 24) => @ORIENT("MY");
@@ -184,14 +197,14 @@ MRON (OUTN N VSS VSS) nch_ulvt_mac w=1u l=30n nf=1 m=2
 //   &OUTP @WIRE {#MLPN:g (92, 10) %feedback_p (92, -4) #MLNN:g};
 //   &OUTN @WIRE {%on (74, 3) (74, 1) %feedback_n};
 //   &OUTN @WIRE {#MLPP:g (48, 10) %feedback_n (48, -4) #MLNP:g};
-//   %outp = $IO_PORT @ATTACH &OUTP => @PLACE(60, 3) => @ORIENT("MY");
-//   &OUTP @WIRE {%op %outp:p};
-//   %outn = $IO_PORT @ATTACH &OUTN => @PLACE(80, 3) => @ORIENT("R0");
-//   &OUTN @WIRE {%on %outn:p};
+//   %outp = $IO_PORT @ATTACH &OUTP => @PLACE(60, 8) => @ORIENT("MY");
+//   &OUTP @WIRE {%op (60, 3) %outp:p};
+//   %outn = $IO_PORT @ATTACH &OUTN => @PLACE(80, 8) => @ORIENT("R0");
+//   &OUTN @WIRE {%on (80, 3) %outn:p};
 //   (-30, 48) @TEXT("adc_comp | Miyahara self-timed two-stage core", size=1.3, bold=true, halign="start");
 //   (-24, 24) @TEXT("1. Dynamic preamplifier", size=1, bold=true, halign="start");
 //   (38, 36) @TEXT("2. Self-timed regenerative stage", size=1, bold=true, halign="start");
-//   (36, 32) @TEXT("P/N control PMOS inputs and NMOS reset devices", size=0.75, halign="start");
+//   (36, 34) @TEXT("P/N control PMOS inputs and NMOS reset devices", size=0.75, halign="start");
 //   (-30, -24) @TEXT("Reset: P=N=AVDD; UP=UN=OUTP=OUTN=0. No second clock or explicit second-stage tail.", size=0.85, halign="start");
 //   (-30, -27) @TEXT("Evaluate: INP>INN -> P falls faster -> M2P sources current first -> OUTP rises.", size=0.85, halign="start");
 //   (-30, -30) @TEXT("Core of Miyahara et al., A-SSCC 2008, Fig. 2(b). Offset calibration is not included; pre-layout WIP.", size=0.85, halign="start");
