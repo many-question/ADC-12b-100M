@@ -7,7 +7,7 @@ return-to-zero output inverters. The embedded RNL records show every device,
 wire and body connection and identify the differential pair, matched devices,
 regenerative group and reset group.
 
-Current checkpoint `my02_c2` implements the self-timed core (M1-M15) of
+Current checkpoint `my03_cb` implements the self-timed core (M1-M15) of
 Miyahara et al., "A Low-Noise Self-Calibrating Dynamic Comparator for
 High-Speed ADCs," A-SSCC 2008, Fig. 2(b), DOI 10.1109/ASSCC.2008.4708780.
 The paper's offset-compensation devices and charge pump are omitted. P/N
@@ -31,8 +31,12 @@ its results; the results must not be copied onto another netlist version.
 
 All MOS lengths are 30 nm. Each logical device uses parallel single-finger
 instances, represented by the netlist multiplier, with unit width at most
-1 um. This is an exploratory pre-layout model, without solved layout-effect
-parameters. The full local device-callback runtime has not yet been validated.
+1 um. Earlier checkpoints used the model's default geometry-dependent values.
+Starting with `my03_cb`, each unit's source/drain areas and perimeters, series
+resistance squares and stress distances are explicitly solved by the matching
+device callbacks. Parallel multiplicity is a separate Spectre instance
+parameter; it is not inferred from the callback's `multi` field. This remains
+an exploratory pre-layout model, not an extracted layout.
 
 The sa01 delay, reset, decision-error, energy, input-capacitance and kickback
 metrics pass at TT. Its input noise fails the 80 uV requirement by a large
@@ -86,6 +90,7 @@ and two-stage experiments remain below the required noise performance.
 | dt01 | 251.9 uV | 56.25 / 44.27 ps | 14.70 ps | 115.32 fJ | 14.25 fF | 0.037 uV |
 | my01 | 262.1 uV | 59.34 / 48.31 ps | 31.06 ps | 115.16 fJ | 14.25 fF | 0.007 uV |
 | my02_c2 | 218.7 uV | 66.60 / 54.68 ps | 25.30 ps | 148.57 fJ | 14.22 fF | 0.019 uV |
+| my03_cb | 177.4 uV | 72.86 / 59.66 ps | 27.93 ps | 147.52 fJ | 14.27 fF | 0.008 uV |
 
 The two-stage clocked comparison meets the TT timing, energy, input-capacitance
 and kickback limits, but still fails noise. Its exact source and results are
@@ -103,3 +108,11 @@ noise is 218.7 uV against the 80 uV limit, and its 30 mV delay is 54.68 ps
 against the 50 ps limit. The energy of 148.57 fJ is close to the 150 fJ limit.
 This is a preserved experiment, not an accepted candidate. Its final RNL
 placement changes leave the electrical netlist hash unchanged.
+
+The my03_cb checkpoint preserves my02_c2 topology and sizes and adds solved
+unit-device geometry. The local callback self-test and all 903 reference
+cases across 324 device types passed, with 129,697 parameter comparisons.
+Each instantiated unit was solved successfully without warnings. Its TT
+noise fit improves but still fails the 80 uV limit; 30 mV delay also fails.
+Earlier checkpoints remain useful as default-model comparisons, not as
+equivalent layouts. Noise differences use only one seed at this stage.
