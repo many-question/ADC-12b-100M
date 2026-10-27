@@ -54,8 +54,10 @@ tests:
     desc: >
       Transient noise on (behavioral: internal Gaussian). vd swept over
       -800..+800 uV in 17 levels (100 uV steps, about +/-3.3 sigma at the
-      all-corner limit), 128 decisions per level. P(OUTP) vs vd is fitted with
-      a Gaussian CDF: sigma = noise, mean = offset.
+      all-corner limit), 512 decisions per level. The OUTP counts are fitted
+      by binomial maximum likelihood with a probit (Gaussian CDF) model:
+      sigma = noise, mean = offset; noise_ci95_uV is the 95 % profile-likelihood
+      interval of sigma. The 1-sigma error of sigma is <= 2.7 % for 120..300 uV.
   tb_comp_kickback:
     netlist: tb/comp/tb_comp_kickback.scs
     measure: adcflow.measure.comp:kickback

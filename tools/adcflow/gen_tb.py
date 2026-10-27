@@ -206,8 +206,14 @@ def _sup(net: str, val: str, meter: bool, label: str | None = None, t0="tstart",
                f'tstart={t0} tstop={t1} label="{label or net}" fname="power.txt"', "top")]
 
 
+def _tfmt(t: float) -> str:
+    """5 significant digits, or as many as needed to keep the time exact to 0.01 ps (long PWL sequences)."""
+    s = f"{t:.4e}"
+    return s if abs(float(s) - t) < 1e-14 else f"{t:.8e}"
+
+
 def _pwl(points: list[tuple[float, float]]) -> str:
-    return "wave=[" + " ".join(f"{t:.4e} {v:.6g}" for t, v in points) + "]"
+    return "wave=[" + " ".join(f"{_tfmt(t)} {v:.6g}" for t, v in points) + "]"
 
 
 def _steps(values: list[float], period: float, edge: float = 10e-12, t0: float = 0.0) -> str:

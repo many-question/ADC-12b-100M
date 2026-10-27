@@ -204,7 +204,7 @@ Single fully-dynamic comparator of the asynchronous SAR loop. CLKC low resets (O
 ### 验收用例
 
 - **`tb_comp_delay`** (`tb/comp/tb_comp_delay.scs`, 度量 `adcflow.measure.comp:delay`)：Ideal differential steps around VCM = 0.49 V: vd = +/-{100m, 30m, 10m, 3m, 1m, 300u, 100u, 30u, 10u} V, one decision per 400 ps CLKC period, 10 fF loads. Transient noise off. Extracts delay vs |vd|, tau_reg (fit of delay vs ln|vd|), reset time, decision errors and supply energy per cycle.
-- **`tb_comp_noise`** (`tb/comp/tb_comp_noise.scs`, 度量 `adcflow.measure.comp:noise`; 瞬态噪声)：Transient noise on (behavioral: internal Gaussian). vd swept over -800..+800 uV in 17 levels (100 uV steps, about +/-3.3 sigma at the all-corner limit), 128 decisions per level. P(OUTP) vs vd is fitted with a Gaussian CDF: sigma = noise, mean = offset.
+- **`tb_comp_noise`** (`tb/comp/tb_comp_noise.scs`, 度量 `adcflow.measure.comp:noise`; 瞬态噪声)：Transient noise on (behavioral: internal Gaussian). vd swept over -800..+800 uV in 17 levels (100 uV steps, about +/-3.3 sigma at the all-corner limit), 512 decisions per level. The OUTP counts are fitted by binomial maximum likelihood with a probit (Gaussian CDF) model: sigma = noise, mean = offset; noise_ci95_uV is the 95 % profile-likelihood interval of sigma. The 1-sigma error of sigma is <= 2.7 % for 120..300 uV.
 - **`tb_comp_kickback`** (`tb/comp/tb_comp_kickback.scs`, 度量 `adcflow.measure.comp:kickback`)：Inputs floating on 2.5 pF capacitors (the CDAC top plates, C_tot), preset to VCM +/- 0.5 mV. Measures the change of the differential input after one evaluate + reset cycle, and the input capacitance from a small CM step.
 
 ## adc_ref

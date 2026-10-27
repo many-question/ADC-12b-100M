@@ -15,7 +15,7 @@ TCYC = 400e-12
 DELAY_LEVELS = [100e-3, -100e-3, 30e-3, -30e-3, 10e-3, -10e-3, 3e-3, -3e-3, 1e-3, -1e-3,
                 300e-6, -300e-6, 100e-6, -100e-6, 30e-6, -30e-6, 10e-6, -10e-6]
 NOISE_LEVELS = [round(-800e-6 + 100e-6 * i, 9) for i in range(17)]   # +/-3.3 sigma at the 240 uV limit
-NOISE_REPEAT = 128
+NOISE_REPEAT = 512                    # 1-sigma error of sigma <= 2.7 % for 120..300 uV (binomial ML)
 
 
 def delay(job_dir: Path, ctx: dict) -> dict:
@@ -73,29 +73,70 @@ def delay(job_dir: Path, ctx: dict) -> dict:
     return m
 
 
-def noise(job_dir: Path, ctx: dict) -> dict:
-    from scipy.optimize import curve_fit
-    from scipy.stats import norm
+def probit_fit(vd, k, n) -> dict:
+    """Binomial maximum-likelihood probit fit of P(OUTP = 1) = Phi((vd - mu) / sigma).
 
+    ``k`` of ``n`` decisions were OUTP = 1 at each level ``vd`` (V). Returns mu, sigma
+    (V) and the 95 % profile-likelihood interval of sigma (mu re-optimised at every
+    sigma; 2 * delta log L = 3.84), or {"error": ...}.
+    """
+    from scipy.optimize import brentq, minimize, minimize_scalar
+    from scipy.stats import chi2, norm
+
+    vd, k, n = (np.asarray(x, dtype=float) for x in (vd, k, n))
+
+    def nll(mu, sig):
+        z = (vd - mu) / sig
+        return -float(np.sum(k * norm.logcdf(z) + (n - k) * norm.logcdf(-z)))
+
+    # start from the empirical CDF: the 16 / 50 / 84 % crossings
+    p = np.maximum.accumulate(k / np.maximum(n, 1))
+    q16, q50, q84 = (float(np.interp(x, p + np.arange(p.size) * 1e-9, vd)) for x in (0.16, 0.5, 0.84))
+    sig0 = max((q84 - q16) / 2, float(np.min(np.diff(vd))) / 4)
+    x0 = [q50 * 1e6, np.log(sig0)]
+    for _ in range(3):        # restart from the last point: Nelder-Mead may stop early on the flat log-sigma axis
+        r = minimize(lambda x: nll(x[0] * 1e-6, np.exp(x[1])), x0, method="Nelder-Mead",
+                     options={"xatol": 1e-7, "fatol": 1e-10, "maxiter": 4000})
+        if r.success and np.allclose(r.x, x0, rtol=0, atol=1e-6):
+            break
+        x0 = r.x
+    if not (r.success and np.isfinite(r.fun)):
+        return {"error": f"probit fit did not converge: {r.message}"}
+    mu, sig = r.x[0] * 1e-6, float(np.exp(r.x[1]))
+    l0, span = r.fun, float(np.ptp(vd))
+
+    def excess(s_):       # 2 * (profile negative log-likelihood - minimum) - chi2(1) 95 % point
+        q = minimize_scalar(lambda m_: nll(m_, s_), bounds=(mu - span, mu + span), method="bounded",
+                            options={"xatol": 1e-10})
+        return 2 * (min(q.fun, nll(mu, s_)) - l0) - chi2.ppf(0.95, 1)
+
+    lo = brentq(excess, sig * 0.3, sig, xtol=1e-11) if excess(sig * 0.3) > 0 else float("nan")
+    hi = brentq(excess, sig, sig * 3.0, xtol=1e-11) if excess(sig * 3.0) > 0 else float("nan")
+    return {"mu": mu, "sigma": sig, "ci95": (lo, hi)}
+
+
+def noise(job_dir: Path, ctx: dict) -> dict:
     s = read_samples(Path(job_dir) / "decisions.txt")
     t, v = s[:, 1], s[:, 2]
     level = np.floor((t - 100e-12) / (TCYC * NOISE_REPEAT)).astype(int)
     vd = np.asarray(NOISE_LEVELS)
-    p1 = np.array([np.mean(v[level == i] > 0) if np.any(level == i) else np.nan for i in range(len(vd))])
-    ok = ~np.isnan(p1)
-    m = {"p1": [round(float(x), 4) for x in p1]}
-    try:
-        (mu, sig), _ = curve_fit(lambda x, mu, sig: norm.cdf((x - mu) / sig), vd[ok], p1[ok],
-                                 p0=[0.0, 150e-6], bounds=([-1e-3, 1e-7], [1e-3, 1e-2]))
-        m["noise_uV"] = float(sig * 1e6)
-        m["offset_abs_mV"] = float(abs(mu) * 1e3)
-        m["offset_mV"] = float(mu * 1e3)
-    except RuntimeError as e:
-        m["error"] = f"CDF fit failed: {e}"
+    n = np.array([np.sum(level == i) for i in range(len(vd))])
+    k = np.array([np.sum(v[level == i] > 0) for i in range(len(vd))])
+    ok = n > 0
+    m = {"p1": [round(float(k_ / n_), 4) if n_ else None for k_, n_ in zip(k, n)],
+         "n_per_level": int(n.max()) if n.size else 0}
+    f = probit_fit(vd[ok], k[ok], n[ok])
+    if "error" in f:
+        m["error"] = f["error"]
         return m
+    mu, sig = f["mu"], f["sigma"]
+    m["noise_uV"] = float(sig * 1e6)
+    m["noise_ci95_uV"] = [round(float(x) * 1e6, 2) for x in f["ci95"]]
+    m["offset_abs_mV"] = float(abs(mu) * 1e3)
+    m["offset_mV"] = float(mu * 1e3)
     fg = sink_of(ctx)
     if fg:
-        _fig_noise(fg, ctx, vd[ok], p1[ok], mu, sig, int(np.sum(level == 0)))
+        _fig_noise(fg, ctx, vd[ok], k[ok] / n[ok], mu, sig, int(n.max()), f["ci95"])
     return m
 
 
@@ -173,7 +214,7 @@ def _fig_delay(fg, ctx, w, vdd, vds, t_rise, t_fall, pts, m) -> None:
             "decision with its delay marked, and the reset to 10 % VDD.")
 
 
-def _fig_noise(fg, ctx, vd, p1, mu, sig, n) -> None:
+def _fig_noise(fg, ctx, vd, p1, mu, sig, n, ci) -> None:
     from scipy.stats import norm
 
     fig, axs = fg.new(1, 2, size=(11.2, 3.9))
@@ -183,20 +224,25 @@ def _fig_noise(fg, ctx, vd, p1, mu, sig, n) -> None:
     if hi is not None:
         ax.plot(xx * 1e6, norm.cdf((xx - mu) / (hi * 1e-6)), color=LIMIT, lw=1.1, ls="--",
                 label=f"curve at the limit, sigma = {hi:g} uV")
-    ax.plot(xx * 1e6, norm.cdf((xx - mu) / sig), color=MUTED, lw=1.4, label="Gaussian CDF fit")
+    if np.all(np.isfinite(ci)):
+        ax.fill_between(xx * 1e6, norm.cdf((xx - mu) / ci[0]), norm.cdf((xx - mu) / ci[1]), color=GRIDLINE,
+                        alpha=0.8, lw=0, label="95 % interval of sigma")
+    ax.plot(xx * 1e6, norm.cdf((xx - mu) / sig), color=MUTED, lw=1.4, label="probit fit (binomial ML)")
     ax.plot(vd * 1e6, p1, "o", ms=6, color=C1, label=f"{n} decisions per level")
     ax.set(xlabel="differential input vd (uV)", ylabel="P(OUTP = 1)", ylim=(-0.03, 1.03),
            title="Decision probability and Gaussian fit")
     ax.legend(loc="upper left")
-    note(ax, f"sigma {sig * 1e6:.1f} uV\noffset {mu * 1e6:.1f} uV", loc="lower right")
+    note(ax, f"sigma {sig * 1e6:.1f} uV (95 %: {ci[0] * 1e6:.1f} .. {ci[1] * 1e6:.1f})"
+             + (f", limit {hi:g}" if hi is not None else "") + f"\noffset {mu * 1e6:.1f} uV", loc="lower right")
     ax = axs[0, 1]
     ax.plot(vd * 1e6, p1 - norm.cdf((vd - mu) / sig), "o-", ms=5, color=C1)
     binom = np.sqrt(0.25 / max(n, 1))
     ax.axhspan(-binom, binom, color=GRIDLINE, alpha=0.7, label=f"+/-1 binomial sigma at P = 0.5 (n = {n})")
     ax.set(xlabel="differential input vd (uV)", ylabel="P(measured) - P(fit)", title="Fit residual")
     ax.legend(loc="upper right")
-    fg.save(fig, "noise", "Probability of OUTP = 1 against input difference with the Gaussian fit that gives "
-            "the input-referred noise and offset, and the curve at the noise limit.")
+    fg.save(fig, "noise", "Probability of OUTP = 1 against input difference with the binomial maximum-likelihood "
+            "probit fit that gives the input-referred noise and offset, the 95 % interval of the noise and the "
+            "curve at the noise limit; fit residuals against the binomial scatter.")
 
 
 def _fig_kickback(fg, ctx, m) -> None:

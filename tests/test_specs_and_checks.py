@@ -148,3 +148,26 @@ def test_git_state_meta(monkeypatch):
     R.stdout = " M results/a.json\n" + "".join(f"?? f{i}.txt\n" for i in range(25))
     st = runner.git_state()
     assert st["git_clean"] is False and len(st["git_dirty_paths"]) == 20 and st["git_dirty_paths"][0] == "f0.txt"
+
+
+def test_probit_fit_recovers_sigma_with_interval():
+    import numpy as np
+    from scipy.stats import norm
+
+    from adcflow.measure.comp import NOISE_LEVELS, probit_fit
+
+    vd = np.asarray(NOISE_LEVELS)
+    n = np.full(vd.size, 512)
+    rng = np.random.default_rng(5)
+    hits = 0
+    for _ in range(20):
+        k = rng.binomial(n, norm.cdf((vd - 30e-6) / 200e-6))
+        f = probit_fit(vd, k, n)
+        lo, hi = f["ci95"]
+        assert lo < f["sigma"] < hi and abs(f["sigma"] / 200e-6 - 1) < 0.12 and abs(f["mu"] - 30e-6) < 30e-6
+        hits += lo <= 200e-6 <= hi
+    assert hits >= 16                       # ~95 % coverage
+    # exact expected counts: the fit returns the true parameters
+    k = np.round(n * norm.cdf((vd + 50e-6) / 150e-6))
+    f = probit_fit(vd, k, n)
+    assert f["sigma"] == pytest.approx(150e-6, rel=0.01) and f["mu"] == pytest.approx(-50e-6, abs=2e-6)
