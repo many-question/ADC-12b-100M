@@ -14,29 +14,29 @@
   "vref_in": 0.9
  },
  "metrics": {
-  "kickback_uV": 0.10786048069998978,
+  "kickback_uV": 0.08831125420001584,
   "vdiff_uV": [
-   1000.002,
-   999.513,
-   999.405,
-   999.298,
-   999.19,
-   999.082,
-   998.974,
-   998.866
+   1000.004,
+   999.029,
+   998.94,
+   998.852,
+   998.764,
+   998.675,
+   998.587,
+   998.499
   ],
-  "cin_fF": 28.561786932328452
+  "cin_fF": 57.1234147097138
  },
  "specs": {
   "CMP-11": {
    "metric": "kickback_uV",
-   "value": 0.10786048069998978,
+   "value": 0.08831125420001584,
    "limit": "<= 40",
    "pass": true
   },
   "CMP-12": {
    "metric": "cin_fF",
-   "value": 28.561786932328452,
+   "value": 57.1234147097138,
    "limit": "<= 15",
    "pass": false
   }
@@ -54,13 +54,13 @@
   "mc": null,
   "rc": "0",
   "sim_s": "10",
-  "experiment": "mc14",
+  "experiment": "mc15",
   "recorded_from_preserved_outputs": true,
   "files": {
    "design/behav/adc_bootstrap.scs": "066523e6d36e1090",
    "design/behav/adc_cdac.scs": "de8f65e2569cb9bf",
    "design/behav/adc_clkgen.scs": "dafb1c3438e33c9e",
-   "design/xtor/adc_comp/adc_comp.scs": "3395e077cd2e4613",
+   "design/xtor/adc_comp/adc_comp.scs": "f998a3d325a4844b",
    "design/behav/adc_ref.scs": "ad0159030e3a4f37",
    "design/behav/adc_sarlogic.scs": "356e911752c1b85e",
    "design/top/adc_top.scs": "362a964ffe162797",
