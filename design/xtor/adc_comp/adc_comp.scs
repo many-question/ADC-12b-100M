@@ -12,17 +12,17 @@ subckt adc_comp (INP INN CLKC OUTP OUTN AVDD VSS)
 // Each symbol represents parallel single-finger devices; unit W <= 1 um.
 // Integer multiplicity sets total width; no estimated layout-effect parameters.
 // Pre-layout exploratory sizing; device callbacks and mismatch remain to be validated.
-MIP (P INP TAIL VSS) nch_ulvt_mac w=1u l=30n nf=1 m=8
-MIN (N INN TAIL VSS) nch_ulvt_mac w=1u l=30n nf=1 m=8
-MTAIL (TAIL CLKC VSS VSS) nch_ulvt_mac w=1u l=30n nf=1 m=12
-MLNP (X Y P VSS) nch_ulvt_mac w=1u l=30n nf=1 m=3
-MLNN (Y X N VSS) nch_ulvt_mac w=1u l=30n nf=1 m=3
-MLPP (X Y AVDD AVDD) pch_ulvt_mac w=1u l=30n nf=1 m=3
-MLPN (Y X AVDD AVDD) pch_ulvt_mac w=1u l=30n nf=1 m=3
-MRP (P CLKC AVDD AVDD) pch_ulvt_mac w=0.75u l=30n nf=1 m=2
-MRN (N CLKC AVDD AVDD) pch_ulvt_mac w=0.75u l=30n nf=1 m=2
-MRX (X CLKC AVDD AVDD) pch_ulvt_mac w=0.75u l=30n nf=1 m=2
-MRY (Y CLKC AVDD AVDD) pch_ulvt_mac w=0.75u l=30n nf=1 m=2
+MIP (P INP TAIL VSS) nch_ulvt_mac w=1u l=30n nf=1 m=40
+MIN (N INN TAIL VSS) nch_ulvt_mac w=1u l=30n nf=1 m=40
+MTAIL (TAIL CLKC VSS VSS) nch_ulvt_mac w=1u l=30n nf=1 m=1
+MLNP (X Y P VSS) nch_ulvt_mac w=1u l=30n nf=1 m=6
+MLNN (Y X N VSS) nch_ulvt_mac w=1u l=30n nf=1 m=6
+MLPP (X Y AVDD AVDD) pch_ulvt_mac w=1u l=30n nf=1 m=6
+MLPN (Y X AVDD AVDD) pch_ulvt_mac w=1u l=30n nf=1 m=6
+MRP (P CLKC AVDD AVDD) pch_ulvt_mac w=1u l=30n nf=1 m=3
+MRN (N CLKC AVDD AVDD) pch_ulvt_mac w=1u l=30n nf=1 m=3
+MRX (X CLKC AVDD AVDD) pch_ulvt_mac w=1u l=30n nf=1 m=3
+MRY (Y CLKC AVDD AVDD) pch_ulvt_mac w=1u l=30n nf=1 m=3
 MOPN (OUTP X VSS VSS) nch_ulvt_mac w=0.75u l=30n nf=1 m=2
 MOPP (OUTP X AVDD AVDD) pch_ulvt_mac w=1u l=30n nf=1 m=3
 MONN (OUTN Y VSS VSS) nch_ulvt_mac w=0.75u l=30n nf=1 m=2
@@ -46,57 +46,57 @@ MONP (OUTN Y AVDD AVDD) pch_ulvt_mac w=1u l=30n nf=1 m=3
 //   #MTAIL:d @CURRENT("in");
 //   #MTAIL:s @CURRENT("out");
 //   #MIP @PLACE(-12, 0) => @ORIENT("R0");
-//   #MIP @TEXT("8 x 1u/30n", key="model", size=0.65, dx=4, dy=-1.1, halign="start");
+//   #MIP @TEXT("40 x 1u/30n", key="model", size=0.65, dx=4, dy=-1.1, halign="start");
 //   %b_MIP = $GROUND @ATTACH &VSS => @PLACE(-10, -3.6);
 //   &VSS @WIRE {#MIP:b (-10, 0) %b_MIP:p};
 //   #MIN @PLACE(12, 0) => @ORIENT("MY");
-//   #MIN @TEXT("8 x 1u/30n", key="model", size=0.65, dx=-4, dy=-1.1, halign="end");
+//   #MIN @TEXT("40 x 1u/30n", key="model", size=0.65, dx=-4, dy=-1.1, halign="end");
 //   %b_MIN = $GROUND @ATTACH &VSS => @PLACE(10, -3.6);
 //   &VSS @WIRE {#MIN:b (10, 0) %b_MIN:p};
 //   #MTAIL @PLACE(0, -12) => @ORIENT("R0");
-//   #MTAIL @TEXT("12 x 1u/30n", key="model", size=0.65, dx=4, dy=-1.1, halign="start");
+//   #MTAIL @TEXT("1 x 1u/30n", key="model", size=0.65, dx=4, dy=-1.1, halign="start");
 //   %b_MTAIL = $GROUND @ATTACH &VSS => @PLACE(2, -15.6);
 //   &VSS @WIRE {#MTAIL:b (2, -12) %b_MTAIL:p};
 //   #MLNP @PLACE(-12, 12) => @ORIENT("R0");
-//   #MLNP @TEXT("3 x 1u/30n", key="model", size=0.65, dx=4, dy=-1.1, halign="start");
+//   #MLNP @TEXT("6 x 1u/30n", key="model", size=0.65, dx=4, dy=-1.1, halign="start");
 //   %b_MLNP = $GROUND @ATTACH &VSS => @PLACE(-10, 8.4);
 //   &VSS @WIRE {#MLNP:b (-10, 12) %b_MLNP:p};
 //   #MLNN @PLACE(12, 12) => @ORIENT("MY");
-//   #MLNN @TEXT("3 x 1u/30n", key="model", size=0.65, dx=-4, dy=-1.1, halign="end");
+//   #MLNN @TEXT("6 x 1u/30n", key="model", size=0.65, dx=-4, dy=-1.1, halign="end");
 //   %b_MLNN = $GROUND @ATTACH &VSS => @PLACE(10, 8.4);
 //   &VSS @WIRE {#MLNN:b (10, 12) %b_MLNN:p};
 //   #MLPP @PLACE(-12, 24) => @ORIENT("R0");
-//   #MLPP @TEXT("3 x 1u/30n", key="model", size=0.65, dx=4, dy=-1.1, halign="start");
+//   #MLPP @TEXT("6 x 1u/30n", key="model", size=0.65, dx=4, dy=-1.1, halign="start");
 //   %b_MLPP = $SUPPLY @ATTACH &AVDD => @PLACE(-10, 27.6);
 //   &AVDD @WIRE {#MLPP:b (-10, 24) %b_MLPP:p};
 //   %s_MLPP = $SUPPLY @ATTACH &AVDD => @PLACE(-12, 29.4);
 //   &AVDD @WIRE {#MLPP:s %s_MLPP:p};
 //   #MLPN @PLACE(12, 24) => @ORIENT("MY");
-//   #MLPN @TEXT("3 x 1u/30n", key="model", size=0.65, dx=-4, dy=-1.1, halign="end");
+//   #MLPN @TEXT("6 x 1u/30n", key="model", size=0.65, dx=-4, dy=-1.1, halign="end");
 //   %b_MLPN = $SUPPLY @ATTACH &AVDD => @PLACE(10, 27.6);
 //   &AVDD @WIRE {#MLPN:b (10, 24) %b_MLPN:p};
 //   %s_MLPN = $SUPPLY @ATTACH &AVDD => @PLACE(12, 29.4);
 //   &AVDD @WIRE {#MLPN:s %s_MLPN:p};
 //   #MRP @PLACE(-28, 8) => @ORIENT("R0");
-//   #MRP @TEXT("2 x 0.75u/30n", key="model", size=0.65, dx=4, dy=-1.1, halign="start");
+//   #MRP @TEXT("3 x 1u/30n", key="model", size=0.65, dx=4, dy=-1.1, halign="start");
 //   %b_MRP = $SUPPLY @ATTACH &AVDD => @PLACE(-26, 11.6);
 //   &AVDD @WIRE {#MRP:b (-26, 8) %b_MRP:p};
 //   %s_MRP = $SUPPLY @ATTACH &AVDD => @PLACE(-28, 13.4);
 //   &AVDD @WIRE {#MRP:s %s_MRP:p};
 //   #MRN @PLACE(28, 8) => @ORIENT("MY");
-//   #MRN @TEXT("2 x 0.75u/30n", key="model", size=0.65, dx=-4, dy=-1.1, halign="end");
+//   #MRN @TEXT("3 x 1u/30n", key="model", size=0.65, dx=-4, dy=-1.1, halign="end");
 //   %b_MRN = $SUPPLY @ATTACH &AVDD => @PLACE(26, 11.6);
 //   &AVDD @WIRE {#MRN:b (26, 8) %b_MRN:p};
 //   %s_MRN = $SUPPLY @ATTACH &AVDD => @PLACE(28, 13.4);
 //   &AVDD @WIRE {#MRN:s %s_MRN:p};
 //   #MRX @PLACE(-28, 24) => @ORIENT("R0");
-//   #MRX @TEXT("2 x 0.75u/30n", key="model", size=0.65, dx=4, dy=-1.1, halign="start");
+//   #MRX @TEXT("3 x 1u/30n", key="model", size=0.65, dx=4, dy=-1.1, halign="start");
 //   %b_MRX = $SUPPLY @ATTACH &AVDD => @PLACE(-26, 27.6);
 //   &AVDD @WIRE {#MRX:b (-26, 24) %b_MRX:p};
 //   %s_MRX = $SUPPLY @ATTACH &AVDD => @PLACE(-28, 29.4);
 //   &AVDD @WIRE {#MRX:s %s_MRX:p};
 //   #MRY @PLACE(28, 24) => @ORIENT("MY");
-//   #MRY @TEXT("2 x 0.75u/30n", key="model", size=0.65, dx=-4, dy=-1.1, halign="end");
+//   #MRY @TEXT("3 x 1u/30n", key="model", size=0.65, dx=-4, dy=-1.1, halign="end");
 //   %b_MRY = $SUPPLY @ATTACH &AVDD => @PLACE(26, 27.6);
 //   &AVDD @WIRE {#MRY:b (26, 24) %b_MRY:p};
 //   %s_MRY = $SUPPLY @ATTACH &AVDD => @PLACE(28, 29.4);

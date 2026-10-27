@@ -14,29 +14,29 @@
   "vref_in": 0.9
  },
  "metrics": {
-  "kickback_uV": 0.636335463999934,
+  "kickback_uV": 1.43799246800011,
   "vdiff_uV": [
-   999.973,
-   1000.022,
-   1000.654,
-   1001.284,
-   1001.916,
-   1002.549,
-   1003.184,
-   1003.82
+   1000.003,
+   1001.045,
+   1002.483,
+   1003.919,
+   1005.354,
+   1006.788,
+   1008.221,
+   1009.654
   ],
-  "cin_fF": 2.6271706456179165
+  "cin_fF": 14.2676836058876
  },
  "specs": {
   "CMP-11": {
    "metric": "kickback_uV",
-   "value": 0.636335463999934,
+   "value": 1.43799246800011,
    "limit": "<= 40",
    "pass": true
   },
   "CMP-12": {
    "metric": "cin_fF",
-   "value": 2.6271706456179165,
+   "value": 14.2676836058876,
    "limit": "<= 15",
    "pass": true
   }
@@ -48,19 +48,19 @@
   }
  ],
  "meta": {
-  "date": "2026-10-27T16:52:34",
+  "date": "2026-10-27T16:54:35",
   "mode": "aps",
   "pdk": true,
   "mc": null,
   "rc": "0",
   "sim_s": "11",
-  "experiment": "sa01",
+  "experiment": "sa02",
   "recorded_from_preserved_outputs": true,
   "files": {
    "design/behav/adc_bootstrap.scs": "066523e6d36e1090",
    "design/behav/adc_cdac.scs": "de8f65e2569cb9bf",
    "design/behav/adc_clkgen.scs": "dafb1c3438e33c9e",
-   "design/xtor/adc_comp/adc_comp.scs": "8a11b86c36bd916b",
+   "design/xtor/adc_comp/adc_comp.scs": "ddbf7a114c2a441e",
    "design/behav/adc_ref.scs": "ad0159030e3a4f37",
    "design/behav/adc_sarlogic.scs": "356e911752c1b85e",
    "design/top/adc_top.scs": "362a964ffe162797",

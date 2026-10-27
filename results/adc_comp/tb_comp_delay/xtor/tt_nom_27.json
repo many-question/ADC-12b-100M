@@ -15,40 +15,40 @@
  },
  "metrics": {
   "wrong_decisions": 0,
-  "tdelay_1mV_ps": 22.237846955122166,
-  "tdelay_30mV_ps": 15.131334529359776,
-  "tau_reg_ps": 2.001902118825168,
-  "treset_ps": 20.093962425857995,
-  "energy_fJ": 54.969594264
+  "tdelay_1mV_ps": 93.00439949369965,
+  "tdelay_30mV_ps": 74.416398028862,
+  "tau_reg_ps": 3.9163690409788883,
+  "treset_ps": 20.885900018734663,
+  "energy_fJ": 103.69434916800002
  },
  "specs": {
   "CMP-04": {
    "metric": "tdelay_1mV_ps",
-   "value": 22.237846955122166,
+   "value": 93.00439949369965,
    "limit": "<= 80",
-   "pass": true
+   "pass": false
   },
   "CMP-05": {
    "metric": "tdelay_1mV_ps",
-   "value": 22.237846955122166,
+   "value": 93.00439949369965,
    "limit": "<= 120",
    "pass": true
   },
   "CMP-06": {
    "metric": "tdelay_30mV_ps",
-   "value": 15.131334529359776,
+   "value": 74.416398028862,
    "limit": "<= 50",
-   "pass": true
+   "pass": false
   },
   "CMP-07": {
    "metric": "tau_reg_ps",
-   "value": 2.001902118825168,
+   "value": 3.9163690409788883,
    "limit": "<= 15",
    "pass": true
   },
   "CMP-08": {
    "metric": "treset_ps",
-   "value": 20.093962425857995,
+   "value": 20.885900018734663,
    "limit": "<= 35",
    "pass": true
   },
@@ -60,7 +60,7 @@
   },
   "CMP-10": {
    "metric": "energy_fJ",
-   "value": 54.969594264,
+   "value": 103.69434916800002,
    "limit": "<= 150",
    "pass": true
   }
@@ -72,19 +72,19 @@
   }
  ],
  "meta": {
-  "date": "2026-10-27T16:52:15",
+  "date": "2026-10-27T16:54:34",
   "mode": "aps",
   "pdk": true,
   "mc": null,
   "rc": "0",
-  "sim_s": "10",
-  "experiment": "sa01",
+  "sim_s": "12",
+  "experiment": "sa02",
   "recorded_from_preserved_outputs": true,
   "files": {
    "design/behav/adc_bootstrap.scs": "066523e6d36e1090",
    "design/behav/adc_cdac.scs": "de8f65e2569cb9bf",
    "design/behav/adc_clkgen.scs": "dafb1c3438e33c9e",
-   "design/xtor/adc_comp/adc_comp.scs": "8a11b86c36bd916b",
+   "design/xtor/adc_comp/adc_comp.scs": "ddbf7a114c2a441e",
    "design/behav/adc_ref.scs": "ad0159030e3a4f37",
    "design/behav/adc_sarlogic.scs": "356e911752c1b85e",
    "design/top/adc_top.scs": "362a964ffe162797",
