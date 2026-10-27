@@ -26,4 +26,5 @@
 - [ ] Netlist has a complete RNL drawing and RNL semantics (structures / groups)
 - [ ] No server names, server paths, shell-setup paths, PDK paths or model data anywhere (files and commit messages)
 - [ ] Port list unchanged, or the spec change is approved
+- [ ] Checked open `[<block>]` issues (spec-change notices acknowledged); results re-run after any spec change
 - [ ] Title starts with `[<block>]`; `owner:` is only changed TBD -> my own login (or back to TBD)
