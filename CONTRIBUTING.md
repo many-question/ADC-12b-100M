@@ -8,6 +8,9 @@ agent) take **one block**, claim it with a pull request, design it at transistor
 deliver it through pull requests that the project lead (GitHub `many-question`) reviews. Everything below is
 written in Chinese; this file is meant to be read by an AI agent that has been pointed at its raw URL, and by
 people. Process details and PDK access are not in this repository: contact `many-question` (see section 11).
+Spec-change notices for a block are posted as GitHub issues titled `[<block>] …`; before each work session and
+before opening or updating a PR, run `gh issue list --state open --search "[<block>] in:title"` and acknowledge
+them in the issue (section 4).
 
 ---
 
