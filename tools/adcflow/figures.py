@@ -104,12 +104,18 @@ def sink_of(ctx: dict):
 
 
 def limits(ctx: dict, metric: str) -> tuple[float | None, float | None]:
-    """Tightest (min, max) the specs of this test put on `metric`, from specs/blocks/*.yaml."""
+    """Tightest (min, max) the specs of this test put on `metric` at this corner, from specs/blocks/*.yaml
+    (a spec whose corner set does not contain ctx["corner"] is skipped; without a corner all count)."""
+    from .corners import corner_set
     from .specs import blocks
 
     b = blocks().get(ctx.get("block"))
+    corner = ctx.get("corner")
+    corner = getattr(corner, "name", corner)
     lo = hi = None
     for s in (b.specs if b else []):
+        if corner and corner not in {c.name for c in corner_set(s.corners)}:
+            continue
         if s.test == ctx.get("test") and s.metric == metric and not s.mc:
             if s.min is not None:
                 lo = s.min if lo is None else max(lo, s.min)

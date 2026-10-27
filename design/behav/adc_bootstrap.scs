@@ -7,7 +7,7 @@ simulator lang=spectre
 
 subckt adc_bootstrap (VIN PHI_B PHI_BB VG AVDD VSS)
 // Behavioral view. Uses the deck global beh_speed.
-parameters kboost=0.95 t_on=60p t_off=15p iavg=15u
+parameters kboost=0.95 t_on=60p t_off=15p iavg=30u
 I0 (VIN PHI_B PHI_BB VG AVDD VSS) adc_bootstrap_va \
         kboost=kboost t_on=t_on*beh_speed t_off=t_off*beh_speed iavg=iavg
 // @RNL {

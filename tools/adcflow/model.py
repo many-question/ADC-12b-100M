@@ -13,6 +13,8 @@ Conventions (shared with the netlists):
 
 from __future__ import annotations
 
+import contextlib
+import io
 from dataclasses import dataclass, field, replace
 
 import numpy as np
@@ -87,9 +89,9 @@ class Follower:
     follower and its bias source). VREFP is taken as recovered between
     conversions, so (c_node + c2) / g_s must stay well below the clock period.
     """
-    i_bias: float = 2e-3
+    i_bias: float = 4e-3
     ic: float = 1.0
-    c_node: float = 2.1e-12      # behavioral adc_ref: 1.5 pF decap + ~0.6 pF of CDAC bottom plates
+    c_node: float = 4.2e-12      # behavioral adc_ref: 3 pF decap + ~1.2 pF of CDAC bottom plates (arch v0.3)
     c2: float = 0.0
     r2: float = 0.0
     gamma: float = 2.0
@@ -115,10 +117,11 @@ def _ref_modes(ni: "NonIdeal") -> tuple[np.ndarray, np.ndarray]:
 class NonIdeal:
     temp_c: float = 27.0
     ktc: bool = True                 # sampled kT/C noise
-    sigma_cmp_top: float = 80e-6     # comparator noise, diff, at the top plate (V rms)
+    sigma_cmp_top: float = 200e-6    # comparator noise, diff, at the top plate (V rms; CMP-01 TT limit)
     vos_cmp_top: float = 0.0         # comparator offset at the top plate (V)
     jitter_rms: float = 100e-15      # aperture jitter (s rms)
     sigma_cu: float = 0.0            # relative mismatch of one unit cap (cu); 0 = ideal
+    mismatch_seed: int | None = None # own seed for the cap mismatch (one "chip" over several records); None = seed
     cp_ratio: float | None = None    # top-plate parasitic / C_DAC (None = arch value)
     # DAC settling (single-pole), per comparison cycle
     tau_dac: float = 15e-12
@@ -315,7 +318,8 @@ def _convert(vin, arch: Arch, ni: NonIdeal, dvdt, p, r, x0):
     c_tot = arch.c_dac * (1 + cp_ratio)
     gain_top = arch.c_s / c_tot
 
-    up, dn, cs_scale = _cap_arrays(arch, ni, rng)
+    up, dn, cs_scale = _cap_arrays(arch, ni, rng if ni.mismatch_seed is None
+                                   else np.random.default_rng(ni.mismatch_seed))
 
     v = np.asarray(vin, dtype=float).copy()
     if ni.hd3_track_dbc is not None:
@@ -421,6 +425,27 @@ def sine_test(arch: Arch | None = None, ni: NonIdeal | None = None, n_fft: int =
     vin = a * np.sin(2 * np.pi * fin * tn + phase)
     dvdt = a * 2 * np.pi * fin * np.cos(2 * np.pi * fin * tn + phase)
     return convert(vin, arch, ni, dvdt=dvdt), vin, fin
+
+
+def sine_test_cal(arch: Arch | None = None, ni: NonIdeal | None = None, n_fft: int = 4096,
+                  fin_target: float = 50e6, amp_dbfs: float = -1.0):
+    """Sine test decoded with calibrated weights (``calib``): the weights come from a
+    calibration record of the same chip (same mismatch, other noise seed and phase),
+    the metrics from an independent judged record. Returns (calibrated metrics,
+    nominal-weight metrics of the judged record, weights, judged Result)."""
+    from . import calib
+
+    arch = arch or Arch.load()
+    ni = ni or NonIdeal()
+    ms = ni.seed if ni.mismatch_seed is None else ni.mismatch_seed
+    with contextlib.redirect_stdout(io.StringIO()):
+        rc, _, fin = sine_test(arch, replace(ni, seed=ni.seed + 100_003, mismatch_seed=ms), n_fft,
+                               fin_target, amp_dbfs, phase=1.3)
+        r, _, _ = sine_test(arch, replace(ni, mismatch_seed=ms), n_fft, fin_target, amp_dbfs)
+        w = calib.weights(rc.bits, fin / arch.fs, arch.out_weights)
+        met_cal = spectrum_metrics(r.bits @ w, arch.fs, arch.n_codes)
+        met_nom = spectrum_metrics(r.codes, arch.fs, arch.n_codes)
+    return met_cal, met_nom, w, r
 
 
 def spectrum_metrics(codes: np.ndarray, fs: float, n_codes: int | None = None) -> dict:

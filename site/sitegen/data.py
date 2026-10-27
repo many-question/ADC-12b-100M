@@ -27,6 +27,7 @@ assert set(STATUS_ORDER) == set(STATUSES), "specs.STATUSES changed: update STATU
 DOCS = [  # (file, slug, title, blurb) in reading order
     ("README.md", "readme", "README", "项目简介与目录结构"),
     ("docs/architecture.md", "architecture", "架构设计", "指标、架构选择、预算、时序与约定"),
+    ("docs/noise-budget.md", "noise-budget", "噪声预算（v0.3）", "最坏角噪声预算、比较器限值、C_S 加倍与权重校准"),
     ("docs/reference.md", "reference", "参考电压研究", "VREFP 负载、冗余与参考电压、片内跟随器"),
     ("docs/specs.md", "specs", "模块规格与验收用例", "全部模块的端口、指标与用例（由 specs/ 生成）"),
     ("docs/verification.md", "verification", "验证计划", "验证层次、约定与行为级基线"),

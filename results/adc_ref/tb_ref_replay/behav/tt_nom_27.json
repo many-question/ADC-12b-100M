@@ -19,32 +19,32 @@
  },
  "metrics": {
   "n_samples": 15840,
-  "enob_ideal_ref": 11.425133600228216,
-  "enob_ref": 11.39764776356335,
-  "sfdr_ref_dBc": 85.90179577863691,
-  "enob_loss_bit": 0.027485836664865815,
-  "tail_dev_uV": 40.50413019995869,
-  "env_ratio": 0.518801938047689,
-  "start_pp_uV": 0.012877599986360622,
-  "droop_max_mV": 9.01558528811497,
-  "vrefp_V": 0.900000007980615
+  "enob_ideal_ref": 10.925533985465997,
+  "enob_ref": 10.907182941031158,
+  "sfdr_ref_dBc": 84.55805584143366,
+  "enob_loss_bit": 0.018351044434838926,
+  "tail_dev_uV": 40.57907010002193,
+  "env_ratio": 0.5190503633455664,
+  "start_pp_uV": 0.012801400051110079,
+  "droop_max_mV": 9.070218059871848,
+  "vrefp_V": 0.9000000078784719
  },
  "specs": {
   "REF-12": {
    "metric": "enob_loss_bit",
-   "value": 0.027485836664865815,
+   "value": 0.018351044434838926,
    "limit": "<= 0.1",
    "pass": true
   },
   "REF-13": {
    "metric": "tail_dev_uV",
-   "value": 40.50413019995869,
+   "value": 40.57907010002193,
    "limit": "<= 200",
    "pass": true
   },
   "REF-14": {
    "metric": "start_pp_uV",
-   "value": 0.012877599986360622,
+   "value": 0.012801400051110079,
    "limit": "<= 100",
    "pass": true
   }
@@ -56,20 +56,20 @@
   }
  ],
  "meta": {
-  "date": "2026-10-27T13:23:40",
-  "git": "aa418b2",
+  "date": "2026-10-27T22:13:59",
+  "git": "3375040",
   "mode": "aps",
   "pdk": false,
   "mc": null,
-  "wall_s": 134.7,
+  "wall_s": 126.3,
   "rc": "0",
-  "sim_s": "27",
+  "sim_s": "19",
   "files": {
-   "design/behav/adc_bootstrap.scs": "066523e6d36e1090",
-   "design/behav/adc_cdac.scs": "de8f65e2569cb9bf",
+   "design/behav/adc_bootstrap.scs": "9458798199909fc5",
+   "design/behav/adc_cdac.scs": "423386f9cc9bb2d0",
    "design/behav/adc_clkgen.scs": "dafb1c3438e33c9e",
-   "design/behav/adc_comp.scs": "96325d9474ae19a4",
-   "design/behav/adc_ref.scs": "ad0159030e3a4f37",
+   "design/behav/adc_comp.scs": "304e037f1f8fd595",
+   "design/behav/adc_ref.scs": "a83c6feaac8c9c1a",
    "design/behav/adc_sarlogic.scs": "356e911752c1b85e",
    "design/top/adc_top.scs": "362a964ffe162797",
    "design/behav/veriloga/adc_bootstrap_va.va": "a6afdb6e2e03593b",
@@ -80,8 +80,8 @@
    "design/behav/veriloga/adc_ref_va.va": "746d2530d4ff6d5c",
    "design/behav/veriloga/adc_sarlogic_va.va": "42f06909a81347ef",
    "tb/common/veriloga/tb_sampler_va.va": "4092bc16170c588d",
-   "tb/ref/tb_ref_replay.scs": "37a1bb97d361c3b2",
-   "specs/arch.yaml": "2207a1df50779025"
+   "tb/ref/tb_ref_replay.scs": "2ea234d4ebabeece",
+   "specs/arch.yaml": "f5f9f8cdaa7eaa61"
   }
  }
 }

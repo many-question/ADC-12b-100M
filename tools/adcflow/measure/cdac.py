@@ -2,11 +2,13 @@
 
 from __future__ import annotations
 
+import copy
+from dataclasses import replace
 from pathlib import Path
 
 import numpy as np
 
-from .. import psf
+from .. import calib, psf
 from ..arch import Arch
 from ..figures import C1, C2, C3, C7, GRID, INK2, LIMIT, MUTED, hline, limits, note, plot_spectrum, sink_of, spec_table, vline
 from .common import read_meters, read_samples, spectrum, tran
@@ -32,6 +34,13 @@ def weights(job_dir: Path, ctx: dict) -> dict:
     asym = np.abs(steps[0::2]) / np.abs(steps[1::2]) - 1
     m["h_l_asym_pct"] = float(np.max(np.abs(asym)) * 100)
     m["fs_peak_V"] = float(w_volts.sum() + 0.5 * w_volts[-1])
+    # calibratability (DAC-03): systematic error with the gain removed, plus n sigma of mismatch
+    w_cal = w_lsb * (a.w.sum() / w_lsb.sum())
+    n_sig = float(a.raw["cdac"].get("cal_n_sigma", 4))
+    margin = calib.cal_margin(w_cal, a.w, a.sigma_w_lsb(), n_sig)
+    m["cal_margin_lsb"] = float(margin.min())
+    m["cal_margin_per_decision_lsb"] = [round(float(x), 4) for x in margin]
+    m.update(cal_loss(a, w_cal))
     q = read_meters(Path(job_dir) / "qcm.txt")
     if "VCM" in q:
         m["cs_pF"] = float(abs(q["VCM"]) * 3e-9 / (VIN_A - VIN_B) * 1e12)
@@ -39,6 +48,26 @@ def weights(job_dir: Path, ctx: dict) -> dict:
     if fg:
         _fig_weights(fg, ctx, a, w_lsb, rel, asym, m)
     return m
+
+
+def cal_loss(a: Arch, w_lsb: np.ndarray, chips: int = 4) -> dict:
+    """ENOB loss of the measured weights plus random mismatch (DAC-14), system model, quantization only:
+    calibrated (``calib`` procedure: weights from one record, ENOB on another) and, for information,
+    with the nominal weights; both against ideal weights through the same procedure."""
+    from .. import model
+
+    raw = copy.deepcopy(a.raw)
+    raw["cdac"]["cap_weights"] = [float(x) for x in w_lsb]
+    am = Arch(raw)
+    ref_cal, ref_nom, _, _ = model.sine_test_cal(a, model.ideal(), n_fft=4096, fin_target=49.9e6)
+    e_cal, e_nom = [], []
+    for s in range(chips):
+        mc, mn, _, _ = model.sine_test_cal(am, replace(model.ideal(), sigma_cu=a.sigma_cu, seed=300 + s),
+                                           n_fft=4096, fin_target=49.9e6)
+        e_cal.append(mc["enob"])
+        e_nom.append(mn["enob"])
+    return {"enob_loss_cal_bit": float(ref_cal["enob"] - np.mean(e_cal)),
+            "enob_loss_nom_bit": float(ref_nom["enob"] - np.mean(e_nom))}
 
 
 def _settle_time(t, v, t0, v_final, tol, t_end):
@@ -126,15 +155,20 @@ def _fig_weights(fg, ctx, a, w_lsb, rel, asym, m) -> None:
     ax.set(xlabel="bit j (control RLj)", ylabel="weight (LSB)", title="DAC weight per bit")
     ax.legend(loc="upper right", fontsize=7.5)
     ax = axs[0, 1]
-    floor = 1e-6
-    ax.bar(x, np.maximum(np.abs(rel) * 100, floor), color=C1, width=0.6)
+    avail = a.redundancy() + 0.5
+    used = avail - np.asarray(m["cal_margin_per_decision_lsb"])
+    ax.bar(x, avail, color=GRID, width=0.7, label="redundancy delta_k + 0.5 LSB")
+    ax.bar(x, np.maximum(used, 1e-4), color=C1, width=0.4,
+           label=f"worst-case weight error (systematic + {a.raw['cdac'].get('cal_n_sigma', 4):g} sigma)")
     ax.set_yscale("log")
-    hi = limits(ctx, "weight_err_max_pct")[1]
-    hline(ax, hi, f"limit {hi:g} %" if hi else None)
-    ax.set_xticks(x, [f"{b}" for b in bits])
-    ax.set(xlabel="bit j", ylabel="|weight error| (% of nominal)", title="Weight error per bit",
-           ylim=(floor, max(hi or 1, 1) * 3))
-    note(ax, f"max {m['weight_err_max_pct']:.2g} %", loc="lower right")
+    ax.set_xticks(x, [f"{k}" for k in range(1, len(bits) + 1)])
+    ax.set(xlabel="decision k (switches bit 13 - k)", ylabel="LSB", title="Calibratability (DAC-03)",
+           ylim=(1e-4, avail.max() * 5))
+    ax.legend(loc="upper right", fontsize=7.0)
+    lo = limits(ctx, "cal_margin_lsb")[0]
+    note(ax, f"min margin {m['cal_margin_lsb']:.3f} LSB (limit >= {lo or 0:g})\n"
+         f"ENOB loss calibrated {m['enob_loss_cal_bit']:.3f} bit, nominal {m['enob_loss_nom_bit']:.3f} bit\n"
+         f"systematic weight error max {m['weight_err_max_pct']:.2g} %", loc="lower left")
     ax = axs[0, 2]
     floor = 1e-6
     ax.bar(x, np.maximum(np.abs(asym) * 100, floor), color=C7, width=0.6)
@@ -146,8 +180,9 @@ def _fig_weights(fg, ctx, a, w_lsb, rel, asym, m) -> None:
     ax.set(xlabel="bit j", ylabel="|H step / L step - 1| (%)", title="Rising / falling step asymmetry",
            ylim=(floor, 10))
     note(ax, f"max {m['h_l_asym_pct']:.2g} %\nCs {m.get('cs_pF', float('nan')):.3f} pF", loc="lower right")
-    fg.save(fig, "weights", "Measured weight of every DAC bit against nominal, the weight error per bit against "
-            "its limit, and the asymmetry of the rising and falling steps.")
+    fg.save(fig, "weights", "Measured weight of every DAC bit against nominal, the redundancy of every decision "
+            "against the worst-case weight error it must absorb for calibration (with the ENOB loss after "
+            "calibration), and the asymmetry of the rising and falling steps.")
 
 
 def _fig_settle(fg, ctx, t, top, tc, wins, m) -> None:

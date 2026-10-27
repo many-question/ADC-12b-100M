@@ -1,6 +1,6 @@
 block: adc_bootstrap
 title: Bootstrapped gate generator for the bottom-plate input switches (one per side)
-version: 0.1.0
+version: 0.2.0
 owner: TBD
 status: behavioral
 views:
@@ -23,8 +23,8 @@ operating:
   vin_range: [0.0, 0.9]
   load: >
     Reference load in the testbench: the input switch of the reference CDAC
-    (nch_ulvt_mac, total W = 48 um, L = 30 nm, sized for 25 ohm at Vgs = 0.9 V)
-    driving C_S = 1.0285 pF whose top plate is reset to VCM by an ideal PHI_S
+    (nch_ulvt_mac, total W = 96 um in 48 fingers, L = 30 nm, sized for 12.5 ohm at Vgs = 0.9 V)
+    driving C_S = 2.057 pF (arch v0.3) whose top plate is reset to VCM by an ideal PHI_S
     switch; VG wiring 10 fF.
   soa: "|Vgs|, |Vgd|, |Vds| <= 1.0 V for every thin-oxide device in every corner"
 specs:
@@ -34,7 +34,7 @@ specs:
   - {id: BST-04, name: "VG rise PHI_B -> VG - VIN > 95 %",         metric: t_on_ps,    unit: ps, max: 300, corners: all, test: tb_bootstrap_dc}
   - {id: BST-05, name: "tracking SFDR with reference switch (diff, 49.9 MHz, -1 dBFS, 50 ohm)", metric: sfdr_dBc, unit: dBc, min: 82, corners: all, test: tb_bootstrap_track}
   - {id: BST-06, name: "tracking SNDR excl. kT/C (same)",          metric: sndr_dB,    unit: dB, min: 78, corners: all, test: tb_bootstrap_track}
-  - {id: BST-07, name: "average AVDD current at 100 MHz (one instance)", metric: iavg_uA, unit: uA, max: 25, corners: typ, test: tb_bootstrap_dc}
+  - {id: BST-07, name: "average AVDD current at 100 MHz (one instance)", metric: iavg_uA, unit: uA, max: 50, corners: typ, test: tb_bootstrap_dc}
   - {id: BST-08, name: "SOA violations",                           metric: soa_violations, unit: count, max: 0, corners: all, test: tb_bootstrap_dc}
 tests:
   tb_bootstrap_dc:

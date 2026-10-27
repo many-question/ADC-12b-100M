@@ -14,8 +14,8 @@ from .common import read_meters, read_samples, tran
 TCYC = 400e-12
 DELAY_LEVELS = [100e-3, -100e-3, 30e-3, -30e-3, 10e-3, -10e-3, 3e-3, -3e-3, 1e-3, -1e-3,
                 300e-6, -300e-6, 100e-6, -100e-6, 30e-6, -30e-6, 10e-6, -10e-6]
-NOISE_LEVELS = [round(-300e-6 + 50e-6 * i, 9) for i in range(13)]
-NOISE_REPEAT = 64
+NOISE_LEVELS = [round(-800e-6 + 100e-6 * i, 9) for i in range(17)]   # +/-3.3 sigma at the 240 uV limit
+NOISE_REPEAT = 128
 
 
 def delay(job_dir: Path, ctx: dict) -> dict:
@@ -86,7 +86,7 @@ def noise(job_dir: Path, ctx: dict) -> dict:
     m = {"p1": [round(float(x), 4) for x in p1]}
     try:
         (mu, sig), _ = curve_fit(lambda x, mu, sig: norm.cdf((x - mu) / sig), vd[ok], p1[ok],
-                                 p0=[0.0, 80e-6], bounds=([-1e-3, 1e-7], [1e-3, 1e-2]))
+                                 p0=[0.0, 150e-6], bounds=([-1e-3, 1e-7], [1e-3, 1e-2]))
         m["noise_uV"] = float(sig * 1e6)
         m["offset_abs_mV"] = float(abs(mu) * 1e3)
         m["offset_mV"] = float(mu * 1e3)
@@ -204,7 +204,8 @@ def _fig_kickback(fg, ctx, m) -> None:
     fig, axs = fg.new(1, 2, size=(11.2, 3.9))
     ax = axs[0, 0]
     ax.plot(np.arange(len(vd)), vd, "o-", color=C1, ms=5)
-    ax.set(xlabel="evaluate / reset cycle", ylabel="differential input on 1.25 pF (uV)",
+    cs = ctx.get("params", {}).get("cs", "C_tot")
+    ax.set(xlabel="evaluate / reset cycle", ylabel=f"differential input on {cs}F (uV)",
            title="Input difference after each cycle")
     ax = axs[0, 1]
     step = np.abs(np.diff(vd[1:]))
@@ -218,5 +219,5 @@ def _fig_kickback(fg, ctx, m) -> None:
         hi = limits(ctx, "cin_fF")[1]
         lines.append(f"Cin {m['cin_fF']:.2f} fF per input" + (f" (limit {hi:g})" if hi else ""))
     note(ax, "\n".join(lines), loc="upper left")
-    fg.save(fig, "kickback", "Differential input of the floating 1.25 pF nodes after each evaluate and reset "
+    fg.save(fig, "kickback", "Differential input of the floating top-plate-sized nodes after each evaluate and reset "
             "cycle, and the change per cycle against the kickback limit.")

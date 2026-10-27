@@ -6,6 +6,7 @@
  "params": {
   "amp_dbfs": -1.0,
   "npts": 1024,
+  "ncal": 1024,
   "fin": "1.074218750e+06"
  },
  "globals": {
@@ -18,46 +19,50 @@
   "vref_in": 0.9
  },
  "metrics": {
-  "n_samples": 1025,
+  "n_samples": 2049,
   "missing_rdy": 0,
-  "t_conv_max_ns": 2.705388,
-  "t_conv_mean_ns": 2.612878162109375,
-  "enob": 11.335185973326158,
-  "sndr_dBc": 69.99781955942348,
-  "sfdr_dBc": 85.40925802371412,
-  "snr_dBc": 70.08715496046929,
-  "thd_dBc": -87.60356023713463,
-  "amp_codes": 2022.855523480508,
-  "fs_peak_V": 0.9928959203037759,
+  "t_conv_max_ns": 2.691647,
+  "t_conv_mean_ns": 2.6084511376953126,
+  "cal_independent": true,
+  "weights_cal": [
+   1960.136,
+   1120.061,
+   636.002,
+   359.994,
+   204.07,
+   114.055,
+   63.995,
+   35.996,
+   20.014,
+   11.935,
+   6.033,
+   3.807,
+   1.9,
+   1.003
+  ],
+  "enob": 10.894774761041532,
+  "sndr_dBc": 67.34654406147003,
+  "sfdr_dBc": 84.43219985173003,
+  "snr_dBc": 67.4230853319659,
+  "thd_dBc": -85.01207865208279,
+  "enob_nom": 10.864947040353172,
+  "sndr_nom_dBc": 67.1669811829261,
+  "sfdr_nom_dBc": 83.91756189127968,
+  "snr_nom_dBc": 67.24757403351747,
+  "thd_nom_dBc": -84.68201557847604,
+  "amp_codes": 2023.000411868988,
+  "fs_peak_V": 0.9928248085585795,
   "code_min": 246,
   "code_max": 4293,
-  "enob_cal": 11.356842157028845,
-  "sfdr_cal_dBc": 85.44390118476655,
-  "weights_cal": [
-   1960.045,
-   1120.082,
-   636.028,
-   359.931,
-   204.045,
-   114.057,
-   64.041,
-   36.014,
-   20.023,
-   11.99,
-   6.031,
-   3.866,
-   1.882,
-   0.966
-  ],
-  "p_avdd_mW": 0.21256602174,
-  "p_dvdd_mW": 0.19538055864000003,
-  "p_avdd18_mW": 3.7625588837999997,
-  "power_mW": 4.17050546418
+  "p_avdd_mW": 0.23954189102999998,
+  "p_dvdd_mW": 0.19534787442,
+  "p_avdd18_mW": 7.524774442799999,
+  "power_mW": 7.9596642082499995
  },
  "specs": {
   "TOP-08": {
    "metric": "enob",
-   "value": 11.335185973326158,
+   "value": 10.894774761041532,
    "limit": ">= 10.8",
    "pass": true
   }
@@ -65,28 +70,28 @@
  "figures": [
   {
    "file": "tt_nom_27.spectrum.png",
-   "caption": "Output spectrum (fin 1.07 MHz, 1024 points, -1 dBFS) with ENOB, SNDR and SFDR against their limits, for the nominal weights and for the sine-calibrated weights."
+   "caption": "Output spectrum of the judged record (fin 1.07 MHz, 1024 points, -1 dBFS) with ENOB, SNDR and SFDR against their limits, decoded with calibrated weights (weights from the preceding 1024 conversions) and, for information, with the nominal weights."
   },
   {
    "file": "tt_nom_27.codes.png",
-   "caption": "Output codes folded on the phase of the input sine with the fit, the error against the fit for every sample, and the conversion-time histogram against its limit."
+   "caption": "Calibrated output codes of the judged record folded on the phase of the input sine with the fit, the error against the fit for every sample, and the conversion-time histogram (calibration and judged records) against its limit."
   }
  ],
  "meta": {
-  "date": "2026-10-27T13:29:40",
-  "git": "aa418b2",
+  "date": "2026-10-27T22:42:41",
+  "git": "3375040",
   "mode": "aps",
   "pdk": false,
   "mc": null,
-  "wall_s": 255.6,
+  "wall_s": 409.9,
   "rc": "0",
-  "sim_s": "149",
+  "sim_s": "303",
   "files": {
-   "design/behav/adc_bootstrap.scs": "066523e6d36e1090",
-   "design/behav/adc_cdac.scs": "de8f65e2569cb9bf",
+   "design/behav/adc_bootstrap.scs": "9458798199909fc5",
+   "design/behav/adc_cdac.scs": "423386f9cc9bb2d0",
    "design/behav/adc_clkgen.scs": "dafb1c3438e33c9e",
-   "design/behav/adc_comp.scs": "96325d9474ae19a4",
-   "design/behav/adc_ref.scs": "ad0159030e3a4f37",
+   "design/behav/adc_comp.scs": "304e037f1f8fd595",
+   "design/behav/adc_ref.scs": "a83c6feaac8c9c1a",
    "design/behav/adc_sarlogic.scs": "356e911752c1b85e",
    "design/top/adc_top.scs": "362a964ffe162797",
    "design/behav/veriloga/adc_bootstrap_va.va": "a6afdb6e2e03593b",
@@ -98,8 +103,8 @@
    "design/behav/veriloga/adc_sarlogic_va.va": "42f06909a81347ef",
    "tb/common/veriloga/tb_capture_va.va": "1a05df990a1ef806",
    "tb/common/veriloga/tb_imeter_va.va": "d4be49aca417ad61",
-   "tb/top/tb_top_sine.scs": "8eeaf74cd5147b9a",
-   "specs/arch.yaml": "2207a1df50779025"
+   "tb/top/tb_top_sine.scs": "c71c5ef949bb4ab1",
+   "specs/arch.yaml": "f5f9f8cdaa7eaa61"
   }
  }
 }

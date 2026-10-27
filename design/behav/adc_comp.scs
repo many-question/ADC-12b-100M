@@ -7,7 +7,7 @@ simulator lang=spectre
 
 subckt adc_comp (INP INN CLKC OUTP OUTN AVDD VSS)
 // Behavioral view. Uses the deck globals noise_en and beh_speed.
-parameters sigma=80u vos=0 t0=45p tau=8p vsat=30m trst=25p energy=120f cin=10f
+parameters sigma=200u vos=0 t0=45p tau=8p vsat=30m trst=25p energy=120f cin=15f
 I0 (INP INN CLKC OUTP OUTN AVDD VSS) adc_comp_va \
         sigma=sigma*noise_en vos=vos t0=t0*beh_speed tau=tau*beh_speed vsat=vsat trst=trst*beh_speed energy=energy
 CINP (INP VSS) capacitor c=cin

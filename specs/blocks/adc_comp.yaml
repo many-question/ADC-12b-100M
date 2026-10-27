@@ -1,6 +1,6 @@
 block: adc_comp
 title: Dynamic latched comparator
-version: 0.1.0
+version: 0.2.0
 owner: many-question
 status: behavioral            # behavioral | xtor-wip | xtor-review | signoff
 views:
@@ -25,7 +25,8 @@ operating:
   input_diff_max: 0.8         # V; the first comparison can see ~0.75 V
   load_per_output: 10.0e-15   # F; SAR logic input + wire
 specs:
-  - {id: CMP-01, name: "input-referred noise (diff rms)",            metric: noise_uV,       unit: uV,    max: 80,  corners: all, test: tb_comp_noise}
+  - {id: CMP-01, name: "input-referred noise (diff rms)",            metric: noise_uV,       unit: uV,    max: 200, corners: typ, test: tb_comp_noise}
+  - {id: CMP-13, name: "input-referred noise (diff rms, all corners)", metric: noise_uV,     unit: uV,    max: 240, corners: all, test: tb_comp_noise}
   - {id: CMP-02, name: "systematic offset",                          metric: offset_abs_mV,  unit: mV,    max: 2,   corners: all, test: tb_comp_noise}
   - {id: CMP-03, name: "offset sigma (Monte Carlo, 50 runs)",        metric: offset_sigma_mV, unit: mV,   max: 5,   corners: typ, test: tb_comp_noise, mc: 50}
   - {id: CMP-04, name: "delay CLKC->OUT at 1 mV",                    metric: tdelay_1mV_ps,  unit: ps,    max: 80,  corners: typ, test: tb_comp_delay}
@@ -34,9 +35,9 @@ specs:
   - {id: CMP-07, name: "regeneration time constant",                 metric: tau_reg_ps,     unit: ps,    max: 15,  corners: all, test: tb_comp_delay}
   - {id: CMP-08, name: "reset time CLKC fall -> both outputs < 10 %", metric: treset_ps,      unit: ps,    max: 35,  corners: all, test: tb_comp_delay}
   - {id: CMP-09, name: "wrong decisions for |vd| >= 100 uV (noise off)", metric: wrong_decisions, unit: count, max: 0, corners: all, test: tb_comp_delay}
-  - {id: CMP-10, name: "energy per comparison at 1 mV",              metric: energy_fJ,      unit: fJ,    max: 150, corners: typ, test: tb_comp_delay}
-  - {id: CMP-11, name: "differential kickback per cycle on 1.25 pF", metric: kickback_uV,    unit: uV,    max: 40,  corners: all, test: tb_comp_kickback}
-  - {id: CMP-12, name: "input capacitance per input",                metric: cin_fF,         unit: fF,    max: 15,  corners: typ, test: tb_comp_kickback}
+  - {id: CMP-10, name: "energy per comparison at 1 mV",              metric: energy_fJ,      unit: fJ,    max: 200, corners: typ, test: tb_comp_delay}
+  - {id: CMP-11, name: "differential kickback per cycle on 2.5 pF",  metric: kickback_uV,    unit: uV,    max: 40,  corners: all, test: tb_comp_kickback}
+  - {id: CMP-12, name: "input capacitance per input",                metric: cin_fF,         unit: fF,    max: 20,  corners: typ, test: tb_comp_kickback}
 tests:
   tb_comp_delay:
     netlist: tb/comp/tb_comp_delay.scs
@@ -52,12 +53,13 @@ tests:
     tran_noise: true
     desc: >
       Transient noise on (behavioral: internal Gaussian). vd swept over
-      -300..+300 uV in 13 levels, 64 decisions per level. P(OUTP) vs vd is
-      fitted with a Gaussian CDF: sigma = noise, mean = offset.
+      -800..+800 uV in 17 levels (100 uV steps, about +/-3.3 sigma at the
+      all-corner limit), 128 decisions per level. P(OUTP) vs vd is fitted with
+      a Gaussian CDF: sigma = noise, mean = offset.
   tb_comp_kickback:
     netlist: tb/comp/tb_comp_kickback.scs
     measure: adcflow.measure.comp:kickback
     desc: >
-      Inputs floating on 1.25 pF capacitors (the CDAC top plates), preset to
+      Inputs floating on 2.5 pF capacitors (the CDAC top plates, C_tot), preset to
       VCM +/- 0.5 mV. Measures the change of the differential input after one
       evaluate + reset cycle, and the input capacitance from a small CM step.

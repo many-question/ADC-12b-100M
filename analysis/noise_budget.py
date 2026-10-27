@@ -1,15 +1,19 @@
-"""Noise budget at the worst corner: arch v0.2 against the v0.3 proposal (system model).
+"""Noise budget at the worst corner: arch v0.2 against v0.3 (system model).
 
     python analysis/noise_budget.py                  # tables to stdout (docs/noise-budget.md)
-    python analysis/noise_budget.py --sweep          # also the C_S / comparator-noise sweeps
+    python analysis/noise_budget.py --sweep          # also the C_S / comparator-noise sweep
 
 Every contributor is run alone through ``adcflow.model`` (49.9 MHz, -1 dBFS, 8192
 points) and turned into an input-referred rms from the SNDR it leaves, minus the
-quantization noise; "all" runs everything together. The worst corner of the model
-is 125 C (kT/C, follower g_s and noise) with the comparator, logic and DAC timing
-1.6 x slower than TT, the comparator noise at its all-corner limit, and the
-allowances for distortion (static HD3 of the sampling network) and capacitor
-mismatch (random unit mismatch, nominal weights) switched on.
+quantization noise; "all" runs everything together. Records are decoded with
+calibrated weights as in the acceptance tests (``adcflow.calib``: weights fitted
+on a calibration record of the same chip, ENOB judged on an independent record);
+the nominal-weight ENOB is reported for information. The worst corner of the
+model is 125 C (kT/C, follower g_s and noise) with the comparator, logic and DAC
+timing 1.6 x slower than TT, the comparator noise at its all-corner limit, the
+VREFP noise at the REF-08 limit, a static HD3 allowance for the sampling network
+and random capacitor mismatch (relative sigma 0.5 % for a 1 fF unit, averaging
+over the units of a weight).
 
 C_S scales by scaling the unit capacitor cu: weights, redundancy, LSB, full scale
 and the top-plate gain stay as in v0.2. The behavioral reference (an open-loop
@@ -20,9 +24,7 @@ keep the VREFP waveform and the recovery time constant unchanged.
 from __future__ import annotations
 
 import argparse
-import contextlib
 import copy
-import io
 import sys
 from dataclasses import dataclass, replace
 from pathlib import Path
@@ -39,13 +41,20 @@ N_FFT = 8192
 FIN = 49.9e6
 SIG_RMS = BASE.fs_peak * 10 ** (-1 / 20) / np.sqrt(2)
 ENOB_MIN = 10.5
+CU_V02 = 0.5e-15
+SIGMA_1F = 0.005         # relative sigma of a 1 fF unit capacitor
 
 
 def arch_k(k: float) -> Arch:
-    """v0.2 weights with the unit capacitor scaled by k (C_S, C_DAC x k)."""
+    """The (unchanged) weights with the v0.2 unit capacitor scaled by k (C_S, C_DAC x k)."""
     raw = copy.deepcopy(BASE.raw)
-    raw["cdac"]["cu"] = BASE.cu * k
+    raw["cdac"]["cu"] = CU_V02 * k
     return Arch(raw)
+
+
+def sigma_cu(k: float) -> float:
+    """Relative mismatch of one unit at cu = 0.5 fF x k (Pelgrom: sigma ~ 1 / sqrt(area))."""
+    return SIGMA_1F * float(np.sqrt(1e-15 / (CU_V02 * k)))
 
 
 def slow(ni: m.NonIdeal, s: float) -> m.NonIdeal:
@@ -68,11 +77,15 @@ class Case:
     ref_noise: float = 120e-6  # VREFP noise at 27 C (REF-08 limit); sets the follower's gamma
     jitter: float = 100e-15
     hd3_dbc: float | None = -82.0
-    sigma_cu: float = 0.0    # random unit mismatch (relative, of one cu)
+    mismatch: bool = True    # random unit mismatch, sigma_cu(k)
 
     @property
     def arch(self) -> Arch:
         return arch_k(self.k)
+
+    @property
+    def sigma_cu(self) -> float:
+        return sigma_cu(self.k) if self.mismatch else 0.0
 
     def follower(self) -> m.Follower:
         """Behavioral follower, its white noise raised to the REF-08 limit at 27 C (sqrt(gamma kT / C))."""
@@ -85,14 +98,12 @@ class Case:
         return slow(ni, self.timing)
 
 
-def sndr(a: Arch, ni: m.NonIdeal, seeds=(1, 2, 3)) -> tuple[float, float]:
-    """Mean SNDR (dBc) and ENOB over seeds."""
+def sndr(a: Arch, ni: m.NonIdeal, seeds=(1, 2, 3), nominal: bool = False) -> tuple[float, float]:
+    """Mean SNDR (dBc) and ENOB over seeds (chips), calibrated weights unless ``nominal``."""
     s = []
     for sd in seeds:
-        with contextlib.redirect_stdout(io.StringIO()):
-            r, _, _ = m.sine_test(a, replace(ni, seed=sd), n_fft=N_FFT, fin_target=FIN)
-            met = m.spectrum_metrics(r.codes, a.fs, a.n_codes)
-        s.append(met["sndr_dbc"])
+        met_cal, met_nom, _, _ = m.sine_test_cal(a, replace(ni, seed=sd), n_fft=N_FFT, fin_target=FIN)
+        s.append((met_nom if nominal else met_cal)["sndr_dbc"])
     sd = float(np.mean(s))
     return sd, (sd - 1.76) / 6.02
 
@@ -123,27 +134,37 @@ def rows(c: Case) -> list[tuple[str, float, str]]:
         spec.append(("Distortion allowance (sampling network)", replace(base, hd3_track_dbc=c.hd3_dbc),
                      f"HD3 {c.hd3_dbc:.0f} dBc"))
     if c.sigma_cu > 0:
-        spec.append(("Mismatch allowance (nominal weights)", replace(base, sigma_cu=c.sigma_cu),
+        spec.append(("Capacitor mismatch, residual after calibration", replace(base, sigma_cu=c.sigma_cu),
                      f"sigma(cu) {c.sigma_cu*100:.2f} % at cu = {a.cu*1e15:.2f} fF, 16 chips rms"))
     out = []
     for name, ni, note in spec:
-        seeds = tuple(range(1000, 1016)) if "Mismatch" in name else (1, 2, 3)
-        if "Mismatch" in name:
-            p = np.mean([rms_of(sndr(a, ni, (s,))[0]) ** 2 for s in seeds])
+        if "mismatch" in name:
+            p = np.mean([rms_of(sndr(a, ni, (s,))[0]) ** 2 for s in range(1000, 1016)])
         else:
-            p = rms_of(sndr(a, ni, seeds)[0]) ** 2
+            p = rms_of(sndr(a, ni)[0]) ** 2
         out.append((name, float(np.sqrt(max(p - Q_RMS**2, 0.0))), note))
     return out
 
 
-def total(c: Case, chips: int = 8) -> tuple[float, float, float]:
-    """All impairments together: mean ENOB, min ENOB, rms (V) over chips (seeds)."""
-    e, p = [], []
+def mismatch_nominal(c: Case) -> float:
+    """For information: mismatch alone decoded with the nominal weights (V rms, 16 chips)."""
+    ni = replace(m.ideal(temp_c=c.temp_c), sigma_cu=c.sigma_cu)
+    p = np.mean([rms_of(sndr(c.arch, ni, (s,), nominal=True)[0]) ** 2 for s in range(1000, 1016)])
+    return float(np.sqrt(max(p - Q_RMS**2, 0.0)))
+
+
+def total(c: Case, chips: int = 8) -> dict:
+    """All impairments together over chips (seeds): calibrated mean / min ENOB and rms,
+    and the nominal-weight ENOB for information."""
+    e, en, p = [], [], []
     for s in range(chips):
-        sd, en = sndr(c.arch, replace(c.nonideal(), seed=2000 + s), seeds=(2000 + s,))
-        e.append(en)
-        p.append(rms_of(sd) ** 2)
-    return float(np.mean(e)), float(np.min(e)), float(np.sqrt(np.mean(p)))
+        met_cal, met_nom, _, _ = m.sine_test_cal(c.arch, replace(c.nonideal(), seed=2000 + s),
+                                                 n_fft=N_FFT, fin_target=FIN)
+        e.append(met_cal["enob"])
+        en.append(met_nom["enob"])
+        p.append(rms_of(met_cal["sndr_dbc"]) ** 2)
+    return {"mean": float(np.mean(e)), "min": float(np.min(e)), "rms": float(np.sqrt(np.mean(p))),
+            "nominal": float(np.mean(en)), "nominal_min": float(np.min(en))}
 
 
 def table(c: Case) -> str:
@@ -153,38 +174,41 @@ def table(c: Case) -> str:
     lines = [f"**{c.name}**", "",
              "| Contributor | Input-referred rms (uV) | Share of non-quantization power | Assumption |",
              "|---|---|---|---|",
-             f"| Quantization ({c.arch.n_codes} levels) | {Q_RMS*1e6:.1f} | – | model, nominal weights |"]
+             f"| Quantization ({c.arch.n_codes} levels) | {Q_RMS*1e6:.1f} | – | model |"]
     for n, v, note in rs:
         lines.append(f"| {n} | {v*1e6:.1f} | {v**2/nq*100:.0f} % | {note} |")
     rss = np.sqrt(nq + Q_RMS**2)
     en_rss = (20 * np.log10(SIG_RMS / rss) - 1.76) / 6.02
-    e_mean, e_min, r_all = total(c)
+    t = total(c)
     lines.append(f"| Sum of squares | {rss*1e6:.1f} | comparator {cmp_p/nq*100:.0f} % | ENOB {en_rss:.2f} |")
-    lines.append(f"| **All together (model, 8 chips)** | **{r_all*1e6:.1f}** | | "
-                 f"**ENOB {e_mean:.2f} mean / {e_min:.2f} min, margin {e_min-ENOB_MIN:.2f} bit** |")
+    lines.append(f"| **All together (model, 8 chips, calibrated)** | **{t['rms']*1e6:.1f}** | | "
+                 f"**ENOB {t['mean']:.2f} mean / {t['min']:.2f} min, margin {t['mean']-ENOB_MIN:.2f} / "
+                 f"{t['min']-ENOB_MIN:.2f} bit** |")
+    if c.sigma_cu > 0:
+        lines.append(f"| (information) nominal weights | mismatch alone {mismatch_nominal(c)*1e6:.1f} | | "
+                     f"ENOB {t['nominal']:.2f} mean / {t['nominal_min']:.2f} min |")
     return "\n".join(lines)
 
 
-V02_WORST = Case("v0.2 limits, worst corner", k=1.0, cmp_top=80e-6, sigma_cu=0.01)
-V02_ISSUE = Case("v0.2 sizing, comparator 240 uV (all-corner)", k=1.0, cmp_top=240e-6, sigma_cu=0.01)
-V03_WORST = Case("v0.3 proposal, worst corner", k=2.0, cmp_top=240e-6, i_ref=4e-3, c_dec=3e-12,
-                 ref_noise=80e-6, sigma_cu=0.01 / np.sqrt(2))
-V03_TT = replace(V03_WORST, name="v0.3 proposal, TT (27 C, TT timing, comparator at its TT limit)",
+V02_WORST = Case("v0.2 limits, worst corner", k=1.0, cmp_top=80e-6)
+V02_ISSUE = Case("v0.2 sizing, comparator 240 uV (all-corner)", k=1.0, cmp_top=240e-6)
+V03_WORST = Case("v0.3, worst corner", k=2.0, cmp_top=240e-6, i_ref=4e-3, c_dec=3e-12)
+V03_TT = replace(V03_WORST, name="v0.3, TT (27 C, TT timing, comparator at its TT limit)",
                  cmp_top=200e-6, temp_c=27.0, timing=1.0)
-
+V03_TT_BEHAV = replace(V03_TT, name="v0.3, TT, behavioral conditions (no mismatch, no HD3, follower gamma = 2)",
+                       hd3_dbc=None, mismatch=False, ref_noise=float(np.sqrt(2 * K_BOLTZMANN * 300.15 / 4.2e-12)))
 
 CMP_SWEEP = (180, 200, 220, 240, 260)
 
 
 def sweep() -> str:
     out = ["| C_S (pF) | k | kT/C 125 C (uV) | " + " | ".join(f"cmp {c} uV" for c in CMP_SWEEP) + " |",
-           "|---|---|---|" + "---|" * 5]
+           "|---|---|---|" + "---|" * len(CMP_SWEEP)]
     for k in (1.0, 1.5, 2.0, 3.0):
         cells = []
         for c in CMP_SWEEP:
-            cs = Case("", k=k, cmp_top=c * 1e-6, i_ref=2e-3 * k, c_dec=1.5e-12 * k, ref_noise=80e-6,
-                      sigma_cu=0.01 / np.sqrt(k))
-            cells.append(f"{total(cs, chips=4)[0]:.2f}")
+            cs = Case("", k=k, cmp_top=c * 1e-6, i_ref=2e-3 * k, c_dec=1.5e-12 * k)
+            cells.append(f"{total(cs, chips=4)['mean']:.2f}")
         a = arch_k(k)
         out.append(f"| {a.c_s*1e12:.2f} | {k:g} | {a.ktc_noise(125)*1e6:.1f} | " + " | ".join(cells) + " |")
     return "\n".join(out)
@@ -196,8 +220,10 @@ def main() -> None:
     args = ap.parse_args()
     for c in (V02_WORST, V02_ISSUE, V03_WORST, V03_TT):
         print(table(c), "\n", flush=True)
+    t = total(V03_TT_BEHAV, chips=4)
+    print(f"{V03_TT_BEHAV.name}: ENOB {t['mean']:.2f} calibrated, {t['nominal']:.2f} nominal\n", flush=True)
     if args.sweep:
-        print("Mean ENOB, worst corner, 4 chips (sigma(cu) 1 % at 0.5 fF, Pelgrom-scaled; follower x k, 80 uV):\n")
+        print("Mean calibrated ENOB, worst corner, 4 chips (follower x k, REF-08 120 uV):\n")
         print(sweep())
 
 

@@ -28,7 +28,13 @@ from .specs import blocks
 
 _ARCH = Arch.load()
 _FS = f"{_ARCH.fs_peak:.4f}"            # differential full-scale peak (V)
+_COMP_CIN = next(s.max for s in blocks()["adc_comp"].specs if s.metric == "cin_fF") * 1e-15
+_CDB = f"{0.6 * _ARCH.cu / 0.5e-15:g}p"  # CDAC bottom plates seen from VREFP (0.6 pF at cu = 0.5 fF)
 _CS = f"{_ARCH.c_s * 1e12:.4f}p"       # sampling capacitance per side
+_CTOT = f"{_ARCH.c_tot * 1e12:.2f}p"    # top-plate capacitance per side (CDAC + parasitic budget)
+_CTOP = f"{_COMP_CIN * 1e15:g}f"        # comparator input on the top plate (CMP-12 limit)
+_WSW = f"{48 * _ARCH.cu / 0.5e-15:g}u"   # reference input switch: 48 um per 0.5 fF of cu (25 ohm at v0.2)
+_NFSW = f"{round(24 * _ARCH.cu / 0.5e-15)}"  # ... in 2 um fingers
 
 JS = list(range(12, -1, -1))
 DS = [f"D{i}" for i in range(13, -1, -1)]
@@ -271,7 +277,7 @@ def tb_comp() -> list[TBDef]:
            El("VAVDD", "vsource", ["AVDD", "0"], "dc=vdd", "top")]
     out.append(TBDef(
         "tb/comp/tb_comp_kickback.scs", "tb_comp_kickback: kickback on floating 1.25 pF inputs, input capacitance",
-        ["parameters cs=1.25p cload=10f ncyc=8", f"parameters tstop=ncyc*{TCYC:g}+100p"],
+        [f"parameters cs={_CTOT} cload=10f ncyc=8", f"parameters tstop=ncyc*{TCYC:g}+100p"],
         els, ["tran1 tran stop=tstop", "ac1 ac freq=100M", "save INP INN VAC:p"],
         extra=["ic INP=0.4905 INN=0.4895"],
         notes=["inputs preset to 0.49 V +/- 0.5 mV and left floating on cs; the change of V(INP)-V(INN) per cycle is the kickback",
@@ -339,7 +345,7 @@ def tb_cdac() -> list[TBDef]:
     els += [e for e in _ideal_front() if e.name not in ("VVCM",)]
     out.append(TBDef(
         "tb/cdac/tb_cdac_weights.scs", "tb_cdac_weights: input gain, sampling capacitance and the 26 half weights",
-        ["parameters tper=10n ctop=15f", "parameters tstop=29*tper+1n"],
+        [f"parameters tper=10n ctop={_CTOP}", "parameters tstop=29*tper+1n"],
         els, ["tran1 tran stop=tstop outputstart=tstop", "tbopts options save=none"],
         notes=["conversions 4..29 raise one control line each (DH12, RL12, ..., DH0, RL0) for 1.5 ns",
                "top plate sampled 0.9 ns and 2.2 ns after CONV rises; weight = step / input gain"]))
@@ -358,7 +364,7 @@ def tb_cdac() -> list[TBDef]:
     els += [e for e in _ideal_front() if e.name not in ("VREFP",)]
     out.append(TBDef(
         "tb/cdac/tb_cdac_settle.scs", "tb_cdac_settle: DAC step settling, conversion start, hold droop, VREFP charge",
-        ["parameters tper=10n ctop=15f", "parameters tstop=7*tper"],
+        [f"parameters tper=10n ctop={_CTOP}", "parameters tstop=7*tper"],
         els, ["tran1 tran stop=tstop maxstep=2p", "ac1 ac freq=100M", "save TOP CONV VDH5:p"],
         notes=["cycle 1 has no control activity: conversion-start settling and 5 ns hold droop"]))
     # tracking linearity (P and N)
@@ -378,7 +384,7 @@ def tb_cdac() -> list[TBDef]:
     els += _ideal_front()
     out.append(TBDef(
         "tb/cdac/tb_cdac_track.scs", "tb_cdac_track: sampling-network linearity of the two CDACs from 50 ohm",
-        [f"parameters fin=49.8046875e6 amp_dbfs=-1 npts=256 nskip=4 tper=10n fs_peak={_FS} vcm_in=0.45 rsrc=50 ctop=15f",
+        [f"parameters fin=49.8046875e6 amp_dbfs=-1 npts=256 nskip=4 tper=10n fs_peak={_FS} vcm_in=0.45 rsrc=50 ctop={_CTOP}",
          "parameters amp=fs_peak*pow(10, amp_dbfs/20) tstart=nskip*tper tstop=(nskip+npts+0.5)*tper"],
         els, ["tran1 tran stop=tstop outputstart=tstop", "tbopts options save=none reltol=1e-5 vabstol=1e-8"],
         notes=["V(TOPP) - V(TOPN) 300 ps after CONV rises (neutral DAC, no decisions) is the sampled input"]))
@@ -389,7 +395,7 @@ def tb_bootstrap() -> list[TBDef]:
     out = []
     levels = [0.0, 0.15, 0.3, 0.45, 0.6, 0.75, 0.9]
     ref_load = lambda vin, vg, bp, top: [  # noqa: E731
-        El(f"MSW{bp[-1]}", "nch_ulvt_mac", [bp, vg, vin, "0"], "w=wsw l=30n nf=24", "load",
+        El(f"MSW{bp[-1]}", "nch_ulvt_mac", [bp, vg, vin, "0"], "w=wsw l=30n nf=nfsw", "load",
            note="reference input switch of one CDAC side"),
         El(f"CS{bp[-1]}", "capacitor", [bp, top], "c=cs", "load"),
         El(f"STOP{bp[-1]}", "relay", [top, "VCM", "PHI_S", "0"], "vt1=0.35 vt2=0.55 ropen=1e12 rclosed=20", "load"),
@@ -404,7 +410,7 @@ def tb_bootstrap() -> list[TBDef]:
     els += _sup("AVDD", "vdd", True, t0="tper", t1="tstop")
     out.append(TBDef(
         "tb/bootstrap/tb_bootstrap_dc.scs", "tb_bootstrap_dc: boosted gate over the input range, edges, current",
-        [f"parameters tper=10n rsrc=50 wsw=48u cs={_CS}", "parameters tstop=29*tper"],
+        [f"parameters tper=10n rsrc=50 wsw={_WSW} nfsw={_NFSW} cs={_CS}", "parameters tstop=29*tper"],
         els, ["tran1 tran stop=tstop", "save VG VIN PHI_B BP"],
         notes=["VIN steps 0 .. 0.9 V in 0.15 V steps, 4 cycles each, through 50 ohm with the reference switch load"]))
     els = [El("XBSP", "adc_bootstrap", ["VINP", "PHI_B", "PHI_BB", "VGP", "AVDD", "0"], where="dut"),
@@ -420,7 +426,7 @@ def tb_bootstrap() -> list[TBDef]:
     els += [El("VAVDD", "vsource", ["AVDD", "0"], "dc=vdd", "top")]
     out.append(TBDef(
         "tb/bootstrap/tb_bootstrap_track.scs", "tb_bootstrap_track: differential tracking linearity with the reference switch",
-        [f"parameters fin=49.8046875e6 amp_dbfs=-1 npts=256 nskip=4 tper=10n fs_peak={_FS} vcm_in=0.45 rsrc=50 wsw=48u cs={_CS}",
+        [f"parameters fin=49.8046875e6 amp_dbfs=-1 npts=256 nskip=4 tper=10n fs_peak={_FS} vcm_in=0.45 rsrc=50 wsw={_WSW} nfsw={_NFSW} cs={_CS}",
          "parameters amp=fs_peak*pow(10, amp_dbfs/20) tstart=nskip*tper tstop=(nskip+npts+0.5)*tper"],
         els, ["tran1 tran stop=tstop outputstart=tstop", "tbopts options save=none reltol=1e-5 vabstol=1e-8"]))
     return out
@@ -474,7 +480,7 @@ def tb_ref() -> list[TBDef]:
          "save VREFP VCM VH:p VA:p VREF:p"]))
     out.append(TBDef(
         "tb/ref/tb_ref_replay.scs", "tb_ref_replay: VREFP under the CDAC charge sequence of a near-Nyquist conversion",
-        ["parameters npts=1024 nwarm=32 fin=48.828125e6 ccdac=0.6p", "parameters tstop=(nwarm+npts+2)*10n"],
+        [f"parameters npts=1024 nwarm=32 fin=48.828125e6 ccdac={_CDB}", "parameters tstop=(nwarm+npts+2)*10n"],
         base + [El("CDB", "capacitor", ["VREFP", "0"], "c=ccdac", "load",
                    note="CDAC bottom plates seen from VREFP (both sides)"),
                 El("ILD", "isource", ["VREFP", "0"], 'type=pwl file="iload.pwl"', "load",
@@ -487,7 +493,7 @@ def tb_ref() -> list[TBDef]:
         notes=["iload.pwl / trig.pwl are written into the job directory by adcflow.measure.ref:replay_prepare"]))
     out.append(TBDef(
         "tb/ref/tb_ref_noise.scs", "tb_ref_noise: VREFP and VCM noise, 1 kHz - 100 GHz",
-        ["parameters iload=100u ccdac=0.6p"],
+        [f"parameters iload=100u ccdac={_CDB}"],
         base + [El("IL", "isource", ["VREFP", "0"], "dc=iload", "load"),
                 El("CDB", "capacitor", ["VREFP", "0"], "c=ccdac", "load")],
         ["noise1 (VREFP 0) noise start=1k stop=100G dec=20",
@@ -512,12 +518,13 @@ def tb_top() -> list[TBDef]:
     els += _sup("AVDD", "vdd", True) + _sup("DVDD", "vdd", True) + _sup("AVDD18", "vdd18", True)
     return [TBDef(
         "tb/top/tb_top_sine.scs", "tb_top_sine: full ADC, coherent differential sine from 50 ohm per side",
-        ["parameters fin=49.8962402e6 amp_dbfs=-1 npts=1024 nskip=4 duty=0.5 fsamp=100e6 \\",
+        ["parameters fin=49.8962402e6 amp_dbfs=-1 npts=1024 ncal=1024 nskip=4 duty=0.5 fsamp=100e6 \\",
          f"        fs_peak={_FS} vcm_in=0.45 rsrc=50 cload=50f nfmax=20G",
          "parameters amp=fs_peak*pow(10, amp_dbfs/20) tper=1/fsamp \\",
-         "        tstart=(nskip-0.5)*tper tstop=(nskip+npts+0.6)*tper"],
+         "        tstart=(nskip-0.5)*tper tstop=(nskip+ncal+npts+0.6)*tper"],
         els, ["tran1 tran stop=tstop noisefmax=nfmax*noise_en*devnoise noiseseed=1 outputstart=tstop", "tbopts options save=none"],
-        notes=["capture.txt: D13..D0 and CLK-fall -> RDY time per conversion; power.txt: average supply currents"])]
+        notes=["capture.txt: D13..D0 and CLK-fall -> RDY time per conversion; power.txt: average supply currents",
+               "the first ncal conversions calibrate the weights, the next npts are judged (adcflow.calib)"])]
 
 
 def all_tbs() -> list[TBDef]:

@@ -3,6 +3,11 @@
 > 对应 `specs/arch.yaml` v0.2.0 与 `specs/blocks/adc_ref.yaml` v0.2.0。数字来自系统级模型
 > `tools/adcflow/model.py`（`Follower`、`RefNet`、`ref_trace`）、`analysis/ref_redundancy.py`
 > 与 Spectre 行为级仿真（`tb_ref_replay`）。
+>
+> **架构 v0.3**（`docs/noise-budget.md`）：单位电容加倍（cu = 1 fF），下文的所有电荷与 CDAC 底板电容（0.6 pF）
+> 都乘 2（起始 0.93 pC、13 次切换 1.02 pC、与信号相关 ≤ 0.36 pC、底板 1.2 pF、平均约 0.2 mA）。电压容差、
+> REF-08/12/13/14 不变。follower 电流与节点电容同乘 2 时 VREFP 波形与 v0.2 完全相同，行为级起点因此为
+> 4 mA + 3 pF；下文的电流、电容数字是 v0.2（cu = 0.5 fF）的值。
 
 ## 1. 结论
 
