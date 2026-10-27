@@ -69,7 +69,7 @@
   "TOP-02": {
    "metric": "enob",
    "value": 10.89011611753217,
-   "limit": ">= 10.8",
+   "limit": ">= 10.75",
    "pass": true
   },
   "TOP-03": {
@@ -108,15 +108,15 @@
   }
  ],
  "meta": {
-  "date": "2026-10-28T01:43:14",
-  "git": "2c42098",
+  "date": "2026-10-28T02:58:24",
+  "git": "1cb981b",
   "git_clean": true,
   "mode": "aps",
   "pdk": false,
   "mc": null,
-  "wall_s": 412.8,
+  "wall_s": 410.6,
   "rc": "0",
-  "sim_s": "306",
+  "sim_s": "304",
   "files": {
    "design/behav/adc_bootstrap.scs": "9458798199909fc5",
    "design/behav/adc_cdac.scs": "423386f9cc9bb2d0",
@@ -135,7 +135,7 @@
    "tb/common/veriloga/tb_capture_va.va": "1a05df990a1ef806",
    "tb/common/veriloga/tb_imeter_va.va": "d4be49aca417ad61",
    "tb/top/tb_top_sine.scs": "c71c5ef949bb4ab1",
-   "specs/arch.yaml": "f5f9f8cdaa7eaa61"
+   "specs/arch.yaml": "bffadef750bb5205"
   }
  }
 }

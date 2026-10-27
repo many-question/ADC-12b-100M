@@ -55,8 +55,8 @@
   }
  ],
  "meta": {
-  "date": "2026-10-28T01:19:14",
-  "git": "2c42098",
+  "date": "2026-10-28T02:34:25",
+  "git": "1cb981b",
   "git_clean": true,
   "mode": "aps",
   "pdk": false,
@@ -80,7 +80,7 @@
    "design/behav/veriloga/adc_ref_va.va": "746d2530d4ff6d5c",
    "design/behav/veriloga/adc_sarlogic_va.va": "42f06909a81347ef",
    "tb/ref/tb_ref_dc.scs": "36cad0421a7a9c8e",
-   "specs/arch.yaml": "f5f9f8cdaa7eaa61"
+   "specs/arch.yaml": "bffadef750bb5205"
   }
  }
 }

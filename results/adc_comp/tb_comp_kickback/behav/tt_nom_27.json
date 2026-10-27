@@ -48,13 +48,13 @@
   }
  ],
  "meta": {
-  "date": "2026-10-28T01:06:17",
-  "git": "2c42098",
+  "date": "2026-10-28T02:21:26",
+  "git": "1cb981b",
   "git_clean": true,
   "mode": "aps",
   "pdk": false,
   "mc": null,
-  "wall_s": 125.9,
+  "wall_s": 123.8,
   "rc": "0",
   "sim_s": "17",
   "files": {
@@ -74,7 +74,7 @@
    "design/behav/veriloga/adc_sarlogic_va.va": "42f06909a81347ef",
    "tb/common/veriloga/tb_sampler_va.va": "4092bc16170c588d",
    "tb/comp/tb_comp_kickback.scs": "824daa167f4f09c1",
-   "specs/arch.yaml": "f5f9f8cdaa7eaa61"
+   "specs/arch.yaml": "bffadef750bb5205"
   }
  }
 }
