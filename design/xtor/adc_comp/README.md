@@ -7,10 +7,13 @@ return-to-zero output inverters. The embedded RNL records show every device,
 wire and body connection and identify the differential pair, matched devices,
 regenerative group and reset group.
 
-Current checkpoint `dt01` is an exploratory two-stage circuit with a dynamic
-NMOS preamplifier and a complementary PMOS-input regenerative stage, each
-with its own tail. Its second-stage reset uses an inverted clock. It is a
-comparison experiment, not a reproduction of Miyahara's self-timed core.
+Current checkpoint `my01` implements the self-timed core (M1-M15) of
+Miyahara et al., "A Low-Noise Self-Calibrating Dynamic Comparator for
+High-Speed ADCs," A-SSCC 2008, Fig. 2(b), DOI 10.1109/ASSCC.2008.4708780.
+The paper's offset-compensation devices and charge pump are omitted. P/N
+drive both the second-stage PMOS input devices and its NMOS reset devices;
+there is no second-stage clock or explicit shared tail. Positive input
+difference lowers P first and raises OUTP, preserving the required polarity.
 
 ## Reproducible checkpoints
 
@@ -82,7 +85,14 @@ considering a two-stage topology.
 | Experiment | Noise | Delay at 1 mV / 30 mV | Reset | Energy | Cin | Kickback |
 |---|---|---|---|---|---|---|
 | dt01 | 251.9 uV | 56.25 / 44.27 ps | 14.70 ps | 115.32 fJ | 14.25 fF | 0.037 uV |
+| my01 | 262.1 uV | 59.34 / 48.31 ps | 31.06 ps | 115.16 fJ | 14.25 fF | 0.007 uV |
 
 The two-stage clocked comparison meets the TT timing, energy, input-capacitance
 and kickback limits, but still fails noise. Its exact source and results are
 preserved before moving to the self-timed topology.
+
+The my01 self-timed core also passes the measured TT limits except noise.
+The difference between its noise fit and dt01 is small relative to the
+limited number of noise decisions; neither is close to 80 uV. Its total MOS
+widths are 40 um (input), 1.5 um (tail), 3 um (second-stage PMOS input),
+3/2 um (PMOS/NMOS regeneration), and 2 um (reset), all at 30 nm length.

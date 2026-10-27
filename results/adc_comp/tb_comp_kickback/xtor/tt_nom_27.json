@@ -14,23 +14,23 @@
   "vref_in": 0.9
  },
  "metrics": {
-  "kickback_uV": 0.03684879620012571,
+  "kickback_uV": 0.006641317799958163,
   "vdiff_uV": [
-   999.997,
-   999.725,
-   999.762,
-   999.799,
-   999.836,
-   999.872,
-   999.909,
-   999.946
+   999.996,
+   999.714,
+   999.721,
+   999.727,
+   999.734,
+   999.74,
+   999.747,
+   999.753
   ],
   "cin_fF": 14.245688392752296
  },
  "specs": {
   "CMP-11": {
    "metric": "kickback_uV",
-   "value": 0.03684879620012571,
+   "value": 0.006641317799958163,
    "limit": "<= 40",
    "pass": true
   },
@@ -48,19 +48,19 @@
   }
  ],
  "meta": {
-  "date": "2026-10-27T17:07:31",
+  "date": "2026-10-27T17:09:59",
   "mode": "aps",
   "pdk": true,
   "mc": null,
   "rc": "0",
   "sim_s": "11",
-  "experiment": "dt01",
+  "experiment": "my01",
   "recorded_from_preserved_outputs": true,
   "files": {
    "design/behav/adc_bootstrap.scs": "066523e6d36e1090",
    "design/behav/adc_cdac.scs": "de8f65e2569cb9bf",
    "design/behav/adc_clkgen.scs": "dafb1c3438e33c9e",
-   "design/xtor/adc_comp/adc_comp.scs": "dd3e2530f8fa01b5",
+   "design/xtor/adc_comp/adc_comp.scs": "6952f5baf6eb5f16",
    "design/behav/adc_ref.scs": "ad0159030e3a4f37",
    "design/behav/adc_sarlogic.scs": "356e911752c1b85e",
    "design/top/adc_top.scs": "362a964ffe162797",
