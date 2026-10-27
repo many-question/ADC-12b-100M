@@ -1,0 +1,203 @@
+// adc_comp: conventional single-stage StrongARM latch with RTZ output inverters
+// @RNL(type="header") {
+//   @VERSION("0.3");
+//   @USE-PACKAGE(name="adc28", version="0.1", path="../../rnl/adc28.rnl")
+// }
+simulator lang=spectre
+
+subckt adc_comp (INP INN CLKC OUTP OUTN AVDD VSS)
+// CLKC=0: P,N,X,Y precharge high; OUTP=OUTN=0.
+// CLKC=1: input-pair integration followed by cross-coupled regeneration.
+// INP>INN discharges P then X first, so the inverter asserts OUTP.
+// Each symbol represents parallel single-finger devices; unit W <= 1 um.
+// Integer multiplicity sets total width; no estimated layout-effect parameters.
+// Pre-layout exploratory sizing; device callbacks and mismatch remain to be validated.
+MIP (P INP TAIL VSS) nch_ulvt_mac w=1u l=30n nf=1 m=8
+MIN (N INN TAIL VSS) nch_ulvt_mac w=1u l=30n nf=1 m=8
+MTAIL (TAIL CLKC VSS VSS) nch_ulvt_mac w=1u l=30n nf=1 m=12
+MLNP (X Y P VSS) nch_ulvt_mac w=1u l=30n nf=1 m=3
+MLNN (Y X N VSS) nch_ulvt_mac w=1u l=30n nf=1 m=3
+MLPP (X Y AVDD AVDD) pch_ulvt_mac w=1u l=30n nf=1 m=3
+MLPN (Y X AVDD AVDD) pch_ulvt_mac w=1u l=30n nf=1 m=3
+MRP (P CLKC AVDD AVDD) pch_ulvt_mac w=0.75u l=30n nf=1 m=2
+MRN (N CLKC AVDD AVDD) pch_ulvt_mac w=0.75u l=30n nf=1 m=2
+MRX (X CLKC AVDD AVDD) pch_ulvt_mac w=0.75u l=30n nf=1 m=2
+MRY (Y CLKC AVDD AVDD) pch_ulvt_mac w=0.75u l=30n nf=1 m=2
+MOPN (OUTP X VSS VSS) nch_ulvt_mac w=0.75u l=30n nf=1 m=2
+MOPP (OUTP X AVDD AVDD) pch_ulvt_mac w=1u l=30n nf=1 m=3
+MONN (OUTN Y VSS VSS) nch_ulvt_mac w=0.75u l=30n nf=1 m=2
+MONP (OUTN Y AVDD AVDD) pch_ulvt_mac w=1u l=30n nf=1 m=3
+// @RNL {
+//   &AVDD @ADD-TO $SUPPLY_NET_SET;
+//   &VSS @ADD-TO $GROUND_NET_SET;
+//   %input_pair = #MIP(in_p) #MIN(in_n) #MTAIL(tail) @AS $DIFFERENTIAL_PAIR;
+//   {#MIP #MIN} @AS $MATCHED;
+//   {#MLNP #MLNN} @AS $MATCHED;
+//   {#MLPP #MLPN} @AS $MATCHED;
+//   {#MRP #MRN} @AS $MATCHED;
+//   {#MRX #MRY} @AS $MATCHED;
+//   {#MOPN #MONN} @AS $MATCHED;
+//   {#MOPP #MONP} @AS $MATCHED;
+//   $SA_REGEN = @DEFINE(roles=["n_p", "n_n", "p_p", "p_n"]) { {?n_p ?n_n ?p_p ?p_n} @GROUP };
+//   %regeneration = #MLNP(n_p) #MLNN(n_n) #MLPP(p_p) #MLPN(p_n) @AS $SA_REGEN;
+//   {#MRP #MRN #MRX #MRY} @GROUP;
+//   {#MOPN #MOPP} @GROUP;
+//   {#MONN #MONP} @GROUP;
+//   #MTAIL:d @CURRENT("in");
+//   #MTAIL:s @CURRENT("out");
+//   #MIP @PLACE(-12, 0) => @ORIENT("R0");
+//   #MIP @TEXT("8 x 1u/30n", key="model", size=0.65, dx=4, dy=-1.1, halign="start");
+//   %b_MIP = $GROUND @ATTACH &VSS => @PLACE(-10, -3.6);
+//   &VSS @WIRE {#MIP:b (-10, 0) %b_MIP:p};
+//   #MIN @PLACE(12, 0) => @ORIENT("MY");
+//   #MIN @TEXT("8 x 1u/30n", key="model", size=0.65, dx=-4, dy=-1.1, halign="end");
+//   %b_MIN = $GROUND @ATTACH &VSS => @PLACE(10, -3.6);
+//   &VSS @WIRE {#MIN:b (10, 0) %b_MIN:p};
+//   #MTAIL @PLACE(0, -12) => @ORIENT("R0");
+//   #MTAIL @TEXT("12 x 1u/30n", key="model", size=0.65, dx=4, dy=-1.1, halign="start");
+//   %b_MTAIL = $GROUND @ATTACH &VSS => @PLACE(2, -15.6);
+//   &VSS @WIRE {#MTAIL:b (2, -12) %b_MTAIL:p};
+//   #MLNP @PLACE(-12, 12) => @ORIENT("R0");
+//   #MLNP @TEXT("3 x 1u/30n", key="model", size=0.65, dx=4, dy=-1.1, halign="start");
+//   %b_MLNP = $GROUND @ATTACH &VSS => @PLACE(-10, 8.4);
+//   &VSS @WIRE {#MLNP:b (-10, 12) %b_MLNP:p};
+//   #MLNN @PLACE(12, 12) => @ORIENT("MY");
+//   #MLNN @TEXT("3 x 1u/30n", key="model", size=0.65, dx=-4, dy=-1.1, halign="end");
+//   %b_MLNN = $GROUND @ATTACH &VSS => @PLACE(10, 8.4);
+//   &VSS @WIRE {#MLNN:b (10, 12) %b_MLNN:p};
+//   #MLPP @PLACE(-12, 24) => @ORIENT("R0");
+//   #MLPP @TEXT("3 x 1u/30n", key="model", size=0.65, dx=4, dy=-1.1, halign="start");
+//   %b_MLPP = $SUPPLY @ATTACH &AVDD => @PLACE(-10, 27.6);
+//   &AVDD @WIRE {#MLPP:b (-10, 24) %b_MLPP:p};
+//   %s_MLPP = $SUPPLY @ATTACH &AVDD => @PLACE(-12, 29.4);
+//   &AVDD @WIRE {#MLPP:s %s_MLPP:p};
+//   #MLPN @PLACE(12, 24) => @ORIENT("MY");
+//   #MLPN @TEXT("3 x 1u/30n", key="model", size=0.65, dx=-4, dy=-1.1, halign="end");
+//   %b_MLPN = $SUPPLY @ATTACH &AVDD => @PLACE(10, 27.6);
+//   &AVDD @WIRE {#MLPN:b (10, 24) %b_MLPN:p};
+//   %s_MLPN = $SUPPLY @ATTACH &AVDD => @PLACE(12, 29.4);
+//   &AVDD @WIRE {#MLPN:s %s_MLPN:p};
+//   #MRP @PLACE(-28, 8) => @ORIENT("R0");
+//   #MRP @TEXT("2 x 0.75u/30n", key="model", size=0.65, dx=4, dy=-1.1, halign="start");
+//   %b_MRP = $SUPPLY @ATTACH &AVDD => @PLACE(-26, 11.6);
+//   &AVDD @WIRE {#MRP:b (-26, 8) %b_MRP:p};
+//   %s_MRP = $SUPPLY @ATTACH &AVDD => @PLACE(-28, 13.4);
+//   &AVDD @WIRE {#MRP:s %s_MRP:p};
+//   #MRN @PLACE(28, 8) => @ORIENT("MY");
+//   #MRN @TEXT("2 x 0.75u/30n", key="model", size=0.65, dx=-4, dy=-1.1, halign="end");
+//   %b_MRN = $SUPPLY @ATTACH &AVDD => @PLACE(26, 11.6);
+//   &AVDD @WIRE {#MRN:b (26, 8) %b_MRN:p};
+//   %s_MRN = $SUPPLY @ATTACH &AVDD => @PLACE(28, 13.4);
+//   &AVDD @WIRE {#MRN:s %s_MRN:p};
+//   #MRX @PLACE(-28, 24) => @ORIENT("R0");
+//   #MRX @TEXT("2 x 0.75u/30n", key="model", size=0.65, dx=4, dy=-1.1, halign="start");
+//   %b_MRX = $SUPPLY @ATTACH &AVDD => @PLACE(-26, 27.6);
+//   &AVDD @WIRE {#MRX:b (-26, 24) %b_MRX:p};
+//   %s_MRX = $SUPPLY @ATTACH &AVDD => @PLACE(-28, 29.4);
+//   &AVDD @WIRE {#MRX:s %s_MRX:p};
+//   #MRY @PLACE(28, 24) => @ORIENT("MY");
+//   #MRY @TEXT("2 x 0.75u/30n", key="model", size=0.65, dx=-4, dy=-1.1, halign="end");
+//   %b_MRY = $SUPPLY @ATTACH &AVDD => @PLACE(26, 27.6);
+//   &AVDD @WIRE {#MRY:b (26, 24) %b_MRY:p};
+//   %s_MRY = $SUPPLY @ATTACH &AVDD => @PLACE(28, 29.4);
+//   &AVDD @WIRE {#MRY:s %s_MRY:p};
+//   #MOPN @PLACE(52, 12) => @ORIENT("R0");
+//   #MOPN @TEXT("2 x 0.75u/30n", key="model", size=0.65, dx=4, dy=-1.1, halign="start");
+//   %b_MOPN = $GROUND @ATTACH &VSS => @PLACE(54, 8.4);
+//   &VSS @WIRE {#MOPN:b (54, 12) %b_MOPN:p};
+//   #MOPP @PLACE(52, 24) => @ORIENT("R0");
+//   #MOPP @TEXT("3 x 1u/30n", key="model", size=0.65, dx=4, dy=-1.1, halign="start");
+//   %b_MOPP = $SUPPLY @ATTACH &AVDD => @PLACE(54, 27.6);
+//   &AVDD @WIRE {#MOPP:b (54, 24) %b_MOPP:p};
+//   %s_MOPP = $SUPPLY @ATTACH &AVDD => @PLACE(52, 29.4);
+//   &AVDD @WIRE {#MOPP:s %s_MOPP:p};
+//   #MONN @PLACE(80, 12) => @ORIENT("R0");
+//   #MONN @TEXT("2 x 0.75u/30n", key="model", size=0.65, dx=4, dy=-1.1, halign="start");
+//   %b_MONN = $GROUND @ATTACH &VSS => @PLACE(82, 8.4);
+//   &VSS @WIRE {#MONN:b (82, 12) %b_MONN:p};
+//   #MONP @PLACE(80, 24) => @ORIENT("R0");
+//   #MONP @TEXT("3 x 1u/30n", key="model", size=0.65, dx=4, dy=-1.1, halign="start");
+//   %b_MONP = $SUPPLY @ATTACH &AVDD => @PLACE(82, 27.6);
+//   &AVDD @WIRE {#MONP:b (82, 24) %b_MONP:p};
+//   %s_MONP = $SUPPLY @ATTACH &AVDD => @PLACE(80, 29.4);
+//   &AVDD @WIRE {#MONP:s %s_MONP:p};
+//   %inp = $IO_PORT @ATTACH &INP => @PLACE(-40, 0) => @ORIENT("R0");
+//   &INP @WIRE {%inp:p #MIP:g};
+//   %inn = $IO_PORT @ATTACH &INN => @PLACE(40, 0) => @ORIENT("MY");
+//   &INN @WIRE {%inn:p #MIN:g};
+//   %tail_join = (0, -6);
+//   $JUNCTION @ATTACH %tail_join;
+//   &TAIL @WIRE {#MIP:s (-12, -6) %tail_join (12, -6) #MIN:s};
+//   &TAIL @WIRE {%tail_join #MTAIL:d};
+//   %tail_gnd = $GROUND @ATTACH &VSS => @PLACE(0, -18);
+//   &VSS @WIRE {#MTAIL:s %tail_gnd:p};
+//   %clk_tail = $IO_PORT @ATTACH &CLKC => @PLACE(-10, -12) => @ORIENT("R0");
+//   &CLKC @WIRE {%clk_tail:p #MTAIL:g};
+//   %clk_MRP = $IO_PORT @ATTACH &CLKC => @PLACE(-36, 8) => @ORIENT("R0");
+//   &CLKC @WIRE {%clk_MRP:p #MRP:g};
+//   %clk_MRN = $IO_PORT @ATTACH &CLKC => @PLACE(36, 8) => @ORIENT("MY");
+//   &CLKC @WIRE {%clk_MRN:p #MRN:g};
+//   %clk_MRX = $IO_PORT @ATTACH &CLKC => @PLACE(-36, 24) => @ORIENT("R0");
+//   &CLKC @WIRE {%clk_MRX:p #MRX:g};
+//   %clk_MRY = $IO_PORT @ATTACH &CLKC => @PLACE(36, 24) => @ORIENT("MY");
+//   &CLKC @WIRE {%clk_MRY:p #MRY:g};
+//   %p_join = (-12, 6);
+//   $JUNCTION @ATTACH %p_join;
+//   %n_join = (12, 6);
+//   $JUNCTION @ATTACH %n_join;
+//   &P @WIRE {#MIP:d %p_join #MLNP:s};
+//   &P @WIRE {%p_join #MRP:d};
+//   &N @WIRE {#MIN:d %n_join #MLNN:s};
+//   &N @WIRE {%n_join #MRN:d};
+//   %x_join = (-12, 18);
+//   $JUNCTION @ATTACH %x_join;
+//   %y_join = (12, 18);
+//   $JUNCTION @ATTACH %y_join;
+//   &X @WIRE {#MLNP:d %x_join #MLPP:d};
+//   &Y @WIRE {#MLNN:d %y_join #MLPN:d};
+//   &X @WIRE {%x_join (-28, 18) #MRX:d};
+//   &Y @WIRE {%y_join (28, 18) #MRY:d};
+//   %x_feedback = (18, 20);
+//   $JUNCTION @ATTACH %x_feedback;
+//   %y_feedback = (-18, 16);
+//   $JUNCTION @ATTACH %y_feedback;
+//   &X @WIRE {%x_join (-6, 18) (-6, 20) %x_feedback};
+//   &X @WIRE {#MLNN:g (18, 12) %x_feedback (18, 24) #MLPN:g};
+//   &Y @WIRE {%y_join (6, 18) (6, 16) %y_feedback};
+//   &Y @WIRE {#MLNP:g (-18, 12) %y_feedback (-18, 24) #MLPP:g};
+//   %x_label = $IO_PORT @ATTACH &X => @PLACE(-8, 18) => @ORIENT("MY");
+//   &X @WIRE {%x_join %x_label:p};
+//   %y_label = $IO_PORT @ATTACH &Y => @PLACE(8, 18) => @ORIENT("R0");
+//   &Y @WIRE {%y_join %y_label:p};
+//   %gate_P = (48, 18);
+//   $JUNCTION @ATTACH %gate_P;
+//   &X @WIRE {#MOPN:g (48, 12) %gate_P (48, 24) #MOPP:g};
+//   %buf_P = $IO_PORT @ATTACH &X => @PLACE(42, 18) => @ORIENT("R0");
+//   &X @WIRE {%buf_P:p %gate_P};
+//   %out_P = (52, 18);
+//   $JUNCTION @ATTACH %out_P;
+//   &OUTP @WIRE {#MOPN:d %out_P #MOPP:d};
+//   %outport_P = $IO_PORT @ATTACH &OUTP => @PLACE(62, 18) => @ORIENT("MY");
+//   &OUTP @WIRE {%out_P %outport_P:p};
+//   %outg_P = $GROUND @ATTACH &VSS => @PLACE(52, 6);
+//   &VSS @WIRE {#MOPN:s %outg_P:p};
+//   %gate_N = (76, 18);
+//   $JUNCTION @ATTACH %gate_N;
+//   &Y @WIRE {#MONN:g (76, 12) %gate_N (76, 24) #MONP:g};
+//   %buf_N = $IO_PORT @ATTACH &Y => @PLACE(70, 18) => @ORIENT("R0");
+//   &Y @WIRE {%buf_N:p %gate_N};
+//   %out_N = (80, 18);
+//   $JUNCTION @ATTACH %out_N;
+//   &OUTN @WIRE {#MONN:d %out_N #MONP:d};
+//   %outport_N = $IO_PORT @ATTACH &OUTN => @PLACE(90, 18) => @ORIENT("MY");
+//   &OUTN @WIRE {%out_N %outport_N:p};
+//   %outg_N = $GROUND @ATTACH &VSS => @PLACE(80, 6);
+//   &VSS @WIRE {#MONN:s %outg_N:p};
+//   (-40, 41) @TEXT("adc_comp | conventional single-stage StrongARM", size=1.25, bold=true, halign="start");
+//   (-40, 38) @TEXT("Matched input pair + single tail; cross-coupled NMOS/PMOS regeneration; four precharge switches", size=0.8, halign="start");
+//   (43, 34) @TEXT("RTZ output inverters", bold=true, size=1, halign="start");
+//   (-40, -23) @TEXT("RESET: CLKC=0, P=N=X=Y=AVDD, OUTP=OUTN=0", size=0.85, halign="start");
+//   (-40, -26) @TEXT("EVALUATE: INP>INN -> P falls faster -> X falls -> OUTP rises. No separate preamplifier.", size=0.8, halign="start");
+//   (-40, -29) @TEXT("Sizing experiment: noise / delay / floating-input kickback must all be measured; pre-layout only.", size=0.8, halign="start");
+// }
+ends adc_comp

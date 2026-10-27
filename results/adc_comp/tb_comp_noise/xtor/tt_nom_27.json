@@ -1,0 +1,84 @@
+{
+ "block": "adc_comp",
+ "test": "tb_comp_noise",
+ "view": "xtor",
+ "corner": "tt_nom_27",
+ "params": {},
+ "globals": {
+  "vdd": 0.9,
+  "vdd18": 1.8,
+  "tempc": 27.0,
+  "noise_en": 1,
+  "devnoise": 1,
+  "beh_speed": 1.0,
+  "vref_in": 0.9
+ },
+ "metrics": {
+  "p1": [
+   0.2188,
+   0.3125,
+   0.375,
+   0.4688,
+   0.5,
+   0.4531,
+   0.6719,
+   0.5938,
+   0.6719,
+   0.5781,
+   0.5625,
+   0.6406,
+   0.6875
+  ],
+  "noise_uV": 584.7178272811885,
+  "offset_abs_mV": 0.031045825978926755,
+  "offset_mV": -0.031045825978926755
+ },
+ "specs": {
+  "CMP-01": {
+   "metric": "noise_uV",
+   "value": 584.7178272811885,
+   "limit": "<= 80",
+   "pass": false
+  },
+  "CMP-02": {
+   "metric": "offset_abs_mV",
+   "value": 0.031045825978926755,
+   "limit": "<= 2",
+   "pass": true
+  }
+ },
+ "figures": [
+  {
+   "file": "tt_nom_27.noise.png",
+   "caption": "Probability of OUTP = 1 against input difference with the Gaussian fit that gives the input-referred noise and offset, and the curve at the noise limit."
+  }
+ ],
+ "meta": {
+  "date": "2026-10-27T16:52:34",
+  "mode": "aps",
+  "pdk": true,
+  "mc": null,
+  "rc": "0",
+  "sim_s": "27",
+  "experiment": "sa01",
+  "recorded_from_preserved_outputs": true,
+  "files": {
+   "design/behav/adc_bootstrap.scs": "066523e6d36e1090",
+   "design/behav/adc_cdac.scs": "de8f65e2569cb9bf",
+   "design/behav/adc_clkgen.scs": "dafb1c3438e33c9e",
+   "design/xtor/adc_comp/adc_comp.scs": "8a11b86c36bd916b",
+   "design/behav/adc_ref.scs": "ad0159030e3a4f37",
+   "design/behav/adc_sarlogic.scs": "356e911752c1b85e",
+   "design/top/adc_top.scs": "362a964ffe162797",
+   "design/behav/veriloga/adc_bootstrap_va.va": "a6afdb6e2e03593b",
+   "design/behav/veriloga/adc_cdac_sw_va.va": "cb43ced3f53d636b",
+   "design/behav/veriloga/adc_clkgen_va.va": "727f8a54cde10a53",
+   "design/behav/veriloga/adc_ktc_va.va": "a1cf98faf5bf9b33",
+   "design/behav/veriloga/adc_ref_va.va": "746d2530d4ff6d5c",
+   "design/behav/veriloga/adc_sarlogic_va.va": "42f06909a81347ef",
+   "tb/common/veriloga/tb_sampler_va.va": "4092bc16170c588d",
+   "tb/comp/tb_comp_noise.scs": "5d5699fe79ebca92",
+   "specs/arch.yaml": "2207a1df50779025"
+  }
+ }
+}
