@@ -1,5 +1,8 @@
 # Comparator transistor-level experiments
 
+See **[FEASIBILITY.md](FEASIBILITY.md)** for the measured tradeoffs, repeated-noise
+evidence, corner coverage and the top-level allocation decision request.
+
 Status: **work in progress, not signed off**. The first candidate was the
 conventional single-stage StrongARM latch: an NMOS input pair and clocked tail,
 cross-coupled NMOS/PMOS regeneration, four PMOS precharge switches, and two
@@ -7,7 +10,7 @@ return-to-zero output inverters. The embedded RNL records show every device,
 wire and body connection and identify the differential pair, matched devices,
 regenerative group and reset group.
 
-Current checkpoint `mc15` implements the self-timed core (M1-M15) of
+Current checkpoint `mc12` implements the self-timed core (M1-M15) of
 Miyahara et al., "A Low-Noise Self-Calibrating Dynamic Comparator for
 High-Speed ADCs," A-SSCC 2008, Fig. 2(b), DOI 10.1109/ASSCC.2008.4708780.
 The paper's offset-compensation devices and charge pump are omitted. P/N
@@ -138,3 +141,12 @@ a further factor of two. The measured 104 uV noise still exceeds 80 uV, while
 57.12 fF input capacitance and 403.57 fJ energy substantially exceed their
 current allocations. This point is retained for the top-level allocation
 discussion rather than as a compliant candidate.
+
+
+The retained mc12 work baseline strengthens first-stage precharge independently
+of second-stage reset. It measures 59.16/47.65 ps at 1/30 mV, 19.34 ps reset,
+145.38 fJ and 14.23 fF at TT. Four noise seeds aggregate to 193.5 uV; the
+standard seed-1 result is 177.1 uV. All seven quick-corner deterministic tests
+meet their applicable corner-scoped timing/reset limits, with worst 1 mV delay
+94.31 ps and worst reset 27.59 ps. Noise remains out of specification. Further
+size search is stopped pending the top-level allocation discussion.

@@ -1,0 +1,212 @@
+{
+  "description": "System-model noise-only sensitivity; other budgets and timing unchanged. Not transistor-level top verification.",
+  "rows": [
+    {
+      "sigma_cmp_top_uV": 80,
+      "fin_Hz": 49877929.6875,
+      "n_fft": 4096,
+      "temp_c": 125,
+      "enob_min": 11.276109689359116,
+      "enob_mean": 11.30158905649875,
+      "enob_max": 11.321832332902025,
+      "runs": [
+        {
+          "seed": 11,
+          "enob": 11.276109689359116,
+          "sndr_dbc": 69.64218032994188,
+          "incomplete": 0
+        },
+        {
+          "seed": 12,
+          "enob": 11.321832332902025,
+          "sndr_dbc": 69.9174306440702,
+          "incomplete": 0
+        },
+        {
+          "seed": 13,
+          "enob": 11.30682514723511,
+          "sndr_dbc": 69.82708738635536,
+          "incomplete": 0
+        }
+      ]
+    },
+    {
+      "sigma_cmp_top_uV": 160,
+      "fin_Hz": 49877929.6875,
+      "n_fft": 4096,
+      "temp_c": 125,
+      "enob_min": 10.948535817587496,
+      "enob_mean": 10.967694508735084,
+      "enob_max": 10.98572529841198,
+      "runs": [
+        {
+          "seed": 11,
+          "enob": 10.948535817587496,
+          "sndr_dbc": 67.67018562187673,
+          "incomplete": 0
+        },
+        {
+          "seed": 12,
+          "enob": 10.98572529841198,
+          "sndr_dbc": 67.89406629644012,
+          "incomplete": 0
+        },
+        {
+          "seed": 13,
+          "enob": 10.968822410205775,
+          "sndr_dbc": 67.79231090943877,
+          "incomplete": 0
+        }
+      ]
+    },
+    {
+      "sigma_cmp_top_uV": 180,
+      "fin_Hz": 49877929.6875,
+      "n_fft": 4096,
+      "temp_c": 125,
+      "enob_min": 10.868229683607153,
+      "enob_mean": 10.887720133538934,
+      "enob_max": 10.91242452936003,
+      "runs": [
+        {
+          "seed": 11,
+          "enob": 10.868229683607153,
+          "sndr_dbc": 67.18674269531506,
+          "incomplete": 0
+        },
+        {
+          "seed": 12,
+          "enob": 10.91242452936003,
+          "sndr_dbc": 67.45279566674738,
+          "incomplete": 0
+        },
+        {
+          "seed": 13,
+          "enob": 10.882506187649618,
+          "sndr_dbc": 67.2726872496507,
+          "incomplete": 0
+        }
+      ]
+    },
+    {
+      "sigma_cmp_top_uV": 200,
+      "fin_Hz": 49877929.6875,
+      "n_fft": 4096,
+      "temp_c": 125,
+      "enob_min": 10.801424343981166,
+      "enob_mean": 10.820801415444818,
+      "enob_max": 10.844059361697376,
+      "runs": [
+        {
+          "seed": 11,
+          "enob": 10.801424343981166,
+          "sndr_dbc": 66.78457455076662,
+          "incomplete": 0
+        },
+        {
+          "seed": 12,
+          "enob": 10.844059361697376,
+          "sndr_dbc": 67.0412373574182,
+          "incomplete": 0
+        },
+        {
+          "seed": 13,
+          "enob": 10.816920540655907,
+          "sndr_dbc": 66.87786165474856,
+          "incomplete": 0
+        }
+      ]
+    },
+    {
+      "sigma_cmp_top_uV": 230,
+      "fin_Hz": 49877929.6875,
+      "n_fft": 4096,
+      "temp_c": 125,
+      "enob_min": 10.710160343115835,
+      "enob_mean": 10.716763194187076,
+      "enob_max": 10.725002630345891,
+      "runs": [
+        {
+          "seed": 11,
+          "enob": 10.715126609099505,
+          "sndr_dbc": 66.26506218677902,
+          "incomplete": 0
+        },
+        {
+          "seed": 12,
+          "enob": 10.725002630345891,
+          "sndr_dbc": 66.32451583468226,
+          "incomplete": 0
+        },
+        {
+          "seed": 13,
+          "enob": 10.710160343115835,
+          "sndr_dbc": 66.23516526555733,
+          "incomplete": 0
+        }
+      ]
+    },
+    {
+      "sigma_cmp_top_uV": 260,
+      "fin_Hz": 49877929.6875,
+      "n_fft": 4096,
+      "temp_c": 125,
+      "enob_min": 10.612602555376926,
+      "enob_mean": 10.622761720114026,
+      "enob_max": 10.6338795711285,
+      "runs": [
+        {
+          "seed": 11,
+          "enob": 10.6338795711285,
+          "sndr_dbc": 65.77595501819357,
+          "incomplete": 0
+        },
+        {
+          "seed": 12,
+          "enob": 10.621803033836649,
+          "sndr_dbc": 65.70325426369662,
+          "incomplete": 0
+        },
+        {
+          "seed": 13,
+          "enob": 10.612602555376926,
+          "sndr_dbc": 65.64786738336909,
+          "incomplete": 0
+        }
+      ]
+    },
+    {
+      "sigma_cmp_top_uV": 300,
+      "fin_Hz": 49877929.6875,
+      "n_fft": 4096,
+      "temp_c": 125,
+      "enob_min": 10.482902345783494,
+      "enob_mean": 10.49553430168085,
+      "enob_max": 10.509188252090071,
+      "runs": [
+        {
+          "seed": 11,
+          "enob": 10.482902345783494,
+          "sndr_dbc": 64.86707212161663,
+          "incomplete": 0
+        },
+        {
+          "seed": 12,
+          "enob": 10.509188252090071,
+          "sndr_dbc": 65.02531327758223,
+          "incomplete": 0
+        },
+        {
+          "seed": 13,
+          "enob": 10.494512307168991,
+          "sndr_dbc": 64.93696408915731,
+          "incomplete": 0
+        }
+      ]
+    }
+  ],
+  "provenance": {
+    "model_sha256": "068a32f1763302b987a941203b3b0dfd5ca9a1fe74516178c1e9171f5d65722c",
+    "architecture_sha256": "2207a1df50779025e78c99d54b3ac1c36530298f6b189d28d6d7915161202ef2"
+  }
+}

@@ -15,34 +15,34 @@
  },
  "metrics": {
   "p1": [
-   0.0,
-   0.0156,
-   0.0156,
-   0.0469,
-   0.2031,
-   0.3125,
-   0.4062,
+   0.0938,
+   0.0781,
+   0.1406,
+   0.1719,
+   0.3281,
+   0.25,
+   0.4219,
+   0.6562,
    0.6875,
-   0.8438,
-   0.8906,
-   1.0,
-   1.0,
-   1.0
+   0.7656,
+   0.9219,
+   0.875,
+   0.9531
   ],
-  "noise_uV": 103.97509574703417,
-  "offset_abs_mV": 0.005873856659849428,
-  "offset_mV": 0.005873856659849428
+  "noise_uV": 177.08053135219347,
+  "offset_abs_mV": 0.012267779353134584,
+  "offset_mV": 0.012267779353134584
  },
  "specs": {
   "CMP-01": {
    "metric": "noise_uV",
-   "value": 103.97509574703417,
+   "value": 177.08053135219347,
    "limit": "<= 80",
    "pass": false
   },
   "CMP-02": {
    "metric": "offset_abs_mV",
-   "value": 0.005873856659849428,
+   "value": 0.012267779353134584,
    "limit": "<= 2",
    "pass": true
   }
@@ -59,14 +59,14 @@
   "pdk": true,
   "mc": null,
   "rc": "0",
-  "sim_s": "28",
-  "experiment": "mc15",
+  "sim_s": "29",
+  "experiment": "mc12",
   "recorded_from_preserved_outputs": true,
   "files": {
    "design/behav/adc_bootstrap.scs": "066523e6d36e1090",
    "design/behav/adc_cdac.scs": "de8f65e2569cb9bf",
    "design/behav/adc_clkgen.scs": "dafb1c3438e33c9e",
-   "design/xtor/adc_comp/adc_comp.scs": "f998a3d325a4844b",
+   "design/xtor/adc_comp/adc_comp.scs": "259c8f0ad1e9189c",
    "design/behav/adc_ref.scs": "ad0159030e3a4f37",
    "design/behav/adc_sarlogic.scs": "356e911752c1b85e",
    "design/top/adc_top.scs": "362a964ffe162797",
