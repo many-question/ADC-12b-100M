@@ -15,34 +15,34 @@
  },
  "metrics": {
   "p1": [
-   0.2188,
-   0.2031,
-   0.2656,
-   0.2969,
+   0.1719,
+   0.1875,
+   0.1719,
+   0.375,
    0.3438,
-   0.3594,
+   0.375,
+   0.4531,
    0.5781,
-   0.5938,
    0.7031,
-   0.6406,
+   0.5625,
    0.75,
    0.8438,
-   0.8281
+   0.8906
   ],
-  "noise_uV": 298.00869745991787,
-  "offset_abs_mV": 0.007638770647764317,
-  "offset_mV": -0.007638770647764317
+  "noise_uV": 283.681290907622,
+  "offset_abs_mV": 0.00847580078015037,
+  "offset_mV": 0.00847580078015037
  },
  "specs": {
   "CMP-01": {
    "metric": "noise_uV",
-   "value": 298.00869745991787,
+   "value": 283.681290907622,
    "limit": "<= 80",
    "pass": false
   },
   "CMP-02": {
    "metric": "offset_abs_mV",
-   "value": 0.007638770647764317,
+   "value": 0.00847580078015037,
    "limit": "<= 2",
    "pass": true
   }
@@ -54,19 +54,19 @@
   }
  ],
  "meta": {
-  "date": "2026-10-27T16:59:41",
+  "date": "2026-10-27T17:02:37",
   "mode": "aps",
   "pdk": true,
   "mc": null,
   "rc": "0",
   "sim_s": "27",
-  "experiment": "sa03_c8",
+  "experiment": "sa04_c4",
   "recorded_from_preserved_outputs": true,
   "files": {
    "design/behav/adc_bootstrap.scs": "066523e6d36e1090",
    "design/behav/adc_cdac.scs": "de8f65e2569cb9bf",
    "design/behav/adc_clkgen.scs": "dafb1c3438e33c9e",
-   "design/xtor/adc_comp/adc_comp.scs": "7e6e54948d60a671",
+   "design/xtor/adc_comp/adc_comp.scs": "8a056ce6a4507ee1",
    "design/behav/adc_ref.scs": "ad0159030e3a4f37",
    "design/behav/adc_sarlogic.scs": "356e911752c1b85e",
    "design/top/adc_top.scs": "362a964ffe162797",

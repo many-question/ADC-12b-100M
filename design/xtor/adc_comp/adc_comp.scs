@@ -14,11 +14,11 @@ subckt adc_comp (INP INN CLKC OUTP OUTN AVDD VSS)
 // Pre-layout exploratory sizing; device callbacks and mismatch remain to be validated.
 MIP (P INP TAIL VSS) nch_ulvt_mac w=1u l=30n nf=1 m=40
 MIN (N INN TAIL VSS) nch_ulvt_mac w=1u l=30n nf=1 m=40
-MTAIL (TAIL CLKC VSS VSS) nch_ulvt_mac w=1u l=30n nf=1 m=8
-MLNP (X Y P VSS) nch_ulvt_mac w=1u l=30n nf=1 m=3
-MLNN (Y X N VSS) nch_ulvt_mac w=1u l=30n nf=1 m=3
-MLPP (X Y AVDD AVDD) pch_ulvt_mac w=1u l=30n nf=1 m=3
-MLPN (Y X AVDD AVDD) pch_ulvt_mac w=1u l=30n nf=1 m=3
+MTAIL (TAIL CLKC VSS VSS) nch_ulvt_mac w=1u l=30n nf=1 m=2
+MLNP (X Y P VSS) nch_ulvt_mac w=1u l=30n nf=1 m=1
+MLNN (Y X N VSS) nch_ulvt_mac w=1u l=30n nf=1 m=1
+MLPP (X Y AVDD AVDD) pch_ulvt_mac w=1u l=30n nf=1 m=1
+MLPN (Y X AVDD AVDD) pch_ulvt_mac w=1u l=30n nf=1 m=1
 MRP (P CLKC AVDD AVDD) pch_ulvt_mac w=1u l=30n nf=1 m=3
 MRN (N CLKC AVDD AVDD) pch_ulvt_mac w=1u l=30n nf=1 m=3
 MRX (X CLKC AVDD AVDD) pch_ulvt_mac w=1u l=30n nf=1 m=3
@@ -28,8 +28,8 @@ MOPP (OUTP X AVDD AVDD) pch_ulvt_mac w=1u l=30n nf=1 m=3
 MONN (OUTN Y VSS VSS) nch_ulvt_mac w=0.75u l=30n nf=1 m=2
 MONP (OUTN Y AVDD AVDD) pch_ulvt_mac w=1u l=30n nf=1 m=3
 // Matched MOM integration loads at the input-pair drains P and N.
-CINTP (P VSS) cfmom_2t nr=24 lr=1u w=50n s=50n stm=1 spm=3 multi=8
-CINTN (N VSS) cfmom_2t nr=24 lr=1u w=50n s=50n stm=1 spm=3 multi=8
+CINTP (P VSS) cfmom_2t nr=24 lr=1u w=50n s=50n stm=1 spm=3 multi=4
+CINTN (N VSS) cfmom_2t nr=24 lr=1u w=50n s=50n stm=1 spm=3 multi=4
 // @RNL {
 //   &AVDD @ADD-TO $SUPPLY_NET_SET;
 //   &VSS @ADD-TO $GROUND_NET_SET;
@@ -57,25 +57,25 @@ CINTN (N VSS) cfmom_2t nr=24 lr=1u w=50n s=50n stm=1 spm=3 multi=8
 //   %b_MIN = $GROUND @ATTACH &VSS => @PLACE(10, -3.6);
 //   &VSS @WIRE {#MIN:b (10, 0) %b_MIN:p};
 //   #MTAIL @PLACE(0, -12) => @ORIENT("R0");
-//   #MTAIL @TEXT("8 x 1u/30n", key="model", size=0.65, dx=4, dy=-1.1, halign="start");
+//   #MTAIL @TEXT("2 x 1u/30n", key="model", size=0.65, dx=4, dy=-1.1, halign="start");
 //   %b_MTAIL = $GROUND @ATTACH &VSS => @PLACE(2, -15.6);
 //   &VSS @WIRE {#MTAIL:b (2, -12) %b_MTAIL:p};
 //   #MLNP @PLACE(-12, 12) => @ORIENT("R0");
-//   #MLNP @TEXT("3 x 1u/30n", key="model", size=0.65, dx=4, dy=-1.1, halign="start");
+//   #MLNP @TEXT("1 x 1u/30n", key="model", size=0.65, dx=4, dy=-1.1, halign="start");
 //   %b_MLNP = $GROUND @ATTACH &VSS => @PLACE(-10, 8.4);
 //   &VSS @WIRE {#MLNP:b (-10, 12) %b_MLNP:p};
 //   #MLNN @PLACE(12, 12) => @ORIENT("MY");
-//   #MLNN @TEXT("3 x 1u/30n", key="model", size=0.65, dx=-4, dy=-1.1, halign="end");
+//   #MLNN @TEXT("1 x 1u/30n", key="model", size=0.65, dx=-4, dy=-1.1, halign="end");
 //   %b_MLNN = $GROUND @ATTACH &VSS => @PLACE(10, 8.4);
 //   &VSS @WIRE {#MLNN:b (10, 12) %b_MLNN:p};
 //   #MLPP @PLACE(-12, 24) => @ORIENT("R0");
-//   #MLPP @TEXT("3 x 1u/30n", key="model", size=0.65, dx=4, dy=-1.1, halign="start");
+//   #MLPP @TEXT("1 x 1u/30n", key="model", size=0.65, dx=4, dy=-1.1, halign="start");
 //   %b_MLPP = $SUPPLY @ATTACH &AVDD => @PLACE(-10, 27.6);
 //   &AVDD @WIRE {#MLPP:b (-10, 24) %b_MLPP:p};
 //   %s_MLPP = $SUPPLY @ATTACH &AVDD => @PLACE(-12, 29.4);
 //   &AVDD @WIRE {#MLPP:s %s_MLPP:p};
 //   #MLPN @PLACE(12, 24) => @ORIENT("MY");
-//   #MLPN @TEXT("3 x 1u/30n", key="model", size=0.65, dx=-4, dy=-1.1, halign="end");
+//   #MLPN @TEXT("1 x 1u/30n", key="model", size=0.65, dx=-4, dy=-1.1, halign="end");
 //   %b_MLPN = $SUPPLY @ATTACH &AVDD => @PLACE(10, 27.6);
 //   &AVDD @WIRE {#MLPN:b (10, 24) %b_MLPN:p};
 //   %s_MLPN = $SUPPLY @ATTACH &AVDD => @PLACE(12, 29.4);
@@ -154,12 +154,12 @@ CINTN (N VSS) cfmom_2t nr=24 lr=1u w=50n s=50n stm=1 spm=3 multi=8
 //   &N @WIRE {%n_join #MRN:d};
 //   {#CINTP #CINTN} @AS $MATCHED;
 //   #CINTP @PLACE(-42, 2) => @ORIENT("R0");
-//   #CINTP @TEXT("8 MOM units", key="value", dx=3, size=0.65, halign="start");
+//   #CINTP @TEXT("4 MOM units", key="value", dx=3, size=0.65, halign="start");
 //   &P @WIRE {%p_join (-42, 6) #CINTP:p};
 //   %cg_CINTP = $GROUND @ATTACH &VSS => @PLACE(-42, -3);
 //   &VSS @WIRE {#CINTP:n %cg_CINTP:p};
 //   #CINTN @PLACE(42, 2) => @ORIENT("R0");
-//   #CINTN @TEXT("8 MOM units", key="value", dx=3, size=0.65, halign="start");
+//   #CINTN @TEXT("4 MOM units", key="value", dx=3, size=0.65, halign="start");
 //   &N @WIRE {%n_join (42, 6) #CINTN:p};
 //   %cg_CINTN = $GROUND @ATTACH &VSS => @PLACE(42, -3);
 //   &VSS @WIRE {#CINTN:n %cg_CINTN:p};

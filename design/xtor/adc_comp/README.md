@@ -18,6 +18,8 @@ its results; the results must not be copied onto another netlist version.
 | sa01 | 8 / 12 um | 3 / 3 um | 584.7 uV | 22.24 / 15.13 ps | 20.09 ps | 54.97 fJ | 2.63 fF | 0.64 uV |
 | sa02 | 40 / 1 um | 6 / 6 um | 227.0 uV | 93.00 / 74.42 ps | 20.89 ps | 103.69 fJ | 14.27 fF | 1.44 uV |
 | sa03_c8 | 40 / 8 um | 3 / 3 um | 298.0 uV | 44.15 / 34.27 ps | 21.46 ps | 186.18 fJ | 13.70 fF | 0.20 uV |
+| sa03_c0 | 40 / 8 um | 3 / 3 um | 360.1 uV | 27.49 / 20.45 ps | 19.69 ps | 100.41 fJ | not rerun | not rerun |
+| sa04_c4 | 40 / 2 um | 1 / 1 um | 283.7 uV | 81.00 / 61.31 ps | 16.25 ps | 133.92 fJ | 14.22 fF | 0.06 uV |
 
 All MOS lengths are 30 nm. Each logical device uses parallel single-finger
 instances, represented by the netlist multiplier, with unit width at most
@@ -40,6 +42,17 @@ drain to VSS. One unit uses `nr=24 lr=1u w=50n s=50n stm=1 spm=3`; each branch
 uses `multi=8`. This restores timing margin relative to sa02, but noise still
 fails and energy exceeds 150 fJ. Since both transistor sizing and loading
 changed from sa02, their difference does not isolate the effect of capacitance.
+
+The sa03_c0 local comparison keeps sa03_c8 transistor sizes and removes the
+two MOM loads. The measured noise fit decreases from 360.1 to 298.0 uV when
+loading is added, while energy rises from 100.4 to 186.2 fJ. These are one-seed,
+64-decision-per-level fits and should not be interpreted as precise noise
+estimates. The sa04_c4 version reduces the tail and regeneration devices and
+uses four MOM units per side. It meets the energy limit but still fails noise
+and both TT delay limits. No successful single-stage candidate has been found
+in this limited search; this is not a proof that the topology cannot meet the
+specification. The unloaded sa03_c0 netlist and measurement data are preserved
+locally as a comparison experiment.
 
 Commands used for the existing acceptance tests:
 
