@@ -18,41 +18,46 @@
    0.0,
    0.0,
    0.0,
-   0.0,
-   0.0234,
-   0.0625,
-   0.1562,
-   0.2656,
-   0.4062,
-   0.7188,
-   0.875,
-   0.9531,
-   0.9688,
+   0.0039,
+   0.0176,
+   0.0723,
+   0.1152,
+   0.2852,
+   0.5078,
+   0.6895,
+   0.8438,
+   0.9492,
+   0.9824,
    0.9922,
    1.0,
    1.0,
    1.0
   ],
-  "noise_uV": 179.69106409188538,
-  "offset_abs_mV": 0.01236622568853846,
-  "offset_mV": 0.01236622568853846
+  "n_per_level": 512,
+  "noise_uV": 189.48655108368322,
+  "noise_ci95_uV": [
+   181.67,
+   197.71
+  ],
+  "offset_abs_mV": 0.003918203408786012,
+  "offset_mV": 0.003918203408786012
  },
  "specs": {
   "CMP-01": {
    "metric": "noise_uV",
-   "value": 179.69106409188538,
+   "value": 189.48655108368322,
    "limit": "<= 200",
    "pass": true
   },
   "CMP-13": {
    "metric": "noise_uV",
-   "value": 179.69106409188538,
+   "value": 189.48655108368322,
    "limit": "<= 240",
    "pass": true
   },
   "CMP-02": {
    "metric": "offset_abs_mV",
-   "value": 0.01236622568853846,
+   "value": 0.003918203408786012,
    "limit": "<= 2",
    "pass": true
   }
@@ -60,24 +65,24 @@
  "figures": [
   {
    "file": "tt_nom_27.noise.png",
-   "caption": "Probability of OUTP = 1 against input difference with the Gaussian fit that gives the input-referred noise and offset, and the curve at the noise limit."
+   "caption": "Probability of OUTP = 1 against input difference with the binomial maximum-likelihood probit fit that gives the input-referred noise and offset, the 95 % interval of the noise and the curve at the noise limit; fit residuals against the binomial scatter."
   }
  ],
  "meta": {
-  "date": "2026-10-27T23:12:03",
-  "git": "28df3ab",
+  "date": "2026-10-28T01:03:38",
+  "git": "2c42098",
   "git_clean": true,
   "mode": "aps",
   "pdk": false,
   "mc": null,
-  "wall_s": 126.4,
+  "wall_s": 131.4,
   "rc": "0",
-  "sim_s": "19",
+  "sim_s": "24",
   "files": {
    "design/behav/adc_bootstrap.scs": "9458798199909fc5",
    "design/behav/adc_cdac.scs": "423386f9cc9bb2d0",
    "design/behav/adc_clkgen.scs": "dafb1c3438e33c9e",
-   "design/behav/adc_comp.scs": "304e037f1f8fd595",
+   "design/behav/adc_comp.scs": "4c26a597d558e2ae",
    "design/behav/adc_ref.scs": "a83c6feaac8c9c1a",
    "design/behav/adc_sarlogic.scs": "356e911752c1b85e",
    "design/top/adc_top.scs": "362a964ffe162797",
@@ -89,7 +94,7 @@
    "design/behav/veriloga/adc_ref_va.va": "746d2530d4ff6d5c",
    "design/behav/veriloga/adc_sarlogic_va.va": "42f06909a81347ef",
    "tb/common/veriloga/tb_sampler_va.va": "4092bc16170c588d",
-   "tb/comp/tb_comp_noise.scs": "95768022756c8a84",
+   "tb/comp/tb_comp_noise.scs": "72a48171fe4d3c2f",
    "specs/arch.yaml": "f5f9f8cdaa7eaa61"
   }
  }
