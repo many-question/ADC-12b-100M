@@ -2278,13 +2278,13 @@
   }
  ],
  "meta": {
-  "date": "2026-10-28T23:57:31",
-  "git": "bffad39",
+  "date": "2026-10-29T00:10:37",
+  "git": "f330cd3",
   "git_clean": true,
   "mode": "aps",
   "pdk": true,
   "mc": null,
-  "wall_s": 976.7,
+  "wall_s": 266.7,
   "rc": "0",
   "sim_s": "17",
   "numerics": {
@@ -2317,6 +2317,86 @@
    "specs/soa.yaml": "df574d3582df9b2c",
    "tb/clkgen/tb_clkgen_timing.scs": "12b4f675f9eaddfa",
    "specs/arch.yaml": "bffadef750bb5205"
+  },
+  "crosscheck": {
+   "settings": {
+    "maxstep": "0.5p"
+   },
+   "numerics": {
+    "source": "spectre.log",
+    "reltol": 0.001,
+    "maxstep_ps": 0.5,
+    "method": "traponly",
+    "errpreset": "moderate",
+    "lteratio": 3.5,
+    "abstol_V": 1e-06,
+    "steps_accepted": 322128,
+    "step_mean_ps": 0.499801,
+    "step_max_ps": 0.5
+   },
+   "rc": "0",
+   "sim_s": "24",
+   "metrics": {
+    "td_s_ps": {
+     "ref": 37.16416270728835,
+     "xcheck": 37.14036547814804,
+     "diff": -0.023797229140306797
+    },
+    "skew_sb_ps": {
+     "ref": 43.64797557942195,
+     "xcheck": 43.58115589093374,
+     "diff": -0.0668196884882093
+    },
+    "nov_bc_ps": {
+     "ref": 64.05897500745452,
+     "xcheck": 64.02323053058846,
+     "diff": -0.035744476866057084
+    },
+    "td_conv_ps": {
+     "ref": 144.87053076527465,
+     "xcheck": 144.74460426560609,
+     "diff": -0.12592649966856584
+    },
+    "nov_cb_ps": {
+     "ref": 94.89882038706662,
+     "xcheck": 94.80717998482977,
+     "diff": -0.09164040223684822
+    },
+    "tf_s_ps": {
+     "ref": 9.257131535047725,
+     "xcheck": 9.146750646299283,
+     "diff": -0.11038088874844121
+    },
+    "skew_ssb_ps": {
+     "ref": 5.093301518859784,
+     "xcheck": 5.077539432238064,
+     "diff": -0.015762086621720073
+    },
+    "duty_errors": {
+     "ref": 0,
+     "xcheck": 0,
+     "diff": 0
+    },
+    "iavg_uA": {
+     "ref": 71.72059289,
+     "xcheck": 71.69175630000001,
+     "diff": -0.028836589999997386
+    },
+    "soa_violations": {
+     "ref": 0,
+     "xcheck": 0,
+     "diff": 0
+    }
+   },
+   "soa": {
+    "pairs": 180,
+    "max_V_diff_max_mV": 0.9,
+    "at": "XDUT.XB1.MN gd",
+    "violations": [
+     0,
+     0
+    ]
+   }
   }
  }
 }
