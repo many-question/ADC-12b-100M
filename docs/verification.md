@@ -80,7 +80,7 @@
 | `adc_cdac` | C_S 2.057 pF，FS 0.993 V，可校准性裕量 0.465 LSB，校准后 ENOB 损失 ≈ 0（标称 0.07 bit，4 颗失配芯片）；RL12 建立 12.7 ps，τ 1.2 ps，起始建立 11.4 ps；VREFP 电荷 0.77 pC；跟踪 SFDR 132.7 dB / SNDR 130.6 dB（显式数值设置，已到数值底噪，> 130 dB；默认设置的 109.3 / 101.8 dB 是数值噪声，见下）；输入电容 DH/RL 4.5 fF、PHI_S/PHI_SB 30 fF、CONV 60 fF |
 | `adc_bootstrap`（参考开关 96 µm + 2.057 pF） | VG−VIN 0.855 V，关断 18 ps，开启 68 ps；跟踪 SFDR 94.6 dB / SNDR 94.6 dB（显式数值设置；默认设置为 92.6 / 85.8，v0.2 为 97.2 / 89.6，均未收敛，见下）；SOA 仅外部节点（参考开关，§5）：最大 \|Vgs\| 0.900 V（VG 为 0、VIN = 0.9 V 时，负向），0 违例；PHI_B/PHI_BB 输入 12 fF |
 | `adc_clkgen`（规格负载共 530 fF） | PHI_S 延时 46 ps，PHI_S→PHI_B 40 ps，抖动 46 fs，占空比 45/55 % 无错误，AVDD 70 µA（行为级占位，含负载，CLK-10 ≤ 80 µA）；SOA（CLK-11，§5）：行为级没有可检查的器件（`external`，0 对，`soa_note` 说明），不是晶体管级证据 |
-| `adc_ref`（follower 4 mA + 3 pF） | 回放 ENOB 损失 0.018 bit，判决 12~14 变化 41 µV，记忆 ≈ 0，最大跌落 9.1 mV；噪声 43.9 µV（带 1.2 pF 与 200 µA）；直流 −2.0 mV（200 µA 负载） |
+| `adc_ref`（follower 4 mA + 3 pF） | 回放 ENOB 损失 0.018 bit，判决 12~14 变化 41 µV，记忆 ≈ 0，最大跌落 9.1 mV；噪声 43.9 µV（带 1.2 pF 与 200 µA）；直流 −2.0 mV（200 µA 负载）；上电（支持的顺序，`tb_ref_startup`）VREFP 0~0.900 V、VCM 0~0.450 V，电源已上、VREF_IN 为 0 的 5 µs 内两者都为 0，斜坡期间跟随误差 4 µV，就绪后 |VREFP − VREF_IN| ≈ 0、VCM 450.0 mV（行为级 follower 与电源无关，只体现 VREF_IN 斜坡；交叉检查 maxstep 0.1 ns / gear2only 差 < 0.1 µV） |
 
 * TT 顶层 ENOB 10.91 比模型的行为级条件（比较器 200 µV 时 10.97，8192 点）低约 0.06 bit：一部分是行为级的
   THD（−83.4 dBc，模型未计），其余是 1024 点记录的统计起伏（SNR 估计约 ±3 %）。比较器取 200 µV 时实测为 10.84，
@@ -153,6 +153,7 @@
 | `tb_sarlogic_timeout` | `decisions`、`timeout` | 同上；比较器不应答时 CLKC 被超时拉低的波形与每次超时时间对窗口 |
 | `tb_ref_dc` | `dc` | VREFP 随负载、随 AVDD18、VCM 随负载（含窗口与斜率限值）、规格表 |
 | `tb_ref_noise` | `psd` | VREFP / VCM 噪声谱密度与 10 kHz 积分起点、积分噪声对 120 µV 限值 |
+| `tb_ref_startup` | `startup` | 支持的上电顺序下电源、VREF_IN、VREFP、VCM 的全程波形对 −0.1~1.0 V 窗口；斜坡期间对 VREF_IN 的跟随误差；斜坡后 VREFP 向终值的建立、±5 mV 带与就绪时刻；规格表 |
 | `tb_ref_replay` | `replay` | 各判决时刻 VREFP 偏差对冗余容差包络与 12~14 判决限值、转换前 VREFP 的记忆、转换内跌落、ENOB 代价 |
 | `tb_top_sine`、`_sine_lf`、`_duty` | `spectrum`、`codes` | 输出谱（标称与校准权重）标注 ENOB / SNDR / SFDR 与限值；码对正弦相位折叠及拟合、拟合误差、转换时间直方图 |
 

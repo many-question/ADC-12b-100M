@@ -574,6 +574,30 @@ def tb_ref() -> list[TBDef]:
                 El("CDB", "capacitor", ["VREFP", "0"], "c=ccdac", "load")],
         ["noise1 (VREFP 0) noise start=1k stop=100G dec=20",
          "noise2 (VCM 0) noise start=1k stop=100G dec=20"]))
+    # the one supported power-up sequence (adc_ref.yaml operating.power_up, issue #34)
+    from .measure.ref import startup_times
+    ts = startup_times()
+
+    def ramp(t0: float, t1: float, v: str) -> str:
+        return f"type=pwl wave=[0 0 {_tfmt(t0)} 0 {_tfmt(t1)} {v}]"
+
+    out.append(TBDef(
+        "tb/ref/tb_ref_startup.scs", "tb_ref_startup: VREFP / VCM over the supported power-up sequence",
+        [f"parameters ccdac={_CDB} ctot={_CTOT}", f"parameters tstop={_tfmt(ts['stop'])}"],
+        [El("XDUT", "adc_ref", ref_ports, where="dut"),
+         El("VREF", "vsource", ["VREF_IN", "0"], ramp(ts["ref0"], ts["ref1"], "vref_in"),
+            note=f"VREF_IN held at 0 V while the supplies rise and {(ts['ref0'] - ts['sup1']) * 1e6:g} us after them, "
+                 f"then a {(ts['ref1'] - ts['ref0']) * 1e6:g} us ramp"),
+         El("VH", "vsource", ["AVDD18", "0"], ramp(ts["sup0"], ts["sup1"], "vdd18"), "top",
+            note=f"AVDD18 and AVDD ramp together (AVDD not later than AVDD18) in {(ts['sup1'] - ts['sup0']) * 1e6:g} us"),
+         El("VA", "vsource", ["AVDD", "0"], ramp(ts["sup0"], ts["sup1"], "vdd"), "top"),
+         El("CDB", "capacitor", ["VREFP", "0"], "c=ccdac", "load", note="CDAC bottom plates seen from VREFP (both sides)"),
+         El("CVP", "capacitor", ["VCM", "0"], "c=ctot", "load", note="the two top plates on VCM (C_tot each)"),
+         El("CVN", "capacitor", ["VCM", "0"], "c=ctot", "load")],
+        _numerics("adc_ref", "tb_ref_startup", ["tran1 tran stop=tstop", "save VREFP VCM VREF_IN AVDD AVDD18"]),
+        notes=[f"supplies {ts['sup0'] * 1e6:g}-{ts['sup1'] * 1e6:g} us, VREF_IN {ts['ref0'] * 1e6:g}-{ts['ref1'] * 1e6:g} us, "
+               f"ready {ts['ready'] * 1e6:g} us (CLK static before: no DC load), end {ts['stop'] * 1e6:g} us",
+               _numerics_note("adc_ref", "tb_ref_startup")]))
     return out
 
 
