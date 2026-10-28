@@ -11,17 +11,18 @@
   "noise_en": 0,
   "devnoise": 0,
   "beh_speed": 1.0,
-  "vref_in": 0.9
+  "vref_in": 0.9,
+  "cdac_behav": 1
  },
  "metrics": {
-  "top_gain": 0.8176000597937497,
+  "top_gain": 0.8175993148799999,
   "weights_lsb": [
-   980.0,
-   560.0,
-   317.9999,
-   180.0001,
-   102.0,
-   57.0,
+   980.0009,
+   560.0005,
+   318.0003,
+   180.0002,
+   102.0001,
+   57.0001,
    32.0,
    18.0,
    10.0,
@@ -30,16 +31,16 @@
    2.0,
    1.0
   ],
-  "weight_err_max_pct": 4.117983385398816e-05,
+  "weight_err_max_pct": 2.736799631364306e-05,
   "h_l_asym_pct": 5.1736392947532295e-12,
-  "fs_peak_V": 0.9929752780205292,
-  "cal_margin_lsb": 0.4653579226756394,
+  "fs_peak_V": 0.9929761140478172,
+  "cal_margin_lsb": 0.4653583163113381,
   "cal_margin_per_decision_lsb": [
-   309.547,
-   169.7817,
-   93.9597,
-   52.0944,
-   28.1959,
+   309.5472,
+   169.7819,
+   93.9599,
+   52.0945,
+   28.196,
    16.2728,
    9.3303,
    5.3735,
@@ -49,38 +50,38 @@
    0.4654,
    0.48
   ],
-  "enob_loss_cal_bit": -0.01106784773320868,
-  "enob_loss_nom_bit": 0.06781605169501503,
-  "cs_pF": 2.05700216175
+  "enob_loss_cal_bit": -0.011032550367346516,
+  "enob_loss_nom_bit": 0.06760695646179471,
+  "cs_pF": 2.0570021114999997
  },
  "specs": {
   "DAC-01": {
    "metric": "cs_pF",
-   "value": 2.05700216175,
+   "value": 2.0570021114999997,
    "limit": "1.98 .. 2.12",
    "pass": true
   },
   "DAC-02": {
    "metric": "fs_peak_V",
-   "value": 0.9929752780205292,
+   "value": 0.9929761140478172,
    "limit": ">= 0.97",
    "pass": true
   },
   "DAC-03": {
    "metric": "cal_margin_lsb",
-   "value": 0.4653579226756394,
+   "value": 0.4653583163113381,
    "limit": ">= 0",
    "pass": true
   },
   "DAC-14": {
    "metric": "enob_loss_cal_bit",
-   "value": -0.01106784773320868,
+   "value": -0.011032550367346516,
    "limit": "<= 0.02",
    "pass": true
   },
   "DAC-04": {
    "metric": "top_gain",
-   "value": 0.8176000597937497,
+   "value": 0.8175993148799999,
    "limit": ">= 0.78",
    "pass": true
   }
@@ -92,15 +93,27 @@
   }
  ],
  "meta": {
-  "date": "2026-10-28T20:37:40",
-  "git": "285dcb4",
+  "date": "2026-10-29T02:57:13",
+  "git": "da7e8c7",
   "git_clean": true,
   "mode": "aps",
   "pdk": false,
   "mc": null,
-  "wall_s": 147.0,
+  "wall_s": 161.5,
   "rc": "0",
-  "sim_s": "40",
+  "sim_s": "54",
+  "numerics": {
+   "source": "spectre.log",
+   "reltol": 0.001,
+   "maxstep_ps": 5820.0,
+   "method": "traponly",
+   "errpreset": "moderate",
+   "lteratio": 3.5,
+   "abstol_V": 1e-06,
+   "steps_accepted": 5018,
+   "step_mean_ps": 57.9912,
+   "step_max_ps": null
+  },
   "files": {
    "design/behav/adc_bootstrap.scs": "eee3a0a78eec4c5f",
    "design/behav/adc_cdac.scs": "5b8837cc5d2a76bc",
@@ -110,7 +123,7 @@
    "design/behav/adc_sarlogic.scs": "7982e36f6743bf80",
    "design/top/adc_top.scs": "362a964ffe162797",
    "design/behav/veriloga/adc_bootstrap_va.va": "12338aad16f4913b",
-   "design/behav/veriloga/adc_cdac_sw_va.va": "e465880479187179",
+   "design/behav/veriloga/adc_cdac_sw_va.va": "25fa7719fc730a3a",
    "design/behav/veriloga/adc_clkgen_va.va": "7fff1b9368bc1a20",
    "design/behav/veriloga/adc_comp_va.va": "ab8a6bf210351e31",
    "design/behav/veriloga/adc_ktc_va.va": "a1cf98faf5bf9b33",

@@ -11,7 +11,8 @@
   "noise_en": 0,
   "devnoise": 0,
   "beh_speed": 1.0,
-  "vref_in": 0.9
+  "vref_in": 0.9,
+  "cdac_behav": 1
  },
  "metrics": {
   "func_errors": 0,
@@ -129,15 +130,27 @@
   }
  ],
  "meta": {
-  "date": "2026-10-28T20:44:42",
-  "git": "285dcb4",
+  "date": "2026-10-29T03:22:31",
+  "git": "da7e8c7",
   "git_clean": true,
   "mode": "aps",
   "pdk": false,
   "mc": null,
-  "wall_s": 132.3,
+  "wall_s": 147.5,
   "rc": "0",
-  "sim_s": "25",
+  "sim_s": "40",
+  "numerics": {
+   "source": "spectre.log",
+   "reltol": 0.001,
+   "maxstep_ps": 12022.4,
+   "method": "traponly",
+   "errpreset": "moderate",
+   "lteratio": 3.5,
+   "abstol_V": 1e-06,
+   "steps_accepted": 49520,
+   "step_mean_ps": 12.1389,
+   "step_max_ps": 2558.56
+  },
   "files": {
    "design/behav/adc_bootstrap.scs": "eee3a0a78eec4c5f",
    "design/behav/adc_cdac.scs": "5b8837cc5d2a76bc",
@@ -147,7 +160,7 @@
    "design/behav/adc_sarlogic.scs": "7982e36f6743bf80",
    "design/top/adc_top.scs": "362a964ffe162797",
    "design/behav/veriloga/adc_bootstrap_va.va": "12338aad16f4913b",
-   "design/behav/veriloga/adc_cdac_sw_va.va": "e465880479187179",
+   "design/behav/veriloga/adc_cdac_sw_va.va": "25fa7719fc730a3a",
    "design/behav/veriloga/adc_clkgen_va.va": "7fff1b9368bc1a20",
    "design/behav/veriloga/adc_comp_va.va": "ab8a6bf210351e31",
    "design/behav/veriloga/adc_ktc_va.va": "a1cf98faf5bf9b33",

@@ -15,36 +15,37 @@
   "noise_en": 0,
   "devnoise": 0,
   "beh_speed": 1.0,
-  "vref_in": 0.9
+  "vref_in": 0.9,
+  "cdac_behav": 1
  },
  "metrics": {
   "n_samples": 15840,
   "enob_ideal_ref": 10.925533985465997,
-  "enob_ref": 10.907182941031158,
-  "sfdr_ref_dBc": 85.07830917289641,
-  "enob_loss_bit": 0.018351044434838926,
-  "tail_dev_uV": 40.57907010002193,
-  "env_ratio": 0.5190503633455664,
-  "start_pp_uV": 0.012801400051110079,
-  "droop_max_mV": 9.070218059871848,
-  "vrefp_V": 0.9000000078784719
+  "enob_ref": 10.90920881884715,
+  "sfdr_ref_dBc": 84.7521432448896,
+  "enob_loss_bit": 0.016325166618846865,
+  "tail_dev_uV": 157.4854887999022,
+  "env_ratio": 2.044154311006963,
+  "start_pp_uV": 0.0542526000790744,
+  "droop_max_mV": 43.332769160456806,
+  "vrefp_V": 0.9000000327730568
  },
  "specs": {
   "REF-12": {
    "metric": "enob_loss_bit",
-   "value": 0.018351044434838926,
+   "value": 0.016325166618846865,
    "limit": "<= 0.1",
    "pass": true
   },
   "REF-13": {
    "metric": "tail_dev_uV",
-   "value": 40.57907010002193,
+   "value": 157.4854887999022,
    "limit": "<= 200",
    "pass": true
   },
   "REF-14": {
    "metric": "start_pp_uV",
-   "value": 0.012801400051110079,
+   "value": 0.0542526000790744,
    "limit": "<= 100",
    "pass": true
   }
@@ -56,15 +57,15 @@
   }
  ],
  "meta": {
-  "date": "2026-10-28T22:29:26",
-  "git": "7b5fcd8",
+  "date": "2026-10-29T03:17:16",
+  "git": "da7e8c7",
   "git_clean": true,
   "mode": "aps",
   "pdk": false,
   "mc": null,
-  "wall_s": 135.0,
+  "wall_s": 132.1,
   "rc": "0",
-  "sim_s": "26",
+  "sim_s": "25",
   "numerics": {
    "source": "spectre.log",
    "reltol": 0.001,
@@ -73,8 +74,8 @@
    "errpreset": "moderate",
    "lteratio": 3.5,
    "abstol_V": 1e-06,
-   "steps_accepted": 580161,
-   "step_mean_ps": 18.2363,
+   "steps_accepted": 577349,
+   "step_mean_ps": 18.3251,
    "step_max_ps": null
   },
   "files": {
@@ -86,7 +87,7 @@
    "design/behav/adc_sarlogic.scs": "7982e36f6743bf80",
    "design/top/adc_top.scs": "362a964ffe162797",
    "design/behav/veriloga/adc_bootstrap_va.va": "12338aad16f4913b",
-   "design/behav/veriloga/adc_cdac_sw_va.va": "e465880479187179",
+   "design/behav/veriloga/adc_cdac_sw_va.va": "25fa7719fc730a3a",
    "design/behav/veriloga/adc_clkgen_va.va": "7fff1b9368bc1a20",
    "design/behav/veriloga/adc_comp_va.va": "ab8a6bf210351e31",
    "design/behav/veriloga/adc_ktc_va.va": "a1cf98faf5bf9b33",

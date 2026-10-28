@@ -11,7 +11,8 @@
   "noise_en": 0,
   "devnoise": 0,
   "beh_speed": 1.0,
-  "vref_in": 0.9
+  "vref_in": 0.9,
+  "cdac_behav": 1
  },
  "metrics": {
   "vrefp_max_V": 0.9000000267404172,
@@ -75,15 +76,15 @@
   }
  ],
  "meta": {
-  "date": "2026-10-28T22:48:22",
-  "git": "63d184c",
+  "date": "2026-10-29T03:19:39",
+  "git": "da7e8c7",
   "git_clean": true,
   "mode": "aps",
   "pdk": false,
   "mc": null,
-  "wall_s": 123.0,
+  "wall_s": 119.7,
   "rc": "0",
-  "sim_s": "6",
+  "sim_s": "13",
   "numerics": {
    "source": "spectre.log",
    "reltol": 0.001,
@@ -105,7 +106,7 @@
    "design/behav/adc_sarlogic.scs": "7982e36f6743bf80",
    "design/top/adc_top.scs": "362a964ffe162797",
    "design/behav/veriloga/adc_bootstrap_va.va": "12338aad16f4913b",
-   "design/behav/veriloga/adc_cdac_sw_va.va": "e465880479187179",
+   "design/behav/veriloga/adc_cdac_sw_va.va": "25fa7719fc730a3a",
    "design/behav/veriloga/adc_clkgen_va.va": "7fff1b9368bc1a20",
    "design/behav/veriloga/adc_comp_va.va": "ab8a6bf210351e31",
    "design/behav/veriloga/adc_ktc_va.va": "a1cf98faf5bf9b33",
@@ -113,58 +114,6 @@
    "design/behav/veriloga/adc_sarlogic_va.va": "42f06909a81347ef",
    "tb/ref/tb_ref_startup.scs": "d0842a4224af4dfb",
    "specs/arch.yaml": "bffadef750bb5205"
-  },
-  "crosscheck": {
-   "settings": {
-    "maxstep": "0.1n",
-    "method": "gear2only"
-   },
-   "numerics": {
-    "source": "spectre.log",
-    "reltol": 0.001,
-    "maxstep_ps": 100.0,
-    "method": "gear2only",
-    "errpreset": "moderate",
-    "lteratio": 3.5,
-    "abstol_V": 1e-06,
-    "steps_accepted": 251000,
-    "step_mean_ps": 100.0,
-    "step_max_ps": 100.0
-   },
-   "rc": "0",
-   "sim_s": "8",
-   "metrics": {
-    "vrefp_max_V": {
-     "ref": 0.9000000267404172,
-     "xcheck": 0.9000000978932947,
-     "diff": 7.115287747883059e-08
-    },
-    "vrefp_min_V": {
-     "ref": 0.0,
-     "xcheck": 0.0,
-     "diff": 0.0
-    },
-    "vcm_max_V": {
-     "ref": 0.4499999999953964,
-     "xcheck": 0.4499999999953403,
-     "diff": -5.612177389480166e-14
-    },
-    "vcm_min_V": {
-     "ref": 0.0,
-     "xcheck": 0.0,
-     "diff": 0.0
-    },
-    "ready_err_mV": {
-     "ref": 9.361067476731932e-09,
-     "xcheck": 9.206191364796723e-09,
-     "diff": -1.5487611193520934e-10
-    },
-    "vcm_ready_V": {
-     "ref": 0.4499999999953963,
-     "xcheck": 0.4499999999953403,
-     "diff": -5.601075159233915e-14
-    }
-   }
   }
  }
 }
