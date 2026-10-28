@@ -99,7 +99,7 @@ def test_reference_charge_is_drawn_at_the_dac_drive():
     ni = m.ideal(t_bit=35e-12)
     r = m.convert(np.array([0.3, -0.7]) * a.fs_peak, a, ni)
     t_dec, t_sw = r.info["t_dec"], r.info["t_sw"]
-    t_cmp = t_sw - t_dec[:, :-1] - ni.t_bit
-    assert np.all(t_cmp >= ni.t_cmp0 - 1e-15)                     # comparator delay, then t_bit
-    gap = t_dec[:, 1:] - t_sw                                       # DAC drive -> next decision
+    t_cmp = t_sw - t_dec[:, :-1] - ni.t_bit - ni.t_drv
+    assert np.all(t_cmp >= ni.t_cmp0 - 1e-15)                     # comparator delay, then t_bit + t_drv
+    gap = t_dec[:, 1:] - (t_sw - ni.t_drv)                          # UP/DN -> next decision
     assert np.allclose(gap[:, :ni.n_fast], ni.t_dac_fast) and np.allclose(gap[:, ni.n_fast:], ni.t_dac)

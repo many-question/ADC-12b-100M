@@ -128,6 +128,7 @@ class NonIdeal:
     t_dac: float = 75e-12            # DAC update -> next comparator clock
     t_dac_fast: float | None = 40e-12  # shorter wait after the first n_fast steps
     n_fast: int = 6                  # steps 1..n_fast use t_dac_fast (redundancy covers them)
+    t_dac_add: tuple | None = None   # extra wait (s) after DAC step 1, 2, ...; None = none
     tau_start: float = 20e-12        # conversion-start (VIN -> neutral) settling
     # reference
     ref_follower: Follower | None = field(default_factory=Follower)  # behavioral adc_ref (on-chip follower)
@@ -142,8 +143,9 @@ class NonIdeal:
     t_cmp0: float = 45e-12           # comparator delay for large input
     tau_reg: float = 8e-12           # regeneration time constant
     v_sat: float = 30e-3             # input above which the delay is t_cmp0 (top plate)
-    t_bit: float = 35e-12            # decision -> bit latch -> UP/DN -> DAC drive (LOG-02): the DAC
-                                     # switches and draws its VREFP charge here, t_dac before the next decision
+    t_bit: float = 35e-12            # decision -> bit latch -> UP/DN (LOG-02); the next decision is t_dac later
+    t_drv: float = 10e-12            # UP/DN -> the DAC switch conducts (driver delay, break-before-make gap):
+                                     # the VREFP charge of a step is drawn t_bit + t_drv after its decision
     t_loop: float = 45e-12           # lower bound of decision -> next comparator clock (reset), and last decision -> EOC
     t_start: float = 0.25e-9         # CLK falling -> first comparator clock
     t_window: float = 4.5e-9         # available conversion window (CLK low time)
@@ -166,9 +168,10 @@ class Result:
 
 def _t_dac(ni: NonIdeal, step: int) -> float:
     """DAC settle wait after DAC step ``step`` (0-based)."""
+    add = ni.t_dac_add[step] if ni.t_dac_add is not None and step < len(ni.t_dac_add) else 0.0
     if ni.t_dac_fast is not None and step < ni.n_fast:
-        return ni.t_dac_fast
-    return ni.t_dac
+        return ni.t_dac_fast + add
+    return ni.t_dac + add
 
 
 def _cap_arrays(arch: Arch, ni: NonIdeal, rng: np.random.Generator):
@@ -397,9 +400,10 @@ def _convert(vin, arch: Arch, ni: NonIdeal, dvdt, p, r, x0):
                 # cu*level*dV to VREFP (level at mid-step). Summed over a conversion this is
                 # -cu*lsb*gain_top*L^2/4, about 0.23 pC at full scale
                 q = q - 0.5 * step * lsb * gain_top * arch.cu * (level - 0.5 * step)
-            # the SAR logic drives the DAC t_bit after the decision and clocks the comparator
-            # t_dac after that (LOG-02 / 04 / 05); the reference charge is drawn at the DAC drive
-            t_sw = t + t_cmp + ni.t_bit
+            # the SAR logic drives UP/DN t_bit after the decision and clocks the comparator t_dac
+            # after that (LOG-02 / 04 / 05); the DAC switch conducts, and draws its reference
+            # charge, t_drv after UP/DN
+            t_sw = t + t_cmp + ni.t_bit + ni.t_drv
             q_sw[:, k], t_swk[:, k] = q, t_sw
             ref.draw(t_sw, q * np.ones(n))
             t = t + t_cmp + max(ni.t_bit + _t_dac(ni, k), ni.t_loop)

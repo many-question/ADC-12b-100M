@@ -71,7 +71,7 @@ def timing_table(arch: Arch) -> str:
            "|---|---|---|---|---|"]
     ni0 = m.NonIdeal(temp_c=125, sigma_cmp_top=cmp_limit("all"))
     for s in (1.0, 1.4, 1.6, 1.8):
-        ni = replace(ni0, t_cmp0=ni0.t_cmp0 * s, tau_reg=ni0.tau_reg * s, t_loop=ni0.t_loop * s, t_bit=ni0.t_bit * s,
+        ni = replace(ni0, t_cmp0=ni0.t_cmp0 * s, tau_reg=ni0.tau_reg * s, t_loop=ni0.t_loop * s, t_bit=ni0.t_bit * s, t_drv=ni0.t_drv * s,
                      t_dac=ni0.t_dac * s, t_dac_fast=ni0.t_dac_fast * s, tau_dac=ni0.tau_dac * s,
                      t_start=0.1e-9 + (ni0.t_start - 0.1e-9) * s)
         r, met, _ = _sine(arch, ni)
