@@ -132,6 +132,12 @@
     "diff_rms_uV": 1.6232732101855363,
     "diff_max_uV": 2.1296759000755117
    }
+  },
+  "redrawn": {
+   "date": "2026-10-29T01:48:42",
+   "git": "4d48ff4",
+   "git_clean": true,
+   "run": "20261028-222650-db78-tb_bootstrap_track"
   }
  }
 }

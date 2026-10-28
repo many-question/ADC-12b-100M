@@ -15,7 +15,7 @@ VA (AVDD 0) vsource dc=vdd
 IL (VREFP 0) isource dc=iload
 dcop dc
 dcload dc param=iload start=0 stop=200u step=50u
-dcline dc dev=VH param=dc start=vdd18*0.9 stop=vdd18*1.1 step=vdd18*0.05
+dcline dc dev=VH param=dc start=1.62 stop=1.98 step=0.09
 save VREFP VCM VH:p VA:p VREF:p
 // @RNL {
 //   /* pins connected by net name: the net-name label of rnl-std-fill on every unwired pin, placed below by its key netname */
@@ -46,5 +46,6 @@ save VREFP VCM VH:p VA:p VREF:p
 //   #IL:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", rotate=90, dx=0, dy=0.4);
 //   %g5 = $GROUND @ATTACH &0 => @PLACE(0, -18.5);
 //   &0 @WIRE {#IL:2 %g5:p};
-//   (-30, 31) @TEXT("tb_ref_dc: VREFP / VCM accuracy, load and line regulation, currents", halign="start") => @SET-STYLE $title_style
+//   (-30, 31) @TEXT("tb_ref_dc: VREFP / VCM accuracy, load and line regulation, currents", halign="start") => @SET-STYLE $title_style;
+//   (-30, 29.4) @TEXT("REF-04: AVDD18 swept over the supply envelope 1.62 .. 1.98 V (corners.yaml) at every corner, not around the corner's own supply", halign="start") => @SET-STYLE $note_style
 // }

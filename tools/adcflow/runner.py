@@ -417,7 +417,7 @@ def _same(a, b) -> bool:
 
 
 def remeasure(test_id: str, run_dir: Path, block_name: str | None = None, views: dict | None = None,
-              allow: tuple[str, ...] = ("sfdr",), dry: bool = False) -> list[dict]:
+              allow: tuple[str, ...] = ("sfdr",), dry: bool = False, redraw: bool = False) -> list[dict]:
     """Measure the fetched jobs of an earlier run again with the current measure code and
     re-record their results, without simulating (issue #36: a fixed SFDR estimator).
 
@@ -425,8 +425,13 @@ def remeasure(test_id: str, run_dir: Path, block_name: str | None = None, views:
     and every metric whose name contains none of `allow` must come out exactly as recorded, else
     nothing of that job is written. The simulation meta (date, git, files, rc ...) is kept;
     meta.remeasured gives the date, commit and run of the new measurement and old -> new of
-    every metric that changed; meta.provenance names the estimators used now."""
+    every metric that changed; meta.provenance names the estimators used now.
+
+    With `redraw` only the figures may change (issue #47: the spectrum plot window): every metric
+    must come out as recorded, and meta.redrawn gives the date, commit and run of the redraw."""
     views = views or {}
+    if redraw:
+        allow = ()
     block, test = find_test(test_id, block_name)
     viewsig = _viewsig(block, views)
     rdir = result_dir(block, test_id, viewsig)
@@ -453,9 +458,12 @@ def remeasure(test_id: str, run_dir: Path, block_name: str | None = None, views:
             raise ValueError(f"{jd.name}: {bad} differ from the recorded result: not the same simulation data "
                              f"(or the measure changed beyond {allow}): {[changed[k] for k in bad][:3]}")
         meta = dict(old["meta"])
-        meta["remeasured"] = {"date": _dt.datetime.now().isoformat(timespec="seconds"),
-                              "git": _git("rev-parse", "--short", "HEAD"), **git_state(),
-                              "run": run_dir.name, "changed": changed}
+        stamp = {"date": _dt.datetime.now().isoformat(timespec="seconds"),
+                 "git": _git("rev-parse", "--short", "HEAD"), **git_state(), "run": run_dir.name}
+        if redraw:
+            meta["redrawn"] = stamp                  # figures only; metrics checked unchanged above
+        else:
+            meta["remeasured"] = {**stamp, "changed": changed}
         if ctx.get("provenance"):
             meta["provenance"] = ctx["provenance"]
         out.append({"job": jd.name, "changed": changed})
@@ -466,7 +474,7 @@ def remeasure(test_id: str, run_dir: Path, block_name: str | None = None, views:
         FigureSink(rdir, jd.name).clear()
         for e in figs.entries:
             shutil.copyfile(tmp / e["file"], rdir / e["file"])
-        doc = result_doc(block, test_id, viewsig, job, metrics, meta, figs.entries)
+        doc = result_doc(block, test_id, viewsig, job, old["metrics"] if redraw else metrics, meta, figs.entries)
         path.write_text(json.dumps(doc, indent=1, default=float) + "\n", encoding="utf-8", newline="\n")
     return out
 

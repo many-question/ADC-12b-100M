@@ -133,6 +133,12 @@
     "diff_rms_uV": 0.16424513742511518,
     "diff_max_uV": 0.3822672000053373
    }
+  },
+  "redrawn": {
+   "date": "2026-10-29T01:48:45",
+   "git": "4d48ff4",
+   "git_clean": true,
+   "run": "20261028-222650-ae44-tb_cdac_track"
   }
  }
 }

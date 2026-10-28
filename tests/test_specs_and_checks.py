@@ -3,11 +3,12 @@
 import importlib
 import re
 
+import numpy as np
 import pytest
 
 from adcflow import REPO_ROOT, checks
 from adcflow.corners import all_corners, corner_set
-from adcflow.netlist import parse, substitute_parameters
+from adcflow.netlist import logical_lines, parse, substitute_parameters
 from adcflow.specs import blocks
 
 
@@ -250,3 +251,21 @@ def test_startup_bench_follows_the_power_up_sequence():
     assert ts["ready"] == pytest.approx(ts["ref1"] + pu["ready"]) and ts["stop"] > ts["ready"]
     stop = float(re.search(r"^parameters tstop=(\S+)$", text, re.M)[1])
     assert stop == pytest.approx(ts["stop"])
+
+
+def test_ref04_line_sweep_stays_inside_the_supply_envelope():
+    """#46: tb_ref_dc sweeps AVDD18 over the specified envelope (corners.yaml) at every corner,
+    not +/-10 % around the corner's own supply (up to 2.178 V at the high corners)."""
+    from adcflow.corners import supply_envelope
+
+    lo, hi = supply_envelope("vdd18")
+    assert (lo, hi) == (min(c.vdd18 for c in all_corners()), max(c.vdd18 for c in all_corners()))
+    assert (lo, hi) == pytest.approx((1.62, 1.98))
+    text = (REPO_ROOT / "tb" / "ref" / "tb_ref_dc.scs").read_text(encoding="utf-8")
+    line = next(ln for _, ln in logical_lines(text) if ln.startswith("dcline "))
+    kv = dict(re.findall(r"(\w+)=(\S+)", line))
+    assert "vdd18" not in line                                     # independent of the corner's supply
+    start, stop, step = (float(kv[k]) for k in ("start", "stop", "step"))
+    pts = np.arange(start, stop + step / 2, step)
+    assert pts[0] == pytest.approx(lo) and pts[-1] == pytest.approx(hi) and len(pts) == 5
+    assert all(lo - 1e-12 <= v <= hi + 1e-12 for v in pts)

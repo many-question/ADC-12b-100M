@@ -24,6 +24,7 @@ from . import REPO_ROOT, numerics
 from .arch import Arch
 from .gen import GEN_HEADER, block_symbols, va_symbols, va_ports
 from .rnldraw import STD_PINS, Sheet
+from .corners import supply_envelope
 from .specs import blocks
 
 
@@ -63,6 +64,9 @@ _CTOT = f"{_ARCH.c_tot * 1e12:.2f}p"    # top-plate capacitance per side (CDAC +
 _CTOP = _ff(_op("adc_cdac")["top_load"])  # comparator input on the top plate (= CMP-12 limit)
 _WSW = f"{48 * _ARCH.cu / 0.5e-15:g}u"   # reference input switch: 48 um per 0.5 fF of cu (25 ohm at v0.2)
 _NFSW = f"{round(24 * _ARCH.cu / 0.5e-15)}"  # ... in 2 um fingers
+
+_FIN_PREPARE = ("// fin here is only a placeholder: the test's prepare step ({}) replaces it with the coherent "
+                 "frequency (odd bin) for npts; run the test through python -m adcflow sim")
 
 JS = list(range(12, -1, -1))
 DS = [f"D{i}" for i in range(13, -1, -1)]
@@ -443,7 +447,8 @@ def tb_cdac() -> list[TBDef]:
     els += _ideal_front()
     out.append(TBDef(
         "tb/cdac/tb_cdac_track.scs", "tb_cdac_track: sampling-network linearity of the two CDACs from 50 ohm",
-        [f"parameters fin=49.8046875e6 amp_dbfs=-1 npts=256 nskip=4 tper=10n fs_peak={_FS} vcm_in=0.45 rsrc=50 ctop={_CTOP}",
+        [_FIN_PREPARE.format("adcflow.measure.top:prepare"),
+         f"parameters fin=49.8046875e6 amp_dbfs=-1 npts=256 nskip=4 tper=10n fs_peak={_FS} vcm_in=0.45 rsrc=50 ctop={_CTOP}",
          "parameters amp=fs_peak*pow(10, amp_dbfs/20) tstart=nskip*tper tstop=(nskip+npts+0.5)*tper"],
         els, _numerics("adc_cdac", "tb_cdac_track", ["tran1 tran stop=tstop outputstart=tstop", "tbopts options save=none"]),
         notes=["V(TOPP) - V(TOPN) 300 ps after CONV rises (neutral DAC, no decisions) is the sampled input",
@@ -490,7 +495,8 @@ def tb_bootstrap() -> list[TBDef]:
     els += [El("VAVDD", "vsource", ["AVDD", "0"], "dc=vdd", "top")]
     out.append(TBDef(
         "tb/bootstrap/tb_bootstrap_track.scs", "tb_bootstrap_track: differential tracking linearity with the reference switch",
-        [f"parameters fin=49.8046875e6 amp_dbfs=-1 npts=256 nskip=4 tper=10n fs_peak={_FS} vcm_in=0.45 rsrc=50 wsw={_WSW} nfsw={_NFSW} cs={_CS}",
+        [_FIN_PREPARE.format("adcflow.measure.top:prepare"),
+         f"parameters fin=49.8046875e6 amp_dbfs=-1 npts=256 nskip=4 tper=10n fs_peak={_FS} vcm_in=0.45 rsrc=50 wsw={_WSW} nfsw={_NFSW} cs={_CS}",
          "parameters amp=fs_peak*pow(10, amp_dbfs/20) tstart=nskip*tper tstop=(nskip+npts+0.5)*tper"],
         els, _numerics("adc_bootstrap", "tb_bootstrap_track",
                        ["tran1 tran stop=tstop outputstart=tstop", "tbopts options save=none"]),
@@ -542,6 +548,7 @@ def tb_ref() -> list[TBDef]:
     out = []
     ref_ports = ["VREF_IN", "VREFP", "VCM", "AVDD18", "AVDD", "0"]
     iload = _op("adc_ref")["load_vrefp_dc"]      # average CDAC load on VREFP (REF-01)
+    lo18, hi18 = supply_envelope("vdd18")        # REF-04: the specified AVDD18 envelope at every corner (#46)
     base = [El("XDUT", "adc_ref", ref_ports, where="dut"),
             El("VREF", "vsource", ["VREF_IN", "0"], "dc=vref_in"),
             El("VH", "vsource", ["AVDD18", "0"], "dc=vdd18", "top"),
@@ -552,11 +559,14 @@ def tb_ref() -> list[TBDef]:
         base + [El("IL", "isource", ["VREFP", "0"], "dc=iload", "load",
                    note="average CDAC load, adc_ref.yaml operating.load_vrefp_dc")],
         ["dcop dc", f"dcload dc param=iload start=0 stop={_ua(iload)} step={_ua(iload / 4)}",
-         "dcline dc dev=VH param=dc start=vdd18*0.9 stop=vdd18*1.1 step=vdd18*0.05",
-         "save VREFP VCM VH:p VA:p VREF:p"]))
+         f"dcline dc dev=VH param=dc start={lo18:g} stop={hi18:g} step={(hi18 - lo18) / 4:g}",
+         "save VREFP VCM VH:p VA:p VREF:p"],
+        notes=[f"REF-04: AVDD18 swept over the supply envelope {lo18:g} .. {hi18:g} V (corners.yaml) at every corner, "
+               "not around the corner's own supply"]))
     out.append(TBDef(
         "tb/ref/tb_ref_replay.scs", "tb_ref_replay: VREFP under the CDAC charge sequence of a near-Nyquist conversion",
-        [f"parameters npts=1024 nwarm=32 fin=48.828125e6 ccdac={_CDB}", "parameters tstop=(nwarm+npts+2)*10n"],
+        [_FIN_PREPARE.format("adcflow.measure.ref:replay_prepare"),
+         f"parameters npts=1024 nwarm=32 fin=48.828125e6 ccdac={_CDB}", "parameters tstop=(nwarm+npts+2)*10n"],
         base + [El("CDB", "capacitor", ["VREFP", "0"], "c=ccdac", "load",
                    note="CDAC bottom plates seen from VREFP (both sides)"),
                 El("ILD", "isource", ["VREFP", "0"], 'type=pwl file="iload.pwl"', "load",
@@ -618,7 +628,8 @@ def tb_top() -> list[TBDef]:
     els += _sup("AVDD", "vdd", True) + _sup("DVDD", "vdd", True) + _sup("AVDD18", "vdd18", True)
     return [TBDef(
         "tb/top/tb_top_sine.scs", "tb_top_sine: full ADC, coherent differential sine from 50 ohm per side",
-        ["parameters fin=49.8962402e6 amp_dbfs=-1 npts=1024 ncal=1024 nskip=4 duty=0.5 fsamp=100e6 \\",
+        [_FIN_PREPARE.format("adcflow.measure.top:prepare"),
+         "parameters fin=49.8962402e6 amp_dbfs=-1 npts=1024 ncal=1024 nskip=4 duty=0.5 fsamp=100e6 \\",
          f"        fs_peak={_FS} vcm_in=0.45 rsrc=50 cload={_ff(_op('adc_sarlogic')['load_dout'])} nfmax=20G",
          "parameters amp=fs_peak*pow(10, amp_dbfs/20) tper=1/fsamp \\",
          "        tstart=(nskip-0.5)*tper tstop=(nskip+ncal+npts+0.6)*tper"],
