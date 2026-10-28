@@ -10,6 +10,8 @@ from urllib.parse import quote, quote_plus
 
 from .data import (CONTRIBUTING_RAW, FALLBACK_REPO, PROCESS, ROOT, STATUS_ORDER, BlockData, Build, SpecRow, arch, best_rows,
                    docs, evidence_path, figures, fmt, has_doc, last_change, owner_login, verdict_counts)
+from . import livepanel
+from .live import Live, unavailable
 from .manifest import name_of
 from .md import esc, slug
 
@@ -27,6 +29,10 @@ class Site:
 
     def __init__(self, build: Build, netlist_base: str, base_url: str, manifests: bool = False):
         self.build, self.netlist_base, self.base_url, self.manifests = build, netlist_base, base_url, manifests
+        self.live: Live = unavailable("本次构建没有获取")      # per-block PRs and notices (build.py sets the real data)
+        self.previews: dict = {}                               # block -> [preview.Preview] of its open PRs (draft content, never main's)
+        self.prov_scope = "本次构建"                            # what recorded inputs are compared with ("该 PR 的提交" in a preview)
+        self.fig_prefix = ""                                   # where figures of the results shown live in the site ("preview/pr<N>/" for a PR)
         self.doc_ids: dict[str, set[str]] = {}      # doc slug -> heading ids, to link only anchors that exist
 
     def gh(self, rel: str, is_dir: bool = False) -> str:
@@ -49,17 +55,21 @@ class Site:
         """Absolute URL of the manifest whose entry is `rel`, when the site's own address is known at build time."""
         return f"{self.base_url}manifests/{name_of(rel)}.json" if self.manifests and self.base_url else None
 
-    def full_viewer_href(self, rel: str, level: str | None = None) -> str:
+    def full_viewer_href(self, rel: str, level: str | None = None, mf_name: str | None = None, url: str | None = None) -> str:
         """The standalone viewer on the design through a manifest; without manifests, on the single netlist.
 
+        `mf_name` / `url` are for a netlist that is not main's (a PR preview): its manifest name and its own address.
         When the address is not known at build time, app.js sets the real link from the page location."""
         lv = f"&level={quote(level)}" if level else ""
-        m = self.manifest_url(rel)
+        if mf_name:
+            m = f"{self.base_url}manifests/{mf_name}.json" if self.manifests and self.base_url else None
+        else:
+            m = self.manifest_url(rel)
         if m:
             return f"{VIEWER}?manifest={quote(m, safe='')}{lv}"
         if self.manifests:
             return VIEWER
-        u = self.netlist_url(rel)
+        u = url or self.netlist_url(rel)
         return f"{VIEWER}?url={quote(u, safe='')}{lv}" if u else VIEWER
 
     def prs_url(self, block: str) -> str:
@@ -89,7 +99,7 @@ class Site:
                 shown = "，".join(stale[:2]) + (f" 等 {len(stale)} 个" if len(stale) > 2 else "")
                 parts.append(f'<span class="warn-t" title="自仿真后已变化的输入：{esc("，".join(stale))}">已过期：{esc(shown)}</span>')
             else:
-                parts.append("输入与本次构建一致")
+                parts.append(f"输入与{self.prov_scope}一致")
         if meta.get("git_clean") is False:
             dirty = "，".join(str(p) for p in meta.get("git_dirty_paths") or [])
             title = f' title="未提交的路径：{esc(dirty)}"' if dirty else ""
@@ -123,7 +133,7 @@ def page(site: Site, *, title: str, body: str, active: str, root: str, desc: str
 {mf_base}
 <title>{esc(title)} · ADC-12b-100M</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23127a8c'/%3E%3Cpath d='M5 21h5v-6h5v-5h5v-4h7' fill='none' stroke='white' stroke-width='3' stroke-linejoin='round'/%3E%3C/svg%3E">
-<script>try{{var t=localStorage.getItem('theme');if(t)document.documentElement.dataset.theme=t}}catch(e){{}}</script>
+<script>document.documentElement.classList.add('js');try{{var t=localStorage.getItem('theme');if(t)document.documentElement.dataset.theme=t}}catch(e){{}}</script>
 <link rel="stylesheet" href="{root}assets/style.css">
 <script src="{root}assets/app.js" defer></script>
 </head>
@@ -207,9 +217,11 @@ def figure_strip(site: Site, doc: dict, root: str) -> str:
     items = []
     for f in figures(doc):
         cap = f.caption or Path(f.rel).name
-        items.append(f'<figure><a href="{root}{esc(f.rel)}" data-zoom data-caption="{esc(cap)}" title="点击放大">'
-                     f'<img src="{root}{esc(f.rel)}" alt="{esc(cap)}" loading="lazy"></a><figcaption>{esc(cap)}</figcaption></figure>')
-    return f'<div class="figs">{"".join(items)}</div>' if items else ""
+        href = f"{root}{site.fig_prefix}{f.rel}"
+        items.append(f'<figure><a href="{esc(href)}" data-zoom data-caption="{esc(cap)}" title="点击放大">'
+                     f'<img src="{esc(href)}" alt="{esc(cap)}" loading="lazy"></a><figcaption>{esc(cap)}</figcaption></figure>')
+    # collapsed until asked for; the images are lazy, so closed figures cost nothing
+    return (f'<details class="figdet"><summary>图（{len(items)}）</summary><div class="figs">{"".join(items)}</div></details>' if items else "")
 
 
 def corner_detail(site: Site, bd: BlockData, view: str, root: str = "") -> str:
@@ -246,7 +258,7 @@ def corner_detail(site: Site, bd: BlockData, view: str, root: str = "") -> str:
             if fs:
                 nfig += 1
                 rows.append(f"<tr class='figrow'><td colspan='{len(specs) + 3}'><code>{esc(d['corner'])}</code>{fs}</td></tr>")
-        out.append(f"<details class='corners'{' open' if nfig else ''}><summary><code>{esc(tid)}</code> · {len(results)} 个结果文件"
+        out.append(f"<details class='corners'><summary><code>{esc(tid)}</code> · {len(results)} 个结果文件"
                    f"{f' · {nfig} 个带图' if nfig else ''}</summary>"
                    f"<div class='table-wrap'><table class='detail'><thead><tr><th>工艺角{head}<th>日期 / git<th>证据</tr></thead>"
                    f"<tbody>{''.join(rows)}</tbody></table></div></details>")
@@ -276,8 +288,9 @@ def verification_section(site: Site, bd: BlockData, level: int = 2, link: bool =
 def viewer(site: Site, files: list[dict], vid: str, height: int = 460, note: str = "") -> str:
     if not files:
         return "<p class='empty'>该模块还没有可画的网表。</p>"
-    data = [{"label": f["label"], "path": f["path"], "level": f.get("level"), "kind": f["kind"], "mf": name_of(f["path"]),
-             "src": site.gh(f["path"]), "full": site.full_viewer_href(f["path"], f.get("level"))} for f in files]
+    data = [{"label": f["label"], "path": f["path"], "level": f.get("level"), "kind": f["kind"], "mf": f.get("mf") or name_of(f["path"]),
+             "url": f.get("url"), "src": site.gh(f["path"]),
+             "full": site.full_viewer_href(f["path"], f.get("level"), f.get("mf"), f.get("url"))} for f in files]
     tabs = "".join(f'<button type="button" role="tab" aria-selected="{"true" if i == 0 else "false"}" data-i="{i}">'
                    f'{esc(f["label"])}</button>' for i, f in enumerate(data))
     first = data[0]
@@ -383,6 +396,8 @@ def block_page(site: Site, bd: BlockData, all_names: list[str]) -> str:
     <span><span class="muted">最近更新</span> {esc(last_change(bd) or '–')}</span>
     <span>{cfg_link}</span></div>
 </div>
+{{TABS}}"""
+    main_html = f"""{livepanel.block_panel(site.live, b.name, site.repo)}
 <section><h2 id="summary">功能概述</h2><p>{esc(summary)}</p>{op_html}</section>
 <section><h2 id="schematic">原理图</h2>
 {viewer(site, bd.files, 'v-' + b.name, 480, note)}
@@ -392,7 +407,66 @@ def block_page(site: Site, bd: BlockData, all_names: list[str]) -> str:
 <h3>指标限值</h3>{_spec_limit_table(b)}</section>
 <section><h2 id="tests">验收用例</h2><div class="tests">{''.join(tests)}</div></section>
 <section><h2 id="docs">相关文档</h2><ul class="plain docs-links">{dl}</ul></section>"""
+    body = body.replace("{TABS}", block_tabs(site, b.name, main_html))
     return page(site, title=b.name, body=body, active="blocks", root="../", desc=raw["title"])
+
+
+DRAFT = "未评审的草稿，不是签核证据"
+
+
+def block_tabs(site: Site, block: str, main_html: str) -> str:
+    """The block's content: the main-branch content, and (when it has open PRs) one tab per draft preview next to it.
+
+    Without JavaScript every panel is visible, stacked, each with its heading; app.js turns them into tabs (the tab is in the
+    URL hash: #pr<N> for a draft, nothing for main). Draft panels are separate from main: labelled, never counted for main."""
+    pvs = site.previews.get(block, [])
+    if not pvs:
+        return main_html
+    tabs = ['<button type="button" role="tab" id="tab-main" aria-controls="content-main" aria-selected="true" tabindex="0">主分支</button>']
+    for pv in pvs:
+        kind, label = livepanel.CI.get(pv.pr.ci, livepanel.CI["unknown"])
+        tabs.append(f'<button type="button" role="tab" id="tab-pr{pv.pr.number}" aria-controls="pr{pv.pr.number}" aria-selected="false" tabindex="-1" '
+                    f'title="{DRAFT}">草稿 PR #{pv.pr.number} <span class="chip {kind}">{esc(label)}</span></button>')
+    return (f'<div class="btabs" data-tabs><div class="tabbar" role="tablist" aria-label="内容来源：主分支或草稿 PR">{"".join(tabs)}</div>'
+            f'<div role="tabpanel" id="content-main" aria-labelledby="tab-main"><h2 class="panel-title">主分支</h2>{main_html}</div>'
+            f'{"".join(preview_section(site, pv) for pv in pvs)}</div>')
+
+
+def preview_section(site: Site, pv) -> str:
+    pr = pv.pr
+    panel = f'class="preview" role="tabpanel" id="pr{pr.number}" aria-labelledby="tab-pr{pr.number}"'
+    head = (f'<a href="https://github.com/{esc(pv.head_repo)}/commit/{esc(pr.sha)}" target="_blank" rel="noopener"><code>{esc(pr.sha[:7])}</code></a>')
+    top = (f'<h2>草稿预览 PR #{pr.number} @ <code>{esc(pr.sha[:7])}</code> '
+           f'<span class="chip stale draft-label">{DRAFT}</span></h2>'
+           f'<p class="muted">{livepanel.pr_link(pr)} · {livepanel.pr_badges(pr)} · @{esc(pr.author)} · 提交 {head}，PR 最近更新 {esc(livepanel.when(pr.updated))} UTC。'
+           f'内容读自该 PR 的提交，经过与主分支相同的检查；不计入主分支的状态、判定和统计。</p>')
+    if not pv.ok:
+        return f'<section {panel}>{top}<p class="empty">只显示元数据：{esc(pv.reason)}。</p></section>'
+    s2 = pv.site
+    if pv.viewer_files:
+        notes = []
+        if pv.xtor_change:
+            sha, date, title = pv.xtor_change
+            notes.append(f'网表最近一次改动：<a href="https://github.com/{esc(pv.head_repo)}/commit/{esc(sha)}" target="_blank" rel="noopener">'
+                         f'<code>{esc(sha)}</code></a> {esc(date)} {esc(title)}')
+        net = viewer(s2, pv.viewer_files, f"v-pr{pr.number}", 420, "该 PR 的晶体管级网表（未评审）。")
+        commits = ""
+        if pv.commits:
+            lis = "".join(f'<li><a href="https://github.com/{esc(pv.head_repo)}/commit/{esc(c)}" target="_blank" rel="noopener"><code>{esc(c)}</code></a> {esc(t)}</li>'
+                          for c, t in pv.commits)
+            commits = f"<details class='corners'><summary>PR 的最近 {len(pv.commits)} 个提交</summary><ul class='plain'>{lis}</ul></details>"
+        net += (f"<p class='muted'>{' · '.join(notes)}</p>" if notes else "") + commits
+    else:
+        net = f"<p class='empty'>这个 PR 里还没有 <code>design/xtor/{esc(pv.block)}/</code> 网表。</p>"
+    if pv.bd.rows:
+        met = ""
+        for view in sorted(pv.bd.rows, key=lambda v: (v != "xtor", v)):
+            label = {"behav": "行为级 behav", "xtor": "晶体管级 xtor"}.get(view, view)
+            met += f"<h4>{label}</h4>{spec_table(s2, pv.bd.rows[view], with_test=True)}{corner_detail(s2, pv.bd, view, '../')}"
+        met += "<p class='muted legend'>判定按该 PR 自己的规格（<code>specs/blocks/%s.yaml</code> 在该提交里的版本）和它自己的输入文件重新计算；“过期”表示结果记录的输入已不是该提交里的文件。</p>" % esc(pv.block)
+    else:
+        met = "<p class='empty'>这个 PR 里还没有记录的仿真结果。</p>"
+    return f'<section {panel}>{top}<h3>网表</h3>{net}<h3>指标</h3>{met}</section>'
 
 
 def _spec_limit_table(b) -> str:
@@ -473,6 +547,33 @@ def design_library(site: Site) -> str:
 </section>"""
 
 
+def live_overview(site: Site, data: dict[str, BlockData]) -> str:
+    """One table across the blocks: owner, status on main, newest open PR (draft / CI), its last update, open notices."""
+    live = site.live
+    rows = []
+    for bd in data.values():
+        b = bd.b
+        pr, upd, notes = livepanel.overview_cells(live, b.name, site.repo)
+        pvs = site.previews.get(b.name) or []
+        if pvs and pvs[0].ok and pvs[0].counts[2]:
+            p, f, n = pvs[0].counts
+            draft = (f'<a href="blocks/{b.name}.html#pr{pvs[0].pr.number}">{p}/{n} 通过{f" · {f} 不通过" if f else ""}</a> '
+                     f'{chip("stale", "草稿", DRAFT)}')
+        elif pvs:
+            draft = f'<a href="blocks/{b.name}.html#pr{pvs[0].pr.number}" class="muted">仅元数据</a>'
+        else:
+            draft = '<span class="muted">–</span>'
+        rows.append(f"""<tr><td><a href="blocks/{b.name}.html"><code>{esc(b.name)}</code></a></td>
+<td>{owner_html(site, b.name, b.raw.get('owner', 'TBD'), '', links=False)}</td><td>{status_chip(b.status)}</td>
+<td>{pr}</td><td class=muted>{upd}</td><td>{draft}</td><td class=num>{notes}</td></tr>""")
+    note = (livepanel.unavailable_note(live) if not live.ok else "")
+    return f"""<section id="live"><h2>实时进展 {livepanel.stamp_html(live)}</h2>
+<p class="muted legend">状态是主分支上的（来自 <code>specs/blocks/*.yaml</code>）；晶体管级工作在各模块的 PR 里，下表显示每个模块最近更新的进行中 PR
+（草稿 / 待评审、CI 状态）和未关闭的通知数。只显示标题和状态，不显示正文；站点每小时重建一次。</p>{note}
+<div class="table-wrap"><table class="live"><thead><tr><th>模块<th>负责人<th>主分支状态<th>最新进行中 PR<th>最近更新 (UTC)<th title="取自该 PR 的提交，未评审，不计入主分支">草稿预览（未评审）<th>通知</tr></thead>
+<tbody>{''.join(rows)}</tbody></table></div></section>"""
+
+
 def overview(site: Site, data: dict[str, BlockData]) -> str:
     a = arch()
     raw = a.raw
@@ -524,6 +625,7 @@ def overview(site: Site, data: dict[str, BlockData]) -> str:
 <a class="btn big" href="verification.html">验证结果</a><a class="btn big" href="progress.html">模块进展</a></div>
 </section>
 <section><h2 id="numbers">关键数字</h2><div class="stats">{stats}</div>{enob_figs}{health}</section>
+{live_overview(site, data)}
 <section><h2 id="top">顶层原理图</h2>
 {viewer(site, [f for f in data['adc_top'].files if f['kind'] in ('struct', 'behav')] or data['adc_top'].files, 'v-top', 520,
         '顶层结构网表 adc_top.scs（同一个文件适用于任意视图组合）。双击模块进入下一层；也可以到各模块页面看它的行为级 / 晶体管级网表。')}

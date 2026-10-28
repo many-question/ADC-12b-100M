@@ -31,7 +31,7 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 
-from sitegen import guard, linkcheck, manifest, render      # noqa: E402
+from sitegen import guard, linkcheck, live as livedata, manifest, preview, render      # noqa: E402
 from sitegen.data import ROOT, build_info, collect_blocks, docs, figures   # noqa: E402
 from sitegen.md import Links, render as md_render, split_title   # noqa: E402
 
@@ -71,7 +71,7 @@ def publish_figures(out: Path, data) -> tuple[int, list[str]]:
     return n, problems
 
 
-def build(out: Path, netlist_base: str, base_url: str) -> list[str]:
+def build(out: Path, netlist_base: str, base_url: str, use_live: bool = True) -> list[str]:
     info = build_info()
     if netlist_base == "raw":
         if not (info.repo and info.sha):
@@ -86,12 +86,26 @@ def build(out: Path, netlist_base: str, base_url: str) -> list[str]:
     site = render.Site(info, netlist_base, base_url, manifests=bool(files_base))
     data = collect_blocks()
     problems: list[str] = []
+    # live PRs and notices of the blocks: a failure is a note on the pages, never a build failure
+    site.live = livedata.fetch(info.repo, list(data)) if use_live else livedata.unavailable("本次构建没有联网获取（--no-live）")
+    for s in site.live.skipped:
+        print(f"live: left out {s} (title or author would trip the name guard)")
+    use_previews = use_live and site.live.ok
+    print("live: " + (f"{sum(map(len, site.live.prs.values()))} open PRs, {sum(map(len, site.live.issues.values()))} notices"
+                      if site.live.ok else f"unavailable: {site.live.error}"))
 
     if out.exists():
         shutil.rmtree(out)
     out.mkdir(parents=True)
     shutil.copytree(HERE / "static", out / "assets")
     write(out, ".nojekyll", "")
+    if use_previews:                       # draft content of the open PRs, read as data and screened (sitegen/preview.py)
+        site.previews = preview.build_previews(site, site.live, out)
+        for pvs in site.previews.values():
+            for pv in pvs:
+                print(f"preview: PR #{pv.pr.number} [{pv.block}] " + ("shown" if pv.ok else f"metadata only ({pv.reason})"))
+                for n in pv.notes:
+                    print(f"preview: PR #{pv.pr.number}: {n}")
 
     rendered = {}
     for f, slug_, title, _ in docs():
@@ -154,10 +168,11 @@ def main() -> int:
                          "or an absolute URL prefix that serves the repository layout")
     ap.add_argument("--base-url", default="", help="public URL of the deployed site, to write absolute viewer links into the HTML")
     ap.add_argument("--serve", nargs="?", type=int, const=8000, metavar="PORT", help="serve the result on 127.0.0.1 afterwards")
+    ap.add_argument("--no-live", action="store_true", help="do not ask the GitHub API for open PRs and notices")
     ap.add_argument("--no-strict", action="store_true", help="report broken links but do not fail")
     a = ap.parse_args()
 
-    problems = build(Path(a.out), a.netlist_base, a.base_url)
+    problems = build(Path(a.out), a.netlist_base, a.base_url, not a.no_live)
     for p in problems:
         print("error:", p)
     if problems and not a.no_strict:

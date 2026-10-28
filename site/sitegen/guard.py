@@ -32,6 +32,11 @@ def _hit(text: str) -> bool:
     return False
 
 
+def contains(text: str) -> bool:
+    """Does `text` contain the process vendor's name (any case, also inside longer words)?"""
+    return _hit(text)
+
+
 def check(out: Path) -> list[str]:
     """One problem per generated text file that contains the vendor's name."""
     problems = []

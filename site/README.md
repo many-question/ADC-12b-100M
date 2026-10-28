@@ -58,6 +58,43 @@ python site/build.py --serve                  # 构建并在 http://127.0.0.1:80
 RNL 嵌入式查看器（`embed=1`）目前没有关闭使用框的参数（`embed`、`url`、`manifest`、`level`、`background`、`grid`、`names`、`origin`
 之外没有别的），清单的 `display.usages` 也只对完整查看器生效。要让嵌入默认不画使用框，需要上游查看器先提供这个选项。
 
+## 实时进展（进行中的 PR 与通知）
+
+首页的“实时进展”表和每个模块页的“进行中”面板显示 GitHub 上标题以 `[<block>]` 开头的**进行中 PR**（编号、标题、草稿 / 待评审、作者、最近更新、
+CI 状态：通过 / 失败 / 运行中）和**未关闭的通知（issue）**（标题、评论数）。数据在构建时用 GitHub API 取（`sitegen/live.py`；在 Actions 里用作业的
+只读 `GITHUB_TOKEN`，本地用环境变量 `GITHUB_TOKEN` / `GH_TOKEN`，没有也会试一次匿名请求），页面上标“数据更新于 <UTC 时间>”。
+
+* 只保留元数据：PR 和 issue 的正文、评论内容不请求、不显示。所有标题都做 HTML 转义。
+* API 不可用（没有令牌、限流、断网）时构建照常成功，面板写“无法获取实时数据”和时间。`--no-live` 完全不联网。
+* 标题或作者名触发工艺名称检查（`sitegen/guard.py`）的条目被丢掉并在构建日志里记一行，不会让整个构建失败。
+* 工作流 `site.yml` 每小时（`17 * * * *`）重建并部署一次，所以这些数据最多落后一个小时；`push` 到 `main` 和手动触发也会部署，PR 只构建并上传预览。
+  构建作业的权限只有只读的 `contents`、`pull-requests`、`issues`、`checks`、`statuses`；写 Pages 的权限只给部署作业。
+  仓库 60 天没有活动时 GitHub 会停掉定时工作流，重新启用即可。
+* 数据层的测试用固定的 JSON 夹具，不联网：`tests/test_site_live.py`。
+
+### 草稿预览（`sitegen/preview.py`）
+
+模块页用标签页组织：“主分支”（主分支的全部内容，含“进行中”面板）是默认标签，每个有预览的 PR 一个“草稿 PR #N”标签（带 CI 徽标）。
+当前标签写在 URL 的 hash 里（`#pr26`；主分支没有 hash），所以可以直接链接、刷新后保持，首页表里的链接会打开对应标签；左右方向键 / Home / End 切换。
+没有 JavaScript 时所有面板都显示、依次排列、各有标题。藏在隐藏标签里的嵌入查看器在标签第一次显示时才开始加载，加载在隐藏状态完成的会在显示时再适配一次。
+结果的证据图默认折叠（`<details>` “图（N）”，图片是懒加载的），点缩略图放大。
+
+每个模块页的主分支内容下面，对该模块每个进行中的 `[<block>]` PR（最新的 3 个）显示一个单独的“草稿预览 PR #N @ <sha>”区块：
+按该 PR 提交里的 `specs/blocks/<block>.yaml` 和 `results/<block>/**` 填的指标表（值、限值、判定、适用工艺角的覆盖，过期标记、证据链接、图）、
+用清单打开该提交 `design/xtor/<block>/` 网表的查看器，以及网表最近一次改动和 PR 的最近提交标题。首页表里有单独的“草稿预览（未评审）”一列。
+
+内容是未评审的，所以有硬规则：
+
+* 区块上标“未评审的草稿，不是签核证据”；它不进主分支的状态、判定和任何统计（首页“主分支状态”列和关键数字只用主分支数据）。
+* 只预览 CI「contracts, drawings, results」通过的提交；否则只显示元数据和原因。
+* 先过和主分支一样的检查：工艺名称检查（`guard.py`）和 `adcflow check hygiene` 的规则（服务器 / 路径 / 模型卡等）覆盖取自 PR 的全部内容（结果、规格、
+  查看器会取的网表、图的说明、提交标题）。任何一处不过，该 PR 就不显示任何内容，只保留元数据行，并在构建日志里写原因。
+* 从不运行 PR 的任何代码：用 `git fetch origin +refs/pull/<N>/head`（fork 的 PR 也一样）取提交，再用 `git cat-file blob` 当数据读（不做过滤、不跟符号链接），
+  JSON / YAML / 文本由主分支的生成器解析。
+* 图只取不超过 200 kB 的 PNG（与 `adcflow check results` 同一个上限），复制到 `preview/pr<N>/`。
+* 判定用 PR 自己的规格和它自己的输入文件重算（`Block.verdicts` / `content_hash`），工艺角定义用主分支的 `specs/corners.yaml`。
+* 测试用夹具 git 仓库：`tests/test_site_preview.py`。
+
 ## 验证结果的证据与图
 
 * 页面里每个结果都链到它的证据文件：GitHub 上构建提交里的 `results/<block>/<test>/<view>/<corner>.json`（规格表里是“最差值”所在的结果文件，
@@ -79,6 +116,8 @@ site/
   sitegen/render.py    各页面的 HTML
   sitegen/md.py        Markdown → HTML（标题锚点、仓库内链接改写）
   sitegen/linkcheck.py 构建后的内链与锚点检查
+  sitegen/live.py      GitHub 上进行中的 PR 与通知（只取元数据，失败不影响构建）
+  sitegen/livepanel.py 上述数据的 HTML（转义）
   sitegen/manifest.py  查看器清单（每个网表一个，带 SHA-256）
   sitegen/guard.py     输出里不得出现工艺厂名称（只存哈希）
   static/style.css     样式（明 / 暗主题，手机与桌面）
