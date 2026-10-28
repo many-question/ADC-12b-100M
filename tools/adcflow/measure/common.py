@@ -53,6 +53,60 @@ def tran(job_dir: Path) -> dict[str, np.ndarray]:
     return psf.read(f)
 
 
+QMETER_UNIT = 1e-15     # tb_qmeter_va: V(Q) in fC
+
+
+def edge_cin(t: np.ndarray, v: np.ndarray, q: np.ndarray, vdd: float,
+             before: float = 50e-12, after: float = 200e-12) -> np.ndarray:
+    """Input capacitance of a pin from a transient: for every rising edge of its voltage v, the
+    charge into the pin (q in C, from the tb_qmeter_va in series with it) over the edge divided by
+    the voltage step. The window runs from `before` the 50 % crossing to `after` it, at most halfway
+    to the neighbouring falling crossings; edges whose window spans less than 80 % of vdd are skipped.
+    This is the switched capacitance the driver charges (gate capacitance over the whole swing,
+    Miller coupling included). Returns the capacitance (F) of every rising edge."""
+    rises = psf.crossings(t, v, vdd / 2, +1)
+    falls = psf.crossings(t, v, vdd / 2, -1)
+    out = []
+    for r in rises:
+        prev, nxt = falls[falls < r], falls[falls > r]
+        ta = max(r - before, (prev[-1] + r) / 2 if len(prev) else t[0])
+        tb = min(r + after, (r + nxt[0]) / 2 if len(nxt) else t[-1])
+        dv = np.interp(tb, t, v) - np.interp(ta, t, v)
+        if dv >= 0.8 * vdd:
+            out.append((np.interp(tb, t, q) - np.interp(ta, t, q)) / dv)
+    return np.asarray(out)
+
+
+def pin_cins(w: dict, vdd: float, pins: dict[str, tuple[str, str]]) -> dict[str, np.ndarray]:
+    """edge_cin for several pins of one transient: {metric: (voltage signal, charge-meter signal)}.
+    Pins whose signals were not saved are left out."""
+    return {k: edge_cin(w["time"], w[v], w[q] * QMETER_UNIT, vdd) for k, (v, q) in pins.items()
+            if v in w and q in w}
+
+
+def fig_cin(fg, ctx: dict, cins: dict[str, np.ndarray], panels: list[tuple[str, str, str]],
+            tag: str = "cin") -> None:
+    """Input capacitance of every rising edge against its limit, one panel per (key of cins, title,
+    metric whose spec limit applies)."""
+    from ..figures import C1, hline, limits, note
+
+    panels = [pn for pn in panels if len(cins.get(pn[0], ()))]
+    if not panels:
+        return
+    fig, axs = fg.new(1, len(panels), size=(3.9 * len(panels) + 1.0, 3.6))
+    for ax, (k, title, metric) in zip(axs.ravel(), panels):
+        c = cins[k] * 1e15
+        ax.plot(np.arange(1, len(c) + 1), c, "o", color=C1, ms=4)
+        hi = limits(ctx, metric)[1]
+        hline(ax, hi, f"limit {hi:g} fF" if hi else None)
+        ax.set(xlabel="rising edge", ylabel="charge / voltage step (fF)", title=title,
+               ylim=(0, max(hi or 0, c.max()) * 1.3))
+        note(ax, f"mean {c.mean():.2f} fF over {len(c)} edges", loc="lower right")
+    fg.save(fig, tag, "Input capacitance of the clock and digital inputs: the charge each pin draws over every "
+            "rising edge (charge meter in series with it) divided by the voltage step, against the limit; the "
+            "metric is the mean over the edges.")
+
+
 def spectrum(codes: np.ndarray, fs: float, full_scale: float | None) -> dict:
     from adctoolbox import analyze_spectrum
 

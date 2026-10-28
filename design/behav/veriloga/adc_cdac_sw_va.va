@@ -5,7 +5,8 @@
 //     R = ron_in * C_S / C_half (all halves share one time constant);
 //   driver: enabled while CONV is high (always for non-sampled caps);
 //     H half to VREFP unless DH<j>, L half to VREFN unless RL<j>;
-//     R = tau_drv / C_half.
+//     R = tau_drv / C_half;
+//   every DH / RL control input is a capacitance cin_ctrl to VSS (DAC-13).
 `include "disciplines.vams"
 `include "constants.vams"
 `include "adc_arch.vams"
@@ -25,6 +26,7 @@ module adc_cdac_sw_va(VIN, VG, VREFP, VREFN, CONV, DH, RL, B, VSS);
   parameter real vgon = 0.45;                  // VG - VIN above which the input switch is on
   parameter real goff = 1e-12;
   parameter real tsw = 10e-12 from (0:inf);    // switch transition time
+  parameter real cin_ctrl = 0 from [0:inf);    // input capacitance of every DH / RL control
 
   `include "adc_arch_func.vams"
 
@@ -37,6 +39,8 @@ module adc_cdac_sw_va(VIN, VG, VREFP, VREFN, CONV, DH, RL, B, VSS);
     cs = `ADC_CS;
     conv = (V(CONV, VSS) > 0.45) ? 1 : 0;
     for (m = 0; m <= 12; m = m + 1) begin : half
+      I(DH[12 - m], VSS) <+ cin_ctrl * ddt(V(DH[12 - m], VSS));
+      I(RL[12 - m], VSS) <+ cin_ctrl * ddt(V(RL[12 - m], VSS));
       // H half of cap j = 12 - m
       I(B[2*m], VIN)   <+ V(B[2*m], VIN) * (goff + transition((caps(12 - m) && (V(VG, VIN) > vgon)) ? 1 : 0, 0, tsw)
                            * (capw(12 - m) * cu / 2) / (ron_in * cs));

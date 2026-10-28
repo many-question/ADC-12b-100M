@@ -10,7 +10,7 @@ from .. import psf
 from ..arch import Arch
 from ..figures import (C1, C2, C3, C4, C7, GRID, INK2, LIMIT, MUTED, hline, limits, note, sink_of, stack_traces,
                        vline)
-from .common import read_capture, read_meters, tran
+from .common import fig_cin, pin_cins, read_capture, read_meters, tran
 
 
 def read_emu(path: Path) -> dict[int, dict]:
@@ -127,8 +127,15 @@ def func(job_dir: Path, ctx: dict) -> dict:
     meters = read_meters(Path(job_dir) / "power.txt")
     if "DVDD" in meters:
         m["power_uW"] = float(meters["DVDD"] * vdd * 1e6)
+    cins = pin_cins(w, vdd, {"cin_conv_fF": ("CONV", "QCV"), "cin_outp_fF": ("OUTP", "QOP"),
+                             "cin_outn_fF": ("OUTN", "QON")})
+    m.update({k: float(c.mean() * 1e15) for k, c in cins.items() if len(c)})
+    if "cin_outp_fF" in m and "cin_outn_fF" in m:
+        m["cin_cmp_fF"] = max(m["cin_outp_fF"], m["cin_outn_fF"])     # LOG-15: the larger of OUTP / OUTN
     if fg:
         _fig_decisions(fg, ctx, det, m)
+        fig_cin(fg, ctx, cins, [("cin_conv_fF", "CONV", "cin_conv_fF"), ("cin_outp_fF", "OUTP", "cin_cmp_fF"),
+                                ("cin_outn_fF", "OUTN", "cin_cmp_fF")])
         if len(x["CONV"]) > 1 and t_start:           # waveforms were saved
             _fig_conversion(fg, w, vdd, x)
             _fig_timing(fg, ctx, {"t_start_ps": t_start, "t_bit_ps": t_bit, "t_rst_ps": t_rst,

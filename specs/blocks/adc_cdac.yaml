@@ -1,6 +1,6 @@
 block: adc_cdac
 title: Split-capacitor redundant CDAC, one side (instantiated twice)
-version: 0.3.0
+version: 0.4.0
 owner: many-question
 status: behavioral
 views:
@@ -59,6 +59,10 @@ ports:
 operating:
   vin_range: [0.0, 0.9]
   top_load: 20.0e-15          # F, comparator input (CMP-12)
+  # DAC-15..17 bind the adc_clkgen loads, each of which drives both CDACs:
+  # 2 x limit + about 20 % of the load for the wire <= the load. PHI_S and
+  # PHI_SB: 2 x 40 + 20 = 100 fF; CONV, which also drives adc_sarlogic (LOG-14,
+  # 40 fF): 2 x 80 + 40 + 50 = 250 fF.
   vg_from_ideal_bootstrap: "VIN + AVDD while CONV = 0"
 specs:
   - {id: DAC-01, name: "sampling capacitance C_S (per side)",           metric: cs_pF,         unit: pF, min: 1.98, max: 2.12, corners: typ, test: tb_cdac_weights}
@@ -75,6 +79,9 @@ specs:
   - {id: DAC-11, name: "top-plate droop over 5 ns hold",                metric: droop_lsb,     unit: LSB, max: 0.1, corners: all, test: tb_cdac_settle}
   - {id: DAC-12, name: "VREFP charge per conversion (per side)",        metric: qref_pC,       unit: pC, max: 1.2, corners: typ, test: tb_cdac_settle}
   - {id: DAC-13, name: "control input capacitance (DH/RL)",             metric: cin_ctrl_fF,   unit: fF, max: 6, corners: typ, test: tb_cdac_settle}
+  - {id: DAC-15, name: "PHI_S input capacitance (charge per rising edge / VDD)", metric: cin_phs_fF, unit: fF, max: 40, corners: typ, test: tb_cdac_settle}
+  - {id: DAC-16, name: "PHI_SB input capacitance (charge per rising edge / VDD)", metric: cin_phsb_fF, unit: fF, max: 40, corners: typ, test: tb_cdac_settle}
+  - {id: DAC-17, name: "CONV input capacitance (charge per rising edge / VDD)", metric: cin_conv_fF, unit: fF, max: 80, corners: typ, test: tb_cdac_settle}
 tests:
   tb_cdac_weights:
     netlist: tb/cdac/tb_cdac_weights.scs
@@ -104,7 +111,12 @@ tests:
       10 ps edges 1 ns after CONV rises; settling times within 1.5 ns of the
       edge, single-pole equivalent from the 10 % -> 1 % part of the RL12 step,
       conversion-start settling before the first edge, 5 ns hold droop and
-      VREFP charge per conversion.
+      VREFP charge per conversion. DAC-13: AC current into DH5 at 100 MHz.
+      DAC-15..17: PHI_S, PHI_SB and CONV reach the DUT through 0 V sources;
+      the charge a pin draws over each of its rising edges (from 50 ps before
+      to 200 ps after the 50 % crossing, at most halfway to the neighbouring
+      falling crossings) divided by the voltage step, mean over all rising
+      edges of the run.
   tb_cdac_track:
     netlist: tb/cdac/tb_cdac_track.scs
     measure: adcflow.measure.cdac:track

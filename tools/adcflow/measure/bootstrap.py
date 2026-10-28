@@ -8,7 +8,7 @@ import numpy as np
 
 from .. import psf, soa
 from ..figures import C1, C2, C3, C7, GRID, INK2, LIMIT, MUTED, hline, limits, note, plot_spectrum, sink_of, spec_table, vline
-from .common import read_meters, read_samples, spectrum, tran
+from .common import fig_cin, pin_cins, read_meters, read_samples, spectrum, tran
 
 LEVEL_CYCLES = 4
 VIN_STEP = 0.15          # tb_bootstrap_dc: input level k is k * 0.15 V
@@ -47,11 +47,14 @@ def dc(job_dir: Path, ctx: dict) -> dict:
     meters = read_meters(Path(job_dir) / "power.txt")
     if "AVDD" in meters:
         m["iavg_uA"] = float(meters["AVDD"] * 1e6)
+    cins = pin_cins(w, vdd, {"cin_phb_fF": ("PHI_B", "QPB"), "cin_phbb_fF": ("PHI_BB", "QPBB")})
+    m.update({k: float(c.mean() * 1e15) for k, c in cins.items() if len(c)})
     fg = sink_of(ctx)
     if fg:
         _fig_dc(fg, ctx, w, per_level, t_off, t_on, m)
         if "soa_table" in m:
             soa.figure(fg, ctx, m, w)
+        fig_cin(fg, ctx, cins, [("cin_phb_fF", "PHI_B", "cin_phb_fF"), ("cin_phbb_fF", "PHI_BB", "cin_phbb_fF")])
     return m
 
 
@@ -140,7 +143,8 @@ def _fig_dc(fg, ctx, w, per_level, t_off, t_on, m) -> None:
     ax.plot(t * 1e9, phb, color=C2, lw=0.9, label="PHI_B")
     ax.set(xlabel="time (ns)", ylabel="voltage (V)", title="Stimulus and gate")
     ax.legend(loc="upper left", ncol=3)
-    spec_table(axs[1, 2], ctx, m, ["vgs_min_V", "vgs_var_mV", "t_off_ps", "t_on_ps", "iavg_uA", "soa_violations"])
+    spec_table(axs[1, 2], ctx, m, ["vgs_min_V", "vgs_var_mV", "t_off_ps", "t_on_ps", "iavg_uA", "soa_violations",
+                                   "cin_phb_fF", "cin_phbb_fF"])
     fg.save(fig, "switch", "Boosted gate voltage over the input range, the worst turn-off and turn-on edge "
             "with their delays and limits, the three terminal voltages of the reference switch against the "
             "+/-1.0 V SOA limit, and the specification table.")

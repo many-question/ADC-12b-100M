@@ -22,6 +22,10 @@ modules:
     file: tb/common/veriloga/tb_imeter_va.va
     title: "current meter"
     ports: [{name: P, side: top}, {name: N, side: bottom}]
+  tb_qmeter_va:
+    file: tb/common/veriloga/tb_qmeter_va.va
+    title: "charge meter"
+    ports: [{name: P, side: top}, {name: N, side: bottom}, {name: Q, side: right}, {name: VSS, side: left}]
   tb_sampler_va:
     file: tb/common/veriloga/tb_sampler_va.va
     title: "sampler"

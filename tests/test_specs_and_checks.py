@@ -60,6 +60,52 @@ def test_testbench_loads_follow_the_specs():
     # the CDAC top-plate load is the comparator input capacitance limit
     cmp12 = next(s for s in blocks()["adc_comp"].specs if s.id == "CMP-12")
     assert blocks()["adc_cdac"].raw["operating"]["top_load"] == pytest.approx(cmp12.max * 1e-15)
+    # the reference DC and noise tests load VREFP with the spec's average CDAC load
+    iload = blocks()["adc_ref"].raw["operating"]["load_vrefp_dc"]
+    for tb in ("tb/ref/tb_ref_dc.scs", "tb/ref/tb_ref_noise.scs"):
+        m = re.search(r"^parameters iload=([\d.]+)u\b", (REPO_ROOT / tb).read_text(encoding="utf-8"), re.M)
+        assert m and float(m[1]) * 1e-6 == pytest.approx(iload), tb
+
+
+def _limit_fF(block: str, metric: str) -> float:
+    return next(s.max for s in blocks()[block].specs if s.metric == metric) * 1e-15
+
+
+# input-capacitance limit of every block input that a specified load drives
+CIN_METRIC = {("adc_cdac", "PHI_S"): "cin_phs_fF", ("adc_cdac", "PHI_SB"): "cin_phsb_fF",
+              ("adc_cdac", "CONV"): "cin_conv_fF", ("adc_bootstrap", "PHI_B"): "cin_phb_fF",
+              ("adc_bootstrap", "PHI_BB"): "cin_phbb_fF", ("adc_sarlogic", "CONV"): "cin_conv_fF",
+              ("adc_sarlogic", "OUTP"): "cin_cmp_fF", ("adc_sarlogic", "OUTN"): "cin_cmp_fF",
+              ("adc_comp", "CLKC"): "cin_clkc_fF"}
+
+
+def _cin_metric(block: str, port: str) -> str:
+    return "cin_ctrl_fF" if block == "adc_cdac" and port[:2] in ("DH", "RL") else CIN_METRIC[(block, port)]
+
+
+def _receivers(net: str) -> list[tuple[str, str]]:
+    """(block, port) of every block input on a net of the structural top level."""
+    top = parse(REPO_ROOT / "design" / "top" / "adc_top.scs").subckts["adc_top"]
+    out = []
+    for inst in top.instances:
+        b = blocks()[inst.master]
+        out += [(b.name, p.name) for p, n in zip(b.ports, inst.nodes) if n == net and p.dir == "in"]
+    return out
+
+
+def test_specified_loads_cover_the_receivers():
+    """Every specified output load is at least the input-capacitance limits of all inputs on that net
+    (counted in the top-level netlist) plus about 20 % of the load for the wire (PR #23 audit C-E)."""
+    loads = dict(blocks()["adc_clkgen"].raw["operating"]["loads"])
+    op = {b: blocks()[b].raw["operating"] for b in ("adc_comp", "adc_sarlogic")}
+    loads.update({"OUTP": op["adc_comp"]["load_per_output"], "OUTN": op["adc_comp"]["load_per_output"],
+                  "CLKC": op["adc_sarlogic"]["load_clkc"], "DN5": op["adc_sarlogic"]["load_updn"]})
+    for net, load in loads.items():
+        rx = _receivers(net)
+        assert rx, net
+        cin = sum(_limit_fF(b, _cin_metric(b, p)) for b, p in rx)
+        wire = load - cin
+        assert 0.19 * load <= wire <= 0.31 * load + 1e-18, (net, rx, load, cin)
 
 
 def test_ports_check_passes():

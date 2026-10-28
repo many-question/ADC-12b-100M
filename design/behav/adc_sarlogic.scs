@@ -10,26 +10,51 @@ subckt adc_sarlogic (CONV OUTP OUTN CLKC UP12 UP11 UP10 UP9 UP8 UP7 UP6 UP5 UP4 
         D8 D7 D6 D5 D4 D3 D2 D1 D0 RDY DVDD VSS)
 // Behavioral view. Uses the deck global beh_speed.
 parameters t_start=100p t_bitd=30p t_rst=35p t_dac_fast=40p t_dac_slow=75p t_timeout=250p \
-        t_rdy=140p e_dec=150f
+        t_rdy=140p e_dec=150f cin_conv=30f cin_cmp=5f
 I0 (CONV OUTP OUTN CLKC UP12 UP11 UP10 UP9 UP8 UP7 UP6 UP5 UP4 UP3 UP2 UP1 UP0 DN12 DN11 \
         DN10 DN9 DN8 DN7 DN6 DN5 DN4 DN3 DN2 DN1 DN0 D13 D12 D11 D10 D9 D8 D7 D6 D5 D4 D3 \
         D2 D1 D0 RDY DVDD VSS) adc_sarlogic_va \
         speed=beh_speed t_start=t_start t_bitd=t_bitd t_rst=t_rst t_dac_fast=t_dac_fast \
         t_dac_slow=t_dac_slow t_timeout=t_timeout t_rdy=t_rdy e_dec=e_dec
+// input capacitances (LOG-14 <= 40 fF, LOG-15 <= 7 fF)
+CCONV (CONV VSS) capacitor c=cin_conv
+COUTP (OUTP VSS) capacitor c=cin_cmp
+COUTN (OUTN VSS) capacitor c=cin_cmp
 // @RNL {
 //   /* --- semantics --- */
 //   &DVDD @ADD-TO $SUPPLY_NET_SET;
 //   &VSS @ADD-TO $GROUND_NET_SET;
+//   /* the two comparator outputs are loaded equally */
+//   {#COUTP #COUTN} @AS $MATCHED;
 //   /* --- placement and wires: the buses UP, DN and D leave as one bus port each --- */
 //   #I0 @PLACE(0, 0);
-//   %p_conv = $IO_PORT @ATTACH &CONV => @PLACE(-11, 5) => @ORIENT("R0");
-//   &CONV @WIRE {%p_conv:p #I0:CONV};
-//   %p_outp = $IO_PORT @ATTACH &OUTP => @PLACE(-11, 1) => @ORIENT("R0");
-//   &OUTP @WIRE {%p_outp:p #I0:OUTP};
-//   %p_outn = $IO_PORT @ATTACH &OUTN => @PLACE(-11, -1) => @ORIENT("R0");
-//   &OUTN @WIRE {%p_outn:p #I0:OUTN};
-//   %p_clkc = $IO_PORT @ATTACH &CLKC => @PLACE(-11, -5) => @ORIENT("R0");
-//   &CLKC @WIRE {%p_clkc:p #I0:CLKC};
+//   #CCONV @PLACE(-36, 1);
+//   #COUTP @PLACE(-24, -3);
+//   #COUTN @PLACE(-15, -5);
+//   /* inputs, each with its input capacitance */
+//   %jconv = (-36, 5);
+//   $JUNCTION @ATTACH %jconv;
+//   %p_conv = $IO_PORT @ATTACH &CONV => @PLACE(-38, 5) => @ORIENT("R0");
+//   &CONV @WIRE {%p_conv:p %jconv #I0:CONV};
+//   &CONV @WIRE {%jconv #CCONV:1};
+//   %joutp = (-24, 1);
+//   $JUNCTION @ATTACH %joutp;
+//   %p_outp = $IO_PORT @ATTACH &OUTP => @PLACE(-26, 1) => @ORIENT("R0");
+//   &OUTP @WIRE {%p_outp:p %joutp #I0:OUTP};
+//   &OUTP @WIRE {%joutp #COUTP:1};
+//   %joutn = (-15, -1);
+//   $JUNCTION @ATTACH %joutn;
+//   %p_outn = $IO_PORT @ATTACH &OUTN => @PLACE(-17, -1) => @ORIENT("R0");
+//   &OUTN @WIRE {%p_outn:p %joutn #I0:OUTN};
+//   &OUTN @WIRE {%joutn #COUTN:1};
+//   %g2 = $GROUND @ATTACH &VSS => @PLACE(-36, -3);
+//   &VSS @WIRE {#CCONV:2 %g2:p};
+//   %g3 = $GROUND @ATTACH &VSS => @PLACE(-24, -7);
+//   &VSS @WIRE {#COUTP:2 %g3:p};
+//   %g4 = $GROUND @ATTACH &VSS => @PLACE(-15, -9);
+//   &VSS @WIRE {#COUTN:2 %g4:p};
+//   %p_clkc = $IO_PORT @ATTACH &CLKC => @PLACE(-9, -10) => @ORIENT("R90");
+//   &CLKC @WIRE {%p_clkc:p (-9, -5) #I0:CLKC};
 //   %p_up = (13, 3)(p) {&UP12 &UP11 &UP10 &UP9 &UP8 &UP7 &UP6 &UP5 &UP4 &UP3 &UP2 &UP1 &UP0}(nets) @AS $BUS_PORT => @ORIENT("MY");
 //   %p_up @TEXT("UP<12:0>", key="name");
 //   %bus_up = {&UP12 &UP11 &UP10 &UP9 &UP8 &UP7 &UP6 &UP5 &UP4 &UP3 &UP2 &UP1 &UP0} @WIRE {#I0:UP12 %p_up:p};
@@ -46,8 +71,9 @@ I0 (CONV OUTP OUTN CLKC UP12 UP11 UP10 UP9 UP8 UP7 UP6 UP5 UP4 UP3 UP2 UP1 UP0 D
 //   %s1 = $SUPPLY @ATTACH &DVDD => @PLACE(0, 10);
 //   &DVDD @WIRE {#I0:DVDD %s1:p};
 //   /* --- annotations --- */
-//   (-12, 16) @TEXT("adc_sarlogic (behavioral): asynchronous SAR controller, bit and output registers", halign="start") => @SET-STYLE $title_style;
-//   (-12, 14.5) @TEXT("decision k -> UP/DN<13-k>, D<14-k>; DAC wait 40 ps (steps 1-6) / 75 ps; timeout 250 ps forces 1; all delays scaled by beh_speed", halign="start") => @SET-STYLE $note_style;
+//   (-38, 16) @TEXT("adc_sarlogic (behavioral): asynchronous SAR controller, bit and output registers", halign="start") => @SET-STYLE $title_style;
+//   (-38, 14.5) @TEXT("decision k -> UP/DN<13-k>, D<14-k>; DAC wait 40 ps (steps 1-6) / 75 ps; timeout 250 ps forces 1; all delays scaled by beh_speed", halign="start") => @SET-STYLE $note_style;
+//   (-38, 13) @TEXT("CCONV, COUTP and COUTN model the input capacitances", halign="start") => @SET-STYLE $note_style;
 //   (20, 12.5) @TEXT("adc_sarlogic ports", halign="start", bold=true) => @SET-STYLE $note_style;
 //   @RECTANGLE {(20, 12) (52.391, -0.705)} => @SET-STYLE $table_style;
 //   @LINE {(20, 10.845) (52.391, 10.845)} => @SET-STYLE $table_style;

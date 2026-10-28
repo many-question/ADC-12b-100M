@@ -37,6 +37,11 @@ def _ff(c: float) -> str:
     return f"{c * 1e15:g}f"
 
 
+def _ua(i: float) -> str:
+    """Current in A as a netlist value in uA."""
+    return f"{i * 1e6:g}u"
+
+
 _ARCH = Arch.load()
 _FS = f"{_ARCH.fs_peak:.4f}"            # differential full-scale peak (V)
 _CDB = f"{0.6 * _ARCH.cu / 0.5e-15:g}p"  # CDAC bottom plates seen from VREFP (0.6 pF at cu = 0.5 fF)
@@ -226,6 +231,14 @@ def _pwl(points: list[tuple[float, float]]) -> str:
     return "wave=[" + " ".join(f"{_tfmt(t)} {v:.6g}" for t, v in points) + "]"
 
 
+def _pin_meter(tag: str, drv: str, pin: str) -> El:
+    """Charge meter QM<tag> from the driving net to a DUT input; V(Q<tag>) is the charge into the pin
+    in fC, from which adcflow.measure.common.edge_cin takes the charge per rising edge (input
+    capacitance)."""
+    return El(f"QM{tag}", "tb_qmeter_va", [drv, pin, f"Q{tag}", "0"], "", "mon",
+              note=f"charge into the DUT input net {pin} (input capacitance)")
+
+
 def _steps(values: list[float], period: float, edge: float = 10e-12, t0: float = 0.0) -> str:
     pts = [(0.0, values[0])]
     for i in range(1, len(values)):
@@ -278,10 +291,11 @@ def tb_comp() -> list[TBDef]:
         notes=[f"{len(NOISE_LEVELS)} levels of vd from {NOISE_LEVELS[0] * 1e6:g} to {NOISE_LEVELS[-1] * 1e6:g} uV, "
                f"{NOISE_REPEAT} decisions each", "Gaussian CDF fit gives sigma (noise) and mean (offset)"]))
     # kickback + input capacitance
-    els = [El("XDUT", "adc_comp", comp_ports, where="dut"),
+    els = [El("XDUT", "adc_comp", ["INP", "INN", "CLKCX", "OUTP", "OUTN", "AVDD", "0"], where="dut"),
            El("CSP", "capacitor", ["INP", "0"], "c=cs", "load"),
            El("CSN", "capacitor", ["INN", "0"], "c=cs", "load"),
            El("VCK", "vsource", ["CLKC", "0"], clk.split(") vsource ")[1]),
+           _pin_meter("CK", "CLKC", "CLKCX"),
            El("COP", "capacitor", ["OUTP", "0"], "c=cload", "load"),
            El("CON", "capacitor", ["OUTN", "0"], "c=cload", "load"),
            El("ISMP", "tb_sampler_va", ["INP", "INN", "CLKC", "0"],
@@ -293,28 +307,33 @@ def tb_comp() -> list[TBDef]:
            El("VIN2", "vsource", ["INN2", "0"], "dc=0.49"),
            El("VAVDD", "vsource", ["AVDD", "0"], "dc=vdd", "top")]
     out.append(TBDef(
-        "tb/comp/tb_comp_kickback.scs", "tb_comp_kickback: kickback on floating 1.25 pF inputs, input capacitance",
+        "tb/comp/tb_comp_kickback.scs",
+        f"tb_comp_kickback: kickback on floating {_ARCH.c_tot * 1e12:.2f} pF inputs (C_tot), input capacitances",
         [f"parameters cs={_CTOT} cload={cload} ncyc=8", f"parameters tstop=ncyc*{TCYC:g}+100p"],
-        els, ["tran1 tran stop=tstop", "ac1 ac freq=100M", "save INP INN VAC:p"],
+        els, ["tran1 tran stop=tstop", "ac1 ac freq=100M", "save INP INN CLKC VAC:p QCK"],
         extra=["ic INP=0.4905 INN=0.4895"],
         notes=["inputs preset to 0.49 V +/- 0.5 mV and left floating on cs; the change of V(INP)-V(INN) per cycle is the kickback",
-               "XDUT2 (CLKC = 0) with an AC source on INP2: C_in = Im(I)/(2 pi f) at 100 MHz"]))
+               "XDUT2 (CLKC = 0) with an AC source on INP2: C_in = Im(I)/(2 pi f) at 100 MHz",
+               "QMCK: the charge into CLKC per rising edge / VDD is the clock input capacitance (CMP-14)"]))
     return out
 
 
 def tb_sarlogic() -> list[TBDef]:
     log_ports = ["CONV", "OUTP", "OUTN", "CLKC"] + UPS + DNS + DS + ["RDY", "DVDD", "0"]
     op = _op("adc_sarlogic")
-    els = [El("XDUT", "adc_sarlogic", log_ports, where="dut"),
+    els = [El("XDUT", "adc_sarlogic", ["CONVX"] + log_ports[1:], where="dut"),
            El("VCONV", "vsource", ["CONV", "0"],
               "type=pulse val0=0 val1=vdd period=tper delay=tdel width=tconv-20p rise=20p fall=20p",
               note="conversion window as adc_clkgen makes it"),
            El("VCONVB", "vsource", ["CONVB", "0"],
               "type=pulse val0=vdd val1=0 period=tper delay=tdel width=tconv-20p rise=20p fall=20p"),
            El("VDDE", "vsource", ["VDDE", "0"], "dc=vdd"),
-           El("IEMU", "tb_cmp_emu_va", ["CONV", "CLKC"] + UPS + DNS + ["OUTP", "OUTN", "VDDE", "0"],
+           El("IEMU", "tb_cmp_emu_va", ["CONV", "CLKC"] + UPS + DNS + ["OUTPE", "OUTNE", "VDDE", "0"],
               't0=t0cmp tau=8p cload=cupdn cclk=cclk stuck_k=stuck fname="emu.txt"', "mon",
               note="comparator emulator: random input per conversion, decision from the UP/DN DAC level"),
+           _pin_meter("CV", "CONV", "CONVX"),
+           _pin_meter("OP", "OUTPE", "OUTP"),
+           _pin_meter("ON", "OUTNE", "OUTN"),
            El("ICAP", "tb_capture_va", ["CONVB", "RDY"] + DS + ["0"],
               'vth=vdd/2 cload=cload fname="capture.txt"', "mon")]
     els += _sup("DVDD", "vdd", True, t0="tper", t1="tstop")
@@ -324,14 +343,16 @@ def tb_sarlogic() -> list[TBDef]:
          f"cupdn={_ff(op['load_updn'])} cclk={_ff(op['load_clkc'])} cload={_ff(op['load_dout'])}",
          "parameters tstop=nconv*tper+tdel+1n"],
         els, ["tran1 tran stop=tstop outputstart=nowave*tstop",
-              "save CONV CLKC OUTP OUTN RDY UP12 DN12 UP6 DN6 UP0 DN0 D0"],
+              "save CONV CLKC OUTP OUTN RDY UP12 DN12 UP6 DN6 UP0 DN0 D0 QCV QOP QON"],
         notes=["UP/DN loaded by cupdn and CLKC by cclk inside the emulator, D/RDY by cload inside the capture",
+               "QMCV / QMOP / QMON: the charge into CONV, OUTP, OUTN per rising edge / VDD (LOG-14, LOG-15)",
                "stuck=k: the emulator never answers decision k of every odd conversion (timeout test);"
                " nowave=1 writes no waveforms (long functional runs)"])]
 
 
-def _cdac_ports(vin: str, vg: str, top: str, dh: list[str], rl: list[str]) -> list[str]:
-    return [vin, vg, top, "VCM", "VREFP", "0", "PHI_S", "PHI_SB", "CONV"] + dh + rl + ["VDDA", "0"]
+def _cdac_ports(vin: str, vg: str, top: str, dh: list[str], rl: list[str],
+                clk: tuple[str, str, str] = ("PHI_S", "PHI_SB", "CONV")) -> list[str]:
+    return [vin, vg, top, "VCM", "VREFP", "0", *clk] + dh + rl + ["VDDA", "0"]
 
 
 def _ideal_front(clk_params: str = "type=pulse val0=0 val1=vdd period=tper width=tper/2-20p rise=20p fall=20p"):
@@ -369,8 +390,12 @@ def tb_cdac() -> list[TBDef]:
         notes=["conversions 4..29 raise one control line each (DH12, RL12, ..., DH0, RL0) for 1.5 ns",
                "top plate sampled 0.9 ns and 2.2 ns after CONV rises; weight = step / input gain"]))
     # settling
-    els = [El("XDUT", "adc_cdac", _cdac_ports("VIN", "VG", "TOP", DHS[:7] + ["DH5X"] + DHS[8:], RLS), where="dut",
+    els = [El("XDUT", "adc_cdac", _cdac_ports("VIN", "VG", "TOP", DHS[:7] + ["DH5X"] + DHS[8:], RLS,
+                                               ("PHI_SX", "PHI_SBX", "CONVX")), where="dut",
               note="DH5 of the DUT is driven by VDH5 (AC source for the control input capacitance)"),
+           _pin_meter("PS", "PHI_S", "PHI_SX"),
+           _pin_meter("PSB", "PHI_SB", "PHI_SBX"),
+           _pin_meter("CV", "CONV", "CONVX"),
            El("VVIN", "vsource", ["VIN", "0"], "dc=0.65", note="0.2 V above VCM: the conversion start moves the top plate"),
            El("VDH5", "vsource", ["DH5X", "0"], "dc=0 mag=1"),
            El("CTOP", "capacitor", ["TOP", "0"], "c=ctop", "load"),
@@ -384,8 +409,10 @@ def tb_cdac() -> list[TBDef]:
     out.append(TBDef(
         "tb/cdac/tb_cdac_settle.scs", "tb_cdac_settle: DAC step settling, conversion start, hold droop, VREFP charge",
         [f"parameters tper=10n ctop={_CTOP}", "parameters tstop=7*tper"],
-        els, ["tran1 tran stop=tstop maxstep=2p", "ac1 ac freq=100M", "save TOP CONV VDH5:p"],
-        notes=["cycle 1 has no control activity: conversion-start settling and 5 ns hold droop"]))
+        els, ["tran1 tran stop=tstop maxstep=2p", "ac1 ac freq=100M",
+              "save TOP CONV PHI_S PHI_SB VDH5:p QPS QPSB QCV"],
+        notes=["cycle 1 has no control activity: conversion-start settling and 5 ns hold droop",
+               "QMPS / QMPSB / QMCV: the charge into PHI_S, PHI_SB, CONV per rising edge / VDD (DAC-15..17)"]))
     # tracking linearity (P and N)
     els = [El("XDACP", "adc_cdac", _cdac_ports("VINP", "VGP", "TOPP", ["LO"] * 13, ["LO"] * 13), where="dut"),
            El("XDACN", "adc_cdac", _cdac_ports("VINN", "VGN", "TOPN", ["LO"] * 13, ["LO"] * 13), where="dut"),
@@ -419,8 +446,10 @@ def tb_bootstrap() -> list[TBDef]:
         El(f"CS{bp[-1]}", "capacitor", [bp, top], "c=cs", "load"),
         El(f"STOP{bp[-1]}", "relay", [top, "VCM", "PHI_S", "0"], "vt1=0.35 vt2=0.55 ropen=1e12 rclosed=20", "load"),
         El(f"CVG{bp[-1]}", "capacitor", [vg, "0"], "c=10f", "load")]
-    els = [El("XDUT", "adc_bootstrap", ["VIN", "PHI_B", "PHI_BB", "VG", "AVDD", "0"], where="dut"),
+    els = [El("XDUT", "adc_bootstrap", ["VIN", "PHI_BX", "PHI_BBX", "VG", "AVDD", "0"], where="dut"),
            El("VSRC", "vsource", ["SRC", "0"], "type=pwl " + _steps(levels, 4 * 10e-9, edge=0.2e-9, t0=0.5e-9)),
+           _pin_meter("PB", "PHI_B", "PHI_BX"),
+           _pin_meter("PBB", "PHI_BB", "PHI_BBX"),
            El("RS", "resistor", ["SRC", "VIN"], "r=rsrc"),
            El("ISMP", "tb_sampler_va", ["VG", "VIN", "PHI_S", "0"], 'dir=-1 delay=0 fname="vgs.txt"', "mon",
               note="VG - VIN at the sampling instants")]
@@ -430,8 +459,9 @@ def tb_bootstrap() -> list[TBDef]:
     out.append(TBDef(
         "tb/bootstrap/tb_bootstrap_dc.scs", "tb_bootstrap_dc: boosted gate over the input range, edges, current",
         [f"parameters tper=10n rsrc=50 wsw={_WSW} nfsw={_NFSW} cs={_CS}", "parameters tstop=29*tper"],
-        els, ["tran1 tran stop=tstop", "save VG VIN PHI_B BP"],
+        els, ["tran1 tran stop=tstop", "save VG VIN PHI_B PHI_BB BP QPB QPBB"],
         notes=["VIN steps 0 .. 0.9 V in 0.15 V steps, 4 cycles each, through 50 ohm with the reference switch load",
+               "QMPB / QMPBB: the charge into PHI_B, PHI_BB per rising edge / VDD (BST-09, BST-10)",
                "BST-08: the run deck also saves the d/g/s nodes of every thin-oxide MOS in XDUT (adcflow soa)"]))
     els = [El("XBSP", "adc_bootstrap", ["VINP", "PHI_B", "PHI_BB", "VGP", "AVDD", "0"], where="dut"),
            El("XBSN", "adc_bootstrap", ["VINN", "PHI_B", "PHI_BB", "VGN", "AVDD", "0"], where="dut"),
@@ -493,15 +523,17 @@ def tb_clkgen() -> list[TBDef]:
 def tb_ref() -> list[TBDef]:
     out = []
     ref_ports = ["VREF_IN", "VREFP", "VCM", "AVDD18", "AVDD", "0"]
+    iload = _op("adc_ref")["load_vrefp_dc"]      # average CDAC load on VREFP (REF-01)
     base = [El("XDUT", "adc_ref", ref_ports, where="dut"),
             El("VREF", "vsource", ["VREF_IN", "0"], "dc=vref_in"),
             El("VH", "vsource", ["AVDD18", "0"], "dc=vdd18", "top"),
             El("VA", "vsource", ["AVDD", "0"], "dc=vdd", "top")]
     out.append(TBDef(
         "tb/ref/tb_ref_dc.scs", "tb_ref_dc: VREFP / VCM accuracy, load and line regulation, currents",
-        ["parameters iload=100u"],
-        base + [El("IL", "isource", ["VREFP", "0"], "dc=iload", "load", note="CDAC average load")],
-        ["dcop dc", "dcload dc param=iload start=0 stop=200u step=50u",
+        [f"parameters iload={_ua(iload)}"],
+        base + [El("IL", "isource", ["VREFP", "0"], "dc=iload", "load",
+                   note="average CDAC load, adc_ref.yaml operating.load_vrefp_dc")],
+        ["dcop dc", f"dcload dc param=iload start=0 stop={_ua(2 * iload)} step={_ua(iload / 4)}",
          "dcline dc dev=VH param=dc start=vdd18*0.9 stop=vdd18*1.1 step=vdd18*0.05",
          "save VREFP VCM VH:p VA:p VREF:p"]))
     out.append(TBDef(
@@ -519,7 +551,7 @@ def tb_ref() -> list[TBDef]:
         notes=["iload.pwl / trig.pwl are written into the job directory by adcflow.measure.ref:replay_prepare"]))
     out.append(TBDef(
         "tb/ref/tb_ref_noise.scs", "tb_ref_noise: VREFP and VCM noise, 1 kHz - 100 GHz",
-        [f"parameters iload=100u ccdac={_CDB}"],
+        [f"parameters iload={_ua(iload)} ccdac={_CDB}"],
         base + [El("IL", "isource", ["VREFP", "0"], "dc=iload", "load"),
                 El("CDB", "capacitor", ["VREFP", "0"], "c=ccdac", "load")],
         ["noise1 (VREFP 0) noise start=1k stop=100G dec=20",

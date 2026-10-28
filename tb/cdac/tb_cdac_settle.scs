@@ -9,8 +9,14 @@ simulator lang=spectre
 parameters tper=10n ctop=20f
 parameters tstop=7*tper
 // DH5 of the DUT is driven by VDH5 (AC source for the control input capacitance)
-XDUT (VIN VG TOP VCM VREFP 0 PHI_S PHI_SB CONV DH12 DH11 DH10 DH9 DH8 DH7 DH6 DH5X DH4 DH3 \
-        DH2 DH1 DH0 RL12 RL11 RL10 RL9 RL8 RL7 RL6 RL5 RL4 RL3 RL2 RL1 RL0 VDDA 0) adc_cdac
+XDUT (VIN VG TOP VCM VREFP 0 PHI_SX PHI_SBX CONVX DH12 DH11 DH10 DH9 DH8 DH7 DH6 DH5X DH4 \
+        DH3 DH2 DH1 DH0 RL12 RL11 RL10 RL9 RL8 RL7 RL6 RL5 RL4 RL3 RL2 RL1 RL0 VDDA 0) adc_cdac
+// charge into the DUT input net PHI_SX (input capacitance)
+QMPS (PHI_S PHI_SX QPS 0) tb_qmeter_va
+// charge into the DUT input net PHI_SBX (input capacitance)
+QMPSB (PHI_SB PHI_SBX QPSB 0) tb_qmeter_va
+// charge into the DUT input net CONVX (input capacitance)
+QMCV (CONV CONVX QCV 0) tb_qmeter_va
 // 0.2 V above VCM: the conversion start moves the top plate
 VVIN (VIN 0) vsource dc=0.65
 VDH5 (DH5X 0) vsource dc=0 mag=1
@@ -29,7 +35,7 @@ VDDA (VDDA 0) vsource dc=vdd
 VVCM (VCM 0) vsource dc=vref_in/2
 tran1 tran stop=tstop maxstep=2p
 ac1 ac freq=100M
-save TOP CONV VDH5:p
+save TOP CONV PHI_S PHI_SB VDH5:p QPS QPSB QCV
 // @RNL {
 //   /* pins connected by net name: the net-name label of rnl-std-fill on every unwired pin, placed below by its key netname */
 //   $LABEL_TERMINAL_SET @TEXT("${net}", key="netname", size=0.6);
@@ -39,9 +45,12 @@ save TOP CONV VDH5:p
 //   #VVIN @PLACE(-16, 8);
 //   #VDH5 @PLACE(-16, -1);
 //   #VCLK @PLACE(-16, -10);
-//   #IBS @PLACE(44, 3);
-//   #ISEQ @PLACE(44, -17);
-//   #ICG @PLACE(44, -39);
+//   #QMPS @PLACE(41, 5);
+//   #QMPSB @PLACE(41, -11);
+//   #QMCV @PLACE(41, -27);
+//   #IBS @PLACE(44, -45);
+//   #ISEQ @PLACE(44, -65);
+//   #ICG @PLACE(44, -87);
 //   #CTOP @PLACE(0, -18);
 //   #VREFP @PLACE(0, 20);
 //   #IMREF @PLACE(12, 21);
@@ -64,38 +73,53 @@ save TOP CONV VDH5:p
 //   #XDUT:DVDD @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", dx=0.4, dy=0);
 //   %g2 = $GROUND @ATTACH &0 => @PLACE(23.5, -4);
 //   &0 @WIRE {#XDUT:VSS (23.5, -4) (23.5, -4) %g2:p};
+//   #QMPS:P @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", rotate=90, dx=0, dy=0.4);
+//   #QMPS:N @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", rotate=90, dx=0, dy=-0.4);
+//   #QMPS:Q @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", dx=0.4, dy=0);
+//   %g3 = $GROUND @ATTACH &0 => @PLACE(36.5, 5);
+//   &0 @WIRE {#QMPS:VSS (36.5, 5) (36.5, 5) %g3:p};
+//   #QMPSB:P @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", rotate=90, dx=0, dy=0.4);
+//   #QMPSB:N @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", rotate=90, dx=0, dy=-0.4);
+//   #QMPSB:Q @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", dx=0.4, dy=0);
+//   %g4 = $GROUND @ATTACH &0 => @PLACE(36.5, -11);
+//   &0 @WIRE {#QMPSB:VSS (36.5, -11) (36.5, -11) %g4:p};
+//   #QMCV:P @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", rotate=90, dx=0, dy=0.4);
+//   #QMCV:N @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", rotate=90, dx=0, dy=-0.4);
+//   #QMCV:Q @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", dx=0.4, dy=0);
+//   %g5 = $GROUND @ATTACH &0 => @PLACE(36.5, -27);
+//   &0 @WIRE {#QMCV:VSS (36.5, -27) (36.5, -27) %g5:p};
 //   #VVIN:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", rotate=90, dx=0, dy=0.4);
-//   %g3 = $GROUND @ATTACH &0 => @PLACE(-16, 4.5);
-//   &0 @WIRE {#VVIN:2 %g3:p};
+//   %g6 = $GROUND @ATTACH &0 => @PLACE(-16, 4.5);
+//   &0 @WIRE {#VVIN:2 %g6:p};
 //   #VDH5:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", rotate=90, dx=0, dy=0.4);
-//   %g4 = $GROUND @ATTACH &0 => @PLACE(-16, -4.5);
-//   &0 @WIRE {#VDH5:2 %g4:p};
+//   %g7 = $GROUND @ATTACH &0 => @PLACE(-16, -4.5);
+//   &0 @WIRE {#VDH5:2 %g7:p};
 //   #CTOP:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", rotate=90, dx=0, dy=0.4);
-//   %g5 = $GROUND @ATTACH &0 => @PLACE(0, -21.5);
-//   &0 @WIRE {#CTOP:2 %g5:p};
+//   %g8 = $GROUND @ATTACH &0 => @PLACE(0, -21.5);
+//   &0 @WIRE {#CTOP:2 %g8:p};
 //   #IBS:VIN @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
 //   #IBS:PHI_B @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
 //   #IBS:PHI_BB @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
 //   #IBS:VG @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", dx=0.4, dy=0);
 //   #IBS:AVDD @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", rotate=90, dx=0, dy=0.4);
-//   %g6 = $GROUND @ATTACH &0 => @PLACE(48, -3.5);
-//   &0 @WIRE {#IBS:VSS %g6:p};
+//   %g9 = $GROUND @ATTACH &0 => @PLACE(48, -51.5);
+//   &0 @WIRE {#IBS:VSS %g9:p};
 //   #ISEQ:CONV @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
-//   %bs3 = {&DH12 &DH11 &DH10 &DH9 &DH8 &DH7 &DH6 &DH5 &DH4 &DH3 &DH2 &DH1 &DH0} @WIRE {#ISEQ:DH12 (53, -15)};
-//   %bs3 @TEXT("DH<12:0>", size=0.6, halign="start", valign="middle") => @PLACE(53.3, -15);
-//   %bs4 = {&RL12 &RL11 &RL10 &RL9 &RL8 &RL7 &RL6 &RL5 &RL4 &RL3 &RL2 &RL1 &RL0} @WIRE {#ISEQ:RL12 (53, -19)};
-//   %bs4 @TEXT("RL<12:0>", size=0.6, halign="start", valign="middle") => @PLACE(53.3, -19);
+//   %bs3 = {&DH12 &DH11 &DH10 &DH9 &DH8 &DH7 &DH6 &DH5 &DH4 &DH3 &DH2 &DH1 &DH0} @WIRE {#ISEQ:DH12 (53, -63)};
+//   %bs3 @TEXT("DH<12:0>", size=0.6, halign="start", valign="middle") => @PLACE(53.3, -63);
+//   %bs4 = {&RL12 &RL11 &RL10 &RL9 &RL8 &RL7 &RL6 &RL5 &RL4 &RL3 &RL2 &RL1 &RL0} @WIRE {#ISEQ:RL12 (53, -67)};
+//   %bs4 @TEXT("RL<12:0>", size=0.6, halign="start", valign="middle") => @PLACE(53.3, -67);
 //   #ISEQ:VDD @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", rotate=90, dx=0, dy=0.4);
-//   %g7 = $GROUND @ATTACH &0 => @PLACE(44, -23.5);
-//   &0 @WIRE {#ISEQ:VSS %g7:p};
+//   %g10 = $GROUND @ATTACH &0 => @PLACE(44, -71.5);
+//   &0 @WIRE {#ISEQ:VSS %g10:p};
 //   #VREFP:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", rotate=90, dx=0, dy=0.4);
-//   %g8 = $GROUND @ATTACH &0 => @PLACE(0, 16.5);
-//   &0 @WIRE {#VREFP:2 %g8:p};
+//   %g11 = $GROUND @ATTACH &0 => @PLACE(0, 16.5);
+//   &0 @WIRE {#VREFP:2 %g11:p};
 //   #IMREF:P @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", rotate=90, dx=0, dy=0.4);
 //   #IMREF:N @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", rotate=90, dx=0, dy=-0.4);
 //   #VCLK:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", rotate=90, dx=0, dy=0.4);
-//   %g9 = $GROUND @ATTACH &0 => @PLACE(-16, -13.5);
-//   &0 @WIRE {#VCLK:2 %g9:p};
+//   %g12 = $GROUND @ATTACH &0 => @PLACE(-16, -13.5);
+//   &0 @WIRE {#VCLK:2 %g12:p};
 //   #ICG:CLK @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
 //   #ICG:PHI_S @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", dx=0.4, dy=0);
 //   #ICG:PHI_SB @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", dx=0.4, dy=0);
@@ -103,14 +127,15 @@ save TOP CONV VDH5:p
 //   #ICG:PHI_BB @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", dx=0.4, dy=0);
 //   #ICG:CONV @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", dx=0.4, dy=0);
 //   #ICG:AVDD @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", rotate=90, dx=0, dy=0.4);
-//   %g10 = $GROUND @ATTACH &0 => @PLACE(44, -47.5);
-//   &0 @WIRE {#ICG:VSS %g10:p};
+//   %g13 = $GROUND @ATTACH &0 => @PLACE(44, -95.5);
+//   &0 @WIRE {#ICG:VSS %g13:p};
 //   #VDDA:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", rotate=90, dx=0, dy=0.4);
-//   %g11 = $GROUND @ATTACH &0 => @PLACE(24, 16.5);
-//   &0 @WIRE {#VDDA:2 %g11:p};
+//   %g14 = $GROUND @ATTACH &0 => @PLACE(24, 16.5);
+//   &0 @WIRE {#VDDA:2 %g14:p};
 //   #VVCM:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", rotate=90, dx=0, dy=0.4);
-//   %g12 = $GROUND @ATTACH &0 => @PLACE(36, 16.5);
-//   &0 @WIRE {#VVCM:2 %g12:p};
+//   %g15 = $GROUND @ATTACH &0 => @PLACE(36, 16.5);
+//   &0 @WIRE {#VVCM:2 %g15:p};
 //   (-30, 34) @TEXT("tb_cdac_settle: DAC step settling, conversion start, hold droop, VREFP charge", halign="start") => @SET-STYLE $title_style;
-//   (-30, 32.4) @TEXT("cycle 1 has no control activity: conversion-start settling and 5 ns hold droop", halign="start") => @SET-STYLE $note_style
+//   (-30, 32.4) @TEXT("cycle 1 has no control activity: conversion-start settling and 5 ns hold droop", halign="start") => @SET-STYLE $note_style;
+//   (-30, 30.8) @TEXT("QMPS / QMPSB / QMCV: the charge into PHI_S, PHI_SB, CONV per rising edge / VDD (DAC-15..17)", halign="start") => @SET-STYLE $note_style
 // }

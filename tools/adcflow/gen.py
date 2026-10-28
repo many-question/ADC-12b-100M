@@ -294,13 +294,16 @@ def gen_behav_cdac() -> str:
           f"        {pl[pl.index('RL12'):]})",
           # switches scale with the caps (same time constants): 25 / 20 ohm at cu = 0.5 fF
           f"parameters cu={a.cu:g} cp_ratio={a.raw['cdac']['cp_top_ratio']} ron_in={25 * 0.5e-15 / a.cu:g} "
-          f"tau_drv=12p ron_top={20 * 0.5e-15 / a.cu:g}",
+          f"tau_drv=12p ron_top={20 * 0.5e-15 / a.cu:g} \\",
+          # input capacitances, below the limits DAC-13 (6 fF), DAC-15/16 (40 fF) and DAC-17 (80 fF)
+          "        cin_ctrl=4.5f cin_phs=30f cin_phsb=30f cin_conv=60f",
           "// input switches (gate VG), tri-state VREFP/VREFN drivers, neutral states",
           f"ISW ({' '.join(sw_order[:5])} \\",
           f"        {' '.join(sw_order[5:18])} \\",
           f"        {' '.join(sw_order[18:31])} \\",
           f"        {' '.join(sw_order[31:44])} \\",
-          f"        {' '.join(sw_order[44:])}) adc_cdac_sw_va cu=cu ron_in=ron_in tau_drv=tau_drv",
+          f"        {' '.join(sw_order[44:])}) adc_cdac_sw_va cu=cu ron_in=ron_in tau_drv=tau_drv \\",
+          "        cin_ctrl=cin_ctrl",
           "// capacitor array: weight w = two halves of w*cu/2 (H: neutral VREFP, L: neutral VREFN)"]
     for net, inst, j, t in halves:
         L.append(f"{inst} ({net} TOP) capacitor c={a.w[n - 1 - j] / 2:g}*cu")
@@ -308,7 +311,11 @@ def gen_behav_cdac() -> str:
           f"CP (TOP VSS) capacitor c=cp_ratio*{wsum}*cu",
           "// top-plate reset switch (PHI_S high = track) in series with the sampled kT/C source",
           "STOP (TOP NK PHI_S VSS) relay vt1=0.35 vt2=0.55 ropen=1e12 rclosed=ron_top",
-          f"IKTC (NK VCM PHI_S VSS) adc_ktc_va ctot=(1+cp_ratio)*{wsum}*cu tempc=tempc en=noise_en"]
+          f"IKTC (NK VCM PHI_S VSS) adc_ktc_va ctot=(1+cp_ratio)*{wsum}*cu tempc=tempc en=noise_en",
+          "// clock input capacitances",
+          "CPHS (PHI_S VSS) capacitor c=cin_phs",
+          "CPHSB (PHI_SB VSS) capacitor c=cin_phsb",
+          "CCONV (CONV VSS) capacitor c=cin_conv"]
 
     s = Sheet()
     s.emit("/* --- semantics --- */")
@@ -333,6 +340,11 @@ def gen_behav_cdac() -> str:
                                     STD_PINS["$VOLTAGE_CONTROLLED_SWITCH"].values())), x_cp + 10, top_y)
     ktc_pins = va_symbols()["adc_ktc_va"].pins
     ktc = s.place("IKTC", ktc_pins, x_cp + 20, top_y - 8)
+    x_in = isw.pin("VIN")[0] - 18                             # clock input capacitors left of the input ports
+    cpin = {"p": (0, 2), "n": (0, -2)}
+    cphs = s.place("CPHS", cpin, x_cp + 9, top_y - 14)
+    cphsb = s.place("CPHSB", cpin, x_in + 3, top_y - 6)
+    cconv = s.place("CCONV", cpin, x_in + 3, isw.pin("CONV")[1] - 4)
     s.emit("/* --- bottom plates --- */")
     for net, inst, j, t in halves:
         s.wire(net, f"#ISW:{net}", f"#{inst}:1")
@@ -354,9 +366,11 @@ def gen_behav_cdac() -> str:
     px, py = stop.pin("PHI_S")
     qx, qy = ktc.pin("PHI")
     phs = s.point("phs", px - 2, qy, junction=True)
+    phc = s.point("phc", px - 2, qy - 2, junction=True)
     s.port("PHI_S", px - 2, qy - 5, facing="up")
-    s.wire("PHI_S", "%p_phi_s:p", phs, (px - 2, py), "#STOP:3")
+    s.wire("PHI_S", "%p_phi_s:p", phc, phs, (px - 2, py), "#STOP:3")
     s.wire("PHI_S", phs, "#IKTC:3")
+    s.wire("PHI_S", phc, (cphs.pin("p")[0], qy - 2), "#CPHS:1")
     nx, ny = ktc.pin("N")
     s.port("VCM", nx, ny - 4, facing="up")
     s.wire("VCM", "%p_vcm:p", "#IKTC:2")
@@ -369,13 +383,22 @@ def gen_behav_cdac() -> str:
     s.wire("VSS", "#STOP:4", s.ground("VSS", x + 2, y, "g_st"))
     x, y = ktc.pin("VSS")
     s.wire("VSS", "#IKTC:4", s.ground("VSS", x + 2, y, "g_ktc"))
+    for c in ("CPHS", "CPHSB", "CCONV"):
+        x, y = {"CPHS": cphs, "CPHSB": cphsb, "CCONV": cconv}[c].pin("n")
+        s.wire("VSS", f"#{c}:2", s.ground("VSS", x, y - 2, f"g_{c.lower()}"))
     s.emit("/* --- inputs and references on the left --- */")
-    for p in ("VREFP", "VIN", "VREFN", "VG", "CONV"):
+    for p in ("VREFP", "VIN", "VREFN", "VG"):
         x, y = isw.pin(p)
         s.port(p, x - 4, y)
         s.wire(p, f"%p_{p.lower()}:p", f"#ISW:{p}")
-    s.emit("/* PHI_SB and DVDD are not used by the behavioral view */")
-    s.port("PHI_SB", isw.pin("VIN")[0] - 4, top_y - 2)
+    s.emit("/* CONV and PHI_SB with their input capacitances; DVDD is not used by the behavioral view */")
+    x, y = isw.pin("CONV")
+    jcv = s.point("jconv", x_in + 3, y, junction=True)
+    s.port("CONV", x_in, y)
+    s.wire("CONV", "%p_conv:p", jcv, "#ISW:CONV")
+    s.wire("CONV", jcv, "#CCONV:1")
+    s.port("PHI_SB", x_in, top_y - 2)
+    s.wire("PHI_SB", "%p_phi_sb:p", (x_in + 3, top_y - 2), "#CPHSB:1")
     s.port("DVDD", isw.pin("VIN")[0] - 4, top_y)
     s.emit("/* --- control buses: each control pin taps the DH or the RL bus below the matrix --- */")
     for c, dy in (("DH", 3), ("RL", 5)):
@@ -398,13 +421,15 @@ def gen_behav_cdac() -> str:
         x = caps[f"CH{j}"].pin("p")[0]
         s.text(x + 1.5, top_y + 0.4, f"{int(a.w[n - 1 - j])}" + ("" if a.sampled[n - 1 - j] else "*"),
                size=0.6, halign="middle")
-    s.io_table(isw.pin("VIN")[0] - 10, isw.pin("RL0")[1] - 9, "adc_cdac ports", io_rows("adc_cdac"))
-    s.text(isw.pin("VIN")[0] - 10, top_y + 9, f"adc_cdac (behavioral): {n} weights x 2 halves, cu = {a.cu * 1e15:g} fF, "
-                   f"C_S = {a.c_s * 1e12:.4f} pF, C_DAC = {a.c_dac * 1e12:.4f} pF",
+    s.io_table(x_in - 4, isw.pin("RL0")[1] - 11, "adc_cdac ports", io_rows("adc_cdac"))
+    s.text(x_in - 4, top_y + 9, f"adc_cdac (behavioral): {n} weights x 2 halves, cu = {a.cu * 1e15:g} fF, "
+           f"C_S = {a.c_s * 1e12:.4f} pF, C_DAC = {a.c_dac * 1e12:.4f} pF",
            style="title_style", halign="start")
-    s.text(isw.pin("VIN")[0] - 10, top_y + 7.3, "numbers above the array: the weight of each H/L pair, each half"
+    s.text(x_in - 4, top_y + 7.3, "numbers above the array: the weight of each H/L pair, each half"
            " is w*cu/2; * = not sampled (range extension). H halves: neutral VREFP, dropped by DH; L halves:"
            " neutral VREFN, raised by RL", style="note_style", halign="start")
+    s.text(x_in - 4, top_y + 5.8, "CPHS, CPHSB and CCONV model the clock input capacitances; every DH / RL control"
+           " input loads cin_ctrl inside adc_cdac_sw_va", style="note_style", halign="start")
     L += s.record()
     L += block_symbol_record("adc_cdac")
     L.append("ends adc_cdac")

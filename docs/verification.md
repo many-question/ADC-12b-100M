@@ -86,15 +86,15 @@
 |---|---|---|
 | `tb_comp_delay` | `delay` | 延时随输入差的变化（含 ln 拟合与限值）、±1 mV 判决瞬态并标出延时、复位到 10 % VDD |
 | `tb_comp_noise` | `noise` | 判决概率与二项分布最大似然 probit 拟合（及 σ 的 95 % 区间带、限值处的曲线）、拟合残差与二项分布误差带 |
-| `tb_comp_kickback` | `kickback` | 每个周期后的差分输入、每周期变化量对限值、Cin |
+| `tb_comp_kickback` | `kickback`、`cin` | 每个周期后的差分输入、每周期变化量对限值、Cin 与 CLKC 输入电容；CLKC 各上升沿的输入电容对限值（§6） |
 | `tb_cdac_weights` | `weights` | 各位权重与标称、各位权重误差对 0.5 % 限值、上升/下降步长不对称 |
-| `tb_cdac_settle` | `settle` | 整个序列的顶板波形；起始与 RL12 / RL5 / RL0 之后的误差（对数坐标），标出容差线、建立时间与限值；规格表 |
+| `tb_cdac_settle` | `settle`、`cin` | 整个序列的顶板波形；起始与 RL12 / RL5 / RL0 之后的误差（对数坐标），标出容差线、建立时间与限值；规格表；PHI_S、PHI_SB、CONV 各上升沿的输入电容对限值（§6） |
 | `tb_cdac_track` | `spectrum` | 顶板采样谱，SFDR / SNDR 对限值 |
-| `tb_bootstrap_dc` | `switch`、`soa` | VG−VIN 随输入、最坏关断 / 开启边沿（时延与限值）、参考开关三对端电压对 ±1.0 V、规格表；逐管 SOA（§5）：各器件各端电压的最大 \|V\| 对限值、最坏一对的全程波形与峰值附近的时间点 |
+| `tb_bootstrap_dc` | `switch`、`soa`、`cin` | VG−VIN 随输入、最坏关断 / 开启边沿（时延与限值）、参考开关三对端电压对 ±1.0 V、规格表；逐管 SOA（§5）：各器件各端电压的最大 \|V\| 对限值、最坏一对的全程波形与峰值附近的时间点；PHI_B、PHI_BB 各上升沿的输入电容对限值（§6） |
 | `tb_bootstrap_track` | `spectrum` | 经自举开关采样的频谱，SFDR / SNDR 对限值 |
 | `tb_clkgen_timing` | `timing` | CLK 下降 / 上升沿处 PHI_S、PHI_B、CONV 时序、PHI_S 下降沿（80 %→20 %）、占空比 50 / 45 / 55 % 各周期的延时与间隔对限值、规格表 |
 | `tb_clkgen_jitter` | `jitter` | 采样相位沿的直方图与高斯、各沿残差、限值处曲线 |
-| `tb_sarlogic_func` | `decisions`、`conversion`、`timing` | 输出码对输入、各判决位置的错码数、转换时间直方图；一次异步转换的波形（14 个比较器时钟、DAC 控制沿、RDY）；各环路时间逐事件对限值 |
+| `tb_sarlogic_func` | `decisions`、`conversion`、`timing`、`cin` | 输出码对输入、各判决位置的错码数、转换时间直方图；一次异步转换的波形（14 个比较器时钟、DAC 控制沿、RDY）；各环路时间逐事件对限值；CONV、OUTP、OUTN 各上升沿的输入电容对限值（§6） |
 | `tb_sarlogic_rand`、`_func_slow` | `decisions` | 同上（无波形） |
 | `tb_sarlogic_timeout` | `decisions`、`timeout` | 同上；比较器不应答时 CLKC 被超时拉低的波形与每次超时时间对窗口 |
 | `tb_ref_dc` | `dc` | VREFP 随负载、随 AVDD18、VCM 随负载（含窗口与斜率限值）、规格表 |
@@ -169,3 +169,29 @@ PSF 读入器解析，器件与节点的对应关系由流程自己写出，可�
 **行为级视图**没有内部器件：`soa_scope = external`，只检查边界器件（bootstrap 为参考开关 MSWP 的 |VG−VIN|、|VG−BP|、|BP−VIN|，
 两个方向）。行为级通过只说明测试台和外部波形没有超限，**不是晶体管级签核证据**；BST-08 的签核要用 `--view adc_bootstrap=xtor`
 得到的 `device` 结果。
+
+## 6. 时钟与数字输入的输入电容
+
+驱动端的测试台负载（`adc_clkgen` `loads`、`adc_sarlogic` `load_updn` / `load_clkc`、`adc_comp` `load_per_output`）
+由接收端的输入电容限值约束：接收端实例数 × 限值 + 约 20 % 负载的走线 ≤ 驱动端负载（表见
+[`handoff.md`](handoff.md)“接口负载与输入电容”，`tests/test_specs_and_checks.py` 按顶层网表检查）。
+
+| 指标 | 引脚 | 限值 | 测试 |
+|---|---|---|---|
+| DAC-15 / 16 / 17 | `adc_cdac` PHI_S / PHI_SB / CONV | 40 / 40 / 80 fF | `tb_cdac_settle` |
+| BST-09 / 10 | `adc_bootstrap` PHI_B / PHI_BB | 16 / 16 fF | `tb_bootstrap_dc` |
+| LOG-14 / 15 | `adc_sarlogic` CONV / OUTP、OUTN（取较大者） | 40 / 7 fF | `tb_sarlogic_func` |
+| CMP-14 | `adc_comp` CLKC | 16 fF | `tb_comp_kickback` |
+
+**测量**：测试台中 DUT 的这些输入不直接接驱动源，而是经一个电荷计 `tb_qmeter_va`（`QM<tag>`，0 V 通路）；
+`V(Q<tag>)` 是流入该引脚的累计电荷（fC），由仿真器用与电路相同的积分方法和步长积出。度量
+（`adcflow.measure.common.edge_cin`）对引脚电压的每个上升沿，取 50 % 过零点前 50 ps 到后 200 ps（不超过与相邻下降沿的中点）
+之间的电荷变化，除以同一窗口内的电压变化（不足 0.8 VDD 的沿不计），各沿取平均作为指标。这就是驱动端每个沿实际充的电荷：
+包括栅电容在整个摆幅上的变化与 Miller 耦合，而在某一电平上的小信号交流值会漏掉这些。
+
+为什么不对保存的电流波形求和：仿真器在断点（边沿的拐角）后用后向欧拉重启、其余步用梯形法，两者混用时，
+对电流采样无论用梯形和还是矩形和都不精确（行为级电容上曾分别差 −7 % 与 +50 %）；
+`idt` 与电容的 `ddt` 用同一公式，对容性负载得到的电荷是精确的。
+
+控制输入 DH/RL（DAC-13）与比较器输入（CMP-12）仍用 100 MHz 交流电流（模拟输入在偏置点附近小信号工作）。
+行为级视图在这些输入上有明确的电容（`cin_*` 参数，约为限值的 75 %），交流与电荷两种测量都得到该值。

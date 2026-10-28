@@ -1,6 +1,6 @@
 block: adc_clkgen
 title: Sampling clock phase generator
-version: 0.2.0
+version: 0.2.1
 owner: many-question
 status: behavioral
 views:
@@ -24,7 +24,10 @@ ports:
 operating:
   # F; the testbenches (gen_tb.py) take their output loads from here. 530 fF in
   # total: charging them once per cycle from AVDD is C*V*f = 47.7 uA at 0.9 V,
-  # 100 MHz, which CLK-10 counts (it is the whole AVDD current).
+  # 100 MHz, which CLK-10 counts (it is the whole AVDD current). The receivers
+  # are held to them (n instances x input-capacitance limit + ~20 % of wire):
+  # PHI_S / PHI_SB 2 x 40 fF (adc_cdac DAC-15/16), PHI_B / PHI_BB 2 x 16 fF
+  # (adc_bootstrap BST-09/10), CONV 2 x 80 fF (DAC-17) + 40 fF (adc_sarlogic LOG-14).
   loads: {PHI_S: 100.0e-15, PHI_SB: 100.0e-15, PHI_B: 40.0e-15, PHI_BB: 40.0e-15, CONV: 250.0e-15}
 specs:
   - {id: CLK-01, name: "CLK fall -> PHI_S fall (50 %)",           metric: td_s_ps,     unit: ps, max: 80,  corners: all, test: tb_clkgen_timing}

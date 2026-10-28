@@ -12,6 +12,7 @@ import numpy as np
 from .. import model, psf
 from ..arch import Arch
 from ..figures import C1, C2, C3, C7, GRID, INK2, LIMIT, hline, limits, note, sink_of, spec_table, vline
+from ..specs import blocks
 from .common import read_samples, spectrum
 
 # charge replay (tb_ref_replay): the system model converts a near-Nyquist sine with an
@@ -167,11 +168,12 @@ def _fig_dc(fg, ctx, vref_in, op, ld, x, ln, m) -> None:
     if lo is not None and hi is not None:
         ax.axhspan(vref_in * 1e3 + lo, vref_in * 1e3 + hi, color=GRID, alpha=0.7,
                    label=f"VREF_IN {vref_in * 1e3:.0f} mV, window {lo:g} .. +{hi:g} mV")
-    ax.plot([100], [op["VREFP"][0] * 1e3], "s", color=C2, ms=7,
-            label=f"operating point (100 uA), error {m['vrefp_err_mV']:.2f} mV")
+    iop = blocks()["adc_ref"].raw["operating"]["load_vrefp_dc"] * 1e6      # the tb's iload (gen_tb)
+    ax.plot([iop], [op["VREFP"][0] * 1e3], "s", color=C2, ms=7,
+            label=f"operating point ({iop:g} uA), error {m['vrefp_err_mV']:.2f} mV")
     ax.set(xlabel="load current (uA)", ylabel="VREFP (mV)", title="Load regulation")
     ax.legend(loc="lower left", fontsize=7.5)
-    note(ax, f"{m['loadreg_mV']:.2f} mV over 0 .. 200 uA (reported)", loc="upper right")
+    note(ax, f"{m['loadreg_mV']:.2f} mV over {il.min():g} .. {il.max():g} uA (reported)", loc="upper right")
     ax = axs[0, 1]
     ax.plot(x, ln["VREFP"] * 1e3, "o-", color=C1, ms=5, label="VREFP")
     hi = limits(ctx, "line_mV_per_V")[1]
