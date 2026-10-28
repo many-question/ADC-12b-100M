@@ -9,6 +9,7 @@ from pathlib import Path
 import yaml
 
 from . import REPO_ROOT
+from .corners import corner_names
 
 BLOCK_DIR = REPO_ROOT / "specs" / "blocks"
 
@@ -56,6 +57,17 @@ class Spec:
             return f">= {self.min}"
         return f"<= {self.max}"
 
+    def applies(self, corner, mc=None) -> bool:
+        """Whether this spec judges a run at `corner` (a corner name or a Corner); `mc` is the
+        Monte Carlo setting of the run (empty for a nominal run).
+
+        The one applicability rule of the flow (runner, check, report, figures, site): the corner
+        is in the spec's corner set, expanded as `corner_set` does, and a Monte Carlo spec
+        (`mc:`) judges Monte Carlo runs only; the other specs judge both."""
+        if self.mc and not mc:
+            return False
+        return getattr(corner, "name", corner) in corner_names(self.corners)
+
 
 @dataclass
 class Block:
@@ -80,6 +92,25 @@ class Block:
 
     def view_path(self, view: str) -> Path:
         return REPO_ROOT / self.views[view]
+
+    def verdicts(self, test: str, corner, mc, metrics: dict) -> tuple[dict, dict]:
+        """The specs of `test` on the metrics of one run at `corner`.
+
+        Returns (judged, na): judged = {id: {metric, value, limit, pass}} of the specs that apply
+        (Spec.applies); na = {id: {metric, value, limit, corners}} of the specs that do not apply
+        at this corner but whose metric was measured. Their raw values are kept and shown as N/A,
+        never judged: they count for no worst value, failure or coverage. A Monte Carlo spec is
+        left out of a nominal run altogether."""
+        judged, na = {}, {}
+        for s in self.specs:
+            if s.test != test:
+                continue
+            v = metrics.get(s.metric)
+            if s.applies(corner, mc):
+                judged[s.id] = {"metric": s.metric, "value": v, "limit": s.limit_text(), "pass": s.check(v)}
+            elif v is not None and not (s.mc and not mc):
+                na[s.id] = {"metric": s.metric, "value": v, "limit": s.limit_text(), "corners": s.corners}
+        return judged, na
 
 
 class SpecError(ValueError):
@@ -126,6 +157,10 @@ def _load_block(path: Path) -> Block:
         ids.add(spec.id)
         if spec.min is None and spec.max is None:
             errs.append(f"spec {spec.id}: needs min or max")
+        try:
+            corner_names(str(spec.corners))
+        except KeyError as e:
+            errs.append(f"spec {spec.id}: corners {spec.corners!r}: {e}")
         if spec.test not in tests:
             errs.append(f"spec {spec.id}: test {spec.test!r} not defined in tests:")
         specs.append(spec)

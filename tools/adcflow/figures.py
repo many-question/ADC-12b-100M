@@ -105,16 +105,14 @@ def sink_of(ctx: dict):
 
 def limits(ctx: dict, metric: str) -> tuple[float | None, float | None]:
     """Tightest (min, max) the specs of this test put on `metric` at this corner, from specs/blocks/*.yaml
-    (a spec whose corner set does not contain ctx["corner"] is skipped; without a corner all count)."""
-    from .corners import corner_set
+    (a spec that does not apply at ctx["corner"] (Spec.applies) is skipped; without a corner all count)."""
     from .specs import blocks
 
     b = blocks().get(ctx.get("block"))
     corner = ctx.get("corner")
-    corner = getattr(corner, "name", corner)
     lo = hi = None
     for s in (b.specs if b else []):
-        if corner and corner not in {c.name for c in corner_set(s.corners)}:
+        if corner and not s.applies(corner):
             continue
         if s.test == ctx.get("test") and s.metric == metric and not s.mc:
             if s.min is not None:
@@ -209,15 +207,20 @@ def plot_spectrum(ax, x, fs: float, fs_pk: float | None, metrics: dict, sfdr_min
 
 
 def spec_rows(ctx: dict, m: dict, metrics: list[str]) -> list[tuple[str, str, str, bool | None]]:
-    """(spec id and name, value text, limit text, pass) for the specs of this test on `metrics`."""
+    """(spec id and name, value text, limit text, pass) for the specs of this test on `metrics`;
+    pass is None for a spec that does not apply at ctx["corner"] (shown as n/a, not judged)."""
     from .specs import blocks
 
     b = blocks().get(ctx.get("block"))
+    corner = ctx.get("corner")
     rows = []
     for s in (b.specs if b else []):
         if s.test == ctx.get("test") and s.metric in metrics and not s.mc:
             v = m.get(s.metric)
             vt = "n/a" if v is None else f"{v:.4g}"
+            if corner and not s.applies(corner):
+                rows.append((f"{s.id}  {s.metric}", f"{vt} {s.unit}".strip(), f"{s.corners} only", None))
+                continue
             rows.append((f"{s.id}  {s.metric}", f"{vt} {s.unit}".strip(), s.limit_text(), s.check(v)))
     return rows
 
@@ -232,8 +235,8 @@ def spec_table(ax, ctx: dict, m: dict, metrics: list[str], title: str = "Specifi
         ax.text(0.0, y, name, transform=ax.transAxes, fontsize=8, color=INK, va="top")
         ax.text(0.62, y, val, transform=ax.transAxes, fontsize=8, color=INK, va="top", ha="right")
         ax.text(0.65, y, lim, transform=ax.transAxes, fontsize=8, color=INK2, va="top")
-        ax.text(1.0, y, "pass" if ok else "FAIL", transform=ax.transAxes, fontsize=8, va="top", ha="right",
-                color=C3 if ok else LIMIT, fontweight="bold")
+        ax.text(1.0, y, "n/a" if ok is None else "pass" if ok else "FAIL", transform=ax.transAxes, fontsize=8,
+                va="top", ha="right", color=INK2 if ok is None else C3 if ok else LIMIT, fontweight="bold")
         y -= 0.075
 
 

@@ -60,6 +60,12 @@ def corner_set(spec: str) -> list[Corner]:
     return [by_name(n.strip()) for n in spec.split(",") if n.strip()]
 
 
+@lru_cache
+def corner_names(spec: str) -> frozenset[str]:
+    """Names of the corners of `corner_set(spec)`."""
+    return frozenset(c.name for c in corner_set(spec))
+
+
 def model_includes(corner: Corner, mc: str | None = None) -> str:
     """Spectre include lines for the corner (server paths from the site config; nothing is copied)."""
     from .site import get

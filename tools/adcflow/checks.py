@@ -181,20 +181,21 @@ def load_results() -> list[dict]:
 
 
 def judge(doc: dict) -> dict:
-    """Re-judge a result with the current limits; add 'stale' and per-spec pass/fail."""
+    """Re-judge a result with the current limits and corner sets.
+
+    'specs': pass/fail of the specs that apply at the result's corner (Spec.applies); 'na': the
+    specs of its test that do not apply there, with their raw values and no verdict; 'stale' and
+    'error' are reported for every result, whatever applies."""
     b = blocks().get(doc["block"])
-    verdict = {}
+    verdict, na = {}, {}
     if b is not None:
-        for s in b.specs:
-            if s.test == doc["test"] and (not s.mc or doc.get("meta", {}).get("mc")):
-                v = doc["metrics"].get(s.metric)
-                verdict[s.id] = {"value": v, "limit": s.limit_text(), "pass": s.check(v)}
+        verdict, na = b.verdicts(doc["test"], doc["corner"], doc.get("meta", {}).get("mc"), doc["metrics"])
     stale = []
     for rel, h in (doc.get("meta", {}).get("files") or {}).items():
         p = REPO_ROOT / rel
         if not p.exists() or _sha(p) != h:
             stale.append(rel)
-    return {"specs": verdict, "stale": stale, "error": doc["metrics"].get("error")}
+    return {"specs": verdict, "na": na, "stale": stale, "error": doc["metrics"].get("error")}
 
 
 FIGURE_MAX_BYTES = 200_000
@@ -247,7 +248,7 @@ def check_results(strict: bool = False) -> Report:
         if j["stale"]:
             r.warn(f"{rel}: stale (changed since simulated: {', '.join(j['stale'][:4])})")
         _check_figures(r, d, rel, strict, bool(j["error"]))
-        by.setdefault((d["block"], d["test"], d["view"]), {})[d["corner"]] = (d, j)
+        by.setdefault((d["block"], d["test"], d["view"]), {}).setdefault(d["corner"], []).append((d, j))
     for b in blocks().values():
         need_signoff = b.status == "signoff" or (strict and b.status == "xtor-review")
         if not need_signoff:
@@ -257,7 +258,8 @@ def check_results(strict: bool = False) -> Report:
             corners = [c.name for c in corner_set(s.corners)]
             got = by.get((b.name, s.test, view), {})
             for c in corners:
-                hit = [v for k, v in got.items() if k == c or k.startswith(c + "__")]
+                # every result at the corner (all variants) that the spec applies to
+                hit = [(d, j) for d, j in got.get(c, []) if s.applies(c, d.get("meta", {}).get("mc"))]
                 if not hit:
                     r.err(f"{b.name} {s.id}: no {view} result for corner {c} ({s.test})")
                     continue

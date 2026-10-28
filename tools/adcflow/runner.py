@@ -232,18 +232,23 @@ def result_dir(block: Block, test_id: str, viewsig: str) -> Path:
     return REPO_ROOT / "results" / block.name / test_id / viewsig
 
 
+def result_doc(block: Block, test_id: str, viewsig: str, job: Job, metrics: dict, meta: dict,
+               figures: list[dict] | None = None) -> dict:
+    """The result JSON of a job: every metric, the verdicts of the specs that apply at its corner
+    and, as `specs_na`, the specs of the test that do not apply there (raw value, no verdict)."""
+    verdict, na = block.verdicts(test_id, job.corner, meta.get("mc"), metrics)
+    doc = {"block": block.name, "test": test_id, "view": viewsig, "corner": job.corner.name,
+           "params": job.params, "globals": job.globals_, "metrics": metrics, "specs": verdict}
+    if na:
+        doc["specs_na"] = na
+    return {**doc, "figures": figures or [], "meta": meta}
+
+
 def record(block: Block, test_id: str, viewsig: str, job: Job, metrics: dict, meta: dict,
            figures: list[dict] | None = None) -> Path:
-    specs = [s for s in block.specs if s.test == test_id and (not s.mc or meta.get("mc"))]
-    verdict = {}
-    for s in specs:
-        v = metrics.get(s.metric)
-        verdict[s.id] = {"metric": s.metric, "value": v, "limit": s.limit_text(), "pass": s.check(v)}
     out = result_dir(block, test_id, viewsig) / f"{job.name}.json"
     out.parent.mkdir(parents=True, exist_ok=True)
-    doc = {"block": block.name, "test": test_id, "view": viewsig, "corner": job.corner.name,
-           "params": job.params, "globals": job.globals_, "metrics": metrics, "specs": verdict,
-           "figures": figures or [], "meta": meta}
+    doc = result_doc(block, test_id, viewsig, job, metrics, meta, figures)
     out.write_text(json.dumps(doc, indent=1, default=float) + "\n", encoding="utf-8", newline="\n")
     return out
 
@@ -321,24 +326,24 @@ def run_test(test_id: str, block_name: str | None = None, corners: str = "typ",
             traceback.print_exc()
             metrics = {"error": f"measure failed: {e}"}
         out = record(block, test_id, viewsig, j, metrics, meta, figs.entries) if do_record else None
-        summary.append({"job": j.name, "rc": rc[0], "metrics": metrics, "out": out})
+        summary.append({"job": j.name, "corner": j.corner.name, "rc": rc[0], "metrics": metrics, "out": out})
     _print_summary(block, test_id, summary, mc)
     return summary
 
 
 def _print_summary(block: Block, test_id: str, summary: list[dict], mc: str | None = None) -> None:
-    specs = [s for s in block.specs if s.test == test_id and (not s.mc or mc)]
+    def fmt(v) -> str:
+        return "-" if v is None else (f"{v:.4g}" if isinstance(v, (int, float)) else str(v))
+
     for row in summary:
         m = row["metrics"]
         if "error" in m:
             print(f"  {row['job']:28s} ERROR {m['error'][:200]}")
             continue
-        parts = []
-        for s in specs:
-            v = m.get(s.metric)
-            ok = s.check(v)
-            vs = "n/a" if v is None else (f"{v:.4g}" if isinstance(v, (int, float)) else str(v))
-            parts.append(f"{s.id}={vs}{'' if ok else '(FAIL ' + s.limit_text() + ')'}")
+        judged, na = block.verdicts(test_id, row["corner"], mc, m)
+        parts = [f"{sid}={fmt(v['value'])}{'' if v['pass'] else '(FAIL ' + v['limit'] + ')'}"
+                 for sid, v in judged.items()]
+        parts += [f"{sid}={fmt(v['value'])}(n/a: {v['corners']} only)" for sid, v in na.items()]
         print(f"  {row['job']:28s} " + "  ".join(parts))
 
 
