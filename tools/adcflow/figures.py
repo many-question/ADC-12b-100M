@@ -160,10 +160,13 @@ def limit_label(lo: float | None, hi: float | None, unit: str = "") -> str:
 
 
 def spectrum_db(x, fs: float, full_scale_pk: float | None = None):
-    """Hann-windowed one-sided power spectrum in dB (dBFS with `full_scale_pk`, else dBc)."""
+    """One-sided power spectrum in dB (dBFS with `full_scale_pk`, else dBc) with the periodic Hann
+    window of the metrics (adcflow.spectrum.hann), so a coherent tone shows no window skirt."""
+    from .spectrum import hann
+
     x = np.asarray(x, float) - np.mean(x)
     n = len(x)
-    w = np.hanning(n)
+    w = hann(n)
     p = np.abs(np.fft.rfft(x * w)) ** 2 / (np.sum(w) ** 2 / 4)          # sine of amplitude A -> A^2
     ref = full_scale_pk ** 2 if full_scale_pk else p.max()
     return np.arange(len(p)) * fs / n, 10 * np.log10(np.maximum(p / ref, 1e-20))
@@ -198,10 +201,12 @@ def plot_spectrum(ax, x, fs: float, fs_pk: float | None, metrics: dict, sfdr_min
         lines.append(row("SFDR", metrics["sfdr_dBc"], "dBc", sfdr_min))
     if metrics.get("thd_dBc") is not None and np.isfinite(metrics["thd_dBc"]):
         lines.append(row("THD", metrics["thd_dBc"], "dBc", None))
-    lines.append(f"{len(x)} points, Hann window")
+    n = len(x)
+    lines.append(f"N {n}, fs {fs / 1e6:g} MHz, fin {f[kmax] / 1e6:.9g} MHz (k {kmax})")
+    lines.append("periodic Hann window (as the metrics)")
     note(ax, "\n".join(lines), loc="upper left")
     right = f[kmax] > fs / 4
-    ax.annotate(f"fin {f[kmax] / 1e6:.2f} MHz", (f[kmax] / 1e6, pk),
+    ax.annotate(f"fin {f[kmax] / 1e6:.9g} MHz, k {kmax}", (f[kmax] / 1e6, pk),
                 (f[kmax] / 1e6 + (-3 if right else 3), pk - 14), ha="right" if right else "left",
                 fontsize=7.5, color=INK2, arrowprops=dict(arrowstyle="-", color=MUTED, lw=0.7))
 

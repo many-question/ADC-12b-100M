@@ -110,3 +110,27 @@ def test_remeasure_replaces_only_the_estimator(tmp_path, monkeypatch):
     with pytest.raises(ValueError, match="not the same simulation data"):
         runner.remeasure("tb_bootstrap_track", run)
     assert path.read_text() == before
+
+
+def test_redraw_refuses_any_metric_change(tmp_path, monkeypatch):
+    """#47: --redraw rewrites the figures of a result from its run data; every metric must come
+    out as recorded (they are written back unchanged) and meta.redrawn says so."""
+    monkeypatch.setattr(runner, "result_dir", lambda b, t, v: tmp_path / "results")
+    block, _ = find_test("tb_bootstrap_track")
+    x = 0.45 + 0.4 * CASES["near3"][0][:256]
+    run = _run_dir(tmp_path, x)
+    job = runner.Job("tt_nom_27", by_name("tt_nom_27"), {"npts": 256, "tper": 10e-9}, {"vdd": 0.9})
+    new = spectrum.analyze(x - x.mean(), 1e8, None)
+    metrics = {"sfdr_dBc": new["sfdr_dbc"], "sndr_dB": new["sndr_dbc"], "thd_dBc": new["thd_dbc"]}
+    (tmp_path / "results").mkdir()
+    path = tmp_path / "results" / "tt_nom_27.json"
+    path.write_text(json.dumps(runner.result_doc(block, "tb_bootstrap_track", "behav", job, metrics,
+                                                 {"date": "then", "git": "abc1234", "files": {}})))
+    runner.remeasure("tb_bootstrap_track", run, redraw=True)
+    doc = json.loads(path.read_text())
+    assert doc["metrics"] == metrics and doc["meta"]["redrawn"]["run"] == "run"
+    assert "remeasured" not in doc["meta"] and doc["figures"]
+    old = dict(metrics, sfdr_dBc=metrics["sfdr_dBc"] - 1.0)                 # a different estimator: refused
+    path.write_text(json.dumps(runner.result_doc(block, "tb_bootstrap_track", "behav", job, old, {})))
+    with pytest.raises(ValueError, match="sfdr_dBc"):
+        runner.remeasure("tb_bootstrap_track", run, redraw=True)

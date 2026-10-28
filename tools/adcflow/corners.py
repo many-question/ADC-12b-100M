@@ -66,6 +66,13 @@ def corner_names(spec: str) -> frozenset[str]:
     return frozenset(c.name for c in corner_set(spec))
 
 
+def supply_envelope(key: str = "vdd18") -> tuple[float, float]:
+    """Lowest and highest value of a supply (vdd, vdd18) over the supply corners of corners.yaml:
+    the specified operating envelope (nominal +/-10 %)."""
+    vals = [float(v[key]) for v in _cfg()["supply"].values()]
+    return min(vals), max(vals)
+
+
 def model_includes(corner: Corner, mc: str | None = None) -> str:
     """Spectre include lines for the corner (server paths from the site config; nothing is copied)."""
     from .site import get

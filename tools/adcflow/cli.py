@@ -52,6 +52,8 @@ def main(argv: list[str] | None = None) -> int:
     rm.add_argument("--allow", action="append", default=[],
                     help="metric-name part that may change (default: sfdr); any other change aborts")
     rm.add_argument("--dry-run", action="store_true", help="only print old -> new")
+    rm.add_argument("--redraw", action="store_true",
+                    help="figures only: every metric must come out as recorded (meta.redrawn)")
 
     r = sub.add_parser("report", help="summarise recorded results against specs")
     r.add_argument("--block")
@@ -86,7 +88,7 @@ def main(argv: list[str] | None = None) -> int:
 
         from .runner import remeasure
         remeasure(a.test, Path(a.run), a.block, dict(v.split("=", 1) for v in a.view),
-                  tuple(a.allow) or ("sfdr",), a.dry_run)
+                  tuple(a.allow) or ("sfdr",), a.dry_run, a.redraw)
     elif a.cmd == "report":
         from .results import report
         return report(a.block)

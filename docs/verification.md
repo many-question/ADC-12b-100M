@@ -17,6 +17,9 @@
 
 * **工艺角**：`<process>_<supply>_<temp>`，例如 `tt_nom_27`、`ss_low_m40`。集合 `typ`（TT）、
   `quick`（7 个极端角）、`all`（45 个）。电源 ±10 % 同时作用于 0.9 V 与 1.8 V；VREF_IN 恒为 0.900 V。
+  规定的电源包络就是这三档：AVDD 0.81~0.99 V，AVDD18 1.62~1.98 V。扫描电源的测试也不超出它：REF-04（`tb_ref_dc`）
+  在每个工艺角都把 AVDD18 扫过 1.62~1.98 V（`corners.supply_envelope`），与该角自己的电源无关，工艺与温度仍随工艺角变化。
+  以前的 `vdd18*0.9 … vdd18*1.1` 会叠加在该角电源上，高压角扫到 2.178 V，超出包络（#46）。
 * **指标的适用工艺角**：每项指标只在其 `corners:` 集合（按 `corner_set` 展开）内的工艺角上判定；蒙特卡洛指标（`mc:`）
   只判 MC 运行，其它指标 MC 与标称运行都判。判断由同一个函数 `Spec.applies` 给出，结果写入、终端摘要、`check results`、
   `report`、证据图的规格表和站点共用。同一用例中其它工艺角的结果照常保存全部原始 metrics，结果 JSON 的 `specs_na`
@@ -44,11 +47,15 @@
 * **频谱指标**：ENOB、SNDR、SNR、THD 由 ADCToolbox 0.6.4（`pyproject.toml` 固定版本）计算；SFDR 由 `tools/adcflow/spectrum.py`
   按 MATLAB `plotspec` 的定义计算（基波峰值频点 / 信号频点与 DC 之外最大的单个频点，含 Nyquist），因为 0.6.4 的 SFDR
   在杂散紧挨信号频点时出错（#36）。比较与依据见 [`docs/sfdr-estimator.md`](sfdr-estimator.md)；结果的
-  `meta.provenance.spectrum` 记录所用的估计器。
+  `meta.provenance.spectrum` 记录所用的估计器。注意：ADCToolbox 0.6.4 `compute_spectrum` 返回的 `plot_data.is_coherent`
+  实际是参数 `coherent_averaging`（是否做了多次记录的相干平均），不是按频点偏差判断的相干性。不能用它判断输入频率是否相干，
+  相干性看实际的 fin、N 与 k（#47）。
 * **噪声**：`noise_en=1` 时行为级模型注入比较器噪声、采样 kT/C 与时钟抖动；有晶体管级视图时
   （`devnoise=1`）打开 Spectre 瞬态噪声（`noisefmax`）。
 * **正弦测试频率**：`fin_target=49.9 MHz` 取不超过 Nyquist−3 个频点的最大相干奇数频点
-  （1024 点：49.71 MHz；256 点：48.83 MHz），避免窗函数主瓣碰到 Nyquist 频点。
+  （1024 点：49.71 MHz；256 点：48.83 MHz），避免窗函数主瓣碰到 Nyquist 频点。测试台模板里的 `fin` 只是占位值，
+  不一定相干：用例的 `prepare`（`measure.top:prepare`、`measure.ref:replay_prepare`）按 `npts` 换成相干频率，
+  所以要经 `python -m adcflow sim` 运行，不要直接拿模板仿真（模板中有注释说明，#47）。
 * **ENOB**：按 −1 dBFS 输入测得的 SNDR 计算（不归一化到满量程），即 `(SNDR − 1.76)/6.02`。
   **验收用校准权重**（架构 v0.3 起；ADC 输出原始位，后端用每颗芯片的校准权重重建）：测试台连续采
   `ncal + npts` 次转换（各 1024），前 `ncal` 次是**校准记录**，用 `adctoolbox.calibrate_weight_sine`（wcalsin
@@ -138,6 +145,10 @@
 列出文件与说明。约定：matplotlib（Agg）、固定样式与字体、图中文字一律英文；坐标轴带单位；
 有规格的地方画出规格线（限值取自 `specs/blocks/*.yaml`，由 `figures.limits` 读取）；
 每张图顶部一行 `测试 | 视图 | 工艺角`；每个 PNG ≤ 200 KB（超出时自动降低分辨率）；输出不含时间戳，同一数据画出的图逐字节相同。
+频谱图（`figures.plot_spectrum`）用与正式度量相同的周期 Hann 窗（`spectrum.hann`），相干单音只占 k−1 … k+1 三个频点；
+图中写出窗类型与实际的 N、fs、fin 和频点 k。以前用对称 Hann 窗（`numpy.hanning`），载波两侧多出 −58 dBc（N = 256）或
+−70 dBc（N = 1024）的窗口旁瓣，看上去像杂散或非相干输入（#47）。只改图时用 `python -m adcflow remeasure <test> --run <dir> --redraw`：
+用原来的运行数据重画，任何指标与记录不同即中止，结果中写 `meta.redrawn`。
 重跑一个结果会先删掉它旧的图，再写新图。
 
 | 测试 | 图（`<tag>`） | 内容 |

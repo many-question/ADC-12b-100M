@@ -144,3 +144,32 @@ def test_recorded_figure_lists_are_well_formed():
     for d in checks.load_results():
         for f in d.get("figures", []):
             assert set(f) == {"file", "caption"}, d["_path"]
+
+
+def test_spectrum_plot_uses_the_periodic_hann_of_the_metrics():
+    """#47: a coherent pure sine near Nyquist shows nothing above the numerical floor outside its
+    main lobe k-1 .. k+1 (numpy.hanning, the symmetric window, put a -58 / -70 dBc skirt there)."""
+    from scipy.signal import windows
+
+    from adcflow import spectrum
+    from adcflow.figures import spectrum_db
+
+    for n, k in ((256, 125), (1024, 509)):
+        assert np.allclose(spectrum.hann(n), windows.hann(n, sym=False))
+        x = np.sin(2 * np.pi * k * np.arange(n) / n + 0.123)
+        f, p = spectrum_db(x, 100e6)
+        assert int(np.argmax(p)) == k and f[k] == k * 100e6 / n
+        assert np.delete(p, [k - 1, k, k + 1]).max() < -190          # floor of spectrum_db: -200 dB
+
+
+def test_spectrum_plot_names_window_and_record(tmp_path):
+    import matplotlib
+
+    matplotlib.use("Agg")
+    from adcflow.figures import FigureSink, plot_spectrum
+
+    x = np.sin(2 * np.pi * 125 * np.arange(256) / 256)
+    fig, axs = FigureSink(tmp_path, "s").new(1, 1)
+    plot_spectrum(axs[0, 0], x, 100e6, None, {"sfdr_dBc": 90.0, "sndr_dB": 80.0})
+    text = " ".join(t.get_text() for t in axs[0, 0].texts)
+    assert "periodic Hann window" in text and "N 256, fs 100 MHz, fin 48.828125 MHz (k 125)" in text

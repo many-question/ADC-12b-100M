@@ -1,6 +1,6 @@
 block: adc_ref
 title: Reference driver (VREFP = 0.9 V) and top-plate common-mode (VCM = 0.45 V)
-version: 0.5.0
+version: 0.6.0
 owner: many-question
 status: behavioral
 views:
@@ -84,9 +84,13 @@ tests:
     measure: adcflow.measure.ref:dc
     desc: >
       DC operating point with the 200 uA average CDAC load (load_vrefp_dc):
-      REF-01, REF-02 and REF-11 there, REF-04 from a sweep of AVDD18 +/-10 % at
-      that load; a dc sweep of the load 0..200 uA is characterization (load
-      regulation, reported, no limit); supply currents are reported.
+      REF-01, REF-02 and REF-11 there; REF-04 is the slope of VREFP over a
+      sweep of AVDD18 across the specified supply envelope, 1.62 .. 1.98 V
+      (corners.yaml low .. high, nominal +/-10 %), at that load at every
+      corner: the sweep does not depend on the corner's own supply, so no
+      corner goes beyond the envelope (#46); process and temperature still
+      vary by corner. A dc sweep of the load 0..200 uA is characterization
+      (load regulation, reported, no limit); supply currents are reported.
   tb_ref_replay:
     netlist: tb/ref/tb_ref_replay.scs
     measure: adcflow.measure.ref:replay

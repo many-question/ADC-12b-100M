@@ -11,6 +11,7 @@ import numpy as np
 
 from .. import model, psf
 from ..arch import Arch
+from ..corners import supply_envelope
 from ..figures import C1, C2, C3, C4, C7, GRID, INK2, LIMIT, hline, limits, note, sink_of, spec_table, vline
 from ..specs import blocks
 from .common import read_samples, spectrum, tran
@@ -120,7 +121,7 @@ def dc(job_dir: Path, ctx: dict) -> dict:
     m["loadreg_mV"] = float(abs(ld["VREFP"][0] - ld["VREFP"][-1]) * 1e3)
     ln = _dc(job_dir, "dcline")
     sweep = [k for k in ln if k not in ("VREFP", "VCM") and ":" not in k]
-    x = ln[sweep[0]] if sweep else np.linspace(0.9, 1.1, len(ln["VREFP"])) * float(ctx["globals"]["vdd18"])
+    x = ln[sweep[0]] if sweep else np.linspace(*supply_envelope("vdd18"), len(ln["VREFP"]))   # dcline of tb_ref_dc
     m["line_mV_per_V"] = float(abs(np.polyfit(x, ln["VREFP"], 1)[0]) * 1e3)
     fg = sink_of(ctx)
     if fg:

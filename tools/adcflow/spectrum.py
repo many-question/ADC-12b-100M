@@ -26,6 +26,14 @@ PROVENANCE = {"estimator": ESTIMATOR, "adctoolbox": ADCTOOLBOX,
               "enob_sndr_snr_thd": f"adctoolbox {ADCTOOLBOX} compute_spectrum"}
 
 
+def hann(n: int) -> np.ndarray:
+    """Periodic Hann window of n points, as compute_spectrum uses it (scipy hann(n, sym=False)).
+
+    A coherent sine at bin k then occupies exactly bins k-1 .. k+1; the symmetric window
+    (numpy.hanning) adds a skirt around it that is not in the record (#47)."""
+    return 0.5 - 0.5 * np.cos(2 * np.pi * np.arange(n) / n)
+
+
 def sfdr_dbc(data: np.ndarray, fundamental_bin: int, side_bin: int) -> tuple[float, int]:
     """SFDR (dBc) of a record and the bin of its largest spur.
 
@@ -35,8 +43,7 @@ def sfdr_dbc(data: np.ndarray, fundamental_bin: int, side_bin: int) -> tuple[flo
     that reaches into them; a real tone two bins away is found."""
     x = np.asarray(data, dtype=float).ravel()
     n = len(x)
-    w = 0.5 - 0.5 * np.cos(2 * np.pi * np.arange(n) / n)
-    p = np.abs(np.fft.rfft((x - x.mean()) * w)) ** 2
+    p = np.abs(np.fft.rfft((x - x.mean()) * hann(n))) ** 2
     if n % 2 == 0:
         p[-1] /= 2                                        # Nyquist: one-sided boundary bin
     sig = p[fundamental_bin]
