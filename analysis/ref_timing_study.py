@@ -27,8 +27,9 @@ import noise_budget as nb  # noqa: E402
 
 A = Arch.load()
 N_FFT = 2048
-TEMPS = (-40.0, 27.0, 125.0)
-SCALES = (0.8, 1.0, 1.6)
+# corners (temperature, timing scale vs TT): hot-fast x0.88 from the transistor-level clock generator
+# (#26: ff_high_125 td_conv 128.7 ps vs 145.7 ps at TT), cold-fast x0.8, slow x1.6
+CORNERS = ((125.0, 0.88), (125.0, 1.0), (125.0, 1.6), (-40.0, 0.8), (-40.0, 1.0), (27.0, 1.0))
 I_CDAC = 0.2e-3          # average CDAC current from VREFP (A)
 P_OTHER = 0.435e-3       # AVDD + DVDD of the behavioral top at TT (W), scales with V^2
 
@@ -77,7 +78,7 @@ def power(c: Cand, v18: float, k: float) -> tuple[float, float]:
 
 def worst_all_limits(c: Cand) -> float:
     e = []
-    for s in SCALES:
+    for s in nb.WORST_TIMINGS:
         case = replace(nb.V03_WORST, i_ref=c.i_ref, c_dec=c.c_dec, timing=1.0)
         ni = timing(case.nonideal(), s, c)
         res = []
@@ -98,30 +99,31 @@ def waits(*spec) -> tuple:
 
 
 CANDS = [
-    Cand("4 mA, 3 pF (today)", 4e-3),
-    Cand("8 mA, 3 pF", 8e-3),
-    Cand("8 mA, 6 pF, n_fast 3, +15 ps after dec. 9", 8e-3, n_fast=3, c_dec=6e-12, add=waits(((9,), 15))),
-    Cand("**8 mA, 6 pF, +20 ps after dec. 4, 5, 6, 9**", 8e-3, c_dec=6e-12, add=waits(((4, 5, 6, 9), 20))),
-    Cand("9 mA, 6 pF, +15 ps after dec. 4, 5, 6, 9", 9e-3, c_dec=6e-12, add=waits(((4, 5, 6, 9), 15))),
-    Cand("10 mA, 6 pF, +10 ps after dec. 4, 5, 6, 9", 10e-3, c_dec=6e-12, add=waits(((4, 5, 6, 9), 10))),
-    Cand("12 mA, 3 pF", 12e-3),
+    Cand("4 mA, 3 pF (v0.3)", 4e-3),
+    Cand("8 mA, 6 pF, no wait change", 8e-3, c_dec=6e-12),
+    Cand("8 mA, 6 pF, +20 ps after dec. 3, 4, 5, 6, 9", 8e-3, c_dec=6e-12, add=waits(((3, 4, 5, 6, 9), 20))),
+    Cand("8 mA, 6 pF, +10 @3, +20 @4, +25 @5, +30 @6, +25 @9 (cheapest <= 0.9)", 8e-3, c_dec=6e-12,
+         add=waits(((3,), 10), ((4,), 20), ((5,), 25), ((6,), 30), ((9,), 25))),
+    Cand("**8 mA, 6 pF, +10 @3, +30 @4-6, +25 @9**", 8e-3, c_dec=6e-12,
+         add=waits(((3,), 10), ((4, 5, 6), 30), ((9,), 25))),
+    Cand("8 mA, 6 pF, +10 @3, +30 @4-6, +40 @9", 8e-3, c_dec=6e-12, add=waits(((3,), 10), ((4, 5, 6), 30), ((9,), 40))),
 ]
-REGIMES = ((125.0, 1.0), (125.0, 0.8), (-40.0, 0.8), (27.0, 1.0), (125.0, 1.6))
+REGIMES = CORNERS
 
 
 def main(cands=CANDS, all_limits: bool = True) -> None:
     t_avail = float(A.raw["timing"]["t_conv_max"])
-    print("| Candidate | env_ratio dec. 1-11: 125 C x1.0 / 125 C x0.8 / -40 C x0.8 / 27 C x1.0 / 125 C x1.6 | "
-          "ratio dec. 4..8, 125 C x1.0 | tail dec. 12-14 (uV) | ENOB loss, worst | t_conv TT / x1.6 (ns) | "
+    print("| Candidate | env_ratio dec. 1-11: " + " / ".join(f"{t:g} C x{s:g}" for t, s in CORNERS) + " | "
+          "ratio dec. 4..8, 125 C x0.88 | tail dec. 12-14 (uV) | ENOB loss, worst | t_conv TT / x1.6 (ns) | "
           "slow margin (ns) | AVDD18 / total, nominal (mW) | +10 % (mW) | all-limits worst ENOB |")
     print("|---|---|---|---|---|---|---|---|---|---|")
     t_conv_base = None
     for c in cands:
-        rows = {(T, s): corner(c, T, s) for T in TEMPS for s in SCALES}
+        rows = {(T, s): corner(c, T, s) for T, s in CORNERS}
         loss = max(r["loss"] for r in rows.values())
         env = " / ".join(f"{rows[k]['ratio'][:11].max():.2f}" for k in REGIMES)
         tail = max(r["dev"][11:].max() for r in rows.values())
-        r10 = rows[(125.0, 1.0)]["ratio"][3:8]
+        r10 = rows[(125.0, 0.88)]["ratio"][3:8]
         tc_tt, tc_slow = rows[(27.0, 1.0)]["t_conv"], rows[(125.0, 1.6)]["t_conv"]
         t_conv_base = t_conv_base or tc_tt
         pn, ptn = power(c, 1.8, 1.0)

@@ -10,7 +10,7 @@ calibrated weights as in the acceptance tests (``adcflow.calib``: weights fitted
 on a calibration record of the same chip, ENOB judged on an independent record);
 the nominal-weight ENOB is reported for information. The worst corner of the
 model is 125 C (kT/C, follower g_s and noise) with the comparator, logic and DAC
-timing 0.8, 1.0 or 1.6 x TT, whichever is worst (slow timing costs settling and
+timing 0.88 (hot-fast, transistor-level clock generator #26), 1.0 or 1.6 x TT, whichever is worst (slow timing costs settling and
 conversion time, fast timing leaves the reference less time to recover between
 decisions, issue #35), the comparator noise at its all-corner limit, the
 VREFP noise at the REF-08 limit, a static HD3 allowance for the sampling network
@@ -216,7 +216,8 @@ def sweep() -> str:
     return "\n".join(out)
 
 
-WORST_TIMINGS = (0.8, 1.0, 1.6)
+# hot-fast x0.88: transistor-level clock generator, ff_high_125 vs TT (#26); slow x1.6
+WORST_TIMINGS = (0.88, 1.0, 1.6)
 
 
 def worst(c: Case) -> Case:
