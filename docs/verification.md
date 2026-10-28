@@ -24,6 +24,23 @@
   覆盖率 = 已记录的适用工艺角（去重，同一角的多个变体只算一次）/ 适用集合。适用角缺失时该指标无结果（签核时报错），
   适用角不通过即不通过；仿真错误与过期结果在任何工艺角都照常报告。例如 CLK-10（`corners: typ`）只判 `tt_nom_27`，
   `ff_high_125` 的 AVDD 电流作为实测值保留，供系统评估（#29）。
+* **瞬态数值设置**：每个结果的 `meta.numerics` 记录仿真器实际使用的设置，读自 `spectre.log` 的
+  `Important parameter values`：`reltol`、`maxstep_ps`、`method`、`errpreset`、`lteratio`、`abstol_V`，全局 `vabstol`，
+  接受的步数 `steps_accepted` 与平均步长 `step_mean_ps`；保存了整段波形（从 t = 0 到结束）的测试另记实际最大步长
+  `step_max_ps`，否则为 null（例如跟踪测试 `save=none`、`outputstart=tstop`，步长以 `maxstep` 为上限）。
+  需要固定设置的测试在规格中写 `numerics:`，由 `gen_tb.py` 写进测试台的 `options`、`tran` 语句（测试台计入结果哈希）。
+  **跟踪线性度测试**（`tb_bootstrap_track`、`tb_cdac_track`，BST-05/06、DAC-09/10）用 `reltol=1e-7`、`vabstol=1e-8`、
+  `maxstep=1p`、`method=traponly`（#28）：默认设置（`reltol=1e-5`，`maxstep` 为仿真长度的 1/50 = 52.1 ns）下晶体管级开关的
+  SFDR / SNDR 为 66.7 / 63.3 dB，没有收敛（收敛后约 93.6 / 93.0 dB），且在 `maxstep` 20 ps~1 ps 之间不单调，
+  因此不能挑选某个粗步长的结果作证据。激励、采样时刻、FFT、端口、负载和限值不变。
+* **收敛交叉检查**：`python -m adcflow sim <test> --crosscheck` 让每个 job 再用规格 `crosscheck:` 的设置跑一次
+  （跟踪测试：`maxstep=0.5p`、`method=gear2only`，其余同 `numerics`），只记录原设置的结果，差值写进它的 `meta.crosscheck`：
+  两次的设置（要求的与实际的）、各指标的两个值与差、原始样本（`samples.txt`）的个数、采样时刻的最大差、逐样本差的 rms 与最大值；
+  有逐管 SOA 时还有各对峰值的最大变化（§5）。**必须重做的时机**：跟踪测试在有代表性的最坏工艺角（对开关导通电阻与边沿最敏感的
+  角，例如 `ss_low_m40`、`ss_low_125`、`ff_high_125`）以及模块设计有实质改动（拓扑、开关或自举电容尺寸、负载、时钟边沿）之后
+  至少各做一次；正式验收在同步后的 `main` 与最终候选电路上重做。差值与指标到限值的余量相比必须可以忽略（#28 中晶体管级
+  TT 的参照：两种方法差 0.05 dB SFDR、0.01 dB SNDR，样本差 2.8 µV rms），否则结果不能作证据，先查明原因。
+  行为级 TT 的交叉检查见 §3 后的表。
 * **噪声**：`noise_en=1` 时行为级模型注入比较器噪声、采样 kT/C 与时钟抖动；有晶体管级视图时
   （`devnoise=1`）打开 Spectre 瞬态噪声（`noisefmax`）。
 * **正弦测试频率**：`fin_target=49.9 MHz` 取不超过 Nyquist−3 个频点的最大相干奇数频点
@@ -60,9 +77,9 @@
 | 顶层低频 / 占空比 45 %、55 % | ENOB 10.94 / 10.95 / 10.95（标称 10.90 / 10.89 / 10.90） |
 | `adc_comp` | 噪声 189.5 µV，95 % 区间 181.7~197.7 µV（行为级 σ = 190 µV；17 × 512 次判决，二项最大似然），1 mV 时延 76 ps，30 mV 49 ps，τ 8 ps，回踢 ≈ 0（行为级比较器无回踢），Cin 15 fF，CLKC 12 fF，能耗 112 fJ |
 | `adc_sarlogic`（UP/DN 负载 15 fF） | 1000 次随机转换 0 错误，转换 2.57 ns（比较器 70 ps 时 2.90 ns），超时 285 ps，210 µW；输入电容 CONV 30 fF、OUTP/OUTN 5 fF |
-| `adc_cdac` | C_S 2.057 pF，FS 0.993 V，可校准性裕量 0.465 LSB，校准后 ENOB 损失 ≈ 0（标称 0.07 bit，4 颗失配芯片）；RL12 建立 12.7 ps，τ 1.2 ps，起始建立 11.4 ps；VREFP 电荷 0.77 pC；跟踪 SFDR 109.3 dB / SNDR 101.8 dB；输入电容 DH/RL 4.5 fF、PHI_S/PHI_SB 30 fF、CONV 60 fF |
-| `adc_bootstrap`（参考开关 96 µm + 2.057 pF） | VG−VIN 0.855 V，关断 18 ps，开启 68 ps；跟踪 SFDR 92.6 dB / SNDR 85.8 dB（v0.2：97.2 / 89.6）；SOA 仅外部节点（参考开关，§5）：最大 \|Vgs\| 0.900 V（VG 为 0、VIN = 0.9 V 时，负向），0 违例；PHI_B/PHI_BB 输入 12 fF |
-| `adc_clkgen`（规格负载共 530 fF） | PHI_S 延时 46 ps，PHI_S→PHI_B 40 ps，抖动 46 fs，占空比 45/55 % 无错误，AVDD 70 µA（行为级占位，含负载，CLK-10 ≤ 80 µA） |
+| `adc_cdac` | C_S 2.057 pF，FS 0.993 V，可校准性裕量 0.465 LSB，校准后 ENOB 损失 ≈ 0（标称 0.07 bit，4 颗失配芯片）；RL12 建立 12.7 ps，τ 1.2 ps，起始建立 11.4 ps；VREFP 电荷 0.77 pC；跟踪 SFDR 132.7 dB / SNDR 130.6 dB（显式数值设置，已到数值底噪，> 130 dB；默认设置的 109.3 / 101.8 dB 是数值噪声，见下）；输入电容 DH/RL 4.5 fF、PHI_S/PHI_SB 30 fF、CONV 60 fF |
+| `adc_bootstrap`（参考开关 96 µm + 2.057 pF） | VG−VIN 0.855 V，关断 18 ps，开启 68 ps；跟踪 SFDR 94.6 dB / SNDR 94.6 dB（显式数值设置；默认设置为 92.6 / 85.8，v0.2 为 97.2 / 89.6，均未收敛，见下）；SOA 仅外部节点（参考开关，§5）：最大 \|Vgs\| 0.900 V（VG 为 0、VIN = 0.9 V 时，负向），0 违例；PHI_B/PHI_BB 输入 12 fF |
+| `adc_clkgen`（规格负载共 530 fF） | PHI_S 延时 46 ps，PHI_S→PHI_B 40 ps，抖动 46 fs，占空比 45/55 % 无错误，AVDD 70 µA（行为级占位，含负载，CLK-10 ≤ 80 µA）；SOA（CLK-11，§5）：行为级没有可检查的器件（`external`，0 对，`soa_note` 说明），不是晶体管级证据 |
 | `adc_ref`（follower 4 mA + 3 pF） | 回放 ENOB 损失 0.018 bit，判决 12~14 变化 41 µV，记忆 ≈ 0，最大跌落 9.1 mV；噪声 43.9 µV（带 1.2 pF 与 200 µA）；直流 −2.0 mV（200 µA 负载） |
 
 * TT 顶层 ENOB 10.91 比模型的行为级条件（比较器 200 µV 时 10.97，8192 点）低约 0.06 bit：一部分是行为级的
@@ -76,6 +93,33 @@
 * 行为级参考的 AVDD18 电流即 follower 偏置（4 mA）加 CDAC 平均电流；其余模块的功耗为预算值
   （固定电流 + 每次判决的电荷），不代表电路实际功耗。
 * 参考电压的规格只约束判决时刻的行为（`tb_ref_replay`），回放方法见 `docs/reference.md` §6。
+
+**跟踪测试的数值设置与收敛交叉检查**（行为级，TT，`aps`，`sim --crosscheck`，§2，#28）。“默认”是改动前 `main` 上的结果
+（#32 之后，`reltol=1e-5`，`maxstep` 52.1 ns）；“显式”是 `numerics` 设置（记录的结果）；“交叉检查”只改 `maxstep=0.5p`、`gear2only`。
+样本差是 256 个原始样本的逐点差，两次的采样时刻相同。
+
+| 测试 | 设置 | SFDR (dBc) | SNDR (dB) | 接受步数 | 仿真时间 |
+|---|---|---:|---:|---:|---:|
+| `tb_bootstrap_track` | 默认 | 92.60 | 85.76 | 108 888 | 27 s |
+| | 显式（1 ps，traponly） | 94.56 | 94.56 | 2 880 232 | 158 s |
+| | 交叉检查（0.5 ps，gear2only） | 94.92 | 94.92 | 5 520 721 | 276 s |
+| | 差（交叉检查 − 显式） | +0.36 | +0.36 | 样本差 1.6 µV rms，最大 2.1 µV | |
+| `tb_cdac_track` | 默认 | 109.26 | 101.78 | 99 729 | 43 s |
+| | 显式（1 ps，traponly） | 132.70 | 130.65 | 2 841 646 | 257 s |
+| | 交叉检查（0.5 ps，gear2only） | 147.83 | 142.73 | 5 476 398 | 406 s |
+| | 差（交叉检查 − 显式） | +15.1 | +12.1 | 样本差 0.16 µV rms，最大 0.38 µV | |
+
+* `tb_bootstrap_track`：SFDR、SNDR 与 −THD 几乎相等，频谱由一个约 −95 dBc 的谐波主导（约 16 µV），µV 级的数值差就使它变化
+  零点几 dB；+0.36 dB 比到限值的余量（BST-05/06：12.6 / 16.6 dB）小得多，结果可以作证据。默认设置下 SNDR 低 8.8 dB，
+  是没有收敛的数值噪声，不是电路的性质。
+* `tb_cdac_track`：行为级 CDAC 的采样网络是理想的线性模型，显式设置下剩下的只有积分的数值误差（样本差 0.16 µV rms，
+  约为 0.72 V 幅度的 −133 dB）。SFDR / SNDR 因此停在 130~150 dB 的数值底噪上，随设置跳动十几 dB，不是一个稳定的 dB 值；
+  收敛的结论是“> 130 dB，受数值精度限制”，两次都比 DAC-09/10 的限值（85 / 80 dB）高 45 dB 以上，判定不受影响。
+  默认设置下的值同样是数值噪声：#32 前 97.9 / 91.2 dB，#32 只在 CDAC 的时钟输入上加了电容（与线性度无关）后变成
+  109.3 / 101.8 dB。这一行为级数值只说明测试台与度量已收敛，不代表电路；晶体管级开关接入后，收敛判断以 dB 差相对余量和
+  样本差为准。
+* 运行时间：显式设置约为默认的 6 倍（158 s 对 27 s，257 s 对 43 s），交叉检查再约 1.6~1.7 倍；一次 `--crosscheck` 的总耗时
+  bootstrap 9 min、CDAC 13 min（两个 job 并行，排队时更长）。晶体管级视图按电路规模增加。
 
 ## 4. 证据图
 
@@ -188,7 +232,7 @@ PSF 读入器解析，器件与节点的对应关系由流程自己写出，可�
 `soa_note: "nothing to check: XDUT uses behavioral views (no devices) and the testbench has no thin-oxide device at its top
 level; not transistor-level evidence"`，`soa_violations` 为 0 个对中的 0 个；时序证据图的规格表下注明范围。仍要求波形从 t = 0
 覆盖整段瞬态，否则无法验证。晶体管级视图下找不到薄栅器件仍是错误，不会落入这一情形；测试台顶层有未分类的 MOS 模型（缺省
-`external` 时）同样无法验证。
+`external` 时）同样无法验证。CLK-11 的签核要用 `--view adc_clkgen=xtor` 得到的 `device` 结果。
 
 **时钟（CLK-11）**：规则与 bootstrap 相同（|Vgs|、|Vgd|、|Vds| ≤ `limit_V` = 1.0 V，绝对值、两个方向、`corners: all`），
 `soa: {dut: [XDUT]}`。覆盖的窗口就是 `tb_clkgen_timing` 的整段瞬态：t = 0 起的启动、占空比 50 % 的 8 个周期、45 % 与 55 %
