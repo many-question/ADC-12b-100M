@@ -144,9 +144,9 @@ MTAIL (TAIL BIAS VSS VSS) nch_18_mac w=8u l=1u nf=4
 MPOUT (OUT NB AVDD18 AVDD18) pch_18_mac w=8u l=1u nf=4 multi=8
 MNOUT (OUT BIAS VSS VSS) nch_18_mac w=8u l=1u nf=4
 MZERO (NB VSS NZ AVDD18) pch_18_mac w=8u l=1u nf=4 multi=8
-CC0 (NZ OUT) cfmom_2t w=50n s=50n nr=80 lr=40u stm=1 spm=5 multi=16
-CC1 (NZ OUT) cfmom_2t w=50n s=50n nr=80 lr=40u stm=1 spm=5 multi=16
-CC2 (NZ OUT) cfmom_2t w=50n s=50n nr=80 lr=40u stm=1 spm=5 multi=16
+CC0 (NZ OUT) cfmom_2t w=50n s=50n nr=80 lr=40u stm=1 spm=5 multi=4
+CC1 (NZ OUT) cfmom_2t w=50n s=50n nr=80 lr=40u stm=1 spm=5
+CC2 (NZ OUT) cfmom_2t w=50n s=50n nr=80 lr=40u stm=1 spm=5
 // @RNL {
 //   &AVDD18 @ADD-TO $SUPPLY_NET_SET;
 //   &VSS @ADD-TO $GROUND_NET_SET;
@@ -223,7 +223,7 @@ CC2 (NZ OUT) cfmom_2t w=50n s=50n nr=80 lr=40u stm=1 spm=5 multi=16
 //   &VSS @WIRE {#MNOUT:b (38, -10) (38, -14) %jgo};
 //   $JUNCTION @ATTACH {%jnb %jna %jmg %jtail %jbias %jo %joc %jcl %jcr %jcl1 %jcr1 %jvh %jvhl %jvhr %jvho %jgt %jgo};
 //   (-28, -25) @TEXT("MOS: 8u/1u, nf=4; PMOS mirror x4, MPOUT/MZERO x8. The input pair is ordinary thick oxide.", halign="start", size=0.75);
-//   (-28, -27) @TEXT("MOM: 80 fingers, 40u length, 50n width/space, layers 1..5; CC0/CC1/CC2 each x16.", halign="start", size=0.75);
+//   (-28, -27) @TEXT("MOM: 80 fingers, 40u length, 50n width/space, layers 1..5; CC0 x4, CC1/CC2 x1.", halign="start", size=0.75);
 //   (-28, 49) @TEXT("Replica servo: thick-oxide input pair, PMOS mirror and compensated second stage", halign="start") => @SET-STYLE $title_style;
 //   (-28, 46.5) @TEXT("INP rises -> NB falls -> OUT rises. MZERO provides series damping in the compensation path.", halign="start") => @SET-STYLE $note_style;
 //   %servo_symbol = @DEFINE-SYMBOL(box=[-6, -5, 7, 5]) {
