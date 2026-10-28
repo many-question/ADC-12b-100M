@@ -153,6 +153,7 @@
 | `tb_sarlogic_timeout` | `decisions`、`timeout` | 同上；比较器不应答时 CLKC 被超时拉低的波形与每次超时时间对窗口 |
 | `tb_ref_dc` | `dc` | VREFP 随负载、随 AVDD18、VCM 随负载（含窗口与斜率限值）、规格表 |
 | `tb_ref_noise` | `psd` | VREFP / VCM 噪声谱密度与 10 kHz 积分起点、积分噪声对 120 µV 限值 |
+| `tb_ref_startup` | `startup` | 支持的上电顺序下电源、VREF_IN、VREFP、VCM 的全程波形对 −0.1~1.0 V 窗口；斜坡期间对 VREF_IN 的跟随误差；斜坡后 VREFP 向终值的建立、±5 mV 带与就绪时刻；规格表 |
 | `tb_ref_replay` | `replay` | 各判决时刻 VREFP 偏差对冗余容差包络与 12~14 判决限值、转换前 VREFP 的记忆、转换内跌落、ENOB 代价 |
 | `tb_top_sine`、`_sine_lf`、`_duty` | `spectrum`、`codes` | 输出谱（标称与校准权重）标注 ENOB / SNDR / SFDR 与限值；码对正弦相位折叠及拟合、拟合误差、转换时间直方图 |
 

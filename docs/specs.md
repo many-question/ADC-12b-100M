@@ -8,7 +8,7 @@
 | [`adc_cdac`](#adc-cdac) | behavioral | many-question | 17 | `tb_cdac_weights`, `tb_cdac_settle`, `tb_cdac_track` |
 | [`adc_clkgen`](#adc-clkgen) | behavioral | many-question | 11 | `tb_clkgen_timing`, `tb_clkgen_jitter` |
 | [`adc_comp`](#adc-comp) | behavioral | many-question | 14 | `tb_comp_delay`, `tb_comp_noise`, `tb_comp_kickback` |
-| [`adc_ref`](#adc-ref) | behavioral | many-question | 8 | `tb_ref_dc`, `tb_ref_replay`, `tb_ref_noise` |
+| [`adc_ref`](#adc-ref) | behavioral | many-question | 13 | `tb_ref_dc`, `tb_ref_replay`, `tb_ref_noise`, `tb_ref_startup` |
 | [`adc_sarlogic`](#adc-sarlogic) | behavioral | Arcadia-1 | 15 | `tb_sarlogic_func`, `tb_sarlogic_rand`, `tb_sarlogic_func_slow`, `tb_sarlogic_timeout` |
 | [`adc_top`](#adc-top) | behavioral | many-question | 8 | `tb_top_sine`, `tb_top_sine_lf`, `tb_top_duty` |
 
@@ -216,7 +216,7 @@ Single fully-dynamic comparator of the asynchronous SAR loop. CLKC low resets (O
 
 ## adc_ref
 
-**Reference driver (VREFP = 0.9 V) and top-plate common-mode (VCM = 0.45 V)** — 规格版本 0.4.0，状态 `behavioral`。
+**Reference driver (VREFP = 0.9 V) and top-plate common-mode (VCM = 0.45 V)** — 规格版本 0.5.0，状态 `behavioral`。
 
 Buffers the high-impedance 0.9 V reference input VREF_IN into VREFP, which supplies the CDAC drivers (arch v0.3, cu = 1 fF): per conversion 0.93 pC at the start (the sampled H halves go from VIN to VREFP) and 13 switch charges of w_j * 0.45 fC (0.44 pC for the MSB, <= 14 fC from decision 7 on), first-order independent of the code, plus a signal-dependent part (-cu * LSB * gain * L^2 / 4, up to 0.36 pC). Everything is on-chip: decoupling in the nF range would have to be off-chip and its bond wires are not modelled, so it is not an option. The topology, bias current and decap are the designer's choice; the specs only constrain VREFP at the instants the comparator uses it (tb_ref_replay) and its noise. The behavioral view is an open-loop NMOS follower from AVDD18 (4 mA, 3 pF decap; v0.2 had 2 mA and 1.5 pF for half the charge, the same VREFP waveform) - a starting point, not a requirement. Runs from AVDD18 because a 0.9 V output cannot be regulated from the 0.9 V rail. VCM (0.45 V) resets the top plates during tracking and only sees small common-mode charge.
 
@@ -239,6 +239,8 @@ Buffers the high-impedance 0.9 V reference input VREF_IN into VREFP, which suppl
 - `load_vrefp_dc`: 0.0002
 - `load_vcm`: 2 x 2.5 pF switched to top plates at 100 MHz; not applied by any adc_ref testbench: VCM is accepted by REF-02 (DC) plus the mixed top-level regression (tb_top_sine with the transistor adc_ref), see docs/handoff.md
 - `power`: no limit; AVDD18 / AVDD currents are reported (lower is better)
+- `power_up_sequence`: The only supported power-up sequence (issue #34). (1) AVDD and AVDD18 rise first, AVDD not later than AVDD18, each ramp >= 1 us, with VREF_IN held at 0 V. (2) After both supplies have settled, VREF_IN ramps 0 -> 0.9 V in >= 10 us. (3) CLK is static (no conversions) until ready, 5 us after VREF_IN reaches 0.9 V; conversions are valid only after ready. Every other ordering is not supported and not verified: AVDD18 before AVDD, VREF_IN present (or rising) while the supplies rise, a VREF_IN step or a ramp faster than 10 us, conversions before ready.
+- `power_up`: {'supply_ramp': 1e-06, 'vref_ramp': 1e-05, 'ready': 5e-06}
 
 ### 指标
 
@@ -252,12 +254,18 @@ Buffers the high-impedance 0.9 V reference input VREF_IN into VREFP, which suppl
 | REF-12 | ENOB loss from VREFP at the decision instants (charge replay) | ≤ 0.1 | bit | all | `tb_ref_replay` |
 | REF-13 | VREFP change over decisions 12..14 (no redundancy), max | ≤ 200 | uV | all | `tb_ref_replay` |
 | REF-14 | VREFP before conversion start, p-p over the replay (memory) | ≤ 100 | uV | all | `tb_ref_replay` |
+| REF-15 | VREFP maximum during the supported power-up (whole run) | ≤ 1.0 | V | all | `tb_ref_startup` |
+| REF-16 | VREFP minimum during the supported power-up (whole run) | ≥ -0.1 | V | all | `tb_ref_startup` |
+| REF-17 | VCM maximum during the supported power-up (whole run) | ≤ 1.0 | V | all | `tb_ref_startup` |
+| REF-18 | VCM minimum during the supported power-up (whole run) | ≥ -0.1 | V | all | `tb_ref_startup` |
+| REF-19 | VREFP from ready on: max |VREFP - its final value| | ≤ 5 | mV | all | `tb_ref_startup` |
 
 ### 验收用例
 
 - **`tb_ref_dc`** (`tb/ref/tb_ref_dc.scs`, 度量 `adcflow.measure.ref:dc`)：DC operating point with the 200 uA average CDAC load (load_vrefp_dc): REF-01, REF-02 and REF-11 there, REF-04 from a sweep of AVDD18 +/-10 % at that load; a dc sweep of the load 0..200 uA is characterization (load regulation, reported, no limit); supply currents are reported.
 - **`tb_ref_replay`** (`tb/ref/tb_ref_replay.scs`, 度量 `adcflow.measure.ref:replay`; 参数 `npts=1024`, `nwarm=32`, `fin_target=49.7e6`)：The system model converts a coherent 49.7 MHz -1 dBFS sine (1024 + 32 conversions, ideal reference, TT ADC timing - the shortest decision spacing); its start charge and 13 switch charges per conversion are played into VREFP as 20 ps current pulses (iload.pwl) and VREFP is sampled at every comparator clock and just before every conversion start (trig.pwl -> vdec.txt). The sampled deviations are fed back into the same model conversion: REF-12 is the ENOB lost against an ideal reference. REF-13 is the change over the last three decisions, which have no redundancy (decisions 8..11 tolerate 2.0 / 1.2 / 0.4 / 0.4 mV). Transient noise is off; noise is REF-08.
 - **`tb_ref_noise`** (`tb/ref/tb_ref_noise.scs`, 度量 `adcflow.measure.ref:noise`)：Small-signal noise of VREFP (and VCM) from 1 kHz to 100 GHz with the decoupling, the 1.2 pF CDAC load and the 200 uA average load. VREFP noise multiplies the signal (input-referred ~0.7 x at -1 dBFS): 80 / 120 / 160 / 300 uV rms cost 0.06 / 0.12 / 0.20 / 0.49 bit. REF-08 integrates from 10 kHz, about one bin of a long (8k-16k point) record; noise below that is a slow gain wander, reported as noise_lf_uV (1 - 10 kHz) with no limit, and noise_total_uV is the whole band.
+- **`tb_ref_startup`** (`tb/ref/tb_ref_startup.scs`, 度量 `adcflow.measure.ref:startup`; 数值设置 `maxstep=1n`; 收敛交叉检查 `maxstep=0.1n`, `method=gear2only`（`--crosscheck`，`docs/verification.md` §2）)：The supported power-up sequence (power_up_sequence): AVDD and AVDD18 ramp together from 0.1 to 1.1 us with VREF_IN at 0 V; VREF_IN ramps 0 -> 0.9 V from 2 to 12 us; ready at 17 us; the run ends at 20 us. Loads: 1.2 pF on VREFP (CDAC bottom plates, as tb_ref_replay / tb_ref_noise) and 2 x 2.5 pF on VCM (the two top plates, C_tot); no DC load (CLK is static, no conversions). REF-15..18: the largest and smallest VREFP and VCM over the whole run, against -0.1 .. 1.0 V, the window the thin-oxide CDAC and comparator devices on these nets need. REF-19: the largest |VREFP - VREFP(end)| from ready to the end, against the REF-01 tolerance. Reported: the final VREFP - VREF_IN, VCM at the end, the largest |VREFP - VREF_IN| during the VREF_IN ramp and the time after the ramp from which VREFP stays within 5 mV of its final value. The per-device SOA check is not applied: the thin-oxide limit does not apply to the thick-oxide devices of adc_ref. The behavioral view's follower and VCM driver are ideal current sources that do not depend on AVDD18 / AVDD, so it shows the VREF_IN ramp and the settling, not supply headroom or bias start-up.
 
 ## adc_sarlogic
 

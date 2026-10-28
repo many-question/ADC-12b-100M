@@ -231,3 +231,20 @@ def test_probit_fit_recovers_sigma_with_interval():
     k = np.round(n * norm.cdf((vd + 50e-6) / 150e-6))
     f = probit_fit(vd, k, n)
     assert f["sigma"] == pytest.approx(150e-6, rel=0.01) and f["mu"] == pytest.approx(-50e-6, abs=2e-6)
+
+
+def test_startup_bench_follows_the_power_up_sequence():
+    """tb_ref_startup applies adc_ref.yaml operating.power_up (issue #34): both supplies ramp together
+    in supply_ramp with VREF_IN at 0 V, then VREF_IN ramps in vref_ramp, and the run outlasts ready."""
+    from adcflow.measure.ref import startup_times
+
+    pu = blocks()["adc_ref"].raw["operating"]["power_up"]
+    ts = startup_times()
+    text = (REPO_ROOT / "tb" / "ref" / "tb_ref_startup.scs").read_text(encoding="utf-8")
+    waves = {m[1]: [float(x) for x in m[2].split()[::2]]
+             for m in re.finditer(r"^(\w+) \(\w+ 0\) vsource type=pwl wave=\[(.*?) \w+\]$", text, re.M)}
+    assert waves["VH"] == waves["VA"] == pytest.approx([0, ts["sup0"], ts["sup0"] + pu["supply_ramp"]])
+    assert waves["VREF"] == pytest.approx([0, ts["ref0"], ts["ref0"] + pu["vref_ramp"]])
+    assert ts["ref0"] > ts["sup1"] and ts["ready"] == pytest.approx(ts["ref1"] + pu["ready"]) and ts["stop"] > ts["ready"]
+    stop = float(re.search(r"^parameters tstop=(\S+)$", text, re.M)[1])
+    assert stop == pytest.approx(ts["stop"])

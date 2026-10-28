@@ -1,6 +1,6 @@
 block: adc_ref
 title: Reference driver (VREFP = 0.9 V) and top-plate common-mode (VCM = 0.45 V)
-version: 0.4.0
+version: 0.5.0
 owner: many-question
 status: behavioral
 views:
@@ -47,6 +47,19 @@ operating:
     testbench: VCM is accepted by REF-02 (DC) plus the mixed top-level
     regression (tb_top_sine with the transistor adc_ref), see docs/handoff.md
   power: "no limit; AVDD18 / AVDD currents are reported (lower is better)"
+  power_up_sequence: >
+    The only supported power-up sequence (issue #34). (1) AVDD and AVDD18 rise
+    first, AVDD not later than AVDD18, each ramp >= 1 us, with VREF_IN held at
+    0 V. (2) After both supplies have settled, VREF_IN ramps 0 -> 0.9 V in
+    >= 10 us. (3) CLK is static (no conversions) until ready, 5 us after
+    VREF_IN reaches 0.9 V; conversions are valid only after ready. Every other
+    ordering is not supported and not verified: AVDD18 before AVDD, VREF_IN
+    present (or rising) while the supplies rise, a VREF_IN step or a ramp
+    faster than 10 us, conversions before ready.
+  # s; tb_ref_startup (gen_tb.py) is generated from these: both supplies ramp
+  # together (the AVDD-not-later limit) in supply_ramp, VREF_IN starts 0.9 us
+  # after they are up and ramps in vref_ramp, "ready" is ready after its end.
+  power_up: {supply_ramp: 1.0e-6, vref_ramp: 10.0e-6, ready: 5.0e-6}
 specs:
   - {id: REF-01, name: "VREFP - VREF_IN (DC, 200 uA load)",       metric: vrefp_err_mV, unit: mV, min: -5, max: 5, corners: all, test: tb_ref_dc}
   - {id: REF-02, name: "VCM",                                     metric: vcm_V,        unit: V,  min: 0.44, max: 0.46, corners: all, test: tb_ref_dc}
@@ -56,6 +69,11 @@ specs:
   - {id: REF-12, name: "ENOB loss from VREFP at the decision instants (charge replay)", metric: enob_loss_bit, unit: bit, max: 0.10, corners: all, test: tb_ref_replay}
   - {id: REF-13, name: "VREFP change over decisions 12..14 (no redundancy), max", metric: tail_dev_uV, unit: uV, max: 200, corners: all, test: tb_ref_replay}
   - {id: REF-14, name: "VREFP before conversion start, p-p over the replay (memory)", metric: start_pp_uV, unit: uV, max: 100, corners: all, test: tb_ref_replay}
+  - {id: REF-15, name: "VREFP maximum during the supported power-up (whole run)", metric: vrefp_max_V, unit: V, max: 1.0, corners: all, test: tb_ref_startup}
+  - {id: REF-16, name: "VREFP minimum during the supported power-up (whole run)", metric: vrefp_min_V, unit: V, min: -0.1, corners: all, test: tb_ref_startup}
+  - {id: REF-17, name: "VCM maximum during the supported power-up (whole run)", metric: vcm_max_V, unit: V, max: 1.0, corners: all, test: tb_ref_startup}
+  - {id: REF-18, name: "VCM minimum during the supported power-up (whole run)", metric: vcm_min_V, unit: V, min: -0.1, corners: all, test: tb_ref_startup}
+  - {id: REF-19, name: "VREFP from ready on: max |VREFP - its final value|", metric: ready_dev_mV, unit: mV, max: 5, corners: all, test: tb_ref_startup}
 tests:
   tb_ref_dc:
     netlist: tb/ref/tb_ref_dc.scs
@@ -92,3 +110,26 @@ tests:
       from 10 kHz, about one bin of a long (8k-16k point) record; noise below
       that is a slow gain wander, reported as noise_lf_uV (1 - 10 kHz) with no
       limit, and noise_total_uV is the whole band.
+  tb_ref_startup:
+    netlist: tb/ref/tb_ref_startup.scs
+    measure: adcflow.measure.ref:startup
+    numerics: {maxstep: 1n}
+    crosscheck: {maxstep: 0.1n, method: gear2only}
+    desc: >
+      The supported power-up sequence (power_up_sequence): AVDD and AVDD18
+      ramp together from 0.1 to 1.1 us with VREF_IN at 0 V; VREF_IN ramps
+      0 -> 0.9 V from 2 to 12 us; ready at 17 us; the run ends at 20 us. Loads:
+      1.2 pF on VREFP (CDAC bottom plates, as tb_ref_replay / tb_ref_noise)
+      and 2 x 2.5 pF on VCM (the two top plates, C_tot); no DC load (CLK is
+      static, no conversions). REF-15..18: the largest and smallest VREFP and
+      VCM over the whole run, against -0.1 .. 1.0 V, the window the thin-oxide
+      CDAC and comparator devices on these nets need. REF-19: the largest
+      |VREFP - VREFP(end)| from ready to the end, against the REF-01
+      tolerance. Reported: the final VREFP - VREF_IN, VCM at the end, the
+      largest |VREFP - VREF_IN| during the VREF_IN ramp and the time after
+      the ramp from which VREFP stays within 5 mV of its final value. The
+      per-device SOA check is not applied: the thin-oxide limit does not
+      apply to the thick-oxide devices of adc_ref. The behavioral view's
+      follower and VCM driver are ideal current sources that do not depend
+      on AVDD18 / AVDD, so it shows the VREF_IN ramp and the settling, not
+      supply headroom or bias start-up.
