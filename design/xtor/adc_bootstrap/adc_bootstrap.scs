@@ -7,7 +7,7 @@ simulator lang=spectre
 
 subckt adc_bootstrap (VIN PHI_B PHI_BB VG AVDD VSS)
 // Precharge the MOM capacitor bank, then reference it to VIN while tracking.
-MPRE (CBP VG AVDD CBP) pch_ulvt_mac w=8u l=30n nf=4
+MPRE (CBP VG AVDD CBP) pch_ulvt_mac w=8u l=100n nf=4
 CB (CBP CBN) cfmom_2t w=50n s=50n nr=200 lr=40u stm=1 spm=6
 MRST (CBN PHI_R VSS VSS) nch_ulvt_mac w=24u l=100n nf=12
 MTRK (CBN VG VIN VSS) nch_ulvt_mac w=48u l=30n nf=24
@@ -18,14 +18,14 @@ MCSTART (GCTL PHI_N CBN VSS) nch_ulvt_mac w=500n l=30n nf=1
 MCF (GCTL VG CBN VSS) nch_ulvt_mac w=8u l=30n nf=4
 MDHI (VG AVDD DU VSS) nch_ulvt_mac w=24u l=30n nf=12
 MDUP (VG VG DU VSS) nch_ulvt_mac w=24u l=30n nf=12
-MDMID (DU AVDD DN VSS) nch_ulvt_mac w=24u l=30n nf=12
-MDLO (DN PHI_BBF VSS VSS) nch_ulvt_mac w=24u l=30n nf=12
+MDMID (DU AVDD DN VSS) nch_mac w=48u l=30n nf=24
+MDLO (DN PHI_BBF VSS VSS) nch_mac w=32u l=30n nf=16
 
 // Local buffer output drives discharge and the separate MRST gate limiter.
 MNFB (PHI_BBF PHI_BBI VSS VSS) nch_ulvt_mac w=2u l=30n nf=1
-MPFB (PHI_BBF PHI_BBI AVDD AVDD) pch_ulvt_mac w=4u l=30n nf=2
+MPFB (PHI_BBF PHI_BBI AVDD AVDD) pch_ulvt_mac w=8u l=30n nf=4
 MPCAS (GCTL VSS PCP AVDD) pch_ulvt_mac w=2u l=30n nf=1
-MNCL (PHI_B AVDD PHI_N VSS) nch_ulvt_mac w=8u l=30n nf=4
+MNCL (PHI_B AVDD PHI_N VSS) nch_lvt_mac w=8u l=30n nf=4
 CB2 (CBP CBN) cfmom_2t w=50n s=50n nr=200 lr=40u stm=1 spm=6
 // The small first stage isolates PHI_BB from internal reset/discharge load.
 MBN (PHI_BBI PHI_BB VSS VSS) nch_ulvt_mac w=4u l=30n nf=2
@@ -34,6 +34,9 @@ CBG (PHI_BBI VSS) cfmom_2t w=50n s=50n nr=10 lr=5u stm=1 spm=6
 MNRC (PHI_BBF AVDD PHI_R VSS) nch_ulvt_mac w=8u l=30n nf=4
 // Keep the startup gate loaded so its limiter can settle below the rail.
 MBLEED (PHI_N AVDD VSS VSS) nch_mac w=120n l=1u nf=1
+// Share the fast discharge-stack transient while limiting the lower-node excursion.
+CMD (DU DN) cfmom_2t w=50n s=50n nr=10 lr=5u stm=1 spm=6
+CDN (DN VSS) cfmom_2t w=50n s=50n nr=20 lr=5u stm=1 spm=6
 // @RNL {
 //   &AVDD @ADD-TO $SUPPLY_NET_SET; &VSS @ADD-TO $GROUND_NET_SET;
 //   {#MPRE #CB #CB2 #MRST} @GROUP;
@@ -41,7 +44,7 @@ MBLEED (PHI_N AVDD VSS VSS) nch_mac w=120n l=1u nf=1
 //   {#MCP #MPCAS #MCSTART #MCF #MNCL #MBLEED} @GROUP;
 //   {#MBN #MBP #CBG #MNFB #MPFB #MNRC} @GROUP; {#MXFER #MTRK} @GROUP;
 //   {#MDHI #MDMID #MDLO} @AS $BRANCH;
-//   {#MDHI #MDUP #MDMID #MDLO} @GROUP;
+//   {#MDHI #MDUP #MDMID #MDLO #CMD #CDN} @GROUP;
 //   #MPRE @PLACE(0, 20) => @ORIENT("R0");
 //   #CB @PLACE(0, 4) => @ORIENT("R0");
 //   #CB2 @PLACE(12, 4) => @ORIENT("R0");
@@ -62,6 +65,8 @@ MBLEED (PHI_N AVDD VSS VSS) nch_mac w=120n l=1u nf=1
 //   #MNRC @PLACE(-16, -34) => @ORIENT("R0");
 //   #MDHI @PLACE(60, 4) => @ORIENT("R0");
 //   #MDUP @PLACE(78, 4) => @ORIENT("R0");
+//   #CMD @PLACE(100, -12) => @ORIENT("R0");
+//   #CDN @PLACE(100, -32) => @ORIENT("R0");
 //   #MDMID @PLACE(60, -12) => @ORIENT("R0");
 //   #MDLO @PLACE(60, -28) => @ORIENT("R0");
 //   %p_in = $IO_PORT @ATTACH &VIN => @PLACE(-170, -62) => @ORIENT("R0");
@@ -75,6 +80,7 @@ MBLEED (PHI_N AVDD VSS VSS) nch_mac w=120n l=1u nf=1
 //   %vb = $SUPPLY @ATTACH &AVDD => @PLACE(-70, -30) => @ORIENT("R0");
 //   %jcn = (0, -2); %jcn2 = (12, -2); %jcnl = (-30, -26);
 //   %jctl = (-48, -8); %jvg = (44, 18); %jvgf = (-18, 20);
+//   %jdncomp = (60, -20); %jcd = (100, -20); %jgcd = (100, -50);
 //   %jdu = (60, -2); %javcas = (50, 4); %jclk = (-92, 20);
 //   %jbbin = (-156, -24); %jbi = (-144, -24); %jbic = (-126, -24); %jbig = (-112, -24);
 //   %jbbout = (-100, -24); %jbb2 = (-84, -44); %jbbr = (-20, -44);
@@ -87,7 +93,7 @@ MBLEED (PHI_N AVDD VSS VSS) nch_mac w=120n l=1u nf=1
 //   %jg4 = (36, -50); %jg5 = (60, -50); %jg6 = (64, -50); %jg7 = (70, -50);
 //   %jg8 = (86, -50); %jg9 = (66, -50); %jg10 = (-60, -50);
 //   %jg11 = (-72, -50);
-//   {$JUNCTION} @ATTACH {%jbn %jgbs %jgbb %jcp %jcp2 %jcph %jcn %jcn2 %jcnl %jctl %jvg %jvgf %jdu %javcas %jclk %jbbin %jbi %jbic %jbig %jsb0 %jsb1 %jsb2 %jsb3 %jgb0 %jgb1 %jgb2 %jgb3 %jgb4 %jgb5 %jbbout %jbb2 %jbbr %js0 %js1 %js2 %js3 %js4 %jg0 %jg1 %jg2 %jg3 %jg4 %jg5 %jg6 %jg7 %jg8 %jg9 %jg10 %jg11};
+//   {$JUNCTION} @ATTACH {%jdncomp %jcd %jgcd %jbn %jgbs %jgbb %jcp %jcp2 %jcph %jcn %jcn2 %jcnl %jctl %jvg %jvgf %jdu %javcas %jclk %jbbin %jbi %jbic %jbig %jsb0 %jsb1 %jsb2 %jsb3 %jgb0 %jgb1 %jgb2 %jgb3 %jgb4 %jgb5 %jbbout %jbb2 %jbbr %js0 %js1 %js2 %js3 %js4 %jg0 %jg1 %jg2 %jg3 %jg4 %jg5 %jg6 %jg7 %jg8 %jg9 %jg10 %jg11};
 //   &CBP @WIRE {#MPRE:d %jcp #CB:p};
 //   &CBP @WIRE {#MPRE:b (4, 20) (4, 12) %jcp};
 //   &CBP @WIRE {%jcp %jcp2 #CB2:p};
@@ -116,7 +122,11 @@ MBLEED (PHI_N AVDD VSS VSS) nch_mac w=120n l=1u nf=1
 //   &VG @WIRE {#MDUP:g (72, 4) (72, 16) (78, 16) #MDUP:d};
 //   &DU @WIRE {#MDHI:s %jdu #MDMID:d};
 //   &DU @WIRE {%jdu (78, -2) #MDUP:s};
-//   &DN @WIRE {#MDMID:s #MDLO:d};
+//   &DU @WIRE {%jdu (100, -2) #CMD:p};
+//   &DN @WIRE {#MDMID:s %jdncomp #MDLO:d};
+//   &DN @WIRE {%jdncomp %jcd #CMD:n};
+//   &DN @WIRE {%jcd #CDN:p};
+//   &VSS @WIRE {#CDN:n %jgcd};
 //   &VIN @WIRE {%p_in:p (32, -62) #MTRK:s};
 //   &PHI_B @WIRE {%p_clk:p %jclk #MCP:g};
 //   &PHI_B @WIRE {%jclk (-92, -8) (-76, -8) #MNCL:d};
@@ -154,7 +164,7 @@ MBLEED (PHI_N AVDD VSS VSS) nch_mac w=120n l=1u nf=1
 //   &AVDD @WIRE {%js4 (-88, -18) #MNCL:g};
 //   &AVDD @WIRE {%js3 %javcas #MDHI:g};
 //   &AVDD @WIRE {%javcas (50, -12) #MDMID:g};
-//   &VSS @WIRE {%jg11 %jgbs %jg10 %jgbb %jg2 %jg3 %jg0 %jg1 %jg4 %jg5 %jg6 %jg9 %jg7 %jg8};
+//   &VSS @WIRE {%jg11 %jgbs %jg10 %jgbb %jg2 %jg3 %jg0 %jg1 %jg4 %jg5 %jg6 %jg9 %jg7 %jg8 %jgcd};
 //   &VSS @WIRE {%jg4 %gnd:p};
 //   &VSS @WIRE {#MCSTART:b (-44, -18) %jg2};
 //   &VSS @WIRE {#MCF:b (-26, -18) %jg3};
@@ -170,12 +180,14 @@ MBLEED (PHI_N AVDD VSS VSS) nch_mac w=120n l=1u nf=1
 //   &VSS @WIRE {#MDMID:b (66, -12) %jg9};
 //   (-170, 64) @TEXT("adc_bootstrap: protected control, local clock buffer and reset limiter", halign="start") => @SET-STYLE $title_style;
 //   (-170, 61) @TEXT("MPCAS protects control; the two-stage buffer drives PHI_BBF; MNRC limits the MRST gate", halign="start") => @SET-STYLE $note_style;
-//   (-170, 57) @TEXT("CB: w=50n s=50n nr=200 lr=40u stm=1 spm=6", halign="start") => @SET-STYLE $param_style;
-//   (-170, 55) @TEXT("CB2: w=50n s=50n nr=200 lr=40u stm=1 spm=6", halign="start") => @SET-STYLE $param_style;
-//   (-170, 53) @TEXT("CBG: w=50n s=50n nr=10 lr=5u stm=1 spm=6", halign="start") => @SET-STYLE $param_style;
+//   (-170, 59) @TEXT("CB: w=50n s=50n nr=200 lr=40u stm=1 spm=6", halign="start") => @SET-STYLE $param_style;
+//   (-170, 57) @TEXT("CB2: w=50n s=50n nr=200 lr=40u stm=1 spm=6", halign="start") => @SET-STYLE $param_style;
+//   (-170, 55) @TEXT("CBG: w=50n s=50n nr=10 lr=5u stm=1 spm=6", halign="start") => @SET-STYLE $param_style;
+//   (-170, 53) @TEXT("CMD: w=50n s=50n nr=10 lr=5u stm=1 spm=6", halign="start") => @SET-STYLE $param_style;
+//   (-170, 51) @TEXT("CDN: w=50n s=50n nr=20 lr=5u stm=1 spm=6", halign="start") => @SET-STYLE $param_style;
 //   (-56, 36) @TEXT("Protected control", halign="start") => @SET-STYLE $note_style;
 //   (-162, 0) @TEXT("Local clock buffer", halign="start") => @SET-STYLE $note_style;
-//   (48, 30) @TEXT("Gate output / turn-off", halign="start") => @SET-STYLE $note_style;
+//   (48, 30) @TEXT("Gate output / capacitive voltage sharing", halign="start") => @SET-STYLE $note_style;
 //   (4, -5) @TEXT("CBN", halign="start") => @SET-STYLE $param_style;
 //   (-54, -10) @TEXT("GCTL", halign="start") => @SET-STYLE $param_style;
 //   (-44, 12) @TEXT("PCP", halign="start") => @SET-STYLE $param_style;
