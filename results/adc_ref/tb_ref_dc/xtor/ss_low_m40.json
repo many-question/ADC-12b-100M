@@ -1,0 +1,91 @@
+{
+ "block": "adc_ref",
+ "test": "tb_ref_dc",
+ "view": "xtor",
+ "corner": "ss_low_m40",
+ "params": {},
+ "globals": {
+  "vdd": 0.81,
+  "vdd18": 1.62,
+  "tempc": -40.0,
+  "noise_en": 0,
+  "devnoise": 1,
+  "beh_speed": 1.0,
+  "vref_in": 0.9
+ },
+ "metrics": {
+  "vrefp_err_mV": -1.6343721496174801,
+  "vcm_V": 0.4491828500266365,
+  "i18_uA": 9522.323982824664,
+  "i09_uA": -0.0,
+  "iin_uA": 0.0,
+  "loadreg_mV": 1.8951034386824883,
+  "line_mV_per_V": 0.015056103692430033
+ },
+ "specs": {
+  "REF-01": {
+   "metric": "vrefp_err_mV",
+   "value": -1.6343721496174801,
+   "limit": "-5 .. 5",
+   "pass": true
+  },
+  "REF-02": {
+   "metric": "vcm_V",
+   "value": 0.4491828500266365,
+   "limit": "0.44 .. 0.46",
+   "pass": true
+  },
+  "REF-04": {
+   "metric": "line_mV_per_V",
+   "value": 0.015056103692430033,
+   "limit": "<= 5",
+   "pass": true
+  },
+  "REF-11": {
+   "metric": "iin_uA",
+   "value": 0.0,
+   "limit": "<= 1",
+   "pass": true
+  }
+ },
+ "figures": [
+  {
+   "file": "ss_low_m40.dc.png",
+   "caption": "VREFP against load current and against the 1.8 V supply, VCM against load, and the operating-point values against their limits."
+  }
+ ],
+ "meta": {
+  "date": "2026-10-29T02:59:27",
+  "git": "379662f",
+  "git_clean": true,
+  "mode": "aps",
+  "pdk": true,
+  "mc": null,
+  "wall_s": 487.9,
+  "rc": "0",
+  "sim_s": "14",
+  "numerics": {
+   "source": "spectre.log",
+   "reltol": 0.001,
+   "abstol_V": 1e-06,
+   "step_max_ps": null
+  },
+  "files": {
+   "design/behav/adc_bootstrap.scs": "eee3a0a78eec4c5f",
+   "design/behav/adc_cdac.scs": "5b8837cc5d2a76bc",
+   "design/behav/adc_clkgen.scs": "0e7831ed888587e6",
+   "design/behav/adc_comp.scs": "c0da9398b6e09fc2",
+   "design/xtor/adc_ref/adc_ref.scs": "380f10b05b0af622",
+   "design/behav/adc_sarlogic.scs": "7982e36f6743bf80",
+   "design/top/adc_top.scs": "362a964ffe162797",
+   "design/behav/veriloga/adc_bootstrap_va.va": "12338aad16f4913b",
+   "design/behav/veriloga/adc_cdac_sw_va.va": "e465880479187179",
+   "design/behav/veriloga/adc_clkgen_va.va": "7fff1b9368bc1a20",
+   "design/behav/veriloga/adc_comp_va.va": "ab8a6bf210351e31",
+   "design/behav/veriloga/adc_ktc_va.va": "a1cf98faf5bf9b33",
+   "design/behav/veriloga/adc_sarlogic_va.va": "42f06909a81347ef",
+   "tb/ref/tb_ref_dc.scs": "6c0b4787bdd7e2bb",
+   "specs/arch.yaml": "bffadef750bb5205"
+  }
+ }
+}
