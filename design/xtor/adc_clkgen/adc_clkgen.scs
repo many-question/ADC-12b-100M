@@ -233,7 +233,7 @@ subckt adc_clkgen (CLK PHI_S PHI_SB PHI_B PHI_BB CONV AVDD VSS)
 XOFF (CONV coff AVDD VSS) adc_clkgen_inv wn=1.2u wp=1.8u nn=2 np=2
 XSG (CLK coff sbar AVDD VSS) adc_clkgen_nand2 wn=800n wp=600n nn=2 np=2
 XS1 (sbar s1 AVDD VSS) adc_clkgen_inv wn=1.2u wp=1.8u nn=2 np=2
-XS2 (s1 s2 AVDD VSS) adc_clkgen_inv wn=2.4u wp=3.6u nn=4 np=4
+XS2 (s1 s2 AVDD VSS) adc_clkgen_inv wn=2u wp=3u nn=4 np=4
 XS3 (s2 PHI_S AVDD VSS) adc_clkgen_inv wn=8u wp=12u nn=8 np=12
 XSB1 (sbar sb1 AVDD VSS) adc_clkgen_inv wn=600n wp=900n nn=2 np=2
 XSB2 (sb1 PHI_SB AVDD VSS) adc_clkgen_inv wn=8u wp=12u nn=8 np=12
@@ -254,13 +254,17 @@ XCB2 (b2 AVDD VSS) adc_clkgen_gatecap wn=2u wp=3u nn=4 np=4
 XCC1 (cb AVDD VSS) adc_clkgen_gatecap wn=2u wp=3u nn=4 np=4
 XCC2 (cb AVDD VSS) adc_clkgen_gatecap wn=2u wp=3u nn=4 np=4
 XCE1 (ce AVDD VSS) adc_clkgen_gatecap wn=2u wp=3u nn=4 np=4
+XCS4 (s1 AVDD VSS) adc_clkgen_gatecap wn=400n wp=600n nn=2 np=2
+XCO1 (coff AVDD VSS) adc_clkgen_gatecap wn=400n wp=600n nn=2 np=2
+XCO2 (coff AVDD VSS) adc_clkgen_gatecap wn=400n wp=600n nn=2 np=2
+XCE2 (ce AVDD VSS) adc_clkgen_gatecap wn=400n wp=600n nn=2 np=2
 // @RNL {
 //   &AVDD @ADD-TO $SUPPLY_NET_SET;
 //   &VSS @ADD-TO $GROUND_NET_SET;
 //   {#XS1 #XS2 #XS3 #XSB1 #XSB2} @GROUP;
 //   {#XB1 #XB2 #XB3 #XB4 #XBB1 #XBB2} @GROUP;
 //   {#XCG #XC1 #XC2 #XOFF #XSG} @GROUP;
-//   {#XCB1 #XCB2 #XCS1 #XCS2 #XCS3 #XCC1 #XCC2 #XCE1} @GROUP;
+//   {#XCB1 #XCB2 #XCS1 #XCS2 #XCS3 #XCC1 #XCC2 #XCE1 #XCS4 #XCO1 #XCO2 #XCE2} @GROUP;
 //   {#XS3 #XSB2} @AS $MATCHED;
 //   #XOFF @PLACE(0,40) => @ORIENT("R0");
 //   %v0=$SUPPLY @ATTACH &AVDD => @PLACE(0,48);
@@ -347,15 +351,15 @@ XCE1 (ce AVDD VSS) adc_clkgen_gatecap wn=2u wp=3u nn=4 np=4
 //   &AVDD @WIRE {#XCS1:VDD %v16:p};
 //   %g16=$GROUND @ATTACH &VSS => @PLACE(30,32);
 //   &VSS @WIRE {#XCS1:VSS %g16:p};
-//   #XCB1 @PLACE(100,40) => @ORIENT("R0");
-//   %v17=$SUPPLY @ATTACH &AVDD => @PLACE(100,48);
+//   #XCB1 @PLACE(120,40) => @ORIENT("R0");
+//   %v17=$SUPPLY @ATTACH &AVDD => @PLACE(120,48);
 //   &AVDD @WIRE {#XCB1:VDD %v17:p};
-//   %g17=$GROUND @ATTACH &VSS => @PLACE(100,32);
+//   %g17=$GROUND @ATTACH &VSS => @PLACE(120,32);
 //   &VSS @WIRE {#XCB1:VSS %g17:p};
-//   #XCB2 @PLACE(120,40) => @ORIENT("R0");
-//   %v18=$SUPPLY @ATTACH &AVDD => @PLACE(120,48);
+//   #XCB2 @PLACE(150,40) => @ORIENT("R0");
+//   %v18=$SUPPLY @ATTACH &AVDD => @PLACE(150,48);
 //   &AVDD @WIRE {#XCB2:VDD %v18:p};
-//   %g18=$GROUND @ATTACH &VSS => @PLACE(120,32);
+//   %g18=$GROUND @ATTACH &VSS => @PLACE(150,32);
 //   &VSS @WIRE {#XCB2:VSS %g18:p};
 //   #XCC1 @PLACE(210,40) => @ORIENT("R0");
 //   %v19=$SUPPLY @ATTACH &AVDD => @PLACE(210,48);
@@ -386,10 +390,10 @@ XCE1 (ce AVDD VSS) adc_clkgen_gatecap wn=2u wp=3u nn=4 np=4
 //   &PHI_SB @WIRE {#XSB2:Y %psb:p};
 //   &b1 @WIRE {#XB1:Y #XB2:A};
 //   %jb1=(100,15); $JUNCTION @ATTACH %jb1;
-//   &b1 @WIRE {%jb1 (100,28) (94,28) (94,40) #XCB1:A};
+//   &b1 @WIRE {%jb1 (100,29) (114,29) (114,40) #XCB1:A};
 //   &b2 @WIRE {#XB2:Y #XB3:A};
 //   %jb2=(120,15); $JUNCTION @ATTACH %jb2;
-//   &b2 @WIRE {%jb2 (120,28) (114,28) (114,40) #XCB2:A};
+//   &b2 @WIRE {%jb2 (120,25) (144,25) (144,40) #XCB2:A};
 //   &b3 @WIRE {#XB3:Y %jb3 #XB4:A};
 //   &b3 @WIRE {%jb3 (140,-1) (120,-1) (120,-15) #XBB1:A};
 //   &bb1 @WIRE {#XBB1:Y #XBB2:A};
@@ -437,5 +441,32 @@ XCE1 (ce AVDD VSS) adc_clkgen_gatecap wn=2u wp=3u nn=4 np=4
 //   &ce @WIRE {%jce %jce2 (170,-1) (170,-15) #XCE1:A};
 //   &cb @WIRE {%jcb (210,1) (230,1) (230,-15) #XCC2:A};
 //   (178,-30) @TEXT("Local CE and CB edge-shaping gate loads", halign="start") => @SET-STYLE $note_style;
+//   #XCS4 @PLACE(90,40) => @ORIENT("R0");
+//   %v26=$SUPPLY @ATTACH &AVDD => @PLACE(90,48);
+//   &AVDD @WIRE {#XCS4:VDD %v26:p};
+//   %g26=$GROUND @ATTACH &VSS => @PLACE(90,32);
+//   &VSS @WIRE {#XCS4:VSS %g26:p};
+//   #XCO1 @PLACE(-20,40) => @ORIENT("R0");
+//   %v27=$SUPPLY @ATTACH &AVDD => @PLACE(-20,48);
+//   &AVDD @WIRE {#XCO1:VDD %v27:p};
+//   %g27=$GROUND @ATTACH &VSS => @PLACE(-20,32);
+//   &VSS @WIRE {#XCO1:VSS %g27:p};
+//   %jcs3=(64,28); $JUNCTION @ATTACH %jcs3;
+//   &s1 @WIRE {%jcs3 (84,28) (84,40) #XCS4:A};
+//   %jcoff=(-10,29); $JUNCTION @ATTACH %jcoff;
+//   &coff @WIRE {%jcoff (-30,29) (-30,40) #XCO1:A};
+//   #XCO2 @PLACE(-40,40) => @ORIENT("R0");
+//   %v28=$SUPPLY @ATTACH &AVDD => @PLACE(-40,48);
+//   &AVDD @WIRE {#XCO2:VDD %v28:p};
+//   %g28=$GROUND @ATTACH &VSS => @PLACE(-40,32);
+//   &VSS @WIRE {#XCO2:VSS %g28:p};
+//   #XCE2 @PLACE(210,-15) => @ORIENT("R0");
+//   %v29=$SUPPLY @ATTACH &AVDD => @PLACE(210,-7);
+//   &AVDD @WIRE {#XCE2:VDD %v29:p};
+//   %g29=$GROUND @ATTACH &VSS => @PLACE(210,-23);
+//   &VSS @WIRE {#XCE2:VSS %g29:p};
+//   &coff @WIRE {%jcoff (-50,29) (-50,40) #XCO2:A};
+//   $JUNCTION @ATTACH %jce2;
+//   &ce @WIRE {%jce2 (200,-1) (200,-15) #XCE2:A};
 // }
 ends adc_clkgen
