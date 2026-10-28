@@ -56,15 +56,15 @@
   }
  ],
  "meta": {
-  "date": "2026-10-29T03:12:18",
-  "git": "da7e8c7",
+  "date": "2026-10-29T05:45:14",
+  "git": "fcc500d",
   "git_clean": true,
   "mode": "aps",
   "pdk": false,
   "mc": null,
-  "wall_s": 119.5,
+  "wall_s": 118.5,
   "rc": "0",
-  "sim_s": "13",
+  "sim_s": "11",
   "numerics": {
    "source": "spectre.log",
    "reltol": 0.001,
@@ -86,7 +86,7 @@
    "design/behav/veriloga/adc_ktc_va.va": "a1cf98faf5bf9b33",
    "design/behav/veriloga/adc_ref_va.va": "746d2530d4ff6d5c",
    "design/behav/veriloga/adc_sarlogic_va.va": "42f06909a81347ef",
-   "tb/ref/tb_ref_dc.scs": "1aa6a8fca210cc9c",
+   "tb/ref/tb_ref_dc.scs": "6c0b4787bdd7e2bb",
    "specs/arch.yaml": "bffadef750bb5205"
   }
  }
