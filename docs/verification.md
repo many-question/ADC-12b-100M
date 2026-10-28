@@ -49,13 +49,13 @@
 
 | 模块 | 关键结果 |
 |---|---|
-| 顶层 `tb_top_sine`（1024 点校准 + 1024 点判定，49.71 MHz，−1 dBFS，噪声开） | ENOB 10.89（校准权重，验收；标称权重 10.86），SNR 67.5 dB，THD −81.5 dBc，SFDR 84.0 dB，FS 0.994 V，t_conv 2.69 ns，无丢失 RDY，7.96 mW（AVDD18 7.52 mW） |
+| 顶层 `tb_top_sine`（1024 点校准 + 1024 点判定，49.71 MHz，−1 dBFS，噪声开） | ENOB 10.89（校准权重，验收；标称权重 10.86），SNR 67.5 dB，THD −81.5 dBc，SFDR 84.0 dB，FS 0.994 V，t_conv 2.69 ns，无丢失 RDY，8.00 mW（AVDD18 7.52 mW） |
 | 顶层低频 / 占空比 45 %、55 % | ENOB 10.94 / 10.96 / 10.90（标称 10.91 / 10.92 / 10.83） |
 | `adc_comp` | 噪声 189.5 µV，95 % 区间 181.7~197.7 µV（行为级 σ = 190 µV；17 × 512 次判决，二项最大似然），1 mV 时延 76 ps，30 mV 49 ps，τ 8 ps，回踢 ≈ 0（行为级比较器无回踢），Cin 15 fF，能耗 112 fJ |
 | `adc_sarlogic` | 1000 次随机转换 0 错误，转换 2.57 ns（比较器 70 ps 时 2.90 ns），超时 285 ps，212 µW |
 | `adc_cdac` | C_S 2.057 pF，FS 0.993 V，可校准性裕量 0.465 LSB，校准后 ENOB 损失 ≈ 0（标称 0.07 bit，4 颗失配芯片）；RL12 建立 12.3 ps，τ 1.2 ps，起始建立 11.6 ps；VREFP 电荷 0.78 pC；跟踪 SFDR 97.9 dB / SNDR 91.2 dB |
 | `adc_bootstrap`（参考开关 96 µm + 2.057 pF） | VG−VIN 0.855 V，关断 18 ps，开启 68 ps；跟踪 SFDR 92.6 dB / SNDR 85.7 dB（v0.2：97.2 / 89.6） |
-| `adc_clkgen` | PHI_S 延时 46 ps，PHI_S→PHI_B 40 ps，抖动 46 fs，占空比 45/55 % 无错误 |
+| `adc_clkgen`（规格负载共 530 fF） | PHI_S 延时 46 ps，PHI_S→PHI_B 40 ps，抖动 46 fs，占空比 45/55 % 无错误，AVDD 70 µA（行为级占位，含负载，CLK-10 ≤ 80 µA） |
 | `adc_ref`（follower 4 mA + 3 pF） | 回放 ENOB 损失 0.018 bit，判决 12~14 变化 41 µV，记忆 ≈ 0，最大跌落 9.1 mV；噪声 44.3 µV（带 1.2 pF）；直流 −1.0 mV（100 µA 负载） |
 
 * TT 顶层 ENOB 10.89 比模型的行为级条件（比较器 200 µV 时 10.97，8192 点）低约 0.08 bit：约 0.05 bit 是行为级的
