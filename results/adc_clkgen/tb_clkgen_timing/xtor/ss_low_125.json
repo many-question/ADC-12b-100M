@@ -1,0 +1,118 @@
+{
+ "block": "adc_clkgen",
+ "test": "tb_clkgen_timing",
+ "view": "xtor",
+ "corner": "ss_low_125",
+ "params": {},
+ "globals": {
+  "vdd": 0.81,
+  "vdd18": 1.62,
+  "tempc": 125.0,
+  "noise_en": 0,
+  "devnoise": 1,
+  "beh_speed": 1.0,
+  "vref_in": 0.9
+ },
+ "metrics": {
+  "duty_errors": 0,
+  "td_s_ps": 38.85490398756604,
+  "skew_sb_ps": 60.18966444258701,
+  "nov_bc_ps": 60.21590833817533,
+  "td_conv_ps": 159.25463674694953,
+  "nov_cb_ps": 114.23271411528455,
+  "tf_s_ps": 12.323289430804808,
+  "skew_ssb_ps": 4.282030480618049,
+  "iavg_uA": 105.75852189999999
+ },
+ "specs": {
+  "CLK-01": {
+   "metric": "td_s_ps",
+   "value": 38.85490398756604,
+   "limit": "<= 80",
+   "pass": true
+  },
+  "CLK-02": {
+   "metric": "skew_sb_ps",
+   "value": 60.18966444258701,
+   "limit": "20 .. 80",
+   "pass": true
+  },
+  "CLK-03": {
+   "metric": "nov_bc_ps",
+   "value": 60.21590833817533,
+   "limit": ">= 10",
+   "pass": true
+  },
+  "CLK-04": {
+   "metric": "td_conv_ps",
+   "value": 159.25463674694953,
+   "limit": "<= 200",
+   "pass": true
+  },
+  "CLK-05": {
+   "metric": "nov_cb_ps",
+   "value": 114.23271411528455,
+   "limit": ">= 10",
+   "pass": true
+  },
+  "CLK-06": {
+   "metric": "tf_s_ps",
+   "value": 12.323289430804808,
+   "limit": "<= 20",
+   "pass": true
+  },
+  "CLK-07": {
+   "metric": "skew_ssb_ps",
+   "value": 4.282030480618049,
+   "limit": "<= 15",
+   "pass": true
+  },
+  "CLK-08": {
+   "metric": "duty_errors",
+   "value": 0,
+   "limit": "<= 0",
+   "pass": true
+  },
+  "CLK-10": {
+   "metric": "iavg_uA",
+   "value": 105.75852189999999,
+   "limit": "<= 80",
+   "pass": false
+  }
+ },
+ "figures": [
+  {
+   "file": "ss_low_125.timing.png",
+   "caption": "CLK, PHI_S, PHI_B and CONV at the falling and rising CLK edge with the delays marked, the sampling-edge fall time, and the delays and gaps of every cycle for 50 %, 45 % and 55 % duty cycle against their limits."
+  }
+ ],
+ "meta": {
+  "date": "2026-10-28T19:53:15",
+  "git": "4e37d06",
+  "git_clean": true,
+  "mode": "aps",
+  "pdk": true,
+  "mc": null,
+  "wall_s": 887.7,
+  "rc": "0",
+  "sim_s": "17",
+  "files": {
+   "design/behav/adc_bootstrap.scs": "9458798199909fc5",
+   "design/behav/adc_cdac.scs": "423386f9cc9bb2d0",
+   "design/xtor/adc_clkgen/adc_clkgen.scs": "65fe01c67e4798ec",
+   "design/behav/adc_comp.scs": "4c26a597d558e2ae",
+   "design/behav/adc_ref.scs": "a83c6feaac8c9c1a",
+   "design/behav/adc_sarlogic.scs": "356e911752c1b85e",
+   "design/top/adc_top.scs": "362a964ffe162797",
+   "design/behav/veriloga/adc_bootstrap_va.va": "a6afdb6e2e03593b",
+   "design/behav/veriloga/adc_cdac_sw_va.va": "cb43ced3f53d636b",
+   "design/behav/veriloga/adc_comp_va.va": "ab8a6bf210351e31",
+   "design/behav/veriloga/adc_ktc_va.va": "a1cf98faf5bf9b33",
+   "design/behav/veriloga/adc_ref_va.va": "746d2530d4ff6d5c",
+   "design/behav/veriloga/adc_sarlogic_va.va": "42f06909a81347ef",
+   "tb/common/veriloga/tb_imeter_va.va": "d4be49aca417ad61",
+   "tb/clkgen/tb_clkgen_timing.scs": "12b4f675f9eaddfa",
+   "specs/arch.yaml": "bffadef750bb5205"
+  }
+ }
+}
