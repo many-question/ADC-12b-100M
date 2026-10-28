@@ -16,7 +16,6 @@ These rows come from private staged simulations of this exact circuit hash, with
 | `ss_low_125` | 0.776025 | 13.090 | 57.158 | 218.369 | 56.801 | 11.111 / 6.492 | 0/60 | 0.96703 |
 | `ff_high_m40` | 0.940162 | 18.340 | 29.573 | 120.241 | 47.566 | 12.366 / 7.007 | 0/60 | 0.99857 |
 | `ff_high_125` | 0.898378 | 34.546 | 34.494 | 141.738 | 179.768 | 12.717 / 7.261 | 0/60 | 0.99478 |
-
 | `ss_low_m40` | 0.786784 | 9.063 | 52.704 | 229.456 | 35.865 | 9.647 / 6.093 | 1/60 | 1.03972 |
 | `fs_nom_27` | 0.860588 | 14.785 | 37.658 | 164.252 | 51.840 | 11.690 / 6.704 | 0/60 | 0.98014 |
 | `sf_nom_27` | 0.866024 | 12.226 | 42.161 | 150.295 | 47.053 | 11.123 / 6.745 | 1/60 | 1.00480 |
@@ -31,6 +30,6 @@ The current generated default DC testbench does not yet specify these numerical 
 
 ## Tracking and remaining validation
 
-An early read of the completed current-hash FF-hot tracking job gives **97.479161 dBc SFDR / 95.142933 dB SNDR / −95.584829 dBc THD**, using all 256 samples and 1 ps/traponly. SS tracking and final batch retrieval are still pending; this is not a formal acceptance record. Earlier candidates' tracking results are not assigned to this circuit. Required work includes repair of the two SOA failures, tracking numerical cross-checks, all 45 DC and tracking corners, and mixed top-level acceptance on the coordinated flow. No formal transistor signoff JSON is supplied by this stage note.
+The current-hash tracking batch `20261029-015316-1b4ebe-candidate-track` has been fully retrieved and its unique remote directory removed. FF-hot gives **97.479161 dBc SFDR / 95.142933 dB SNDR / −95.584829 dBc THD**; SS-low-hot gives **85.511970 dBc SFDR / 85.355589 dB SNDR / −85.415397 dBc THD**. Both use all 256 samples, 1 ps/traponly and effective reltol=1e-7, and pass the tracking limits. These are private exploratory measurements, not formal acceptance records. Earlier candidates' tracking results are not assigned to this circuit. Required work includes repair of the two SOA failures, tracking numerical cross-checks, all 45 DC and tracking corners, and mixed top-level acceptance on the coordinated flow. No formal transistor signoff JSON is supplied by this stage note.
 
 The spectrum drawing audit in [#47](https://github.com/many-question/ADC-12b-100M/issues/47) found symmetric-Hann drawing skirts on otherwise coherent captures. Official measurements use periodic Hann. Same-capture rectangular/periodic-Hann comparisons preserve the predecessor's strong third-harmonic failure; changing a drawing window does not remove that distortion. No shared estimator or limit is changed here.
