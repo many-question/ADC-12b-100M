@@ -22,7 +22,7 @@ MCML (VSS VSS VCM VCM) pch_lvt_mac w=8u l=120n nf=4 multi=8
 CREF0 (VREFP VSS) cfmom_2t w=50n s=50n nr=80 lr=40u stm=1 spm=5
 CREF1 (VREFP VSS) cfmom_2t w=50n s=50n nr=80 lr=40u stm=1 spm=5
 CCM (VCM VSS) cfmom_2t w=50n s=50n nr=80 lr=40u stm=1 spm=5
-CGATE (VG VSS) cfmom_2t w=50n s=50n nr=80 lr=40u stm=1 spm=5 multi=4
+CGATE (VG VSS) cfmom_2t w=50n s=50n nr=80 lr=40u stm=1 spm=5 multi=8
 // @RNL {
 //   {&AVDD18 &AVDD} @ADD-TO $SUPPLY_NET_SET;
 //   &VSS @ADD-TO $GROUND_NET_SET;
@@ -130,7 +130,7 @@ CGATE (VG VSS) cfmom_2t w=50n s=50n nr=80 lr=40u stm=1 spm=5 multi=4
 //   (-22, 15.5) @TEXT("Main / replica scale = 16. W is total width per multiplier. Bias is derived from VREF_IN gates.", halign="start") => @SET-STYLE $note_style;
 //   (-22, 13.5) @TEXT("VCM uses two equal source-body-tied PMOS diodes; AVDD is unused.", halign="start") => @SET-STYLE $note_style;
 //   (-22, -58) @TEXT("Divider PMOS: main 8u/120n, nf=4, x8; replica 4u/120n, nf=2.", halign="start", size=0.75);
-//   (-22, -60) @TEXT("MOM geometry: 80 fingers, 40u length, 50n width/space, layers 1..5; CGATE has x4 multiplier.", halign="start", size=0.75)
+//   (-22, -60) @TEXT("MOM geometry: 80 fingers, 40u length, 50n width/space, layers 1..5; CGATE has x8 multiplier.", halign="start", size=0.75)
 // }
 ends adc_ref
 
