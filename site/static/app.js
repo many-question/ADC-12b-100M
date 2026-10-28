@@ -106,6 +106,11 @@
     lvlSel.addEventListener("change", function () { post({ type: "level", name: lvlSel.value }); });
     themeListeners.push(function (t) { if (ready) post({ type: "background", value: t }); });
 
+    /* a viewer that finished loading in a hidden tab is fitted when its tab is first shown */
+    var loadedHidden = false;
+    document.addEventListener("adc-tab-shown", function () {
+      if (loadedHidden && ready && el.offsetParent !== null) { loadedHidden = false; setTimeout(function () { post({ type: "fit" }); }, 60); }
+    });
     window.addEventListener("message", function (ev) {
       if (ev.source !== frame.contentWindow || ev.origin !== VIEWER_ORIGIN || !ev.data || ev.data.rnl !== 1) return;
       var d = ev.data;
@@ -125,6 +130,7 @@
           post({ type: "level", name: wantLevel });
         }
         wantLevel = null;
+        loadedHidden = el.offsetParent === null;
         setTimeout(function () { post({ type: "fit" }); }, 120);   // the first paint can be taken before the frame has its size
       } else if (d.type === "level") {
         if (lvlSel.querySelector('option[value="' + CSS.escape(d.name) + '"]')) lvlSel.value = d.name;
@@ -143,6 +149,54 @@
     }
   }
   document.querySelectorAll(".viewer").forEach(initViewer);
+
+  /* ---------- block page tabs (main / draft PRs): the tab is in the URL hash, #pr<N> for a draft, none for main */
+  document.querySelectorAll("[data-tabs]").forEach(function (wrap) {
+    var tabs = Array.prototype.slice.call(wrap.querySelectorAll(":scope > .tabbar > [role=\"tab\"]"));      // not the viewers' own tabs
+    var panels = tabs.map(function (t) { return document.getElementById(t.getAttribute("aria-controls")); });
+    function show(i, focus) {
+      tabs.forEach(function (t, k) {
+        t.setAttribute("aria-selected", k === i ? "true" : "false");
+        t.tabIndex = k === i ? 0 : -1;
+        panels[k].hidden = k !== i;
+      });
+      if (focus) tabs[i].focus();
+      document.dispatchEvent(new CustomEvent("adc-tab-shown", { detail: panels[i] }));
+    }
+    function indexOfHash() {
+      var id = "";
+      try { id = decodeURIComponent(location.hash.slice(1)); } catch (e) {}
+      if (!id) return 0;
+      var k = panels.findIndex(function (p) { return p.id === id; });
+      if (k >= 0) return k;
+      var el = document.getElementById(id);                  // an anchor inside a panel: open that panel
+      k = el ? panels.findIndex(function (p) { return p.contains(el); }) : -1;
+      return k >= 0 ? k : 0;
+    }
+    function setHash(i) {
+      try { history.replaceState(null, "", i === 0 ? location.pathname + location.search : "#" + panels[i].id); } catch (e) {}
+    }
+    function fromHash() {
+      show(indexOfHash(), false);
+      var id = location.hash.slice(1), el = id && document.getElementById(id);
+      if (el && panels.indexOf(el) < 0) el.scrollIntoView();
+    }
+    tabs.forEach(function (t, i) {
+      t.addEventListener("click", function () { show(i, false); setHash(i); });
+      t.addEventListener("keydown", function (e) {
+        var n = tabs.length, k = i;
+        if (e.key === "ArrowRight") k = (i + 1) % n;
+        else if (e.key === "ArrowLeft") k = (i + n - 1) % n;
+        else if (e.key === "Home") k = 0;
+        else if (e.key === "End") k = n - 1;
+        else return;
+        e.preventDefault();
+        show(k, true); setHash(k);
+      });
+    });
+    window.addEventListener("hashchange", fromHash);
+    fromHash();
+  });
 
   /* ---------- copy buttons */
   document.querySelectorAll("[data-copy]").forEach(function (b) {
