@@ -620,8 +620,9 @@ def tb_top() -> list[TBDef]:
            El("VSP", "vsource", ["SRCP", "0"], "type=sine sinedc=vcm_in ampl=amp/2 freq=fin",
               note="differential sine, each side through rsrc (no input driver)"),
            El("VSN", "vsource", ["SRCN", "0"], "type=sine sinedc=vcm_in ampl=-amp/2 freq=fin"),
-           El("RSP", "resistor", ["SRCP", "VINP"], "r=rsrc"),
-           El("RSN", "resistor", ["SRCN", "VINN"], "r=rsrc"),
+           El("RSP", "tb_rsrc_va", ["SRCP", "VINP"], "r=rsrc noisy=1-cdac_behav",
+              note="source resistor, noiseless with the behavioral CDAC (its kT/C source already counts it)"),
+           El("RSN", "tb_rsrc_va", ["SRCN", "VINN"], "r=rsrc noisy=1-cdac_behav"),
            El("VCLK", "vsource", ["CLK", "0"], "type=pulse val0=0 val1=vdd period=tper width=duty*tper-20p rise=20p fall=20p",
               note="sampling clock: high = track"),
            El("VREF", "vsource", ["VREF_IN", "0"], "dc=vref_in"),
@@ -636,7 +637,7 @@ def tb_top() -> list[TBDef]:
          f"        fs_peak={_FS} vcm_in=0.45 rsrc=50 cload={_ff(_op('adc_sarlogic')['load_dout'])} nfmax=20G",
          "parameters amp=fs_peak*pow(10, amp_dbfs/20) tper=1/fsamp \\",
          "        tstart=(nskip-0.5)*tper tstop=(nskip+ncal+npts+0.6)*tper"],
-        els, ["tran1 tran stop=tstop noisefmax=nfmax*noise_en*devnoise noiseseed=1 outputstart=tstop", "tbopts options save=none"],
+        els, ["tran1 tran stop=tstop noisefmax=nfmax*noise_en noiseseed=1 outputstart=tstop", "tbopts options save=none"],
         notes=["capture.txt: D13..D0 and CLK-fall -> RDY time per conversion; power.txt: average supply currents",
                "the first ncal conversions calibrate the weights, the next npts are judged (adcflow.calib)"])]
 

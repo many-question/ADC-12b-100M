@@ -50,8 +50,11 @@
   `meta.provenance.spectrum` 记录所用的估计器。注意：ADCToolbox 0.6.4 `compute_spectrum` 返回的 `plot_data.is_coherent`
   实际是参数 `coherent_averaging`（是否做了多次记录的相干平均），不是按频点偏差判断的相干性。不能用它判断输入频率是否相干，
   相干性看实际的 fin、N 与 k（#47）。
-* **噪声**：`noise_en=1` 时行为级模型注入比较器噪声、采样 kT/C 与时钟抖动；有晶体管级视图时
-  （`devnoise=1`）打开 Spectre 瞬态噪声（`noisefmax`）。
+* **噪声**（每个噪声源只计一次）：`noise_en=1` 时行为级模型注入比较器噪声、采样 kT/C 与时钟抖动。
+  顶层测试台（`tb_top_*`）的 Spectre 瞬态噪声（`noisefmax`）也只随 `noise_en` 打开，因此行为级参考的
+  follower 噪声（`white_noise`）和晶体管级视图的器件噪声在顶层总是计入；模块测试台仍按 `noise_en·devnoise`。
+  50 Ω 源电阻是 `tb_rsrc_va`：行为级 CDAC 时无噪声（其 kT/C 源按均分定理已包含源电阻的份额，
+  `cdac_behav=1`，由 runner 按视图设定），晶体管级 CDAC 时有热噪声（真实开关与源电阻自己产生采样噪声）。
 * **正弦测试频率**：`fin_target=49.9 MHz` 取不超过 Nyquist−3 个频点的最大相干奇数频点
   （1024 点：49.71 MHz；256 点：48.83 MHz），避免窗函数主瓣碰到 Nyquist 频点。测试台模板里的 `fin` 只是占位值，
   不一定相干：用例的 `prepare`（`measure.top:prepare`、`measure.ref:replay_prepare`）按 `npts` 换成相干频率，

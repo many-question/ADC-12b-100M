@@ -142,7 +142,9 @@ class NonIdeal:
     t_cmp0: float = 45e-12           # comparator delay for large input
     tau_reg: float = 8e-12           # regeneration time constant
     v_sat: float = 30e-3             # input above which the delay is t_cmp0 (top plate)
-    t_loop: float = 45e-12           # VALID -> bit latch -> DAC drive -> cmp reset overhead
+    t_bit: float = 35e-12            # decision -> bit latch -> UP/DN -> DAC drive (LOG-02): the DAC
+                                     # switches and draws its VREFP charge here, t_dac before the next decision
+    t_loop: float = 45e-12           # lower bound of decision -> next comparator clock (reset), and last decision -> EOC
     t_start: float = 0.25e-9         # CLK falling -> first comparator clock
     t_window: float = 4.5e-9         # available conversion window (CLK low time)
     t_timeout: float = 0.25e-9       # comparator decision timeout (forced decision)
@@ -395,10 +397,12 @@ def _convert(vin, arch: Arch, ni: NonIdeal, dvdt, p, r, x0):
                 # cu*level*dV to VREFP (level at mid-step). Summed over a conversion this is
                 # -cu*lsb*gain_top*L^2/4, about 0.23 pC at full scale
                 q = q - 0.5 * step * lsb * gain_top * arch.cu * (level - 0.5 * step)
-            t_sw = t + t_cmp
+            # the SAR logic drives the DAC t_bit after the decision and clocks the comparator
+            # t_dac after that (LOG-02 / 04 / 05); the reference charge is drawn at the DAC drive
+            t_sw = t + t_cmp + ni.t_bit
             q_sw[:, k], t_swk[:, k] = q, t_sw
             ref.draw(t_sw, q * np.ones(n))
-            t = t + t_cmp + ni.t_loop + _t_dac(ni, k)
+            t = t + t_cmp + max(ni.t_bit + _t_dac(ni, k), ni.t_loop)
         else:
             t = t + t_cmp + ni.t_loop
         active = done_in_time

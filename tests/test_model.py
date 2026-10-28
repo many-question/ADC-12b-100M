@@ -90,3 +90,16 @@ def test_follower_matches_linear_for_small_droop_and_noise_level():
     ni = m.NonIdeal(ref_follower=f, ref_start_charge=False, ref_signal_coupling=False)
     sd = m.convert(np.zeros(4000), a, ni).info["dvref"][:, 0].std()
     assert sd == pytest.approx(np.sqrt(2.0 * 1.380649e-23 * 300.15 / 2e-12), rel=0.1)
+
+
+def test_reference_charge_is_drawn_at_the_dac_drive():
+    # the SAR logic drives the DAC t_bit after the decision and clocks the comparator t_dac later
+    # (LOG-02 / 04): the VREFP charge of a step comes t_bit after its decision, not at it (issue #35)
+    a = Arch.load()
+    ni = m.ideal(t_bit=35e-12)
+    r = m.convert(np.array([0.3, -0.7]) * a.fs_peak, a, ni)
+    t_dec, t_sw = r.info["t_dec"], r.info["t_sw"]
+    t_cmp = t_sw - t_dec[:, :-1] - ni.t_bit
+    assert np.all(t_cmp >= ni.t_cmp0 - 1e-15)                     # comparator delay, then t_bit
+    gap = t_dec[:, 1:] - t_sw                                       # DAC drive -> next decision
+    assert np.allclose(gap[:, :ni.n_fast], ni.t_dac_fast) and np.allclose(gap[:, ni.n_fast:], ni.t_dac)

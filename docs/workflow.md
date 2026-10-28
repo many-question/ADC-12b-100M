@@ -64,7 +64,7 @@ python -m adcflow clean-remote --older-than-h 12   # 清理服务器上本项目
 
 * 测试台在 `tools/adcflow/gen_tb.py` 中描述（元件、网络、参数、分析），`gen` 生成网表和原理图。
 * 第一行 `parameters` 中的参数可由规格 `params:` 或 `--param` 覆盖；`vdd vdd18 tempc noise_en devnoise
-  beh_speed vref_in` 由 deck 提供，测试台中不要声明。
+  beh_speed vref_in cdac_behav` 由 deck 提供，测试台中不要声明（`cdac_behav` = 1 表示 `adc_cdac` 用行为级视图）。
 * 监视器写小文本文件（`tb/common/veriloga/`）；只在度量需要时保存波形（`save` 列出信号）。
 * 要求逐管 SOA（每个薄栅器件 |Vgs|、|Vgd|、|Vds| ≤ 1.0 V）的用例在规格中加 `soa:`：流程在 deck 中保存 DUT 内各器件的端口节点，度量函数调用 `soa.measure` / `soa.figure`，见 [`verification.md`](verification.md) §5。
 * 度量函数放在 `tools/adcflow/measure/<block>.py`，签名 `fn(job_dir, ctx) -> dict`，键名即规格中的 `metric`。

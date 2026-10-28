@@ -59,7 +59,7 @@ def sigma_cu(k: float) -> float:
 
 def slow(ni: m.NonIdeal, s: float) -> m.NonIdeal:
     """Comparator, loop and DAC timing s x the TT values (as budget.timing_table)."""
-    return replace(ni, t_cmp0=ni.t_cmp0 * s, tau_reg=ni.tau_reg * s, t_loop=ni.t_loop * s,
+    return replace(ni, t_cmp0=ni.t_cmp0 * s, tau_reg=ni.tau_reg * s, t_loop=ni.t_loop * s, t_bit=ni.t_bit * s,
                    t_dac=ni.t_dac * s, t_dac_fast=ni.t_dac_fast * s, tau_dac=ni.tau_dac * s,
                    t_start=0.1e-9 + (ni.t_start - 0.1e-9) * s)
 

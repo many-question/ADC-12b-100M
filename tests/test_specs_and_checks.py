@@ -265,3 +265,16 @@ def test_ref04_line_sweep_stays_inside_the_supply_envelope():
     pts = np.arange(start, stop + step / 2, step)
     assert pts[0] == pytest.approx(lo) and pts[-1] == pytest.approx(hi) and len(pts) == 5
     assert all(lo - 1e-12 <= v <= hi + 1e-12 for v in pts)
+
+
+def test_source_resistor_noise_follows_the_cdac_view():
+    from adcflow.runner import build_jobs
+    from adcflow.specs import find_test
+
+    b, test = find_test("tb_top_sine")
+    c = corner_set("typ")
+    beh = build_jobs(b, "tb_top_sine", test, c, {}, {"fin_target": 1e6})[0]
+    xt = build_jobs(b, "tb_top_sine", test, c, {"adc_cdac": "xtor"}, {"fin_target": 1e6})[0]
+    assert beh.globals_["cdac_behav"] == 1 and xt.globals_["cdac_behav"] == 0
+    assert "tb_rsrc_va r=rsrc noisy=1-cdac_behav" in beh.tb_text
+    assert "noisefmax=nfmax*noise_en " in beh.tb_text           # top-level transient noise follows noise_en
