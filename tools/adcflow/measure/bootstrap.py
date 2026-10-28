@@ -6,7 +6,7 @@ from pathlib import Path
 
 import numpy as np
 
-from .. import psf
+from .. import psf, soa
 from ..figures import C1, C2, C3, C7, GRID, INK2, LIMIT, MUTED, hline, limits, note, plot_spectrum, sink_of, spec_table, vline
 from .common import read_meters, read_samples, spectrum, tran
 
@@ -43,14 +43,15 @@ def dc(job_dir: Path, ctx: dict) -> dict:
         m["t_off_ps"] = float(max(d for _, d in t_off) * 1e12)
     if t_on:
         m["t_on_ps"] = float(max(d for _, d, _ in t_on) * 1e12)
-    m["soa_violations"] = int(np.sum(np.diff(np.concatenate([[0], ((vg - vin) > 1.0) | ((vg - bp) > 1.0)]).astype(int)) == 1))
-    m["vgs_max_V"] = float(np.max(vg - np.minimum(vin, bp)))
+    soa.measure(ctx, w, m)                                 # BST-08: per-device SOA (error if unverified)
     meters = read_meters(Path(job_dir) / "power.txt")
     if "AVDD" in meters:
         m["iavg_uA"] = float(meters["AVDD"] * 1e6)
     fg = sink_of(ctx)
     if fg:
         _fig_dc(fg, ctx, w, per_level, t_off, t_on, m)
+        if "soa_table" in m:
+            soa.figure(fg, ctx, m, w)
     return m
 
 
@@ -119,13 +120,20 @@ def _fig_dc(fg, ctx, w, per_level, t_off, t_on, m) -> None:
     ax.set(xlabel="time from the PHI_B rising edge (ps)", ylabel="voltage (V)", title="Turn-on (worst edge)")
     ax.legend(loc="center right")
     ax = axs[1, 0]
-    ax.plot(t * 1e9, vg - vin, color=C1, lw=0.9, label="VG - VIN")
-    ax.plot(t * 1e9, vg - bp, color=C7, lw=0.9, label="VG - BP")
-    hline(ax, 1.0, "SOA limit 1.0 V")
-    ax.set(xlabel="time (ns)", ylabel="gate voltage difference (V)", title="Gate stress over the whole run",
-           ylim=(-0.1, 1.2))
-    ax.legend(loc="center left")
-    note(ax, f"violations {m['soa_violations']}\nmax {m['vgs_max_V']:.3f} V", loc="lower right")
+    lim = soa.config()["limit_V"]
+    ax.plot(t * 1e9, vg - vin, color=C1, lw=0.9, label="VG - VIN (gs)")
+    ax.plot(t * 1e9, vg - bp, color=C7, lw=0.9, label="VG - BP (gd)")
+    ax.plot(t * 1e9, bp - vin, color=C3, lw=0.9, label="BP - VIN (ds)")
+    hline(ax, lim, f"SOA +{lim:.1f} V")
+    hline(ax, -lim, f"SOA -{lim:.1f} V")
+    ax.set(xlabel="time (ns)", ylabel="terminal voltage (V)", title="Reference switch MSWP over the whole run",
+           ylim=(-1.25 * lim, 1.25 * lim))
+    ax.legend(loc="lower left", ncol=3)
+    if "soa_violations" in m:
+        note(ax, f"BST-08: {m['soa_violations']} violation(s), scope {m['soa_scope']}\n"
+             f"max |V| {m['soa_max_V']:.3f} V over {m['soa_devices']} device(s)", loc="upper right")
+    else:
+        note(ax, "BST-08 unverified", loc="upper right")
     ax = axs[1, 1]
     ax.plot(t * 1e9, vin, color=C3, lw=0.9, label="VIN")
     ax.plot(t * 1e9, vg, color=C1, lw=0.9, label="VG")
@@ -134,5 +142,5 @@ def _fig_dc(fg, ctx, w, per_level, t_off, t_on, m) -> None:
     ax.legend(loc="upper left", ncol=3)
     spec_table(axs[1, 2], ctx, m, ["vgs_min_V", "vgs_var_mV", "t_off_ps", "t_on_ps", "iavg_uA", "soa_violations"])
     fg.save(fig, "switch", "Boosted gate voltage over the input range, the worst turn-off and turn-on edge "
-            "with their delays and limits, the gate stress against the safe-operating limit, and the "
-            "specification table.")
+            "with their delays and limits, the three terminal voltages of the reference switch against the "
+            "+/-1.0 V SOA limit, and the specification table.")

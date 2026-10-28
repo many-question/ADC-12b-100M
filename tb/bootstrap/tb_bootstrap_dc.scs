@@ -102,5 +102,6 @@ save VG VIN PHI_B BP
 //   #IMAVDD:P @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", rotate=90, dx=0, dy=0.4);
 //   #IMAVDD:N @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", rotate=90, dx=0, dy=-0.4);
 //   (-30, 31) @TEXT("tb_bootstrap_dc: boosted gate over the input range, edges, current", halign="start") => @SET-STYLE $title_style;
-//   (-30, 29.4) @TEXT("VIN steps 0 .. 0.9 V in 0.15 V steps, 4 cycles each, through 50 ohm with the reference switch load", halign="start") => @SET-STYLE $note_style
+//   (-30, 29.4) @TEXT("VIN steps 0 .. 0.9 V in 0.15 V steps, 4 cycles each, through 50 ohm with the reference switch load", halign="start") => @SET-STYLE $note_style;
+//   (-30, 27.8) @TEXT("BST-08: the run deck also saves the d/g/s nodes of every thin-oxide MOS in XDUT (adcflow soa)", halign="start") => @SET-STYLE $note_style
 // }

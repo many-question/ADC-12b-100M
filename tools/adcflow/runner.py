@@ -10,6 +10,7 @@ Deck layout (all paths absolute on the server):
     include <one view of every block>      (behav unless --view block=xtor)
     include design/top/adc_top.scs
     include jobs/<job>/tb.scs              (the testbench with its parameters substituted)
+    save <device terminal nodes>           (tests with `soa:` in their spec, see soa.py)
 
 Global parameters are declared by the deck only; testbenches and views use
 them (`vdd`, `vdd18`, `tempc`, `noise_en`, `beh_speed`, `vref_in`).
@@ -32,7 +33,7 @@ from pathlib import Path
 import yaml
 
 from . import REPO_ROOT
-from . import remote
+from . import remote, soa
 from .corners import Corner, corner_set, model_includes, vref_in
 from .figures import FigureSink
 from .netlist import content_hash, parse, substitute_parameters
@@ -169,7 +170,9 @@ def build_jobs(block: Block, test_id: str, test: dict, corners: list[Corner], vi
     return jobs
 
 
-def make_deck(job: Job, rroot: str, views: dict, needs_pdk: bool, mc: str | None) -> tuple[str, list[Path]]:
+def make_deck(job: Job, rroot: str, views: dict, needs_pdk: bool, mc: str | None,
+              extra: list[str] | None = None) -> tuple[str, list[Path]]:
+    """The run deck of a job; `extra` lines (the saves of the SOA check) come after the testbench."""
     vfiles = view_files(views)
     va = _needed_va(vfiles, job.tb_text)
     L = [f"// adcflow deck: job={job.name} views={views or 'all behav'}",
@@ -184,6 +187,7 @@ def make_deck(job: Job, rroot: str, views: dict, needs_pdk: bool, mc: str | None
     for p in vfiles:
         L.append(f'include "{rroot}/{p.relative_to(REPO_ROOT).as_posix()}"')
     L.append(f'include "{rroot}/jobs/{job.name}/tb.scs"')
+    L += extra or []
     used = vfiles + va
     return "\n".join(L) + "\n", used
 
@@ -256,10 +260,14 @@ def run_test(test_id: str, block_name: str | None = None, corners: str = "typ",
     run_id = _dt.datetime.now().strftime("%Y%m%d-%H%M%S") + f"-{uuid.uuid4().hex[:4]}-{test_id}"
     run_dir = REPO_ROOT / "build" / "runs" / run_id
     rroot = "<R>" if dry else f"{remote.remote_root()}/{run_id}"
-    decks, used = {}, {}
+    decks, used, soa_plans = {}, {}, {}
     for j in jobs:
-        decks[j.name], files = make_deck(j, rroot, views, needs_pdk, mc)
-        used[j.name] = files
+        save = []
+        if test.get("soa"):                    # per-device SOA check: save the device terminal nodes
+            soa_plans[j.name] = soa.plan(block.name, test, j.tb_text, view_files(views), views)
+            save = soa.deck_lines(soa_plans[j.name], j.tb_text)
+        decks[j.name], files = make_deck(j, rroot, views, needs_pdk, mc, save)
+        used[j.name] = files + ([soa.SOA_YAML] if test.get("soa") else [])
     stage(run_dir, jobs, decks)
     print(f"[adcflow] {test_id} ({block.name}): {len(jobs)} job(s), views={views or 'behav'}, "
           f"pdk={'yes' if needs_pdk else 'no'}, staged in {run_dir.relative_to(REPO_ROOT)}")
@@ -302,7 +310,7 @@ def run_test(test_id: str, block_name: str | None = None, corners: str = "typ",
                           header=f"{test_id} | {viewsig} | {j.name}")
         figs.clear()
         ctx = {"corner": j.corner, "params": j.params, "globals": j.globals_, "test": test_id,
-               "block": block.name, "view": viewsig, "figs": figs}
+               "block": block.name, "view": viewsig, "figs": figs, "soa": soa_plans.get(j.name)}
         try:
             metrics = measure(test, jd, ctx) if rc[0] == "0" else {}
             if rc[0] != "0":

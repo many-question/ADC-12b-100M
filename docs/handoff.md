@@ -56,7 +56,7 @@
 ### adc_bootstrap
 * 经典栅压自举（Abo/Gray 结构），升压电容在转换期间充电；负载为一侧全部输入开关的栅电容
   （测试台中用 96 µm/30 nm `nch_ulvt_mac` + 2.057 pF 作为参考负载）。
-* 所有薄栅器件端电压 ≤ 1.0 V（各工艺角）；PHI_B 下降后 VG 需在 60 ps 内降到 0.1 V 以下。
+* 所有薄栅器件端电压 ≤ 1.0 V（各工艺角，BST-08 逐管检查 |Vgs|、|Vgd|、|Vds|，见 [`verification.md`](verification.md) §5）；PHI_B 下降后 VG 需在 60 ps 内降到 0.1 V 以下。
 
 ### adc_clkgen
 * 输入为外部 CLK（高电平跟踪）。相位顺序：CLK↓ → PHI_S↓ → PHI_B↓（20–80 ps 后）→ CONV↑；

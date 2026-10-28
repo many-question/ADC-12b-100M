@@ -1,0 +1,21 @@
+# Per-device safe operating area (SOA) of the MOS devices, used by the SOA check of
+# adcflow (tools/adcflow/soa.py, docs/verification.md §5). A test enables the check
+# with `soa:` in its block spec. Every MOS model a netlist uses must be listed
+# here: an unlisted model makes the check report "unverified".
+
+# |Vgs|, |Vgd|, |Vds| (both polarities) of every thin-oxide device; for a MOS
+# capacitor the voltage across it. Changing this makes the SOA results stale.
+limit_V: 1.0
+
+thin_oxide:
+  # 0.9 V core MOS, terminals d g s b: pairs gs, gd, ds
+  mos: [nch_mac, nch_lvt_mac, nch_ulvt_mac, nch_hvt_mac, nch_uhvt_mac, nch_ehvt_mac, nch_avt_mac, nch_na_mac,
+        pch_mac, pch_lvt_mac, pch_ulvt_mac, pch_hvt_mac, pch_uhvt_mac, pch_ehvt_mac]
+  # MOS capacitors, terminals p n: pair pn
+  moscap: [nmoscap, pmoscap]
+
+# 1.8 V devices: not checked against limit_V (listed in the result as skipped)
+thick_oxide: [nch_18_mac, pch_18_mac, nch_na18_mac, nmoscap_18, pmoscap_18]
+
+# masters that look like a MOS device; one that is in neither list is an error
+mos_pattern: "^(nch|pch)_|moscap"
