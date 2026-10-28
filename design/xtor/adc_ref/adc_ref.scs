@@ -251,7 +251,7 @@ ends adc_ref_servo
 
 // Reference-presence clamp. MNBL sinks current from the control node.
 subckt adc_ref_startup (REF OUT AVDD18 VSS)
-MPUV (NST REF AVDD18 AVDD18) pch_18_mac w=8u l=1u nf=4
+MPUV (NST REF AVDD18 AVDD18) pch_18_mac w=8u l=1u nf=4 multi=2
 MNUV (NST REF VSS VSS) nch_18_mac w=64u l=1u nf=32
 MNBL (NST AVDD18 VSS VSS) nch_18_mac w=1u l=1u nf=1
 MCLAMP (OUT NST VSS VSS) nch_18_mac w=64u l=500n nf=32
@@ -292,7 +292,7 @@ MCLAMP (OUT NST VSS VSS) nch_18_mac w=64u l=500n nf=32
 //   $JUNCTION @ATTACH {%jref %jst %jbl %jvp %jn %jb %jc};
 //   (-16, 25) @TEXT("Reference-presence startup clamp", halign="start") => @SET-STYLE $title_style;
 //   (-16, 22) @TEXT("REF rises -> NST falls -> the gate clamp releases. MNBL sinks control-node current.", halign="start") => @SET-STYLE $note_style;
-//   (-16, -16) @TEXT("Inverter: P 8u/1u, nf=4; N 64u/1u, nf=32. Bleed: N 1u/1u, nf=1.", halign="start", size=0.75);
+//   (-16, -16) @TEXT("Inverter: P 8u/1u, nf=4, x2; N 64u/1u, nf=32. Bleed: N 1u/1u, nf=1.", halign="start", size=0.75);
 //   (-16, -18) @TEXT("Clamp: N 64u/500n, nf=32. All devices are thick oxide; no external startup control is used.", halign="start", size=0.75);
 //   %startup_symbol = @DEFINE-SYMBOL(box=[-6, -4, 7, 4]) {
 //     @LINE {(-5, 3) (-5, -3) (6, -3) (6, 3) (-5, 3)};
