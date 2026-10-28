@@ -5,22 +5,23 @@
 // }
 simulator lang=spectre
 
-// The replica includes the VCM divider load at one eighth of the main scale.
+// The replica includes the VCM divider load at one sixteenth of the main scale.
 // All bias gates draw from VREF_IN; AVDD is reserved and unused in this view.
 // First implementation: dynamic settling, noise and PVT remain under review.
 subckt adc_ref (VREF_IN VREFP VCM AVDD18 AVDD VSS)
 XSERVO (VREF_IN VREP VG VREF_IN AVDD18 VSS) adc_ref_servo
 MREP (AVDD18 VG VREP VSS) nch_na18_mac w=64u l=800n nf=32
-MDRV (AVDD18 VG VREFP VSS) nch_na18_mac w=64u l=800n nf=32 multi=8
+MDRV (AVDD18 VG VREFP VSS) nch_na18_mac w=64u l=800n nf=32 multi=16
 MSREP (VREP VREF_IN VSS VSS) nch_18_mac w=16u l=500n nf=8
-MSINK (VREFP VREF_IN VSS VSS) nch_18_mac w=64u l=500n nf=32 multi=2
+MSINK (VREFP VREF_IN VSS VSS) nch_18_mac w=64u l=500n nf=32 multi=4
 MCRH (CMR CMR VREP VREP) pch_lvt_mac w=4u l=120n nf=2
 MCRL (VSS VSS CMR CMR) pch_lvt_mac w=4u l=120n nf=2
-MCMH (VCM VCM VREFP VREFP) pch_lvt_mac w=8u l=120n nf=4 multi=4
-MCML (VSS VSS VCM VCM) pch_lvt_mac w=8u l=120n nf=4 multi=4
+MCMH (VCM VCM VREFP VREFP) pch_lvt_mac w=8u l=120n nf=4 multi=8
+MCML (VSS VSS VCM VCM) pch_lvt_mac w=8u l=120n nf=4 multi=8
 CREF0 (VREFP VSS) cfmom_2t w=50n s=50n nr=80 lr=40u stm=1 spm=5
 CREF1 (VREFP VSS) cfmom_2t w=50n s=50n nr=80 lr=40u stm=1 spm=5
 CCM (VCM VSS) cfmom_2t w=50n s=50n nr=80 lr=40u stm=1 spm=5
+CGATE (VG VSS) cfmom_2t w=50n s=50n nr=80 lr=40u stm=1 spm=5 multi=4
 // @RNL {
 //   {&AVDD18 &AVDD} @ADD-TO $SUPPLY_NET_SET;
 //   &VSS @ADD-TO $GROUND_NET_SET;
@@ -42,15 +43,17 @@ CCM (VCM VSS) cfmom_2t w=50n s=50n nr=80 lr=40u stm=1 spm=5
 //   #CREF0 @PLACE(68, -12) => @ORIENT("R0");
 //   #CREF1 @PLACE(74, -12) => @ORIENT("R0");
 //   #CCM @PLACE(94, -22) => @ORIENT("R0");
+//   #CGATE @PLACE(44, 0) => @ORIENT("R0");
 //   %pin = $IO_PORT @ATTACH &VREF_IN => @PLACE(-20, 2) => @ORIENT("R0");
 //   %jin = (-12, 2); %jib = (-12, -32); %jbr = (19, -32); %jbm = (53, -32);
 //   &VREF_IN @WIRE {%pin:p %jin #XSERVO:INP};
 //   &VREF_IN @WIRE {%jin %jib %jbr %jbm (53, -14) #MSINK:g};
 //   &VREF_IN @WIRE {%jbr (19, -14) #MSREP:g};
 //   &VREF_IN @WIRE {%jib (0, -32) #XSERVO:BIAS};
-//   %jg = (14, 0); %jgup = (14, 4);
+//   %jg = (14, 0); %jgup = (14, 4); %jgc = (44, 4);
 //   &VG @WIRE {#XSERVO:OUT %jg #MREP:g};
-//   &VG @WIRE {%jg %jgup (50, 4) (50, 0) #MDRV:g};
+//   &VG @WIRE {%jg %jgup %jgc (50, 4) (50, 0) #MDRV:g};
+//   &VG @WIRE {%jgc #CGATE:p};
 //   %jr = (24, -6); %jrh = (38, -10);
 //   &VREP @WIRE {#MREP:s %jr #MSREP:d};
 //   &VREP @WIRE {%jr (38, -6) %jrh #MCRH:s};
@@ -108,30 +111,34 @@ CCM (VCM VSS) cfmom_2t w=50n s=50n nr=80 lr=40u stm=1 spm=5
 //   &VSS @WIRE {#CREF0:n %gc0:p};
 //   &VSS @WIRE {#CREF1:n %gc1:p};
 //   &VSS @WIRE {#CCM:n %gcm:p};
-//   $JUNCTION @ATTACH {%jin %jib %jbr %jg %jr %jrh %jcmr %jo %jc0 %jc1 %jph %jch %jcm %jccm %js0 %js1 %jd0 %jd1};
-//   #MDRV @TEXT("64u/800n; nf=32; x8", key="size", dx=3, dy=2, size=0.6, halign="start");
+//   %ggate = $GROUND @ATTACH &VSS => @PLACE(44, -4) => @ORIENT("R0");
+//   &VSS @WIRE {#CGATE:n %ggate:p};
+//   $JUNCTION @ATTACH {%jin %jib %jbr %jg %jgc %jr %jrh %jcmr %jo %jc0 %jc1 %jph %jch %jcm %jccm %js0 %js1 %jd0 %jd1};
+//   #MDRV @TEXT("64u/800n; nf=32; x16", key="size", dx=3, dy=2, size=0.6, halign="start");
 //   #MREP @TEXT("64u/800n; nf=32", key="size", dx=3, dy=2, size=0.6, halign="start");
-//   #MSINK @TEXT("64u/500n; nf=32; x2", key="size", dx=3, dy=-5, size=0.6, halign="start");
+//   #MSINK @TEXT("64u/500n; nf=32; x4", key="size", dx=3, dy=-5, size=0.6, halign="start");
 //   #MSREP @TEXT("16u/500n; nf=8", key="size", dx=-2, dy=-9, size=0.6, halign="end");
 //   (-22, 18) @TEXT("adc_ref: replica servo, native source follower and matched VCM divider", halign="start") => @SET-STYLE $title_style;
-//   (-22, 15.5) @TEXT("Main / replica scale = 8. W is total width per multiplier. Bias is derived from VREF_IN gates.", halign="start") => @SET-STYLE $note_style;
+//   (-22, 15.5) @TEXT("Main / replica scale = 16. W is total width per multiplier. Bias is derived from VREF_IN gates.", halign="start") => @SET-STYLE $note_style;
 //   (-22, 13.5) @TEXT("VCM uses two equal source-body-tied PMOS diodes; AVDD is unused.", halign="start") => @SET-STYLE $note_style;
-//   (-22, -35) @TEXT("Divider PMOS: main 8u/120n, nf=4, x4; replica 4u/120n, nf=2.", halign="start", size=0.75);
-//   (-22, -37) @TEXT("MOM geometry: 80 fingers, 40u length, 50n width/space, layers 1..5.", halign="start", size=0.75)
+//   (-22, -35) @TEXT("Divider PMOS: main 8u/120n, nf=4, x8; replica 4u/120n, nf=2.", halign="start", size=0.75);
+//   (-22, -37) @TEXT("MOM geometry: 80 fingers, 40u length, 50n width/space, layers 1..5; CGATE has x4 multiplier.", halign="start", size=0.75)
 // }
 ends adc_ref
 
 // Two-stage replica error amplifier. Positive input raises OUT.
 subckt adc_ref_servo (INP INN OUT BIAS AVDD18 VSS)
-MN1 (NB INP TAIL VSS) nch_na18_mac w=8u l=800n nf=4
-MN2 (NA INN TAIL VSS) nch_na18_mac w=8u l=800n nf=4
+MN1 (NB INP TAIL VSS) nch_18_mac w=8u l=1u nf=4
+MN2 (NA INN TAIL VSS) nch_18_mac w=8u l=1u nf=4
 MP1 (NB NA AVDD18 AVDD18) pch_18_mac w=8u l=1u nf=4 multi=4
 MP2 (NA NA AVDD18 AVDD18) pch_18_mac w=8u l=1u nf=4 multi=4
 MTAIL (TAIL BIAS VSS VSS) nch_18_mac w=8u l=1u nf=4
 MPOUT (OUT NB AVDD18 AVDD18) pch_18_mac w=8u l=1u nf=4 multi=8
 MNOUT (OUT BIAS VSS VSS) nch_18_mac w=8u l=1u nf=4
-CC0 (NB OUT) cfmom_2t w=50n s=50n nr=80 lr=40u stm=1 spm=5
-CC1 (NB OUT) cfmom_2t w=50n s=50n nr=80 lr=40u stm=1 spm=5
+MZERO (NB VSS NZ AVDD18) pch_18_mac w=8u l=1u nf=4 multi=8
+CC0 (NZ OUT) cfmom_2t w=50n s=50n nr=80 lr=40u stm=1 spm=5 multi=4
+CC1 (NZ OUT) cfmom_2t w=50n s=50n nr=80 lr=40u stm=1 spm=5
+CC2 (NZ OUT) cfmom_2t w=50n s=50n nr=80 lr=40u stm=1 spm=5
 // @RNL {
 //   &AVDD18 @ADD-TO $SUPPLY_NET_SET;
 //   &VSS @ADD-TO $GROUND_NET_SET;
@@ -141,7 +148,7 @@ CC1 (NB OUT) cfmom_2t w=50n s=50n nr=80 lr=40u stm=1 spm=5
 //   {#MP1 #MP2} @AS $MATCHED;
 //   {#MTAIL #MNOUT} @AS $MATCHED;
 //   {#MN1 #MN2 #MP1 #MP2 #MTAIL} @GROUP;
-//   {#MPOUT #MNOUT #CC0 #CC1} @GROUP;
+//   {#MPOUT #MNOUT #MZERO #CC0 #CC1 #CC2} @GROUP;
 //   #MN1 @PLACE(-10, 0) => @ORIENT("R0");
 //   #MN2 @PLACE(10, 0) => @ORIENT("MY");
 //   #MP1 @PLACE(-10, 12) => @ORIENT("R0");
@@ -151,6 +158,8 @@ CC1 (NB OUT) cfmom_2t w=50n s=50n nr=80 lr=40u stm=1 spm=5
 //   #MNOUT @PLACE(34, -10) => @ORIENT("R0");
 //   #CC0 @PLACE(24, 28) => @ORIENT("R90");
 //   #CC1 @PLACE(24, 34) => @ORIENT("R90");
+//   #CC2 @PLACE(24, 40) => @ORIENT("R90");
+//   #MZERO @PLACE(-20, 22) => @ORIENT("R0");
 //   %pip = $IO_PORT @ATTACH &INP => @PLACE(-18, 0) => @ORIENT("R0");
 //   %pin = $IO_PORT @ATTACH &INN => @PLACE(18, 0) => @ORIENT("MY");
 //   %pout = $IO_PORT @ATTACH &OUT => @PLACE(46, 6) => @ORIENT("MY");
@@ -172,11 +181,18 @@ CC1 (NB OUT) cfmom_2t w=50n s=50n nr=80 lr=40u stm=1 spm=5
 //   %jo = (34, 6); %joc = (40, 6);
 //   &OUT @WIRE {#MPOUT:d %jo #MNOUT:d};
 //   &OUT @WIRE {%jo %joc %pout:p};
-//   %jcl = (18, 28); %jcr = (30, 28);
-//   &NB @WIRE {%jnb (-20, 6) (-20, 28) %jcl #CC0:p};
-//   &NB @WIRE {%jcl (18, 34) #CC1:p};
+//   %jcl = (18, 28); %jcr = (30, 28); %jcl1 = (18, 34); %jcr1 = (30, 34);
+//   &NB @WIRE {%jnb (-20, 6) #MZERO:d};
+//   &NZ @WIRE {#MZERO:s (-20, 28) %jcl #CC0:p};
+//   &NZ @WIRE {%jcl %jcl1 (18, 40) #CC2:p};
+//   &NZ @WIRE {%jcl1 #CC1:p};
 //   &OUT @WIRE {%joc (40, 28) %jcr #CC0:n};
-//   &OUT @WIRE {%jcr (30, 34) #CC1:n};
+//   &OUT @WIRE {%jcr %jcr1 (30, 40) #CC2:n};
+//   &OUT @WIRE {%jcr1 #CC1:n};
+//   %vzero = $SUPPLY @ATTACH &AVDD18 => @PLACE(-14, 24) => @ORIENT("R0");
+//   &AVDD18 @WIRE {#MZERO:b (-14, 22) %vzero:p};
+//   %gzero = $GROUND @ATTACH &VSS => @PLACE(-26, 18) => @ORIENT("R0");
+//   &VSS @WIRE {#MZERO:g (-26, 22) %gzero:p};
 //   %vh = $SUPPLY @ATTACH &AVDD18 => @PLACE(0, 23) => @ORIENT("R0");
 //   %jvh = (0, 20); %jvhl = (-10, 20); %jvhr = (10, 20); %jvho = (34, 20);
 //   &AVDD18 @WIRE {%vh:p %jvh};
@@ -197,11 +213,11 @@ CC1 (NB OUT) cfmom_2t w=50n s=50n nr=80 lr=40u stm=1 spm=5
 //   &VSS @WIRE {#MTAIL:b (4, -10) (4, -14) %jgt};
 //   &VSS @WIRE {#MNOUT:s %jgo %go:p};
 //   &VSS @WIRE {#MNOUT:b (38, -10) (38, -14) %jgo};
-//   $JUNCTION @ATTACH {%jnb %jna %jmg %jtail %jbias %jo %joc %jcl %jcr %jvh %jvhl %jvhr %jvho %jgt %jgo};
-//   (-23, -25) @TEXT("Input pair: 8u/800n, nf=4. Other MOS: 8u/1u, nf=4; PMOS mirror x4, MPOUT x8.", halign="start", size=0.75);
-//   (-23, -27) @TEXT("Each compensation MOM: 80 fingers, 40u length, 50n width/space, layers 1..5.", halign="start", size=0.75);
-//   (-23, 43) @TEXT("Replica servo: native input pair, PMOS mirror and compensated second stage", halign="start") => @SET-STYLE $title_style;
-//   (-23, 40.5) @TEXT("INP rises -> NB falls -> OUT rises. Bias gates are driven by the high-impedance reference.", halign="start") => @SET-STYLE $note_style;
+//   $JUNCTION @ATTACH {%jnb %jna %jmg %jtail %jbias %jo %joc %jcl %jcr %jcl1 %jcr1 %jvh %jvhl %jvhr %jvho %jgt %jgo};
+//   (-28, -25) @TEXT("MOS: 8u/1u, nf=4; PMOS mirror x4, MPOUT/MZERO x8. The input pair is ordinary thick oxide.", halign="start", size=0.75);
+//   (-28, -27) @TEXT("MOM: 80 fingers, 40u length, 50n width/space, layers 1..5; CC0 x4, CC1/CC2 x1.", halign="start", size=0.75);
+//   (-28, 49) @TEXT("Replica servo: thick-oxide input pair, PMOS mirror and compensated second stage", halign="start") => @SET-STYLE $title_style;
+//   (-28, 46.5) @TEXT("INP rises -> NB falls -> OUT rises. MZERO provides series damping in the compensation path.", halign="start") => @SET-STYLE $note_style;
 //   %servo_symbol = @DEFINE-SYMBOL(box=[-6, -5, 7, 5]) {
 //     @LINE {(-4, 4) (-4, -4) (5, 0) (-4, 4)};
 //     (-6, 2) @PIN(terminal="INP", direction="left");
