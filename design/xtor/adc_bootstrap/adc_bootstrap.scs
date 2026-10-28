@@ -1,4 +1,4 @@
-// adc_bootstrap: first transistor-level precharge / track / discharge candidate.
+// adc_bootstrap: protected startup control and shaped reset edge.
 // @RNL(type="header") {
 //   @VERSION("0.3");
 //   @USE-PACKAGE(name="adc28", version="0.1", path="../../rnl/adc28.rnl")
@@ -6,75 +6,86 @@
 simulator lang=spectre
 
 subckt adc_bootstrap (VIN PHI_B PHI_BB VG AVDD VSS)
-// Bootstrap capacitor precharge and bottom-plate reset.
+// Precharge the MOM capacitor, then reference it to the input during tracking.
 MPRE (CBP VG AVDD CBP) pch_ulvt_mac w=8u l=30n nf=4
 CB (CBP CBN) cfmom_2t w=50n s=50n nr=200 lr=40u stm=1 spm=6
-MRST (CBN PHI_BB VSS VSS) nch_ulvt_mac w=8u l=30n nf=4
-// Track the capacitor bottom plate to the input; transfer its top plate to VG.
-MTRK (CBN VG VIN VSS) nch_ulvt_mac w=24u l=30n nf=12
-MXFER (VG GCTL CBP CBP) pch_ulvt_mac w=2u l=30n nf=1
-// GCTL starts from a rail-driven path, then follows CBN through MCF.
-MCP (GCTL PHI_B AVDD AVDD) pch_ulvt_mac w=2u l=30n nf=1
-MCSTART (GCTL PHI_B CBN VSS) nch_ulvt_mac w=500n l=30n nf=1
-MCF (GCTL VG CBN VSS) nch_ulvt_mac w=8u l=30n nf=4
-// The diode-connected upper device lifts DU while tracking. The parallel
-// rail-gated device completes discharge below the diode path's threshold.
-// The middle cascode shares the high-input drain voltage with the upper pair.
+MRST (CBN PHI_BBF VSS VSS) nch_ulvt_mac w=24u l=30n nf=12
+MTRK (CBN VG VIN VSS) nch_ulvt_mac w=48u l=30n nf=24
+MXFER (VG GCTL CBP CBP) pch_ulvt_mac w=4u l=30n nf=2
+MCP (PCP PHI_B AVDD AVDD) pch_ulvt_mac w=2u l=30n nf=1
+// The cascode isolates MCP from GCTL undershoot; MNCL drives the startup gate.
+MCSTART (GCTL PHI_N CBN VSS) nch_ulvt_mac w=500n l=30n nf=1
+MCF (GCTL VG CBN VSS) nch_ulvt_mac w=2u l=30n nf=1
 MDHI (VG AVDD DU VSS) nch_ulvt_mac w=24u l=30n nf=12
 MDUP (VG VG DU VSS) nch_ulvt_mac w=24u l=30n nf=12
 MDMID (DU AVDD DN VSS) nch_ulvt_mac w=24u l=30n nf=12
-MDLO (DN PHI_BB VSS VSS) nch_ulvt_mac w=24u l=30n nf=12
+MDLO (DN PHI_BBF VSS VSS) nch_ulvt_mac w=24u l=30n nf=12
 
+// Shape the reset edge while retaining the external PHI_BB phase relationship.
+MNFB (PHI_BB AVDD PHI_BBF VSS) nch_ulvt_mac w=2u l=100n nf=1
+MPFB (PHI_BB VSS PHI_BBF AVDD) pch_ulvt_mac w=4u l=100n nf=2
+MPCAS (GCTL VSS PCP AVDD) pch_ulvt_mac w=2u l=30n nf=1
+MNCL (PHI_B AVDD PHI_N VSS) nch_ulvt_mac w=8u l=30n nf=4
 // @RNL {
-//   &AVDD @ADD-TO $SUPPLY_NET_SET;
-//   &VSS @ADD-TO $GROUND_NET_SET;
+//   &AVDD @ADD-TO $SUPPLY_NET_SET; &VSS @ADD-TO $GROUND_NET_SET;
 //   {#MPRE #CB #MRST} @GROUP;
-//   {#MCP #MCSTART #MCF} @GROUP;
-//   {#MXFER #MTRK} @GROUP;
+//   {#MCP #MPCAS #MCSTART} @AS $BRANCH;
+//   {#MCP #MPCAS #MCSTART #MCF #MNCL} @GROUP;
+//   {#MNFB #MPFB} @GROUP; {#MXFER #MTRK} @GROUP;
 //   {#MDHI #MDMID #MDLO} @AS $BRANCH;
 //   {#MDHI #MDUP #MDMID #MDLO} @GROUP;
 //   #MPRE @PLACE(0, 20) => @ORIENT("R0");
 //   #CB @PLACE(0, 4) => @ORIENT("R0");
-//   #MRST @PLACE(0, -14) => @ORIENT("R0");
+//   #MRST @PLACE(0, -18) => @ORIENT("R0");
 //   #MXFER @PLACE(32, 20) => @ORIENT("R0");
 //   #MTRK @PLACE(32, -4) => @ORIENT("R0");
-//   #MCP @PLACE(-32, 4) => @ORIENT("R0");
-//   #MCSTART @PLACE(-32, -14) => @ORIENT("R0");
-//   #MCF @PLACE(-18, -14) => @ORIENT("R0");
+//   #MCP @PLACE(-48, 20) => @ORIENT("R0");
+//   #MPCAS @PLACE(-48, 4) => @ORIENT("R0");
+//   #MCSTART @PLACE(-48, -18) => @ORIENT("R0");
+//   #MCF @PLACE(-30, -18) => @ORIENT("R0");
+//   #MNCL @PLACE(-76, -18) => @ORIENT("R0");
+//   #MNFB @PLACE(-100, -32) => @ORIENT("R0");
+//   #MPFB @PLACE(-84, -32) => @ORIENT("MX");
 //   #MDHI @PLACE(60, 4) => @ORIENT("R0");
 //   #MDUP @PLACE(78, 4) => @ORIENT("R0");
-//   #MDMID @PLACE(60, -10) => @ORIENT("R0");
-//   #MDLO @PLACE(60, -24) => @ORIENT("R0");
-//   %p_in = $IO_PORT @ATTACH &VIN => @PLACE(-50, -26) => @ORIENT("R0");
-//   %p_clk = $IO_PORT @ATTACH &PHI_B => @PLACE(-50, 4) => @ORIENT("R0");
-//   %p_clkb = $IO_PORT @ATTACH &PHI_BB => @PLACE(-50, -38) => @ORIENT("R0");
-//   %p_out = $IO_PORT @ATTACH &VG => @PLACE(98, 18) => @ORIENT("MY");
-//   %vdd = $SUPPLY @ATTACH &AVDD => @PLACE(0, 44) => @ORIENT("R0");
-//   %gnd = $GROUND @ATTACH &VSS => @PLACE(36, -44) => @ORIENT("R0");
-//   %jcp = (0, 12); %jcph = (32, 26);
-//   %jcn = (0, -2); %jcnl = (-18, -22);
-//   %jctl = (-32, -4); %jvg = (44, 18); %jvgf = (-12, 20);
-//   %jdu = (60, -2); %javcas = (50, 4);
-//   %jclk = (-44, 4); %jclkb = (-6, -38);
-//   %js0 = (0, 40); %js1 = (-32, 40); %js2 = (-28, 40); %js3 = (50, 40);
-//   %jg0 = (0, -32); %jg1 = (4, -32); %jg2 = (-28, -32); %jg3 = (-14, -32);
-//   %jg4 = (36, -32); %jg5 = (60, -32); %jg6 = (64, -32); %jg7 = (70, -32);
-//   %jg8 = (86, -32); %jg9 = (66, -32);
-//   {$JUNCTION} @ATTACH {%jcp %jcph %jcn %jcnl %jctl %jvg %jvgf %jdu %javcas %jclk %jclkb %js0 %js1 %js2 %js3 %jg0 %jg1 %jg2 %jg3 %jg4 %jg5 %jg6 %jg7 %jg8 %jg9};
+//   #MDMID @PLACE(60, -12) => @ORIENT("R0");
+//   #MDLO @PLACE(60, -28) => @ORIENT("R0");
+//   %p_in = $IO_PORT @ATTACH &VIN => @PLACE(-120, -62) => @ORIENT("R0");
+//   %p_clk = $IO_PORT @ATTACH &PHI_B => @PLACE(-120, 20) => @ORIENT("R0");
+//   %p_clkb = $IO_PORT @ATTACH &PHI_BB => @PLACE(-120, -26) => @ORIENT("R0");
+//   %p_out = $IO_PORT @ATTACH &VG => @PLACE(100, 18) => @ORIENT("MY");
+//   %vdd = $SUPPLY @ATTACH &AVDD => @PLACE(0, 54) => @ORIENT("R0");
+//   %gnd = $GROUND @ATTACH &VSS => @PLACE(36, -56) => @ORIENT("R0");
+//   %jcp = (0, 12); %jcp2 = (12, 12); %jcph = (32, 26);
+//   %jcn = (0, -2); %jcn2 = (12, -2); %jcnl = (-30, -26);
+//   %jctl = (-48, -8); %jvg = (44, 18); %jvgf = (-18, 20);
+//   %jdu = (60, -2); %javcas = (50, 4); %jclk = (-92, 20);
+//   %jbbin = (-100, -26); %jbbout = (-100, -42); %jbb2 = (-84, -42); %jbbr = (-10, -42);
+//   %js0 = (0, 48); %js1 = (-48, 48); %js2 = (-40, 48); %js3 = (50, 48);
+//   %js4 = (-88, 48); %js5 = (-112, 48); %js6 = (-78, 48);
+//   %jg0 = (0, -50); %jg1 = (4, -50); %jg2 = (-44, -50); %jg3 = (-26, -50);
+//   %jg4 = (36, -50); %jg5 = (60, -50); %jg6 = (64, -50); %jg7 = (70, -50);
+//   %jg8 = (86, -50); %jg9 = (66, -50); %jg10 = (-60, -50);
+//   %jg11 = (-72, -50); %jg12 = (-96, -50); %jg13 = (-90, -50);
+//   {$JUNCTION} @ATTACH {%jcp %jcp2 %jcph %jcn %jcn2 %jcnl %jctl %jvg %jvgf %jdu %javcas %jclk %jbbin %jbbout %jbb2 %jbbr %js0 %js1 %js2 %js3 %js4 %js5 %js6 %jg0 %jg1 %jg2 %jg3 %jg4 %jg5 %jg6 %jg7 %jg8 %jg9 %jg10 %jg11 %jg12 %jg13};
 //   &CBP @WIRE {#MPRE:d %jcp #CB:p};
 //   &CBP @WIRE {#MPRE:b (4, 20) (4, 12) %jcp};
-//   &CBP @WIRE {%jcp (16, 12) (16, 26) %jcph #MXFER:s};
+//   &CBP @WIRE {%jcp %jcp2};
+//   &CBP @WIRE {%jcp2 (18, 12) (18, 26) %jcph #MXFER:s};
 //   &CBP @WIRE {%jcph (36, 26) (36, 20) #MXFER:b};
 //   &CBN @WIRE {#CB:n %jcn #MRST:d};
-//   &CBN @WIRE {%jcn #MTRK:d};
-//   &CBN @WIRE {%jcn (-8, -2) (-8, -22) %jcnl (-32, -22) #MCSTART:s};
+//   &CBN @WIRE {%jcn %jcn2};
+//   &CBN @WIRE {%jcn2 (32, -2) #MTRK:d};
+//   &CBN @WIRE {%jcn (-8, -2) (-8, -26) %jcnl (-48, -26) #MCSTART:s};
 //   &CBN @WIRE {%jcnl #MCF:s};
-//   &GCTL @WIRE {#MCP:d %jctl #MCSTART:d};
-//   &GCTL @WIRE {%jctl (-18, -4) #MCF:d};
-//   &GCTL @WIRE {%jctl (-40, -4) (-40, 28) (24, 28) (24, 20) #MXFER:g};
+//   &PCP @WIRE {#MCP:d #MPCAS:s};
+//   &GCTL @WIRE {#MPCAS:d %jctl #MCSTART:d};
+//   &GCTL @WIRE {%jctl (-30, -8) #MCF:d};
+//   &GCTL @WIRE {%jctl (-56, -8) (-56, 32) (24, 32) (24, 20) #MXFER:g};
+//   &PHI_N @WIRE {#MNCL:s (-76, -26) (-66, -26) (-66, -18) #MCSTART:g};
 //   &VG @WIRE {#MXFER:d %jvg (60, 18) %p_out:p};
-//   &VG @WIRE {%jvg (44, 34) (-12, 34) %jvgf #MPRE:g};
-//   &VG @WIRE {%jvgf (-12, -8) (-24, -8) (-24, -14) #MCF:g};
+//   &VG @WIRE {%jvg (44, 38) (-18, 38) %jvgf #MPRE:g};
+//   &VG @WIRE {%jvgf (-18, -4) (-38, -4) (-38, -18) #MCF:g};
 //   &VG @WIRE {%jvg (44, 10) (22, 10) (22, -4) #MTRK:g};
 //   &VG @WIRE {%jvg (60, 18) #MDHI:d};
 //   &VG @WIRE {#MDUP:d (78, 18) %jvg};
@@ -82,43 +93,52 @@ MDLO (DN PHI_BB VSS VSS) nch_ulvt_mac w=24u l=30n nf=12
 //   &DU @WIRE {#MDHI:s %jdu #MDMID:d};
 //   &DU @WIRE {%jdu (78, -2) #MDUP:s};
 //   &DN @WIRE {#MDMID:s #MDLO:d};
-//   &VIN @WIRE {%p_in:p (32, -26) #MTRK:s};
+//   &VIN @WIRE {%p_in:p (32, -62) #MTRK:s};
 //   &PHI_B @WIRE {%p_clk:p %jclk #MCP:g};
-//   &PHI_B @WIRE {%jclk (-44, -14) #MCSTART:g};
-//   &PHI_BB @WIRE {%p_clkb:p %jclkb (54, -38) (54, -24) #MDLO:g};
-//   &PHI_BB @WIRE {%jclkb (-6, -14) #MRST:g};
-//   &AVDD @WIRE {%js1 %js2 %js0 %js3};
-//   &AVDD @WIRE {%js0 %vdd:p};
-//   &AVDD @WIRE {%js0 #MPRE:s};
+//   &PHI_B @WIRE {%jclk (-92, -8) (-76, -8) #MNCL:d};
+//   &PHI_BB @WIRE {%p_clkb:p %jbbin #MNFB:d};
+//   &PHI_BB @WIRE {%jbbin (-84, -26) #MPFB:d};
+//   &PHI_BBF @WIRE {#MNFB:s %jbbout %jbb2 #MPFB:s};
+//   &PHI_BBF @WIRE {%jbb2 %jbbr (54, -42) (54, -28) #MDLO:g};
+//   &PHI_BBF @WIRE {%jbbr (-10, -18) #MRST:g};
+//   &AVDD @WIRE {%js5 %js4 %js6 %js1 %js2 %js0 %js3};
+//   &AVDD @WIRE {%js0 %vdd:p}; &AVDD @WIRE {%js0 #MPRE:s};
 //   &AVDD @WIRE {%js1 #MCP:s};
-//   &AVDD @WIRE {%js2 (-28, 4) #MCP:b};
+//   &AVDD @WIRE {%js2 (-40, 20) #MCP:b};
+//   &AVDD @WIRE {%js2 (-40, 4) #MPCAS:b};
+//   &AVDD @WIRE {%js4 (-88, -18) #MNCL:g};
+//   &AVDD @WIRE {%js5 (-112, -32) #MNFB:g};
+//   &AVDD @WIRE {%js6 (-78, -32) #MPFB:b};
 //   &AVDD @WIRE {%js3 %javcas #MDHI:g};
-//   &AVDD @WIRE {%javcas (50, -10) #MDMID:g};
-//   &VSS @WIRE {%jg2 %jg3 %jg0 %jg1 %jg4 %jg5 %jg6 %jg9 %jg7 %jg8};
+//   &AVDD @WIRE {%javcas (50, -12) #MDMID:g};
+//   &VSS @WIRE {%jg12 %jg13 %jg11 %jg10 %jg2 %jg3 %jg0 %jg1 %jg4 %jg5 %jg6 %jg9 %jg7 %jg8};
 //   &VSS @WIRE {%jg4 %gnd:p};
-//   &VSS @WIRE {#MCSTART:b (-28, -14) %jg2};
-//   &VSS @WIRE {#MCF:b (-14, -14) %jg3};
+//   &VSS @WIRE {#MCSTART:b (-44, -18) %jg2};
+//   &VSS @WIRE {#MCF:b (-26, -18) %jg3};
+//   &VSS @WIRE {#MPCAS:g (-60, 4) %jg10};
+//   &VSS @WIRE {#MNCL:b (-72, -18) %jg11};
+//   &VSS @WIRE {#MNFB:b (-96, -32) %jg12};
+//   &VSS @WIRE {#MPFB:g (-90, -32) %jg13};
 //   &VSS @WIRE {#MRST:s %jg0};
-//   &VSS @WIRE {#MRST:b (4, -14) %jg1};
+//   &VSS @WIRE {#MRST:b (4, -18) %jg1};
 //   &VSS @WIRE {#MTRK:b (36, -4) %jg4};
 //   &VSS @WIRE {#MDLO:s %jg5};
-//   &VSS @WIRE {#MDLO:b (64, -24) %jg6};
+//   &VSS @WIRE {#MDLO:b (64, -28) %jg6};
 //   &VSS @WIRE {#MDHI:b (70, 4) %jg7};
 //   &VSS @WIRE {#MDUP:b (86, 4) %jg8};
-//   &VSS @WIRE {#MDMID:b (66, -10) %jg9};
-//   (-50, 52) @TEXT("adc_bootstrap: transistor candidate", halign="start") => @SET-STYLE $title_style;
-//   (-50, 49) @TEXT("Precharge while PHI_BB is high; input-referenced boost while PHI_B is high", halign="start") => @SET-STYLE $note_style;
-//   (-36, 10) @TEXT("Track control", halign="start") => @SET-STYLE $note_style;
-//   #CB @TEXT("nr=${nr} lr=${lr}", key="dims1", dx=4, dy=2, size=0.6, halign="start");
-//   #CB @TEXT("w=${w} s=${s}", key="dims2", dx=4, dy=0, size=0.6, halign="start");
-//   #CB @TEXT("stm=${stm} spm=${spm}", key="dims3", dx=4, dy=-2, size=0.6, halign="start");
-//   (16, 30) @TEXT("CBP", halign="start") => @SET-STYLE $param_style;
+//   &VSS @WIRE {#MDMID:b (66, -12) %jg9};
+//   (-120, 64) @TEXT("adc_bootstrap: control protection and reset edge shaping", halign="start") => @SET-STYLE $title_style;
+//   (-120, 61) @TEXT("MPCAS isolates the pull-up control; MNCL limits the startup gate; PHI_BBF shapes reset and discharge", halign="start") => @SET-STYLE $note_style;
+//   (-120, 57) @TEXT("CB: w=50n s=50n nr=200 lr=40u stm=1 spm=6", halign="start") => @SET-STYLE $param_style;
+//   (-56, 36) @TEXT("Protected control", halign="start") => @SET-STYLE $note_style;
+//   (-112, -10) @TEXT("Reset edge shaping", halign="start") => @SET-STYLE $note_style;
+//   (48, 30) @TEXT("Gate output / turn-off", halign="start") => @SET-STYLE $note_style;
 //   (4, -5) @TEXT("CBN", halign="start") => @SET-STYLE $param_style;
-//   (-38, -6) @TEXT("GCTL", halign="start") => @SET-STYLE $param_style;
+//   (-54, -10) @TEXT("GCTL", halign="start") => @SET-STYLE $param_style;
+//   (-44, 12) @TEXT("PCP", halign="start") => @SET-STYLE $param_style;
 //   (62, -4) @TEXT("DU", halign="start") => @SET-STYLE $param_style;
-//   (62, -18) @TEXT("DN", halign="start") => @SET-STYLE $param_style;
-//   (48, 24) @TEXT("Gate output / turn-off", halign="start") => @SET-STYLE $note_style;
-//   {#MPRE #MRST #MTRK #MXFER #MCP #MCSTART #MCF #MDHI #MDUP #MDMID #MDLO} @TEXT("W=${w} L=${l} nf=${nf}", key="dims", dy=-4, size=0.6);
-//   (18, -48) @TEXT("Exploratory candidate: per-device SOA and all-corner acceptance remain required", halign="start") => @SET-STYLE $note_style;
+//   (62, -20) @TEXT("DN", halign="start") => @SET-STYLE $param_style;
+//   {#MPRE #MRST #MTRK #MXFER #MCP #MPCAS #MCSTART #MCF #MDHI #MDUP #MDMID #MDLO #MNFB #MPFB #MNCL} @TEXT("W=${w} L=${l} nf=${nf}", key="dims", dy=-4, size=0.6);
+//   (-120, -69) @TEXT("Work in progress: review the measurements and remaining failures in the draft PR", halign="start") => @SET-STYLE $note_style;
 // }
 ends adc_bootstrap
