@@ -6,7 +6,7 @@
 |---|---|---|---|---|
 | [`adc_bootstrap`](#adc-bootstrap) | behavioral | many-question | 10 | `tb_bootstrap_dc`, `tb_bootstrap_track` |
 | [`adc_cdac`](#adc-cdac) | behavioral | many-question | 17 | `tb_cdac_weights`, `tb_cdac_settle`, `tb_cdac_track` |
-| [`adc_clkgen`](#adc-clkgen) | behavioral | many-question | 10 | `tb_clkgen_timing`, `tb_clkgen_jitter` |
+| [`adc_clkgen`](#adc-clkgen) | behavioral | many-question | 11 | `tb_clkgen_timing`, `tb_clkgen_jitter` |
 | [`adc_comp`](#adc-comp) | behavioral | many-question | 14 | `tb_comp_delay`, `tb_comp_noise`, `tb_comp_kickback` |
 | [`adc_ref`](#adc-ref) | behavioral | many-question | 8 | `tb_ref_dc`, `tb_ref_replay`, `tb_ref_noise` |
 | [`adc_sarlogic`](#adc-sarlogic) | behavioral | Arcadia-1 | 15 | `tb_sarlogic_func`, `tb_sarlogic_rand`, `tb_sarlogic_func_slow`, `tb_sarlogic_timeout` |
@@ -14,7 +14,7 @@
 
 ## adc_bootstrap
 
-**Bootstrapped gate generator for the bottom-plate input switches (one per side)** — 规格版本 0.4.0，状态 `behavioral`。
+**Bootstrapped gate generator for the bottom-plate input switches (one per side)** — 规格版本 0.5.0，状态 `behavioral`。
 
 While PHI_B is high, VG = VIN + Vboot (Vboot ~ AVDD, from a capacitor charged during conversion), so every NMOS input switch inside adc_cdac sees a signal-independent gate-source voltage. PHI_B falling turns VG to 0 V quickly (the sampling instant itself is set by PHI_S in adc_cdac, 20-80 ps earlier). The load is the gate capacitance of all input switches of one CDAC.
 
@@ -55,11 +55,11 @@ While PHI_B is high, VG = VIN + Vboot (Vboot ~ AVDD, from a capacitor charged du
 ### 验收用例
 
 - **`tb_bootstrap_dc`** (`tb/bootstrap/tb_bootstrap_dc.scs`, 度量 `adcflow.measure.bootstrap:dc`; 需要 PDK; 逐管 SOA 检查（`docs/verification.md` §5）)：100 MHz ideal phases; VIN stepped 0, 0.15 .. 0.9 V (one level per 4 cycles) through 50 ohm with the reference load. Measures VG - VIN at the end of each track phase, turn-on / turn-off times and AVDD current. BST-08 is the per-device SOA check of adcflow (docs/verification.md §5): the run deck saves the d / g / s nodes of every thin-oxide MOS in XDUT and of the reference switch MSWP; |Vgs|, |Vgd| and |Vds| of each, both polarities, are taken at every time point of the whole transient (edges included) and compared with 1.0 V; soa_violations counts the device / terminal pairs above it, soa_table gives every pair's largest |V| and its time. A transistor view without such devices, an unlisted MOS model or a missing waveform is an error (unverified), never 0. The behavioral view has no devices: only MSWP is checked (|VG - VIN|, |VG - BP|, |BP - VIN|), recorded as soa_scope external, which is not transistor-level evidence. BST-09/10: PHI_B and PHI_BB reach the DUT through charge meters (tb_qmeter_va, a 0 V path); the charge a pin draws over each rising edge divided by the voltage step, mean over all rising edges (window as in adc_cdac tb_cdac_settle).
-- **`tb_bootstrap_track`** (`tb/bootstrap/tb_bootstrap_track.scs`, 度量 `adcflow.measure.bootstrap:track`; 参数 `fin_target=49.9e6`, `npts=256`; 需要 PDK)：Two bootstraps with reference loads, differential sine from 50 ohm per side, coherent 49.9 MHz, -1 dBFS. The bottom-plate voltages at the PHI_S falling edges are the samples (bottom-plate sampling); FFT of 256 samples.
+- **`tb_bootstrap_track`** (`tb/bootstrap/tb_bootstrap_track.scs`, 度量 `adcflow.measure.bootstrap:track`; 参数 `fin_target=49.9e6`, `npts=256`; 需要 PDK; 数值设置 `reltol=1e-07`, `vabstol=1e-08`, `maxstep=1p`, `method=traponly`; 收敛交叉检查 `maxstep=0.5p`, `method=gear2only`（`--crosscheck`，`docs/verification.md` §2）)：Two bootstraps with reference loads, differential sine from 50 ohm per side, coherent 49.9 MHz, -1 dBFS. The bottom-plate voltages at the PHI_S falling edges are the samples (bottom-plate sampling); FFT of 256 samples. Explicit transient settings (numerics, #28): with the simulator defaults a transistor-level switch gave an unconverged 66.7 dB SFDR (about 93.6 dB once converged). Convergence cross-check (sim --crosscheck: maxstep 0.5 ps, gear2only; docs/verification.md §2) at representative worst corners and after substantive design changes.
 
 ## adc_cdac
 
-**Split-capacitor redundant CDAC, one side (instantiated twice)** — 规格版本 0.4.0，状态 `behavioral`。
+**Split-capacitor redundant CDAC, one side (instantiated twice)** — 规格版本 0.5.0，状态 `behavioral`。
 
 13 weights w_j (j = 12..0) = 980 560 318 180 102 57 32 18 10 6 3 2 1 x cu, cu = 1.0 fF (arch v0.3; the LSB half is 0.5 fF). Each weight is two equal halves: H (neutral state VREFP) and L (neutral state VREFN). Bottom-plate sampling: while CONV = 0 the bottom plates of the sampled weights (all but j = 9 and j = 6) track VIN through NMOS switches whose gate is VG (bootstrapped, from adc_bootstrap) and the top plate is held at VCM by a switch on PHI_S/PHI_SB. Non-sampled weights stay in the neutral state. With CONV = 1 every half is driven by an inverter between VREFP and VREFN: H to VREFP unless DH<j>, L to VREFN unless RL<j>. The top-level connects DH = DN, RL = UP on the VINP side and DH = UP, RL = DN on the VINN side, so each decision moves the two top plates in opposite directions and the common mode stays constant.
 
@@ -115,11 +115,11 @@ While PHI_B is high, VG = VIN + Vboot (Vboot ~ AVDD, from a capacitor charged du
 
 - **`tb_cdac_weights`** (`tb/cdac/tb_cdac_weights.scs`, 度量 `adcflow.measure.cdac:weights`)：One CDAC with ideal VG and ideal controls. Two sampling cycles with VIN = 0.45 -/+ 0.2 V give the input-to-top gain; then the 26 control lines are toggled one at a time (neutral -> active -> neutral) and every top-plate step is converted into an input-referred weight in LSB. The backend calibrates the weights (raw bits out), so the weights need not be exact but must be calibratable. DAC-03: for every decision k, the redundancy delta_k + 0.5 LSB minus the worst-case weight error of the weights from k on (|systematic error| summed, plus cal_n_sigma = 4 times the root-sum-square mismatch sigma, sigma_cu * sqrt(w) from specs/arch.yaml) must stay >= 0: no gap that calibration cannot close. DAC-14: the system model converts sines with the measured weights plus random mismatch (4 chips), calibrates the weights on one record and judges another (adcflow.calib); ENOB loss against ideal weights through the same procedure. The nominal-weight error (weight_err_max_pct, enob_loss_nom_bit) is reported without a limit.
 - **`tb_cdac_settle`** (`tb/cdac/tb_cdac_settle.scs`, 度量 `adcflow.measure.cdac:settle`)：VIN = 0.65 V (0.2 V above VCM, so that the conversion start moves the top plate). Steps of RL12 (w=980), RL5 (w=18) and RL0 (w=1) driven by 10 ps edges 1 ns after CONV rises; settling times within 1.5 ns of the edge, single-pole equivalent from the 10 % -> 1 % part of the RL12 step, conversion-start settling before the first edge, 5 ns hold droop and VREFP charge per conversion. DAC-13: AC current into DH5 at 100 MHz. DAC-15..17: PHI_S, PHI_SB and CONV reach the DUT through charge meters (tb_qmeter_va, a 0 V path); the charge a pin draws over each of its rising edges (from 50 ps before to 200 ps after the 50 % crossing, at most halfway to the neighbouring falling crossings) divided by the voltage step, mean over all rising edges of the run.
-- **`tb_cdac_track`** (`tb/cdac/tb_cdac_track.scs`, 度量 `adcflow.measure.cdac:track`; 参数 `fin_target=49.9e6`, `npts=256`)：Two CDACs (P and N) with ideal bootstrapped gates, sine from 50 ohm per side at 49.9 MHz, -1 dBFS, 100 MS/s ideal phases, no decisions. The differential top-plate voltage 100 ps after CONV rises is stored per sample; FFT gives SFDR / SNDR of the sampling network.
+- **`tb_cdac_track`** (`tb/cdac/tb_cdac_track.scs`, 度量 `adcflow.measure.cdac:track`; 参数 `fin_target=49.9e6`, `npts=256`; 数值设置 `reltol=1e-07`, `vabstol=1e-08`, `maxstep=1p`, `method=traponly`; 收敛交叉检查 `maxstep=0.5p`, `method=gear2only`（`--crosscheck`，`docs/verification.md` §2）)：Two CDACs (P and N) with ideal bootstrapped gates, sine from 50 ohm per side at 49.9 MHz, -1 dBFS, 100 MS/s ideal phases, no decisions. The differential top-plate voltage 300 ps after CONV rises is stored per sample; FFT gives SFDR / SNDR of the sampling network. Explicit transient settings and convergence cross-check as tb_bootstrap_track (numerics, crosscheck; #28, docs/verification.md §2).
 
 ## adc_clkgen
 
-**Sampling clock phase generator** — 规格版本 0.2.1，状态 `behavioral`。
+**Sampling clock phase generator** — 规格版本 0.3.0，状态 `behavioral`。
 
 Buffers the single external CLK (high = track, low = hold + convert) into the sampling phases. Falling CLK: PHI_S falls first (sampling instant, top plate opens), then PHI_B (bottom-plate switches open), then CONV rises (DAC drivers enabled, SAR logic starts). Rising CLK: CONV falls first (drivers tri-stated, SAR reset), then PHI_B and PHI_S rise (break before make).
 
@@ -156,10 +156,11 @@ Buffers the single external CLK (high = track, low = hold + convert) into the sa
 | CLK-08 | function at CLK duty 45 % and 55 % | ≤ 0 | count | all | `tb_clkgen_timing` |
 | CLK-09 | PHI_S falling-edge jitter (device noise) | ≤ 60 | fs | typ | `tb_clkgen_jitter` |
 | CLK-10 | average AVDD current at 100 MHz incl. output loads | ≤ 80 | uA | typ | `tb_clkgen_timing` |
+| CLK-11 | SOA violations: thin-oxide device / terminal pairs over 1.0 V (Vgs, Vgd, Vds; absolute, whole transient) | ≤ 0 | count | all | `tb_clkgen_timing` |
 
 ### 验收用例
 
-- **`tb_clkgen_timing`** (`tb/clkgen/tb_clkgen_timing.scs`, 度量 `adcflow.measure.clkgen:timing`)：Ideal 100 MHz CLK (20 ps edges), 8 cycles at 50 % duty, then 4 at 45 % and 4 at 55 %, specified output loads. Edge times of every phase; average current of the whole AVDD branch over 10-80 ns (7 cycles), the charging of the output loads included.
+- **`tb_clkgen_timing`** (`tb/clkgen/tb_clkgen_timing.scs`, 度量 `adcflow.measure.clkgen:timing`; 逐管 SOA 检查（`docs/verification.md` §5）; 收敛交叉检查 `maxstep=0.5p`（`--crosscheck`，`docs/verification.md` §2）)：Ideal 100 MHz CLK (20 ps edges), 8 cycles at 50 % duty, then 4 at 45 % and 4 at 55 %, specified output loads. Edge times of every phase; average current of the whole AVDD branch over 10-80 ns (7 cycles), the charging of the output loads included. CLK-11 is the per-device SOA check of adcflow (docs/verification.md §5, #27), as BST-08: the run deck saves the d / g / s nodes of every thin-oxide MOS in XDUT; |Vgs|, |Vgd| and |Vds| of each, both polarities, are taken at every time point of the whole run, t = 0 to 161 ns: start-up, the 8 cycles at 50 %, 4 at 45 % and 4 at 55 % duty and every edge. That window is what CLK-11 covers. soa_table also gives each pair's time above the limit (diagnostic only, not judged). A transistor view gives soa_scope device; a missing waveform or an unlisted MOS model is an error (unverified), never 0. The behavioral view has no devices and the testbench none at its top level: soa_scope external with soa_pairs 0 and soa_note "nothing to check", which is not transistor-level evidence.
 - **`tb_clkgen_jitter`** (`tb/clkgen/tb_clkgen_jitter.scs`, 度量 `adcflow.measure.clkgen:jitter`; 瞬态噪声)：Transient noise on, 200 cycles. Standard deviation of the PHI_S falling crossing time relative to the ideal CLK edge.
 
 ## adc_comp

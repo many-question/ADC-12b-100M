@@ -2,11 +2,12 @@
 
 from __future__ import annotations
 
+import textwrap
 from pathlib import Path
 
 import numpy as np
 
-from .. import psf
+from .. import psf, soa
 from ..figures import C1, C2, C3, C7, GRID, INK2, LIMIT, MUTED, hline, limits, note, sink_of, spec_table, stack_traces
 from .common import read_meters, read_samples, tran
 
@@ -92,9 +93,12 @@ def timing(job_dir: Path, ctx: dict) -> dict:
     if "AVDD" in meters:
         m["iavg_uA"] = float(meters["AVDD"] * 1e6)
     m = {k: v for k, v in m.items() if v is not None}
+    soa.measure(ctx, w, m)                        # CLK-11: per-device SOA, whole run (error if unverified)
     fg = sink_of(ctx)
     if fg and cyc:
         _fig_timing(fg, ctx, w, vdd, x, cyc, cov, m)
+    if fg and m.get("soa_table"):
+        soa.figure(fg, ctx, m, w)
     return m
 
 
@@ -196,7 +200,15 @@ def _fig_timing(fg, ctx, w, vdd, x, cyc, cov, m) -> None:
     ax.set(xlabel="cycle", ylabel="gap (ps)", title="Gaps between the phases", ylim=(5, 120))
     ax.legend(loc="upper center", ncol=2, fontsize=7.5)
     spec_table(axs[1, 2], ctx, m, ["td_s_ps", "skew_sb_ps", "nov_bc_ps", "td_conv_ps", "nov_cb_ps", "tf_s_ps",
-                                   "skew_ssb_ps", "duty_errors", "iavg_uA"])
+                                   "skew_ssb_ps", "duty_errors", "iavg_uA", "soa_violations"])
+    if "soa_scope" in m:
+        what = ("0 pairs: nothing to check\n(behavioral views, no devices; not transistor-level evidence)"
+                if m.get("soa_note") else f"{m['soa_devices']} device(s), {m['soa_pairs']} pairs, "
+                f"max |V| {m['soa_max_V']:.3f} V\n{m['soa_violations']} violation(s), limit {m['soa_limit_V']:g} V")
+        note(axs[1, 2], f"CLK-11 SOA over the whole run (t = 0 .. {w['time'][-1] * 1e9:.0f} ns, every edge)\n"
+             f"scope {m['soa_scope']}, {what}", loc="lower left")
+    elif "error" in m:
+        note(axs[1, 2], "CLK-11 " + "\n".join(textwrap.wrap(str(m["error"]), 58)[:3]), loc="lower left")
     fg.save(fig, "timing", "CLK, PHI_S, PHI_B and CONV at the falling and rising CLK edge with the delays "
             "marked, the sampling-edge fall time, and the delays and gaps of every cycle for 50 %, 45 % and "
             "55 % duty cycle against their limits.")

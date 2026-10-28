@@ -228,7 +228,11 @@ def corner_detail(site: Site, bd: BlockData, view: str, root: str = "") -> str:
             cells = []
             for s in specs:
                 v = j["specs"].get(s.id)
-                if v is None:
+                na = (j.get("na") or {}).get(s.id)
+                if v is None and na is not None:          # measured, but the spec does not apply at this corner
+                    cells.append(f"<td class='num muted' title='n/a: {esc(s.id)} applies to {esc(s.corners)} only, "
+                                 f"not judged here'>{fmt(na['value'])} <small>n/a</small></td>")
+                elif v is None:
                     cells.append("<td class='num muted'>–</td>")
                 else:
                     cells.append(f"<td class='num {'ok' if v['pass'] else 'bad'}'>{fmt(v['value'])}</td>")

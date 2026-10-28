@@ -121,7 +121,7 @@ class SpecRow:
     corner_set: str
     worst: float | None
     status: str            # pass | fail | none | mc
-    n: int                 # recorded corners
+    n: int                 # recorded corners where the spec applies (unique)
     need: int              # corners the spec requires
     stale: list[str]
     mc: int | None = None
@@ -184,18 +184,23 @@ class BlockData:
 
 
 def _spec_rows(b, view: str, docs: list[dict]) -> list[SpecRow]:
+    """Only results at corners where a spec applies (adcflow Spec.applies) count for its worst
+    value, verdict and coverage; results at other corners keep their raw values (shown as n/a in
+    the corner detail) and do not count."""
     out = []
     for s in b.specs:
         vals = []
         pairs: list[tuple[float, dict]] = []
         stale: list[str] = []
+        corners: set[str] = set()
         for d in docs:
             if d["view"] != view or d["test"] != s.test:
                 continue
-            if s.mc and not d.get("meta", {}).get("mc"):
+            if not s.applies(d["corner"], d.get("meta", {}).get("mc")):
                 continue
             v = d["_judged"]["specs"].get(s.id, {})
             vals.append((v.get("value"), v.get("pass")))
+            corners.add(d["corner"])
             if isinstance(v.get("value"), (int, float)):
                 pairs.append((v["value"], d))
             stale += [f for f in d["_judged"]["stale"] if f not in stale]
@@ -209,7 +214,7 @@ def _spec_rows(b, view: str, docs: list[dict]) -> list[SpecRow]:
         ev_doc = next((d for x, d in pairs if x == worst), None) if worst is not None else None
         ev = evidence_path(ev_doc) if ev_doc else None
         out.append(SpecRow(s.id, s.name, s.limit_text().replace("<=", "≤").replace(">=", "≥"), s.unit,
-                           s.test, view, s.corners, worst, status, len(vals), need, stale, s.mc, ev, ev_doc))
+                           s.test, view, s.corners, worst, status, len(corners), need, stale, s.mc, ev, ev_doc))
     return out
 
 

@@ -17,21 +17,21 @@
   "vref_in": 0.9
  },
  "metrics": {
-  "sfdr_dBc": 109.25853006240243,
-  "sndr_dB": 101.78385967143055,
-  "thd_dBc": -114.48683415737385,
-  "amp_top_V": 0.7227949179245
+  "sfdr_dBc": 132.7007318401098,
+  "sndr_dB": 130.64748592498307,
+  "thd_dBc": -132.0575353359359,
+  "amp_top_V": 0.72280378586575
  },
  "specs": {
   "DAC-09": {
    "metric": "sfdr_dBc",
-   "value": 109.25853006240243,
+   "value": 132.7007318401098,
    "limit": ">= 85",
    "pass": true
   },
   "DAC-10": {
    "metric": "sndr_dB",
-   "value": 101.78385967143055,
+   "value": 130.64748592498307,
    "limit": ">= 80",
    "pass": true
   }
@@ -43,15 +43,28 @@
   }
  ],
  "meta": {
-  "date": "2026-10-28T20:43:33",
-  "git": "285dcb4",
+  "date": "2026-10-28T21:53:51",
+  "git": "a98c872",
   "git_clean": true,
   "mode": "aps",
   "pdk": false,
   "mc": null,
-  "wall_s": 149.3,
+  "wall_s": 770.6,
   "rc": "0",
-  "sim_s": "43",
+  "sim_s": "257",
+  "numerics": {
+   "source": "spectre.log",
+   "reltol": 1e-07,
+   "maxstep_ps": 1.0,
+   "method": "traponly",
+   "errpreset": "moderate",
+   "lteratio": 3.5,
+   "abstol_V": 1e-08,
+   "vabstol": 1e-08,
+   "steps_accepted": 2841646,
+   "step_mean_ps": 0.916722,
+   "step_max_ps": null
+  },
   "files": {
    "design/behav/adc_bootstrap.scs": "eee3a0a78eec4c5f",
    "design/behav/adc_cdac.scs": "5b8837cc5d2a76bc",
@@ -68,8 +81,50 @@
    "design/behav/veriloga/adc_ref_va.va": "746d2530d4ff6d5c",
    "design/behav/veriloga/adc_sarlogic_va.va": "42f06909a81347ef",
    "tb/common/veriloga/tb_sampler_va.va": "4092bc16170c588d",
-   "tb/cdac/tb_cdac_track.scs": "cc5c5f031b67369c",
+   "tb/cdac/tb_cdac_track.scs": "c326ae00bdfc27e8",
    "specs/arch.yaml": "bffadef750bb5205"
+  },
+  "crosscheck": {
+   "settings": {
+    "maxstep": "0.5p",
+    "method": "gear2only"
+   },
+   "numerics": {
+    "source": "spectre.log",
+    "reltol": 1e-07,
+    "maxstep_ps": 0.5,
+    "method": "gear2only",
+    "errpreset": "moderate",
+    "lteratio": 3.5,
+    "abstol_V": 1e-08,
+    "vabstol": 1e-08,
+    "steps_accepted": 5476398,
+    "step_mean_ps": 0.475678,
+    "step_max_ps": null
+   },
+   "rc": "0",
+   "sim_s": "406",
+   "metrics": {
+    "sfdr_dBc": {
+     "ref": 132.7007318401098,
+     "xcheck": 147.82598922411745,
+     "diff": 15.125257384007654
+    },
+    "sndr_dB": {
+     "ref": 130.64748592498307,
+     "xcheck": 142.73368322266035,
+     "diff": 12.086197297677273
+    }
+   },
+   "samples": {
+    "file": "samples.txt",
+    "n": 256,
+    "n_ref": 256,
+    "n_xcheck": 256,
+    "time_diff_max_ps": 0.0,
+    "diff_rms_uV": 0.16424513742511518,
+    "diff_max_uV": 0.3822672000053373
+   }
   }
  }
 }
