@@ -134,20 +134,20 @@ NOISE_F_SPLIT = 10e3   # below: slow gain wander under the FFT resolution of a l
 def startup_times() -> dict[str, float]:
     """Instants (s) of tb_ref_startup from adc_ref.yaml operating.power_up (issue #34), used by
     gen_tb.py for the stimulus and by `startup` for the windows: the supplies ramp together from
-    sup0 to sup1, VREF_IN from ref0 to ref1 (0.9 us after the supplies are up), ready follows the
-    end of the VREF_IN ramp by `ready`, the run ends 3 us after ready."""
+    sup0 to sup1, VREF_IN stays at 0 V for vref_dwell and ramps from ref0 to ref1, ready follows
+    the end of the ramp by `ready`, the run ends 4 us after ready."""
     pu = blocks()["adc_ref"].raw["operating"]["power_up"]
     t = {"sup0": 0.1e-6}
     t["sup1"] = t["sup0"] + pu["supply_ramp"]
-    t["ref0"] = t["sup1"] + 0.9e-6
+    t["ref0"] = t["sup1"] + pu["vref_dwell"]
     t["ref1"] = t["ref0"] + pu["vref_ramp"]
     t["ready"] = t["ref1"] + pu["ready"]
-    t["stop"] = t["ready"] + 3e-6
+    t["stop"] = t["ready"] + 4e-6
     return t
 
 
 def startup(job_dir: Path, ctx: dict) -> dict:
-    """tb_ref_startup: VREFP / VCM excursions over the supported power-up and VREFP from ready on."""
+    """tb_ref_startup: VREFP / VCM excursions over the supported power-up, VREFP and VCM from ready on."""
     w = tran(job_dir)
     t, vp, vc, vin = w["time"], w["VREFP"], w["VCM"], w["VREF_IN"]
     ts = startup_times()
@@ -157,19 +157,26 @@ def startup(job_dir: Path, ctx: dict) -> dict:
     if t[-1] < ts["stop"] - 1e-9:
         m["error"] = f"run ended at {t[-1] * 1e6:.3f} us, before {ts['stop'] * 1e6:g} us"
         return m
-    vend = float(vp[-1])                                   # the final value: VREFP at the end of the run
+    dwell = (t >= ts["sup1"]) & (t <= ts["ref0"])          # supplies up, VREF_IN still 0 V
+    m["vrefp_dwell_max_V"] = float(vp[dwell].max())
+    m["vcm_dwell_max_V"] = float(vc[dwell].max())
     after = t >= ts["ready"]
+    m["ready_err_mV"] = float(np.max(np.abs(vp[after] - vin[after])) * 1e3)          # REF-19
+    lo, hi = limits(ctx, "vcm_ready_V")
+    mid = (lo + hi) / 2 if lo is not None and hi is not None else 0.45
+    m["vcm_ready_V"] = float(vc[after][np.argmax(np.abs(vc[after] - mid))])         # REF-20
+    vend = float(vp[-1])
     m["ready_dev_mV"] = float(np.max(np.abs(vp[after] - vend)) * 1e3)
     m["vrefp_final_err_mV"] = float((vend - vin[-1]) * 1e3)
     m["vcm_final_V"] = float(vc[-1])
     ramp = (t >= ts["ref0"]) & (t <= ts["ref1"])
     m["ramp_lag_mV"] = float(np.max(np.abs(vp[ramp] - vin[ramp])) * 1e3)
-    tol = (limits(ctx, "ready_dev_mV")[1] or 5.0) * 1e-3
-    out = (t >= ts["ref1"]) & (np.abs(vp - vend) > tol)
+    tol = (limits(ctx, "ready_err_mV")[1] or 5.0) * 1e-3
+    out = (t >= ts["ref1"]) & (np.abs(vp - vin) > tol)
     m["t_settle_us"] = float(((t[out][-1] if out.any() else ts["ref1"]) - ts["ref1"]) * 1e6)
     fg = sink_of(ctx)
     if fg:
-        _fig_startup(fg, ctx, w, ts, vend, m)
+        _fig_startup(fg, ctx, w, ts, m, mid)
     return m
 
 
@@ -242,10 +249,10 @@ def _fig_dc(fg, ctx, vref_in, op, ld, x, ln, m) -> None:
             "operating-point values against their limits.")
 
 
-def _fig_startup(fg, ctx, w, ts, vend, m) -> None:
+def _fig_startup(fg, ctx, w, ts, m, vcm_mid) -> None:
     t, vp, vc, vin = w["time"], w["VREFP"], w["VCM"], w["VREF_IN"]
     us = t * 1e6
-    fig, axs = fg.new(2, 2, size=(11.2, 7.4))
+    fig, axs = fg.new(2, 3, size=(15.0, 7.4))
     ax = axs[0, 0]
     for n, c in (("AVDD18", C4), ("AVDD", INK2)):
         if n in w:
@@ -262,6 +269,20 @@ def _fig_startup(fg, ctx, w, ts, vend, m) -> None:
     note(ax, f"VREFP {m['vrefp_min_V']:.3f} .. {m['vrefp_max_V']:.3f} V\n"
          f"VCM {m['vcm_min_V']:.3f} .. {m['vcm_max_V']:.3f} V", loc="upper left")
     ax = axs[0, 1]
+    sel = t <= ts["ref0"] + 0.5e-6
+    for n, c in (("AVDD18", C4), ("AVDD", INK2)):
+        if n in w:
+            ax.plot(us[sel], w[n][sel] * 1e3, color=c, lw=1.0, ls="--", label=n)
+    ax.plot(us[sel], vin[sel] * 1e3, color=C3, lw=1.0, label="VREF_IN")
+    ax.plot(us[sel], vp[sel] * 1e3, color=C1, lw=1.3, label="VREFP")
+    ax.plot(us[sel], vc[sel] * 1e3, color=C7, lw=1.3, label="VCM")
+    ax.axvspan(ts["sup1"] * 1e6, ts["ref0"] * 1e6, color=GRID, alpha=0.5, label="VREF_IN 0 V, supplies up")
+    ax.set(xlabel="time (us)", ylabel="voltage (mV)", title="Supplies up, no reference yet",
+           ylim=(-50, max(100.0, m["vrefp_dwell_max_V"] * 1.3e3, m["vcm_dwell_max_V"] * 1.3e3)))
+    ax.legend(loc="upper right", fontsize=7.0)
+    note(ax, f"during the dwell: VREFP <= {m['vrefp_dwell_max_V'] * 1e3:.3g} mV, VCM <= {m['vcm_dwell_max_V'] * 1e3:.3g} mV",
+         loc="lower right")
+    ax = axs[0, 2]
     ax.plot(us, (vp - vin) * 1e3, color=C1, lw=1.0, label="VREFP - VREF_IN")
     ax.plot(us, (vc - vin / 2) * 1e3, color=C7, lw=1.0, label="VCM - VREF_IN / 2")
     for k in ("ref0", "ref1"):
@@ -271,25 +292,38 @@ def _fig_startup(fg, ctx, w, ts, vend, m) -> None:
     note(ax, f"largest |VREFP - VREF_IN| during the ramp {m['ramp_lag_mV']:.3g} mV", loc="upper left")
     ax = axs[1, 0]
     sel = t >= ts["ref1"] - 0.5e-6
-    ax.plot(us[sel], (vp[sel] - vend) * 1e3, color=C1, lw=1.2)
-    tol = limits(ctx, "ready_dev_mV")[1]
+    ax.plot(us[sel], (vp[sel] - vin[sel]) * 1e3, color=C1, lw=1.2)
+    tol = limits(ctx, "ready_err_mV")[1]
     if tol is not None:
         ax.axhspan(-tol, tol, color=GRID, alpha=0.6, label=f"+/-{tol:g} mV (REF-19)")
         ax.legend(loc="lower right", fontsize=7.5)
     vline(ax, ts["ready"] * 1e6, "ready", color=LIMIT)
     vline(ax, ts["ref1"] * 1e6 + m["t_settle_us"], f"within {tol or 5:g} mV", color=C3, y=0.6)
-    span = max(m["ready_dev_mV"], tol or 5.0) * 2
-    ax.set(xlabel="time (us)", ylabel="VREFP - VREFP(end) (mV)", title="Settling after the VREF_IN ramp",
+    span = max(m["ready_err_mV"], tol or 5.0) * 2
+    ax.set(xlabel="time (us)", ylabel="VREFP - VREF_IN (mV)", title="VREFP after the VREF_IN ramp",
            ylim=(-span, span))
-    note(ax, f"from ready on: {m['ready_dev_mV']:.3g} mV\nwithin the band {m['t_settle_us']:.3g} us after the ramp",
+    note(ax, f"from ready on: {m['ready_err_mV']:.3g} mV\nwithin the band {m['t_settle_us']:.3g} us after the ramp",
          loc="upper left")
-    spec_table(axs[1, 1], ctx, m, ["vrefp_max_V", "vrefp_min_V", "vcm_max_V", "vcm_min_V", "ready_dev_mV"])
-    axs[1, 1].text(0.0, 0.5, "reported: VREFP(end) - VREF_IN "
-                   f"{m['vrefp_final_err_mV']:.2f} mV, VCM(end) {m['vcm_final_V'] * 1e3:.1f} mV", fontsize=8,
-                   color=INK2, transform=axs[1, 1].transAxes, va="top")
+    ax = axs[1, 1]
+    ax.plot(us[sel], vc[sel] * 1e3, color=C7, lw=1.2)
+    lo, hi = limits(ctx, "vcm_ready_V")
+    if lo is not None and hi is not None:
+        ax.axhspan(lo * 1e3, hi * 1e3, color=GRID, alpha=0.6, label=f"{lo * 1e3:g} .. {hi * 1e3:g} mV (REF-20)")
+        ax.legend(loc="lower right", fontsize=7.5)
+    vline(ax, ts["ready"] * 1e6, "ready", color=LIMIT)
+    ax.set(xlabel="time (us)", ylabel="VCM (mV)", title="VCM after the VREF_IN ramp",
+           ylim=(vcm_mid * 1e3 - 25, vcm_mid * 1e3 + 25))
+    note(ax, f"from ready on, furthest from {vcm_mid * 1e3:g} mV: {m['vcm_ready_V'] * 1e3:.2f} mV", loc="upper left")
+    spec_table(axs[1, 2], ctx, m, ["vrefp_max_V", "vrefp_min_V", "vcm_max_V", "vcm_min_V", "ready_err_mV",
+                                   "vcm_ready_V"])
+    axs[1, 2].text(0.0, 0.42, "reported:\n"
+                   f"VREFP(end) - VREF_IN {m['vrefp_final_err_mV']:.2f} mV, VCM(end) {m['vcm_final_V'] * 1e3:.1f} mV\n"
+                   f"max |VREFP - VREFP(end)| from ready {m['ready_dev_mV']:.3g} mV", fontsize=8,
+                   color=INK2, transform=axs[1, 2].transAxes, va="top")
     fg.save(fig, "startup", "Supplies, VREF_IN, VREFP and VCM over the supported power-up sequence against the "
-            "-0.1 .. 1.0 V window, the tracking error during the VREF_IN ramp, the settling of VREFP to its final "
-            "value with the band and the ready instant, and the specification table.")
+            "-0.1 .. 1.0 V window, the outputs while the supplies are up and VREF_IN is still 0 V, the tracking "
+            "error during the VREF_IN ramp, VREFP against VREF_IN and VCM against its range after the ramp with the "
+            "ready instant, and the specification table.")
 
 
 def _fig_noise(fg, ctx, psd, m) -> None:

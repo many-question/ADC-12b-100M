@@ -57,9 +57,12 @@ operating:
     present (or rising) while the supplies rise, a VREF_IN step or a ramp
     faster than 10 us, conversions before ready.
   # s; tb_ref_startup (gen_tb.py) is generated from these: both supplies ramp
-  # together (the AVDD-not-later limit) in supply_ramp, VREF_IN starts 0.9 us
-  # after they are up and ramps in vref_ramp, "ready" is ready after its end.
-  power_up: {supply_ramp: 1.0e-6, vref_ramp: 10.0e-6, ready: 5.0e-6}
+  # together (the AVDD-not-later limit) in supply_ramp; VREF_IN stays at 0 V
+  # for vref_dwell after they are up (a bench condition, longer than the
+  # sequence needs, so that a circuit raising VREFP / VCM without a reference
+  # shows in REF-15 / REF-17), then ramps in vref_ramp; "ready" is ready
+  # after the end of the ramp.
+  power_up: {supply_ramp: 1.0e-6, vref_dwell: 5.0e-6, vref_ramp: 10.0e-6, ready: 5.0e-6}
 specs:
   - {id: REF-01, name: "VREFP - VREF_IN (DC, 200 uA load)",       metric: vrefp_err_mV, unit: mV, min: -5, max: 5, corners: all, test: tb_ref_dc}
   - {id: REF-02, name: "VCM",                                     metric: vcm_V,        unit: V,  min: 0.44, max: 0.46, corners: all, test: tb_ref_dc}
@@ -73,7 +76,8 @@ specs:
   - {id: REF-16, name: "VREFP minimum during the supported power-up (whole run)", metric: vrefp_min_V, unit: V, min: -0.1, corners: all, test: tb_ref_startup}
   - {id: REF-17, name: "VCM maximum during the supported power-up (whole run)", metric: vcm_max_V, unit: V, max: 1.0, corners: all, test: tb_ref_startup}
   - {id: REF-18, name: "VCM minimum during the supported power-up (whole run)", metric: vcm_min_V, unit: V, min: -0.1, corners: all, test: tb_ref_startup}
-  - {id: REF-19, name: "VREFP from ready on: max |VREFP - its final value|", metric: ready_dev_mV, unit: mV, max: 5, corners: all, test: tb_ref_startup}
+  - {id: REF-19, name: "VREFP from ready to the end: max |VREFP - VREF_IN| (REF-01 at no load)", metric: ready_err_mV, unit: mV, max: 5, corners: all, test: tb_ref_startup}
+  - {id: REF-20, name: "VCM from ready to the end: the value furthest from 0.45 V (REF-02 range)", metric: vcm_ready_V, unit: V, min: 0.44, max: 0.46, corners: all, test: tb_ref_startup}
 tests:
   tb_ref_dc:
     netlist: tb/ref/tb_ref_dc.scs
@@ -117,17 +121,23 @@ tests:
     crosscheck: {maxstep: 0.1n, method: gear2only}
     desc: >
       The supported power-up sequence (power_up_sequence): AVDD and AVDD18
-      ramp together from 0.1 to 1.1 us with VREF_IN at 0 V; VREF_IN ramps
-      0 -> 0.9 V from 2 to 12 us; ready at 17 us; the run ends at 20 us. Loads:
+      ramp together from 0.1 to 1.1 us with VREF_IN at 0 V; VREF_IN stays at
+      0 V for 5 us more (vref_dwell), then ramps 0 -> 0.9 V from 6.1 to
+      16.1 us; ready at 21.1 us; the run ends at 25.1 us. Loads:
       1.2 pF on VREFP (CDAC bottom plates, as tb_ref_replay / tb_ref_noise)
       and 2 x 2.5 pF on VCM (the two top plates, C_tot); no DC load (CLK is
       static, no conversions). REF-15..18: the largest and smallest VREFP and
       VCM over the whole run, against -0.1 .. 1.0 V, the window the thin-oxide
-      CDAC and comparator devices on these nets need. REF-19: the largest
-      |VREFP - VREFP(end)| from ready to the end, against the REF-01
-      tolerance. Reported: the final VREFP - VREF_IN, VCM at the end, the
-      largest |VREFP - VREF_IN| during the VREF_IN ramp and the time after
-      the ramp from which VREFP stays within 5 mV of its final value. The
+      CDAC and comparator devices on these nets need; the dwell with VREF_IN
+      at 0 V lets a circuit that raises its outputs without a reference show
+      there. REF-19: the largest |VREFP - VREF_IN| from ready to the end, the
+      REF-01 tolerance at no load, so a reference that settles late or does
+      not start fails. REF-20: the VCM value furthest from 0.45 V from ready
+      to the end, against the REF-02 range. Reported: the largest VREFP and
+      VCM during the dwell, the largest |VREFP - VREFP(end)| from ready on,
+      the final VREFP - VREF_IN, VCM at the end, the largest
+      |VREFP - VREF_IN| during the VREF_IN ramp and the time after the ramp
+      from which VREFP stays within 5 mV of VREF_IN. The
       per-device SOA check is not applied: the thin-oxide limit does not
       apply to the thick-oxide devices of adc_ref. The behavioral view's
       follower and VCM driver are ideal current sources that do not depend

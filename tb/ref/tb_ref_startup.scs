@@ -7,10 +7,10 @@
 // Globals vdd, vdd18, tempc, noise_en, devnoise, beh_speed, vref_in come from the run deck.
 simulator lang=spectre
 parameters ccdac=1.2p ctot=2.50p
-parameters tstop=2.0000e-05
+parameters tstop=2.5100e-05
 XDUT (VREF_IN VREFP VCM AVDD18 AVDD 0) adc_ref
-// VREF_IN held at 0 V while the supplies rise, then a 10 us ramp
-VREF (VREF_IN 0) vsource type=pwl wave=[0 0 2.0000e-06 0 1.2000e-05 vref_in]
+// VREF_IN held at 0 V while the supplies rise and 5 us after them, then a 10 us ramp
+VREF (VREF_IN 0) vsource type=pwl wave=[0 0 6.1000e-06 0 1.6100e-05 vref_in]
 // AVDD18 and AVDD ramp together (AVDD not later than AVDD18) in 1 us
 VH (AVDD18 0) vsource type=pwl wave=[0 0 1.0000e-07 0 1.1000e-06 vdd18]
 VA (AVDD 0) vsource type=pwl wave=[0 0 1.0000e-07 0 1.1000e-06 vdd]
@@ -59,6 +59,6 @@ save VREFP VCM VREF_IN AVDD AVDD18
 //   %g7 = $GROUND @ATTACH &0 => @PLACE(16, -18.5);
 //   &0 @WIRE {#CVN:2 %g7:p};
 //   (-30, 31) @TEXT("tb_ref_startup: VREFP / VCM over the supported power-up sequence", halign="start") => @SET-STYLE $title_style;
-//   (-30, 29.4) @TEXT("supplies 0.1-1.1 us, VREF_IN 2-12 us, ready 17 us (CLK static before: no DC load), end 20 us", halign="start") => @SET-STYLE $note_style;
+//   (-30, 29.4) @TEXT("supplies 0.1-1.1 us, VREF_IN 6.1-16.1 us, ready 21.1 us (CLK static before: no DC load), end 25.1 us", halign="start") => @SET-STYLE $note_style;
 //   (-30, 27.8) @TEXT("transient settings from the spec (numerics): maxstep 1n; convergence cross-check: adcflow sim --crosscheck", halign="start") => @SET-STYLE $note_style
 // }

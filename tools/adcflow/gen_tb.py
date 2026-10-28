@@ -586,7 +586,8 @@ def tb_ref() -> list[TBDef]:
         [f"parameters ccdac={_CDB} ctot={_CTOT}", f"parameters tstop={_tfmt(ts['stop'])}"],
         [El("XDUT", "adc_ref", ref_ports, where="dut"),
          El("VREF", "vsource", ["VREF_IN", "0"], ramp(ts["ref0"], ts["ref1"], "vref_in"),
-            note=f"VREF_IN held at 0 V while the supplies rise, then a {(ts['ref1'] - ts['ref0']) * 1e6:g} us ramp"),
+            note=f"VREF_IN held at 0 V while the supplies rise and {(ts['ref0'] - ts['sup1']) * 1e6:g} us after them, "
+                 f"then a {(ts['ref1'] - ts['ref0']) * 1e6:g} us ramp"),
          El("VH", "vsource", ["AVDD18", "0"], ramp(ts["sup0"], ts["sup1"], "vdd18"), "top",
             note=f"AVDD18 and AVDD ramp together (AVDD not later than AVDD18) in {(ts['sup1'] - ts['sup0']) * 1e6:g} us"),
          El("VA", "vsource", ["AVDD", "0"], ramp(ts["sup0"], ts["sup1"], "vdd"), "top"),
