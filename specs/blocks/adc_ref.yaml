@@ -1,7 +1,7 @@
 block: adc_ref
 title: Reference driver (VREFP = 0.9 V) and top-plate common-mode (VCM = 0.45 V)
 version: 0.3.0
-owner: TBD
+owner: many-question
 status: behavioral
 views:
   behav: design/behav/adc_ref.scs
