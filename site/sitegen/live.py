@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import urllib.error
 import urllib.request
 from dataclasses import dataclass, field
@@ -23,6 +24,8 @@ from . import guard
 API = "https://api.github.com"
 PER_PAGE, MAX_PAGES = 100, 10
 CI_FAIL = {"failure", "timed_out", "action_required", "startup_failure"}   # cancelled is a superseded run, not a failure
+CONTRACTS_CHECK = "contracts, drawings, results"     # the CI job a head must pass before its content is previewed
+REPO_NAME = re.compile(r"^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$")
 
 
 class LiveError(Exception):
@@ -40,6 +43,8 @@ class PR:
     updated: str
     sha: str
     ci: str            # pass | fail | running | none | unknown
+    contracts: str = ""      # the "contracts, drawings, results" job on the head: success | fail | running | none | unknown
+    head_repo: str = ""      # owner/name the head commit lives in (a fork for fork PRs); "" when the fork is gone
 
 
 @dataclass
@@ -123,6 +128,16 @@ def ci_state(check_runs: list[dict], status: dict | None) -> str:
     return "fail" if fail else "running" if running else "pass" if ok else "none"
 
 
+def contracts_state(check_runs: list[dict]) -> str:
+    """State of the CI job `CONTRACTS_CHECK` among a commit's check runs."""
+    runs = [r for r in check_runs if r.get("name") == CONTRACTS_CHECK]
+    if not runs:
+        return "none"
+    if any(r.get("status") != "completed" for r in runs):
+        return "running"
+    return "success" if all(r.get("conclusion") == "success" for r in runs) else "fail"
+
+
 def block_of(title: str, blocks: list[str]) -> str | None:
     """The block a title is for: it starts with "[<block>]"."""
     t = title.lstrip()
@@ -172,14 +187,17 @@ def _collect(blocks: list[str], get: Callable[[str], object], now: datetime | No
             continue
         sha = str((p.get("head") or {}).get("sha") or "")
         try:
-            runs = get(f"/commits/{sha}/check-runs?per_page={PER_PAGE}")
+            runs = (get(f"/commits/{sha}/check-runs?per_page={PER_PAGE}") or {}).get("check_runs", [])
             status = get(f"/commits/{sha}/status")
-            ci = ci_state((runs or {}).get("check_runs", []), status if isinstance(status, dict) else None)
+            ci = ci_state(runs, status if isinstance(status, dict) else None)
+            contracts = contracts_state(runs)
         except LiveError:
-            ci = "unknown"
+            ci = contracts = "unknown"
+        head_repo = str(((p.get("head") or {}).get("repo") or {}).get("full_name") or "")
         live.prs.setdefault(block, []).append(PR(
             int(p["number"]), title, str(p.get("html_url") or ""), bool(p.get("draft")), _login(p),
-            str(p.get("created_at") or ""), str(p.get("updated_at") or ""), sha, ci))
+            str(p.get("created_at") or ""), str(p.get("updated_at") or ""), sha, ci, contracts,
+            head_repo if REPO_NAME.match(head_repo) else ""))
     for i in _pages(get, "/issues?state=open"):
         if "pull_request" in i:                      # the issues endpoint lists PRs too
             continue

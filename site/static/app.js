@@ -32,10 +32,11 @@
   var mfMeta = document.querySelector('meta[name="manifest-base"]');
   var mfBase = mfMeta ? new URL(mfMeta.content, document.baseURI).href : null;
   function mfName(path) { return path.replace(/\.[^./]+$/, "").replace(/\//g, "-"); }
-  function fullLink(path, level) {
+  /* f: {path, level, mf, url}; mf names the manifest, url is the netlist's own address (a PR preview's files are not under the site) */
+  function fullLink(path, level, f) {
     var lv = level ? "&level=" + encodeURIComponent(level) : "";
-    if (mfBase) return VIEWER + "?manifest=" + encodeURIComponent(new URL(mfName(path) + ".json", mfBase).href) + lv;
-    return VIEWER + "?url=" + encodeURIComponent(netlistUrl(path)) + lv;
+    if (mfBase) return VIEWER + "?manifest=" + encodeURIComponent(new URL(((f && f.mf) || mfName(path)) + ".json", mfBase).href) + lv;
+    return VIEWER + "?url=" + encodeURIComponent((f && f.url) || netlistUrl(path)) + lv;
   }
   document.querySelectorAll("[data-top-viewer]").forEach(function (a) {
     a.href = fullLink("design/top/adc_top.scs", "adc_top");
@@ -66,12 +67,12 @@
       u.searchParams.set("embed", "1");
       u.searchParams.set("origin", location.origin);
       u.searchParams.set("background", theme());
-      u.searchParams.set("url", netlistUrl(files[i].path));
+      u.searchParams.set("url", files[i].url || netlistUrl(files[i].path));
       if (files[i].level) u.searchParams.set("level", files[i].level);
       return u.href;
     }
     function links(i) {
-      full.href = fullLink(files[i].path, files[i].level);
+      full.href = fullLink(files[i].path, files[i].level, files[i]);
       src.href = files[i].src;
     }
     function select(i) {
@@ -82,7 +83,7 @@
       say("正在加载 " + files[i].label + " …");
       if (ready) {
         wantLevel = files[i].level;
-        post({ type: "open", url: netlistUrl(files[i].path), requestId: "r" + (++reqId) });
+        post({ type: "open", url: files[i].url || netlistUrl(files[i].path), requestId: "r" + (++reqId) });
       }
     }
     function start() {

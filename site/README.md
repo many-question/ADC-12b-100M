@@ -72,6 +72,24 @@ CI 状态：通过 / 失败 / 运行中）和**未关闭的通知（issue）**�
   仓库 60 天没有活动时 GitHub 会停掉定时工作流，重新启用即可。
 * 数据层的测试用固定的 JSON 夹具，不联网：`tests/test_site_live.py`。
 
+### 草稿预览（`sitegen/preview.py`）
+
+每个模块页的主分支内容下面，对该模块每个进行中的 `[<block>]` PR（最新的 3 个）显示一个单独的“草稿预览 PR #N @ <sha>”区块：
+按该 PR 提交里的 `specs/blocks/<block>.yaml` 和 `results/<block>/**` 填的指标表（值、限值、判定、适用工艺角的覆盖，过期标记、证据链接、图）、
+用清单打开该提交 `design/xtor/<block>/` 网表的查看器，以及网表最近一次改动和 PR 的最近提交标题。首页表里有单独的“草稿预览（未评审）”一列。
+
+内容是未评审的，所以有硬规则：
+
+* 区块上标“未评审的草稿，不是签核证据”；它不进主分支的状态、判定和任何统计（首页“主分支状态”列和关键数字只用主分支数据）。
+* 只预览 CI「contracts, drawings, results」通过的提交；否则只显示元数据和原因。
+* 先过和主分支一样的检查：工艺名称检查（`guard.py`）和 `adcflow check hygiene` 的规则（服务器 / 路径 / 模型卡等）覆盖取自 PR 的全部内容（结果、规格、
+  查看器会取的网表、图的说明、提交标题）。任何一处不过，该 PR 就不显示任何内容，只保留元数据行，并在构建日志里写原因。
+* 从不运行 PR 的任何代码：用 `git fetch origin +refs/pull/<N>/head`（fork 的 PR 也一样）取提交，再用 `git cat-file blob` 当数据读（不做过滤、不跟符号链接），
+  JSON / YAML / 文本由主分支的生成器解析。
+* 图只取不超过 200 kB 的 PNG（与 `adcflow check results` 同一个上限），复制到 `preview/pr<N>/`。
+* 判定用 PR 自己的规格和它自己的输入文件重算（`Block.verdicts` / `content_hash`），工艺角定义用主分支的 `specs/corners.yaml`。
+* 测试用夹具 git 仓库：`tests/test_site_preview.py`。
+
 ## 验证结果的证据与图
 
 * 页面里每个结果都链到它的证据文件：GitHub 上构建提交里的 `results/<block>/<test>/<view>/<corner>.json`（规格表里是“最差值”所在的结果文件，
