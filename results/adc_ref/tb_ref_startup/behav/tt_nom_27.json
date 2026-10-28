@@ -1,0 +1,155 @@
+{
+ "block": "adc_ref",
+ "test": "tb_ref_startup",
+ "view": "behav",
+ "corner": "tt_nom_27",
+ "params": {},
+ "globals": {
+  "vdd": 0.9,
+  "vdd18": 1.8,
+  "tempc": 27.0,
+  "noise_en": 0,
+  "devnoise": 0,
+  "beh_speed": 1.0,
+  "vref_in": 0.9
+ },
+ "metrics": {
+  "vrefp_max_V": 0.9000001312461123,
+  "vrefp_min_V": 0.0,
+  "vcm_max_V": 0.4499999999953964,
+  "vcm_min_V": 0.0,
+  "vrefp_max_t_us": 12.00200000000106,
+  "vcm_max_t_us": 14.86300000000248,
+  "ready_dev_mV": 6.547984376936711e-09,
+  "vrefp_final_err_mV": -7.474798557893791e-09,
+  "vcm_final_V": 0.4499999999953963,
+  "ramp_lag_mV": 0.004003812420851901,
+  "t_settle_us": 0.0
+ },
+ "specs": {
+  "REF-15": {
+   "metric": "vrefp_max_V",
+   "value": 0.9000001312461123,
+   "limit": "<= 1.0",
+   "pass": true
+  },
+  "REF-16": {
+   "metric": "vrefp_min_V",
+   "value": 0.0,
+   "limit": ">= -0.1",
+   "pass": true
+  },
+  "REF-17": {
+   "metric": "vcm_max_V",
+   "value": 0.4499999999953964,
+   "limit": "<= 1.0",
+   "pass": true
+  },
+  "REF-18": {
+   "metric": "vcm_min_V",
+   "value": 0.0,
+   "limit": ">= -0.1",
+   "pass": true
+  },
+  "REF-19": {
+   "metric": "ready_dev_mV",
+   "value": 6.547984376936711e-09,
+   "limit": "<= 5",
+   "pass": true
+  }
+ },
+ "figures": [
+  {
+   "file": "tt_nom_27.startup.png",
+   "caption": "Supplies, VREF_IN, VREFP and VCM over the supported power-up sequence against the -0.1 .. 1.0 V window, the tracking error during the VREF_IN ramp, the settling of VREFP to its final value with the band and the ready instant, and the specification table."
+  }
+ ],
+ "meta": {
+  "date": "2026-10-28T22:28:24",
+  "git": "1b98607",
+  "git_clean": true,
+  "mode": "aps",
+  "pdk": false,
+  "mc": null,
+  "wall_s": 132.5,
+  "rc": "0",
+  "sim_s": "12",
+  "numerics": {
+   "source": "spectre.log",
+   "reltol": 0.001,
+   "maxstep_ps": 1000.0,
+   "method": "traponly",
+   "errpreset": "moderate",
+   "lteratio": 3.5,
+   "abstol_V": 1e-06,
+   "steps_accepted": 20000,
+   "step_mean_ps": 1000.0,
+   "step_max_ps": 1000.0
+  },
+  "files": {
+   "design/behav/adc_bootstrap.scs": "eee3a0a78eec4c5f",
+   "design/behav/adc_cdac.scs": "5b8837cc5d2a76bc",
+   "design/behav/adc_clkgen.scs": "0e7831ed888587e6",
+   "design/behav/adc_comp.scs": "c0da9398b6e09fc2",
+   "design/behav/adc_ref.scs": "a83c6feaac8c9c1a",
+   "design/behav/adc_sarlogic.scs": "7982e36f6743bf80",
+   "design/top/adc_top.scs": "362a964ffe162797",
+   "design/behav/veriloga/adc_bootstrap_va.va": "12338aad16f4913b",
+   "design/behav/veriloga/adc_cdac_sw_va.va": "e465880479187179",
+   "design/behav/veriloga/adc_clkgen_va.va": "7fff1b9368bc1a20",
+   "design/behav/veriloga/adc_comp_va.va": "ab8a6bf210351e31",
+   "design/behav/veriloga/adc_ktc_va.va": "a1cf98faf5bf9b33",
+   "design/behav/veriloga/adc_ref_va.va": "746d2530d4ff6d5c",
+   "design/behav/veriloga/adc_sarlogic_va.va": "42f06909a81347ef",
+   "tb/ref/tb_ref_startup.scs": "d463270ba8dcd1b4",
+   "specs/arch.yaml": "bffadef750bb5205"
+  },
+  "crosscheck": {
+   "settings": {
+    "maxstep": "0.1n",
+    "method": "gear2only"
+   },
+   "numerics": {
+    "source": "spectre.log",
+    "reltol": 0.001,
+    "maxstep_ps": 100.0,
+    "method": "gear2only",
+    "errpreset": "moderate",
+    "lteratio": 3.5,
+    "abstol_V": 1e-06,
+    "steps_accepted": 200015,
+    "step_mean_ps": 99.9925,
+    "step_max_ps": 100.0
+   },
+   "rc": "0",
+   "sim_s": "8",
+   "metrics": {
+    "vrefp_max_V": {
+     "ref": 0.9000001312461123,
+     "xcheck": 0.9000002297038173,
+     "diff": 9.845770498895234e-08
+    },
+    "vrefp_min_V": {
+     "ref": 0.0,
+     "xcheck": 0.0,
+     "diff": 0.0
+    },
+    "vcm_max_V": {
+     "ref": 0.4499999999953964,
+     "xcheck": 0.4499999999953406,
+     "diff": -5.5788706987414116e-14
+    },
+    "vcm_min_V": {
+     "ref": 0.0,
+     "xcheck": 0.0,
+     "diff": 0.0
+    },
+    "ready_dev_mV": {
+     "ref": 6.547984376936711e-09,
+     "xcheck": 1.1102230246251565e-13,
+     "diff": -6.547873354634248e-09
+    }
+   }
+  }
+ }
+}
