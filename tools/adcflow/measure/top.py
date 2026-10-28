@@ -72,9 +72,9 @@ def sine(job_dir: Path, ctx: dict) -> dict:
     codes_nom = bits.astype(float) @ a.out_weights
     codes = bits.astype(float) @ w
     with contextlib.redirect_stdout(io.StringIO()):
-        m.update(spectrum(codes, fs, a.n_codes))
+        m.update(spectrum(codes, fs, a.n_codes, ctx))
         m.update({f"{k.replace('_dBc', '')}_nom" + ("_dBc" if k.endswith("_dBc") else ""): v
-                  for k, v in spectrum(codes_nom, fs, a.n_codes).items()})
+                  for k, v in spectrum(codes_nom, fs, a.n_codes, ctx).items()})
         fit = fit_sine_4param(codes, frequency_estimate=fin / fs, max_iterations=5)
     amp_codes = float(fit["amplitude"])
     m["amp_codes"] = amp_codes
