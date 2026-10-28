@@ -8,6 +8,9 @@ agent) take **one block**, claim it with a pull request, design it at transistor
 deliver it through pull requests that the project lead (GitHub `many-question`) reviews. Everything below is
 written in Chinese; this file is meant to be read by an AI agent that has been pointed at its raw URL, and by
 people. Process details and PDK access are not in this repository: contact `many-question` (see section 11).
+Spec-change notices for a block are posted as GitHub issues titled `[<block>] …`; before each work session and
+before opening or updating a PR, run `gh issue list --state open --search "[<block>] in:title"` and acknowledge
+them in the issue (section 4).
 
 ---
 
@@ -57,6 +60,15 @@ people. Process details and PDK access are not in this repository: contact `many
    或把自己的认领改回 `TBD`（放弃认领）；其它任何 `owner` 变更只能由项目负责人做。
 5. 所有与该模块有关的 PR 标题都以 `[<block>]` 开头（`[adc_comp] first netlist`、`[adc_comp] results at all corners`），
    网站据此把 PR 链接到模块页。
+6. **关注本模块的 issue。** 规格变更、接口调整等通知，项目负责人会发在标题以 `[<block>]` 开头的 GitHub issue 里。
+   @提及不一定能到达实际干活的人（认领可能用的是共用账号，agent 也不读通知），所以请主动查：
+   每次开始工作前、以及每次发 PR 或更新 PR 前，运行
+
+   ```bash
+   gh issue list --state open --search "[<block>] in:title"
+   ```
+
+   （或在 GitHub / 项目网站的 issue 列表里看），读完每一个未关闭的 `[<block>]` issue，对规格变更通知在 issue 里**回复确认**。
 
 ## 5. 你可以改什么，什么要先开 issue
 
@@ -133,6 +145,9 @@ CI 会检查：hygiene（无站点信息、模型卡片、工艺厂商名、大�
 ## 10. PR 流程与评审
 
 1. 从最新 `main` 分支（例如 `block/<block>-<topic>`）工作，增量提交；可以先发草稿 PR 让项目负责人早期看到方向。
+   发 PR 或更新 PR 前先看本模块的未关闭 `[<block>]` issue（第 4 节第 6 条），并在 PR 里勾选 “checked open `[<block>]` issues”。
+   规格变更合并后，基于旧 `main` 的分支要 rebase；规格、网表等输入的哈希变了，之前的 `results/` 会被判为过期（stale），
+   必须重新运行相应用例再提交。
 2. 向 `main` 发 PR，标题 `[<block>] <summary>`，按 PR 模板填写：做了什么、模块状态变化、证据（`report` 摘要与运行的命令）、检查清单。
 3. CI 全绿后，项目负责人评审：端口与规格一致；没有改动其它模块、测试台或规格；结果未过期且在全部工艺角通过；
    原理图可读（信号从左到右、电源在上地在下、对称结构对齐、关键尺寸有标注）。意见在 PR 里讨论并修改。
@@ -151,8 +166,11 @@ CI 会检查：hygiene（无站点信息、模型卡片、工艺厂商名、大�
 
 1. 读第 1~6 节，选一个 `owner: TBD` 的模块，向用户确认。
 2. fork → 分支 → 只改 `owner` → 发 `[<block>] claim` PR，等待合并。
-3. 合并后读 `specs/blocks/<block>.yaml` 与 `docs/handoff.md`，在 `design/xtor/<block>/` 里写网表和 RNL；
+3. 合并后先运行 `gh issue list --state open --search "[<block>] in:title"`，读完所有未关闭的 `[<block>]` issue，
+   对规格变更通知在 issue 里回复确认；每次开始工作前、发 PR 或更新 PR 前都重复这一步。
+   然后读 `specs/blocks/<block>.yaml` 与 `docs/handoff.md`，在 `design/xtor/<block>/` 里写网表和 RNL；
    端口、规格、测试台、其它模块的改动一律先开 issue。
 4. 用户提供的仿真环境只写进被忽略的 `site.local.yaml`；在任何文件、提交信息、PR 和 issue 里都不要出现工艺厂商名、
    PDK 内容、机器、服务器或路径信息。
-5. `adcflow check all` 与 `pytest` 通过、结果已提交，再发 `[<block>] …` PR，等待项目负责人评审。
+5. 规格变更后 rebase 到最新 `main` 并重新运行受影响的用例（旧结果的输入哈希已变，会被判为过期）。
+6. `adcflow check all` 与 `pytest` 通过、结果已提交，再发 `[<block>] …` PR，等待项目负责人评审。
