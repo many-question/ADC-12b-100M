@@ -14,17 +14,17 @@
   "vref_in": 0.9
  },
  "metrics": {
-  "noise_uV": 44.31132483471754,
-  "noise_lf_uV": 0.05417777337100134,
-  "noise_total_uV": 44.31135795525773,
-  "vcm_noise_uV": 3.1622775020545e-19,
-  "vcm_noise_lf_uV": 9.48683298050516e-23,
-  "vcm_noise_total_uV": 0.0
+  "noise_uV": 43.896727130486966,
+  "noise_lf_uV": 0.05315888287011856,
+  "noise_total_uV": 43.89675931814624,
+  "vcm_noise_uV": 0.6262893736381125,
+  "vcm_noise_lf_uV": 0.026579392797664008,
+  "vcm_noise_total_uV": 0.6268531276571186
  },
  "specs": {
   "REF-08": {
    "metric": "noise_uV",
-   "value": 44.31132483471754,
+   "value": 43.896727130486966,
    "limit": "<= 120",
    "pass": true
   }
@@ -36,31 +36,31 @@
   }
  ],
  "meta": {
-  "date": "2026-10-28T18:13:10",
-  "git": "a907201",
+  "date": "2026-10-28T20:58:15",
+  "git": "285dcb4",
   "git_clean": true,
   "mode": "aps",
   "pdk": false,
   "mc": null,
-  "wall_s": 113.2,
+  "wall_s": 112.9,
   "rc": "0",
   "sim_s": "6",
   "files": {
-   "design/behav/adc_bootstrap.scs": "9458798199909fc5",
-   "design/behav/adc_cdac.scs": "423386f9cc9bb2d0",
+   "design/behav/adc_bootstrap.scs": "eee3a0a78eec4c5f",
+   "design/behav/adc_cdac.scs": "5b8837cc5d2a76bc",
    "design/behav/adc_clkgen.scs": "0e7831ed888587e6",
-   "design/behav/adc_comp.scs": "4c26a597d558e2ae",
+   "design/behav/adc_comp.scs": "c0da9398b6e09fc2",
    "design/behav/adc_ref.scs": "a83c6feaac8c9c1a",
-   "design/behav/adc_sarlogic.scs": "356e911752c1b85e",
+   "design/behav/adc_sarlogic.scs": "7982e36f6743bf80",
    "design/top/adc_top.scs": "362a964ffe162797",
-   "design/behav/veriloga/adc_bootstrap_va.va": "a6afdb6e2e03593b",
-   "design/behav/veriloga/adc_cdac_sw_va.va": "cb43ced3f53d636b",
+   "design/behav/veriloga/adc_bootstrap_va.va": "12338aad16f4913b",
+   "design/behav/veriloga/adc_cdac_sw_va.va": "e465880479187179",
    "design/behav/veriloga/adc_clkgen_va.va": "7fff1b9368bc1a20",
    "design/behav/veriloga/adc_comp_va.va": "ab8a6bf210351e31",
    "design/behav/veriloga/adc_ktc_va.va": "a1cf98faf5bf9b33",
    "design/behav/veriloga/adc_ref_va.va": "746d2530d4ff6d5c",
    "design/behav/veriloga/adc_sarlogic_va.va": "42f06909a81347ef",
-   "tb/ref/tb_ref_noise.scs": "7a18f4b149b14d91",
+   "tb/ref/tb_ref_noise.scs": "edce75b69c56ee11",
    "specs/arch.yaml": "bffadef750bb5205"
   }
  }

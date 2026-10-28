@@ -14,7 +14,7 @@
   "vref_in": 0.9
  },
  "metrics": {
-  "kickback_uV": 1.6020019512341666e-07,
+  "kickback_uV": 1.5949980051999102e-07,
   "vdiff_uV": [
    1000.0,
    1000.0,
@@ -25,12 +25,13 @@
    1000.0,
    1000.0
   ],
-  "cin_fF": 15.000003245536336
+  "cin_fF": 15.000003245536336,
+  "cin_clkc_fF": 11.999999999999975
  },
  "specs": {
   "CMP-11": {
    "metric": "kickback_uV",
-   "value": 1.6020019512341666e-07,
+   "value": 1.5949980051999102e-07,
    "limit": "<= 40",
    "pass": true
   },
@@ -39,41 +40,52 @@
    "value": 15.000003245536336,
    "limit": "<= 20",
    "pass": true
+  },
+  "CMP-14": {
+   "metric": "cin_clkc_fF",
+   "value": 11.999999999999975,
+   "limit": "<= 16",
+   "pass": true
   }
  },
  "figures": [
   {
    "file": "tt_nom_27.kickback.png",
    "caption": "Differential input of the floating top-plate-sized nodes after each evaluate and reset cycle, and the change per cycle against the kickback limit."
+  },
+  {
+   "file": "tt_nom_27.cin.png",
+   "caption": "Input capacitance of the clock and digital inputs: the charge each pin draws over every rising edge (charge meter in series with it) divided by the voltage step, against the limit; the metric is the mean over the edges."
   }
  ],
  "meta": {
-  "date": "2026-10-28T18:12:56",
-  "git": "a907201",
+  "date": "2026-10-28T20:42:07",
+  "git": "285dcb4",
   "git_clean": true,
   "mode": "aps",
   "pdk": false,
   "mc": null,
-  "wall_s": 125.9,
+  "wall_s": 124.8,
   "rc": "0",
   "sim_s": "18",
   "files": {
-   "design/behav/adc_bootstrap.scs": "9458798199909fc5",
-   "design/behav/adc_cdac.scs": "423386f9cc9bb2d0",
+   "design/behav/adc_bootstrap.scs": "eee3a0a78eec4c5f",
+   "design/behav/adc_cdac.scs": "5b8837cc5d2a76bc",
    "design/behav/adc_clkgen.scs": "0e7831ed888587e6",
-   "design/behav/adc_comp.scs": "4c26a597d558e2ae",
+   "design/behav/adc_comp.scs": "c0da9398b6e09fc2",
    "design/behav/adc_ref.scs": "a83c6feaac8c9c1a",
-   "design/behav/adc_sarlogic.scs": "356e911752c1b85e",
+   "design/behav/adc_sarlogic.scs": "7982e36f6743bf80",
    "design/top/adc_top.scs": "362a964ffe162797",
-   "design/behav/veriloga/adc_bootstrap_va.va": "a6afdb6e2e03593b",
-   "design/behav/veriloga/adc_cdac_sw_va.va": "cb43ced3f53d636b",
+   "design/behav/veriloga/adc_bootstrap_va.va": "12338aad16f4913b",
+   "design/behav/veriloga/adc_cdac_sw_va.va": "e465880479187179",
    "design/behav/veriloga/adc_clkgen_va.va": "7fff1b9368bc1a20",
    "design/behav/veriloga/adc_comp_va.va": "ab8a6bf210351e31",
    "design/behav/veriloga/adc_ktc_va.va": "a1cf98faf5bf9b33",
    "design/behav/veriloga/adc_ref_va.va": "746d2530d4ff6d5c",
    "design/behav/veriloga/adc_sarlogic_va.va": "42f06909a81347ef",
+   "tb/common/veriloga/tb_qmeter_va.va": "fed84d572a912b39",
    "tb/common/veriloga/tb_sampler_va.va": "4092bc16170c588d",
-   "tb/comp/tb_comp_kickback.scs": "824daa167f4f09c1",
+   "tb/comp/tb_comp_kickback.scs": "04b444f63619d31d",
    "specs/arch.yaml": "bffadef750bb5205"
   }
  }
