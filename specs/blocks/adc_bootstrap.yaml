@@ -2,7 +2,7 @@ block: adc_bootstrap
 title: Bootstrapped gate generator for the bottom-plate input switches (one per side)
 version: 0.6.0
 owner: many-question
-status: behavioral
+status: xtor-wip
 views:
   behav: design/behav/adc_bootstrap.scs
   xtor: design/xtor/adc_bootstrap/adc_bootstrap.scs

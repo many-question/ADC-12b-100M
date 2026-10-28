@@ -4,7 +4,7 @@
 
 | 模块 | 状态 | 负责人 | 指标数 | 用例 |
 |---|---|---|---|---|
-| [`adc_bootstrap`](#adc-bootstrap) | behavioral | many-question | 10 | `tb_bootstrap_dc`, `tb_bootstrap_track` |
+| [`adc_bootstrap`](#adc-bootstrap) | xtor-wip | many-question | 10 | `tb_bootstrap_dc`, `tb_bootstrap_track` |
 | [`adc_cdac`](#adc-cdac) | behavioral | many-question | 17 | `tb_cdac_weights`, `tb_cdac_settle`, `tb_cdac_track` |
 | [`adc_clkgen`](#adc-clkgen) | behavioral | many-question | 11 | `tb_clkgen_timing`, `tb_clkgen_jitter` |
 | [`adc_comp`](#adc-comp) | behavioral | many-question | 14 | `tb_comp_delay`, `tb_comp_noise`, `tb_comp_kickback` |
@@ -14,7 +14,7 @@
 
 ## adc_bootstrap
 
-**Bootstrapped gate generator for the bottom-plate input switches (one per side)** — 规格版本 0.6.0，状态 `behavioral`。
+**Bootstrapped gate generator for the bottom-plate input switches (one per side)** — 规格版本 0.6.0，状态 `xtor-wip`。
 
 While PHI_B is high, VG = VIN + Vboot (Vboot ~ AVDD, from a capacitor charged during conversion), so every NMOS input switch inside adc_cdac sees a signal-independent gate-source voltage. PHI_B falling turns VG to 0 V quickly (the sampling instant itself is set by PHI_S in adc_cdac, 20-80 ps earlier). The load is the gate capacitance of all input switches of one CDAC.
 
