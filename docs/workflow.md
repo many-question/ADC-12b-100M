@@ -33,6 +33,7 @@ git config core.hooksPath tools/hooks     # 提交前检查（hygiene / ports / 
 python -m adcflow sim <test> [--corners typ|quick|all|<name,...>] [--view <block>=xtor ...] \
        [--param name=value ...] [--mode aps] [--jobs 6] [--keep] [--no-record]
 python -m adcflow report [--block adc_comp]     # 结果对照规格
+python -m adcflow remeasure <test> --run build/runs/<run_id> [--dry-run]   # 不重仿真，用现行度量重算并重记该次运行的结果（只允许 SFDR 变化，#36）
 python -m adcflow corners all                   # 45 个工艺角名称
 python -m adcflow clean-remote --older-than-h 12   # 清理服务器上本项目的遗留目录
 ```

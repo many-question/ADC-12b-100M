@@ -107,9 +107,13 @@ def fig_cin(fg, ctx: dict, cins: dict[str, np.ndarray], panels: list[tuple[str, 
             "metric is the mean over the edges.")
 
 
-def spectrum(codes: np.ndarray, fs: float, full_scale: float | None) -> dict:
-    from adctoolbox import analyze_spectrum
+def spectrum(codes: np.ndarray, fs: float, full_scale: float | None, ctx: dict | None = None) -> dict:
+    """ENOB, SNDR, SFDR, SNR, THD of a sine record (adcflow.spectrum: SFDR fixed for #36).
+    With `ctx`, the estimator is recorded in the result's meta.provenance."""
+    from .. import spectrum as sp
 
-    r = analyze_spectrum(np.asarray(codes, dtype=float), fs=fs, max_scale_range=full_scale, create_plot=False)
-    return {"enob": float(r["enob"]), "sndr_dBc": float(r["sndr_dbc"]), "sfdr_dBc": float(r["sfdr_dbc"]),
-            "snr_dBc": float(r["snr_dbc"]), "thd_dBc": float(r.get("thd_dbc", np.nan))}
+    r = sp.analyze(codes, fs, full_scale)
+    if ctx is not None:
+        ctx.setdefault("provenance", {})["spectrum"] = sp.PROVENANCE
+    return {"enob": r["enob"], "sndr_dBc": r["sndr_dbc"], "sfdr_dBc": r["sfdr_dbc"],
+            "snr_dBc": r["snr_dbc"], "thd_dBc": r.get("thd_dbc", float("nan"))}

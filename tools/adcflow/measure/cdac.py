@@ -137,7 +137,7 @@ def track(job_dir: Path, ctx: dict) -> dict:
     if len(s) < npts:
         return {"error": f"only {len(s)} samples"}
     fs = 1 / float(p.get("tper", 10e-9))
-    sp = spectrum(s - s.mean(), fs, None)
+    sp = spectrum(s - s.mean(), fs, None, ctx)
     m = {"sfdr_dBc": sp["sfdr_dBc"], "sndr_dB": sp["sndr_dBc"], "thd_dBc": sp["thd_dBc"],
          "amp_top_V": float((s.max() - s.min()) / 2)}
     fg = sink_of(ctx)

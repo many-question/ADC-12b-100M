@@ -21,7 +21,7 @@
   "n_samples": 15840,
   "enob_ideal_ref": 10.925533985465997,
   "enob_ref": 10.907182941031158,
-  "sfdr_ref_dBc": 84.55805584143366,
+  "sfdr_ref_dBc": 85.07830917289641,
   "enob_loss_bit": 0.018351044434838926,
   "tail_dev_uV": 40.57907010002193,
   "env_ratio": 0.5190503633455664,
@@ -56,15 +56,27 @@
   }
  ],
  "meta": {
-  "date": "2026-10-28T21:00:40",
-  "git": "285dcb4",
+  "date": "2026-10-28T22:29:26",
+  "git": "7b5fcd8",
   "git_clean": true,
   "mode": "aps",
   "pdk": false,
   "mc": null,
-  "wall_s": 120.9,
+  "wall_s": 135.0,
   "rc": "0",
-  "sim_s": "13",
+  "sim_s": "26",
+  "numerics": {
+   "source": "spectre.log",
+   "reltol": 0.001,
+   "maxstep_ps": 211600.0,
+   "method": "traponly",
+   "errpreset": "moderate",
+   "lteratio": 3.5,
+   "abstol_V": 1e-06,
+   "steps_accepted": 580161,
+   "step_mean_ps": 18.2363,
+   "step_max_ps": null
+  },
   "files": {
    "design/behav/adc_bootstrap.scs": "eee3a0a78eec4c5f",
    "design/behav/adc_cdac.scs": "5b8837cc5d2a76bc",
@@ -83,6 +95,14 @@
    "tb/common/veriloga/tb_sampler_va.va": "4092bc16170c588d",
    "tb/ref/tb_ref_replay.scs": "2ea234d4ebabeece",
    "specs/arch.yaml": "bffadef750bb5205"
+  },
+  "provenance": {
+   "spectrum": {
+    "estimator": "adcflow.spectrum v1",
+    "adctoolbox": "0.6.4",
+    "sfdr": "plotspec definition: peak bin of the fundamental / largest other single bin (DC and signal bins excluded, Nyquist included)",
+    "enob_sndr_snr_thd": "adctoolbox 0.6.4 compute_spectrum"
+   }
   }
  }
 }

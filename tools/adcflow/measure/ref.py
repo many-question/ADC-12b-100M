@@ -82,8 +82,8 @@ def replay(job_dir: Path, ctx: dict) -> dict:
     with contextlib.redirect_stdout(io.StringIO()):
         r0 = model.convert(vin, a, replace(_replay_ni(), ref_trace=np.zeros_like(dv)), dvdt=dvdt)
         r1 = model.convert(vin, a, replace(_replay_ni(), ref_trace=dv), dvdt=dvdt)
-        m0 = spectrum(r0.codes[nwarm:], a.fs, a.n_codes)
-        m1 = spectrum(r1.codes[nwarm:], a.fs, a.n_codes)
+        m0 = spectrum(r0.codes[nwarm:], a.fs, a.n_codes, ctx)
+        m1 = spectrum(r1.codes[nwarm:], a.fs, a.n_codes, ctx)
     m["enob_ideal_ref"] = m0["enob"]
     m["enob_ref"] = m1["enob"]
     m["sfdr_ref_dBc"] = m1["sfdr_dBc"]

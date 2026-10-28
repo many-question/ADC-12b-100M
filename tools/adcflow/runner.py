@@ -34,7 +34,7 @@ import yaml
 
 from . import REPO_ROOT
 from . import numerics, remote, soa
-from .corners import Corner, corner_set, model_includes, vref_in
+from .corners import Corner, by_name, corner_set, model_includes, vref_in
 from .figures import FigureSink
 from .netlist import content_hash, parse, substitute_parameters
 from .specs import Block, blocks, find_test
@@ -341,6 +341,8 @@ def run_test(test_id: str, block_name: str | None = None, corners: str = "typ",
         except Exception as e:  # keep going, record the failure
             traceback.print_exc()
             metrics = {"error": f"measure failed: {e}"}
+        if ctx.get("provenance"):                  # estimators the measure used (e.g. adcflow.spectrum)
+            meta["provenance"] = ctx["provenance"]
         done[j.name] = (j, metrics, meta, figs.entries)
     for name, (j, metrics, meta, entries) in done.items():
         if name.endswith(XCHECK):
@@ -404,6 +406,69 @@ def _print_summary(block: Block, test_id: str, summary: list[dict], mc: str | No
                  for sid, v in judged.items()]
         parts += [f"{sid}={fmt(v['value'])}(n/a: {v['corners']} only)" for sid, v in na.items()]
         print(f"  {row['job']:28s} " + "  ".join(parts))
+
+
+def _same(a, b) -> bool:
+    if isinstance(a, float) and isinstance(b, float):
+        return a == b or abs(a - b) <= 1e-9 * max(abs(a), abs(b))
+    if isinstance(a, list) and isinstance(b, list):
+        return len(a) == len(b) and all(_same(x, y) for x, y in zip(a, b))
+    return a == b
+
+
+def remeasure(test_id: str, run_dir: Path, block_name: str | None = None, views: dict | None = None,
+              allow: tuple[str, ...] = ("sfdr",), dry: bool = False) -> list[dict]:
+    """Measure the fetched jobs of an earlier run again with the current measure code and
+    re-record their results, without simulating (issue #36: a fixed SFDR estimator).
+
+    It only replaces a measurement of the same simulation: each job must have a recorded result,
+    and every metric whose name contains none of `allow` must come out exactly as recorded, else
+    nothing of that job is written. The simulation meta (date, git, files, rc ...) is kept;
+    meta.remeasured gives the date, commit and run of the new measurement and old -> new of
+    every metric that changed; meta.provenance names the estimators used now."""
+    views = views or {}
+    block, test = find_test(test_id, block_name)
+    viewsig = _viewsig(block, views)
+    rdir = result_dir(block, test_id, viewsig)
+    run_dir = Path(run_dir)
+    out = []
+    for jd in sorted(p for p in (run_dir / "jobs").iterdir() if p.is_dir() and not p.name.endswith(XCHECK)):
+        path = rdir / f"{jd.name}.json"
+        if not path.exists():
+            raise FileNotFoundError(f"{jd.name}: no recorded result {path.relative_to(REPO_ROOT)}")
+        old = json.loads(path.read_text(encoding="utf-8"))
+        job = Job(jd.name, by_name(old["corner"]), old["params"], old["globals"])
+        tmp = run_dir / "remeasure_figs"
+        figs = FigureSink(tmp, jd.name, header=f"{test_id} | {viewsig} | {jd.name}")
+        figs.clear()
+        tb_text = (run_dir / "stage" / "jobs" / jd.name / "tb.scs").read_text(encoding="utf-8")
+        ctx = {"corner": job.corner, "params": job.params, "globals": job.globals_, "test": test_id,
+               "block": block.name, "view": viewsig, "figs": figs,
+               "soa": soa.plan(block.name, test, tb_text, view_files(views), views) if test.get("soa") else None}
+        metrics = measure(test, jd, ctx)
+        changed = {k: [old["metrics"].get(k), v] for k, v in metrics.items() if not _same(old["metrics"].get(k), v)}
+        changed.update({k: [v, None] for k, v in old["metrics"].items() if k not in metrics})
+        bad = sorted(k for k in changed if not any(a in k for a in allow))
+        if bad:
+            raise ValueError(f"{jd.name}: {bad} differ from the recorded result: not the same simulation data "
+                             f"(or the measure changed beyond {allow}): {[changed[k] for k in bad][:3]}")
+        meta = dict(old["meta"])
+        meta["remeasured"] = {"date": _dt.datetime.now().isoformat(timespec="seconds"),
+                              "git": _git("rev-parse", "--short", "HEAD"), **git_state(),
+                              "run": run_dir.name, "changed": changed}
+        if ctx.get("provenance"):
+            meta["provenance"] = ctx["provenance"]
+        out.append({"job": jd.name, "changed": changed})
+        print(f"  {jd.name:28s} " + ("  ".join(f"{k}: {a:.4g} -> {b:.4g}" for k, (a, b) in changed.items()
+                                               if isinstance(a, float) and isinstance(b, float)) or "unchanged"))
+        if dry:
+            continue
+        FigureSink(rdir, jd.name).clear()
+        for e in figs.entries:
+            shutil.copyfile(tmp / e["file"], rdir / e["file"])
+        doc = result_doc(block, test_id, viewsig, job, metrics, meta, figs.entries)
+        path.write_text(json.dumps(doc, indent=1, default=float) + "\n", encoding="utf-8", newline="\n")
+    return out
 
 
 def run_test_cli(a) -> int:

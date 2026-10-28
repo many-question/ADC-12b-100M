@@ -43,6 +43,16 @@ def main(argv: list[str] | None = None) -> int:
                    help="also run every job with the test's `crosscheck:` numerical settings and record "
                         "the differences in meta.crosscheck (docs/verification.md section 2)")
 
+    rm = sub.add_parser("remeasure", help="measure the fetched jobs of an earlier run again (no simulation) "
+                                          "and re-record their results")
+    rm.add_argument("test")
+    rm.add_argument("--run", required=True, help="the run directory (build/runs/<run id>) with the fetched jobs")
+    rm.add_argument("--block")
+    rm.add_argument("--view", action="append", default=[], help="block=view, as for sim")
+    rm.add_argument("--allow", action="append", default=[],
+                    help="metric-name part that may change (default: sfdr); any other change aborts")
+    rm.add_argument("--dry-run", action="store_true", help="only print old -> new")
+
     r = sub.add_parser("report", help="summarise recorded results against specs")
     r.add_argument("--block")
 
@@ -71,6 +81,12 @@ def main(argv: list[str] | None = None) -> int:
     elif a.cmd == "sim":
         from .runner import run_test_cli
         return run_test_cli(a)
+    elif a.cmd == "remeasure":
+        from pathlib import Path
+
+        from .runner import remeasure
+        remeasure(a.test, Path(a.run), a.block, dict(v.split("=", 1) for v in a.view),
+                  tuple(a.allow) or ("sfdr",), a.dry_run)
     elif a.cmd == "report":
         from .results import report
         return report(a.block)

@@ -31,6 +31,7 @@ DOCS = [  # (file, slug, title, blurb) in reading order
     ("docs/reference.md", "reference", "参考电压研究", "VREFP 负载、冗余与参考电压、片内跟随器"),
     ("docs/specs.md", "specs", "模块规格与验收用例", "全部模块的端口、指标与用例（由 specs/ 生成）"),
     ("docs/verification.md", "verification", "验证计划", "验证层次、约定与行为级基线"),
+    ("docs/sfdr-estimator.md", "sfdr-estimator", "SFDR 估计器", "ADCToolbox Python / MATLAB 的 SFDR 比较与项目采用的定义（#36）"),
     ("docs/handoff.md", "handoff", "晶体管级设计分工包", "各模块的风险、依赖与要点"),
     ("docs/workflow.md", "workflow", "工作环境与命令", "本地环境、生成文件、运行验收用例"),
     ("CONTRIBUTING.md", "contributing", "协作流程", "认领模块、分支与 PR、评审与签核"),
