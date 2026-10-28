@@ -43,12 +43,12 @@
   ],
   "enob": 10.946040406871038,
   "sndr_dBc": 67.65516324936365,
-  "sfdr_dBc": 84.75557425883638,
+  "sfdr_dBc": 85.62691047457919,
   "snr_dBc": 67.73659977618503,
   "thd_dBc": -85.0968908519597,
   "enob_nom": 10.888784063964325,
   "sndr_nom_dBc": 67.31048006506524,
-  "sfdr_nom_dBc": 84.1746536576857,
+  "sfdr_nom_dBc": 85.27729324663555,
   "snr_nom_dBc": 67.38870521596611,
   "thd_nom_dBc": -84.94018516665408,
   "amp_codes": 2020.9070798098169,
@@ -79,15 +79,27 @@
   }
  ],
  "meta": {
-  "date": "2026-10-28T20:50:24",
-  "git": "285dcb4",
+  "date": "2026-10-28T22:42:11",
+  "git": "7b5fcd8",
   "git_clean": true,
   "mode": "aps",
   "pdk": false,
   "mc": null,
-  "wall_s": 914.8,
+  "wall_s": 899.5,
   "rc": "0",
-  "sim_s": "419",
+  "sim_s": "410",
+  "numerics": {
+   "source": "spectre.log",
+   "reltol": 0.001,
+   "maxstep_ps": 410520.0,
+   "method": "traponly",
+   "errpreset": "moderate",
+   "lteratio": 3.5,
+   "abstol_V": 1e-06,
+   "steps_accepted": 2733375,
+   "step_mean_ps": 7.5094,
+   "step_max_ps": null
+  },
   "files": {
    "design/behav/adc_bootstrap.scs": "eee3a0a78eec4c5f",
    "design/behav/adc_cdac.scs": "5b8837cc5d2a76bc",
@@ -107,6 +119,14 @@
    "tb/common/veriloga/tb_imeter_va.va": "d4be49aca417ad61",
    "tb/top/tb_top_sine.scs": "c71c5ef949bb4ab1",
    "specs/arch.yaml": "bffadef750bb5205"
+  },
+  "provenance": {
+   "spectrum": {
+    "estimator": "adcflow.spectrum v1",
+    "adctoolbox": "0.6.4",
+    "sfdr": "plotspec definition: peak bin of the fundamental / largest other single bin (DC and signal bins excluded, Nyquist included)",
+    "enob_sndr_snr_thd": "adctoolbox 0.6.4 compute_spectrum"
+   }
   }
  }
 }
