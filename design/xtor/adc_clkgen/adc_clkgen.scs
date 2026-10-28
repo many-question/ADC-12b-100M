@@ -242,23 +242,26 @@ XB2 (b1 b2 AVDD VSS) adc_clkgen_inv wn=400n wp=600n nn=2 np=2
 XB3 (b2 b3 AVDD VSS) adc_clkgen_inv wn=400n wp=600n nn=2 np=2
 XB4 (b3 PHI_B AVDD VSS) adc_clkgen_inv wn=8u wp=4.8u nn=8 np=4
 XBB1 (b3 bb1 AVDD VSS) adc_clkgen_inv wn=800n wp=1.2u nn=2 np=2
-XBB2 (bb1 PHI_BB AVDD VSS) adc_clkgen_inv wn=8u wp=4.8u nn=8 np=4
+XBB2 (bb1 PHI_BB AVDD VSS) adc_clkgen_inv wn=2.4u wp=3.6u nn=4 np=4
 XCG (CLK PHI_B ce AVDD VSS) adc_clkgen_nor2 wn=600n wp=1.8u nn=2 np=2
 XC1 (ce cb AVDD VSS) adc_clkgen_inv wn=1.2u wp=1.8u nn=2 np=2
-XC2 (cb CONV AVDD VSS) adc_clkgen_inv wn=3.2u wp=4.8u nn=4 np=4
+XC2 (cb CONV AVDD VSS) adc_clkgen_inv wn=2.4u wp=3.6u nn=4 np=4
 XCS1 (s1 AVDD VSS) adc_clkgen_gatecap wn=2u wp=3u nn=4 np=4
+XCS2 (s1 AVDD VSS) adc_clkgen_gatecap wn=2u wp=3u nn=4 np=4
+XCS3 (s1 AVDD VSS) adc_clkgen_gatecap wn=2u wp=3u nn=4 np=4
 XCB1 (b1 AVDD VSS) adc_clkgen_gatecap wn=2u wp=3u nn=4 np=4
 XCB2 (b2 AVDD VSS) adc_clkgen_gatecap wn=2u wp=3u nn=4 np=4
 XCC1 (cb AVDD VSS) adc_clkgen_gatecap wn=2u wp=3u nn=4 np=4
+XCC2 (cb AVDD VSS) adc_clkgen_gatecap wn=2u wp=3u nn=4 np=4
+XCE1 (ce AVDD VSS) adc_clkgen_gatecap wn=2u wp=3u nn=4 np=4
 // @RNL {
 //   &AVDD @ADD-TO $SUPPLY_NET_SET;
 //   &VSS @ADD-TO $GROUND_NET_SET;
 //   {#XS1 #XS2 #XS3 #XSB1 #XSB2} @GROUP;
 //   {#XB1 #XB2 #XB3 #XB4 #XBB1 #XBB2} @GROUP;
 //   {#XCG #XC1 #XC2 #XOFF #XSG} @GROUP;
-//   {#XCB1 #XCB2 #XCS1 #XCC1} @GROUP;
+//   {#XCB1 #XCB2 #XCS1 #XCS2 #XCS3 #XCC1 #XCC2 #XCE1} @GROUP;
 //   {#XS3 #XSB2} @AS $MATCHED;
-//   {#XB4 #XBB2} @AS $MATCHED;
 //   #XOFF @PLACE(0,40) => @ORIENT("R0");
 //   %v0=$SUPPLY @ATTACH &AVDD => @PLACE(0,48);
 //   &AVDD @WIRE {#XOFF:VDD %v0:p};
@@ -405,5 +408,34 @@ XCC1 (cb AVDD VSS) adc_clkgen_gatecap wn=2u wp=3u nn=4 np=4
 //   (88,58) @TEXT("Inverters L=30n; MOS gate loads L=90n", halign="start", size=0.6);
 //   (178,52) @TEXT("Conversion inhibit and 250 fF driver", halign="start") => @SET-STYLE $note_style;
 //   (30,58) @TEXT("Loaded CONV feedback: sample turn-on waits for conversion turn-off", halign="start") => @SET-STYLE $note_style;
+//   #XCS2 @PLACE(50,40) => @ORIENT("R0");
+//   %v20=$SUPPLY @ATTACH &AVDD => @PLACE(50,48);
+//   &AVDD @WIRE {#XCS2:VDD %v20:p};
+//   %g20=$GROUND @ATTACH &VSS => @PLACE(50,32);
+//   &VSS @WIRE {#XCS2:VSS %g20:p};
+//   #XCS3 @PLACE(70,40) => @ORIENT("R0");
+//   %v21=$SUPPLY @ATTACH &AVDD => @PLACE(70,48);
+//   &AVDD @WIRE {#XCS3:VDD %v21:p};
+//   %g21=$GROUND @ATTACH &VSS => @PLACE(70,32);
+//   &VSS @WIRE {#XCS3:VSS %g21:p};
+//   #XCE1 @PLACE(180,-15) => @ORIENT("R0");
+//   %v22=$SUPPLY @ATTACH &AVDD => @PLACE(180,-7);
+//   &AVDD @WIRE {#XCE1:VDD %v22:p};
+//   %g22=$GROUND @ATTACH &VSS => @PLACE(180,-23);
+//   &VSS @WIRE {#XCE1:VSS %g22:p};
+//   #XCC2 @PLACE(240,-15) => @ORIENT("R0");
+//   %v25=$SUPPLY @ATTACH &AVDD => @PLACE(240,-7);
+//   &AVDD @WIRE {#XCC2:VDD %v25:p};
+//   %g25=$GROUND @ATTACH &VSS => @PLACE(240,-23);
+//   &VSS @WIRE {#XCC2:VSS %g25:p};
+//   %jcs=(24,28); %jcs2=(44,28);
+//   $JUNCTION @ATTACH %jcs; $JUNCTION @ATTACH %jcs2;
+//   &s1 @WIRE {%jcs %jcs2 (44,40) #XCS2:A};
+//   &s1 @WIRE {%jcs2 (64,28) (64,40) #XCS3:A};
+//   %jce=(190,15); %jce2=(190,-1);
+//   $JUNCTION @ATTACH %jce;
+//   &ce @WIRE {%jce %jce2 (170,-1) (170,-15) #XCE1:A};
+//   &cb @WIRE {%jcb (210,1) (230,1) (230,-15) #XCC2:A};
+//   (178,-30) @TEXT("Local CE and CB edge-shaping gate loads", halign="start") => @SET-STYLE $note_style;
 // }
 ends adc_clkgen
