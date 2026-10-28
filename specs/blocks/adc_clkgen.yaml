@@ -1,6 +1,6 @@
 block: adc_clkgen
 title: Sampling clock phase generator
-version: 0.1.0
+version: 0.1.1
 owner: TBD
 status: behavioral
 views:
@@ -22,7 +22,7 @@ ports:
   - {name: AVDD,   dir: supply, type: supply, side: top,    desc: "0.9 V"}
   - {name: VSS,    dir: ground, type: supply, side: bottom, desc: "ground"}
 operating:
-  loads: {PHI_S: 60.0e-15, PHI_SB: 60.0e-15, PHI_B: 40.0e-15, PHI_BB: 40.0e-15, CONV: 250.0e-15}
+  loads: {PHI_S: 100.0e-15, PHI_SB: 100.0e-15, PHI_B: 40.0e-15, PHI_BB: 40.0e-15, CONV: 250.0e-15}
 specs:
   - {id: CLK-01, name: "CLK fall -> PHI_S fall (50 %)",           metric: td_s_ps,     unit: ps, max: 80,  corners: all, test: tb_clkgen_timing}
   - {id: CLK-02, name: "PHI_S fall -> PHI_B fall",                 metric: skew_sb_ps,  unit: ps, min: 20, max: 80, corners: all, test: tb_clkgen_timing}

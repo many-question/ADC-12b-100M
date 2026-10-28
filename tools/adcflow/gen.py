@@ -292,7 +292,9 @@ def gen_behav_cdac() -> str:
     L += [f"subckt adc_cdac ({pl[:pl.index(' DH12')]} \\",
           f"        {pl[pl.index('DH12'):pl.index(' RL12')]} \\",
           f"        {pl[pl.index('RL12'):]})",
-          f"parameters cu={a.cu:g} cp_ratio={a.raw['cdac']['cp_top_ratio']} ron_in=25 tau_drv=12p ron_top=20",
+          # switches scale with the caps (same time constants): 25 / 20 ohm at cu = 0.5 fF
+          f"parameters cu={a.cu:g} cp_ratio={a.raw['cdac']['cp_top_ratio']} ron_in={25 * 0.5e-15 / a.cu:g} "
+          f"tau_drv=12p ron_top={20 * 0.5e-15 / a.cu:g}",
           "// input switches (gate VG), tri-state VREFP/VREFN drivers, neutral states",
           f"ISW ({' '.join(sw_order[:5])} \\",
           f"        {' '.join(sw_order[5:18])} \\",

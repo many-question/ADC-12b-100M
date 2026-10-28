@@ -46,20 +46,21 @@
   }
  ],
  "meta": {
-  "date": "2026-10-27T13:26:20",
-  "git": "aa418b2",
+  "date": "2026-10-28T02:51:07",
+  "git": "1cb981b",
+  "git_clean": true,
   "mode": "aps",
   "pdk": false,
   "mc": null,
-  "wall_s": 135.4,
+  "wall_s": 141.2,
   "rc": "0",
-  "sim_s": "28",
+  "sim_s": "34",
   "files": {
-   "design/behav/adc_bootstrap.scs": "066523e6d36e1090",
-   "design/behav/adc_cdac.scs": "de8f65e2569cb9bf",
+   "design/behav/adc_bootstrap.scs": "9458798199909fc5",
+   "design/behav/adc_cdac.scs": "423386f9cc9bb2d0",
    "design/behav/adc_clkgen.scs": "dafb1c3438e33c9e",
-   "design/behav/adc_comp.scs": "96325d9474ae19a4",
-   "design/behav/adc_ref.scs": "ad0159030e3a4f37",
+   "design/behav/adc_comp.scs": "4c26a597d558e2ae",
+   "design/behav/adc_ref.scs": "a83c6feaac8c9c1a",
    "design/behav/adc_sarlogic.scs": "356e911752c1b85e",
    "design/top/adc_top.scs": "362a964ffe162797",
    "design/behav/veriloga/adc_bootstrap_va.va": "a6afdb6e2e03593b",
@@ -73,7 +74,7 @@
    "tb/common/veriloga/tb_cmp_emu_va.va": "1173f23365da8b7f",
    "tb/common/veriloga/tb_imeter_va.va": "d4be49aca417ad61",
    "tb/sarlogic/tb_sarlogic_func.scs": "ed18d9ea04787b9d",
-   "specs/arch.yaml": "2207a1df50779025"
+   "specs/arch.yaml": "bffadef750bb5205"
   }
  }
 }

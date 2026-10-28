@@ -10,7 +10,7 @@ simulator lang=spectre
 subckt adc_cdac (VIN VG TOP VCM VREFP VREFN PHI_S PHI_SB CONV \
         DH12 DH11 DH10 DH9 DH8 DH7 DH6 DH5 DH4 DH3 DH2 DH1 DH0 \
         RL12 RL11 RL10 RL9 RL8 RL7 RL6 RL5 RL4 RL3 RL2 RL1 RL0 DVDD VSS)
-parameters cu=5e-16 cp_ratio=0.1 ron_in=25 tau_drv=12p ron_top=20
+parameters cu=1e-15 cp_ratio=0.1 ron_in=12.5 tau_drv=12p ron_top=10
 // input switches (gate VG), tri-state VREFP/VREFN drivers, neutral states
 ISW (VIN VG VREFP VREFN CONV \
         DH12 DH11 DH10 DH9 DH8 DH7 DH6 DH5 DH4 DH3 DH2 DH1 DH0 \
@@ -469,7 +469,7 @@ IKTC (NK VCM PHI_S VSS) adc_ktc_va ctot=(1+cp_ratio)*2269*cu tempc=tempc en=nois
 //   (-12.948, -34.5925) @TEXT("inout", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
 //   (-9.077, -34.5925) @TEXT("ground", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
 //   (-5.844, -34.5925) @TEXT("ground", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
-//   (-17, 26) @TEXT("adc_cdac (behavioral): 13 weights x 2 halves, cu = 0.5 fF, C_S = 1.0285 pF, C_DAC = 1.1345 pF", halign="start") => @SET-STYLE $title_style;
+//   (-17, 26) @TEXT("adc_cdac (behavioral): 13 weights x 2 halves, cu = 1 fF, C_S = 2.0570 pF, C_DAC = 2.2690 pF", halign="start") => @SET-STYLE $title_style;
 //   (-17, 24.3) @TEXT("numbers above the array: the weight of each H/L pair, each half is w*cu/2; * = not sampled (range extension). H halves: neutral VREFP, dropped by DH; L halves: neutral VREFN, raised by RL", halign="start") => @SET-STYLE $note_style
 // }
 // @RNL(author="adcflow gen") {

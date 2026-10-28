@@ -4,8 +4,8 @@
 `define ADC_NCAP 13
 `define ADC_NDEC 14
 `define ADC_VREF 0.9
-`define ADC_CU 5.000000e-16
-`define ADC_CS 1.028500e-12
+`define ADC_CU 1.000000e-15
+`define ADC_CS 2.057000e-12
 `define ADC_LSB 4.375304e-04
 // cap weights, index j = 12 .. 0 (decision order)
 `define ADC_W12 980

@@ -72,6 +72,34 @@ def _git(*args: str) -> str:
         return ""
 
 
+def dirty_paths(porcelain: str) -> list[str]:
+    """Paths that ``git status --porcelain`` lists (modified, staged or untracked) outside results/.
+
+    results/ does not count: a suite run rewrites results while it runs. Ignored files
+    (site.local.yaml) are not listed by git at all. A rename counts by its new path.
+    """
+    out = []
+    for line in porcelain.splitlines():
+        if len(line) < 4:
+            continue
+        path = line[3:].split(" -> ")[-1].strip('"')
+        if path == "results" or path.startswith("results/"):
+            continue
+        out.append(path)
+    return out
+
+
+def git_state() -> dict:
+    """``{"git_clean": True}``, or False plus ``git_dirty_paths`` (at most 20) for a result's meta."""
+    try:
+        r = subprocess.run(["git", "status", "--porcelain"], cwd=REPO_ROOT, capture_output=True,
+                           text=True, timeout=30)
+        paths = dirty_paths(r.stdout) if r.returncode == 0 else ["(git status failed)"]
+    except Exception:
+        paths = ["(git status failed)"]
+    return {"git_clean": True} if not paths else {"git_clean": False, "git_dirty_paths": paths[:20]}
+
+
 def view_files(views: dict[str, str]) -> list[Path]:
     out = []
     for b in blocks().values():
@@ -254,6 +282,7 @@ def run_test(test_id: str, block_name: str | None = None, corners: str = "typ",
     meta_base = {
         "date": _dt.datetime.now().isoformat(timespec="seconds"),
         "git": _git("rev-parse", "--short", "HEAD"),
+        **git_state(),
         "mode": mode, "pdk": needs_pdk, "mc": mc, "wall_s": round(wall, 1),
     }
     summary = []

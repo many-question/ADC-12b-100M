@@ -57,6 +57,15 @@ class Arch:
 
     # --- derived ----------------------------------------------------------
     @property
+    def sigma_cu(self) -> float:
+        """Relative random mismatch of one unit cap cu (Pelgrom scaling from the 1 fF value)."""
+        return float(self.raw["cdac"].get("mismatch_sigma_1f", 0.0)) * float(np.sqrt(1e-15 / self.cu))
+
+    def sigma_w_lsb(self) -> np.ndarray:
+        """Random mismatch sigma (LSB) of each weight's step, decision order: sigma_cu * sqrt(w)."""
+        return self.sigma_cu * np.sqrt(self.w)
+
+    @property
     def c_dac(self) -> float:
         """Total switched DAC capacitance per side."""
         return float(self.w.sum() * self.cu)

@@ -33,9 +33,24 @@ def test_redundancy_absorbs_msb_errors():
 @pytest.mark.needs_toolbox
 def test_budget_enob_at_hot():
     a = Arch.load()
-    r, _, _ = m.sine_test(a, m.NonIdeal(temp_c=125), n_fft=4096, fin_target=49.7e6)
-    met = m.spectrum_metrics(r.codes, a.fs, a.n_codes)
+    # comparator at its TT limit (the default), calibrated weights as in the acceptance tests
+    met, _, _, _ = m.sine_test_cal(a, m.NonIdeal(temp_c=125), n_fft=4096, fin_target=49.7e6)
     assert met["enob"] > float(a.raw["targets"]["enob_design"])
+
+
+@pytest.mark.needs_toolbox
+def test_calibration_removes_mismatch_and_finds_gaps():
+    from adcflow import calib
+
+    a = Arch.load()
+    ni = m.ideal(sigma_cu=4 * a.sigma_cu, seed=7)
+    met, met_nom, _, _ = m.sine_test_cal(a, ni, n_fft=4096, fin_target=49.7e6)
+    assert met["enob"] > 11.9 > met_nom["enob"]          # quantization limit after calibration
+    margin = calib.cal_margin(a.w, a.w, a.sigma_w_lsb(), 4)
+    assert margin.min() > 0 and margin[0] == pytest.approx(310.5 - 4 * a.sigma_cu * np.sqrt(a.w.sum()))
+    w = a.w.copy()
+    w[-2] += 0.6                                           # weight 2 too large by 0.6 LSB: a gap
+    assert calib.cal_margin(w, a.w, a.sigma_w_lsb(), 4).min() < 0
 
 
 def test_refnet_single_rc_matches_pole():

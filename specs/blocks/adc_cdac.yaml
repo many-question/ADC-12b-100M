@@ -1,6 +1,6 @@
 block: adc_cdac
 title: Split-capacitor redundant CDAC, one side (instantiated twice)
-version: 0.2.0
+version: 0.3.0
 owner: many-question
 status: behavioral
 views:
@@ -8,7 +8,7 @@ views:
   xtor: design/xtor/adc_cdac/adc_cdac.scs
 summary: >
   13 weights w_j (j = 12..0) = 980 560 318 180 102 57 32 18 10 6 3 2 1 x cu,
-  cu = 0.5 fF. Each weight is two equal halves: H (neutral state VREFP) and
+  cu = 1.0 fF (arch v0.3; the LSB half is 0.5 fF). Each weight is two equal halves: H (neutral state VREFP) and
   L (neutral state VREFN). Bottom-plate sampling: while CONV = 0 the bottom
   plates of the sampled weights (all but j = 9 and j = 6) track VIN through
   NMOS switches whose gate is VG (bootstrapped, from adc_bootstrap) and the
@@ -58,12 +58,13 @@ ports:
   - {name: VSS,  dir: ground, type: supply, side: right,  desc: "ground"}
 operating:
   vin_range: [0.0, 0.9]
-  top_load: 15.0e-15          # F, comparator input
+  top_load: 20.0e-15          # F, comparator input (CMP-12)
   vg_from_ideal_bootstrap: "VIN + AVDD while CONV = 0"
 specs:
-  - {id: DAC-01, name: "sampling capacitance C_S (per side)",           metric: cs_pF,         unit: pF, min: 0.99, max: 1.06, corners: typ, test: tb_cdac_weights}
+  - {id: DAC-01, name: "sampling capacitance C_S (per side)",           metric: cs_pF,         unit: pF, min: 1.98, max: 2.12, corners: typ, test: tb_cdac_weights}
   - {id: DAC-02, name: "full scale VREF*(sum w + 1/2)*cu/C_S (diff peak)", metric: fs_peak_V,  unit: V,  min: 0.97, corners: all, test: tb_cdac_weights}
-  - {id: DAC-03, name: "max relative weight error (systematic)",         metric: weight_err_max_pct, unit: '%', max: 0.5, corners: typ, test: tb_cdac_weights}
+  - {id: DAC-03, name: "calibratability: redundancy left after weight errors (systematic + 4 sigma mismatch), min", metric: cal_margin_lsb, unit: LSB, min: 0, corners: typ, test: tb_cdac_weights}
+  - {id: DAC-14, name: "ENOB loss after weight calibration (measured weights + mismatch, model)", metric: enob_loss_cal_bit, unit: bit, max: 0.02, corners: typ, test: tb_cdac_weights}
   - {id: DAC-04, name: "top-plate gain C_S/C_tot",                      metric: top_gain,      unit: '',  min: 0.78, corners: typ, test: tb_cdac_weights}
   - {id: DAC-05, name: "DAC step settling, RL5 (w=18) to 0.25 LSB",    metric: t_settle_rl5_ps, unit: ps, max: 75, corners: all, test: tb_cdac_settle}
   - {id: DAC-06, name: "DAC step settling, RL12 (w=980) to 5 %",       metric: t_settle_rl12_ps, unit: ps, max: 40, corners: all, test: tb_cdac_settle}
@@ -72,7 +73,7 @@ specs:
   - {id: DAC-09, name: "tracking SFDR (ideal VG, 50 ohm, 49.9 MHz, -1 dBFS, diff)", metric: sfdr_dBc, unit: dBc, min: 85, corners: all, test: tb_cdac_track}
   - {id: DAC-10, name: "tracking SNDR excl. kT/C (same)",               metric: sndr_dB,       unit: dB, min: 80, corners: all, test: tb_cdac_track}
   - {id: DAC-11, name: "top-plate droop over 5 ns hold",                metric: droop_lsb,     unit: LSB, max: 0.1, corners: all, test: tb_cdac_settle}
-  - {id: DAC-12, name: "VREFP charge per conversion (per side)",        metric: qref_pC,       unit: pC, max: 0.6, corners: typ, test: tb_cdac_settle}
+  - {id: DAC-12, name: "VREFP charge per conversion (per side)",        metric: qref_pC,       unit: pC, max: 1.2, corners: typ, test: tb_cdac_settle}
   - {id: DAC-13, name: "control input capacitance (DH/RL)",             metric: cin_ctrl_fF,   unit: fF, max: 6, corners: typ, test: tb_cdac_settle}
 tests:
   tb_cdac_weights:
@@ -83,6 +84,17 @@ tests:
       VIN = 0.45 -/+ 0.2 V give the input-to-top gain; then the 26 control
       lines are toggled one at a time (neutral -> active -> neutral) and every
       top-plate step is converted into an input-referred weight in LSB.
+      The backend calibrates the weights (raw bits out), so the weights need
+      not be exact but must be calibratable. DAC-03: for every decision k, the
+      redundancy delta_k + 0.5 LSB minus the worst-case weight error of the
+      weights from k on (|systematic error| summed, plus cal_n_sigma = 4 times
+      the root-sum-square mismatch sigma, sigma_cu * sqrt(w) from
+      specs/arch.yaml) must stay >= 0: no gap that calibration cannot close.
+      DAC-14: the system model converts sines with the measured weights plus
+      random mismatch (4 chips), calibrates the weights on one record and
+      judges another (adcflow.calib); ENOB loss against ideal weights through
+      the same procedure. The nominal-weight error (weight_err_max_pct,
+      enob_loss_nom_bit) is reported without a limit.
   tb_cdac_settle:
     netlist: tb/cdac/tb_cdac_settle.scs
     measure: adcflow.measure.cdac:settle

@@ -43,7 +43,10 @@ python -m adcflow clean-remote --older-than-h 12   # 清理服务器上本项目
 2. 打包上传到服务器本地盘的 `<remote_root>/<run_id>/`，并行运行 Spectre（共享 Verilog-A 编译缓存）；
 3. 只取回小文件（监视器输出、日志、需要的波形，单文件默认 ≤ 50 MB），**随后删除服务器目录**；
 4. 调用度量函数，把指标与判定写入 `results/<block>/<test>/<view>/<corner>.json`，
-   其中 `meta.files` 记录所用网表、Verilog-A、规格文件的哈希；度量函数同时用已读入的数据画证据图，
+   其中 `meta.files` 记录所用网表、Verilog-A、规格文件的哈希，`meta.git` 记录当时的提交，
+   `meta.git_clean` 记录仿真时工作区是否干净（`git status --porcelain` 在 `results/` 之外没有任何改动、暂存或未跟踪的文件；
+   被忽略的文件如 `site.local.yaml` 不算；`results/` 不算，因为成套重跑时结果本身在变），不干净时
+   `meta.git_dirty_paths` 列出这些路径（最多 20 个）。要提交的结果应先提交代码再仿真，使其为 `true`；度量函数同时用已读入的数据画证据图，
    写在 JSON 旁（`<corner>.<tag>.png`），清单记在 JSON 的 `figures`（见 [`verification.md`](verification.md) §4）。
    重跑同一结果会先删除它旧的图。
 
