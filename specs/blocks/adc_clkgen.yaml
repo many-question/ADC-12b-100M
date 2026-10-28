@@ -1,7 +1,7 @@
 block: adc_clkgen
 title: Sampling clock phase generator
 version: 0.1.1
-owner: TBD
+owner: many-question
 status: behavioral
 views:
   behav: design/behav/adc_clkgen.scs
