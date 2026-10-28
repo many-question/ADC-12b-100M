@@ -124,8 +124,8 @@ def _fig_dc(fg, ctx, w, per_level, t_off, t_on, m) -> None:
     ax.plot(t * 1e9, vg - vin, color=C1, lw=0.9, label="VG - VIN (gs)")
     ax.plot(t * 1e9, vg - bp, color=C7, lw=0.9, label="VG - BP (gd)")
     ax.plot(t * 1e9, bp - vin, color=C3, lw=0.9, label="BP - VIN (ds)")
-    hline(ax, lim, f"SOA +{lim:g} V")
-    hline(ax, -lim, f"SOA -{lim:g} V")
+    hline(ax, lim, f"SOA +{lim:.1f} V")
+    hline(ax, -lim, f"SOA -{lim:.1f} V")
     ax.set(xlabel="time (ns)", ylabel="terminal voltage (V)", title="Reference switch MSWP over the whole run",
            ylim=(-1.25 * lim, 1.25 * lim))
     ax.legend(loc="lower left", ncol=3)
@@ -142,5 +142,5 @@ def _fig_dc(fg, ctx, w, per_level, t_off, t_on, m) -> None:
     ax.legend(loc="upper left", ncol=3)
     spec_table(axs[1, 2], ctx, m, ["vgs_min_V", "vgs_var_mV", "t_off_ps", "t_on_ps", "iavg_uA", "soa_violations"])
     fg.save(fig, "switch", "Boosted gate voltage over the input range, the worst turn-off and turn-on edge "
-            "with their delays and limits, the gate stress against the safe-operating limit, and the "
-            "specification table.")
+            "with their delays and limits, the three terminal voltages of the reference switch against the "
+            "+/-1.0 V SOA limit, and the specification table.")

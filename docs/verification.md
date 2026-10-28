@@ -159,6 +159,8 @@ PSF 读入器解析，器件与节点的对应关系由流程自己写出，可�
 **结果**：`soa_scope`（`device`：DUT 内的器件加边界器件；`external`：只有边界器件）、`soa_devices`、`soa_devices_dut`（检查的器件数）、
 `soa_pairs`、`soa_violations`、`soa_max_V`、`soa_worst`（器件、端口对、带符号的值、时刻、局部步长）、`soa_points`、
 `soa_dt_max_ps`、`soa_skipped`、`soa_table`（每个器件每对端口的 `max_V`、`signed_V`、`t_ns`、`dt_ps`、`pass`）。
+`t_ns` 是最大值首次出现的时间点（最大值是一段平台时取平台起点，容差 0.1 mV），`dt_ps` 是该点两侧较大的仿真步长，
+`signed_V` 是该点带符号的端电压。
 证据图 `<stem>.soa.png`：各对的最大 |V| 对限值、最坏一对的全程波形、最坏峰值附近保存的时间点。
 
 **无法验证**：没有 SOA 计划、晶体管级 DUT 下找不到薄栅器件、未分类的 MOS 模型、所需节点没有波形、波形不从 t = 0 开始时，

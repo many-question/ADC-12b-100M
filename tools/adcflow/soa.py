@@ -46,6 +46,7 @@ TERMINALS = {"mos": ("d", "g", "s", "b"), "moscap": ("p", "n")}
 PAIRS = {"mos": (("gs", "g", "s"), ("gd", "g", "d"), ("ds", "d", "s")), "moscap": (("pn", "p", "n"),)}
 GROUND = "0"
 MAX_DEPTH = 32
+PLATEAU_V = 1e-4            # a maximum "occurs" at the first point within this of it (start of a plateau)
 
 
 class Unverified(RuntimeError):
@@ -252,12 +253,14 @@ def check(pl: Plan | None, w: dict[str, np.ndarray]) -> dict:
         for pair, a, b in PAIRS[d.kind]:
             na, nb = d.nodes[a], d.nodes[b]
             x = (zero if na == GROUND else w[_key(na)]) - (zero if nb == GROUND else w[_key(nb)])
-            k = int(np.argmax(np.abs(x)))
+            mag = np.abs(x)
+            vmax = float(mag.max())
+            k = int(np.argmax(mag >= vmax - PLATEAU_V))      # first point of the maximum (start of a plateau)
             step = max(dt[k - 1] if k > 0 else 0.0, dt[k] if k < len(dt) else 0.0)
             rows.append({"device": d.name, "master": d.master, "where": d.where, "pair": pair,
-                         "max_V": round(float(abs(x[k])), 5), "signed_V": round(float(x[k]), 5),
+                         "max_V": round(vmax, 5), "signed_V": round(float(x[k]), 5),
                          "t_ns": round(float(t[k]) * 1e9, 4), "dt_ps": round(float(step) * 1e12, 3),
-                         "pass": bool(abs(x[k]) <= pl.limit_V)})
+                         "pass": bool(vmax <= pl.limit_V)})
     worst = max(rows, key=lambda r: r["max_V"])
     out = {"soa_scope": pl.scope, "soa_limit_V": pl.limit_V,
            "soa_devices": len(pl.devices), "soa_devices_dut": sum(d.where == "dut" for d in pl.devices),
@@ -296,17 +299,17 @@ def figure(fg, ctx: dict, m: dict, w: dict[str, np.ndarray], nbars: int = 18) ->
     ax.set_yticks(y, [f"{r['device']} |V{r['pair']}|" + (" (ext)" if r["where"] == "external" else "")
                       for r in shown], fontsize=7)
     ax.axvline(lim, color=LIMIT, lw=1.1, ls="--")
-    ax.text(lim, 0.99, f" limit {lim:g} V", transform=ax.get_xaxis_transform(), ha="left", va="top",
+    ax.text(lim, 0.99, f" limit {lim:.1f} V", transform=ax.get_xaxis_transform(), ha="left", va="top",
             fontsize=7.5, color=LIMIT)
     ax.set(xlabel="largest |V| over the whole run (V)", xlim=(0, max(lim, rows[0]["max_V"]) * 1.12),
            title=f"Per-device SOA ({len(shown)} of {len(rows)} pairs, worst first)")
     ax.grid(axis="y", visible=False)
     ndut = m.get("soa_devices_dut", 0)
-    scope = (f"scope: {ndut} thin-oxide device(s) in {', '.join(pl.duts)}"
-             if pl.scope == "device" else "scope: external nodes only\n(behavioral DUT: not transistor-level evidence)")
-    nboundary = m["soa_devices"] - ndut
-    if nboundary:
-        scope += f"\n+ {nboundary} boundary device(s) of the testbench"
+    ext = ", ".join(d.name for d in pl.devices if d.where == "external")
+    if pl.scope == "device":
+        scope = f"scope: {ndut} thin-oxide device(s) in {', '.join(pl.duts)}" + (f"\n+ boundary: {ext}" if ext else "")
+    else:
+        scope = f"scope: external, boundary device(s) {ext} only\n(behavioral DUT: not transistor-level evidence)"
     note(ax, f"{scope}\nviolations {m['soa_violations']} of {m['soa_pairs']} pairs", loc="lower right")
     # the worst pair over time
     wr = rows[0]
@@ -317,26 +320,26 @@ def figure(fg, ctx: dict, m: dict, w: dict[str, np.ndarray], nbars: int = 18) ->
     x = (zero if d.nodes[a] == GROUND else w[_key(d.nodes[a])]) - (zero if d.nodes[b] == GROUND else w[_key(d.nodes[b])])
     ax = axs[0, 1]
     ax.plot(t * 1e9, x, color=C1, lw=0.8, label=f"V{wr['pair']} (signed)")
-    hline(ax, lim, f"+{lim:g} V")
-    hline(ax, -lim, f"-{lim:g} V")
+    hline(ax, lim, f"+{lim:.1f} V")
+    hline(ax, -lim, f"-{lim:.1f} V")
     ax.plot([wr["t_ns"]], [wr["signed_V"]], "o", color=C2, ms=5)
     top = max(lim * 1.25, wr["max_V"] * 1.1)
     ax.set(xlabel="time (ns)", ylabel="voltage (V)", title=f"Worst pair: {wr['device']} V{wr['pair']}",
            ylim=(-top, top))
     ax.legend(loc="upper right")
-    # zoom on its peak with the saved time points
+    # zoom on the time of its maximum with the saved time points
     ax = axs[0, 2]
     tk = wr["t_ns"] * 1e-9
     sel = (t > tk - 150e-12) & (t < tk + 150e-12)
     ax.plot((t[sel] - tk) * 1e12, np.abs(x[sel]), "-", color=C1, lw=1.0)
     ax.plot((t[sel] - tk) * 1e12, np.abs(x[sel]), ".", color=C3, ms=3.5, label="saved time points")
-    hline(ax, lim, f"limit {lim:g} V", x=0.7)
+    hline(ax, lim, f"limit {lim:.1f} V", x=0.7)
     vline(ax, 0.0, None, color=MUTED, ls=":")
-    ax.set(xlabel=f"time from the peak at {wr['t_ns']:.3f} ns (ps)", ylabel="|V| (V)",
-           title="Worst peak and the time resolution")
+    ax.set(xlabel=f"time from the maximum at {wr['t_ns']:.3f} ns (ps)", ylabel="|V| (V)",
+           title="Worst maximum and the time resolution", xlim=(-150, 150), ylim=(0, top))
     ax.legend(loc="lower right")
-    note(ax, f"peak |V{wr['pair']}| = {wr['max_V']:.4f} V\nlocal step {wr['dt_ps']:.2f} ps\n"
-         f"{m['soa_points']} time points, largest step {m['soa_dt_max_ps']:.0f} ps", loc="upper left")
-    fg.save(fig, "soa", f"Largest |Vgs|, |Vgd|, |Vds| of every checked device against the {lim:g} V limit "
-            f"(scope: {pl.scope}), the worst pair over the whole run, and its peak with the saved time points "
-            "that set the time resolution.")
+    note(ax, f"max |V{wr['pair']}| = {wr['max_V']:.4f} V\nlocal step {wr['dt_ps']:.2f} ps\n"
+         f"{m['soa_points']} time points, largest step {m['soa_dt_max_ps']:.0f} ps", loc="lower left")
+    fg.save(fig, "soa", f"Largest |Vgs|, |Vgd|, |Vds| of every checked device against the {lim:.1f} V limit "
+            f"(scope: {pl.scope}), the worst pair over the whole run, and the saved time points around the "
+            "time of its maximum, which set the time resolution.")
