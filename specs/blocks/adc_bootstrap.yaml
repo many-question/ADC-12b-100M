@@ -1,6 +1,6 @@
 block: adc_bootstrap
 title: Bootstrapped gate generator for the bottom-plate input switches (one per side)
-version: 0.3.0
+version: 0.4.0
 owner: many-question
 status: behavioral
 views:
@@ -27,6 +27,8 @@ operating:
     driving C_S = 2.057 pF (arch v0.3) whose top plate is reset to VCM by an ideal PHI_S
     switch; VG wiring 10 fF.
   soa: "|Vgs|, |Vgd|, |Vds| <= 1.0 V for every thin-oxide device in every corner"
+  # BST-09/10 bind the adc_clkgen PHI_B / PHI_BB loads (40 fF each), which drive
+  # both bootstraps: 2 x 16 fF + 8 fF (20 %) of wire = 40 fF.
 specs:
   - {id: BST-01, name: "VG - VIN during tracking (min over VIN 0..0.9 V)", metric: vgs_min_V, unit: V, min: 0.72, corners: all, test: tb_bootstrap_dc}
   - {id: BST-02, name: "variation of VG - VIN over VIN range",     metric: vgs_var_mV, unit: mV, max: 40, corners: all, test: tb_bootstrap_dc}
@@ -35,6 +37,8 @@ specs:
   - {id: BST-05, name: "tracking SFDR with reference switch (diff, 49.9 MHz, -1 dBFS, 50 ohm)", metric: sfdr_dBc, unit: dBc, min: 82, corners: all, test: tb_bootstrap_track}
   - {id: BST-06, name: "tracking SNDR excl. kT/C (same)",          metric: sndr_dB,    unit: dB, min: 78, corners: all, test: tb_bootstrap_track}
   - {id: BST-07, name: "average AVDD current at 100 MHz (one instance)", metric: iavg_uA, unit: uA, max: 50, corners: typ, test: tb_bootstrap_dc}
+  - {id: BST-09, name: "PHI_B input capacitance (charge per rising edge / VDD)", metric: cin_phb_fF, unit: fF, max: 16, corners: typ, test: tb_bootstrap_dc}
+  - {id: BST-10, name: "PHI_BB input capacitance (charge per rising edge / VDD)", metric: cin_phbb_fF, unit: fF, max: 16, corners: typ, test: tb_bootstrap_dc}
   - {id: BST-08, name: "SOA violations: thin-oxide device / terminal pairs over 1.0 V (Vgs, Vgd, Vds; absolute, whole transient)", metric: soa_violations, unit: count, max: 0, corners: all, test: tb_bootstrap_dc}
 tests:
   tb_bootstrap_dc:
@@ -56,7 +60,10 @@ tests:
       or a missing waveform is an error (unverified), never 0. The behavioral
       view has no devices: only MSWP is checked (|VG - VIN|, |VG - BP|,
       |BP - VIN|), recorded as soa_scope external, which is not
-      transistor-level evidence.
+      transistor-level evidence. BST-09/10: PHI_B and PHI_BB reach the DUT
+      through charge meters (tb_qmeter_va, a 0 V path); the charge a pin draws over each rising edge
+      divided by the voltage step, mean over all rising edges (window as in
+      adc_cdac tb_cdac_settle).
   tb_bootstrap_track:
     netlist: tb/bootstrap/tb_bootstrap_track.scs
     measure: adcflow.measure.bootstrap:track

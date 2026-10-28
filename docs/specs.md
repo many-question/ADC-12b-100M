@@ -4,17 +4,17 @@
 
 | 模块 | 状态 | 负责人 | 指标数 | 用例 |
 |---|---|---|---|---|
-| [`adc_bootstrap`](#adc-bootstrap) | behavioral | many-question | 8 | `tb_bootstrap_dc`, `tb_bootstrap_track` |
-| [`adc_cdac`](#adc-cdac) | behavioral | many-question | 14 | `tb_cdac_weights`, `tb_cdac_settle`, `tb_cdac_track` |
+| [`adc_bootstrap`](#adc-bootstrap) | behavioral | many-question | 10 | `tb_bootstrap_dc`, `tb_bootstrap_track` |
+| [`adc_cdac`](#adc-cdac) | behavioral | many-question | 17 | `tb_cdac_weights`, `tb_cdac_settle`, `tb_cdac_track` |
 | [`adc_clkgen`](#adc-clkgen) | behavioral | many-question | 10 | `tb_clkgen_timing`, `tb_clkgen_jitter` |
-| [`adc_comp`](#adc-comp) | behavioral | many-question | 13 | `tb_comp_delay`, `tb_comp_noise`, `tb_comp_kickback` |
+| [`adc_comp`](#adc-comp) | behavioral | many-question | 14 | `tb_comp_delay`, `tb_comp_noise`, `tb_comp_kickback` |
 | [`adc_ref`](#adc-ref) | behavioral | many-question | 8 | `tb_ref_dc`, `tb_ref_replay`, `tb_ref_noise` |
-| [`adc_sarlogic`](#adc-sarlogic) | behavioral | Arcadia-1 | 13 | `tb_sarlogic_func`, `tb_sarlogic_rand`, `tb_sarlogic_func_slow`, `tb_sarlogic_timeout` |
+| [`adc_sarlogic`](#adc-sarlogic) | behavioral | Arcadia-1 | 15 | `tb_sarlogic_func`, `tb_sarlogic_rand`, `tb_sarlogic_func_slow`, `tb_sarlogic_timeout` |
 | [`adc_top`](#adc-top) | behavioral | many-question | 8 | `tb_top_sine`, `tb_top_sine_lf`, `tb_top_duty` |
 
 ## adc_bootstrap
 
-**Bootstrapped gate generator for the bottom-plate input switches (one per side)** — 规格版本 0.3.0，状态 `behavioral`。
+**Bootstrapped gate generator for the bottom-plate input switches (one per side)** — 规格版本 0.4.0，状态 `behavioral`。
 
 While PHI_B is high, VG = VIN + Vboot (Vboot ~ AVDD, from a capacitor charged during conversion), so every NMOS input switch inside adc_cdac sees a signal-independent gate-source voltage. PHI_B falling turns VG to 0 V quickly (the sampling instant itself is set by PHI_S in adc_cdac, 20-80 ps earlier). The load is the gate capacitance of all input switches of one CDAC.
 
@@ -48,16 +48,18 @@ While PHI_B is high, VG = VIN + Vboot (Vboot ~ AVDD, from a capacitor charged du
 | BST-05 | tracking SFDR with reference switch (diff, 49.9 MHz, -1 dBFS, 50 ohm) | ≥ 82 | dBc | all | `tb_bootstrap_track` |
 | BST-06 | tracking SNDR excl. kT/C (same) | ≥ 78 | dB | all | `tb_bootstrap_track` |
 | BST-07 | average AVDD current at 100 MHz (one instance) | ≤ 50 | uA | typ | `tb_bootstrap_dc` |
+| BST-09 | PHI_B input capacitance (charge per rising edge / VDD) | ≤ 16 | fF | typ | `tb_bootstrap_dc` |
+| BST-10 | PHI_BB input capacitance (charge per rising edge / VDD) | ≤ 16 | fF | typ | `tb_bootstrap_dc` |
 | BST-08 | SOA violations: thin-oxide device / terminal pairs over 1.0 V (Vgs, Vgd, Vds; absolute, whole transient) | ≤ 0 | count | all | `tb_bootstrap_dc` |
 
 ### 验收用例
 
-- **`tb_bootstrap_dc`** (`tb/bootstrap/tb_bootstrap_dc.scs`, 度量 `adcflow.measure.bootstrap:dc`; 需要 PDK; 逐管 SOA 检查（`docs/verification.md` §5）)：100 MHz ideal phases; VIN stepped 0, 0.15 .. 0.9 V (one level per 4 cycles) through 50 ohm with the reference load. Measures VG - VIN at the end of each track phase, turn-on / turn-off times and AVDD current. BST-08 is the per-device SOA check of adcflow (docs/verification.md §5): the run deck saves the d / g / s nodes of every thin-oxide MOS in XDUT and of the reference switch MSWP; |Vgs|, |Vgd| and |Vds| of each, both polarities, are taken at every time point of the whole transient (edges included) and compared with 1.0 V; soa_violations counts the device / terminal pairs above it, soa_table gives every pair's largest |V| and its time. A transistor view without such devices, an unlisted MOS model or a missing waveform is an error (unverified), never 0. The behavioral view has no devices: only MSWP is checked (|VG - VIN|, |VG - BP|, |BP - VIN|), recorded as soa_scope external, which is not transistor-level evidence.
+- **`tb_bootstrap_dc`** (`tb/bootstrap/tb_bootstrap_dc.scs`, 度量 `adcflow.measure.bootstrap:dc`; 需要 PDK; 逐管 SOA 检查（`docs/verification.md` §5）)：100 MHz ideal phases; VIN stepped 0, 0.15 .. 0.9 V (one level per 4 cycles) through 50 ohm with the reference load. Measures VG - VIN at the end of each track phase, turn-on / turn-off times and AVDD current. BST-08 is the per-device SOA check of adcflow (docs/verification.md §5): the run deck saves the d / g / s nodes of every thin-oxide MOS in XDUT and of the reference switch MSWP; |Vgs|, |Vgd| and |Vds| of each, both polarities, are taken at every time point of the whole transient (edges included) and compared with 1.0 V; soa_violations counts the device / terminal pairs above it, soa_table gives every pair's largest |V| and its time. A transistor view without such devices, an unlisted MOS model or a missing waveform is an error (unverified), never 0. The behavioral view has no devices: only MSWP is checked (|VG - VIN|, |VG - BP|, |BP - VIN|), recorded as soa_scope external, which is not transistor-level evidence. BST-09/10: PHI_B and PHI_BB reach the DUT through charge meters (tb_qmeter_va, a 0 V path); the charge a pin draws over each rising edge divided by the voltage step, mean over all rising edges (window as in adc_cdac tb_cdac_settle).
 - **`tb_bootstrap_track`** (`tb/bootstrap/tb_bootstrap_track.scs`, 度量 `adcflow.measure.bootstrap:track`; 参数 `fin_target=49.9e6`, `npts=256`; 需要 PDK)：Two bootstraps with reference loads, differential sine from 50 ohm per side, coherent 49.9 MHz, -1 dBFS. The bottom-plate voltages at the PHI_S falling edges are the samples (bottom-plate sampling); FFT of 256 samples.
 
 ## adc_cdac
 
-**Split-capacitor redundant CDAC, one side (instantiated twice)** — 规格版本 0.3.0，状态 `behavioral`。
+**Split-capacitor redundant CDAC, one side (instantiated twice)** — 规格版本 0.4.0，状态 `behavioral`。
 
 13 weights w_j (j = 12..0) = 980 560 318 180 102 57 32 18 10 6 3 2 1 x cu, cu = 1.0 fF (arch v0.3; the LSB half is 0.5 fF). Each weight is two equal halves: H (neutral state VREFP) and L (neutral state VREFN). Bottom-plate sampling: while CONV = 0 the bottom plates of the sampled weights (all but j = 9 and j = 6) track VIN through NMOS switches whose gate is VG (bootstrapped, from adc_bootstrap) and the top plate is held at VCM by a switch on PHI_S/PHI_SB. Non-sampled weights stay in the neutral state. With CONV = 1 every half is driven by an inverter between VREFP and VREFN: H to VREFP unless DH<j>, L to VREFN unless RL<j>. The top-level connects DH = DN, RL = UP on the VINP side and DH = UP, RL = DN on the VINN side, so each decision moves the two top plates in opposite directions and the common mode stays constant.
 
@@ -105,16 +107,19 @@ While PHI_B is high, VG = VIN + Vboot (Vboot ~ AVDD, from a capacitor charged du
 | DAC-11 | top-plate droop over 5 ns hold | ≤ 0.1 | LSB | all | `tb_cdac_settle` |
 | DAC-12 | VREFP charge per conversion (per side) | ≤ 1.2 | pC | typ | `tb_cdac_settle` |
 | DAC-13 | control input capacitance (DH/RL) | ≤ 6 | fF | typ | `tb_cdac_settle` |
+| DAC-15 | PHI_S input capacitance (charge per rising edge / VDD) | ≤ 40 | fF | typ | `tb_cdac_settle` |
+| DAC-16 | PHI_SB input capacitance (charge per rising edge / VDD) | ≤ 40 | fF | typ | `tb_cdac_settle` |
+| DAC-17 | CONV input capacitance (charge per rising edge / VDD) | ≤ 80 | fF | typ | `tb_cdac_settle` |
 
 ### 验收用例
 
 - **`tb_cdac_weights`** (`tb/cdac/tb_cdac_weights.scs`, 度量 `adcflow.measure.cdac:weights`)：One CDAC with ideal VG and ideal controls. Two sampling cycles with VIN = 0.45 -/+ 0.2 V give the input-to-top gain; then the 26 control lines are toggled one at a time (neutral -> active -> neutral) and every top-plate step is converted into an input-referred weight in LSB. The backend calibrates the weights (raw bits out), so the weights need not be exact but must be calibratable. DAC-03: for every decision k, the redundancy delta_k + 0.5 LSB minus the worst-case weight error of the weights from k on (|systematic error| summed, plus cal_n_sigma = 4 times the root-sum-square mismatch sigma, sigma_cu * sqrt(w) from specs/arch.yaml) must stay >= 0: no gap that calibration cannot close. DAC-14: the system model converts sines with the measured weights plus random mismatch (4 chips), calibrates the weights on one record and judges another (adcflow.calib); ENOB loss against ideal weights through the same procedure. The nominal-weight error (weight_err_max_pct, enob_loss_nom_bit) is reported without a limit.
-- **`tb_cdac_settle`** (`tb/cdac/tb_cdac_settle.scs`, 度量 `adcflow.measure.cdac:settle`)：VIN = 0.65 V (0.2 V above VCM, so that the conversion start moves the top plate). Steps of RL12 (w=980), RL5 (w=18) and RL0 (w=1) driven by 10 ps edges 1 ns after CONV rises; settling times within 1.5 ns of the edge, single-pole equivalent from the 10 % -> 1 % part of the RL12 step, conversion-start settling before the first edge, 5 ns hold droop and VREFP charge per conversion.
+- **`tb_cdac_settle`** (`tb/cdac/tb_cdac_settle.scs`, 度量 `adcflow.measure.cdac:settle`)：VIN = 0.65 V (0.2 V above VCM, so that the conversion start moves the top plate). Steps of RL12 (w=980), RL5 (w=18) and RL0 (w=1) driven by 10 ps edges 1 ns after CONV rises; settling times within 1.5 ns of the edge, single-pole equivalent from the 10 % -> 1 % part of the RL12 step, conversion-start settling before the first edge, 5 ns hold droop and VREFP charge per conversion. DAC-13: AC current into DH5 at 100 MHz. DAC-15..17: PHI_S, PHI_SB and CONV reach the DUT through charge meters (tb_qmeter_va, a 0 V path); the charge a pin draws over each of its rising edges (from 50 ps before to 200 ps after the 50 % crossing, at most halfway to the neighbouring falling crossings) divided by the voltage step, mean over all rising edges of the run.
 - **`tb_cdac_track`** (`tb/cdac/tb_cdac_track.scs`, 度量 `adcflow.measure.cdac:track`; 参数 `fin_target=49.9e6`, `npts=256`)：Two CDACs (P and N) with ideal bootstrapped gates, sine from 50 ohm per side at 49.9 MHz, -1 dBFS, 100 MS/s ideal phases, no decisions. The differential top-plate voltage 100 ps after CONV rises is stored per sample; FFT gives SFDR / SNDR of the sampling network.
 
 ## adc_clkgen
 
-**Sampling clock phase generator** — 规格版本 0.2.0，状态 `behavioral`。
+**Sampling clock phase generator** — 规格版本 0.2.1，状态 `behavioral`。
 
 Buffers the single external CLK (high = track, low = hold + convert) into the sampling phases. Falling CLK: PHI_S falls first (sampling instant, top plate opens), then PHI_B (bottom-plate switches open), then CONV rises (DAC drivers enabled, SAR logic starts). Rising CLK: CONV falls first (drivers tri-stated, SAR reset), then PHI_B and PHI_S rise (break before make).
 
@@ -159,7 +164,7 @@ Buffers the single external CLK (high = track, low = hold + convert) into the sa
 
 ## adc_comp
 
-**Dynamic latched comparator** — 规格版本 0.2.0，状态 `behavioral`。
+**Dynamic latched comparator** — 规格版本 0.3.0，状态 `behavioral`。
 
 Single fully-dynamic comparator of the asynchronous SAR loop. CLKC low resets (OUTP = OUTN = 0); CLKC rising evaluates; exactly one of OUTP / OUTN rises. OUTP = 1 means V(INP) > V(INN). At the top level INP is driven by the top plate of the CDAC that samples VINN (bottom-plate sampling inverts), so OUTP = 1 means "input above the DAC level".
 
@@ -200,16 +205,17 @@ Single fully-dynamic comparator of the asynchronous SAR loop. CLKC low resets (O
 | CMP-10 | energy per comparison at 1 mV | ≤ 200 | fJ | typ | `tb_comp_delay` |
 | CMP-11 | differential kickback per cycle on 2.5 pF | ≤ 40 | uV | all | `tb_comp_kickback` |
 | CMP-12 | input capacitance per input | ≤ 20 | fF | typ | `tb_comp_kickback` |
+| CMP-14 | CLKC input capacitance (charge per rising edge / VDD) | ≤ 16 | fF | typ | `tb_comp_kickback` |
 
 ### 验收用例
 
 - **`tb_comp_delay`** (`tb/comp/tb_comp_delay.scs`, 度量 `adcflow.measure.comp:delay`)：Ideal differential steps around VCM = 0.49 V: vd = +/-{100m, 30m, 10m, 3m, 1m, 300u, 100u, 30u, 10u} V, one decision per 400 ps CLKC period, 10 fF loads. Transient noise off. Extracts delay vs |vd|, tau_reg (fit of delay vs ln|vd|), reset time, decision errors and supply energy per cycle.
 - **`tb_comp_noise`** (`tb/comp/tb_comp_noise.scs`, 度量 `adcflow.measure.comp:noise`; 瞬态噪声)：Transient noise on (behavioral: internal Gaussian). vd swept over -800..+800 uV in 17 levels (100 uV steps, about +/-3.3 sigma at the all-corner limit), 512 decisions per level. The OUTP counts are fitted by binomial maximum likelihood with a probit (Gaussian CDF) model: sigma = noise, mean = offset; noise_ci95_uV is the 95 % profile-likelihood interval of sigma. The 1-sigma error of sigma is <= 2.7 % for 120..300 uV.
-- **`tb_comp_kickback`** (`tb/comp/tb_comp_kickback.scs`, 度量 `adcflow.measure.comp:kickback`)：Inputs floating on 2.5 pF capacitors (the CDAC top plates, C_tot), preset to VCM +/- 0.5 mV. Measures the change of the differential input after one evaluate + reset cycle, and the input capacitance from a small CM step.
+- **`tb_comp_kickback`** (`tb/comp/tb_comp_kickback.scs`, 度量 `adcflow.measure.comp:kickback`)：Inputs floating on 2.5 pF capacitors (the CDAC top plates, C_tot), preset to VCM +/- 0.5 mV. Measures the change of the differential input after one evaluate + reset cycle. CMP-12: AC current into INP of a second instance in reset at 100 MHz. CMP-14: CLKC reaches the DUT through a charge meter (tb_qmeter_va, a 0 V path); the charge it draws over each rising edge divided by the voltage step, mean over the 8 cycles (window as in adc_cdac tb_cdac_settle).
 
 ## adc_ref
 
-**Reference driver (VREFP = 0.9 V) and top-plate common-mode (VCM = 0.45 V)** — 规格版本 0.3.0，状态 `behavioral`。
+**Reference driver (VREFP = 0.9 V) and top-plate common-mode (VCM = 0.45 V)** — 规格版本 0.4.0，状态 `behavioral`。
 
 Buffers the high-impedance 0.9 V reference input VREF_IN into VREFP, which supplies the CDAC drivers (arch v0.3, cu = 1 fF): per conversion 0.93 pC at the start (the sampled H halves go from VIN to VREFP) and 13 switch charges of w_j * 0.45 fC (0.44 pC for the MSB, <= 14 fC from decision 7 on), first-order independent of the code, plus a signal-dependent part (-cu * LSB * gain * L^2 / 4, up to 0.36 pC). Everything is on-chip: decoupling in the nF range would have to be off-chip and its bond wires are not modelled, so it is not an option. The topology, bias current and decap are the designer's choice; the specs only constrain VREFP at the instants the comparator uses it (tb_ref_replay) and its noise. The behavioral view is an open-loop NMOS follower from AVDD18 (4 mA, 3 pF decap; v0.2 had 2 mA and 1.5 pF for half the charge, the same VREFP waveform) - a starting point, not a requirement. Runs from AVDD18 because a 0.9 V output cannot be regulated from the 0.9 V rail. VCM (0.45 V) resets the top plates during tracking and only sees small common-mode charge.
 
@@ -228,15 +234,16 @@ Buffers the high-impedance 0.9 V reference input VREF_IN into VREFP, which suppl
 
 ### 工作条件
 
-- `load_vrefp`: the CDAC charge sequence of a 49.7 MHz -1 dBFS conversion from the system model (tb_ref_replay), plus 1.2 pF for the CDAC bottom plates; DC tests use a 100 uA average load
-- `load_vcm`: 2 x 2.5 pF switched to top plates at 100 MHz
+- `load_vrefp`: the CDAC charge sequence of a 49.7 MHz -1 dBFS conversion from the system model (tb_ref_replay), plus 1.2 pF for the CDAC bottom plates; DC and noise tests use the average load load_vrefp_dc
+- `load_vrefp_dc`: 0.0002
+- `load_vcm`: 2 x 2.5 pF switched to top plates at 100 MHz; not applied by any adc_ref testbench: VCM is accepted by REF-02 (DC) plus the mixed top-level regression (tb_top_sine with the transistor adc_ref), see docs/handoff.md
 - `power`: no limit; AVDD18 / AVDD currents are reported (lower is better)
 
 ### 指标
 
 | ID | 指标 | 限值 | 单位 | 工艺角 | 用例 |
 |---|---|---|---|---|---|
-| REF-01 | VREFP - VREF_IN (DC, 100 uA load) | -5 .. 5 | mV | all | `tb_ref_dc` |
+| REF-01 | VREFP - VREF_IN (DC, 200 uA load) | -5 .. 5 | mV | all | `tb_ref_dc` |
 | REF-02 | VCM | 0.44 .. 0.46 | V | all | `tb_ref_dc` |
 | REF-04 | VREFP sensitivity to AVDD18 (DC) | ≤ 5 | mV/V | all | `tb_ref_dc` |
 | REF-08 | VREFP noise 10 kHz - 100 GHz (with 1.2 pF CDAC load) | ≤ 120 | uV | typ | `tb_ref_noise` |
@@ -247,13 +254,13 @@ Buffers the high-impedance 0.9 V reference input VREF_IN into VREFP, which suppl
 
 ### 验收用例
 
-- **`tb_ref_dc`** (`tb/ref/tb_ref_dc.scs`, 度量 `adcflow.measure.ref:dc`)：DC operating point with a 100 uA load, a dc sweep of the load 0..200 uA (load regulation, reported) and of AVDD18 +/-10 %; supply currents (reported) and the VREF_IN input current.
+- **`tb_ref_dc`** (`tb/ref/tb_ref_dc.scs`, 度量 `adcflow.measure.ref:dc`)：DC operating point with the 200 uA average CDAC load (load_vrefp_dc): REF-01, REF-02 and REF-11 there, REF-04 from a sweep of AVDD18 +/-10 % at that load; a dc sweep of the load 0..200 uA is characterization (load regulation, reported, no limit); supply currents are reported.
 - **`tb_ref_replay`** (`tb/ref/tb_ref_replay.scs`, 度量 `adcflow.measure.ref:replay`; 参数 `npts=1024`, `nwarm=32`, `fin_target=49.7e6`)：The system model converts a coherent 49.7 MHz -1 dBFS sine (1024 + 32 conversions, ideal reference, TT ADC timing - the shortest decision spacing); its start charge and 13 switch charges per conversion are played into VREFP as 20 ps current pulses (iload.pwl) and VREFP is sampled at every comparator clock and just before every conversion start (trig.pwl -> vdec.txt). The sampled deviations are fed back into the same model conversion: REF-12 is the ENOB lost against an ideal reference. REF-13 is the change over the last three decisions, which have no redundancy (decisions 8..11 tolerate 2.0 / 1.2 / 0.4 / 0.4 mV). Transient noise is off; noise is REF-08.
-- **`tb_ref_noise`** (`tb/ref/tb_ref_noise.scs`, 度量 `adcflow.measure.ref:noise`)：Small-signal noise of VREFP (and VCM) from 1 kHz to 100 GHz with the decoupling, the 1.2 pF CDAC load and a 100 uA load. VREFP noise multiplies the signal (input-referred ~0.7 x at -1 dBFS): 80 / 120 / 160 / 300 uV rms cost 0.06 / 0.12 / 0.20 / 0.49 bit. REF-08 integrates from 10 kHz, about one bin of a long (8k-16k point) record; noise below that is a slow gain wander, reported as noise_lf_uV (1 - 10 kHz) with no limit, and noise_total_uV is the whole band.
+- **`tb_ref_noise`** (`tb/ref/tb_ref_noise.scs`, 度量 `adcflow.measure.ref:noise`)：Small-signal noise of VREFP (and VCM) from 1 kHz to 100 GHz with the decoupling, the 1.2 pF CDAC load and the 200 uA average load. VREFP noise multiplies the signal (input-referred ~0.7 x at -1 dBFS): 80 / 120 / 160 / 300 uV rms cost 0.06 / 0.12 / 0.20 / 0.49 bit. REF-08 integrates from 10 kHz, about one bin of a long (8k-16k point) record; noise below that is a slow gain wander, reported as noise_lf_uV (1 - 10 kHz) with no limit, and noise_total_uV is the whole band.
 
 ## adc_sarlogic
 
-**Asynchronous SAR controller, bit registers and output register** — 规格版本 0.1.0，状态 `behavioral`。
+**Asynchronous SAR controller, bit registers and output register** — 规格版本 0.2.0，状态 `behavioral`。
 
 Self-timed SAR loop. CONV low = reset (CLKC = 0, all UP/DN = 0; D and RDY hold). CONV rising starts a conversion: after t_start the first CLKC rises; each comparator decision (OUTP or OUTN rising) is stored, drives the CDAC control of that step (UP<j> or DN<j>, one-hot, j = 13 - k for decision k = 1..13), resets the comparator (CLKC low) and, after the DAC settle wait, clocks the comparator again. Decision 14 has no DAC step. After decision 14 (EOC) D<13:0> is loaded and RDY rises. RDY falls at the next CONV rising. A decision that is not made within t_timeout is forced to 1. If CONV falls before EOC, the output register is loaded with the bits decided so far (undecided = 0) and RDY rises.
 
@@ -276,7 +283,7 @@ Self-timed SAR loop. CONV low = reset (CLKC = 0, all UP/DN = 0; D and RDY hold).
 
 ### 工作条件
 
-- `load_updn`: 1.2e-14
+- `load_updn`: 1.5e-14
 - `load_clkc`: 2e-14
 - `load_dout`: 5e-14
 
@@ -297,10 +304,12 @@ Self-timed SAR loop. CONV low = reset (CLKC = 0, all UP/DN = 0; D and RDY hold).
 | LOG-11 | forced-decision recovery (stuck comparator) errors | ≤ 0 | count | all | `tb_sarlogic_timeout` |
 | LOG-12 | timeout value | 200 .. 350 | ps | all | `tb_sarlogic_timeout` |
 | LOG-13 | average DVDD power at 100 MS/s | ≤ 300 | uW | typ | `tb_sarlogic_func` |
+| LOG-14 | CONV input capacitance (charge per rising edge / VDD) | ≤ 40 | fF | typ | `tb_sarlogic_func` |
+| LOG-15 | OUTP / OUTN input capacitance (charge per rising edge / VDD, larger of the two) | ≤ 7 | fF | typ | `tb_sarlogic_func` |
 
 ### 验收用例
 
-- **`tb_sarlogic_func`** (`tb/sarlogic/tb_sarlogic_func.scs`, 度量 `adcflow.measure.sarlogic:func`)：60 conversions with waveforms for the loop timing. CONV from an ideal 100 MHz clock. A Verilog-A comparator emulator holds a pseudo-random input per conversion, follows the DAC level from UP/DN and answers each CLKC with a delay t0 + tau*ln(vsat/|residue|); it logs the ideal decisions. The capture monitor logs D at RDY. Checks bits, timing of every loop edge, conversion time and DVDD energy.
+- **`tb_sarlogic_func`** (`tb/sarlogic/tb_sarlogic_func.scs`, 度量 `adcflow.measure.sarlogic:func`)：60 conversions with waveforms for the loop timing. CONV from an ideal 100 MHz clock. A Verilog-A comparator emulator holds a pseudo-random input per conversion, follows the DAC level from UP/DN and answers each CLKC with a delay t0 + tau*ln(vsat/|residue|); it logs the ideal decisions. The capture monitor logs D at RDY. Checks bits, timing of every loop edge, conversion time and DVDD energy. LOG-14/15: CONV, OUTP and OUTN reach the DUT through charge meters (tb_qmeter_va, a 0 V path); the charge a pin draws over each rising edge divided by the voltage step, mean over all rising edges (window as in adc_cdac tb_cdac_settle).
 - **`tb_sarlogic_rand`** (`tb/sarlogic/tb_sarlogic_func.scs`, 度量 `adcflow.measure.sarlogic:func`; 参数 `nconv=1000`, `nowave=1`)：1000 random conversions without waveforms: bit-exact comparison with the emulator (and of the DAC level the emulator reads before each decision).
 - **`tb_sarlogic_func_slow`** (`tb/sarlogic/tb_sarlogic_func.scs`, 度量 `adcflow.measure.sarlogic:func`; 参数 `t0cmp=7e-11`, `nconv=100`, `nowave=1`)：Same as func with a slow-corner comparator (70 ps large-signal delay) for the all-corner conversion-time limit.
 - **`tb_sarlogic_timeout`** (`tb/sarlogic/tb_sarlogic_func.scs`, 度量 `adcflow.measure.sarlogic:timeout`; 参数 `stuck=5`, `nconv=40`)：Same as func but the emulator never answers decision 5 of every other conversion. Checks that the decision is forced to 1 after t_timeout and that the conversion completes with correct remaining decisions.

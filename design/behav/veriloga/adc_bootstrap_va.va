@@ -14,7 +14,7 @@ module adc_bootstrap_va(VIN, PHI_B, PHI_BB, VG, AVDD, VSS);
   parameter real t_on = 60e-12 from (0:inf);
   parameter real t_off = 15e-12 from (0:inf);
   parameter real rout = 50 from (0:inf);
-  parameter real iavg = 15e-6 from [0:inf);   // average AVDD current (budget)
+  parameter real iavg = 30e-6 from [0:inf);   // average AVDD current (budget, BST-07)
 
   integer on;
 

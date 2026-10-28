@@ -11,7 +11,7 @@ import numpy as np
 from .. import calib, psf
 from ..arch import Arch
 from ..figures import C1, C2, C3, C7, GRID, INK2, LIMIT, MUTED, hline, limits, note, plot_spectrum, sink_of, spec_table, vline
-from .common import read_meters, read_samples, spectrum, tran
+from .common import fig_cin, pin_cins, read_meters, read_samples, spectrum, tran
 
 VIN_A, VIN_B = 0.65, 0.25
 
@@ -119,9 +119,14 @@ def settle(job_dir: Path, ctx: dict) -> dict:
     i = ac.get("VDH5:p")
     if i is not None:
         m["cin_ctrl_fF"] = float(abs(np.imag(i[0])) / (2 * np.pi * 100e6) * 1e15)
+    cins = pin_cins(w, vdd, {"cin_phs_fF": ("PHI_S", "QPS"), "cin_phsb_fF": ("PHI_SB", "QPSB"),
+                             "cin_conv_fF": ("CONV", "QCV")})
+    m.update({k: float(c.mean() * 1e15) for k, c in cins.items() if len(c)})
     fg = sink_of(ctx)
     if fg:
         _fig_settle(fg, ctx, t, top, tc, wins, m)
+        fig_cin(fg, ctx, cins, [("cin_phs_fF", "PHI_S", "cin_phs_fF"), ("cin_phsb_fF", "PHI_SB", "cin_phsb_fF"),
+                                ("cin_conv_fF", "CONV", "cin_conv_fF")])
     return m
 
 
@@ -208,7 +213,7 @@ def _fig_settle(fg, ctx, t, top, tc, wins, m) -> None:
                xlim=(-20, xmax), ylim=(min(tol * 1e3 / 50, 1e-3), max(abs(vf - vi) * 1e3 * 2, tol * 1e3 * 10)))
         note(ax, f"step {(vf - vi) * 1e3:.2f} mV", loc="lower left")
     spec_table(axs[1, 2], ctx, m, ["t_start_settle_ps", "t_settle_rl12_ps", "t_settle_rl5_ps", "tau_ps",
-                                   "droop_lsb", "qref_pC", "cin_ctrl_fF"])
+                                   "droop_lsb", "qref_pC", "cin_ctrl_fF", "cin_phs_fF", "cin_phsb_fF", "cin_conv_fF"])
     fg.save(fig, "settle", "Top plate over the test sequence and the error to the final value after the start "
             "of conversion and after the RL12, RL5 and RL0 edges, with the tolerance band, the settle time and "
             "its limit marked.")

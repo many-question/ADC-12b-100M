@@ -1,6 +1,6 @@
 block: adc_ref
 title: Reference driver (VREFP = 0.9 V) and top-plate common-mode (VCM = 0.45 V)
-version: 0.3.0
+version: 0.4.0
 owner: many-question
 status: behavioral
 views:
@@ -32,12 +32,23 @@ ports:
 operating:
   load_vrefp: >
     the CDAC charge sequence of a 49.7 MHz -1 dBFS conversion from the system
-    model (tb_ref_replay), plus 1.2 pF for the CDAC bottom plates; DC tests
-    use a 100 uA average load
-  load_vcm: "2 x 2.5 pF switched to top plates at 100 MHz"
+    model (tb_ref_replay), plus 1.2 pF for the CDAC bottom plates; DC and
+    noise tests use the average load load_vrefp_dc
+  # A; tb_ref_dc and tb_ref_noise (gen_tb.py) take it from here. The CDAC
+  # average of arch v0.3, both sides: 0.93 pC at the start (the sampled H
+  # halves, C_S / 2 = 1.03 pF per side, from VIN ~ 0.45 V to VREFP) plus 13
+  # switch charges w_j * cu / 2 * VREFP (sum of w_j = 2269: 1.02 pC), together
+  # 1.95 pC per conversion; x 100 MHz = 195 uA (v0.2 with cu = 0.5 fF: 100 uA).
+  # It covers the 176 uA average of the near-Nyquist replay (tb_ref_replay,
+  # npts 1024, 49.707 MHz; the signal-dependent part lowers the average).
+  load_vrefp_dc: 200.0e-6
+  load_vcm: >
+    2 x 2.5 pF switched to top plates at 100 MHz; not applied by any adc_ref
+    testbench: VCM is accepted by REF-02 (DC) plus the mixed top-level
+    regression (tb_top_sine with the transistor adc_ref), see docs/handoff.md
   power: "no limit; AVDD18 / AVDD currents are reported (lower is better)"
 specs:
-  - {id: REF-01, name: "VREFP - VREF_IN (DC, 100 uA load)",       metric: vrefp_err_mV, unit: mV, min: -5, max: 5, corners: all, test: tb_ref_dc}
+  - {id: REF-01, name: "VREFP - VREF_IN (DC, 200 uA load)",       metric: vrefp_err_mV, unit: mV, min: -5, max: 5, corners: all, test: tb_ref_dc}
   - {id: REF-02, name: "VCM",                                     metric: vcm_V,        unit: V,  min: 0.44, max: 0.46, corners: all, test: tb_ref_dc}
   - {id: REF-04, name: "VREFP sensitivity to AVDD18 (DC)",        metric: line_mV_per_V, unit: mV/V, max: 5, corners: all, test: tb_ref_dc}
   - {id: REF-08, name: "VREFP noise 10 kHz - 100 GHz (with 1.2 pF CDAC load)", metric: noise_uV, unit: uV, max: 120, corners: typ, test: tb_ref_noise}
@@ -50,9 +61,10 @@ tests:
     netlist: tb/ref/tb_ref_dc.scs
     measure: adcflow.measure.ref:dc
     desc: >
-      DC operating point with a 100 uA load, a dc sweep of the load 0..200 uA
-      (load regulation, reported) and of AVDD18 +/-10 %; supply currents
-      (reported) and the VREF_IN input current.
+      DC operating point with the 200 uA average CDAC load (load_vrefp_dc):
+      REF-01, REF-02 and REF-11 there, REF-04 from a sweep of AVDD18 +/-10 % at
+      that load; a dc sweep of the load 0..200 uA is characterization (load
+      regulation, reported, no limit); supply currents are reported.
   tb_ref_replay:
     netlist: tb/ref/tb_ref_replay.scs
     measure: adcflow.measure.ref:replay
@@ -74,7 +86,7 @@ tests:
     measure: adcflow.measure.ref:noise
     desc: >
       Small-signal noise of VREFP (and VCM) from 1 kHz to 100 GHz with the
-      decoupling, the 1.2 pF CDAC load and a 100 uA load. VREFP noise
+      decoupling, the 1.2 pF CDAC load and the 200 uA average load. VREFP noise
       multiplies the signal (input-referred ~0.7 x at -1 dBFS): 80 / 120 /
       160 / 300 uV rms cost 0.06 / 0.12 / 0.20 / 0.49 bit. REF-08 integrates
       from 10 kHz, about one bin of a long (8k-16k point) record; noise below

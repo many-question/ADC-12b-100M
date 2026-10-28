@@ -1,6 +1,6 @@
 block: adc_comp
 title: Dynamic latched comparator
-version: 0.2.0
+version: 0.3.0
 owner: many-question
 status: behavioral            # behavioral | xtor-wip | xtor-review | signoff
 views:
@@ -23,7 +23,8 @@ ports:
 operating:
   input_cm: [0.40, 0.56]      # V; the top-plate CM is ~0.49 V
   input_diff_max: 0.8         # V; the first comparison can see ~0.75 V
-  load_per_output: 10.0e-15   # F; SAR logic input + wire
+  load_per_output: 10.0e-15   # F; SAR logic input (adc_sarlogic LOG-15, 7 fF) + 3 fF wire
+  # CLKC (CMP-14) is the adc_sarlogic CLKC load load_clkc (20 fF): 16 fF + 4 fF of wire.
 specs:
   - {id: CMP-01, name: "input-referred noise (diff rms)",            metric: noise_uV,       unit: uV,    max: 200, corners: typ, test: tb_comp_noise}
   - {id: CMP-13, name: "input-referred noise (diff rms, all corners)", metric: noise_uV,     unit: uV,    max: 240, corners: all, test: tb_comp_noise}
@@ -38,6 +39,7 @@ specs:
   - {id: CMP-10, name: "energy per comparison at 1 mV",              metric: energy_fJ,      unit: fJ,    max: 200, corners: typ, test: tb_comp_delay}
   - {id: CMP-11, name: "differential kickback per cycle on 2.5 pF",  metric: kickback_uV,    unit: uV,    max: 40,  corners: all, test: tb_comp_kickback}
   - {id: CMP-12, name: "input capacitance per input",                metric: cin_fF,         unit: fF,    max: 20,  corners: typ, test: tb_comp_kickback}
+  - {id: CMP-14, name: "CLKC input capacitance (charge per rising edge / VDD)", metric: cin_clkc_fF, unit: fF, max: 16, corners: typ, test: tb_comp_kickback}
 tests:
   tb_comp_delay:
     netlist: tb/comp/tb_comp_delay.scs
@@ -64,4 +66,7 @@ tests:
     desc: >
       Inputs floating on 2.5 pF capacitors (the CDAC top plates, C_tot), preset to
       VCM +/- 0.5 mV. Measures the change of the differential input after one
-      evaluate + reset cycle, and the input capacitance from a small CM step.
+      evaluate + reset cycle. CMP-12: AC current into INP of a second instance
+      in reset at 100 MHz. CMP-14: CLKC reaches the DUT through a charge meter (tb_qmeter_va, a 0 V path);
+      the charge it draws over each rising edge divided by the voltage step,
+      mean over the 8 cycles (window as in adc_cdac tb_cdac_settle).

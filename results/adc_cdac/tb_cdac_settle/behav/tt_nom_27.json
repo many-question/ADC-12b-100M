@@ -14,18 +14,21 @@
   "vref_in": 0.9
  },
  "metrics": {
-  "start_step_mV": -163.52001251346493,
-  "t_start_settle_ps": 11.60000000000025,
-  "droop_lsb": 7.210121286620957e-07,
-  "t_settle_rl12_ps": 12.30000000000005,
-  "step_rl12_mV": 175.28518619648963,
-  "tau_ps": 1.2160245493301964,
+  "start_step_mV": -163.52001251346599,
+  "t_start_settle_ps": 11.400000000000189,
+  "droop_lsb": 7.210107431592721e-07,
+  "t_settle_rl12_ps": 12.69999999999852,
+  "step_rl12_mV": 175.28518619652965,
+  "tau_ps": 1.17259510113896,
   "t_settle_rl5_ps": 14.29999999999901,
-  "step_rl5_mV": 3.2195239121224906,
-  "t_settle_rl0_ps": 9.600000000002945,
-  "step_rl0_mV": 0.17886252038762374,
-  "qref_pC": 0.7748156679,
-  "cin_ctrl_fF": 0.0
+  "step_rl5_mV": 3.219523912123823,
+  "t_settle_rl0_ps": 10.099999999996895,
+  "step_rl0_mV": 0.17886252038906703,
+  "qref_pC": 0.7737680346,
+  "cin_ctrl_fF": 4.499994607463177,
+  "cin_phs_fF": 30.00000000000008,
+  "cin_phsb_fF": 30.000000000000092,
+  "cin_conv_fF": 60.000000000000114
  },
  "specs": {
   "DAC-05": {
@@ -36,38 +39,56 @@
   },
   "DAC-06": {
    "metric": "t_settle_rl12_ps",
-   "value": 12.30000000000005,
+   "value": 12.69999999999852,
    "limit": "<= 40",
    "pass": true
   },
   "DAC-07": {
    "metric": "tau_ps",
-   "value": 1.2160245493301964,
+   "value": 1.17259510113896,
    "limit": "<= 15",
    "pass": true
   },
   "DAC-08": {
    "metric": "t_start_settle_ps",
-   "value": 11.60000000000025,
+   "value": 11.400000000000189,
    "limit": "<= 100",
    "pass": true
   },
   "DAC-11": {
    "metric": "droop_lsb",
-   "value": 7.210121286620957e-07,
+   "value": 7.210107431592721e-07,
    "limit": "<= 0.1",
    "pass": true
   },
   "DAC-12": {
    "metric": "qref_pC",
-   "value": 0.7748156679,
+   "value": 0.7737680346,
    "limit": "<= 1.2",
    "pass": true
   },
   "DAC-13": {
    "metric": "cin_ctrl_fF",
-   "value": 0.0,
+   "value": 4.499994607463177,
    "limit": "<= 6",
+   "pass": true
+  },
+  "DAC-15": {
+   "metric": "cin_phs_fF",
+   "value": 30.00000000000008,
+   "limit": "<= 40",
+   "pass": true
+  },
+  "DAC-16": {
+   "metric": "cin_phsb_fF",
+   "value": 30.000000000000092,
+   "limit": "<= 40",
+   "pass": true
+  },
+  "DAC-17": {
+   "metric": "cin_conv_fF",
+   "value": 60.000000000000114,
+   "limit": "<= 80",
    "pass": true
   }
  },
@@ -75,28 +96,32 @@
   {
    "file": "tt_nom_27.settle.png",
    "caption": "Top plate over the test sequence and the error to the final value after the start of conversion and after the RL12, RL5 and RL0 edges, with the tolerance band, the settle time and its limit marked."
+  },
+  {
+   "file": "tt_nom_27.cin.png",
+   "caption": "Input capacitance of the clock and digital inputs: the charge each pin draws over every rising edge (charge meter in series with it) divided by the voltage step, against the limit; the metric is the mean over the edges."
   }
  ],
  "meta": {
-  "date": "2026-10-28T18:03:36",
-  "git": "a907201",
+  "date": "2026-10-28T20:40:38",
+  "git": "285dcb4",
   "git_clean": true,
   "mode": "aps",
   "pdk": false,
   "mc": null,
-  "wall_s": 139.5,
+  "wall_s": 152.4,
   "rc": "0",
-  "sim_s": "32",
+  "sim_s": "44",
   "files": {
-   "design/behav/adc_bootstrap.scs": "9458798199909fc5",
-   "design/behav/adc_cdac.scs": "423386f9cc9bb2d0",
+   "design/behav/adc_bootstrap.scs": "eee3a0a78eec4c5f",
+   "design/behav/adc_cdac.scs": "5b8837cc5d2a76bc",
    "design/behav/adc_clkgen.scs": "0e7831ed888587e6",
-   "design/behav/adc_comp.scs": "4c26a597d558e2ae",
+   "design/behav/adc_comp.scs": "c0da9398b6e09fc2",
    "design/behav/adc_ref.scs": "a83c6feaac8c9c1a",
-   "design/behav/adc_sarlogic.scs": "356e911752c1b85e",
+   "design/behav/adc_sarlogic.scs": "7982e36f6743bf80",
    "design/top/adc_top.scs": "362a964ffe162797",
-   "design/behav/veriloga/adc_bootstrap_va.va": "a6afdb6e2e03593b",
-   "design/behav/veriloga/adc_cdac_sw_va.va": "cb43ced3f53d636b",
+   "design/behav/veriloga/adc_bootstrap_va.va": "12338aad16f4913b",
+   "design/behav/veriloga/adc_cdac_sw_va.va": "e465880479187179",
    "design/behav/veriloga/adc_clkgen_va.va": "7fff1b9368bc1a20",
    "design/behav/veriloga/adc_comp_va.va": "ab8a6bf210351e31",
    "design/behav/veriloga/adc_ktc_va.va": "a1cf98faf5bf9b33",
@@ -104,7 +129,8 @@
    "design/behav/veriloga/adc_sarlogic_va.va": "42f06909a81347ef",
    "tb/common/veriloga/tb_cdac_seq_va.va": "800f16f07345b3b9",
    "tb/common/veriloga/tb_imeter_va.va": "d4be49aca417ad61",
-   "tb/cdac/tb_cdac_settle.scs": "3010e86660f19ad9",
+   "tb/common/veriloga/tb_qmeter_va.va": "fed84d572a912b39",
+   "tb/cdac/tb_cdac_settle.scs": "ff9490ded1bb22c5",
    "specs/arch.yaml": "bffadef750bb5205"
   }
  }

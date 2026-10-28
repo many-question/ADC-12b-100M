@@ -23,10 +23,10 @@
    0.855,
    0.855
   ],
-  "vgs_min_V": 0.854999633383,
-  "vgs_var_mV": 4.642299999968458e-05,
-  "t_off_ps": 18.064776248482836,
-  "t_on_ps": 67.58545763448535,
+  "vgs_min_V": 0.8549996342006,
+  "vgs_var_mV": 4.897200001074964e-05,
+  "t_off_ps": 18.11268762669665,
+  "t_on_ps": 68.0269807225522,
   "soa_scope": "external",
   "soa_limit_V": 1.0,
   "soa_devices": 1,
@@ -37,12 +37,12 @@
   "soa_worst": {
    "device": "MSWP",
    "pair": "gs",
-   "signed_V": -0.89992,
+   "signed_V": -0.89991,
    "t_ns": 245.132,
-   "dt_ps": 5.002
+   "dt_ps": 4.86
   },
-  "soa_points": 2849,
-  "soa_dt_max_ps": 2311.917,
+  "soa_points": 3148,
+  "soa_dt_max_ps": 2384.506,
   "soa_table": [
    {
     "device": "MSWP",
@@ -50,9 +50,9 @@
     "where": "external",
     "pair": "gs",
     "max_V": 0.89999,
-    "signed_V": -0.89992,
+    "signed_V": -0.89991,
     "t_ns": 245.132,
-    "dt_ps": 5.002,
+    "dt_ps": 4.86,
     "pass": true
    },
    {
@@ -60,10 +60,10 @@
     "master": "nch_ulvt_mac",
     "where": "external",
     "pair": "gd",
-    "max_V": 0.85833,
+    "max_V": 0.85834,
     "signed_V": 0.85826,
     "t_ns": 160.5,
-    "dt_ps": 42.438,
+    "dt_ps": 44.904,
     "pass": true
    },
    {
@@ -71,37 +71,39 @@
     "master": "nch_ulvt_mac",
     "where": "external",
     "pair": "ds",
-    "max_V": 0.71998,
-    "signed_V": -0.71991,
-    "t_ns": 245.1295,
-    "dt_ps": 3.499,
+    "max_V": 0.72028,
+    "signed_V": -0.72022,
+    "t_ns": 245.1296,
+    "dt_ps": 3.523,
     "pass": true
    }
   ],
-  "iavg_uA": 30.0
+  "iavg_uA": 30.0,
+  "cin_phb_fF": 11.999999999999986,
+  "cin_phbb_fF": 11.99999999999998
  },
  "specs": {
   "BST-01": {
    "metric": "vgs_min_V",
-   "value": 0.854999633383,
+   "value": 0.8549996342006,
    "limit": ">= 0.72",
    "pass": true
   },
   "BST-02": {
    "metric": "vgs_var_mV",
-   "value": 4.642299999968458e-05,
+   "value": 4.897200001074964e-05,
    "limit": "<= 40",
    "pass": true
   },
   "BST-03": {
    "metric": "t_off_ps",
-   "value": 18.064776248482836,
+   "value": 18.11268762669665,
    "limit": "<= 60",
    "pass": true
   },
   "BST-04": {
    "metric": "t_on_ps",
-   "value": 67.58545763448535,
+   "value": 68.0269807225522,
    "limit": "<= 300",
    "pass": true
   },
@@ -109,6 +111,18 @@
    "metric": "iavg_uA",
    "value": 30.0,
    "limit": "<= 50",
+   "pass": true
+  },
+  "BST-09": {
+   "metric": "cin_phb_fF",
+   "value": 11.999999999999986,
+   "limit": "<= 16",
+   "pass": true
+  },
+  "BST-10": {
+   "metric": "cin_phbb_fF",
+   "value": 11.99999999999998,
+   "limit": "<= 16",
    "pass": true
   },
   "BST-08": {
@@ -126,37 +140,42 @@
   {
    "file": "tt_nom_27.soa.png",
    "caption": "Largest |Vgs|, |Vgd|, |Vds| of every checked device against the 1.0 V limit (scope: external), the worst pair over the whole run, and the saved time points around the time of its maximum, which set the time resolution."
+  },
+  {
+   "file": "tt_nom_27.cin.png",
+   "caption": "Input capacitance of the clock and digital inputs: the charge each pin draws over every rising edge (charge meter in series with it) divided by the voltage step, against the limit; the metric is the mean over the edges."
   }
  ],
  "meta": {
-  "date": "2026-10-28T19:30:37",
-  "git": "844245e",
+  "date": "2026-10-28T20:46:23",
+  "git": "285dcb4",
   "git_clean": true,
   "mode": "aps",
   "pdk": true,
   "mc": null,
-  "wall_s": 135.7,
+  "wall_s": 147.5,
   "rc": "0",
-  "sim_s": "29",
+  "sim_s": "40",
   "files": {
-   "design/behav/adc_bootstrap.scs": "9458798199909fc5",
-   "design/behav/adc_cdac.scs": "423386f9cc9bb2d0",
+   "design/behav/adc_bootstrap.scs": "eee3a0a78eec4c5f",
+   "design/behav/adc_cdac.scs": "5b8837cc5d2a76bc",
    "design/behav/adc_clkgen.scs": "0e7831ed888587e6",
-   "design/behav/adc_comp.scs": "4c26a597d558e2ae",
+   "design/behav/adc_comp.scs": "c0da9398b6e09fc2",
    "design/behav/adc_ref.scs": "a83c6feaac8c9c1a",
-   "design/behav/adc_sarlogic.scs": "356e911752c1b85e",
+   "design/behav/adc_sarlogic.scs": "7982e36f6743bf80",
    "design/top/adc_top.scs": "362a964ffe162797",
-   "design/behav/veriloga/adc_bootstrap_va.va": "a6afdb6e2e03593b",
-   "design/behav/veriloga/adc_cdac_sw_va.va": "cb43ced3f53d636b",
+   "design/behav/veriloga/adc_bootstrap_va.va": "12338aad16f4913b",
+   "design/behav/veriloga/adc_cdac_sw_va.va": "e465880479187179",
    "design/behav/veriloga/adc_clkgen_va.va": "7fff1b9368bc1a20",
    "design/behav/veriloga/adc_comp_va.va": "ab8a6bf210351e31",
    "design/behav/veriloga/adc_ktc_va.va": "a1cf98faf5bf9b33",
    "design/behav/veriloga/adc_ref_va.va": "746d2530d4ff6d5c",
    "design/behav/veriloga/adc_sarlogic_va.va": "42f06909a81347ef",
    "tb/common/veriloga/tb_imeter_va.va": "d4be49aca417ad61",
+   "tb/common/veriloga/tb_qmeter_va.va": "fed84d572a912b39",
    "tb/common/veriloga/tb_sampler_va.va": "4092bc16170c588d",
    "specs/soa.yaml": "df574d3582df9b2c",
-   "tb/bootstrap/tb_bootstrap_dc.scs": "458ad58a9cbafe6f",
+   "tb/bootstrap/tb_bootstrap_dc.scs": "9fb3f878fa23b2ab",
    "specs/arch.yaml": "bffadef750bb5205"
   }
  }

@@ -9,7 +9,7 @@ import numpy as np
 from .. import psf
 from ..figures import C1, C2, C3, INK2, LIMIT, MUTED, hline, limit_label, limits, note, sink_of, vline
 from ..figures import GRID as GRIDLINE
-from .common import read_meters, read_samples, tran
+from .common import fig_cin, pin_cins, read_meters, read_samples, tran
 
 TCYC = 400e-12
 DELAY_LEVELS = [100e-3, -100e-3, 30e-3, -30e-3, 10e-3, -10e-3, 3e-3, -3e-3, 1e-3, -1e-3,
@@ -151,9 +151,13 @@ def kickback(job_dir: Path, ctx: dict) -> dict:
     i = ac.get("VAC:p")
     if i is not None:
         m["cin_fF"] = float(abs(np.imag(i[0])) / (2 * np.pi * 100e6) * 1e15)
+    cins = pin_cins(tran(job_dir), float(ctx["globals"]["vdd"]), {"cin_clkc_fF": ("CLKC", "QCK")})
+    m.update({k: float(c.mean() * 1e15) for k, c in cins.items() if len(c)})
     fg = sink_of(ctx)
     if fg and "vdiff_uV" in m:
         _fig_kickback(fg, ctx, m)
+    if fg:
+        fig_cin(fg, ctx, cins, [("cin_clkc_fF", "CLKC", "cin_clkc_fF")])
     return m
 
 
@@ -264,6 +268,9 @@ def _fig_kickback(fg, ctx, m) -> None:
     if "cin_fF" in m:
         hi = limits(ctx, "cin_fF")[1]
         lines.append(f"Cin {m['cin_fF']:.2f} fF per input" + (f" (limit {hi:g})" if hi else ""))
+    if "cin_clkc_fF" in m:
+        hi = limits(ctx, "cin_clkc_fF")[1]
+        lines.append(f"CLKC {m['cin_clkc_fF']:.2f} fF" + (f" (limit {hi:g})" if hi else ""))
     note(ax, "\n".join(lines), loc="upper left")
     fg.save(fig, "kickback", "Differential input of the floating top-plate-sized nodes after each evaluate and reset "
             "cycle, and the change per cycle against the kickback limit.")

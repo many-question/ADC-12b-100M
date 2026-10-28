@@ -49,19 +49,22 @@
 
 | 模块 | 关键结果 |
 |---|---|
-| 顶层 `tb_top_sine`（1024 点校准 + 1024 点判定，49.71 MHz，−1 dBFS，噪声开） | ENOB 10.89（校准权重，验收；标称权重 10.86），SNR 67.5 dB，THD −81.5 dBc，SFDR 84.0 dB，FS 0.994 V，t_conv 2.69 ns，无丢失 RDY，8.00 mW（AVDD18 7.52 mW） |
-| 顶层低频 / 占空比 45 %、55 % | ENOB 10.94 / 10.96 / 10.90（标称 10.91 / 10.92 / 10.83） |
-| `adc_comp` | 噪声 189.5 µV，95 % 区间 181.7~197.7 µV（行为级 σ = 190 µV；17 × 512 次判决，二项最大似然），1 mV 时延 76 ps，30 mV 49 ps，τ 8 ps，回踢 ≈ 0（行为级比较器无回踢），Cin 15 fF，能耗 112 fJ |
-| `adc_sarlogic` | 1000 次随机转换 0 错误，转换 2.57 ns（比较器 70 ps 时 2.90 ns），超时 285 ps，212 µW |
-| `adc_cdac` | C_S 2.057 pF，FS 0.993 V，可校准性裕量 0.465 LSB，校准后 ENOB 损失 ≈ 0（标称 0.07 bit，4 颗失配芯片）；RL12 建立 12.3 ps，τ 1.2 ps，起始建立 11.6 ps；VREFP 电荷 0.78 pC；跟踪 SFDR 97.9 dB / SNDR 91.2 dB |
-| `adc_bootstrap`（参考开关 96 µm + 2.057 pF） | VG−VIN 0.855 V，关断 18 ps，开启 68 ps；跟踪 SFDR 92.6 dB / SNDR 85.7 dB（v0.2：97.2 / 89.6）；SOA 仅外部节点（参考开关，§5）：最大 \|Vgs\| 0.900 V（VG 为 0、VIN = 0.9 V 时，负向），0 违例 |
+| 顶层 `tb_top_sine`（1024 点校准 + 1024 点判定，49.71 MHz，−1 dBFS，噪声开） | ENOB 10.91（校准权重，验收；标称权重 10.88），SNR 67.6 dB，THD −83.4 dBc，SFDR 83.3 dB，FS 0.994 V，t_conv 2.72 ns，无丢失 RDY，8.01 mW（AVDD18 7.52 mW） |
+| 顶层低频 / 占空比 45 %、55 % | ENOB 10.94 / 10.95 / 10.95（标称 10.90 / 10.89 / 10.90） |
+| `adc_comp` | 噪声 189.5 µV，95 % 区间 181.7~197.7 µV（行为级 σ = 190 µV；17 × 512 次判决，二项最大似然），1 mV 时延 76 ps，30 mV 49 ps，τ 8 ps，回踢 ≈ 0（行为级比较器无回踢），Cin 15 fF，CLKC 12 fF，能耗 112 fJ |
+| `adc_sarlogic`（UP/DN 负载 15 fF） | 1000 次随机转换 0 错误，转换 2.57 ns（比较器 70 ps 时 2.90 ns），超时 285 ps，210 µW；输入电容 CONV 30 fF、OUTP/OUTN 5 fF |
+| `adc_cdac` | C_S 2.057 pF，FS 0.993 V，可校准性裕量 0.465 LSB，校准后 ENOB 损失 ≈ 0（标称 0.07 bit，4 颗失配芯片）；RL12 建立 12.7 ps，τ 1.2 ps，起始建立 11.4 ps；VREFP 电荷 0.77 pC；跟踪 SFDR 109.3 dB / SNDR 101.8 dB；输入电容 DH/RL 4.5 fF、PHI_S/PHI_SB 30 fF、CONV 60 fF |
+| `adc_bootstrap`（参考开关 96 µm + 2.057 pF） | VG−VIN 0.855 V，关断 18 ps，开启 68 ps；跟踪 SFDR 92.6 dB / SNDR 85.8 dB（v0.2：97.2 / 89.6）；SOA 仅外部节点（参考开关，§5）：最大 \|Vgs\| 0.900 V（VG 为 0、VIN = 0.9 V 时，负向），0 违例；PHI_B/PHI_BB 输入 12 fF |
 | `adc_clkgen`（规格负载共 530 fF） | PHI_S 延时 46 ps，PHI_S→PHI_B 40 ps，抖动 46 fs，占空比 45/55 % 无错误，AVDD 70 µA（行为级占位，含负载，CLK-10 ≤ 80 µA） |
-| `adc_ref`（follower 4 mA + 3 pF） | 回放 ENOB 损失 0.018 bit，判决 12~14 变化 41 µV，记忆 ≈ 0，最大跌落 9.1 mV；噪声 44.3 µV（带 1.2 pF）；直流 −1.0 mV（100 µA 负载） |
+| `adc_ref`（follower 4 mA + 3 pF） | 回放 ENOB 损失 0.018 bit，判决 12~14 变化 41 µV，记忆 ≈ 0，最大跌落 9.1 mV；噪声 43.9 µV（带 1.2 pF 与 200 µA）；直流 −2.0 mV（200 µA 负载） |
 
-* TT 顶层 ENOB 10.89 比模型的行为级条件（比较器 200 µV 时 10.97，8192 点）低约 0.08 bit：约 0.05 bit 是行为级的
-  THD（−81.5 dBc，模型未计），其余是 1024 点记录的统计起伏（SNR 估计约 ±3 %）。比较器取 200 µV 时实测为 10.84，
+* TT 顶层 ENOB 10.91 比模型的行为级条件（比较器 200 µV 时 10.97，8192 点）低约 0.06 bit：一部分是行为级的
+  THD（−83.4 dBc，模型未计），其余是 1024 点记录的统计起伏（SNR 估计约 ±3 %）。比较器取 200 µV 时实测为 10.84，
   TOP-02 因此取 10.75（用户决定，验收仍用 1024 点记录）；结果接近限值时可用更长记录
   （`--param npts=4096 --param ncal=4096`）复核。
+* 接口负载 PR（各输入加了明确的输入电容）之后，几个行为级数值有变化，都是数值精度而不是电路变化：顶层 DVDD
+  0.195 → 0.211 mW，即占位值本身（14 × 150 fJ × 100 MHz + 漏电 = 0.211 mW）；CDAC 跟踪 SFDR 97.9 → 109.3 dB
+  （行为级采样网络是线性的）。推测原因是时钟沿处的电容迫使仿真器在这些沿上取更细的步长。
 * 噪声关闭时顶层 ENOB 约 11.85（量化极限 12.0；v0.1 测得，v0.2/v0.3 未重测）；`ax` 模式下行为级 ADC 精度不足，因此验收一律用 `aps`。
 * 行为级参考的 AVDD18 电流即 follower 偏置（4 mA）加 CDAC 平均电流；其余模块的功耗为预算值
   （固定电流 + 每次判决的电荷），不代表电路实际功耗。
@@ -86,15 +89,15 @@
 |---|---|---|
 | `tb_comp_delay` | `delay` | 延时随输入差的变化（含 ln 拟合与限值）、±1 mV 判决瞬态并标出延时、复位到 10 % VDD |
 | `tb_comp_noise` | `noise` | 判决概率与二项分布最大似然 probit 拟合（及 σ 的 95 % 区间带、限值处的曲线）、拟合残差与二项分布误差带 |
-| `tb_comp_kickback` | `kickback` | 每个周期后的差分输入、每周期变化量对限值、Cin |
+| `tb_comp_kickback` | `kickback`、`cin` | 每个周期后的差分输入、每周期变化量对限值、Cin 与 CLKC 输入电容；CLKC 各上升沿的输入电容对限值（§6） |
 | `tb_cdac_weights` | `weights` | 各位权重与标称、各位权重误差对 0.5 % 限值、上升/下降步长不对称 |
-| `tb_cdac_settle` | `settle` | 整个序列的顶板波形；起始与 RL12 / RL5 / RL0 之后的误差（对数坐标），标出容差线、建立时间与限值；规格表 |
+| `tb_cdac_settle` | `settle`、`cin` | 整个序列的顶板波形；起始与 RL12 / RL5 / RL0 之后的误差（对数坐标），标出容差线、建立时间与限值；规格表；PHI_S、PHI_SB、CONV 各上升沿的输入电容对限值（§6） |
 | `tb_cdac_track` | `spectrum` | 顶板采样谱，SFDR / SNDR 对限值 |
-| `tb_bootstrap_dc` | `switch`、`soa` | VG−VIN 随输入、最坏关断 / 开启边沿（时延与限值）、参考开关三对端电压对 ±1.0 V、规格表；逐管 SOA（§5）：各器件各端电压的最大 \|V\| 对限值、最坏一对的全程波形与峰值附近的时间点 |
+| `tb_bootstrap_dc` | `switch`、`soa`、`cin` | VG−VIN 随输入、最坏关断 / 开启边沿（时延与限值）、参考开关三对端电压对 ±1.0 V、规格表；逐管 SOA（§5）：各器件各端电压的最大 \|V\| 对限值、最坏一对的全程波形与峰值附近的时间点；PHI_B、PHI_BB 各上升沿的输入电容对限值（§6） |
 | `tb_bootstrap_track` | `spectrum` | 经自举开关采样的频谱，SFDR / SNDR 对限值 |
 | `tb_clkgen_timing` | `timing` | CLK 下降 / 上升沿处 PHI_S、PHI_B、CONV 时序、PHI_S 下降沿（80 %→20 %）、占空比 50 / 45 / 55 % 各周期的延时与间隔对限值、规格表 |
 | `tb_clkgen_jitter` | `jitter` | 采样相位沿的直方图与高斯、各沿残差、限值处曲线 |
-| `tb_sarlogic_func` | `decisions`、`conversion`、`timing` | 输出码对输入、各判决位置的错码数、转换时间直方图；一次异步转换的波形（14 个比较器时钟、DAC 控制沿、RDY）；各环路时间逐事件对限值 |
+| `tb_sarlogic_func` | `decisions`、`conversion`、`timing`、`cin` | 输出码对输入、各判决位置的错码数、转换时间直方图；一次异步转换的波形（14 个比较器时钟、DAC 控制沿、RDY）；各环路时间逐事件对限值；CONV、OUTP、OUTN 各上升沿的输入电容对限值（§6） |
 | `tb_sarlogic_rand`、`_func_slow` | `decisions` | 同上（无波形） |
 | `tb_sarlogic_timeout` | `decisions`、`timeout` | 同上；比较器不应答时 CLKC 被超时拉低的波形与每次超时时间对窗口 |
 | `tb_ref_dc` | `dc` | VREFP 随负载、随 AVDD18、VCM 随负载（含窗口与斜率限值）、规格表 |
@@ -169,3 +172,29 @@ PSF 读入器解析，器件与节点的对应关系由流程自己写出，可�
 **行为级视图**没有内部器件：`soa_scope = external`，只检查边界器件（bootstrap 为参考开关 MSWP 的 |VG−VIN|、|VG−BP|、|BP−VIN|，
 两个方向）。行为级通过只说明测试台和外部波形没有超限，**不是晶体管级签核证据**；BST-08 的签核要用 `--view adc_bootstrap=xtor`
 得到的 `device` 结果。
+
+## 6. 时钟与数字输入的输入电容
+
+驱动端的测试台负载（`adc_clkgen` `loads`、`adc_sarlogic` `load_updn` / `load_clkc`、`adc_comp` `load_per_output`）
+由接收端的输入电容限值约束：接收端实例数 × 限值 + 约 20 % 负载的走线 ≤ 驱动端负载（表见
+[`handoff.md`](handoff.md)“接口负载与输入电容”，`tests/test_specs_and_checks.py` 按顶层网表检查）。
+
+| 指标 | 引脚 | 限值 | 测试 |
+|---|---|---|---|
+| DAC-15 / 16 / 17 | `adc_cdac` PHI_S / PHI_SB / CONV | 40 / 40 / 80 fF | `tb_cdac_settle` |
+| BST-09 / 10 | `adc_bootstrap` PHI_B / PHI_BB | 16 / 16 fF | `tb_bootstrap_dc` |
+| LOG-14 / 15 | `adc_sarlogic` CONV / OUTP、OUTN（取较大者） | 40 / 7 fF | `tb_sarlogic_func` |
+| CMP-14 | `adc_comp` CLKC | 16 fF | `tb_comp_kickback` |
+
+**测量**：测试台中 DUT 的这些输入不直接接驱动源，而是经一个电荷计 `tb_qmeter_va`（`QM<tag>`，0 V 通路）；
+`V(Q<tag>)` 是流入该引脚的累计电荷（fC），由仿真器用与电路相同的积分方法和步长积出。度量
+（`adcflow.measure.common.edge_cin`）对引脚电压的每个上升沿，取 50 % 过零点前 50 ps 到后 200 ps（不超过与相邻下降沿的中点）
+之间的电荷变化，除以同一窗口内的电压变化（不足 0.8 VDD 的沿不计），各沿取平均作为指标。这就是驱动端每个沿实际充的电荷：
+包括栅电容在整个摆幅上的变化与 Miller 耦合，而在某一电平上的小信号交流值会漏掉这些。
+
+为什么不对保存的电流波形求和：仿真器在断点（边沿的拐角）后用后向欧拉重启、其余步用梯形法，两者混用时，
+对电流采样无论用梯形和还是矩形和都不精确（行为级电容上曾分别差 −7 % 与 +50 %）；
+`idt` 与电容的 `ddt` 用同一公式，对容性负载得到的电荷是精确的。
+
+控制输入 DH/RL（DAC-13）与比较器输入（CMP-12）仍用 100 MHz 交流电流（模拟输入在偏置点附近小信号工作）。
+行为级视图在这些输入上有明确的电容（`cin_*` 参数，约为限值的 75 %），交流与电荷两种测量都得到该值。

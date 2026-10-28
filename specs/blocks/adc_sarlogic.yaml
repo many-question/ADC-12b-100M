@@ -1,6 +1,6 @@
 block: adc_sarlogic
 title: Asynchronous SAR controller, bit registers and output register
-version: 0.1.0
+version: 0.2.0
 owner: Arcadia-1
 status: behavioral
 views:
@@ -66,8 +66,11 @@ ports:
   - {name: DVDD, dir: supply, type: supply, side: top,    desc: "0.9 V digital supply"}
   - {name: VSS,  dir: ground, type: supply, side: bottom, desc: "ground"}
 operating:
-  load_updn: 12.0e-15       # F per UP/DN output (two CDAC control inputs + wire)
-  load_clkc: 20.0e-15       # F, comparator clock input
+  load_updn: 15.0e-15       # F per UP/DN output: two CDAC control inputs (2 x DAC-13, 6 fF) + 3 fF wire
+  load_clkc: 20.0e-15       # F, comparator clock input (adc_comp CMP-14, 16 fF) + 4 fF wire
+  # Inputs: CONV is the adc_clkgen CONV load (250 fF) shared with the two CDACs
+  # (DAC-17, 80 fF each): 2 x 80 + 40 + 50 fF (20 %) of wire; OUTP / OUTN are
+  # the comparator output load load_per_output (10 fF): 7 fF + 3 fF of wire.
   load_dout: 50.0e-15       # F per D output and RDY (output port)
 specs:
   - {id: LOG-01, name: "functional errors (1000 conversions vs ideal emulator)", metric: func_errors, unit: count, max: 0, corners: all, test: tb_sarlogic_rand}
@@ -83,6 +86,8 @@ specs:
   - {id: LOG-11, name: "forced-decision recovery (stuck comparator) errors", metric: timeout_errors, unit: count, max: 0, corners: all, test: tb_sarlogic_timeout}
   - {id: LOG-12, name: "timeout value",                           metric: t_timeout_ps, unit: ps, min: 200, max: 350, corners: all, test: tb_sarlogic_timeout}
   - {id: LOG-13, name: "average DVDD power at 100 MS/s",         metric: power_uW,    unit: uW, max: 300, corners: typ, test: tb_sarlogic_func}
+  - {id: LOG-14, name: "CONV input capacitance (charge per rising edge / VDD)", metric: cin_conv_fF, unit: fF, max: 40, corners: typ, test: tb_sarlogic_func}
+  - {id: LOG-15, name: "OUTP / OUTN input capacitance (charge per rising edge / VDD, larger of the two)", metric: cin_cmp_fF, unit: fF, max: 7, corners: typ, test: tb_sarlogic_func}
 tests:
   tb_sarlogic_func:
     netlist: tb/sarlogic/tb_sarlogic_func.scs
@@ -93,7 +98,10 @@ tests:
       pseudo-random input per conversion, follows the DAC level from UP/DN and
       answers each CLKC with a delay t0 + tau*ln(vsat/|residue|); it logs the
       ideal decisions. The capture monitor logs D at RDY. Checks bits, timing
-      of every loop edge, conversion time and DVDD energy.
+      of every loop edge, conversion time and DVDD energy. LOG-14/15: CONV,
+      OUTP and OUTN reach the DUT through charge meters (tb_qmeter_va, a 0 V path); the charge a pin draws
+      over each rising edge divided by the voltage step, mean over all rising
+      edges (window as in adc_cdac tb_cdac_settle).
   tb_sarlogic_rand:
     netlist: tb/sarlogic/tb_sarlogic_func.scs
     measure: adcflow.measure.sarlogic:func

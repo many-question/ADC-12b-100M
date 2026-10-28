@@ -1,0 +1,21 @@
+// Zero-volt charge meter: I(P -> N) flows through, V(P) = V(N). V(Q, VSS) is the
+// charge that has passed since t = 0, in units of qunit (1 fC per volt). idt is
+// integrated with the same method and steps as the circuit, so a capacitive load
+// gives exactly its charge (a sum of saved current samples does not: the simulator
+// mixes backward-Euler restarts at breakpoints with trapezoidal steps).
+`include "disciplines.vams"
+`include "constants.vams"
+
+module tb_qmeter_va(P, N, Q, VSS);
+  inout P, N, VSS;
+  output Q;
+  electrical P, N, Q, VSS;
+  branch (P, N) br;
+
+  parameter real qunit = 1e-15 from (0:inf);
+
+  analog begin
+    V(br) <+ 0;
+    V(Q, VSS) <+ idt(I(br), 0) / qunit;
+  end
+endmodule

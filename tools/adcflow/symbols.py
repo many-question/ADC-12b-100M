@@ -301,6 +301,20 @@ def imeter(sym: str, order: list[str]) -> SymBuilder:
     return s
 
 
+def qmeter(sym: str, order: list[str]) -> SymBuilder:
+    """Charge meter: P -> N through a 0 V path; Q carries the integrated charge (VSS its reference)."""
+    s = SymBuilder(sym, order)
+    s.circle(0, 0, 1.4, linewidth=BODY_W)
+    s.text(0, 0, "Q", size=1.1, bold=True, halign="middle", valign="middle")
+    s.pin("P", (0, 3), "up", lead_to=(0, 1.4), text="")
+    s.pin("N", (0, -3), "down", lead_to=(0, -1.4), text="")
+    s.pin("Q", (3, 0), "right", lead_to=(1.4, 0), text_at=(2.9, 0.2, "end", "bottom"))
+    s.pin("VSS", (-3, 0), "left", lead_to=(-1.4, 0), text_at=(-2.9, 0.2, "start", "bottom"))
+    s.owner_text("name", "${name}", 1.6, 1.3, size=NAME, valign="bottom")
+    s.owner_text("model", "${model}", 1.6, -1.3, size=MODEL, valign="top")
+    return s
+
+
 def sampler(sym: str, order: list[str]) -> SymBuilder:
     """Sampler: P - N taken at each TRIG edge (sample and hold)."""
     s = SymBuilder(sym, order)
@@ -404,7 +418,7 @@ def cdac_seq(sym: str, order: list[str]) -> SymBuilder:
     return s
 
 
-VA = {"adc_ktc_va": ktc, "tb_imeter_va": imeter, "tb_sampler_va": sampler, "tb_capture_va": capture,
+VA = {"adc_ktc_va": ktc, "tb_imeter_va": imeter, "tb_qmeter_va": qmeter, "tb_sampler_va": sampler, "tb_capture_va": capture,
       "tb_cmp_emu_va": cmp_emu, "tb_refload_va": refload, "tb_cdac_seq_va": cdac_seq}
 
 

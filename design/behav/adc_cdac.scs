@@ -10,13 +10,15 @@ simulator lang=spectre
 subckt adc_cdac (VIN VG TOP VCM VREFP VREFN PHI_S PHI_SB CONV \
         DH12 DH11 DH10 DH9 DH8 DH7 DH6 DH5 DH4 DH3 DH2 DH1 DH0 \
         RL12 RL11 RL10 RL9 RL8 RL7 RL6 RL5 RL4 RL3 RL2 RL1 RL0 DVDD VSS)
-parameters cu=1e-15 cp_ratio=0.1 ron_in=12.5 tau_drv=12p ron_top=10
+parameters cu=1e-15 cp_ratio=0.1 ron_in=12.5 tau_drv=12p ron_top=10 \
+        cin_ctrl=4.5f cin_phs=30f cin_phsb=30f cin_conv=60f
 // input switches (gate VG), tri-state VREFP/VREFN drivers, neutral states
 ISW (VIN VG VREFP VREFN CONV \
         DH12 DH11 DH10 DH9 DH8 DH7 DH6 DH5 DH4 DH3 DH2 DH1 DH0 \
         RL12 RL11 RL10 RL9 RL8 RL7 RL6 RL5 RL4 RL3 RL2 RL1 RL0 \
         BH12 BL12 BH11 BL11 BH10 BL10 BH9 BL9 BH8 BL8 BH7 BL7 BH6 \
-        BL6 BH5 BL5 BH4 BL4 BH3 BL3 BH2 BL2 BH1 BL1 BH0 BL0 VSS) adc_cdac_sw_va cu=cu ron_in=ron_in tau_drv=tau_drv
+        BL6 BH5 BL5 BH4 BL4 BH3 BL3 BH2 BL2 BH1 BL1 BH0 BL0 VSS) adc_cdac_sw_va cu=cu ron_in=ron_in tau_drv=tau_drv \
+        cin_ctrl=cin_ctrl
 // capacitor array: weight w = two halves of w*cu/2 (H: neutral VREFP, L: neutral VREFN)
 CH12 (BH12 TOP) capacitor c=490*cu
 CL12 (BL12 TOP) capacitor c=490*cu
@@ -49,6 +51,10 @@ CP (TOP VSS) capacitor c=cp_ratio*2269*cu
 // top-plate reset switch (PHI_S high = track) in series with the sampled kT/C source
 STOP (TOP NK PHI_S VSS) relay vt1=0.35 vt2=0.55 ropen=1e12 rclosed=ron_top
 IKTC (NK VCM PHI_S VSS) adc_ktc_va ctot=(1+cp_ratio)*2269*cu tempc=tempc en=noise_en
+// clock input capacitances
+CPHS (PHI_S VSS) capacitor c=cin_phs
+CPHSB (PHI_SB VSS) capacitor c=cin_phsb
+CCONV (CONV VSS) capacitor c=cin_conv
 // @RNL {
 //   /* --- semantics --- */
 //   &VSS @ADD-TO $GROUND_NET_SET;
@@ -113,6 +119,9 @@ IKTC (NK VCM PHI_S VSS) adc_ktc_va ctot=(1+cp_ratio)*2269*cu tempc=tempc en=nois
 //   #CP @PLACE(84, 13);
 //   #STOP @PLACE(94, 17);
 //   #IKTC @PLACE(104, 9);
+//   #CPHS @PLACE(93, 3);
+//   #CPHSB @PLACE(-22, 11);
+//   #CCONV @PLACE(-22, -11);
 //   /* --- bottom plates --- */
 //   &BH12 @WIRE {#ISW:BH12 #CH12:1};
 //   &BL12 @WIRE {#ISW:BL12 #CL12:1};
@@ -230,9 +239,12 @@ IKTC (NK VCM PHI_S VSS) adc_ktc_va ctot=(1+cp_ratio)*2269*cu tempc=tempc en=nois
 //   /* --- sampling phase and VCM --- */
 //   %phs = (90, 9);
 //   $JUNCTION @ATTACH %phs;
+//   %phc = (90, 7);
+//   $JUNCTION @ATTACH %phc;
 //   %p_phi_s = $IO_PORT @ATTACH &PHI_S => @PLACE(90, 4) => @ORIENT("R90");
-//   &PHI_S @WIRE {%p_phi_s:p %phs (90, 14) #STOP:3};
+//   &PHI_S @WIRE {%p_phi_s:p %phc %phs (90, 14) #STOP:3};
 //   &PHI_S @WIRE {%phs #IKTC:3};
+//   &PHI_S @WIRE {%phc (93, 7) #CPHS:1};
 //   %p_vcm = $IO_PORT @ATTACH &VCM => @PLACE(104, 2) => @ORIENT("R90");
 //   &VCM @WIRE {%p_vcm:p #IKTC:2};
 //   /* --- grounds --- */
@@ -244,6 +256,12 @@ IKTC (NK VCM PHI_S VSS) adc_ktc_va ctot=(1+cp_ratio)*2269*cu tempc=tempc en=nois
 //   &VSS @WIRE {#STOP:4 %g_st:p};
 //   %g_ktc = $GROUND @ATTACH &VSS => @PLACE(109, 9);
 //   &VSS @WIRE {#IKTC:4 %g_ktc:p};
+//   %g_cphs = $GROUND @ATTACH &VSS => @PLACE(93, -1);
+//   &VSS @WIRE {#CPHS:2 %g_cphs:p};
+//   %g_cphsb = $GROUND @ATTACH &VSS => @PLACE(-22, 7);
+//   &VSS @WIRE {#CPHSB:2 %g_cphsb:p};
+//   %g_cconv = $GROUND @ATTACH &VSS => @PLACE(-22, -15);
+//   &VSS @WIRE {#CCONV:2 %g_cconv:p};
 //   /* --- inputs and references on the left --- */
 //   %p_vrefp = $IO_PORT @ATTACH &VREFP => @PLACE(-11, 5) => @ORIENT("R0");
 //   &VREFP @WIRE {%p_vrefp:p #ISW:VREFP};
@@ -253,10 +271,14 @@ IKTC (NK VCM PHI_S VSS) adc_ktc_va ctot=(1+cp_ratio)*2269*cu tempc=tempc en=nois
 //   &VREFN @WIRE {%p_vrefn:p #ISW:VREFN};
 //   %p_vg = $IO_PORT @ATTACH &VG => @PLACE(-11, -2) => @ORIENT("R0");
 //   &VG @WIRE {%p_vg:p #ISW:VG};
-//   %p_conv = $IO_PORT @ATTACH &CONV => @PLACE(-11, -7) => @ORIENT("R0");
-//   &CONV @WIRE {%p_conv:p #ISW:CONV};
-//   /* PHI_SB and DVDD are not used by the behavioral view */
-//   %p_phi_sb = $IO_PORT @ATTACH &PHI_SB => @PLACE(-11, 15) => @ORIENT("R0");
+//   /* CONV and PHI_SB with their input capacitances; DVDD is not used by the behavioral view */
+//   %jconv = (-22, -7);
+//   $JUNCTION @ATTACH %jconv;
+//   %p_conv = $IO_PORT @ATTACH &CONV => @PLACE(-25, -7) => @ORIENT("R0");
+//   &CONV @WIRE {%p_conv:p %jconv #ISW:CONV};
+//   &CONV @WIRE {%jconv #CCONV:1};
+//   %p_phi_sb = $IO_PORT @ATTACH &PHI_SB => @PLACE(-25, 15) => @ORIENT("R0");
+//   &PHI_SB @WIRE {%p_phi_sb:p (-22, 15) #CPHSB:1};
 //   %p_dvdd = $IO_PORT @ATTACH &DVDD => @PLACE(-11, 17) => @ORIENT("R0");
 //   /* --- control buses: each control pin taps the DH or the RL bus below the matrix --- */
 //   %dh12 = (0, -13);
@@ -407,70 +429,71 @@ IKTC (NK VCM PHI_S VSS) adc_ktc_va ctot=(1+cp_ratio)*2269*cu tempc=tempc en=nois
 //   (61.5, 17.4) @TEXT("3", size=0.6, halign="middle");
 //   (67.5, 17.4) @TEXT("2", size=0.6, halign="middle");
 //   (73.5, 17.4) @TEXT("1", size=0.6, halign="middle");
-//   (-17, -18.5) @TEXT("adc_cdac ports", halign="start", bold=true) => @SET-STYLE $note_style;
-//   @RECTANGLE {(-17, -19) (22.728, -35.17)} => @SET-STYLE $table_style;
-//   @LINE {(-17, -20.155) (22.728, -20.155)} => @SET-STYLE $table_style;
-//   @LINE {(-13.448, -19) (-13.448, -35.17)} => @SET-STYLE $table_style;
-//   @LINE {(-9.577, -19) (-9.577, -35.17)} => @SET-STYLE $table_style;
-//   @LINE {(-6.344, -19) (-6.344, -35.17)} => @SET-STYLE $table_style;
-//   (-16.5, -19.5775) @TEXT("pin", halign="start", valign="middle", size=0.55, bold=true) => @SET-STYLE $table_style;
-//   (-12.948, -19.5775) @TEXT("direction", halign="start", valign="middle", size=0.55, bold=true) => @SET-STYLE $table_style;
-//   (-9.077, -19.5775) @TEXT("type", halign="start", valign="middle", size=0.55, bold=true) => @SET-STYLE $table_style;
-//   (-5.844, -19.5775) @TEXT("description", halign="start", valign="middle", size=0.55, bold=true) => @SET-STYLE $table_style;
-//   (-16.5, -20.7325) @TEXT("VIN", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
-//   (-12.948, -20.7325) @TEXT("input", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
-//   (-9.077, -20.7325) @TEXT("analog", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
-//   (-5.844, -20.7325) @TEXT("input (after the 50 ohm source)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
-//   (-16.5, -21.8875) @TEXT("VG", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
-//   (-12.948, -21.8875) @TEXT("input", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
-//   (-9.077, -21.8875) @TEXT("analog", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
-//   (-5.844, -21.8875) @TEXT("bootstrapped gate of the input switches (VIN + ~AVDD while tracking, 0 while converting)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
-//   (-16.5, -23.0425) @TEXT("TOP", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
-//   (-12.948, -23.0425) @TEXT("output", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
-//   (-9.077, -23.0425) @TEXT("analog", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
-//   (-5.844, -23.0425) @TEXT("top plate, to the comparator", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
-//   (-16.5, -24.1975) @TEXT("VCM", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
-//   (-12.948, -24.1975) @TEXT("input", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
-//   (-9.077, -24.1975) @TEXT("analog", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
-//   (-5.844, -24.1975) @TEXT("0.45 V top-plate reset level", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
-//   (-16.5, -25.3525) @TEXT("VREFP", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
-//   (-12.948, -25.3525) @TEXT("input", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
-//   (-9.077, -25.3525) @TEXT("analog", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
-//   (-5.844, -25.3525) @TEXT("0.9 V reference", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
-//   (-16.5, -26.5075) @TEXT("VREFN", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
-//   (-12.948, -26.5075) @TEXT("input", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
-//   (-9.077, -26.5075) @TEXT("analog", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
-//   (-5.844, -26.5075) @TEXT("reference ground", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
-//   (-16.5, -27.6625) @TEXT("PHI_S", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
-//   (-12.948, -27.6625) @TEXT("input", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
-//   (-9.077, -27.6625) @TEXT("clock", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
-//   (-5.844, -27.6625) @TEXT("top-plate switch, high = track (opens first: sampling instant)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
-//   (-16.5, -28.8175) @TEXT("PHI_SB", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
-//   (-12.948, -28.8175) @TEXT("input", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
-//   (-9.077, -28.8175) @TEXT("clock", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
-//   (-5.844, -28.8175) @TEXT("complement of PHI_S", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
-//   (-16.5, -29.9725) @TEXT("CONV", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
-//   (-12.948, -29.9725) @TEXT("input", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
-//   (-9.077, -29.9725) @TEXT("clock", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
-//   (-5.844, -29.9725) @TEXT("high = drivers enabled (convert); low = sampled halves tri-stated", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
-//   (-16.5, -31.1275) @TEXT("DH<12:0>", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
-//   (-12.948, -31.1275) @TEXT("input", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
-//   (-9.077, -31.1275) @TEXT("digital", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
-//   (-5.844, -31.1275) @TEXT("drop H half of weight j=12 to VREFN", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
-//   (-16.5, -32.2825) @TEXT("RL<12:0>", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
-//   (-12.948, -32.2825) @TEXT("input", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
-//   (-9.077, -32.2825) @TEXT("digital", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
-//   (-5.844, -32.2825) @TEXT("raise L half of weight j=12 to VREFP", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
-//   (-16.5, -33.4375) @TEXT("DVDD", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
-//   (-12.948, -33.4375) @TEXT("inout", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
-//   (-9.077, -33.4375) @TEXT("supply", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
-//   (-5.844, -33.4375) @TEXT("0.9 V supply of the driver pre-logic", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
-//   (-16.5, -34.5925) @TEXT("VSS", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
-//   (-12.948, -34.5925) @TEXT("inout", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
-//   (-9.077, -34.5925) @TEXT("ground", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
-//   (-5.844, -34.5925) @TEXT("ground", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
-//   (-17, 26) @TEXT("adc_cdac (behavioral): 13 weights x 2 halves, cu = 1 fF, C_S = 2.0570 pF, C_DAC = 2.2690 pF", halign="start") => @SET-STYLE $title_style;
-//   (-17, 24.3) @TEXT("numbers above the array: the weight of each H/L pair, each half is w*cu/2; * = not sampled (range extension). H halves: neutral VREFP, dropped by DH; L halves: neutral VREFN, raised by RL", halign="start") => @SET-STYLE $note_style
+//   (-29, -20.5) @TEXT("adc_cdac ports", halign="start", bold=true) => @SET-STYLE $note_style;
+//   @RECTANGLE {(-29, -21) (10.728, -37.17)} => @SET-STYLE $table_style;
+//   @LINE {(-29, -22.155) (10.728, -22.155)} => @SET-STYLE $table_style;
+//   @LINE {(-25.448, -21) (-25.448, -37.17)} => @SET-STYLE $table_style;
+//   @LINE {(-21.577, -21) (-21.577, -37.17)} => @SET-STYLE $table_style;
+//   @LINE {(-18.344, -21) (-18.344, -37.17)} => @SET-STYLE $table_style;
+//   (-28.5, -21.5775) @TEXT("pin", halign="start", valign="middle", size=0.55, bold=true) => @SET-STYLE $table_style;
+//   (-24.948, -21.5775) @TEXT("direction", halign="start", valign="middle", size=0.55, bold=true) => @SET-STYLE $table_style;
+//   (-21.077, -21.5775) @TEXT("type", halign="start", valign="middle", size=0.55, bold=true) => @SET-STYLE $table_style;
+//   (-17.844, -21.5775) @TEXT("description", halign="start", valign="middle", size=0.55, bold=true) => @SET-STYLE $table_style;
+//   (-28.5, -22.7325) @TEXT("VIN", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (-24.948, -22.7325) @TEXT("input", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (-21.077, -22.7325) @TEXT("analog", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (-17.844, -22.7325) @TEXT("input (after the 50 ohm source)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (-28.5, -23.8875) @TEXT("VG", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (-24.948, -23.8875) @TEXT("input", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (-21.077, -23.8875) @TEXT("analog", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (-17.844, -23.8875) @TEXT("bootstrapped gate of the input switches (VIN + ~AVDD while tracking, 0 while converting)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (-28.5, -25.0425) @TEXT("TOP", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (-24.948, -25.0425) @TEXT("output", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (-21.077, -25.0425) @TEXT("analog", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (-17.844, -25.0425) @TEXT("top plate, to the comparator", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (-28.5, -26.1975) @TEXT("VCM", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (-24.948, -26.1975) @TEXT("input", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (-21.077, -26.1975) @TEXT("analog", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (-17.844, -26.1975) @TEXT("0.45 V top-plate reset level", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (-28.5, -27.3525) @TEXT("VREFP", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (-24.948, -27.3525) @TEXT("input", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (-21.077, -27.3525) @TEXT("analog", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (-17.844, -27.3525) @TEXT("0.9 V reference", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (-28.5, -28.5075) @TEXT("VREFN", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (-24.948, -28.5075) @TEXT("input", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (-21.077, -28.5075) @TEXT("analog", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (-17.844, -28.5075) @TEXT("reference ground", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (-28.5, -29.6625) @TEXT("PHI_S", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (-24.948, -29.6625) @TEXT("input", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (-21.077, -29.6625) @TEXT("clock", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (-17.844, -29.6625) @TEXT("top-plate switch, high = track (opens first: sampling instant)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (-28.5, -30.8175) @TEXT("PHI_SB", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (-24.948, -30.8175) @TEXT("input", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (-21.077, -30.8175) @TEXT("clock", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (-17.844, -30.8175) @TEXT("complement of PHI_S", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (-28.5, -31.9725) @TEXT("CONV", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (-24.948, -31.9725) @TEXT("input", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (-21.077, -31.9725) @TEXT("clock", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (-17.844, -31.9725) @TEXT("high = drivers enabled (convert); low = sampled halves tri-stated", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (-28.5, -33.1275) @TEXT("DH<12:0>", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (-24.948, -33.1275) @TEXT("input", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (-21.077, -33.1275) @TEXT("digital", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (-17.844, -33.1275) @TEXT("drop H half of weight j=12 to VREFN", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (-28.5, -34.2825) @TEXT("RL<12:0>", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (-24.948, -34.2825) @TEXT("input", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (-21.077, -34.2825) @TEXT("digital", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (-17.844, -34.2825) @TEXT("raise L half of weight j=12 to VREFP", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (-28.5, -35.4375) @TEXT("DVDD", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (-24.948, -35.4375) @TEXT("inout", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (-21.077, -35.4375) @TEXT("supply", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (-17.844, -35.4375) @TEXT("0.9 V supply of the driver pre-logic", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (-28.5, -36.5925) @TEXT("VSS", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (-24.948, -36.5925) @TEXT("inout", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (-21.077, -36.5925) @TEXT("ground", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (-17.844, -36.5925) @TEXT("ground", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (-29, 26) @TEXT("adc_cdac (behavioral): 13 weights x 2 halves, cu = 1 fF, C_S = 2.0570 pF, C_DAC = 2.2690 pF", halign="start") => @SET-STYLE $title_style;
+//   (-29, 24.3) @TEXT("numbers above the array: the weight of each H/L pair, each half is w*cu/2; * = not sampled (range extension). H halves: neutral VREFP, dropped by DH; L halves: neutral VREFN, raised by RL", halign="start") => @SET-STYLE $note_style;
+//   (-29, 22.8) @TEXT("CPHS, CPHSB and CCONV model the clock input capacitances; every DH / RL control input loads cin_ctrl inside adc_cdac_sw_va", halign="start") => @SET-STYLE $note_style
 // }
 // @RNL(author="adcflow gen") {
 //   /* block symbol of adc_cdac, generated from tools/adcflow/symbols.py by `python -m adcflow gen` -- do not edit this record */

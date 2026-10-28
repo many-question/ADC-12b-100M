@@ -104,6 +104,9 @@ ENOB @ 49.7 MHz、−1 dBFS，含 follower 噪声（γ = 2），v0.1 / v0.2：
 | REF-13 | 判决 12~14（无冗余）期间 VREFP 变化，最大值 | ≤ 200 µV | `tb_ref_replay` |
 | REF-14 | 每次转换开始前的 VREFP，回放期间峰峰值（记忆） | ≤ 100 µV | `tb_ref_replay` |
 
+v0.3 起（`adc_ref` 0.3.0 / 0.4.0）：CDAC 电荷 ×2，REF-08 的 CDAC 负载 1.2 pF，REF-01 与 `tb_ref_dc` / `tb_ref_noise`
+的直流负载为 v0.3 的平均电流 200 µA（1.95 pC × 100 MHz，规格 `operating.load_vrefp_dc`）。
+
 撤销：REF-03（直流负载调整率，对没有记忆的参考无意义，仍报告）、REF-05/06/07（被回放测试取代）、
 REF-09/10（电流，不设上限，仍报告）。
 

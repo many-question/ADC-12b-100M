@@ -128,7 +128,8 @@ def test_bootstrap_transistor_view_saves_internal_nodes(tmp_path, monkeypatch):
     assert p.scope == "device" and p.problem is None
     assert [d.name for d in p.devices] == ["XDUT.MS", "XDUT.MP", "MSWP"]
     assert p.devices[0].nodes == {"d": "VG", "g": "XDUT.boot", "s": "VIN", "b": "0"}
-    assert soa.deck_lines(p, text)[-1] == "save AVDD PHI_BB XDUT.boot"   # VG VIN BP: saved by the testbench
+    # VG VIN BP: saved by the testbench; PHI_BBX is the DUT side of the PHI_BB input-capacitance meter
+    assert soa.deck_lines(p, text)[-1] == "save AVDD PHI_BBX XDUT.boot"
 
 
 def test_deck_carries_the_soa_saves_after_the_testbench():
