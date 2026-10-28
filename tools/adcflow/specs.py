@@ -8,7 +8,7 @@ from pathlib import Path
 
 import yaml
 
-from . import REPO_ROOT
+from . import REPO_ROOT, numerics
 from .corners import corner_names
 
 BLOCK_DIR = REPO_ROOT / "specs" / "blocks"
@@ -167,6 +167,10 @@ def _load_block(path: Path) -> Block:
     for tid, t in tests.items():
         if "netlist" not in t or "measure" not in t:
             errs.append(f"test {tid}: needs netlist and measure")
+        if "numerics" in t:
+            errs += numerics.validate(t["numerics"], f"test {tid}: numerics")
+        if "crosscheck" in t:
+            errs += numerics.validate(t["crosscheck"], f"test {tid}: crosscheck", ("samples",))
     if errs:
         raise SpecError(f"{path.name}: " + "; ".join(errs))
     return Block(name=raw["block"], raw=raw, ports=ports, specs=specs, tests=tests, path=path)

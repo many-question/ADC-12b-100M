@@ -27,13 +27,13 @@ import subprocess
 import time
 import traceback
 import uuid
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 
 import yaml
 
 from . import REPO_ROOT
-from . import remote, soa
+from . import numerics, remote, soa
 from .corners import Corner, corner_set, model_includes, vref_in
 from .figures import FigureSink
 from .netlist import content_hash, parse, substitute_parameters
@@ -256,12 +256,24 @@ def record(block: Block, test_id: str, viewsig: str, job: Job, metrics: dict, me
 def run_test(test_id: str, block_name: str | None = None, corners: str = "typ",
              views: dict | None = None, params: dict | None = None, mode: str = "ax",
              parallel: int = 6, keep: bool = False, do_record: bool = True, dry: bool = False,
-             mc: str | None = None, timeout: float | None = None) -> list[dict]:
+             mc: str | None = None, timeout: float | None = None, crosscheck: bool = False) -> list[dict]:
+    """Run a test at the corners of `corners`; with `crosscheck` every job runs a second time
+    with the test's `crosscheck:` settings (numerics.py) and only the first is recorded, with the
+    differences in its meta.crosscheck."""
     views = views or {}
     block, test = find_test(test_id, block_name)
     cl = corner_set(corners)
     needs_pdk = bool(test.get("needs_pdk")) or any(v != "behav" for v in views.values())
     jobs = build_jobs(block, test_id, test, cl, views, params or {}, needs_pdk)
+    xc = dict(test.get("crosscheck") or {})
+    if crosscheck and not xc:
+        raise ValueError(f"{test_id}: no `crosscheck:` settings in its spec")
+    twins = {}                                 # job -> its convergence cross-check twin
+    if crosscheck:
+        settings = {k: v for k, v in xc.items() if k != "samples"}
+        for j in list(jobs):
+            twins[j.name] = replace(j, name=j.name + XCHECK, tb_text=numerics.apply(j.tb_text, settings))
+            jobs.append(twins[j.name])
     run_id = _dt.datetime.now().strftime("%Y%m%d-%H%M%S") + f"-{uuid.uuid4().hex[:4]}-{test_id}"
     run_dir = REPO_ROOT / "build" / "runs" / run_id
     rroot = "<R>" if dry else f"{remote.remote_root()}/{run_id}"
@@ -300,6 +312,7 @@ def run_test(test_id: str, block_name: str | None = None, corners: str = "typ",
     }
     summary = []
     viewsig = _viewsig(block, views)
+    done = {}
     for j in jobs:
         jd = run_dir / "jobs" / j.name
         rc = (jd / "rc.txt").read_text().split() if (jd / "rc.txt").exists() else ["?", "?"]
@@ -309,10 +322,13 @@ def run_test(test_id: str, block_name: str | None = None, corners: str = "typ",
         # test parameters are recorded with the result.
         files = [p for p in used[j.name]] + [REPO_ROOT / test["netlist"], REPO_ROOT / "specs" / "arch.yaml"]
         meta = {**meta_base, "rc": rc[0], "sim_s": rc[1] if len(rc) > 1 else None,
+                "numerics": numerics.effective(jd),
                 "files": {p.relative_to(REPO_ROOT).as_posix(): _sha(p) for p in files}}
-        # evidence figures go next to the result JSON (or into the run directory without --record)
-        figs = FigureSink(result_dir(block, test_id, viewsig) if do_record else run_dir / "figs", j.name,
-                          header=f"{test_id} | {viewsig} | {j.name}")
+        # evidence figures go next to the result JSON (or into the run directory without --record
+        # and for a cross-check twin, which is never recorded)
+        twin = j.name.endswith(XCHECK)
+        figs = FigureSink(result_dir(block, test_id, viewsig) if do_record and not twin else run_dir / "figs",
+                          j.name, header=f"{test_id} | {viewsig} | {j.name}")
         figs.clear()
         ctx = {"corner": j.corner, "params": j.params, "globals": j.globals_, "test": test_id,
                "block": block.name, "view": viewsig, "figs": figs, "soa": soa_plans.get(j.name)}
@@ -325,10 +341,50 @@ def run_test(test_id: str, block_name: str | None = None, corners: str = "typ",
         except Exception as e:  # keep going, record the failure
             traceback.print_exc()
             metrics = {"error": f"measure failed: {e}"}
-        out = record(block, test_id, viewsig, j, metrics, meta, figs.entries) if do_record else None
-        summary.append({"job": j.name, "corner": j.corner.name, "rc": rc[0], "metrics": metrics, "out": out})
+        done[j.name] = (j, metrics, meta, figs.entries)
+    for name, (j, metrics, meta, entries) in done.items():
+        if name.endswith(XCHECK):
+            continue
+        if name in twins:
+            meta["crosscheck"] = _crosscheck(block, test_id, xc, run_dir / "jobs", metrics, done[name + XCHECK])
+        out = record(block, test_id, viewsig, j, metrics, meta, entries) if do_record else None
+        summary.append({"job": name, "corner": j.corner.name, "rc": meta["rc"], "metrics": metrics, "out": out})
+        if name in twins:
+            t, tm, tmeta, _ = done[name + XCHECK]
+            summary.append({"job": t.name, "corner": t.corner.name, "rc": tmeta["rc"], "metrics": tm, "out": None})
     _print_summary(block, test_id, summary, mc)
+    for name in twins:
+        _print_crosscheck(name, done[name][2]["crosscheck"])
     return summary
+
+
+XCHECK = "__xcheck"
+
+
+def _crosscheck(block: Block, test_id: str, xc: dict, jobs_dir: Path, metrics: dict, twin: tuple) -> dict:
+    """meta.crosscheck of a job: the twin's settings (as asked and as used) and the differences
+    of the spec metrics and raw samples from the job (numerics.compare)."""
+    t, tm, tmeta, _ = twin
+    names = list(dict.fromkeys(s.metric for s in block.specs if s.test == test_id))
+    f = xc.get("samples")
+    out = {"settings": {k: v for k, v in xc.items() if k != "samples"}, "numerics": tmeta.get("numerics"),
+           "rc": tmeta["rc"], "sim_s": tmeta["sim_s"]}
+    if "error" in tm or "error" in metrics:
+        return {**out, "error": tm.get("error") or metrics.get("error")}
+    ref = jobs_dir / t.name.removesuffix(XCHECK)
+    return {**out, **numerics.compare(metrics, tm, names, ref / f if f else None, jobs_dir / t.name / f if f else None)}
+
+
+def _print_crosscheck(name: str, xc: dict) -> None:
+    if "error" in xc:
+        print(f"  crosscheck {name}: ERROR {str(xc['error'])[:200]}")
+        return
+    parts = [f"d{k}={v['diff']:+.4g}" for k, v in xc["metrics"].items() if v["diff"] is not None]
+    s = xc.get("samples") or {}
+    if "diff_rms_uV" in s:
+        parts.append(f"samples {s['n']}: rms {s['diff_rms_uV']:.4g} uV, max {s['diff_max_uV']:.4g} uV, "
+                     f"time diff max {s['time_diff_max_ps']:.3g} ps")
+    print(f"  crosscheck {name} ({', '.join(f'{k}={v}' for k, v in xc['settings'].items())}): " + "  ".join(parts))
 
 
 def _print_summary(block: Block, test_id: str, summary: list[dict], mc: str | None = None) -> None:
@@ -354,6 +410,6 @@ def run_test_cli(a) -> int:
         k, v = p.split("=", 1)
         params[k] = v
     summary = run_test(a.test, a.block, a.corners, views, params, a.mode, a.jobs, a.keep,
-                       not a.no_record, a.dry_run)
+                       not a.no_record, a.dry_run, crosscheck=a.crosscheck)
     bad = [r for r in summary if "error" in r["metrics"]]
     return 1 if bad else 0

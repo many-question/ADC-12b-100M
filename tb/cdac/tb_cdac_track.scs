@@ -29,8 +29,8 @@ ICG (CLK PHI_S PHI_SB PHI_B PHI_BB CONV VDDA 0) adc_clkgen_va
 VDDA (VDDA 0) vsource dc=vdd
 VREFP (VREFP 0) vsource dc=vref_in
 VVCM (VCM 0) vsource dc=vref_in/2
-tran1 tran stop=tstop outputstart=tstop
-tbopts options save=none reltol=1e-5 vabstol=1e-8
+tran1 tran stop=tstop outputstart=tstop maxstep=1p method=traponly
+tbopts options save=none reltol=1e-07 vabstol=1e-08
 // @RNL {
 //   /* pins connected by net name: the net-name label of rnl-std-fill on every unwired pin, placed below by its key netname */
 //   $LABEL_TERMINAL_SET @TEXT("${net}", key="netname", size=0.6);
@@ -147,5 +147,6 @@ tbopts options save=none reltol=1e-5 vabstol=1e-8
 //   %g17 = $GROUND @ATTACH &0 => @PLACE(24, 16.5);
 //   &0 @WIRE {#VVCM:2 %g17:p};
 //   (-30, 34) @TEXT("tb_cdac_track: sampling-network linearity of the two CDACs from 50 ohm", halign="start") => @SET-STYLE $title_style;
-//   (-30, 32.4) @TEXT("V(TOPP) - V(TOPN) 300 ps after CONV rises (neutral DAC, no decisions) is the sampled input", halign="start") => @SET-STYLE $note_style
+//   (-30, 32.4) @TEXT("V(TOPP) - V(TOPN) 300 ps after CONV rises (neutral DAC, no decisions) is the sampled input", halign="start") => @SET-STYLE $note_style;
+//   (-30, 30.8) @TEXT("transient settings from the spec (numerics): reltol 1e-07, vabstol 1e-08, maxstep 1p, method traponly; convergence cross-check: adcflow sim --crosscheck", halign="start") => @SET-STYLE $note_style
 // }

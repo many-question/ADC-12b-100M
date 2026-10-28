@@ -57,6 +57,11 @@ def gen_specs_md() -> str:
                 extra.append("需要 PDK")
             if t.get("soa"):
                 extra.append("逐管 SOA 检查（`docs/verification.md` §5）")
+            if t.get("numerics"):
+                extra.append("数值设置 " + ", ".join(f"`{k}={v}`" for k, v in t["numerics"].items()))
+            if t.get("crosscheck"):
+                extra.append("收敛交叉检查 " + ", ".join(f"`{k}={v}`" for k, v in t["crosscheck"].items()
+                                                  if k != "samples") + "（`--crosscheck`，`docs/verification.md` §2）")
             L.append(f"- **`{tid}`** (`{t['netlist']}`, 度量 `{t['measure']}`"
                      + (f"; {'; '.join(extra)}" if extra else "") + f")：{' '.join(str(t.get('desc', '')).split())}")
     return "\n".join(L) + "\n"

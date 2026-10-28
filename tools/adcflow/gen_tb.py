@@ -20,7 +20,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-from . import REPO_ROOT
+from . import REPO_ROOT, numerics
 from .arch import Arch
 from .gen import GEN_HEADER, block_symbols, va_symbols, va_ports
 from .rnldraw import STD_PINS, Sheet
@@ -40,6 +40,19 @@ def _ff(c: float) -> str:
 def _ua(i: float) -> str:
     """Current in A as a netlist value in uA."""
     return f"{i * 1e6:g}u"
+
+
+def _numerics(block: str, test: str, lines: list[str]) -> list[str]:
+    """Analysis lines with the explicit transient settings of the test's spec (`numerics:`,
+    tools/adcflow/numerics.py): options on the `options` line, the rest on the `tran` line."""
+    nu = blocks()[block].tests[test].get("numerics") or {}
+    return numerics.apply("\n".join(lines), nu).split("\n")
+
+
+def _numerics_note(block: str, test: str) -> str:
+    nu = blocks()[block].tests[test]["numerics"]
+    return ("transient settings from the spec (numerics): " + ", ".join(f"{k} {v}" for k, v in nu.items())
+            + "; convergence cross-check: adcflow sim --crosscheck")
 
 
 _ARCH = Arch.load()
@@ -432,8 +445,9 @@ def tb_cdac() -> list[TBDef]:
         "tb/cdac/tb_cdac_track.scs", "tb_cdac_track: sampling-network linearity of the two CDACs from 50 ohm",
         [f"parameters fin=49.8046875e6 amp_dbfs=-1 npts=256 nskip=4 tper=10n fs_peak={_FS} vcm_in=0.45 rsrc=50 ctop={_CTOP}",
          "parameters amp=fs_peak*pow(10, amp_dbfs/20) tstart=nskip*tper tstop=(nskip+npts+0.5)*tper"],
-        els, ["tran1 tran stop=tstop outputstart=tstop", "tbopts options save=none reltol=1e-5 vabstol=1e-8"],
-        notes=["V(TOPP) - V(TOPN) 300 ps after CONV rises (neutral DAC, no decisions) is the sampled input"]))
+        els, _numerics("adc_cdac", "tb_cdac_track", ["tran1 tran stop=tstop outputstart=tstop", "tbopts options save=none"]),
+        notes=["V(TOPP) - V(TOPN) 300 ps after CONV rises (neutral DAC, no decisions) is the sampled input",
+               _numerics_note("adc_cdac", "tb_cdac_track")]))
     return out
 
 
@@ -478,7 +492,9 @@ def tb_bootstrap() -> list[TBDef]:
         "tb/bootstrap/tb_bootstrap_track.scs", "tb_bootstrap_track: differential tracking linearity with the reference switch",
         [f"parameters fin=49.8046875e6 amp_dbfs=-1 npts=256 nskip=4 tper=10n fs_peak={_FS} vcm_in=0.45 rsrc=50 wsw={_WSW} nfsw={_NFSW} cs={_CS}",
          "parameters amp=fs_peak*pow(10, amp_dbfs/20) tstart=nskip*tper tstop=(nskip+npts+0.5)*tper"],
-        els, ["tran1 tran stop=tstop outputstart=tstop", "tbopts options save=none reltol=1e-5 vabstol=1e-8"]))
+        els, _numerics("adc_bootstrap", "tb_bootstrap_track",
+                       ["tran1 tran stop=tstop outputstart=tstop", "tbopts options save=none"]),
+        notes=[_numerics_note("adc_bootstrap", "tb_bootstrap_track")]))
     return out
 
 
