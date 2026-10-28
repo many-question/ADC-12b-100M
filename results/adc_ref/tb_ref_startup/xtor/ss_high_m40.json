@@ -75,15 +75,15 @@
   }
  ],
  "meta": {
-  "date": "2026-10-29T00:58:59",
-  "git": "c9f4473",
+  "date": "2026-10-29T01:07:22",
+  "git": "a2ee458",
   "git_clean": true,
   "mode": "aps",
   "pdk": true,
   "mc": null,
-  "wall_s": 503.6,
+  "wall_s": 225.8,
   "rc": "0",
-  "sim_s": "14",
+  "sim_s": "20",
   "numerics": {
    "source": "spectre.log",
    "reltol": 0.001,
@@ -112,6 +112,58 @@
    "design/behav/veriloga/adc_sarlogic_va.va": "42f06909a81347ef",
    "tb/ref/tb_ref_startup.scs": "d0842a4224af4dfb",
    "specs/arch.yaml": "bffadef750bb5205"
+  },
+  "crosscheck": {
+   "settings": {
+    "maxstep": "0.1n",
+    "method": "gear2only"
+   },
+   "numerics": {
+    "source": "spectre.log",
+    "reltol": 0.001,
+    "maxstep_ps": 100.0,
+    "method": "gear2only",
+    "errpreset": "moderate",
+    "lteratio": 3.5,
+    "abstol_V": 1e-06,
+    "steps_accepted": 251006,
+    "step_mean_ps": 99.9976,
+    "step_max_ps": 100.0
+   },
+   "rc": "0",
+   "sim_s": "19",
+   "metrics": {
+    "vrefp_max_V": {
+     "ref": 0.9559548697239938,
+     "xcheck": 0.9559434518484105,
+     "diff": -1.1417875583341619e-05
+    },
+    "vrefp_min_V": {
+     "ref": -3.794898646541139e-49,
+     "xcheck": -1.112772166501717e-18,
+     "diff": -1.112772166501717e-18
+    },
+    "vcm_max_V": {
+     "ref": 0.47797604999142,
+     "xcheck": 0.4779703082277688,
+     "diff": -5.7417636512013814e-06
+    },
+    "vcm_min_V": {
+     "ref": -1.604077389640401e-49,
+     "xcheck": -7.872809019236744e-21,
+     "diff": -7.872809019236744e-21
+    },
+    "ready_err_mV": {
+     "ref": 0.24772933726513457,
+     "xcheck": 0.24074780647909133,
+     "diff": -0.006981530786043244
+    },
+    "vcm_ready_V": {
+     "ref": 0.4501238870187302,
+     "xcheck": 0.4501203194704766,
+     "diff": -3.5675482535912906e-06
+    }
+   }
   }
  }
 }
