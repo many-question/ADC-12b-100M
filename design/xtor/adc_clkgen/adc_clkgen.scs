@@ -55,8 +55,8 @@ ends adc_clkgen_inv
 
 subckt adc_clkgen_nand2 (A B Y VDD VSS)
 parameters wn=800n wp=600n nn=2 np=2
-MNA (Y A nx VSS) nch_ulvt_mac w=wn l=30n nf=nn
-MNB (nx B VSS VSS) nch_ulvt_mac w=wn l=30n nf=nn
+MNA (Y B nx VSS) nch_ulvt_mac w=wn l=30n nf=nn
+MNB (nx A VSS VSS) nch_ulvt_mac w=wn l=30n nf=nn
 MPA (Y A VDD VDD) pch_ulvt_mac w=wp l=30n nf=np
 MPB (Y B VDD VDD) pch_ulvt_mac w=wp l=30n nf=np
 // @RNL {
@@ -70,15 +70,15 @@ MPB (Y B VDD VDD) pch_ulvt_mac w=wp l=30n nf=np
 //   #MNA @PLACE(0,-2) => @ORIENT("R0");
 //   #MNB @PLACE(0,-10) => @ORIENT("R0");
 //   %a=$IO_PORT @ATTACH &A => @PLACE(-17,6) => @ORIENT("R0");
-//   %b=$IO_PORT @ATTACH &B => @PLACE(-17,-10) => @ORIENT("R0");
+//   %b=$IO_PORT @ATTACH &B => @PLACE(-17,-2) => @ORIENT("R0");
 //   %y=$IO_PORT @ATTACH &Y => @PLACE(16,4) => @ORIENT("MY");
 //   %v=$SUPPLY @ATTACH &VDD => @PLACE(0,16);
 //   %g=$GROUND @ATTACH &VSS => @PLACE(0,-18);
-//   %a1=(-10,6); %b1=(-12,-10); %y1=(0,4); %v1=(-4,13); %v2=(6,13); %g1=(0,-16); %g2=(10,-10);
+//   %a1=(-10,6); %b1=(-12,-2); %y1=(0,4); %v1=(-4,13); %v2=(6,13); %g1=(0,-16); %g2=(10,-10);
 //   $JUNCTION @ATTACH %a1; $JUNCTION @ATTACH %b1; $JUNCTION @ATTACH %y1;
 //   &A @WIRE {%a:p %a1 #MPA:g};
-//   &A @WIRE {%a1 (-10,-2) #MNA:g};
-//   &B @WIRE {%b:p %b1 #MNB:g};
+//   &A @WIRE {%a1 (-10,-10) #MNB:g};
+//   &B @WIRE {%b:p %b1 #MNA:g};
 //   &B @WIRE {%b1 (-12,11) (3,11) #MPB:g};
 //   &Y @WIRE {#MPA:d %y1 #MPB:d %y:p};
 //   &Y @WIRE {%y1 #MNA:d};
@@ -179,32 +179,84 @@ MPB (Y B px VDD) pch_ulvt_mac w=wp l=30n nf=np
 // }
 ends adc_clkgen_nor2
 
+subckt adc_clkgen_gatecap (A VDD VSS)
+parameters wn=2u wp=3u ln=90n lp=90n nn=4 np=4
+MN (VSS A VSS VSS) nch_ulvt_mac w=wn l=ln nf=nn
+MP (VDD A VDD VDD) pch_ulvt_mac w=wp l=lp nf=np
+// @RNL {
+//   &VDD @ADD-TO $SUPPLY_NET_SET;
+//   &VSS @ADD-TO $GROUND_NET_SET;
+//   {#MN #MP} @GROUP;
+//   #MP @PLACE(0,6) => @ORIENT("R0");
+//   #MN @PLACE(0,-6) => @ORIENT("R0");
+//   %a=$IO_PORT @ATTACH &A => @PLACE(-12,0) => @ORIENT("R0");
+//   %v=$SUPPLY @ATTACH &VDD => @PLACE(0,15);
+//   %g=$GROUND @ATTACH &VSS => @PLACE(0,-15);
+//   %ga=(-6,0); %vp=(0,12); %vn=(0,-12);
+//   $JUNCTION @ATTACH %ga; $JUNCTION @ATTACH %vp; $JUNCTION @ATTACH %vn;
+//   &A @WIRE {%a:p %ga};
+//   &A @WIRE {#MP:g (-6,6) %ga (-6,-6) #MN:g};
+//   &VDD @WIRE {#MP:s %vp %v:p};
+//   &VDD @WIRE {#MP:d (5,4) (5,12) %vp};
+//   &VDD @WIRE {#MP:b (5,6)};
+//   &VSS @WIRE {#MN:s %vn %g:p};
+//   &VSS @WIRE {#MN:d (5,-4) (5,-12) %vn};
+//   &VSS @WIRE {#MN:b (5,-6)};
+//   {#MN #MP} @TEXT("", key="model");
+//   (-12,20) @TEXT("Complementary MOS gate load; source, drain and body tied to rails", halign="start") => @SET-STYLE $title_style;
+//   (-12,-19) @TEXT("MP: pch_ulvt_mac, W=wp, L=lp, nf=np", halign="start", size=0.6);
+//   (-12,-21) @TEXT("MN: nch_ulvt_mac, W=wn, L=ln, nf=nn", halign="start", size=0.6);
+// }
+// @RNL {
+//   %symbol = @DEFINE-SYMBOL(box=[-5, -4, 5, 4]) {
+//     @RECTANGLE {(-3.5,-2.5) (3.5,2.5)};
+//     (-5,0) @PIN(terminal="A", direction="left");
+//     @LINE {(-5,0) (-3.5,0)};
+//     (0,4) @PIN(terminal="VDD", direction="up");
+//     @LINE {(0,2.5) (0,4)};
+//     (0,-4) @PIN(terminal="VSS", direction="down");
+//     @LINE {(0,-2.5) (0,-4)};
+//     (0,0.8) @TEXT("LOAD", size=0.65, halign="middle");
+//     ? @TEXT("${wn}/${wp}", key="sizes", size=0.5, halign="middle") => @PLACE(0,-1.4);
+//     ? @TEXT("${name}", key="name", size=0.6, halign="start") => @PLACE(-4,4.8);
+//   };
+//   # @SET-SYMBOL %symbol;
+// }
+ends adc_clkgen_gatecap
+
 subckt adc_clkgen (CLK PHI_S PHI_SB PHI_B PHI_BB CONV AVDD VSS)
 // Sampling is inhibited until the loaded CONV output is low.
 // Conversion is inhibited until both CLK and the loaded PHI_B output are low.
 // Four physical inverter stages delay PHI_B relative to the loaded PHI_S.
-XOFF (CONV coff AVDD VSS) adc_clkgen_inv wn=400n wp=600n nn=2 np=2
+// MOS gate loads slow internal edges without long-channel series resistance.
+// CLK controls the lower NAND pull-down device to keep its internal node bounded.
+XOFF (CONV coff AVDD VSS) adc_clkgen_inv wn=1.2u wp=1.8u nn=2 np=2
 XSG (CLK coff sbar AVDD VSS) adc_clkgen_nand2 wn=800n wp=600n nn=2 np=2
 XS1 (sbar s1 AVDD VSS) adc_clkgen_inv wn=1.2u wp=1.8u nn=2 np=2
 XS2 (s1 s2 AVDD VSS) adc_clkgen_inv wn=2.4u wp=3.6u nn=4 np=4
 XS3 (s2 PHI_S AVDD VSS) adc_clkgen_inv wn=8u wp=12u nn=8 np=12
 XSB1 (sbar sb1 AVDD VSS) adc_clkgen_inv wn=600n wp=900n nn=2 np=2
 XSB2 (sb1 PHI_SB AVDD VSS) adc_clkgen_inv wn=8u wp=12u nn=8 np=12
-XB1 (PHI_S b1 AVDD VSS) adc_clkgen_inv wn=400n wp=600n ln=90n lp=90n nn=2 np=2
-XB2 (b1 b2 AVDD VSS) adc_clkgen_inv wn=400n wp=600n ln=90n lp=90n nn=2 np=2
-XB3 (b2 b3 AVDD VSS) adc_clkgen_inv wn=800n wp=1.2u nn=2 np=2
-XB4 (b3 PHI_B AVDD VSS) adc_clkgen_inv wn=3.2u wp=4.8u nn=4 np=4
+XB1 (PHI_S b1 AVDD VSS) adc_clkgen_inv wn=400n wp=600n nn=2 np=2
+XB2 (b1 b2 AVDD VSS) adc_clkgen_inv wn=400n wp=600n nn=2 np=2
+XB3 (b2 b3 AVDD VSS) adc_clkgen_inv wn=400n wp=600n nn=2 np=2
+XB4 (b3 PHI_B AVDD VSS) adc_clkgen_inv wn=8u wp=4.8u nn=8 np=4
 XBB1 (b3 bb1 AVDD VSS) adc_clkgen_inv wn=800n wp=1.2u nn=2 np=2
-XBB2 (bb1 PHI_BB AVDD VSS) adc_clkgen_inv wn=3.2u wp=4.8u nn=4 np=4
-XCG (CLK PHI_B ce AVDD VSS) adc_clkgen_nor2 wn=1.2u wp=3.6u nn=2 np=4
-XC1 (ce cb AVDD VSS) adc_clkgen_inv wn=2u wp=3u nn=4 np=4
-XC2 (cb CONV AVDD VSS) adc_clkgen_inv wn=8u wp=12u nn=8 np=12
+XBB2 (bb1 PHI_BB AVDD VSS) adc_clkgen_inv wn=8u wp=4.8u nn=8 np=4
+XCG (CLK PHI_B ce AVDD VSS) adc_clkgen_nor2 wn=600n wp=1.8u nn=2 np=2
+XC1 (ce cb AVDD VSS) adc_clkgen_inv wn=1.2u wp=1.8u nn=2 np=2
+XC2 (cb CONV AVDD VSS) adc_clkgen_inv wn=3.2u wp=4.8u nn=4 np=4
+XCS1 (s1 AVDD VSS) adc_clkgen_gatecap wn=2u wp=3u nn=4 np=4
+XCB1 (b1 AVDD VSS) adc_clkgen_gatecap wn=2u wp=3u nn=4 np=4
+XCB2 (b2 AVDD VSS) adc_clkgen_gatecap wn=2u wp=3u nn=4 np=4
+XCC1 (cb AVDD VSS) adc_clkgen_gatecap wn=2u wp=3u nn=4 np=4
 // @RNL {
 //   &AVDD @ADD-TO $SUPPLY_NET_SET;
 //   &VSS @ADD-TO $GROUND_NET_SET;
 //   {#XS1 #XS2 #XS3 #XSB1 #XSB2} @GROUP;
 //   {#XB1 #XB2 #XB3 #XB4 #XBB1 #XBB2} @GROUP;
 //   {#XCG #XC1 #XC2 #XOFF #XSG} @GROUP;
+//   {#XCB1 #XCB2 #XCS1 #XCC1} @GROUP;
 //   {#XS3 #XSB2} @AS $MATCHED;
 //   {#XB4 #XBB2} @AS $MATCHED;
 //   #XOFF @PLACE(0,40) => @ORIENT("R0");
@@ -287,6 +339,26 @@ XC2 (cb CONV AVDD VSS) adc_clkgen_inv wn=8u wp=12u nn=8 np=12
 //   &AVDD @WIRE {#XC2:VDD %v15:p};
 //   %g15=$GROUND @ATTACH &VSS => @PLACE(220,7);
 //   &VSS @WIRE {#XC2:VSS %g15:p};
+//   #XCS1 @PLACE(30,40) => @ORIENT("R0");
+//   %v16=$SUPPLY @ATTACH &AVDD => @PLACE(30,48);
+//   &AVDD @WIRE {#XCS1:VDD %v16:p};
+//   %g16=$GROUND @ATTACH &VSS => @PLACE(30,32);
+//   &VSS @WIRE {#XCS1:VSS %g16:p};
+//   #XCB1 @PLACE(100,40) => @ORIENT("R0");
+//   %v17=$SUPPLY @ATTACH &AVDD => @PLACE(100,48);
+//   &AVDD @WIRE {#XCB1:VDD %v17:p};
+//   %g17=$GROUND @ATTACH &VSS => @PLACE(100,32);
+//   &VSS @WIRE {#XCB1:VSS %g17:p};
+//   #XCB2 @PLACE(120,40) => @ORIENT("R0");
+//   %v18=$SUPPLY @ATTACH &AVDD => @PLACE(120,48);
+//   &AVDD @WIRE {#XCB2:VDD %v18:p};
+//   %g18=$GROUND @ATTACH &VSS => @PLACE(120,32);
+//   &VSS @WIRE {#XCB2:VSS %g18:p};
+//   #XCC1 @PLACE(210,40) => @ORIENT("R0");
+//   %v19=$SUPPLY @ATTACH &AVDD => @PLACE(210,48);
+//   &AVDD @WIRE {#XCC1:VDD %v19:p};
+//   %g19=$GROUND @ATTACH &VSS => @PLACE(210,32);
+//   &VSS @WIRE {#XCC1:VSS %g19:p};
 //   %pclk=$IO_PORT @ATTACH &CLK => @PLACE(-25,16) => @ORIENT("R0");
 //   %ps=$IO_PORT @ATTACH &PHI_S => @PLACE(75,27) => @ORIENT("MY");
 //   %psb=$IO_PORT @ATTACH &PHI_SB => @PLACE(75,-15) => @ORIENT("MY");
@@ -302,13 +374,19 @@ XC2 (cb CONV AVDD VSS) adc_clkgen_inv wn=8u wp=12u nn=8 np=12
 //   &sbar @WIRE {#XSG:Y %jsb #XS1:A};
 //   &sbar @WIRE {%jsb (10,-15) #XSB1:A};
 //   &s1 @WIRE {#XS1:Y #XS2:A};
+//   %js1=(30,15); $JUNCTION @ATTACH %js1;
+//   &s1 @WIRE {%js1 (30,28) (24,28) (24,40) #XCS1:A};
 //   &s2 @WIRE {#XS2:Y #XS3:A};
 //   &sb1 @WIRE {#XSB1:Y #XSB2:A};
 //   &PHI_S @WIRE {#XS3:Y %js #XB1:A};
 //   &PHI_S @WIRE {%js (70,27) %ps:p};
 //   &PHI_SB @WIRE {#XSB2:Y %psb:p};
 //   &b1 @WIRE {#XB1:Y #XB2:A};
+//   %jb1=(100,15); $JUNCTION @ATTACH %jb1;
+//   &b1 @WIRE {%jb1 (100,28) (94,28) (94,40) #XCB1:A};
 //   &b2 @WIRE {#XB2:Y #XB3:A};
+//   %jb2=(120,15); $JUNCTION @ATTACH %jb2;
+//   &b2 @WIRE {%jb2 (120,28) (114,28) (114,40) #XCB2:A};
 //   &b3 @WIRE {#XB3:Y %jb3 #XB4:A};
 //   &b3 @WIRE {%jb3 (140,-1) (120,-1) (120,-15) #XBB1:A};
 //   &bb1 @WIRE {#XBB1:Y #XBB2:A};
@@ -317,13 +395,15 @@ XC2 (cb CONV AVDD VSS) adc_clkgen_inv wn=8u wp=12u nn=8 np=12
 //   &PHI_BB @WIRE {#XBB2:Y %pbb:p};
 //   &ce @WIRE {#XCG:Y #XC1:A};
 //   &cb @WIRE {#XC1:Y #XC2:A};
+//   %jcb=(210,15); $JUNCTION @ATTACH %jcb;
+//   &cb @WIRE {%jcb (210,28) (204,28) (204,40) #XCC1:A};
 //   &CONV @WIRE {#XC2:Y %jc %pc:p};
 //   &CONV @WIRE {%jc (230,55) (-10,55) (-10,40) #XOFF:A};
 //   (-25,76) @TEXT("adc_clkgen: CMOS phases with feedback from loaded outputs", halign="start") => @SET-STYLE $title_style;
-//   (18,32) @TEXT("Sample drivers; Wn/Wp shown inside each cell", halign="start") => @SET-STYLE $note_style;
-//   (88,32) @TEXT("Physical S-to-B delay", halign="start") => @SET-STYLE $note_style;
-//   (88,28) @TEXT("XB1 / XB2: L=90n; all other stages L=30n", halign="start", size=0.6);
-//   (178,32) @TEXT("Conversion inhibit and 250 fF driver", halign="start") => @SET-STYLE $note_style;
+//   (18,-30) @TEXT("Sample drivers; Wn/Wp shown inside each cell", halign="start") => @SET-STYLE $note_style;
+//   (88,52) @TEXT("Physical S-to-B delay with local MOS gate loads", halign="start") => @SET-STYLE $note_style;
+//   (88,58) @TEXT("Inverters L=30n; MOS gate loads L=90n", halign="start", size=0.6);
+//   (178,52) @TEXT("Conversion inhibit and 250 fF driver", halign="start") => @SET-STYLE $note_style;
 //   (30,58) @TEXT("Loaded CONV feedback: sample turn-on waits for conversion turn-off", halign="start") => @SET-STYLE $note_style;
 // }
 ends adc_clkgen
