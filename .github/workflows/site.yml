@@ -3,12 +3,16 @@ name: site
 # Builds the project website (site/) from the repository: needs only the repo, no simulation server, no PDK.
 #   pull_request : build (fails on build errors, broken links or the process vendor's name in the output), upload the site as an artifact
 #   push to main : build, deploy to GitHub Pages (repository setting: Pages > Source = GitHub Actions)
+#   schedule     : the same build and deploy every hour, so the live per-block PR and notice panel (GitHub API, metadata only) stays current
+#   workflow_dispatch : the same, on demand
 
 on:
   push:
     branches: [main]
   pull_request:
   workflow_dispatch:
+  schedule:
+    - cron: '17 * * * *'            # hourly, off the hour (scheduled runs always use the default branch)
 
 permissions:
   contents: read
@@ -21,6 +25,12 @@ jobs:
   build:
     name: build site
     runs-on: ubuntu-latest
+    permissions:                    # read-only: the live panel lists open PRs, notices (issues) and their CI state
+      contents: read
+      pull-requests: read
+      issues: read
+      checks: read
+      statuses: read
     steps:
       - uses: actions/checkout@v7
         with:
@@ -43,9 +53,12 @@ jobs:
           # the PR head, not the merge commit: schematics are fetched from this commit by the hosted RNL viewer
           ADC_SITE_SHA: ${{ github.event.pull_request.head.sha }}
           HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
+          GITHUB_TOKEN: ${{ github.token }}
         run: python site/build.py --netlist-base "https://raw.githubusercontent.com/$HEAD_REPO/$ADC_SITE_SHA/"
       - name: Build (deploy)
         if: github.event_name != 'pull_request'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
           owner="${GITHUB_REPOSITORY_OWNER,,}"
           python site/build.py --base-url "https://${owner}.github.io/${GITHUB_REPOSITORY#*/}/"
@@ -65,6 +78,7 @@ jobs:
   deploy:
     name: deploy to GitHub Pages
     needs: build
+    # push to main, the hourly schedule and workflow_dispatch (all on the default branch); pull requests only build
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:

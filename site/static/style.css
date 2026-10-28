@@ -105,6 +105,7 @@ footer > div { max-width: 1240px; margin: 0 auto; padding: 18px 20px 28px; displ
 .chip.fail { background: var(--bad-soft); color: var(--bad); }
 .chip.stale { background: var(--warn-soft); color: var(--warn); }
 .chip.none { background: var(--surface-2); color: var(--ink-3); }
+.chip.run { background: var(--info-soft); color: var(--info); }
 .chip.st-behavioral { background: var(--info-soft); color: var(--info); }
 .chip.st-xtor-wip { background: var(--warn-soft); color: var(--warn); }
 .chip.st-xtor-review { background: var(--vio-soft); color: var(--vio); }
@@ -234,6 +235,9 @@ nav a.nav-collab:hover, nav a.nav-collab.on { background: var(--accent); color: 
 .unclaimed { color: var(--warn); font-weight: 600; }
 .ev { font-size: .84rem; white-space: nowrap; }
 .ev-cell { white-space: nowrap; min-width: 9em; }
+.stamp { font-size: .8rem; font-weight: 400; margin-left: 8px; white-space: nowrap; }
+table.live td { vertical-align: top; }
+table.live td:first-child code, table.live td:nth-child(2) { white-space: nowrap; overflow-wrap: normal; }
 .prov { display: block; white-space: normal; font-size: .76rem; line-height: 1.4; max-width: 17em; }
 .stat .s .prov { display: block; max-width: none; margin-top: 2px; }
 table.specs td code, table.detail th code { white-space: nowrap; overflow-wrap: normal; }

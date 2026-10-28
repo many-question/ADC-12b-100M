@@ -58,6 +58,20 @@ python site/build.py --serve                  # 构建并在 http://127.0.0.1:80
 RNL 嵌入式查看器（`embed=1`）目前没有关闭使用框的参数（`embed`、`url`、`manifest`、`level`、`background`、`grid`、`names`、`origin`
 之外没有别的），清单的 `display.usages` 也只对完整查看器生效。要让嵌入默认不画使用框，需要上游查看器先提供这个选项。
 
+## 实时进展（进行中的 PR 与通知）
+
+首页的“实时进展”表和每个模块页的“进行中”面板显示 GitHub 上标题以 `[<block>]` 开头的**进行中 PR**（编号、标题、草稿 / 待评审、作者、最近更新、
+CI 状态：通过 / 失败 / 运行中）和**未关闭的通知（issue）**（标题、评论数）。数据在构建时用 GitHub API 取（`sitegen/live.py`；在 Actions 里用作业的
+只读 `GITHUB_TOKEN`，本地用环境变量 `GITHUB_TOKEN` / `GH_TOKEN`，没有也会试一次匿名请求），页面上标“数据更新于 <UTC 时间>”。
+
+* 只保留元数据：PR 和 issue 的正文、评论内容不请求、不显示。所有标题都做 HTML 转义。
+* API 不可用（没有令牌、限流、断网）时构建照常成功，面板写“无法获取实时数据”和时间。`--no-live` 完全不联网。
+* 标题或作者名触发工艺名称检查（`sitegen/guard.py`）的条目被丢掉并在构建日志里记一行，不会让整个构建失败。
+* 工作流 `site.yml` 每小时（`17 * * * *`）重建并部署一次，所以这些数据最多落后一个小时；`push` 到 `main` 和手动触发也会部署，PR 只构建并上传预览。
+  构建作业的权限只有只读的 `contents`、`pull-requests`、`issues`、`checks`、`statuses`；写 Pages 的权限只给部署作业。
+  仓库 60 天没有活动时 GitHub 会停掉定时工作流，重新启用即可。
+* 数据层的测试用固定的 JSON 夹具，不联网：`tests/test_site_live.py`。
+
 ## 验证结果的证据与图
 
 * 页面里每个结果都链到它的证据文件：GitHub 上构建提交里的 `results/<block>/<test>/<view>/<corner>.json`（规格表里是“最差值”所在的结果文件，
@@ -79,6 +93,8 @@ site/
   sitegen/render.py    各页面的 HTML
   sitegen/md.py        Markdown → HTML（标题锚点、仓库内链接改写）
   sitegen/linkcheck.py 构建后的内链与锚点检查
+  sitegen/live.py      GitHub 上进行中的 PR 与通知（只取元数据，失败不影响构建）
+  sitegen/livepanel.py 上述数据的 HTML（转义）
   sitegen/manifest.py  查看器清单（每个网表一个，带 SHA-256）
   sitegen/guard.py     输出里不得出现工艺厂名称（只存哈希）
   static/style.css     样式（明 / 暗主题，手机与桌面）

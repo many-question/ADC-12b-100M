@@ -10,6 +10,8 @@ from urllib.parse import quote, quote_plus
 
 from .data import (CONTRIBUTING_RAW, FALLBACK_REPO, PROCESS, ROOT, STATUS_ORDER, BlockData, Build, SpecRow, arch, best_rows,
                    docs, evidence_path, figures, fmt, has_doc, last_change, owner_login, verdict_counts)
+from . import livepanel
+from .live import Live, unavailable
 from .manifest import name_of
 from .md import esc, slug
 
@@ -27,6 +29,7 @@ class Site:
 
     def __init__(self, build: Build, netlist_base: str, base_url: str, manifests: bool = False):
         self.build, self.netlist_base, self.base_url, self.manifests = build, netlist_base, base_url, manifests
+        self.live: Live = unavailable("本次构建没有获取")      # per-block PRs and notices (build.py sets the real data)
         self.doc_ids: dict[str, set[str]] = {}      # doc slug -> heading ids, to link only anchors that exist
 
     def gh(self, rel: str, is_dir: bool = False) -> str:
@@ -383,6 +386,7 @@ def block_page(site: Site, bd: BlockData, all_names: list[str]) -> str:
     <span><span class="muted">最近更新</span> {esc(last_change(bd) or '–')}</span>
     <span>{cfg_link}</span></div>
 </div>
+{livepanel.block_panel(site.live, b.name, site.repo)}
 <section><h2 id="summary">功能概述</h2><p>{esc(summary)}</p>{op_html}</section>
 <section><h2 id="schematic">原理图</h2>
 {viewer(site, bd.files, 'v-' + b.name, 480, note)}
@@ -473,6 +477,24 @@ def design_library(site: Site) -> str:
 </section>"""
 
 
+def live_overview(site: Site, data: dict[str, BlockData]) -> str:
+    """One table across the blocks: owner, status on main, newest open PR (draft / CI), its last update, open notices."""
+    live = site.live
+    rows = []
+    for bd in data.values():
+        b = bd.b
+        pr, upd, notes = livepanel.overview_cells(live, b.name, site.repo)
+        rows.append(f"""<tr><td><a href="blocks/{b.name}.html"><code>{esc(b.name)}</code></a></td>
+<td>{owner_html(site, b.name, b.raw.get('owner', 'TBD'), '', links=False)}</td><td>{status_chip(b.status)}</td>
+<td>{pr}</td><td class=muted>{upd}</td><td class=num>{notes}</td></tr>""")
+    note = (livepanel.unavailable_note(live) if not live.ok else "")
+    return f"""<section id="live"><h2>实时进展 {livepanel.stamp_html(live)}</h2>
+<p class="muted legend">状态是主分支上的（来自 <code>specs/blocks/*.yaml</code>）；晶体管级工作在各模块的 PR 里，下表显示每个模块最近更新的进行中 PR
+（草稿 / 待评审、CI 状态）和未关闭的通知数。只显示标题和状态，不显示正文；站点每小时重建一次。</p>{note}
+<div class="table-wrap"><table class="live"><thead><tr><th>模块<th>负责人<th>主分支状态<th>最新进行中 PR<th>最近更新 (UTC)<th>通知</tr></thead>
+<tbody>{''.join(rows)}</tbody></table></div></section>"""
+
+
 def overview(site: Site, data: dict[str, BlockData]) -> str:
     a = arch()
     raw = a.raw
@@ -524,6 +546,7 @@ def overview(site: Site, data: dict[str, BlockData]) -> str:
 <a class="btn big" href="verification.html">验证结果</a><a class="btn big" href="progress.html">模块进展</a></div>
 </section>
 <section><h2 id="numbers">关键数字</h2><div class="stats">{stats}</div>{enob_figs}{health}</section>
+{live_overview(site, data)}
 <section><h2 id="top">顶层原理图</h2>
 {viewer(site, [f for f in data['adc_top'].files if f['kind'] in ('struct', 'behav')] or data['adc_top'].files, 'v-top', 520,
         '顶层结构网表 adc_top.scs（同一个文件适用于任意视图组合）。双击模块进入下一层；也可以到各模块页面看它的行为级 / 晶体管级网表。')}
