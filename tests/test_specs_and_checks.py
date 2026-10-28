@@ -48,6 +48,20 @@ def test_testbench_parameters_exist():
             assert set(params) <= done, f"{tid}: {set(params) - done}"
 
 
+def test_testbench_loads_follow_the_specs():
+    """Capacitive loads in the generated testbenches are the `operating:` values of the specs."""
+    def caps(path):
+        text = (REPO_ROOT / path).read_text(encoding="utf-8")
+        return {m[1]: float(m[2]) * 1e-15 for m in re.finditer(r"^CL(\w+) \(\w+ 0\) capacitor c=([\d.]+)f$", text, re.M)}
+
+    loads = blocks()["adc_clkgen"].raw["operating"]["loads"]
+    for tb in ("tb/clkgen/tb_clkgen_timing.scs", "tb/clkgen/tb_clkgen_jitter.scs"):
+        assert caps(tb) == pytest.approx(loads), tb
+    # the CDAC top-plate load is the comparator input capacitance limit
+    cmp12 = next(s for s in blocks()["adc_comp"].specs if s.id == "CMP-12")
+    assert blocks()["adc_cdac"].raw["operating"]["top_load"] == pytest.approx(cmp12.max * 1e-15)
+
+
 def test_ports_check_passes():
     assert checks.check_ports().errors == []
 

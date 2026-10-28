@@ -26,13 +26,23 @@ from .gen import GEN_HEADER, block_symbols, va_symbols, va_ports
 from .rnldraw import STD_PINS, Sheet
 from .specs import blocks
 
+
+def _op(block: str) -> dict:
+    """Operating conditions of a block spec (specs/blocks/<block>.yaml `operating:`)."""
+    return blocks()[block].raw["operating"]
+
+
+def _ff(c: float) -> str:
+    """Capacitance in F as a netlist value in fF."""
+    return f"{c * 1e15:g}f"
+
+
 _ARCH = Arch.load()
 _FS = f"{_ARCH.fs_peak:.4f}"            # differential full-scale peak (V)
-_COMP_CIN = next(s.max for s in blocks()["adc_comp"].specs if s.metric == "cin_fF") * 1e-15
 _CDB = f"{0.6 * _ARCH.cu / 0.5e-15:g}p"  # CDAC bottom plates seen from VREFP (0.6 pF at cu = 0.5 fF)
 _CS = f"{_ARCH.c_s * 1e12:.4f}p"       # sampling capacitance per side
 _CTOT = f"{_ARCH.c_tot * 1e12:.2f}p"    # top-plate capacitance per side (CDAC + parasitic budget)
-_CTOP = f"{_COMP_CIN * 1e15:g}f"        # comparator input on the top plate (CMP-12 limit)
+_CTOP = _ff(_op("adc_cdac")["top_load"])  # comparator input on the top plate (= CMP-12 limit)
 _WSW = f"{48 * _ARCH.cu / 0.5e-15:g}u"   # reference input switch: 48 um per 0.5 fF of cu (25 ohm at v0.2)
 _NFSW = f"{round(24 * _ARCH.cu / 0.5e-15)}"  # ... in 2 um fingers
 
@@ -228,6 +238,7 @@ def tb_comp() -> list[TBDef]:
     from .measure.comp import DELAY_LEVELS, NOISE_LEVELS, NOISE_REPEAT, TCYC
 
     comp_ports = ["INP", "INN", "CLKC", "OUTP", "OUTN", "AVDD", "0"]
+    cload = _ff(_op("adc_comp")["load_per_output"])
     vd = DELAY_LEVELS * 2
     clk = f"VCK (CLKC 0) vsource type=pulse val0=0 val1=vdd period={TCYC:g} delay=100p width={TCYC / 2 - 10e-12:g} rise=10p fall=10p"
     out = []
@@ -241,7 +252,7 @@ def tb_comp() -> list[TBDef]:
     els += _sup("AVDD", "vdd", True)
     out.append(TBDef(
         "tb/comp/tb_comp_delay.scs", "tb_comp_delay: comparator delay, regeneration, reset and energy",
-        ["parameters cload=10f", f"parameters tstart=0 tstop={len(vd) * TCYC + 100e-12:g}"],
+        [f"parameters cload={cload}", f"parameters tstart=0 tstop={len(vd) * TCYC + 100e-12:g}"],
         els, ["tran1 tran stop=tstop", "save INP INN CLKC OUTP OUTN"],
         notes=[f"vd steps through +/-{', '.join(f'{v:g}' for v in DELAY_LEVELS[::2])} V (twice), CM 0.49 V, "
                f"one decision per {TCYC * 1e12:g} ps", "transient noise off; power.txt gives the AVDD energy"]))
@@ -261,7 +272,7 @@ def tb_comp() -> list[TBDef]:
            El("VAVDD", "vsource", ["AVDD", "0"], "dc=vdd", "top")]
     out.append(TBDef(
         "tb/comp/tb_comp_noise.scs", "tb_comp_noise: input-referred noise and offset from P(OUTP) vs vd",
-        ["parameters cload=10f nfmax=50G", f"parameters tstop={len(seq) * TCYC + 100e-12:g}"],
+        [f"parameters cload={cload} nfmax=50G", f"parameters tstop={len(seq) * TCYC + 100e-12:g}"],
         els, ["tran1 tran stop=tstop noisefmax=nfmax*noise_en*devnoise noiseseed=1 outputstart=tstop",
               "tbopts options save=none"],
         notes=[f"{len(NOISE_LEVELS)} levels of vd from {NOISE_LEVELS[0] * 1e6:g} to {NOISE_LEVELS[-1] * 1e6:g} uV, "
@@ -283,7 +294,7 @@ def tb_comp() -> list[TBDef]:
            El("VAVDD", "vsource", ["AVDD", "0"], "dc=vdd", "top")]
     out.append(TBDef(
         "tb/comp/tb_comp_kickback.scs", "tb_comp_kickback: kickback on floating 1.25 pF inputs, input capacitance",
-        [f"parameters cs={_CTOT} cload=10f ncyc=8", f"parameters tstop=ncyc*{TCYC:g}+100p"],
+        [f"parameters cs={_CTOT} cload={cload} ncyc=8", f"parameters tstop=ncyc*{TCYC:g}+100p"],
         els, ["tran1 tran stop=tstop", "ac1 ac freq=100M", "save INP INN VAC:p"],
         extra=["ic INP=0.4905 INN=0.4895"],
         notes=["inputs preset to 0.49 V +/- 0.5 mV and left floating on cs; the change of V(INP)-V(INN) per cycle is the kickback",
@@ -293,6 +304,7 @@ def tb_comp() -> list[TBDef]:
 
 def tb_sarlogic() -> list[TBDef]:
     log_ports = ["CONV", "OUTP", "OUTN", "CLKC"] + UPS + DNS + DS + ["RDY", "DVDD", "0"]
+    op = _op("adc_sarlogic")
     els = [El("XDUT", "adc_sarlogic", log_ports, where="dut"),
            El("VCONV", "vsource", ["CONV", "0"],
               "type=pulse val0=0 val1=vdd period=tper delay=tdel width=tconv-20p rise=20p fall=20p",
@@ -308,7 +320,8 @@ def tb_sarlogic() -> list[TBDef]:
     els += _sup("DVDD", "vdd", True, t0="tper", t1="tstop")
     return [TBDef(
         "tb/sarlogic/tb_sarlogic_func.scs", "tb_sarlogic_func: SAR controller against a comparator emulator",
-        ["parameters nconv=60 t0cmp=45p stuck=0 nowave=0 tper=10n tconv=4.8n tdel=0.12n cupdn=12f cclk=20f cload=50f",
+        ["parameters nconv=60 t0cmp=45p stuck=0 nowave=0 tper=10n tconv=4.8n tdel=0.12n "
+         f"cupdn={_ff(op['load_updn'])} cclk={_ff(op['load_clkc'])} cload={_ff(op['load_dout'])}",
          "parameters tstop=nconv*tper+tdel+1n"],
         els, ["tran1 tran stop=tstop outputstart=nowave*tstop",
               "save CONV CLKC OUTP OUTN RDY UP12 DN12 UP6 DN6 UP0 DN0 D0"],
@@ -448,8 +461,12 @@ def tb_clkgen() -> list[TBDef]:
         pts += [(r, 0.0), (r + 20e-12, 1.0), (f, 1.0), (f + 20e-12, 0.0)]
     wave = _pwl(pts).replace(" 1 ", " vdd ").replace(" 1]", " vdd]")
     gen_ports = ["CLK", "PHI_S", "PHI_SB", "PHI_B", "PHI_BB", "CONV", "AVDD", "0"]
-    loads = [El(f"CL{n}", "capacitor", [n, "0"], f"c={c}", "load")
-             for n, c in (("PHI_S", "60f"), ("PHI_SB", "60f"), ("PHI_B", "40f"), ("PHI_BB", "40f"), ("CONV", "250f"))]
+    # output loads from the spec (operating.loads), so the testbench cannot drift from it
+    spec_loads = _op("adc_clkgen")["loads"]
+    loads = [El(f"CL{n}", "capacitor", [n, "0"], f"c={_ff(spec_loads[n])}", "load")
+             for n in gen_ports[1:6]]
+    load_note = (f"output loads from adc_clkgen.yaml operating.loads, "
+                 f"{sum(spec_loads[n] for n in gen_ports[1:6]) * 1e15:g} fF in total")
     els = [El("XDUT", "adc_clkgen", gen_ports, where="dut"),
            El("VCLK", "vsource", ["CLK", "0"], "type=pwl " + wave,
               note="8 cycles at 50 % duty, 4 at 45 %, 4 at 55 % (20 ps edges)")] + loads
@@ -457,7 +474,8 @@ def tb_clkgen() -> list[TBDef]:
     out.append(TBDef(
         "tb/clkgen/tb_clkgen_timing.scs", "tb_clkgen_timing: phase order, delays, skews and edge rates",
         ["parameters tstop=161n"], els, ["tran1 tran stop=tstop maxstep=2p",
-                                         "save CLK PHI_S PHI_SB PHI_B PHI_BB CONV"]))
+                                         "save CLK PHI_S PHI_SB PHI_B PHI_BB CONV"],
+        notes=[load_note, "power.txt: average AVDD current over 10-80 ns, output-load charging included (CLK-10)"]))
     els = [El("XDUT", "adc_clkgen", gen_ports, where="dut"),
            El("VCLK", "vsource", ["CLK", "0"], "type=pulse val0=0 val1=vdd period=10n width=4.98n rise=20p fall=20p"),
            El("ISMP", "tb_sampler_va", ["PHI_S", "0", "PHI_S", "0"], 'vth=vdd/2 dir=-1 delay=0 tstart=10n fname="edges.txt"',
@@ -466,7 +484,8 @@ def tb_clkgen() -> list[TBDef]:
     out.append(TBDef(
         "tb/clkgen/tb_clkgen_jitter.scs", "tb_clkgen_jitter: PHI_S falling-edge jitter with transient noise",
         ["parameters ncyc=200 nfmax=50G", "parameters tstop=(ncyc+1)*10n"], els,
-        ["tran1 tran stop=tstop noisefmax=nfmax*noise_en*devnoise noiseseed=1 outputstart=tstop", "tbopts options save=none"]))
+        ["tran1 tran stop=tstop noisefmax=nfmax*noise_en*devnoise noiseseed=1 outputstart=tstop", "tbopts options save=none"],
+        notes=[load_note]))
     return out
 
 
@@ -525,7 +544,7 @@ def tb_top() -> list[TBDef]:
     return [TBDef(
         "tb/top/tb_top_sine.scs", "tb_top_sine: full ADC, coherent differential sine from 50 ohm per side",
         ["parameters fin=49.8962402e6 amp_dbfs=-1 npts=1024 ncal=1024 nskip=4 duty=0.5 fsamp=100e6 \\",
-         f"        fs_peak={_FS} vcm_in=0.45 rsrc=50 cload=50f nfmax=20G",
+         f"        fs_peak={_FS} vcm_in=0.45 rsrc=50 cload={_ff(_op('adc_sarlogic')['load_dout'])} nfmax=20G",
          "parameters amp=fs_peak*pow(10, amp_dbfs/20) tper=1/fsamp \\",
          "        tstart=(nskip-0.5)*tper tstop=(nskip+ncal+npts+0.6)*tper"],
         els, ["tran1 tran stop=tstop noisefmax=nfmax*noise_en*devnoise noiseseed=1 outputstart=tstop", "tbopts options save=none"],

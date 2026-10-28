@@ -22,7 +22,7 @@
   "n_samples": 2049,
   "missing_rdy": 0,
   "t_conv_max_ns": 2.6871500000000004,
-  "t_conv_mean_ns": 2.6088154072265626,
+  "t_conv_mean_ns": 2.6088153149414066,
   "cal_independent": true,
   "weights_cal": [
    1960.121,
@@ -54,10 +54,10 @@
   "fs_peak_V": 0.9928367875393038,
   "code_min": 246,
   "code_max": 4293,
-  "p_avdd_mW": 0.23954189076000001,
-  "p_dvdd_mW": 0.19534846995,
-  "p_avdd18_mW": 7.5247739946,
-  "power_mW": 7.95966435531
+  "p_avdd_mW": 0.28004189823000003,
+  "p_dvdd_mW": 0.19534847013,
+  "p_avdd18_mW": 7.524773784000001,
+  "power_mW": 8.00016415236
  },
  "specs": {
   "TOP-08": {
@@ -78,26 +78,26 @@
   }
  ],
  "meta": {
-  "date": "2026-10-28T03:05:42",
-  "git": "1cb981b",
+  "date": "2026-10-28T18:02:18",
+  "git": "a907201",
   "git_clean": true,
   "mode": "aps",
   "pdk": false,
   "mc": null,
-  "wall_s": 412.3,
+  "wall_s": 447.7,
   "rc": "0",
-  "sim_s": "305",
+  "sim_s": "341",
   "files": {
    "design/behav/adc_bootstrap.scs": "9458798199909fc5",
    "design/behav/adc_cdac.scs": "423386f9cc9bb2d0",
-   "design/behav/adc_clkgen.scs": "dafb1c3438e33c9e",
+   "design/behav/adc_clkgen.scs": "0e7831ed888587e6",
    "design/behav/adc_comp.scs": "4c26a597d558e2ae",
    "design/behav/adc_ref.scs": "a83c6feaac8c9c1a",
    "design/behav/adc_sarlogic.scs": "356e911752c1b85e",
    "design/top/adc_top.scs": "362a964ffe162797",
    "design/behav/veriloga/adc_bootstrap_va.va": "a6afdb6e2e03593b",
    "design/behav/veriloga/adc_cdac_sw_va.va": "cb43ced3f53d636b",
-   "design/behav/veriloga/adc_clkgen_va.va": "727f8a54cde10a53",
+   "design/behav/veriloga/adc_clkgen_va.va": "7fff1b9368bc1a20",
    "design/behav/veriloga/adc_comp_va.va": "ab8a6bf210351e31",
    "design/behav/veriloga/adc_ktc_va.va": "a1cf98faf5bf9b33",
    "design/behav/veriloga/adc_ref_va.va": "746d2530d4ff6d5c",
