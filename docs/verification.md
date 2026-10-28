@@ -90,7 +90,7 @@
 | `tb_cdac_weights` | `weights` | 各位权重与标称、各位权重误差对 0.5 % 限值、上升/下降步长不对称 |
 | `tb_cdac_settle` | `settle` | 整个序列的顶板波形；起始与 RL12 / RL5 / RL0 之后的误差（对数坐标），标出容差线、建立时间与限值；规格表 |
 | `tb_cdac_track` | `spectrum` | 顶板采样谱，SFDR / SNDR 对限值 |
-| `tb_bootstrap_dc` | `switch` | VG−VIN 随输入、最坏关断 / 开启边沿（时延与限值）、栅压应力对 1.0 V SOA 限值、规格表 |
+| `tb_bootstrap_dc` | `switch`、`soa` | VG−VIN 随输入、最坏关断 / 开启边沿（时延与限值）、参考开关三对端电压对 ±1.0 V、规格表；逐管 SOA（§5）：各器件各端电压的最大 \|V\| 对限值、最坏一对的全程波形与峰值附近的时间点 |
 | `tb_bootstrap_track` | `spectrum` | 经自举开关采样的频谱，SFDR / SNDR 对限值 |
 | `tb_clkgen_timing` | `timing` | CLK 下降 / 上升沿处 PHI_S、PHI_B、CONV 时序、PHI_S 下降沿（80 %→20 %）、占空比 50 / 45 / 55 % 各周期的延时与间隔对限值、规格表 |
 | `tb_clkgen_jitter` | `jitter` | 采样相位沿的直方图与高斯、各沿残差、限值处曲线 |
@@ -105,3 +105,65 @@
 `python -m adcflow check results --strict` 检查：`figures` 中列出的文件必须存在、命名为 `<stem>.<tag>.png`
 并 ≤ 200 KB；`--strict` 下每个有结果的 JSON 必须有图（失败的结果除外）；结果旁未列入清单的 PNG 报警告。
 新增测试的度量函数从 `ctx["figs"]` 取得接收器并至少画一张图，见 `docs/workflow.md` §4。
+
+## 5. 逐管 SOA 检查
+
+规格中“每个薄栅器件 |Vgs|、|Vgd|、|Vds| ≤ 1.0 V，各工艺角”的要求由 `adcflow` 的通用 SOA 检查
+（`tools/adcflow/soa.py`）验收，目前用于 `adc_bootstrap` 的 BST-08（`tb_bootstrap_dc`）。
+
+**启用**：在模块规格的用例下加 `soa:`。
+
+```yaml
+tests:
+  tb_bootstrap_dc:
+    soa: {dut: [XDUT], external: [MSWP]}
+```
+
+* `dut`：要检查其内部器件的测试台实例（缺省为本模块在测试台中的全部实例）。
+* `external`：测试台自身位于 DUT 边界上的薄栅器件，例如参考输入开关；任何视图都检查（缺省为测试台顶层的全部薄栅 MOS）。
+
+其它模块（例如由 VG 驱动的 CDAC 输入开关）启用时：在用例下加同样的 `soa:`；度量函数读入瞬态波形
+`w = tran(job_dir)` 后调用 `soa.measure(ctx, w, m)`，画图时调用 `soa.figure(fg, ctx, m, w)`；
+规格中加一条 `metric: soa_violations, max: 0, corners: all` 的指标。测试台不必改：要保存的节点由流程加进 deck。
+
+**器件分类**：`specs/soa.yaml` 给出限值 `limit_V: 1.0` 与器件模型的分类。薄栅 MOS（端口 d g s b）检查 gs、gd、ds 三对，
+薄栅 MOS 电容（p n）检查 pn；厚栅（1.8 V）器件不检查，列在结果的 `soa_skipped`。名称像 MOS 器件（`mos_pattern`）
+却没有列出的模型使检查无法验证。该文件记入结果的 `meta.files`，改动会使相关结果过期。端电压取 PDK 宏模型
+（`*_mac`）实例的端口，即网表中写出的节点。
+
+**机制**：建 deck 时（`runner.make_deck`）从 `dut` 实例往下展开所选视图的网表（包括子电路层次），列出每个器件及其
+端口所接的节点：接到 DUT 端口的映射为测试台网络，内部节点写成层次名（`XDUT.net1`、`XDUT.X1.net2`）；deck 在测试台之后
+追加一条只含这些节点的 `save`（测试台已保存的不重复）。Spectre 有显式 `save` 时只保存所列信号，数据量小。仿真后对每个器件、
+每对端口计算 V(a) − V(b) 在**全部时间点**上的最大绝对值、发生时刻与正负号，超过 `limit_V` 即为违例；`soa_violations`
+是违例的器件/端口对数，同一对多次超限只计一次。
+
+选用“保存端电压后分析”而不用 Spectre 器件断言（`assert`）：断言只报告超限，给不出未超限器件的最大值与时刻，而验收要求每个器件、
+每对端口都有可追溯的最大值；`*_mac` 是宏模型，断言须挂在其内部的基础器件或模型名上，这些名称随 PDK 而变；节点电压则由现有的
+PSF 读入器解析，器件与节点的对应关系由流程自己写出，可复现。
+
+时间分辨率就是仿真器接受的时间点：不抽样（无 strobe），也不允许 `outputstart`（波形不从 t = 0 开始即为无法验证）；Spectre 在
+边沿与振荡处按局部截断误差自动缩小步长。用一个故意违例的晶体管级小网表（TT，`aps`；不入库，因含 PDK 路径）验证：
+
+| 用例 | 器件 | 结果 |
+|---|---|---|
+| 负向 Vgs（栅 0 V，源 1.15 V） | `XDUT.MNEG` | gs = −1.150 V，违例 |
+| Vds（漏 1.15 V） | `XDUT.MVDS` | ds = 1.150 V，违例 |
+| 内部节点（嵌套子电路，栅接 RLC 振荡的内部节点） | `XDUT.XS.MI` | gs = 1.0934 V、gd = 1.0933 V，违例 |
+| 正常 PMOS、边界器件 | `XDUT.MCLEAN`、`MEXT` | 通过 |
+| 厚栅 `nch_18_mac`，Vds = 1.15 V | `XDUT.MTHICK` | 不检查，列入 `soa_skipped` |
+| 删去一个节点的波形 | — | `SOA unverified` |
+
+振荡过冲的峰值不落在激励断点上：默认步长得 1.09335 V（局部步长 4.2 ps），`maxstep=0.05p` 的参考为 1.09320 V，相差 0.15 mV。
+8 ns 的瞬态只有 204 个时间点（40 kB）。
+
+**结果**：`soa_scope`（`device`：DUT 内的器件加边界器件；`external`：只有边界器件）、`soa_devices`、`soa_devices_dut`（检查的器件数）、
+`soa_pairs`、`soa_violations`、`soa_max_V`、`soa_worst`（器件、端口对、带符号的值、时刻、局部步长）、`soa_points`、
+`soa_dt_max_ps`、`soa_skipped`、`soa_table`（每个器件每对端口的 `max_V`、`signed_V`、`t_ns`、`dt_ps`、`pass`）。
+证据图 `<stem>.soa.png`：各对的最大 |V| 对限值、最坏一对的全程波形、最坏峰值附近保存的时间点。
+
+**无法验证**：没有 SOA 计划、晶体管级 DUT 下找不到薄栅器件、未分类的 MOS 模型、所需节点没有波形、波形不从 t = 0 开始时，
+度量返回错误 `SOA unverified: …`，不写 `soa_violations`（相应指标判为不通过），绝不报 0。`dut`、`external` 写错则在仿真前报错。
+
+**行为级视图**没有内部器件：`soa_scope = external`，只检查边界器件（bootstrap 为参考开关 MSWP 的 |VG−VIN|、|VG−BP|、|BP−VIN|，
+两个方向）。行为级通过只说明测试台和外部波形没有超限，**不是晶体管级签核证据**；BST-08 的签核要用 `--view adc_bootstrap=xtor`
+得到的 `device` 结果。

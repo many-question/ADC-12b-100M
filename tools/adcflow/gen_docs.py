@@ -55,6 +55,8 @@ def gen_specs_md() -> str:
                 extra.append("瞬态噪声")
             if t.get("needs_pdk"):
                 extra.append("需要 PDK")
+            if t.get("soa"):
+                extra.append("逐管 SOA 检查（`docs/verification.md` §5）")
             L.append(f"- **`{tid}`** (`{t['netlist']}`, 度量 `{t['measure']}`"
                      + (f"; {'; '.join(extra)}" if extra else "") + f")：{' '.join(str(t.get('desc', '')).split())}")
     return "\n".join(L) + "\n"

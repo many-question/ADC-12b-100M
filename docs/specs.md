@@ -14,7 +14,7 @@
 
 ## adc_bootstrap
 
-**Bootstrapped gate generator for the bottom-plate input switches (one per side)** — 规格版本 0.2.0，状态 `behavioral`。
+**Bootstrapped gate generator for the bottom-plate input switches (one per side)** — 规格版本 0.3.0，状态 `behavioral`。
 
 While PHI_B is high, VG = VIN + Vboot (Vboot ~ AVDD, from a capacitor charged during conversion), so every NMOS input switch inside adc_cdac sees a signal-independent gate-source voltage. PHI_B falling turns VG to 0 V quickly (the sampling instant itself is set by PHI_S in adc_cdac, 20-80 ps earlier). The load is the gate capacitance of all input switches of one CDAC.
 
@@ -48,11 +48,11 @@ While PHI_B is high, VG = VIN + Vboot (Vboot ~ AVDD, from a capacitor charged du
 | BST-05 | tracking SFDR with reference switch (diff, 49.9 MHz, -1 dBFS, 50 ohm) | ≥ 82 | dBc | all | `tb_bootstrap_track` |
 | BST-06 | tracking SNDR excl. kT/C (same) | ≥ 78 | dB | all | `tb_bootstrap_track` |
 | BST-07 | average AVDD current at 100 MHz (one instance) | ≤ 50 | uA | typ | `tb_bootstrap_dc` |
-| BST-08 | SOA violations | ≤ 0 | count | all | `tb_bootstrap_dc` |
+| BST-08 | SOA violations: thin-oxide device / terminal pairs over 1.0 V (Vgs, Vgd, Vds; absolute, whole transient) | ≤ 0 | count | all | `tb_bootstrap_dc` |
 
 ### 验收用例
 
-- **`tb_bootstrap_dc`** (`tb/bootstrap/tb_bootstrap_dc.scs`, 度量 `adcflow.measure.bootstrap:dc`; 需要 PDK)：100 MHz ideal phases; VIN stepped 0, 0.15 .. 0.9 V (one level per 4 cycles) through 50 ohm with the reference load. Measures VG - VIN at the end of each track phase, turn-on / turn-off times and AVDD current.
+- **`tb_bootstrap_dc`** (`tb/bootstrap/tb_bootstrap_dc.scs`, 度量 `adcflow.measure.bootstrap:dc`; 需要 PDK; 逐管 SOA 检查（`docs/verification.md` §5）)：100 MHz ideal phases; VIN stepped 0, 0.15 .. 0.9 V (one level per 4 cycles) through 50 ohm with the reference load. Measures VG - VIN at the end of each track phase, turn-on / turn-off times and AVDD current. BST-08 is the per-device SOA check of adcflow (docs/verification.md §5): the run deck saves the d / g / s nodes of every thin-oxide MOS in XDUT and of the reference switch MSWP; |Vgs|, |Vgd| and |Vds| of each, both polarities, are taken at every time point of the whole transient (edges included) and compared with 1.0 V; soa_violations counts the device / terminal pairs above it, soa_table gives every pair's largest |V| and its time. A transistor view without such devices, an unlisted MOS model or a missing waveform is an error (unverified), never 0. The behavioral view has no devices: only MSWP is checked (|VG - VIN|, |VG - BP|, |BP - VIN|), recorded as soa_scope external, which is not transistor-level evidence.
 - **`tb_bootstrap_track`** (`tb/bootstrap/tb_bootstrap_track.scs`, 度量 `adcflow.measure.bootstrap:track`; 参数 `fin_target=49.9e6`, `npts=256`; 需要 PDK)：Two bootstraps with reference loads, differential sine from 50 ohm per side, coherent 49.9 MHz, -1 dBFS. The bottom-plate voltages at the PHI_S falling edges are the samples (bottom-plate sampling); FFT of 256 samples.
 
 ## adc_cdac
