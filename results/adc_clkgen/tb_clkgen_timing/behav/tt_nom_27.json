@@ -22,7 +22,17 @@
   "nov_cb_ps": 29.999999999954607,
   "tf_s_ps": 7.200000000098162,
   "skew_ssb_ps": 0.0,
-  "iavg_uA": 70.0
+  "iavg_uA": 70.0,
+  "soa_scope": "external",
+  "soa_limit_V": 1.0,
+  "soa_devices": 0,
+  "soa_devices_dut": 0,
+  "soa_pairs": 0,
+  "soa_violations": 0,
+  "soa_note": "nothing to check: XDUT uses behavioral views (no devices) and the testbench has no thin-oxide device at its top level; not transistor-level evidence",
+  "soa_points": 81160,
+  "soa_dt_max_ps": 2.0,
+  "soa_table": []
  },
  "specs": {
   "CLK-01": {
@@ -78,6 +88,12 @@
    "value": 70.0,
    "limit": "<= 80",
    "pass": true
+  },
+  "CLK-11": {
+   "metric": "soa_violations",
+   "value": 0,
+   "limit": "<= 0",
+   "pass": true
   }
  },
  "figures": [
@@ -87,15 +103,27 @@
   }
  ],
  "meta": {
-  "date": "2026-10-28T20:51:19",
-  "git": "285dcb4",
+  "date": "2026-10-28T21:43:08",
+  "git": "a98c872",
   "git_clean": true,
   "mode": "aps",
   "pdk": false,
   "mc": null,
-  "wall_s": 115.1,
+  "wall_s": 124.5,
   "rc": "0",
-  "sim_s": "8",
+  "sim_s": "17",
+  "numerics": {
+   "source": "spectre.log",
+   "reltol": 0.001,
+   "maxstep_ps": 2.0,
+   "method": "traponly",
+   "errpreset": "moderate",
+   "lteratio": 3.5,
+   "abstol_V": 1e-06,
+   "steps_accepted": 81159,
+   "step_mean_ps": 1.98376,
+   "step_max_ps": 2.0
+  },
   "files": {
    "design/behav/adc_bootstrap.scs": "eee3a0a78eec4c5f",
    "design/behav/adc_cdac.scs": "5b8837cc5d2a76bc",
@@ -112,6 +140,7 @@
    "design/behav/veriloga/adc_ref_va.va": "746d2530d4ff6d5c",
    "design/behav/veriloga/adc_sarlogic_va.va": "42f06909a81347ef",
    "tb/common/veriloga/tb_imeter_va.va": "d4be49aca417ad61",
+   "specs/soa.yaml": "df574d3582df9b2c",
    "tb/clkgen/tb_clkgen_timing.scs": "12b4f675f9eaddfa",
    "specs/arch.yaml": "bffadef750bb5205"
   }
