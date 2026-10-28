@@ -2,7 +2,7 @@ block: adc_clkgen
 title: Sampling clock phase generator
 version: 0.3.0
 owner: many-question
-status: behavioral
+status: xtor-wip
 views:
   behav: design/behav/adc_clkgen.scs
   xtor: design/xtor/adc_clkgen/adc_clkgen.scs
