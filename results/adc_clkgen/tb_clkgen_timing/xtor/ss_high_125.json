@@ -2278,15 +2278,15 @@
   }
  ],
  "meta": {
-  "date": "2026-10-28T23:57:31",
-  "git": "bffad39",
+  "date": "2026-10-29T00:10:37",
+  "git": "f330cd3",
   "git_clean": true,
   "mode": "aps",
   "pdk": true,
   "mc": null,
-  "wall_s": 976.7,
+  "wall_s": 266.7,
   "rc": "0",
-  "sim_s": "17",
+  "sim_s": "24",
   "numerics": {
    "source": "spectre.log",
    "reltol": 0.001,
@@ -2317,6 +2317,86 @@
    "specs/soa.yaml": "df574d3582df9b2c",
    "tb/clkgen/tb_clkgen_timing.scs": "12b4f675f9eaddfa",
    "specs/arch.yaml": "bffadef750bb5205"
+  },
+  "crosscheck": {
+   "settings": {
+    "maxstep": "0.5p"
+   },
+   "numerics": {
+    "source": "spectre.log",
+    "reltol": 0.001,
+    "maxstep_ps": 0.5,
+    "method": "traponly",
+    "errpreset": "moderate",
+    "lteratio": 3.5,
+    "abstol_V": 1e-06,
+    "steps_accepted": 322128,
+    "step_mean_ps": 0.499801,
+    "step_max_ps": 0.5
+   },
+   "rc": "0",
+   "sim_s": "27",
+   "metrics": {
+    "td_s_ps": {
+     "ref": 41.23820629688263,
+     "xcheck": 41.18117097546814,
+     "diff": -0.05703532141448875
+    },
+    "skew_sb_ps": {
+     "ref": 49.515081795964676,
+     "xcheck": 49.46119468693034,
+     "diff": -0.05388710903433491
+    },
+    "nov_bc_ps": {
+     "ref": 71.1346803475082,
+     "xcheck": 71.08625676359412,
+     "diff": -0.04842358391407231
+    },
+    "td_conv_ps": {
+     "ref": 161.8826823675392,
+     "xcheck": 161.7285548898587,
+     "diff": -0.15412747768047552
+    },
+    "nov_cb_ps": {
+     "ref": 106.33080553344853,
+     "xcheck": 106.20043229345416,
+     "diff": -0.13037323999436978
+    },
+    "tf_s_ps": {
+     "ref": 10.775272824908708,
+     "xcheck": 10.621819069452366,
+     "diff": -0.15345375545634177
+    },
+    "skew_ssb_ps": {
+     "ref": 6.1203834159672565,
+     "xcheck": 6.077586539976559,
+     "diff": -0.042796875990697814
+    },
+    "duty_errors": {
+     "ref": 0,
+     "xcheck": 0,
+     "diff": 0
+    },
+    "iavg_uA": {
+     "ref": 136.1554631,
+     "xcheck": 136.099041,
+     "diff": -0.056422099999991815
+    },
+    "soa_violations": {
+     "ref": 0,
+     "xcheck": 0,
+     "diff": 0
+    }
+   },
+   "soa": {
+    "pairs": 180,
+    "max_V_diff_max_mV": 0.36,
+    "at": "XDUT.XB1.MN ds",
+    "violations": [
+     0,
+     0
+    ]
+   }
   }
  }
 }
