@@ -112,8 +112,8 @@ tests:
       edge, single-pole equivalent from the 10 % -> 1 % part of the RL12 step,
       conversion-start settling before the first edge, 5 ns hold droop and
       VREFP charge per conversion. DAC-13: AC current into DH5 at 100 MHz.
-      DAC-15..17: PHI_S, PHI_SB and CONV reach the DUT through 0 V sources;
-      the charge a pin draws over each of its rising edges (from 50 ps before
+      DAC-15..17: PHI_S, PHI_SB and CONV reach the DUT through charge meters
+      (tb_qmeter_va, a 0 V path); the charge a pin draws over each of its rising edges (from 50 ps before
       to 200 ps after the 50 % crossing, at most halfway to the neighbouring
       falling crossings) divided by the voltage step, mean over all rising
       edges of the run.

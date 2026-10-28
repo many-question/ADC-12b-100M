@@ -38,11 +38,14 @@ operating:
   # average of arch v0.3, both sides: 0.93 pC at the start (the sampled H
   # halves, C_S / 2 = 1.03 pF per side, from VIN ~ 0.45 V to VREFP) plus 13
   # switch charges w_j * cu / 2 * VREFP (sum of w_j = 2269: 1.02 pC), together
-  # 1.95 pC per conversion; x 100 MHz = 195 uA (v0.2 with cu = 0.5 fF: 100 uA)
+  # 1.95 pC per conversion; x 100 MHz = 195 uA (v0.2 with cu = 0.5 fF: 100 uA).
+  # It covers the 176 uA average of the near-Nyquist replay (tb_ref_replay,
+  # npts 1024, 49.707 MHz; the signal-dependent part lowers the average).
   load_vrefp_dc: 200.0e-6
   load_vcm: >
-    2 x 2.5 pF switched to top plates at 100 MHz; not applied by any testbench
-    (average current ~ 0, see docs/handoff.md)
+    2 x 2.5 pF switched to top plates at 100 MHz; not applied by any adc_ref
+    testbench: VCM is accepted by REF-02 (DC) plus the mixed top-level
+    regression (tb_top_sine with the transistor adc_ref), see docs/handoff.md
   power: "no limit; AVDD18 / AVDD currents are reported (lower is better)"
 specs:
   - {id: REF-01, name: "VREFP - VREF_IN (DC, 200 uA load)",       metric: vrefp_err_mV, unit: mV, min: -5, max: 5, corners: all, test: tb_ref_dc}
@@ -58,9 +61,10 @@ tests:
     netlist: tb/ref/tb_ref_dc.scs
     measure: adcflow.measure.ref:dc
     desc: >
-      DC operating point with the 200 uA average CDAC load (load_vrefp_dc), a
-      dc sweep of the load 0..400 uA (load regulation, reported) and of AVDD18
-      +/-10 %; supply currents (reported) and the VREF_IN input current.
+      DC operating point with the 200 uA average CDAC load (load_vrefp_dc):
+      REF-01, REF-02 and REF-11 there, REF-04 from a sweep of AVDD18 +/-10 % at
+      that load; a dc sweep of the load 0..200 uA is characterization (load
+      regulation, reported, no limit); supply currents are reported.
   tb_ref_replay:
     netlist: tb/ref/tb_ref_replay.scs
     measure: adcflow.measure.ref:replay

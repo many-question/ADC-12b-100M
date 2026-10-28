@@ -533,7 +533,7 @@ def tb_ref() -> list[TBDef]:
         [f"parameters iload={_ua(iload)}"],
         base + [El("IL", "isource", ["VREFP", "0"], "dc=iload", "load",
                    note="average CDAC load, adc_ref.yaml operating.load_vrefp_dc")],
-        ["dcop dc", f"dcload dc param=iload start=0 stop={_ua(2 * iload)} step={_ua(iload / 4)}",
+        ["dcop dc", f"dcload dc param=iload start=0 stop={_ua(iload)} step={_ua(iload / 4)}",
          "dcline dc dev=VH param=dc start=vdd18*0.9 stop=vdd18*1.1 step=vdd18*0.05",
          "save VREFP VCM VH:p VA:p VREF:p"]))
     out.append(TBDef(

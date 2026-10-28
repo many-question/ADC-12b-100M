@@ -99,7 +99,7 @@ tests:
       answers each CLKC with a delay t0 + tau*ln(vsat/|residue|); it logs the
       ideal decisions. The capture monitor logs D at RDY. Checks bits, timing
       of every loop edge, conversion time and DVDD energy. LOG-14/15: CONV,
-      OUTP and OUTN reach the DUT through 0 V sources; the charge a pin draws
+      OUTP and OUTN reach the DUT through charge meters (tb_qmeter_va, a 0 V path); the charge a pin draws
       over each rising edge divided by the voltage step, mean over all rising
       edges (window as in adc_cdac tb_cdac_settle).
   tb_sarlogic_rand:

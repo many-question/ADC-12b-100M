@@ -67,6 +67,6 @@ tests:
       Inputs floating on 2.5 pF capacitors (the CDAC top plates, C_tot), preset to
       VCM +/- 0.5 mV. Measures the change of the differential input after one
       evaluate + reset cycle. CMP-12: AC current into INP of a second instance
-      in reset at 100 MHz. CMP-14: CLKC reaches the DUT through a 0 V source;
+      in reset at 100 MHz. CMP-14: CLKC reaches the DUT through a charge meter (tb_qmeter_va, a 0 V path);
       the charge it draws over each rising edge divided by the voltage step,
       mean over the 8 cycles (window as in adc_cdac tb_cdac_settle).

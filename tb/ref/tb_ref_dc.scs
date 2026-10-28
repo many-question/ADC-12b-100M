@@ -14,7 +14,7 @@ VA (AVDD 0) vsource dc=vdd
 // average CDAC load, adc_ref.yaml operating.load_vrefp_dc
 IL (VREFP 0) isource dc=iload
 dcop dc
-dcload dc param=iload start=0 stop=400u step=50u
+dcload dc param=iload start=0 stop=200u step=50u
 dcline dc dev=VH param=dc start=vdd18*0.9 stop=vdd18*1.1 step=vdd18*0.05
 save VREFP VCM VH:p VA:p VREF:p
 // @RNL {

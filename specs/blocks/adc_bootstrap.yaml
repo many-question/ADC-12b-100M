@@ -61,7 +61,7 @@ tests:
       view has no devices: only MSWP is checked (|VG - VIN|, |VG - BP|,
       |BP - VIN|), recorded as soa_scope external, which is not
       transistor-level evidence. BST-09/10: PHI_B and PHI_BB reach the DUT
-      through 0 V sources; the charge a pin draws over each rising edge
+      through charge meters (tb_qmeter_va, a 0 V path); the charge a pin draws over each rising edge
       divided by the voltage step, mean over all rising edges (window as in
       adc_cdac tb_cdac_settle).
   tb_bootstrap_track:
