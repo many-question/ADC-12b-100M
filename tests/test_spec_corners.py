@@ -3,11 +3,15 @@
 tb_clkgen_timing mixes `corners: all` specs (CLK-01 .. CLK-08) with CLK-10 (`corners: typ`):
 a result at ff_high_125 is judged on CLK-01 .. CLK-08, while its AVDD current stays in the
 result as a raw value that CLK-10 does not judge (N/A).
+
+The synthetic records live under a temporary repository root and the verdict checks stub the
+evidence-figure check (tests/test_figures.py tests it): real results/ and their figures, which
+differ between branches, cannot change these verdicts (#41).
 """
 
 import pytest
 
-from adcflow import REPO_ROOT, checks, results, runner
+from adcflow import checks, results, runner
 from adcflow.corners import by_name, corner_names
 from adcflow.specs import blocks
 
@@ -17,11 +21,18 @@ GOOD = {"td_s_ps": 46.0, "skew_sb_ps": 40.0, "nov_bc_ps": 20.0, "td_conv_ps": 11
         "tf_s_ps": 10.0, "skew_ssb_ps": 2.0, "duty_errors": 0, "iavg_uA": 70.0, "soa_violations": 0}
 
 
+@pytest.fixture(autouse=True)
+def _isolated_root(tmp_path, monkeypatch):
+    """The checks see a temporary repository root, never the real results/ directory."""
+    monkeypatch.setattr(checks, "REPO_ROOT", tmp_path)
+    return tmp_path
+
+
 def _doc(corner: str, test: str = TEST, view: str = "xtor", mc=None, job: str | None = None, **metrics) -> dict:
     job = job or corner
     return {"block": BLOCK, "test": test, "view": view, "corner": corner, "metrics": {**GOOD, **metrics},
             "meta": {"mc": mc, "files": {}},
-            "_path": REPO_ROOT / "results" / BLOCK / test / view / f"{job}.json"}
+            "_path": checks.REPO_ROOT / "results" / BLOCK / test / view / f"{job}.json"}
 
 
 def _spec(sid: str):
@@ -32,9 +43,17 @@ def _summary(sid: str, docs: list[dict]) -> results.SpecSummary:
     return results.summarize(_spec(sid), [(d, checks.judge(d)) for d in docs])
 
 
-def _warnings(monkeypatch, docs: list[dict]) -> list[str]:
+def _check(monkeypatch, docs: list[dict], figures: bool = False) -> checks.Report:
+    """check_results on `docs` only; the evidence-figure check, which a verdict test is not
+    about, is stubbed unless `figures`."""
     monkeypatch.setattr(checks, "load_results", lambda: docs)
-    rep = checks.check_results()
+    if not figures:
+        monkeypatch.setattr(checks, "_check_figures", lambda *a, **k: None)
+    return checks.check_results()
+
+
+def _warnings(monkeypatch, docs: list[dict]) -> list[str]:
+    rep = _check(monkeypatch, docs)
     assert rep.errors == []
     return rep.warnings
 
@@ -85,8 +104,7 @@ def test_tt_missing_is_incomplete_not_a_pass(monkeypatch):
     assert len(r.na) == 1
     # a block in sign-off needs the applicable corner, and only that one
     monkeypatch.setitem(blocks()[BLOCK].raw, "status", "signoff")
-    monkeypatch.setattr(checks, "load_results", lambda: [_doc(c.name) for c in [by_name("ff_high_125")]])
-    errs = [e for e in checks.check_results().errors if "CLK-10" in e]
+    errs = [e for e in _check(monkeypatch, [_doc(by_name("ff_high_125").name)]).errors if "CLK-10" in e]
     assert errs == ["adc_clkgen CLK-10: no xtor result for corner tt_nom_27 (tb_clkgen_timing)"]
 
 
@@ -94,10 +112,9 @@ def test_signoff_needs_every_applicable_corner_and_ignores_the_others(monkeypatc
     docs = [_doc(c) for c in sorted(corner_names("all"))]
     docs = [d if d["corner"] != "ff_high_125" else _doc("ff_high_125", iavg_uA=569.0) for d in docs]
     monkeypatch.setitem(blocks()[BLOCK].raw, "status", "signoff")
-    monkeypatch.setattr(checks, "load_results", lambda: docs)
-    assert [e for e in checks.check_results().errors if "CLK-09" not in e] == []     # CLK-09: jitter test
+    assert [e for e in _check(monkeypatch, docs).errors if "CLK-09" not in e] == []     # CLK-09: jitter test
     docs.remove(next(d for d in docs if d["corner"] == "ss_low_m40"))
-    errs = [e for e in checks.check_results().errors if "ss_low_m40" in e]
+    errs = [e for e in _check(monkeypatch, docs).errors if "ss_low_m40" in e]
     n_all = sum(s.test == TEST and s.corners == "all" for s in blocks()[BLOCK].specs)
     assert len(errs) == n_all and all("CLK-10" not in e for e in errs)
 
@@ -167,3 +184,35 @@ def test_report_counts_unique_applicable_corners(monkeypatch, capsys):
     line = next(ln for ln in capsys.readouterr().out.splitlines() if ln.strip().startswith("CLK-10"))
     assert "79.4" in line and "PASS" in line and "1/1" in line
     assert "n/a at 1 corner(s) outside typ, worst 569.3: not judged" in line
+
+
+def _figures_next_to(docs: list[dict]) -> list:
+    """Evidence figures that a design branch has next to its results (#26): one unlisted
+    <corner>.timing.png per record, in the records' own directory."""
+    out = []
+    for d in docs:
+        png = d["_path"].with_name(d["_path"].stem + ".timing.png")
+        png.parent.mkdir(parents=True, exist_ok=True)
+        png.write_bytes(b"\x89PNG\r\n")
+        out.append(png)
+    return out
+
+
+def test_verdicts_do_not_depend_on_figures_next_to_the_results(monkeypatch, _isolated_root):
+    """#41: with figures next to the results the verdict warnings are the same."""
+    docs = [_doc("tt_nom_27"), _doc("ss_low_125", td_s_ps=95.0), _doc("ff_high_125", iavg_uA=569.0)]
+    assert all(_isolated_root in d["_path"].parents for d in docs)            # never the real results/
+    _figures_next_to(docs)
+    w = _warnings(monkeypatch, docs)
+    assert len(w) == 1 and "CLK-01" in w[0] and "ss_low_125" in w[0]
+
+
+def test_unlisted_figures_are_still_reported_by_the_production_check(monkeypatch):
+    """The isolation is only in the verdict tests: check_results itself still reports every
+    PNG of a result that its `figures` do not list."""
+    docs = [_doc("tt_nom_27"), _doc("ss_low_125"), _doc("ff_high_125")]
+    pngs = _figures_next_to(docs)
+    rep = _check(monkeypatch, docs, figures=True)
+    assert sorted(w for w in rep.warnings if "is not listed in figures" in w) == \
+        sorted(f"results/{BLOCK}/{TEST}/xtor/{p.stem.split('.')[0]}.json: {p.name} is not listed in figures"
+               for p in pngs)
