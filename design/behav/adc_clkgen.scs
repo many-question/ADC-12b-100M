@@ -7,7 +7,7 @@ simulator lang=spectre
 
 subckt adc_clkgen (CLK PHI_S PHI_SB PHI_B PHI_BB CONV AVDD VSS)
 // Behavioral view. Uses the deck globals noise_en and beh_speed.
-parameters td_s=40p dt_b=40p dt_conv=30p td_r=40p dt_rise=30p jitter=50f iavg=25u
+parameters td_s=40p dt_b=40p dt_conv=30p td_r=40p dt_rise=30p jitter=50f iavg=70u
 I0 (CLK PHI_S PHI_SB PHI_B PHI_BB CONV AVDD VSS) adc_clkgen_va \
         td_s=td_s*beh_speed dt_b=dt_b*beh_speed dt_conv=dt_conv*beh_speed td_r=td_r*beh_speed \
         dt_rise=dt_rise*beh_speed jitter=jitter*noise_en iavg=iavg

@@ -239,7 +239,7 @@ ENOB 10.5 对应总噪声 351 µV；在全部项按限值叠加的最坏角（RE
 | adc_ref | AVDD18 | 约 4.2 mA（7.6 mW），不设上限 | 行为级起点 4 mA + CDAC 平均约 0.2 mA；按 REF-12/13 与 ENOB 余量折中 |
 | adc_comp | AVDD | ≤ 200 fJ × 14 × 100 MHz = 0.28 mW | |
 | adc_sarlogic | DVDD | ≤ 0.30 mW | 含 UP/DN、D 输出驱动 |
-| adc_clkgen | AVDD | ≤ 40 µA（36 µW） | |
+| adc_clkgen | AVDD | ≤ 80 µA（72 µW） | AVDD 全部平均电流，含输出负载充放电（530 fF，ΣC·V·f = 47.7 µA）；行为级占位 70 µA（CLK-10，issue #18） |
 | adc_bootstrap ×2 | AVDD | ≤ 2 × 50 µA（90 µW） | |
 | **合计** | | **约 8 mW** | Walden FoM ≈ 40 fJ/conv-step（ENOB 10.9），参考驱动占大头 |
 

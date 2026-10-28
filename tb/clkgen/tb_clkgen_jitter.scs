@@ -12,8 +12,8 @@ XDUT (CLK PHI_S PHI_SB PHI_B PHI_BB CONV AVDD 0) adc_clkgen
 VCLK (CLK 0) vsource type=pulse val0=0 val1=vdd period=10n width=4.98n rise=20p fall=20p
 // time of every PHI_S falling crossing
 ISMP (PHI_S 0 PHI_S 0) tb_sampler_va vth=vdd/2 dir=-1 delay=0 tstart=10n fname="edges.txt"
-CLPHI_S (PHI_S 0) capacitor c=60f
-CLPHI_SB (PHI_SB 0) capacitor c=60f
+CLPHI_S (PHI_S 0) capacitor c=100f
+CLPHI_SB (PHI_SB 0) capacitor c=100f
 CLPHI_B (PHI_B 0) capacitor c=40f
 CLPHI_BB (PHI_BB 0) capacitor c=40f
 CLCONV (CONV 0) capacitor c=250f
@@ -70,5 +70,6 @@ tbopts options save=none
 //   #VAVDD:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", rotate=90, dx=0, dy=0.4);
 //   %g10 = $GROUND @ATTACH &0 => @PLACE(0, 15.5);
 //   &0 @WIRE {#VAVDD:2 %g10:p};
-//   (-30, 33) @TEXT("tb_clkgen_jitter: PHI_S falling-edge jitter with transient noise", halign="start") => @SET-STYLE $title_style
+//   (-30, 33) @TEXT("tb_clkgen_jitter: PHI_S falling-edge jitter with transient noise", halign="start") => @SET-STYLE $title_style;
+//   (-30, 31.4) @TEXT("output loads from adc_clkgen.yaml operating.loads, 530 fF in total", halign="start") => @SET-STYLE $note_style
 // }

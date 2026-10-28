@@ -1,6 +1,6 @@
 block: adc_clkgen
 title: Sampling clock phase generator
-version: 0.1.1
+version: 0.2.0
 owner: many-question
 status: behavioral
 views:
@@ -22,6 +22,9 @@ ports:
   - {name: AVDD,   dir: supply, type: supply, side: top,    desc: "0.9 V"}
   - {name: VSS,    dir: ground, type: supply, side: bottom, desc: "ground"}
 operating:
+  # F; the testbenches (gen_tb.py) take their output loads from here. 530 fF in
+  # total: charging them once per cycle from AVDD is C*V*f = 47.7 uA at 0.9 V,
+  # 100 MHz, which CLK-10 counts (it is the whole AVDD current).
   loads: {PHI_S: 100.0e-15, PHI_SB: 100.0e-15, PHI_B: 40.0e-15, PHI_BB: 40.0e-15, CONV: 250.0e-15}
 specs:
   - {id: CLK-01, name: "CLK fall -> PHI_S fall (50 %)",           metric: td_s_ps,     unit: ps, max: 80,  corners: all, test: tb_clkgen_timing}
@@ -33,14 +36,16 @@ specs:
   - {id: CLK-07, name: "PHI_S / PHI_SB crossing skew",             metric: skew_ssb_ps, unit: ps, max: 15,  corners: all, test: tb_clkgen_timing}
   - {id: CLK-08, name: "function at CLK duty 45 % and 55 %",       metric: duty_errors, unit: count, max: 0, corners: all, test: tb_clkgen_timing}
   - {id: CLK-09, name: "PHI_S falling-edge jitter (device noise)", metric: jitter_fs,   unit: fs, max: 60,  corners: typ, test: tb_clkgen_jitter}
-  - {id: CLK-10, name: "average AVDD current at 100 MHz",          metric: iavg_uA,     unit: uA, max: 40,  corners: typ, test: tb_clkgen_timing}
+  - {id: CLK-10, name: "average AVDD current at 100 MHz incl. output loads", metric: iavg_uA, unit: uA, max: 80, corners: typ, test: tb_clkgen_timing}
 tests:
   tb_clkgen_timing:
     netlist: tb/clkgen/tb_clkgen_timing.scs
     measure: adcflow.measure.clkgen:timing
     desc: >
       Ideal 100 MHz CLK (20 ps edges), 8 cycles at 50 % duty, then 4 at 45 %
-      and 4 at 55 %, specified output loads. Edge times of every phase.
+      and 4 at 55 %, specified output loads. Edge times of every phase; average
+      current of the whole AVDD branch over 10-80 ns (7 cycles), the charging
+      of the output loads included.
   tb_clkgen_jitter:
     netlist: tb/clkgen/tb_clkgen_jitter.scs
     measure: adcflow.measure.clkgen:jitter

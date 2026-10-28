@@ -18,7 +18,7 @@ module adc_clkgen_va(CLK, PHI_S, PHI_SB, PHI_B, PHI_BB, CONV, AVDD, VSS);
   parameter real dt_rise = 30e-12;     // CONV fall -> PHI_B, PHI_S rise
   parameter real tr = 12e-12;          // output edges
   parameter real jitter = 0 from [0:inf);   // rms, on the PHI_S falling edge
-  parameter real iavg = 25e-6 from [0:inf); // average AVDD current (budget)
+  parameter real iavg = 70e-6 from [0:inf); // average AVDD current incl. output loads (budget, CLK-10)
   parameter integer seed0 = 23;
 
   integer seed, phs, phb, conv;
