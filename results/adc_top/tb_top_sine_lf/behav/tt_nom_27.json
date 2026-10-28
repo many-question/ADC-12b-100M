@@ -130,10 +130,10 @@
    }
   },
   "redrawn": {
-   "date": "2026-10-29T01:48:36",
-   "git": "4d48ff4",
+   "date": "2026-10-29T05:42:28",
+   "git": "5959baa",
    "git_clean": true,
-   "run": "20261028-222650-8be7-tb_top_sine_lf"
+   "run": "20261029-035558-20ae-tb_top_sine_lf"
   }
  }
 }

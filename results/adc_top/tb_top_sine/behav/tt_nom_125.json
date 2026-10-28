@@ -160,6 +160,12 @@
     "sfdr": "plotspec definition: peak bin of the fundamental / largest other single bin (DC and signal bins excluded, Nyquist included)",
     "enob_sndr_snr_thd": "adctoolbox 0.6.4 compute_spectrum"
    }
+  },
+  "redrawn": {
+   "date": "2026-10-29T05:42:24",
+   "git": "5959baa",
+   "git_clean": true,
+   "run": "20261029-040935-48a3-tb_top_sine"
   }
  }
 }
