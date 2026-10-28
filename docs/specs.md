@@ -6,7 +6,7 @@
 |---|---|---|---|---|
 | [`adc_bootstrap`](#adc-bootstrap) | behavioral | many-question | 10 | `tb_bootstrap_dc`, `tb_bootstrap_track` |
 | [`adc_cdac`](#adc-cdac) | behavioral | many-question | 17 | `tb_cdac_weights`, `tb_cdac_settle`, `tb_cdac_track` |
-| [`adc_clkgen`](#adc-clkgen) | behavioral | many-question | 10 | `tb_clkgen_timing`, `tb_clkgen_jitter` |
+| [`adc_clkgen`](#adc-clkgen) | behavioral | many-question | 11 | `tb_clkgen_timing`, `tb_clkgen_jitter` |
 | [`adc_comp`](#adc-comp) | behavioral | many-question | 14 | `tb_comp_delay`, `tb_comp_noise`, `tb_comp_kickback` |
 | [`adc_ref`](#adc-ref) | behavioral | many-question | 8 | `tb_ref_dc`, `tb_ref_replay`, `tb_ref_noise` |
 | [`adc_sarlogic`](#adc-sarlogic) | behavioral | Arcadia-1 | 15 | `tb_sarlogic_func`, `tb_sarlogic_rand`, `tb_sarlogic_func_slow`, `tb_sarlogic_timeout` |
@@ -119,7 +119,7 @@ While PHI_B is high, VG = VIN + Vboot (Vboot ~ AVDD, from a capacitor charged du
 
 ## adc_clkgen
 
-**Sampling clock phase generator** — 规格版本 0.2.1，状态 `behavioral`。
+**Sampling clock phase generator** — 规格版本 0.3.0，状态 `behavioral`。
 
 Buffers the single external CLK (high = track, low = hold + convert) into the sampling phases. Falling CLK: PHI_S falls first (sampling instant, top plate opens), then PHI_B (bottom-plate switches open), then CONV rises (DAC drivers enabled, SAR logic starts). Rising CLK: CONV falls first (drivers tri-stated, SAR reset), then PHI_B and PHI_S rise (break before make).
 
@@ -156,10 +156,11 @@ Buffers the single external CLK (high = track, low = hold + convert) into the sa
 | CLK-08 | function at CLK duty 45 % and 55 % | ≤ 0 | count | all | `tb_clkgen_timing` |
 | CLK-09 | PHI_S falling-edge jitter (device noise) | ≤ 60 | fs | typ | `tb_clkgen_jitter` |
 | CLK-10 | average AVDD current at 100 MHz incl. output loads | ≤ 80 | uA | typ | `tb_clkgen_timing` |
+| CLK-11 | SOA violations: thin-oxide device / terminal pairs over 1.0 V (Vgs, Vgd, Vds; absolute, whole transient) | ≤ 0 | count | all | `tb_clkgen_timing` |
 
 ### 验收用例
 
-- **`tb_clkgen_timing`** (`tb/clkgen/tb_clkgen_timing.scs`, 度量 `adcflow.measure.clkgen:timing`)：Ideal 100 MHz CLK (20 ps edges), 8 cycles at 50 % duty, then 4 at 45 % and 4 at 55 %, specified output loads. Edge times of every phase; average current of the whole AVDD branch over 10-80 ns (7 cycles), the charging of the output loads included.
+- **`tb_clkgen_timing`** (`tb/clkgen/tb_clkgen_timing.scs`, 度量 `adcflow.measure.clkgen:timing`; 逐管 SOA 检查（`docs/verification.md` §5）; 收敛交叉检查 `maxstep=0.5p`（`--crosscheck`，`docs/verification.md` §2）)：Ideal 100 MHz CLK (20 ps edges), 8 cycles at 50 % duty, then 4 at 45 % and 4 at 55 %, specified output loads. Edge times of every phase; average current of the whole AVDD branch over 10-80 ns (7 cycles), the charging of the output loads included. CLK-11 is the per-device SOA check of adcflow (docs/verification.md §5, #27), as BST-08: the run deck saves the d / g / s nodes of every thin-oxide MOS in XDUT; |Vgs|, |Vgd| and |Vds| of each, both polarities, are taken at every time point of the whole run, t = 0 to 161 ns: start-up, the 8 cycles at 50 %, 4 at 45 % and 4 at 55 % duty and every edge. That window is what CLK-11 covers. soa_table also gives each pair's time above the limit (diagnostic only, not judged). A transistor view gives soa_scope device; a missing waveform or an unlisted MOS model is an error (unverified), never 0. The behavioral view has no devices and the testbench none at its top level: soa_scope external with soa_pairs 0 and soa_note "nothing to check", which is not transistor-level evidence.
 - **`tb_clkgen_jitter`** (`tb/clkgen/tb_clkgen_jitter.scs`, 度量 `adcflow.measure.clkgen:jitter`; 瞬态噪声)：Transient noise on, 200 cycles. Standard deviation of the PHI_S falling crossing time relative to the ideal CLK edge.
 
 ## adc_comp

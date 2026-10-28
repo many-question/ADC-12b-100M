@@ -384,6 +384,9 @@ def _print_crosscheck(name: str, xc: dict) -> None:
     if "diff_rms_uV" in s:
         parts.append(f"samples {s['n']}: rms {s['diff_rms_uV']:.4g} uV, max {s['diff_max_uV']:.4g} uV, "
                      f"time diff max {s['time_diff_max_ps']:.3g} ps")
+    if "soa" in xc:
+        parts.append(f"SOA peaks of {xc['soa']['pairs']} pairs: max change {xc['soa']['max_V_diff_max_mV']:.3g} mV "
+                     f"({xc['soa']['at']}), violations {xc['soa']['violations']}")
     print(f"  crosscheck {name} ({', '.join(f'{k}={v}' for k, v in xc['settings'].items())}): " + "  ".join(parts))
 
 

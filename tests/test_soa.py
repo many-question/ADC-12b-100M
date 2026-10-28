@@ -231,3 +231,70 @@ def test_parsed_psf_sample(tmp_path):
     m = soa.check(p, psf.read(f))
     bad = {(r["device"], r["pair"]): r["signed_V"] for r in m["soa_table"] if not r["pass"]}
     assert bad == {("XDUT.X1.MP", "gs"): pytest.approx(-1.1)}
+
+
+# ------------------------------------------------------------------ adc_clkgen (CLK-11, issue #27)
+def test_clkgen_behavioral_view_has_nothing_to_check():
+    """Behavioral DUT and no thin-oxide device at the testbench top level: an explicit external
+    scope with no pairs and a note, not an error and not a silent device check."""
+    b, t = find_test("tb_clkgen_timing")
+    assert t["soa"] == {"dut": ["XDUT"]}
+    text = (REPO_ROOT / t["netlist"]).read_text(encoding="utf-8")
+    p = soa.plan(b.name, t, text, view_files({}), {})
+    assert p.scope == "external" and p.problem is None and p.devices == []
+    assert p.note.startswith("nothing to check: XDUT uses behavioral views")
+    assert soa.deck_lines(p, text) == []
+    m = {"td_s_ps": 46.0}
+    soa.measure({"soa": p}, {"time": T, "CLK": np.zeros_like(T)}, m)
+    assert "error" not in m
+    assert m["soa_scope"] == "external" and m["soa_devices"] == 0 and m["soa_pairs"] == 0
+    assert m["soa_violations"] == 0 and m["soa_table"] == [] and m["soa_note"] == p.note
+    assert "soa_max_V" not in m
+    with pytest.raises(soa.Unverified, match="whole transient"):     # still needs the whole run
+        soa.check(p, {"time": T + 1e-9})
+
+
+def test_clkgen_transistor_view_is_a_device_check(tmp_path, monkeypatch):
+    f = tmp_path / "adc_clkgen.scs"
+    f.write_text("simulator lang=spectre\n"
+                 "subckt adc_clkgen (CLK PHI_S PHI_SB PHI_B PHI_BB CONV AVDD VSS)\n"
+                 "MP (clkb CLK AVDD AVDD) pch_ulvt_mac w=1u l=30n\n"
+                 "MN (clkb CLK VSS VSS) nch_ulvt_mac w=1u l=30n\n"
+                 "MS (PHI_S clkb VSS VSS) nch_ulvt_mac w=1u l=30n\n"
+                 "ends adc_clkgen\n")
+    monkeypatch.setitem(blocks()["adc_clkgen"].raw["views"], "xtor", str(f))
+    b, t = find_test("tb_clkgen_timing")
+    text = (REPO_ROOT / t["netlist"]).read_text(encoding="utf-8")
+    views = {"adc_clkgen": "xtor"}
+    p = soa.plan(b.name, t, text, view_files(views), views)
+    assert p.scope == "device" and p.problem is None and p.note is None
+    assert [d.name for d in p.devices] == ["XDUT.MP", "XDUT.MN", "XDUT.MS"]
+    assert p.devices[2].nodes == {"d": "PHI_S", "g": "XDUT.clkb", "s": "0", "b": "0"}
+    assert soa.deck_lines(p, text)[-1] == "save AVDD XDUT.clkb"     # CLK, PHI_S: saved by the testbench
+    empty = tmp_path / "empty.scs"
+    empty.write_text("simulator lang=spectre\nsubckt adc_clkgen (CLK PHI_S PHI_SB PHI_B PHI_BB CONV AVDD VSS)\n"
+                     "R0 (CLK PHI_S) resistor r=1k\nends adc_clkgen\n")
+    monkeypatch.setitem(blocks()["adc_clkgen"].raw["views"], "xtor", str(empty))
+    p = soa.plan(b.name, t, text, view_files(views), views)
+    assert "no thin-oxide device found under XDUT" in p.problem      # never "nothing to check"
+
+
+def test_unlisted_mos_at_the_testbench_top_level_is_unverified(tmp_path):
+    tb = TB.replace("MEXT (OUT IN 0 0) nch_ulvt_mac", "MEXT (OUT IN 0 0) nch_xyz_mac")
+    p = _plan(tmp_path, tb=tb, test={"soa": {"dut": ["XDUT"]}})
+    assert "MEXT (nch_xyz_mac)" in p.problem
+
+
+def test_time_above_the_limit_is_a_diagnostic_only():
+    """A 1.2 V triangle peak 2 ps wide is above 1.0 V for 1/3 ps. The verdict is the peak alone."""
+    t = np.array([0.0, 1e-12, 2e-12, 3e-12, 4e-12])
+    assert soa.time_over(t, np.array([0.0, 0.0, 1.2, 0.0, 0.0]), 1.0) * 1e12 == pytest.approx(1 / 3)
+    assert soa.time_over(t, np.array([0.0, -1.1, -1.1, 0.0, 0.0]), 1.0) * 1e12 == pytest.approx(1 + 2 / 11)
+    assert soa.time_over(t, np.array([0.0, 0.5, 1.0, 0.5, 0.0]), 1.0) == 0
+    p = _one("XDUT.M1", {"d": "D", "g": "G", "s": "0", "b": "0"})
+    w = {"time": t, "D": np.array([0.0, 0.0, 1.2, 0.0, 0.0]), "G": np.array([0.0, 0.0, 0.99, 0.99, 0.0])}
+    m = soa.check(p, w)
+    rows = {r["pair"]: r for r in m["soa_table"]}
+    assert rows["ds"]["t_over_ps"] == pytest.approx(1 / 3, abs=1e-3) and not rows["ds"]["pass"]
+    assert rows["gs"]["t_over_ps"] == 0 and rows["gs"]["pass"]
+    assert m["soa_violations"] == 1 and m["soa_worst"]["t_over_ps"] == pytest.approx(1 / 3, abs=1e-3)

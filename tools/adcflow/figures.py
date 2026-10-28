@@ -231,13 +231,14 @@ def spec_table(ax, ctx: dict, m: dict, metrics: list[str], title: str = "Specifi
     ax.set_title(title, loc="left")
     rows = spec_rows(ctx, m, metrics)
     y = 0.93
+    step = min(0.075, 0.62 / max(len(rows) - 1, 1))      # long tables leave the lower third free for a note
     for name, val, lim, ok in rows:
         ax.text(0.0, y, name, transform=ax.transAxes, fontsize=8, color=INK, va="top")
         ax.text(0.62, y, val, transform=ax.transAxes, fontsize=8, color=INK, va="top", ha="right")
         ax.text(0.65, y, lim, transform=ax.transAxes, fontsize=8, color=INK2, va="top")
         ax.text(1.0, y, "n/a" if ok is None else "pass" if ok else "FAIL", transform=ax.transAxes, fontsize=8,
                 va="top", ha="right", color=INK2 if ok is None else C3 if ok else LIMIT, fontweight="bold")
-        y -= 0.075
+        y -= step
 
 
 def stack_traces(ax, w: dict, sigs, vdd: float, t0: float, lo: float, hi: float, unit: float = 1e-12) -> None:

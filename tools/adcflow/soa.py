@@ -22,10 +22,17 @@ their transient waveforms and returns, per device and terminal pair, the largest
 every time point the simulator accepted, when it occurs, and pass / fail.
 
 A DUT whose views are all behavioral has no devices: the scope is then ``external`` (the
-boundary devices only), which is not transistor-level evidence. Whatever is missing (no
-plan, no thin-oxide device under a transistor-level DUT, an unclassified MOS master, a
-node without a waveform, waveforms that do not start at t = 0) raises ``Unverified``; a
-measure reports that as an error, never as 0 violations.
+boundary devices only), which is not transistor-level evidence. A behavioral DUT in a
+testbench without thin-oxide devices at its top level (tb_clkgen_timing) has nothing to
+check at all: the result says so explicitly (``soa_scope: external``, ``soa_pairs: 0``,
+``soa_note``), it is not a device check. Whatever is missing (no plan, no thin-oxide device
+under a transistor-level DUT, an unclassified MOS master, a node without a waveform,
+waveforms that do not start at t = 0) raises ``Unverified``; a measure reports that as an
+error, never as 0 violations.
+
+Each pair also reports how long its |V| stays above the limit (``t_over_ps``, linear between
+the saved points). That is a diagnostic only: the verdict is the largest |V|, and a short
+excursion is a violation like a long one.
 """
 
 from __future__ import annotations
@@ -95,6 +102,7 @@ class Plan:
     devices: list[Device] = field(default_factory=list)
     skipped: list[str] = field(default_factory=list)     # thick-oxide devices, "name (master)"
     problem: str | None = None                           # why the check cannot be made
+    note: str | None = None                              # why there is nothing to check (external scope)
 
     def signals(self) -> list[str]:
         return sorted({n for d in self.devices for n in d.nodes.values() if n != GROUND})
@@ -209,6 +217,7 @@ def plan(block: str, test: dict, tb_text: str, netlists: list[Path], views: dict
     ext = cfg.get("external")
     if ext is None:
         ext = [i.name for i in tb.top_instances if classify(i.master) in TERMINALS]
+        unknown += [f"{i.name} ({i.master})" for i in tb.top_instances if classify(i.master) == "unknown"]
     for name in ext:
         inst = top.get(name)
         kind = classify(inst.master) if inst else None
@@ -221,7 +230,8 @@ def plan(block: str, test: dict, tb_text: str, netlists: list[Path], views: dict
     elif xtor and not any(d.where == "dut" for d in p.devices):
         p.problem = f"no thin-oxide device found under {', '.join(duts)} (transistor-level view)"
     elif not p.devices:
-        p.problem = "no device to check"
+        p.note = (f"nothing to check: {', '.join(duts)} uses behavioral views (no devices) and the testbench "
+                  "has no thin-oxide device at its top level; not transistor-level evidence")
     return p
 
 
@@ -248,6 +258,11 @@ def check(pl: Plan | None, w: dict[str, np.ndarray]) -> dict:
         raise Unverified(f"{len(missing)} device node(s) without a waveform: {', '.join(missing[:6])}")
     zero = np.zeros_like(t)
     dt = np.diff(t)
+    base = {"soa_scope": pl.scope, "soa_limit_V": pl.limit_V, "soa_devices": len(pl.devices),
+            "soa_devices_dut": sum(d.where == "dut" for d in pl.devices)}
+    if not pl.devices:                                   # external scope without devices: said, not hidden
+        return {**base, "soa_pairs": 0, "soa_violations": 0, "soa_note": pl.note or "no device in scope",
+                "soa_points": int(len(t)), "soa_dt_max_ps": round(float(dt.max()) * 1e12, 3), "soa_table": []}
     rows = []
     for d in pl.devices:
         for pair, a, b in PAIRS[d.kind]:
@@ -260,18 +275,29 @@ def check(pl: Plan | None, w: dict[str, np.ndarray]) -> dict:
             rows.append({"device": d.name, "master": d.master, "where": d.where, "pair": pair,
                          "max_V": round(vmax, 5), "signed_V": round(float(x[k]), 5),
                          "t_ns": round(float(t[k]) * 1e9, 4), "dt_ps": round(float(step) * 1e12, 3),
+                         "t_over_ps": round(time_over(t, x, pl.limit_V) * 1e12, 3),   # diagnostic only
                          "pass": bool(vmax <= pl.limit_V)})
     worst = max(rows, key=lambda r: r["max_V"])
-    out = {"soa_scope": pl.scope, "soa_limit_V": pl.limit_V,
-           "soa_devices": len(pl.devices), "soa_devices_dut": sum(d.where == "dut" for d in pl.devices),
-           "soa_pairs": len(rows), "soa_violations": sum(not r["pass"] for r in rows),
+    out = {**base, "soa_pairs": len(rows), "soa_violations": sum(not r["pass"] for r in rows),
            "soa_max_V": worst["max_V"],
-           "soa_worst": {k: worst[k] for k in ("device", "pair", "signed_V", "t_ns", "dt_ps")},
+           "soa_worst": {k: worst[k] for k in ("device", "pair", "signed_V", "t_ns", "dt_ps", "t_over_ps")},
            "soa_points": int(len(t)), "soa_dt_max_ps": round(float(dt.max()) * 1e12, 3)}
     if pl.skipped:
         out["soa_skipped"] = list(pl.skipped)
     out["soa_table"] = rows
     return out
+
+
+def time_over(t: np.ndarray, x: np.ndarray, limit: float) -> float:
+    """Time (s) during which |x| > limit, x linear between the saved points (both polarities)."""
+    dt = np.diff(t)
+    total = 0.0
+    for y in (x - limit, -x - limit):                    # above +limit, below -limit
+        a, b = y[:-1], y[1:]
+        total += dt[(a > 0) & (b > 0)].sum()
+        up, down = (a <= 0) & (b > 0), (a > 0) & (b <= 0)
+        total += (dt[up] * b[up] / (b[up] - a[up])).sum() + (dt[down] * a[down] / (a[down] - b[down])).sum()
+    return float(total)
 
 
 def measure(ctx: dict, w: dict[str, np.ndarray], m: dict) -> None:
@@ -290,6 +316,8 @@ def figure(fg, ctx: dict, m: dict, w: dict[str, np.ndarray], nbars: int = 18) ->
 
     pl: Plan = ctx["soa"]
     rows = sorted(m["soa_table"], key=lambda r: -r["max_V"])
+    if not rows:                                         # nothing to check: the measure's own figure says so
+        return
     lim = pl.limit_V
     fig, axs = fg.new(1, 3, size=(16.0, 4.9), gridspec_kw={"width_ratios": [1.25, 1, 1]})
     ax = axs[0, 0]
@@ -301,6 +329,9 @@ def figure(fg, ctx: dict, m: dict, w: dict[str, np.ndarray], nbars: int = 18) ->
     ax.axvline(lim, color=LIMIT, lw=1.1, ls="--")
     ax.text(lim, 0.99, f" limit {lim:.1f} V", transform=ax.get_xaxis_transform(), ha="left", va="top",
             fontsize=7.5, color=LIMIT)
+    for yi, r in zip(y, shown):                           # diagnostic: how long above the limit
+        if r.get("t_over_ps"):
+            ax.text(r["max_V"], yi, f" {r['t_over_ps']:.1f} ps over", va="center", fontsize=6.5, color=LIMIT)
     ax.set(xlabel="largest |V| over the whole run (V)", xlim=(0, max(lim, rows[0]["max_V"]) * 1.12),
            title=f"Per-device SOA ({len(shown)} of {len(rows)} pairs, worst first)")
     ax.grid(axis="y", visible=False)
@@ -339,6 +370,7 @@ def figure(fg, ctx: dict, m: dict, w: dict[str, np.ndarray], nbars: int = 18) ->
            title="Worst maximum and the time resolution", xlim=(-150, 150), ylim=(0, top))
     ax.legend(loc="lower right")
     note(ax, f"max |V{wr['pair']}| = {wr['max_V']:.4f} V\nlocal step {wr['dt_ps']:.2f} ps\n"
+         f"time above the limit {wr.get('t_over_ps', 0.0):.1f} ps (diagnostic)\n"
          f"{m['soa_points']} time points, largest step {m['soa_dt_max_ps']:.0f} ps", loc="lower left")
     fg.save(fig, "soa", f"Largest |Vgs|, |Vgd|, |Vds| of every checked device against the {lim:.1f} V limit "
             f"(scope: {pl.scope}), the worst pair over the whole run, and the saved time points around the "

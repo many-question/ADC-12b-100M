@@ -166,7 +166,8 @@ def effective(job_dir: Path) -> dict:
 def compare(ref: dict, alt: dict, metrics: list[str], ref_samples: Path | None, alt_samples: Path | None) -> dict:
     """Differences of a cross-check run (alt) from the run with the test's settings (ref):
     per metric ref, alt, alt - ref; for the raw samples (tb_sampler_va files: index, time,
-    value) the count, whether the sample times agree, and the rms / largest difference."""
+    value) the count, whether the sample times agree, and the rms / largest difference; for a
+    per-device SOA check the largest change of a pair's peak |V| and both violation counts."""
     out: dict = {"metrics": {}}
     for k in metrics:
         a, b = ref.get(k), alt.get(k)
@@ -174,6 +175,14 @@ def compare(ref: dict, alt: dict, metrics: list[str], ref_samples: Path | None, 
             out["metrics"][k] = {"ref": a, "xcheck": b, "diff": b - a}
         else:
             out["metrics"][k] = {"ref": a, "xcheck": b, "diff": None}
+    ta, tb = ref.get("soa_table"), alt.get("soa_table")
+    if ta and tb:                                        # per-device SOA: time resolution of the peaks
+        peak = {(r["device"], r["pair"]): r["max_V"] for r in tb}
+        d = [(r["device"], r["pair"], peak[(r["device"], r["pair"])] - r["max_V"]) for r in ta
+             if (r["device"], r["pair"]) in peak]
+        w = max(d, key=lambda x: abs(x[2]))
+        out["soa"] = {"pairs": len(d), "max_V_diff_max_mV": round(abs(w[2]) * 1e3, 4), "at": f"{w[0]} {w[1]}",
+                      "violations": [ref.get("soa_violations"), alt.get("soa_violations")]}
     if ref_samples is None:
         return out
     if not (Path(ref_samples).exists() and Path(alt_samples).exists()):

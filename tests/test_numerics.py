@@ -117,3 +117,12 @@ def test_crosscheck_needs_settings_in_the_spec():
     assert "crosscheck" not in blocks()["adc_comp"].tests["tb_comp_delay"]
     with pytest.raises(ValueError, match="no `crosscheck:`"):
         runner.run_test("tb_comp_delay", crosscheck=True, dry=True)
+
+
+def test_compare_soa_peaks():
+    row = lambda dev, pair, v: {"device": dev, "pair": pair, "max_V": v}  # noqa: E731
+    ref = {"soa_violations": 1, "soa_table": [row("XDUT.MA", "ds", 1.0638), row("XDUT.MB", "gs", 0.9)]}
+    alt = {"soa_violations": 1, "soa_table": [row("XDUT.MA", "ds", 1.0641), row("XDUT.MB", "gs", 0.9)]}
+    c = numerics.compare(ref, alt, ["soa_violations"], None, None)
+    assert c["soa"] == {"pairs": 2, "max_V_diff_max_mV": pytest.approx(0.3), "at": "XDUT.MA ds", "violations": [1, 1]}
+    assert c["metrics"]["soa_violations"]["diff"] == 0

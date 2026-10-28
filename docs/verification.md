@@ -102,7 +102,7 @@
 | `tb_cdac_track` | `spectrum` | 顶板采样谱，SFDR / SNDR 对限值 |
 | `tb_bootstrap_dc` | `switch`、`soa`、`cin` | VG−VIN 随输入、最坏关断 / 开启边沿（时延与限值）、参考开关三对端电压对 ±1.0 V、规格表；逐管 SOA（§5）：各器件各端电压的最大 \|V\| 对限值、最坏一对的全程波形与峰值附近的时间点；PHI_B、PHI_BB 各上升沿的输入电容对限值（§6） |
 | `tb_bootstrap_track` | `spectrum` | 经自举开关采样的频谱，SFDR / SNDR 对限值 |
-| `tb_clkgen_timing` | `timing` | CLK 下降 / 上升沿处 PHI_S、PHI_B、CONV 时序、PHI_S 下降沿（80 %→20 %）、占空比 50 / 45 / 55 % 各周期的延时与间隔对限值、规格表 |
+| `tb_clkgen_timing` | `timing`、`soa` | CLK 下降 / 上升沿处 PHI_S、PHI_B、CONV 时序、PHI_S 下降沿（80 %→20 %）、占空比 50 / 45 / 55 % 各周期的延时与间隔对限值、规格表与 CLK-11 的 SOA 范围；逐管 SOA（§5，有器件时）同 `tb_bootstrap_dc` |
 | `tb_clkgen_jitter` | `jitter` | 采样相位沿的直方图与高斯、各沿残差、限值处曲线 |
 | `tb_sarlogic_func` | `decisions`、`conversion`、`timing`、`cin` | 输出码对输入、各判决位置的错码数、转换时间直方图；一次异步转换的波形（14 个比较器时钟、DAC 控制沿、RDY）；各环路时间逐事件对限值；CONV、OUTP、OUTN 各上升沿的输入电容对限值（§6） |
 | `tb_sarlogic_rand`、`_func_slow` | `decisions` | 同上（无波形） |
@@ -119,7 +119,8 @@
 ## 5. 逐管 SOA 检查
 
 规格中“每个薄栅器件 |Vgs|、|Vgd|、|Vds| ≤ 1.0 V，各工艺角”的要求由 `adcflow` 的通用 SOA 检查
-（`tools/adcflow/soa.py`）验收，目前用于 `adc_bootstrap` 的 BST-08（`tb_bootstrap_dc`）。
+（`tools/adcflow/soa.py`）验收，目前用于 `adc_bootstrap` 的 BST-08（`tb_bootstrap_dc`）和 `adc_clkgen` 的 CLK-11
+（`tb_clkgen_timing`，#27）。
 
 **启用**：在模块规格的用例下加 `soa:`。
 
@@ -171,7 +172,9 @@ PSF 读入器解析，器件与节点的对应关系由流程自己写出，可�
 `soa_dt_max_ps`、`soa_skipped`、`soa_table`（每个器件每对端口的 `max_V`、`signed_V`、`t_ns`、`dt_ps`、`pass`）。
 `t_ns` 是最大值首次出现的时间点（最大值是一段平台时取平台起点，容差 0.1 mV），`dt_ps` 是该点两侧较大的仿真步长，
 `signed_V` 是该点带符号的端电压。
-证据图 `<stem>.soa.png`：各对的最大 |V| 对限值、最坏一对的全程波形、最坏峰值附近保存的时间点。
+`t_over_ps` 是该对 |V| 超过限值的累计时间（相邻时间点之间按线性插值），**只作诊断**：判定只看最大值，
+超限时间短不能作为豁免理由（#27）。`soa_worst` 也带这一项。
+证据图 `<stem>.soa.png`：各对的最大 |V| 对限值（超限的标出超限时间）、最坏一对的全程波形、最坏峰值附近保存的时间点。
 
 **无法验证**：没有 SOA 计划、晶体管级 DUT 下找不到薄栅器件、未分类的 MOS 模型、所需节点没有波形、波形不从 t = 0 开始时，
 度量返回错误 `SOA unverified: …`，不写 `soa_violations`（相应指标判为不通过），绝不报 0。`dut`、`external` 写错则在仿真前报错。
@@ -179,6 +182,21 @@ PSF 读入器解析，器件与节点的对应关系由流程自己写出，可�
 **行为级视图**没有内部器件：`soa_scope = external`，只检查边界器件（bootstrap 为参考开关 MSWP 的 |VG−VIN|、|VG−BP|、|BP−VIN|，
 两个方向）。行为级通过只说明测试台和外部波形没有超限，**不是晶体管级签核证据**；BST-08 的签核要用 `--view adc_bootstrap=xtor`
 得到的 `device` 结果。
+
+**没有可检查的器件**：DUT 只有行为级视图、测试台顶层也没有薄栅 MOS 时（`tb_clkgen_timing`），计划为 `external` 且没有器件。
+结果明确写出这一点而不是静默报 0：`soa_scope: external`、`soa_devices: 0`、`soa_pairs: 0`、`soa_table: []`、
+`soa_note: "nothing to check: XDUT uses behavioral views (no devices) and the testbench has no thin-oxide device at its top
+level; not transistor-level evidence"`，`soa_violations` 为 0 个对中的 0 个；时序证据图的规格表下注明范围。仍要求波形从 t = 0
+覆盖整段瞬态，否则无法验证。晶体管级视图下找不到薄栅器件仍是错误，不会落入这一情形；测试台顶层有未分类的 MOS 模型（缺省
+`external` 时）同样无法验证。
+
+**时钟（CLK-11）**：规则与 bootstrap 相同（|Vgs|、|Vgd|、|Vds| ≤ `limit_V` = 1.0 V，绝对值、两个方向、`corners: all`），
+`soa: {dut: [XDUT]}`。覆盖的窗口就是 `tb_clkgen_timing` 的整段瞬态：t = 0 起的启动、占空比 50 % 的 8 个周期、45 % 与 55 %
+各 4 个周期，0~161 ns 的每个时间点，包括全部跳变沿；窗口之外（更长的运行、其它占空比或频率）不在 CLK-11 的范围内。
+测试台 `maxstep=2p`，保存的点就是仿真器接受的全部时间点。晶体管级视图的时间分辨率按 #19 的做法核对：在有代表性的
+最坏工艺角运行 `sim tb_clkgen_timing --view adc_clkgen=xtor --corners <角> --crosscheck`（规格 `crosscheck: {maxstep: 0.5p}`，§2），
+结果的 `meta.crosscheck.soa` 给出各对峰值的最大差值与违例数的对比，记入设计 PR。
+体端与结的正向偏置不设项目门槛，由设计按器件的合法使用条件保证（#27）。
 
 ## 6. 时钟与数字输入的输入电容
 
