@@ -6,16 +6,16 @@
 simulator lang=spectre
 
 subckt adc_bootstrap (VIN PHI_B PHI_BB VG AVDD VSS)
-// Precharge the MOM capacitor, then reference it to the input during tracking.
+// Precharge the MOM capacitor bank, then reference it to the input during tracking.
 MPRE (CBP VG AVDD CBP) pch_ulvt_mac w=8u l=30n nf=4
 CB (CBP CBN) cfmom_2t w=50n s=50n nr=200 lr=40u stm=1 spm=6
 MRST (CBN PHI_BBF VSS VSS) nch_ulvt_mac w=24u l=30n nf=12
 MTRK (CBN VG VIN VSS) nch_ulvt_mac w=48u l=30n nf=24
 MXFER (VG GCTL CBP CBP) pch_ulvt_mac w=4u l=30n nf=2
-MCP (PCP PHI_B AVDD AVDD) pch_ulvt_mac w=2u l=30n nf=1
 // The cascode isolates MCP from GCTL undershoot; MNCL drives the startup gate.
+MCP (PCP PHI_B AVDD AVDD) pch_ulvt_mac w=2u l=30n nf=1
 MCSTART (GCTL PHI_N CBN VSS) nch_ulvt_mac w=500n l=30n nf=1
-MCF (GCTL VG CBN VSS) nch_ulvt_mac w=2u l=30n nf=1
+MCF (GCTL VG CBN VSS) nch_ulvt_mac w=8u l=30n nf=4
 MDHI (VG AVDD DU VSS) nch_ulvt_mac w=24u l=30n nf=12
 MDUP (VG VG DU VSS) nch_ulvt_mac w=24u l=30n nf=12
 MDMID (DU AVDD DN VSS) nch_ulvt_mac w=24u l=30n nf=12
@@ -26,9 +26,10 @@ MNFB (PHI_BB AVDD PHI_BBF VSS) nch_ulvt_mac w=2u l=100n nf=1
 MPFB (PHI_BB VSS PHI_BBF AVDD) pch_ulvt_mac w=4u l=100n nf=2
 MPCAS (GCTL VSS PCP AVDD) pch_ulvt_mac w=2u l=30n nf=1
 MNCL (PHI_B AVDD PHI_N VSS) nch_ulvt_mac w=8u l=30n nf=4
+CB2 (CBP CBN) cfmom_2t w=50n s=50n nr=200 lr=40u stm=1 spm=6
 // @RNL {
 //   &AVDD @ADD-TO $SUPPLY_NET_SET; &VSS @ADD-TO $GROUND_NET_SET;
-//   {#MPRE #CB #MRST} @GROUP;
+//   {#MPRE #CB #CB2 #MRST} @GROUP;
 //   {#MCP #MPCAS #MCSTART} @AS $BRANCH;
 //   {#MCP #MPCAS #MCSTART #MCF #MNCL} @GROUP;
 //   {#MNFB #MPFB} @GROUP; {#MXFER #MTRK} @GROUP;
@@ -36,6 +37,7 @@ MNCL (PHI_B AVDD PHI_N VSS) nch_ulvt_mac w=8u l=30n nf=4
 //   {#MDHI #MDUP #MDMID #MDLO} @GROUP;
 //   #MPRE @PLACE(0, 20) => @ORIENT("R0");
 //   #CB @PLACE(0, 4) => @ORIENT("R0");
+//   #CB2 @PLACE(12, 4) => @ORIENT("R0");
 //   #MRST @PLACE(0, -18) => @ORIENT("R0");
 //   #MXFER @PLACE(32, 20) => @ORIENT("R0");
 //   #MTRK @PLACE(32, -4) => @ORIENT("R0");
@@ -70,11 +72,11 @@ MNCL (PHI_B AVDD PHI_N VSS) nch_ulvt_mac w=8u l=30n nf=4
 //   {$JUNCTION} @ATTACH {%jcp %jcp2 %jcph %jcn %jcn2 %jcnl %jctl %jvg %jvgf %jdu %javcas %jclk %jbbin %jbbout %jbb2 %jbbr %js0 %js1 %js2 %js3 %js4 %js5 %js6 %jg0 %jg1 %jg2 %jg3 %jg4 %jg5 %jg6 %jg7 %jg8 %jg9 %jg10 %jg11 %jg12 %jg13};
 //   &CBP @WIRE {#MPRE:d %jcp #CB:p};
 //   &CBP @WIRE {#MPRE:b (4, 20) (4, 12) %jcp};
-//   &CBP @WIRE {%jcp %jcp2};
+//   &CBP @WIRE {%jcp %jcp2 #CB2:p};
 //   &CBP @WIRE {%jcp2 (18, 12) (18, 26) %jcph #MXFER:s};
 //   &CBP @WIRE {%jcph (36, 26) (36, 20) #MXFER:b};
 //   &CBN @WIRE {#CB:n %jcn #MRST:d};
-//   &CBN @WIRE {%jcn %jcn2};
+//   &CBN @WIRE {%jcn %jcn2 #CB2:n};
 //   &CBN @WIRE {%jcn2 (32, -2) #MTRK:d};
 //   &CBN @WIRE {%jcn (-8, -2) (-8, -26) %jcnl (-48, -26) #MCSTART:s};
 //   &CBN @WIRE {%jcnl #MCF:s};
@@ -130,6 +132,7 @@ MNCL (PHI_B AVDD PHI_N VSS) nch_ulvt_mac w=8u l=30n nf=4
 //   (-120, 64) @TEXT("adc_bootstrap: control protection and reset edge shaping", halign="start") => @SET-STYLE $title_style;
 //   (-120, 61) @TEXT("MPCAS isolates the pull-up control; MNCL limits the startup gate; PHI_BBF shapes reset and discharge", halign="start") => @SET-STYLE $note_style;
 //   (-120, 57) @TEXT("CB: w=50n s=50n nr=200 lr=40u stm=1 spm=6", halign="start") => @SET-STYLE $param_style;
+//   (-120, 55) @TEXT("CB2: w=50n s=50n nr=200 lr=40u stm=1 spm=6", halign="start") => @SET-STYLE $param_style;
 //   (-56, 36) @TEXT("Protected control", halign="start") => @SET-STYLE $note_style;
 //   (-112, -10) @TEXT("Reset edge shaping", halign="start") => @SET-STYLE $note_style;
 //   (48, 30) @TEXT("Gate output / turn-off", halign="start") => @SET-STYLE $note_style;
