@@ -125,10 +125,10 @@ ends adc_ref
 subckt adc_ref_servo (INP INN OUT BIAS AVDD18 VSS)
 MN1 (NB INP TAIL VSS) nch_na18_mac w=8u l=800n nf=4
 MN2 (NA INN TAIL VSS) nch_na18_mac w=8u l=800n nf=4
-MP1 (NB NA AVDD18 AVDD18) pch_18_mac w=8u l=1u nf=4
-MP2 (NA NA AVDD18 AVDD18) pch_18_mac w=8u l=1u nf=4
+MP1 (NB NA AVDD18 AVDD18) pch_18_mac w=8u l=1u nf=4 multi=4
+MP2 (NA NA AVDD18 AVDD18) pch_18_mac w=8u l=1u nf=4 multi=4
 MTAIL (TAIL BIAS VSS VSS) nch_18_mac w=8u l=1u nf=4
-MPOUT (OUT NB AVDD18 AVDD18) pch_18_mac w=8u l=1u nf=4 multi=2
+MPOUT (OUT NB AVDD18 AVDD18) pch_18_mac w=8u l=1u nf=4 multi=8
 MNOUT (OUT BIAS VSS VSS) nch_18_mac w=8u l=1u nf=4
 CC0 (NB OUT) cfmom_2t w=50n s=50n nr=80 lr=40u stm=1 spm=5
 CC1 (NB OUT) cfmom_2t w=50n s=50n nr=80 lr=40u stm=1 spm=5
@@ -198,7 +198,7 @@ CC1 (NB OUT) cfmom_2t w=50n s=50n nr=80 lr=40u stm=1 spm=5
 //   &VSS @WIRE {#MNOUT:s %jgo %go:p};
 //   &VSS @WIRE {#MNOUT:b (38, -10) (38, -14) %jgo};
 //   $JUNCTION @ATTACH {%jnb %jna %jmg %jtail %jbias %jo %joc %jcl %jcr %jvh %jvhl %jvhr %jvho %jgt %jgo};
-//   (-23, -25) @TEXT("Input pair: 8u/800n, nf=4. Other MOS: 8u/1u, nf=4; MPOUT has x2 multiplier.", halign="start", size=0.75);
+//   (-23, -25) @TEXT("Input pair: 8u/800n, nf=4. Other MOS: 8u/1u, nf=4; PMOS mirror x4, MPOUT x8.", halign="start", size=0.75);
 //   (-23, -27) @TEXT("Each compensation MOM: 80 fingers, 40u length, 50n width/space, layers 1..5.", halign="start", size=0.75);
 //   (-23, 43) @TEXT("Replica servo: native input pair, PMOS mirror and compensated second stage", halign="start") => @SET-STYLE $title_style;
 //   (-23, 40.5) @TEXT("INP rises -> NB falls -> OUT rises. Bias gates are driven by the high-impedance reference.", halign="start") => @SET-STYLE $note_style;
