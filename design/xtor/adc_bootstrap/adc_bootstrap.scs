@@ -9,7 +9,7 @@ subckt adc_bootstrap (VIN PHI_B PHI_BB VG AVDD VSS)
 // Precharge the MOM capacitor bank, then reference it to VIN while tracking.
 MPRE (CBP VG AVDD CBP) pch_ulvt_mac w=8u l=30n nf=4
 CB (CBP CBN) cfmom_2t w=50n s=50n nr=200 lr=40u stm=1 spm=6
-MRST (CBN PHI_R VSS VSS) nch_ulvt_mac w=24u l=30n nf=12
+MRST (CBN PHI_R VSS VSS) nch_ulvt_mac w=24u l=100n nf=12
 MTRK (CBN VG VIN VSS) nch_ulvt_mac w=48u l=30n nf=24
 MXFER (VG GCTL CBP CBP) pch_ulvt_mac w=4u l=30n nf=2
 // Protect the boosted pull-up control and its startup path.
