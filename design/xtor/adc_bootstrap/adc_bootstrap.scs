@@ -32,11 +32,13 @@ MBN (PHI_BBI PHI_BB VSS VSS) nch_ulvt_mac w=4u l=30n nf=2
 MBP (PHI_BBI PHI_BB AVDD AVDD) pch_ulvt_mac w=4u l=30n nf=2
 CBG (PHI_BBI VSS) cfmom_2t w=50n s=50n nr=10 lr=5u stm=1 spm=6
 MNRC (PHI_BBF AVDD PHI_R VSS) nch_ulvt_mac w=8u l=30n nf=4
+// Keep the startup gate loaded so its limiter can settle below the rail.
+MBLEED (PHI_N AVDD VSS VSS) nch_mac w=120n l=1u nf=1
 // @RNL {
 //   &AVDD @ADD-TO $SUPPLY_NET_SET; &VSS @ADD-TO $GROUND_NET_SET;
 //   {#MPRE #CB #CB2 #MRST} @GROUP;
 //   {#MCP #MPCAS #MCSTART} @AS $BRANCH;
-//   {#MCP #MPCAS #MCSTART #MCF #MNCL} @GROUP;
+//   {#MCP #MPCAS #MCSTART #MCF #MNCL #MBLEED} @GROUP;
 //   {#MBN #MBP #CBG #MNFB #MPFB #MNRC} @GROUP; {#MXFER #MTRK} @GROUP;
 //   {#MDHI #MDMID #MDLO} @AS $BRANCH;
 //   {#MDHI #MDUP #MDMID #MDLO} @GROUP;
@@ -56,6 +58,7 @@ MNRC (PHI_BBF AVDD PHI_R VSS) nch_ulvt_mac w=8u l=30n nf=4
 //   #MBN @PLACE(-144, -36) => @ORIENT("R0");
 //   #MBP @PLACE(-144, -12) => @ORIENT("R0");
 //   #CBG @PLACE(-126, -36) => @ORIENT("R0");
+//   #MBLEED @PLACE(-62, -36) => @ORIENT("R0");
 //   #MNRC @PLACE(-16, -34) => @ORIENT("R0");
 //   #MDHI @PLACE(60, 4) => @ORIENT("R0");
 //   #MDUP @PLACE(78, 4) => @ORIENT("R0");
@@ -68,6 +71,8 @@ MNRC (PHI_BBF AVDD PHI_R VSS) nch_ulvt_mac w=8u l=30n nf=4
 //   %vdd = $SUPPLY @ATTACH &AVDD => @PLACE(0, 54) => @ORIENT("R0");
 //   %gnd = $GROUND @ATTACH &VSS => @PLACE(36, -56) => @ORIENT("R0");
 //   %jcp = (0, 12); %jcp2 = (12, 12); %jcph = (32, 26);
+//   %jbn = (-66, -26); %jgbs = (-62, -50); %jgbb = (-58, -50);
+//   %vb = $SUPPLY @ATTACH &AVDD => @PLACE(-70, -30) => @ORIENT("R0");
 //   %jcn = (0, -2); %jcn2 = (12, -2); %jcnl = (-30, -26);
 //   %jctl = (-48, -8); %jvg = (44, 18); %jvgf = (-18, 20);
 //   %jdu = (60, -2); %javcas = (50, 4); %jclk = (-92, 20);
@@ -82,7 +87,7 @@ MNRC (PHI_BBF AVDD PHI_R VSS) nch_ulvt_mac w=8u l=30n nf=4
 //   %jg4 = (36, -50); %jg5 = (60, -50); %jg6 = (64, -50); %jg7 = (70, -50);
 //   %jg8 = (86, -50); %jg9 = (66, -50); %jg10 = (-60, -50);
 //   %jg11 = (-72, -50);
-//   {$JUNCTION} @ATTACH {%jcp %jcp2 %jcph %jcn %jcn2 %jcnl %jctl %jvg %jvgf %jdu %javcas %jclk %jbbin %jbi %jbic %jbig %jsb0 %jsb1 %jsb2 %jsb3 %jgb0 %jgb1 %jgb2 %jgb3 %jgb4 %jgb5 %jbbout %jbb2 %jbbr %js0 %js1 %js2 %js3 %js4 %jg0 %jg1 %jg2 %jg3 %jg4 %jg5 %jg6 %jg7 %jg8 %jg9 %jg10 %jg11};
+//   {$JUNCTION} @ATTACH {%jbn %jgbs %jgbb %jcp %jcp2 %jcph %jcn %jcn2 %jcnl %jctl %jvg %jvgf %jdu %javcas %jclk %jbbin %jbi %jbic %jbig %jsb0 %jsb1 %jsb2 %jsb3 %jgb0 %jgb1 %jgb2 %jgb3 %jgb4 %jgb5 %jbbout %jbb2 %jbbr %js0 %js1 %js2 %js3 %js4 %jg0 %jg1 %jg2 %jg3 %jg4 %jg5 %jg6 %jg7 %jg8 %jg9 %jg10 %jg11};
 //   &CBP @WIRE {#MPRE:d %jcp #CB:p};
 //   &CBP @WIRE {#MPRE:b (4, 20) (4, 12) %jcp};
 //   &CBP @WIRE {%jcp %jcp2 #CB2:p};
@@ -97,7 +102,11 @@ MNRC (PHI_BBF AVDD PHI_R VSS) nch_ulvt_mac w=8u l=30n nf=4
 //   &GCTL @WIRE {#MPCAS:d %jctl #MCSTART:d};
 //   &GCTL @WIRE {%jctl (-30, -8) #MCF:d};
 //   &GCTL @WIRE {%jctl (-56, -8) (-56, 32) (24, 32) (24, 20) #MXFER:g};
-//   &PHI_N @WIRE {#MNCL:s (-76, -26) (-66, -26) (-66, -18) #MCSTART:g};
+//   &PHI_N @WIRE {#MNCL:s (-76, -26) %jbn (-66, -18) #MCSTART:g};
+//   &PHI_N @WIRE {%jbn (-62, -26) #MBLEED:d};
+//   &AVDD @WIRE {%vb:p (-70, -36) #MBLEED:g};
+//   &VSS @WIRE {#MBLEED:s %jgbs};
+//   &VSS @WIRE {#MBLEED:b (-58, -36) %jgbb};
 //   &VG @WIRE {#MXFER:d %jvg (60, 18) %p_out:p};
 //   &VG @WIRE {%jvg (44, 38) (-18, 38) %jvgf #MPRE:g};
 //   &VG @WIRE {%jvgf (-18, -4) (-38, -4) (-38, -18) #MCF:g};
@@ -145,7 +154,7 @@ MNRC (PHI_BBF AVDD PHI_R VSS) nch_ulvt_mac w=8u l=30n nf=4
 //   &AVDD @WIRE {%js4 (-88, -18) #MNCL:g};
 //   &AVDD @WIRE {%js3 %javcas #MDHI:g};
 //   &AVDD @WIRE {%javcas (50, -12) #MDMID:g};
-//   &VSS @WIRE {%jg11 %jg10 %jg2 %jg3 %jg0 %jg1 %jg4 %jg5 %jg6 %jg9 %jg7 %jg8};
+//   &VSS @WIRE {%jg11 %jgbs %jg10 %jgbb %jg2 %jg3 %jg0 %jg1 %jg4 %jg5 %jg6 %jg9 %jg7 %jg8};
 //   &VSS @WIRE {%jg4 %gnd:p};
 //   &VSS @WIRE {#MCSTART:b (-44, -18) %jg2};
 //   &VSS @WIRE {#MCF:b (-26, -18) %jg3};
@@ -172,7 +181,7 @@ MNRC (PHI_BBF AVDD PHI_R VSS) nch_ulvt_mac w=8u l=30n nf=4
 //   (-44, 12) @TEXT("PCP", halign="start") => @SET-STYLE $param_style;
 //   (62, -4) @TEXT("DU", halign="start") => @SET-STYLE $param_style;
 //   (62, -20) @TEXT("DN", halign="start") => @SET-STYLE $param_style;
-//   {#MPRE #MRST #MTRK #MXFER #MCP #MPCAS #MCSTART #MCF #MDHI #MDUP #MDMID #MDLO #MNFB #MPFB #MNCL #MBN #MBP #MNRC} @TEXT("W=${w} L=${l} nf=${nf}", key="dims", dy=-4, size=0.6);
+//   {#MPRE #MRST #MTRK #MXFER #MCP #MPCAS #MCSTART #MCF #MDHI #MDUP #MDMID #MDLO #MNFB #MPFB #MNCL #MBN #MBP #MNRC #MBLEED} @TEXT("W=${w} L=${l} nf=${nf}", key="dims", dy=-4, size=0.6);
 //   (-170, -69) @TEXT("Work in progress: review the measurements and remaining failures in the draft PR", halign="start") => @SET-STYLE $note_style;
 // }
 ends adc_bootstrap
