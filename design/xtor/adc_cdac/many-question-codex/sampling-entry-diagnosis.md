@@ -47,3 +47,39 @@ load limits and H/L charge sharing during sampling. Neither is accepted by this
 comparison. Any implementation must check sampling, output, top-switch, added,
 and internal devices, as well as settling, reference charge, tracking distortion,
 and joint bootstrap behavior. The candidate remains `wip`.
+
+## Physical follow-ups
+
+Two further hypotheses retain the original clock stimuli and the same 5%
+parasitics. The first duplicates both top-plate TG devices. The second adds two
+copies of each sampled pair's validated input-NMOS geometry between its H and L
+bottom plates, gated directly by PHI_S; non-sampled pairs remain unchanged.
+These are exploratory variants, not changes to the committed circuit.
+
+| Variant and interval | MOS / gs-gd-ds pairs checked | Failing pairs | Maximum absolute voltage (V) |
+|---|---:|---:|---:|
+| Top TG doubled, 34 ns | 628 / 1,884 | 29 | 1.13112 |
+| Pair charge sharing, 34 ns | 648 / 1,944 | 0 | 0.97255 |
+| Pair charge sharing, full 70 ns | 648 / 1,944 | 11 | 1.07948 |
+
+The 34 ns result does **not** establish a repair. Over 70 ns, the pair-sharing
+variant has ten failing output pairs and one failing sampling pair. The exact
+output maximum is j5L NMOS Vds = 1.079480 V at 40.127138 ns. Before that sampling
+entry, both j5 bottom plates are at 0.899935 V, so local sharing cannot lower
+their voltage. At the peak, TOP = 0.462507 V and VG = 1.028191 V. After the full
+13-step pattern, j0L sampling Vgd reaches -1.003500 V at 60.086107 ns, with
+VG = 0.002114 V and its bottom plate at 1.005614 V. A short excursion is still
+a failure.
+
+The full interval saves all MOS terminal nodes and checks 173,039 time points.
+The added sharing devices and top TG stay within the project gs/gd/ds limit in
+this run. Other model voltage warnings are retained; this table does not claim
+that every model warning or a supply-ramp startup check has passed.
+
+Using the official settling measurement on the private 70 ns variant gives
+RL12 = 50.4 ps and reference charge = 2.671275 pC, both failing their limits.
+PHI_S capacitance is 31.1848 fF, PHI_SB is 16.1850 fF, and CONV is 9.8492 fF.
+Zero-volt output-source probes partition reference charge into 1.116475 pC
+through the output PMOS source/bulk branches and 1.554800 pC through the other
+logic. These figures motivate further driver work; no new official acceptance
+result or candidate selection is implied.
