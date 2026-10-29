@@ -127,8 +127,9 @@ The supply split also changes where energy is drawn. Over the official
 | Low | 1.034075 | 0.202185 | 0.902989 | 2.139249 |
 | Standard | 0.875401 | 0.196364 | 0.902991 | 1.974755 |
 
-The DVDD column measures internal prelogic only; these sums exclude ideal
-external clock and bootstrap sources. The integrated minimum of the positive
+The DVDD column measures internal prelogic only; these sums exclude direct
+DVDD current into the top-switch bulk and ideal external clock and bootstrap
+sources. The integrated minimum of the positive
 P-output-source and N-output-source currents is 0.153061 pC and 0.014734 pC,
 respectively. This proxy includes leakage and displacement current and does
 not prove channel-current non-overlap or safety at other supply values.
@@ -154,7 +155,8 @@ maximum is 0.99707 V, leaving little voltage margin. RL5 is 46.2 ps, conversion
 start is 80.0 ps, tau is 9.989 ps, and droop is 0.002369 LSB. PHI_S/PHI_SB/CONV
 capacitance is 27.814/16.610/9.849 fF. Internal DVDD prelogic draws another
 0.902993 pC in the reference-charge window, for a signed two-rail sum of
-1.971116 pC, excluding ideal external clock and bootstrap sources.
+1.971116 pC, excluding direct DVDD top-switch bulk current and ideal external
+clock and bootstrap sources.
 
 The second variant also passes the five weight and calibration limits with the
 original weight stimulus: C_S = 2.065030 pF, top gain = 0.888807, full scale =
@@ -307,3 +309,57 @@ h7 = -95.5741 dBc, and a 2.658 uV regression residual. The approximately 2.1 dB
 third-harmonic improvement over the MID-switch/shared-node variant remains
 insufficient to resolve linearity. The same short-fit limitations apply; this
 is not an SFDR/SNDR or convergence pass, and the output stress failure remains.
+
+## Combined physical paths: limited sine-stress pass
+
+Restoring the original 22 NMOS shared-node devices per side while retaining
+PMOS-to-VIN assistance and stronger j9/j6 outputs gives 526 MOS per CDAC.
+The six physical MID TGs and every 5% unit parasitic remain. The main VG-driven
+sampling NMOS width remains 48.69 um per side. This is still an unselected
+experimental circuit.
+
+![Positive and negative entry waveforms for NMOS sharing, PMOS assistance, and both paths](sampling-assist-comparison.png)
+
+The matched 125 ns TT sine run checks all 1,052 MOS in both CDAC halves and
+3,156 gs/gd/ds pairs. All pairs pass the 1.0 V project limit over 281,800
+accepted points, including time zero, with a 0.5 ps maximum step. The deck
+hash, device count, complete 0-125 ns coverage, and retrieved raw-file hashes
+were checked.
+
+| Device group | Maximum absolute terminal difference (V) | Failing pairs |
+|---|---:|---:|
+| Main sampling NMOS | 0.97401 | 0 |
+| Output devices | 0.98568 | 0 |
+| PMOS VIN assistance | 0.95862 | 0 |
+| NMOS shared-node path | 0.98568 | 0 |
+| Top-plate TG | 0.88250 | 0 |
+| MID TG | 0.94166 | 0 |
+| Complete circuit | **0.98568** | **0 of 3,156** |
+
+The exact largest difference is 0.985680847 V on N-side j12L output PMOS Vds
+at 50.094865824 ns: D = -0.085680847 V, G = 0.899667934 V, and S = B = 0.9 V.
+The NMOS sharing device at the same bottom plate has the same magnitude of
+Vgd. This leaves only 14.32 mV nominal margin at the worst event.
+
+This pass is limited to the stated TT sine stimulus. Loaded VIN still spans
+approximately -34.56 mV to 0.92227 V. Input kickback, other sampling phases,
+supply-ramp startup, PVT, real-bootstrap operation, and model-specific warning
+limits are not validated by this result. Tracking linearity is checked
+separately before any formal adoption.
+
+The original 70 ns TT control sequence also has zero project SOA violations
+over 526 MOS / 1,578 pairs, with a 0.97887 V maximum and 164,327 accepted points
+at a 0.5 ps maximum step. It gives RL12 = 35.3 ps, RL5 = 47.3 ps, tau = 9.120 ps,
+conversion-start settling = 81.5 ps, droop = 0.002368 LSB, and reference charge
+= 1.107164 pC, all meeting their respective limits. However, **PHI_SB
+capacitance is 45.126 fF and fails the 40 fF limit**. Control, PHI_S, and CONV
+capacitances are 0.831, 27.799, and 9.849 fF. The added paths therefore solve
+the observed TT stress cases while introducing a clock-load failure.
+
+Reference charge partitions into 0.898882 pC through output PMOS source/bulk
+branches and 0.208282 pC through the remaining reference branches, including
+the auxiliary and MID switch bulk currents. Internal DVDD prelogic draws
+0.902994 pC, giving a reference-plus-prelogic signed sum of 2.010157 pC.
+This sum excludes direct DVDD top-switch bulk current and ideal external
+clock/bootstrap sources; it is not total circuit power. The candidate remains
+WIP, with the committed netlist and official results unchanged.
