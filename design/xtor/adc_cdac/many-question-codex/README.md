@@ -55,6 +55,11 @@ calibrated ENOB loss = -0.01008 bit, and top gain = 0.8886. Settling still
 fails RL12 (50.1 ps) and reference charge (2.629 pC); the other eight settling,
 droop, and input-capacitance metrics pass. These are preliminary TT results
 on the frozen circuit. Tracking with its numerical cross-check is in progress.
+An exploratory run with the official settling stimulus and ideal bootstrap,
+adding only zero-volt current probes, found a 1.06433 V peak absolute Vgd on
+one sampling switch. This exceeds 1.0 V and remains unresolved. That diagnostic
+covers the sampling switches, not complete device stress or a joint bootstrap
+implementation.
 Convergence comparisons, representative PVT,
 complete corner coverage, long-hold behavior, device stress, and joint bootstrap
 validation remain outstanding. No selection or signoff is claimed.
