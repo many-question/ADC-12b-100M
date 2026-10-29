@@ -3,6 +3,7 @@
 The end-to-end cases run the flow in a temporary git repository (a copy of design/, tb/, specs/ and
 tools/adcflow, so the copied package's REPO_ROOT is the copy) in a subprocess."""
 
+import ast
 import copy
 import json
 import os
@@ -349,3 +350,97 @@ def test_judge_checks_the_recorded_arch_values(repo):
     assert flow(repo, judge) == []
     edit(repo, "specs/arch.yaml", "vref: 0.90", "vref: 0.91")
     assert flow(repo, judge) == ["specs/arch.yaml"]
+
+
+# ------------------------------------------------------------------ guard: arch.yaml read per use, never at import
+# meta.arch relies on prepare and measure code reading arch.yaml through Arch.load() per use, inside
+# arch.track(): a read at import time happens once, outside any job, and later jobs would record
+# too few keys (and stay fresh when they should be stale).
+IMPORT_TIME_OK = {
+    "adcflow.gen_tb",   # generation time only (`adcflow gen`): its testbenches are hashed as files
+    "adcflow.arch",     # defines ARCH_YAML (a path, not a read) and the loader itself
+}
+
+
+def module_level_arch_reads(tree) -> list[str]:
+    """What module-level code of a module (outside function bodies; class bodies run at import and
+    count) does that reads arch.yaml: a call of Arch.load() / load_data(), or a name of the file."""
+    hits = []
+
+    def walk(node):
+        for n in ast.iter_child_nodes(node):
+            if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef, ast.Lambda)):
+                for d in getattr(n, "decorator_list", []) + list(n.args.defaults) + list(n.args.kw_defaults or []):
+                    if d is not None:
+                        walk_expr(d)
+                continue
+            check(n)
+            walk(n)
+
+    def walk_expr(node):
+        for n in ast.walk(node):
+            check(n)
+
+    def check(n):
+        if isinstance(n, ast.Call):
+            f = n.func
+            name = f.attr if isinstance(f, ast.Attribute) else getattr(f, "id", "")
+            base = f.value if isinstance(f, ast.Attribute) else None
+            if name == "load_data" or (name == "load" and isinstance(base, (ast.Name, ast.Attribute))
+                                       and (getattr(base, "id", None) == "Arch" or getattr(base, "attr", None) == "Arch")):
+                hits.append(f"line {n.lineno}: {ast.unparse(n)}")
+        elif isinstance(n, ast.Constant) and isinstance(n.value, str) and "arch.yaml" in n.value:
+            hits.append(f"line {n.lineno}: names arch.yaml")
+        elif isinstance(n, ast.Name) and n.id == "ARCH_YAML":
+            hits.append(f"line {n.lineno}: ARCH_YAML")
+
+    walk(tree)
+    return hits
+
+
+def imports_analysis(tree) -> bool:
+    for n in ast.walk(tree):
+        if isinstance(n, ast.Import) and any(a.name.split(".")[0] == "analysis" for a in n.names):
+            return True
+        if isinstance(n, ast.ImportFrom) and not n.level and (n.module or "").split(".")[0] == "analysis":
+            return True
+    return False
+
+
+def reached_modules(mod: str) -> set[str]:
+    seen, todo = set(), [mod]
+    while todo:
+        m = todo.pop()
+        if m in seen or deps._ast(m) is None:
+            continue
+        seen.add(m)
+        todo += deps._imports(m, deps._ast(m))
+    return seen
+
+
+def test_module_level_arch_reads_are_caught():
+    assert module_level_arch_reads(ast.parse("from adcflow.arch import Arch\nA = Arch.load()\n"))
+    assert module_level_arch_reads(ast.parse("from adcflow import arch\nFS = arch.Arch.load().fs\n"))
+    assert module_level_arch_reads(ast.parse("from adcflow import arch\nD = arch.load_data()\n"))
+    assert module_level_arch_reads(ast.parse("import yaml\nD = yaml.safe_load(open('specs/arch.yaml'))\n"))
+    assert module_level_arch_reads(ast.parse("class C:\n    a = Arch.load()\n"))
+    assert module_level_arch_reads(ast.parse("def f(a=Arch.load()):\n    pass\n"))
+    assert not module_level_arch_reads(ast.parse("from adcflow.arch import Arch\ndef f():\n    return Arch.load().fs\n"))
+    assert imports_analysis(ast.parse("def f():\n    from analysis.x import y\n"))
+    assert not imports_analysis(ast.parse("from .analysis import y\n"))
+
+
+def test_prepare_and_measure_code_reads_arch_per_use():
+    from adcflow.specs import blocks
+
+    refs = {t[k] for b in blocks().values() for t in b.tests.values() for k in ("prepare", "measure") if t.get(k)}
+    assert refs, "no prepare / measure in the block specs"
+    mods = set().union(*(reached_modules(r.split(":")[0]) for r in refs))
+    assert "adcflow.measure.ref" in mods and "adcflow.model" in mods
+    bad = {}
+    for m in sorted(mods - IMPORT_TIME_OK):
+        t = deps._ast(m)
+        hits = module_level_arch_reads(t) + (["imports analysis/"] if imports_analysis(t) else [])
+        if hits:
+            bad[m] = hits
+    assert not bad, f"arch.yaml read at import time (outside arch.track): {bad}"
