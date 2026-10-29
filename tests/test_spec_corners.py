@@ -68,13 +68,15 @@ def test_corner_sets_expand_as_corner_set():
 
 def test_monte_carlo_rule_is_kept():
     """A Monte Carlo spec judges Monte Carlo runs only (and only in its corner set); others judge both."""
+    mc = {"runs": 50, "seed": 6303, "firstrun": 1, "variations": "mismatch", "models": "local_tt"}   # meta.mc
     cmp03 = next(s for s in blocks()["adc_comp"].specs if s.id == "CMP-03")
-    assert cmp03.mc and cmp03.corners == "typ"
-    assert not cmp03.applies("tt_nom_27") and cmp03.applies("tt_nom_27", "local_tt")
-    assert not cmp03.applies("ff_high_125", "local_tt")
-    assert _spec("CLK-10").applies("tt_nom_27", "global_local")
-    judged, na = blocks()["adc_comp"].verdicts("tb_comp_noise", "tt_nom_27", None, {"offset_sigma_mV": 3.0})
+    assert cmp03.mc and cmp03.corners == "typ" and cmp03.test == "tb_comp_offset_mc"
+    assert not cmp03.applies("tt_nom_27") and cmp03.applies("tt_nom_27", mc)
+    assert not cmp03.applies("ff_high_125", mc)
+    assert _spec("CLK-10").applies("tt_nom_27", mc)
+    judged, na = blocks()["adc_comp"].verdicts("tb_comp_offset_mc", "tt_nom_27", None, {"offset_sigma_mV": 3.0})
     assert "CMP-03" not in judged and "CMP-03" not in na       # nominal run: left out, as before
+    # (sample coverage and failed samples: tests/test_comp_offset_mc.py)
 
 
 def test_tt_passes_while_another_corner_exceeds_the_tt_limit(monkeypatch):

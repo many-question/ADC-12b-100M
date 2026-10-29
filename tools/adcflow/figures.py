@@ -105,16 +105,17 @@ def sink_of(ctx: dict):
 
 def limits(ctx: dict, metric: str) -> tuple[float | None, float | None]:
     """Tightest (min, max) the specs of this test put on `metric` at this corner, from specs/blocks/*.yaml
-    (a spec that does not apply at ctx["corner"] (Spec.applies) is skipped; without a corner all count)."""
+    (a spec that does not apply at ctx["corner"] (Spec.applies, with the run's Monte Carlo settings
+    ctx["mc"]) is skipped; without a corner all count, but a Monte Carlo spec only on a Monte Carlo run)."""
     from .specs import blocks
 
     b = blocks().get(ctx.get("block"))
-    corner = ctx.get("corner")
+    corner, mc = ctx.get("corner"), ctx.get("mc")
     lo = hi = None
     for s in (b.specs if b else []):
-        if corner and not s.applies(corner):
+        if (s.mc and not mc) or (corner and not s.applies(corner, mc)):
             continue
-        if s.test == ctx.get("test") and s.metric == metric and not s.mc:
+        if s.test == ctx.get("test") and s.metric == metric:
             if s.min is not None:
                 lo = s.min if lo is None else max(lo, s.min)
             if s.max is not None:
@@ -213,20 +214,21 @@ def plot_spectrum(ax, x, fs: float, fs_pk: float | None, metrics: dict, sfdr_min
 
 def spec_rows(ctx: dict, m: dict, metrics: list[str]) -> list[tuple[str, str, str, bool | None]]:
     """(spec id and name, value text, limit text, pass) for the specs of this test on `metrics`;
-    pass is None for a spec that does not apply at ctx["corner"] (shown as n/a, not judged)."""
+    pass is None for a spec that does not apply at ctx["corner"] (shown as n/a, not judged). A
+    Monte Carlo spec is listed on a Monte Carlo run only (ctx["mc"]), judged with its samples."""
     from .specs import blocks
 
     b = blocks().get(ctx.get("block"))
-    corner = ctx.get("corner")
+    corner, mc = ctx.get("corner"), ctx.get("mc")
     rows = []
     for s in (b.specs if b else []):
-        if s.test == ctx.get("test") and s.metric in metrics and not s.mc:
+        if s.test == ctx.get("test") and s.metric in metrics and not (s.mc and not mc):
             v = m.get(s.metric)
             vt = "n/a" if v is None else f"{v:.4g}"
-            if corner and not s.applies(corner):
+            if corner and not s.applies(corner, mc):
                 rows.append((f"{s.id}  {s.metric}", f"{vt} {s.unit}".strip(), f"{s.corners} only", None))
                 continue
-            rows.append((f"{s.id}  {s.metric}", f"{vt} {s.unit}".strip(), s.limit_text(), s.check(v)))
+            rows.append((f"{s.id}  {s.metric}", f"{vt} {s.unit}".strip(), s.limit_text(), s.judge(m)))
     return rows
 
 

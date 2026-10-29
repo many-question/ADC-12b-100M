@@ -175,7 +175,8 @@ git config core.hooksPath tools/hooks     # 提交前检查（hygiene / ports / 
    python -m adcflow candidates --block <block>                              # 排行榜：你的候选与其它候选
    ```
 
-   结果写入 `results/<block>/<test>/xtor-<name>/<corner>.json`。规格要求蒙特卡洛的用例另行运行；验收用 `--mode aps`（默认）。
+   结果写入 `results/<block>/<test>/xtor-<name>/<corner>.json`。规格要求蒙特卡洛的用例（`tb_comp_offset_mc`）只在 `typ` 上运行，
+   `sim` 按规格跑全部样本；验收用 `--mode aps`（默认）。
    单独写 `xtor`（不带候选名）表示该模块已选定的候选，不是你的候选。
 2. 全部指标在其工艺角集合上通过后，可以自己做顶层混合仿真（其余模块行为级）作参考：
    `python -m adcflow sim tb_top_sine --view <block>=xtor:<name> --corners quick`。正式的顶层混合回归由项目负责人做。

@@ -23,6 +23,7 @@ class SpecSummary:
     spec: Spec
     vals: list[tuple[str, object, bool, bool]] = field(default_factory=list)  # applicable: corner, value, pass, stale
     na: list[tuple[str, object]] = field(default_factory=list)                 # not applicable: corner, raw value
+    samples: list[dict] = field(default_factory=list)                          # Monte Carlo spec: Spec.samples per result
 
     def _worst(self, nums: list[float]) -> float | None:
         if not nums:
@@ -69,6 +70,8 @@ def summarize(spec: Spec, judged: list[tuple[dict, dict]]) -> SpecSummary:
         if spec.applies(d["corner"], d.get("meta", {}).get("mc")):
             v = j["specs"].get(spec.id, {})
             out.vals.append((d["corner"], v.get("value"), bool(v.get("pass")), bool(j["stale"])))
+            if v.get("samples"):
+                out.samples.append(v["samples"])
         elif spec.id in j.get("na", {}):
             out.na.append((d["corner"], j["na"][spec.id]["value"]))
     return out
@@ -99,8 +102,9 @@ def report(block: str | None = None) -> int:
                     flag = ("PASS" if r.status == "pass" else "FAIL") + ("*" if r.stale else "")
                 na = (f"  [n/a at {len(r.na)} corner(s) outside {s.corners}, worst {_fmt(r.na_worst)}: not judged]"
                       if r.na else "")
+                mc = "".join(f"  [MC samples {n['ok']}/{n['need']} valid, {n['failed']} failed]" for n in r.samples)
                 print(f"   {s.id:8s} {s.limit_text():>16s} {_fmt(r.worst):>10s} {flag:>6s} "
-                      f"{r.covered:>4d}/{r.need:<4d}  {s.test}{na}")
+                      f"{r.covered:>4d}/{r.need:<4d}  {s.test}{mc}{na}")
             for d, j in rows:                         # never hidden by the corner sets of the specs
                 where = f"{d['test']}/{d['_path'].stem}"
                 if j["error"]:

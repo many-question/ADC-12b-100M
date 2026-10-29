@@ -166,3 +166,12 @@ def test_compare_soa_peaks():
     c = numerics.compare(ref, alt, ["soa_violations"], None, None)
     assert c["soa"] == {"pairs": 2, "max_V_diff_max_mV": pytest.approx(0.3), "at": "XDUT.MA ds", "violations": [1, 1]}
     assert c["metrics"]["soa_violations"]["diff"] == 0
+
+
+def test_settings_of_the_transient_inside_a_montecarlo_analysis():
+    """A montecarlo analysis prints its own `Important parameter values` (method = standard) before
+    the transient's (tb_comp_offset_mc, #63): the transient's block is the one with `stop`."""
+    mc = ("Important parameter values:\n    seed = 6303\n    numruns = 50\n    method = standard\n\n"
+          "Statistical parameters:\n    Defined mismatch parameters (subckt based): 1\n\n")
+    nu = numerics.from_log(mc + LOG.split("Opening the PSFASCII file deck.raw/tran1.tran.tran ...\n")[1])
+    assert nu["method"] == "traponly" and nu["reltol"] == pytest.approx(1e-7)

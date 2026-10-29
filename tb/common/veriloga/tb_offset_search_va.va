@@ -1,0 +1,79 @@
+// Offset search of tb_comp_offset_mc: drives V(P) = vcm + vd/2, V(N) = vcm - vd/2 and finds
+// the vd at which the comparator decision flips, one decision per CLKC cycle (read when CLKC
+// falls; vd changes during the following reset):
+//   cycle 1, 2       vd = +vrange must give OUTP, vd = -vrange OUTN (else: out of range)
+//   cycles 3..2+nb   successive approximation of [lo, hi] = [-vrange, +vrange], nb = nbits:
+//                    OUTP at the midpoint -> hi = mid, OUTN -> lo = mid; offset = (lo + hi) / 2
+//   cycles 3+nb, 4+nb  vd = offset + vchk must give OUTP, offset - vchk OUTN (else: not converged)
+// Each transient (one Monte Carlo sample) appends to fname (opened for append, so the samples of
+// one montecarlo analysis follow each other):
+//   "B <nbits> <vrange> <vchk> <vcm>"            when the transient starts
+//   "D <cycle> <vd> <decision>"                  1 = OUTP, 0 = OUTN, -1 = none, 2 = both high
+//   "R <status> <offset> <lo> <hi> <cycles>"     0 ok, 1 out of range, 2 no valid decision,
+//                                                3 re-check failed, 4 transient ended first
+// A sample whose transient aborts has a B line and no R line.
+`include "disciplines.vams"
+`include "constants.vams"
+
+module tb_offset_search_va(P, N, CLKC, OUTP, OUTN, VSS);
+  output P, N;
+  input CLKC, OUTP, OUTN, VSS;
+  electrical P, N, CLKC, OUTP, OUTN, VSS;
+
+  parameter real vcm = 0.49;
+  parameter real vth = 0.45;                    // logic threshold of CLKC, OUTP, OUTN
+  parameter real vrange = 25e-3 from (0:inf);   // search range +/-vrange
+  parameter integer nbits = 13 from [1:40];     // successive-approximation steps
+  parameter real vchk = 50e-6 from [0:inf);     // re-check distance from the result
+  parameter real tr = 20e-12 from (0:inf);      // input step time (inside the reset phase)
+  parameter real ttol = 1e-12 from (0:inf);     // CLKC crossing time tolerance
+  parameter string fname = "offset.txt";
+
+  integer fh, k, dec, st, done;
+  real vd, lo, hi, est;
+
+  analog begin
+    @(initial_step("tran")) begin
+      fh = $fopen(fname, "a");
+      $fwrite(fh, "B %d %.9e %.9e %.9e\n", nbits, vrange, vchk, vcm);
+      k = 0; done = 0; lo = -vrange; hi = vrange; est = 0; vd = vrange;
+    end
+
+    @(cross(V(CLKC, VSS) - vth, -1, ttol)) begin
+      if (!done) begin
+        k = k + 1;
+        if (V(OUTP, VSS) > vth) dec = (V(OUTN, VSS) > vth) ? 2 : 1;
+        else dec = (V(OUTN, VSS) > vth) ? 0 : -1;
+        $fwrite(fh, "D %d %.9e %d\n", k, vd, dec);
+        st = -1;
+        if (dec != 0 && dec != 1) st = 2;
+        else if (k == 1) begin
+          if (dec != 1) st = 1; else vd = -vrange;
+        end else if (k == 2) begin
+          if (dec != 0) st = 1; else vd = 0.5 * (lo + hi);
+        end else if (k <= 2 + nbits) begin
+          if (dec == 1) hi = vd; else lo = vd;
+          est = 0.5 * (lo + hi);
+          vd = (k < 2 + nbits) ? est : est + vchk;
+        end else if (k == 3 + nbits) begin
+          if (dec != 1) st = 3; else vd = est - vchk;
+        end else begin
+          st = (dec != 0) ? 3 : 0;
+        end
+        if (st >= 0) begin
+          done = 1;
+          $fwrite(fh, "R %d %.9e %.9e %.9e %d\n", st, est, lo, hi, k);
+          vd = est;
+        end
+      end
+    end
+
+    @(final_step("tran")) begin
+      if (!done) $fwrite(fh, "R 4 %.9e %.9e %.9e %d\n", est, lo, hi, k);
+      $fclose(fh);
+    end
+
+    V(P, VSS) <+ vcm + 0.5 * transition(vd, 0, tr);
+    V(N, VSS) <+ vcm - 0.5 * transition(vd, 0, tr);
+  end
+endmodule

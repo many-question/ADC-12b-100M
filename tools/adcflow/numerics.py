@@ -90,22 +90,31 @@ def _value(text: str):
     return x
 
 
-def _block(text: str, title: str) -> dict[str, object]:
-    """`key = value` lines of the indented block after `title` (up to the first blank line)."""
-    m = re.search(rf"{re.escape(title)}\n((?:[ \t]+\S.*\n)+)", text)
-    out = {}
-    for line in (m.group(1).splitlines() if m else []):
-        k, sep, v = line.partition(" = ")
-        if sep:
-            out[k.strip()] = _value(v)
-    return out
+def _block(text: str, title: str, need: str = "") -> dict[str, object]:
+    """`key = value` lines of the first indented block after `title` (up to the first blank line)
+    that has the key `need` (with need empty: the first block)."""
+    for m in re.finditer(rf"{re.escape(title)}\n((?:[ \t]+\S.*\n)+)", text):
+        out = {}
+        for line in m.group(1).splitlines():
+            k, sep, v = line.partition(" = ")
+            if sep:
+                out[k.strip()] = _value(v)
+        if not need or need in out:
+            return out
+    return {}
+
+
+def _tran_block(text: str) -> dict[str, object]:
+    """The `Important parameter values` of the first transient: a montecarlo analysis around it
+    prints its own block first; the transient's has `stop`."""
+    return _block(text, "Important parameter values:", "stop")
 
 
 def from_log(text: str) -> dict:
     """Effective settings of the first transient analysis in a Spectre log: reltol, maxstep,
     method, errpreset, lteratio, abstol(V) (`Important parameter values`), vabstol (global
     options) and the number of accepted time steps with the mean step. {} without a tran."""
-    tran = _block(text, "Important parameter values:")
+    tran = _tran_block(text)
     if not tran:
         return {}
     opts = _block(text, "Global user options:")
@@ -154,7 +163,7 @@ def effective(job_dir: Path) -> dict:
     out = from_log(text)
     if not out:
         return out
-    stop = _block(text, "Important parameter values:").get("stop")
+    stop = _tran_block(text).get("stop")
     raw = Path(job_dir) / "deck.raw"
     f = (psf.find(raw, "*.tran.tran") or psf.find(raw, "*.tran")) if raw.exists() else None
     dt = steps_from_waveform(f, stop if isinstance(stop, float) else None)

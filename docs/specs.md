@@ -7,7 +7,7 @@
 | [`adc_bootstrap`](#adc-bootstrap) | behavioral | none | 10 | `tb_bootstrap_dc`, `tb_bootstrap_track` |
 | [`adc_cdac`](#adc-cdac) | behavioral | none | 17 | `tb_cdac_weights`, `tb_cdac_settle`, `tb_cdac_track` |
 | [`adc_clkgen`](#adc-clkgen) | behavioral | none | 11 | `tb_clkgen_timing`, `tb_clkgen_jitter` |
-| [`adc_comp`](#adc-comp) | behavioral | none | 14 | `tb_comp_delay`, `tb_comp_noise`, `tb_comp_kickback` |
+| [`adc_comp`](#adc-comp) | behavioral | none | 14 | `tb_comp_delay`, `tb_comp_noise`, `tb_comp_offset_mc`, `tb_comp_kickback` |
 | [`adc_ref`](#adc-ref) | behavioral | none | 15 | `tb_ref_dc`, `tb_ref_replay`, `tb_ref_noise`, `tb_ref_startup` |
 | [`adc_sarlogic`](#adc-sarlogic) | behavioral | none | 16 | `tb_sarlogic_func`, `tb_sarlogic_rand`, `tb_sarlogic_func_slow`, `tb_sarlogic_timeout` |
 | [`adc_top`](#adc-top) | behavioral | 负责人 many-question | 9 | `tb_top_sine`, `tb_top_sine_lf`, `tb_top_duty` |
@@ -165,7 +165,7 @@ Buffers the single external CLK (high = track, low = hold + convert) into the sa
 
 ## adc_comp
 
-**Dynamic latched comparator** — 规格版本 0.4.0，状态 `behavioral`。
+**Dynamic latched comparator** — 规格版本 0.5.0，状态 `behavioral`。
 
 Single fully-dynamic comparator of the asynchronous SAR loop. CLKC low resets (OUTP = OUTN = 0); CLKC rising evaluates; exactly one of OUTP / OUTN rises. OUTP = 1 means V(INP) > V(INN). At the top level INP is driven by the top plate of the CDAC that samples VINN (bottom-plate sampling inverts), so OUTP = 1 means "input above the DAC level".
 
@@ -196,7 +196,7 @@ Single fully-dynamic comparator of the asynchronous SAR loop. CLKC low resets (O
 | CMP-01 | input-referred noise (diff rms) | ≤ 200 | uV | typ | `tb_comp_noise` |
 | CMP-13 | input-referred noise (diff rms, all corners) | ≤ 240 | uV | all | `tb_comp_noise` |
 | CMP-02 | systematic offset | ≤ 2 | mV | all | `tb_comp_noise` |
-| CMP-03 | offset sigma (Monte Carlo, 50 runs) | ≤ 5 | mV | typ，MC 50 | `tb_comp_noise` |
+| CMP-03 | offset sigma (Monte Carlo, 50 runs) | ≤ 5 | mV | typ，MC 50 | `tb_comp_offset_mc` |
 | CMP-04 | delay CLKC->OUT at 1 mV | ≤ 80 | ps | typ | `tb_comp_delay` |
 | CMP-05 | delay CLKC->OUT at 1 mV (all corners) | ≤ 120 | ps | all | `tb_comp_delay` |
 | CMP-06 | delay CLKC->OUT at 30 mV | ≤ 50 | ps | typ | `tb_comp_delay` |
@@ -212,6 +212,7 @@ Single fully-dynamic comparator of the asynchronous SAR loop. CLKC low resets (O
 
 - **`tb_comp_delay`** (`tb/comp/tb_comp_delay.scs`, 度量 `adcflow.measure.comp:delay`)：Ideal differential steps around VCM = 0.49 V: vd = +/-{100m, 30m, 10m, 3m, 1m, 300u, 100u, 30u, 10u} V, one decision per 400 ps CLKC period, 10 fF loads. Transient noise off. Extracts delay vs |vd|, tau_reg (fit of delay vs ln|vd|), reset time, decision errors and supply energy per cycle.
 - **`tb_comp_noise`** (`tb/comp/tb_comp_noise.scs`, 度量 `adcflow.measure.comp:noise`; 瞬态噪声)：Transient noise on (behavioral: internal Gaussian). vd swept over -800..+800 uV in 17 levels (100 uV steps, about +/-3.3 sigma at the all-corner limit), 512 decisions per level. The OUTP counts are fitted by binomial maximum likelihood with a probit (Gaussian CDF) model: sigma = noise, mean = offset; noise_ci95_uV is the 95 % profile-likelihood interval of sigma. The 1-sigma error of sigma is <= 2.7 % for 120..300 uV.
+- **`tb_comp_offset_mc`** (`tb/comp/tb_comp_offset_mc.scs`, 度量 `adcflow.measure.comp:offset_mc`)：Input offset under local device mismatch at TT: one Spectre montecarlo analysis of 50 samples (seed 6303, samples 1..50, no nominal run) over a transient with transient noise off. In every sample a Verilog-A stimulus (tb_offset_search_va) searches the differential input at which the decision flips, one decision per 1 ns CLKC cycle around VCM = 0.49 V: vd = +25 mV must give OUTP and -25 mV OUTN (else the offset is out of range), 13 halvings of [-25, +25] mV (6.1 uV), then offset + 50 uV must give OUTP and offset - 50 uV OUTN (else the search did not converge). offset_sigma_mV is the sample standard deviation (n - 1) of the offsets. A sample that is out of range, has no valid decision, fails the re-check, ends with a simulation error or is missing counts in mc_failed: CMP-03 passes only with all 50 samples valid (mc_ok = 50, mc_failed = 0); no sample is dropped. The behavioral comparator has no device statistics: while adc_comp is behavioral a series offset source in the testbench gives every sample vos_beh * N(0, 1) from the montecarlo mismatch statistics (vos_beh = 2 mV), so the search, the Monte Carlo loop and the aggregation run end to end.
 - **`tb_comp_kickback`** (`tb/comp/tb_comp_kickback.scs`, 度量 `adcflow.measure.comp:kickback`)：Inputs floating on 2.5 pF capacitors (the CDAC top plates, C_tot), preset to VCM +/- 0.5 mV. Measures the change of the differential input after one evaluate + reset cycle. CMP-12: AC current into INP of a second instance in reset at 100 MHz. CMP-14: CLKC reaches the DUT through a charge meter (tb_qmeter_va, a 0 V path); the charge it draws over each rising edge divided by the voltage step, mean over the 8 cycles (window as in adc_cdac tb_cdac_settle).
 
 ## adc_ref

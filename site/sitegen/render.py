@@ -497,6 +497,7 @@ def cand_flags(site: Site, c) -> str:
         out.append(chip("pass", "已复核", "所有结果都有 verified_by：项目负责人在同一网表哈希上复跑过"))
     else:
         out.append(chip("none", "自报", f"{r['self_reported']} / {r['results']} 个结果没有 verified_by（自报，未经项目负责人复核）"))
+    out += [chip(kind, label, title) for kind, label, title in candmod.mc_chips(r)]
     if f["stale"]:
         out.append(chip("stale", f"过期 {f['stale']}", "输入文件自仿真后已变化，需要重跑"))
     if f["soa"]:
