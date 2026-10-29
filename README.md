@@ -23,7 +23,7 @@ Verilog-A behavioral models, Python tooling and Spectre.
 | `specs/` | single source of truth: `arch.yaml`, `corners.yaml`, `blocks/*.yaml`, `va_modules.yaml` |
 | `design/rnl/` | RNL packages: project styles, PDK device rules, generated block / Verilog-A symbols |
 | `design/behav/` | behavioral view of every block (Spectre + Verilog-A) |
-| `design/xtor/<block>/` | transistor-level views (block owners) |
+| `design/xtor/<block>/<candidate>/` | transistor-level candidates (anyone may submit one per PR) |
 | `design/top/adc_top.scs` | structural top level (same file for any mix of views) |
 | `tb/` | acceptance testbenches and their Verilog-A monitors |
 | `site/` | static project website (`python site/build.py`), built by CI on every PR, deployed from `main` |
@@ -41,9 +41,9 @@ python -m adcflow sim tb_top_sine         # full behavioral ADC on the server
 python -m adcflow report
 ```
 
-## Join a block
+## Submit a candidate
 
-The transistor-level design of the blocks is open to outside contributors. Read
-[`CONTRIBUTING.md`](CONTRIBUTING.md) (Chinese, with an English summary): it explains how to claim one
-unclaimed block with a pull request, what you may change, how to run the acceptance tests, and the
-review / sign-off process. Project site: <https://many-question.github.io/ADC-12b-100M/>.
+The transistor-level design of the blocks is open to everyone: any number of competing candidates per block, no
+claiming. Read [`CONTRIBUTING.md`](CONTRIBUTING.md) (Chinese, with an English summary): it explains how to submit
+a candidate with a pull request, what a candidate PR may change, how to run the acceptance tests, and how
+candidates are ranked and selected. Project site: <https://many-question.github.io/ADC-12b-100M/>.

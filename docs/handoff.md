@@ -1,13 +1,13 @@
 # 晶体管级设计分工包
 
-架构 v0.3（噪声预算重新分配，[`docs/noise-budget.md`](noise-budget.md)）与各模块规格是当前基线。下列 6 个模块可以**并行**开展晶体管级设计，
+架构 v0.3（噪声预算重新分配，[`docs/noise-budget.md`](noise-budget.md)）与各模块规格是当前基线。下列 6 个模块可以**并行**开展晶体管级设计（每个模块可有多个竞争的候选），
 彼此只通过规格中的端口和负载条件耦合。每个模块的完整规格在 [`docs/specs.md`](specs.md)，
 流程见 [`CONTRIBUTING.md`](../CONTRIBUTING.md) 与 [`docs/workflow.md`](workflow.md)。
 
-**认领与角色**：模块**负责人**（模块 owner）是认领该模块、其认领 PR 已被合并的 GitHub 用户，记在
-`specs/blocks/<block>.yaml` 的 `owner:`（`TBD` 表示未认领）；认领方式是发标题为 `[<block>] claim` 的 PR，
-只把 `owner:` 改成自己的登录名。**项目负责人**是 `many-question`，负责架构、规格、测试台、评审与合并。
-模块负责人只改自己模块的晶体管级网表、RNL 和结果；接口、规格、测试台或其它模块的改动先开 issue 由项目负责人决定。
+**候选与角色**：不认领模块。任何**贡献者**可以随时为任一模块（`adc_top` 除外）提交晶体管级**候选** `design/xtor/<block>/<name>/`，
+数量不限；标题为 `[<block>] candidate <name> …` 的 PR 只能改自己的候选目录和结果（见 [`CONTRIBUTING.md`](../CONTRIBUTING.md) 第 4~5 节）。
+所有候选用同一套测试台和规格评分，排行榜在项目网站。**项目负责人**是 `many-question`，负责架构、规格、测试台、合并、复核，并为每个模块选定一个候选
+（`specs/blocks/<block>.yaml` 的 `selected:`）。接口、规格、测试台或其它模块的改动先开 issue 由项目负责人决定。
 
 ## 总览
 
@@ -22,12 +22,12 @@
 
 ## 共同要求
 
-* 新建 `design/xtor/<block>/<block>.scs`，子电路名与端口顺序与规格一致（`python -m adcflow check ports`）。
+* 新建 `design/xtor/<block>/<name>/<block>.scs`（及 `candidate.yaml`），子电路名与端口顺序与规格一致（`python -m adcflow check ports`）。
 * 只用 PDK 器件（`nch_*_mac`、`pch_*_mac`、`cfmom_2t`、`*moscap*` 等，见 `design/rnl/adc28.rnl`）。
   理想元件只允许用于：去耦电容的寄生模型、尚无 PDK 等效的 CDAC 单位电容（需负责人同意并附寄生/失配模型）。
 * 每个网表带**完整**的 RNL 原理图（精确的 PLACE / ORIENT / WIRE，`rnl check` 0 错误 0 警告 0 提示）
   和**高层语义**（`$DIFFERENTIAL_PAIR`、`$CURRENT_MIRROR`、`$MATCHED`、`$BRANCH`、`@GROUP` 等），方便评审。
-* 验收：本模块全部用例 `--view <block>=xtor --corners all`，再做顶层混合仿真（其余模块行为级）。
+* 验收：本模块全部用例 `--view <block>=xtor:<name> --corners all`，再做顶层混合仿真（其余模块行为级）。
 * 不得修改其它模块、测试台或规格；需要改接口时先在 issue 中与项目负责人（`many-question`）讨论。
 
 ## 接口负载与输入电容
@@ -149,5 +149,5 @@ CONV 的分配：CDAC 的 CONV 使能 22 个采样半电容的三态驱动器（
 
 1. 同时启动：`adc_comp`、`adc_sarlogic`（共同决定转换时间），`adc_cdac` + `adc_bootstrap`（共同决定线性度，
    两人需对齐输入开关的栅电容与导通电阻），`adc_ref`、`adc_clkgen`（相对独立）。
-2. 每个模块通过自己的验收后，项目负责人逐个替换进顶层（`--view <block>=xtor`）跑 `tb_top_sine` quick 角。
+2. 每个模块选定候选后，项目负责人逐个替换进顶层（`--view <block>=xtor`，即选定的候选）跑 `tb_top_sine` quick 角。
 3. 全部替换后跑 45 角顶层回归，签核（项目负责人）。
