@@ -23,7 +23,8 @@ name: site
 #   * Permissions are per job and least-privilege: gate and build are read-only; only the deploy job has pages: write and
 #     id-token: write. The only secret in use is the job's GITHUB_TOKEN (read-only here); none is passed to PR-controlled code.
 #
-# Load. The `gate` job (site/events.py, tiny) skips events that cannot change the site: PRs and issues whose title does not
+# Load. The `gate` job (site/events.py, tiny) skips events that cannot change the site (it is bypassed for pull_request, which
+# always builds the PR itself and must not depend on main's copy of the script): PRs and issues whose title does not
 # start with "[<block>]", comments on PRs or on other issues, CI of a push (the PR's own CI run reports the same head) or of
 # a PR that is not a block PR. A skipped build does not touch the concurrency group, so it cannot cancel a running build.
 # Builds of main coalesce: a newer one cancels an older build that has not started deploying (a short debounce at the start
@@ -58,14 +59,22 @@ jobs:
       contents: read
       pull-requests: read           # workflow_run: is the CI run of an open "[<block>]" PR?
     outputs:
-      relevant: ${{ steps.gate.outputs.relevant }}
+      relevant: ${{ steps.pr.outputs.relevant || steps.gate.outputs.relevant }}
     steps:
+      # pull_request builds the PR itself (artifact only, no secrets, read-only token): always relevant, and the gate must not
+      # depend on main's site/events.py, which a PR may be adding or changing
+      - id: pr
+        if: github.event_name == 'pull_request'
+        run: echo "relevant=true" >> "$GITHUB_OUTPUT"
+      # every privileged event: main's code only, whatever the event
       - uses: actions/checkout@v7
+        if: github.event_name != 'pull_request'
         with:
-          ref: ${{ github.event.repository.default_branch }}      # main's code only, whatever the event
+          ref: ${{ github.event.repository.default_branch }}
           fetch-depth: 1
           persist-credentials: false
       - id: gate
+        if: github.event_name != 'pull_request'
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: python3 site/events.py
@@ -95,6 +104,9 @@ jobs:
           # raw.githubusercontent.com serves them at that commit. push / workflow_dispatch: that commit. Every other event
           # (pull_request_target, issues, issue_comment, workflow_run, schedule): the default branch, never a PR.
           ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || (contains('push workflow_dispatch', github.event_name) && github.sha || github.event.repository.default_branch) }}
+          # no token left in .git/config while the generator runs, for every event but pull_request (the generator reads the
+          # API with GITHUB_TOKEN from the environment and fetches the PR refs anonymously: the repository is public)
+          persist-credentials: ${{ github.event_name == 'pull_request' }}
       - uses: actions/setup-python@v7
         with:
           python-version: "3.11"

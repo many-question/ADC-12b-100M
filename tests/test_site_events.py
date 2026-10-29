@@ -170,8 +170,27 @@ def test_workflow_never_checks_out_a_pr_outside_the_pull_request_event(workflow)
             ref = str((step.get("with") or {}).get("ref", ""))
             if "head.sha" in ref:
                 assert "github.event_name == 'pull_request' &&" in ref, name
-    gate_ref = workflow["jobs"]["gate"]["steps"][0]["with"]["ref"]
-    assert "pull_request" not in gate_ref and "default_branch" in gate_ref
+    gate_steps = workflow["jobs"]["gate"]["steps"]
+    (checkout,) = [s for s in gate_steps if str(s.get("uses", "")).startswith("actions/checkout")]
+    assert "pull_request" not in checkout["with"]["ref"] and "default_branch" in checkout["with"]["ref"]
+    assert checkout["with"]["persist-credentials"] is False
+
+
+def test_gate_does_not_depend_on_main_for_pull_request_runs(workflow):
+    """A PR may add or change site/events.py; its own build must not wait for (or fail on) main's copy of it."""
+    gate = workflow["jobs"]["gate"]
+    steps = gate["steps"]
+    short = [s for s in steps if s.get("if") == "github.event_name == 'pull_request'"]
+    assert len(short) == 1 and "relevant=true" in short[0]["run"] and short[0]["id"] == "pr"
+    for s in steps:
+        if s is not short[0]:                              # checkout of main and the script: privileged events only
+            assert s.get("if") == "github.event_name != 'pull_request'", s
+    assert "steps.pr.outputs.relevant" in gate["outputs"]["relevant"]
+
+
+def test_build_checkout_keeps_no_token_except_for_pull_request(workflow):
+    (checkout,) = [s for s in workflow["jobs"]["build"]["steps"] if str(s.get("uses", "")).startswith("actions/checkout")]
+    assert checkout["with"]["persist-credentials"] == "${{ github.event_name == 'pull_request' }}"
 
 
 def test_workflow_puts_no_event_text_into_shell_commands(workflow):
