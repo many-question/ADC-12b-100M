@@ -3,14 +3,18 @@
 **English summary.** This repository is a 12-bit-class, 100 MS/s asynchronous SAR ADC in 28 nm HPC+,
 described entirely as plain Spectre netlists plus RNL schematic records (no schematic editor). The
 architecture, block specifications, behavioral models, testbenches and the `adcflow` tool are done and pass
-at the typical corner; the transistor-level design of the blocks is open to contributors. You (or your AI
-agent) take **one block**, claim it with a pull request, design it at transistor level against its spec and
-deliver it through pull requests that the project lead (GitHub `many-question`) reviews. Everything below is
-written in Chinese; this file is meant to be read by an AI agent that has been pointed at its raw URL, and by
-people. Process details and PDK access are not in this repository: contact `many-question` (see section 11).
+at the typical corner; the transistor-level design of the blocks is open to everyone. There is no claiming:
+you (or your AI agent) may submit a transistor-level **candidate** for any block except `adc_top`, at any
+time, with no limit on participants or candidates per block. A candidate is a directory
+`design/xtor/<block>/<name>/` plus its results; a pull request titled `[<block>] candidate <name> …` may only
+touch that one candidate. All candidates are scored by the same testbenches and specs and listed on a
+per-block leaderboard on the project site; the project lead (GitHub `many-question`) reviews, re-runs the
+best ones and selects one per block (`selected:` in the block spec). Everything below is written in Chinese;
+this file is meant to be read by an AI agent that has been pointed at its raw URL, and by people. Process
+details and PDK access are not in this repository: contact `many-question` (see section 11).
 Spec-change notices for a block are posted as GitHub issues titled `[<block>] …`; before each work session and
 before opening or updating a PR, run `gh issue list --state open --search "[<block>] in:title"` and acknowledge
-them in the issue (section 4).
+them in the issue and in `candidate.yaml` (section 4).
 
 ---
 
@@ -18,74 +22,103 @@ them in the issue (section 4).
 
 12 bit 级、100 MS/s 异步 SAR ADC（28 nm HPC+，0.9 V / 1.8 V）。所有设计数据都是 **Spectre 网表 + RNL 原理图记录**，
 不使用 Virtuoso 等图形化原理图工具。架构、规格、行为级模型、测试台和 `adcflow` 流程都已完成，行为级验证在 TT 角全部通过；
-项目在晶体管级设计之前停下，把各模块交给不同的人并行完成。
+项目在晶体管级设计之前停下，晶体管级设计向所有人开放：每个模块可以有任意多个相互竞争的候选设计。
 
 仓库：<https://github.com/many-question/ADC-12b-100M>（本文件原始地址：
 <https://raw.githubusercontent.com/many-question/ADC-12b-100M/main/CONTRIBUTING.md>）。
-项目网站（进度、验证结果、各模块原理图）：<https://many-question.github.io/ADC-12b-100M/>。
+项目网站（进度、验证结果、各模块原理图、候选排行榜）：<https://many-question.github.io/ADC-12b-100M/>。
 
 | 想看什么 | 文件 |
 |---|---|
 | 架构、指标分配、误差预算 | [docs/architecture.md](https://github.com/many-question/ADC-12b-100M/blob/main/docs/architecture.md) |
 | 各模块规格（端口、指标、用例、工艺角集合） | [docs/specs.md](https://github.com/many-question/ADC-12b-100M/blob/main/docs/specs.md)；机器可读版 `specs/blocks/<block>.yaml` |
 | 模块交接包（要点、风险、建议顺序） | [docs/handoff.md](https://github.com/many-question/ADC-12b-100M/blob/main/docs/handoff.md) |
+| 候选机制的完整设计（命名、评分、选定） | [docs/proposals/open-candidates.md](https://github.com/many-question/ADC-12b-100M/blob/main/docs/proposals/open-candidates.md) |
 | 工具与流程（环境、`adcflow sim`、签核步骤） | [docs/workflow.md](https://github.com/many-question/ADC-12b-100M/blob/main/docs/workflow.md) |
 | 验证策略与用例 | [docs/verification.md](https://github.com/many-question/ADC-12b-100M/blob/main/docs/verification.md) |
 | 设计推导与被排除的方案 | [docs/reference.md](https://github.com/many-question/ADC-12b-100M/blob/main/docs/reference.md) |
 
 ## 2. 两种角色
 
-* **项目负责人**：`many-question`。维护架构、规格、接口、测试台、顶层与流程；评审并合并所有 PR；决定签核。
-* **模块负责人**（模块 owner）：认领了某个模块、且认领 PR 已被项目负责人合并的 GitHub 用户。
-  记录在 `specs/blocks/<block>.yaml` 的 `owner:` 字段（值是 GitHub 登录名，`TBD` 表示未认领），
-  项目网站上该模块显示的负责人就是它。
+* **项目负责人**：`many-question`。维护架构、规格、接口、测试台、顶层与流程；合并 PR；复核排在前面的候选；
+  决定每个模块选定哪个候选和签核。
+* **贡献者**：任何人（或其 AI agent）。提交候选、更新自己的候选、对规格变更通知作出确认。没有“模块负责人”，也不需要许可或认领。
+  同一个 GitHub 账号可以提交多个候选；`candidate.yaml` 里可以给每位作者写一个显示名（例如某个 agent 的名字）以区分，
+  显示名是自报的、不被验证，网站一律显示为 `显示名 (@登录名)`。
 
 ## 3. 选一个模块
 
-模块有 6 个可认领：`adc_comp`（比较器）、`adc_sarlogic`（异步 SAR 逻辑）、`adc_cdac`（电容阵列与驱动）、
+模块有 6 个可提交候选：`adc_comp`（比较器）、`adc_sarlogic`（异步 SAR 逻辑）、`adc_cdac`（电容阵列与驱动）、
 `adc_bootstrap`（栅压自举采样开关）、`adc_clkgen`（时钟相位）、`adc_ref`（参考驱动）。`adc_top` 由项目负责人维护。
 
-1. 打开 `specs/blocks/*.yaml`（或项目网站的模块页），找到 `owner: TBD` 的模块；已有登录名的模块已被认领，不要重复认领。
-2. 读 `docs/handoff.md` 里该模块的要点，再读 `specs/blocks/<block>.yaml`（端口、指标、用例）。
-3. 同时被几个人认领时，先合并的认领 PR 生效。想了解模块之间的依赖（例如 `adc_cdac` 与 `adc_bootstrap`），
-   见 `docs/handoff.md`。
+1. 看项目网站的模块页（每个模块的“候选”排行榜：候选数、每个候选的当前指标），或运行
+   `python -m adcflow candidates [--block <block>]`。已有很多候选的模块仍然欢迎新的：不同的拓扑、更低的功耗、更小的面积都有价值。
+2. 读 `docs/handoff.md` 里该模块的要点，再读 `specs/blocks/<block>.yaml`（端口、指标、用例）。模块之间的依赖
+   （例如 `adc_cdac` 与 `adc_bootstrap`）见 `docs/handoff.md`。
+3. 不需要任何人批准，直接开始；先读本模块未关闭的 `[<block>]` issue（第 4 节第 6 步）。
 
-## 4. 认领（claim）
+## 4. 提交一个候选
 
-1. Fork 本仓库，从最新 `main` 建分支（例如 `block/<block>-claim`）。
-2. **只**把 `specs/blocks/<block>.yaml` 中的 `owner: TBD` 改为 `owner: <你的 GitHub 登录名>`，不要改别的。
-3. 向本仓库的 `main` 发 PR，**标题必须是 `[<block>] claim`**，例如 `[adc_comp] claim`。描述里写一个简短计划：
-   拓扑思路、预计关键风险、预计时间、你的仿真环境是否具备（见第 8 节）。
-4. 项目负责人合并后，你在网站上显示为该模块的负责人。认领 CI 检查：PR 只能把 `owner` 从 `TBD` 改成**PR 作者自己的**登录名，
-   或把自己的认领改回 `TBD`（放弃认领）；其它任何 `owner` 变更只能由项目负责人做。
-5. 所有与该模块有关的 PR 标题都以 `[<block>]` 开头（`[adc_comp] first netlist`、`[adc_comp] results at all corners`），
-   网站据此把 PR 链接到模块页。
-6. **关注本模块的 issue。** 规格变更、接口调整等通知，项目负责人会发在标题以 `[<block>]` 开头的 GitHub issue 里。
-   @提及不一定能到达实际干活的人（认领可能用的是共用账号，agent 也不读通知），所以请主动查：
-   每次开始工作前、以及每次发 PR 或更新 PR 前，运行
+**命名。** 候选名 `<name>` 只能含小写字母、数字和连字符（2~24 个字符），新候选必须以你的 GitHub 登录名（小写）开头，可再加变体：
+`alice`、`alice-strongarm`。候选名在同一模块内唯一，合并后不改名。
+
+**目录。** `design/xtor/<block>/<name>/`：
+
+* `<block>.scs`：晶体管级网表，子电路名与端口顺序与规格完全一致，带完整的 RNL 原理图（第 6 节）。**不得含 `include` / `ahdl_include`**：
+  模型库由运行器的 deck 提供；
+* `candidate.yaml`：
+
+  ```yaml
+  name: alice-strongarm                  # 与目录名一致
+  description: 一两句话：拓扑、特点、取舍。
+  status: wip                            # wip | ready | withdrawn
+  acknowledged: []                       # 已确认的规格变更通知（[<block>] issue 号），见第 6 步
+  authors:
+    - {github: alice, name: "Alice 的 agent 3"}   # name 可选，自由文本，不被验证；github 是身份
+  ```
+
+  `ready` 表示你认为它已完整、可以被评比；`withdrawn` 表示撤回（目录保留，排行榜不再显示）。
+
+**步骤。**
+
+1. Fork 本仓库，从最新 `main` 建分支（例如 `cand/<block>-<name>`）。
+2. 创建候选目录，写网表和 `candidate.yaml`；用 `python -m adcflow sim … --view <block>=xtor:<name>` 跑验收（第 9 节），
+   结果自动写入 `results/<block>/<test>/xtor-<name>/`。
+3. 向 `main` 发 PR，**标题 `[<block>] candidate <name> <摘要>`**，例如 `[adc_comp] candidate alice-strongarm first netlist`。
+   网站据此把 PR 链接到模块页，CI 通过的开放 PR 会在候选数里计为“未评审”。一个 PR 只含**一个**候选。
+4. CI 通过后项目负责人合并（合并只是收录，不代表选定，设计评审在选定时进行）。之后你可以继续发 PR 更新同一个候选。
+5. 排在前面的候选，项目负责人会在同一网表哈希上复跑，复跑后结果标为“已复核”；只有已复核的结果才能用于选定（第 10 节）。
+6. **关注本模块的 issue。** 规格变更、接口调整等通知由项目负责人发在标题以 `[<block>]` 开头的 GitHub issue 里。
+   @提及不一定能到达实际干活的人（账号可能是共用的，agent 也不读通知），所以请主动查：每次开始工作前、
+   以及每次发 PR 或更新 PR 前，运行
 
    ```bash
    gh issue list --state open --search "[<block>] in:title"
    ```
 
-   （或在 GitHub / 项目网站的 issue 列表里看），读完每一个未关闭的 `[<block>]` issue，对规格变更通知在 issue 里**回复确认**。
+   （或在 GitHub / 项目网站的 issue 列表里看），读完每一个未关闭的 `[<block>]` issue。**每个活跃候选（`status` 为 `wip` 或 `ready`）
+   都必须确认规格变更通知**：在 issue 里回复，并在下一个 PR 里把 issue 号加进该候选的 `acknowledged`。规格一变，所有候选旧结果的输入哈希就变了，
+   显示为过期（stale），要重跑；没有确认通知的候选不会被选定，也不进入顶层混合回归。
 
-## 5. 你可以改什么，什么要先开 issue
+## 5. 候选 PR 可以改什么，什么要先开 issue
 
-| 可以直接在 PR 中改（模块负责人） | 先开 issue，由项目负责人决定 |
-|---|---|
-| `design/xtor/<block>/<block>.scs`：你的模块的晶体管级网表和它的 RNL 原理图 | 端口、端口顺序、电源域、负载条件 |
-| `results/<block>/` 下由 `adcflow sim` 生成的结果 | `specs/` 里的任何指标、`specs/arch.yaml` |
-| 规格里本模块的 `status`（`behavioral → xtor-wip → xtor-review`；`signoff` 由项目负责人改） | 测试台 `tb/`、度量函数 `tools/adcflow/measure/`、`tools/`、CI |
-| 你模块说明里的文字更正 | 其它模块、顶层 `design/top/`、行为级模型 `design/behav/` |
+候选 PR **只能新增或修改**：
 
-* 开 issue 用仓库的 issue 模板，说明哪个模块、要改什么、为什么、对其它模块的影响；得到项目负责人同意后再发对应 PR。
-* 一个 PR 只做一件事；不要在模块 PR 里夹带其它模块或工具改动。
-* `docs/specs.md`、`design/rnl/adc28_blocks.rnl`、`tb/**` 等是生成文件，由 `python -m adcflow gen` 生成，不要手改。
+* `design/xtor/<block>/<name>/**`（你的候选目录）；
+* `results/<block>/*/xtor-<name>/**`（你的结果和图）。
+
+候选 PR **不得改**其它候选（包括它们的结果）、`specs/`、`tb/`、`tools/`、`.github/`、`docs/`、`design/top/`、`design/behav/`、
+其它模块，也不要放生成文件。更新一个已有候选，PR 作者的 GitHub 登录名必须在该候选 `candidate.yaml` 的 `authors[].github` 里
+（以基准分支为准）；加共同作者由现有作者的 PR 做，改别人候选的作者只有项目负责人能做。CI 的 `candidates` 检查会拒绝违规的 PR；
+项目负责人的账号提交的候选 PR 也遵守同样的规则。
+
+端口、端口顺序、电源域、负载条件、规格指标、`specs/arch.yaml`、测试台、度量函数、工具和 CI 的任何改动都**先开 issue**
+（用仓库的 issue 模板，说明哪个模块、要改什么、为什么、对其它模块的影响），由项目负责人决定后单独处理。
+`docs/specs.md`、`design/rnl/adc28_blocks.rnl`、`tb/**` 等是生成文件，由 `python -m adcflow gen` 生成，不要手改。
 
 ## 6. 设计规则
 
-* **只用网表 + RNL**：晶体管级设计写成 `design/xtor/<block>/<block>.scs`（Spectre 语法），带**完整**的 RNL 原理图
+* **只用网表 + RNL**：晶体管级设计写成 `design/xtor/<block>/<name>/<block>.scs`（Spectre 语法），带**完整**的 RNL 原理图
   （精确的 PLACE / ORIENT / WIRE）和高层语义（差分对、电流镜、`MATCHED`、`GROUP` 等）。不要提交 Virtuoso 原理图、
   版图或其它图形化工具的文件。RNL 语法与画法可参考仓库里已有的网表，以及 [RNL 项目](https://github.com/rich-netlist/rnl)。
 * **子电路名和端口顺序与规格完全一致**（`python -m adcflow check ports` 检查）；不得修改端口。
@@ -120,18 +153,20 @@ git config core.hooksPath tools/hooks     # 提交前检查（hygiene / ports / 
 
 ## 9. 验收与提交结果
 
-1. 逐个运行本模块的验收用例（用例名与工艺角集合见 `specs/blocks/<block>.yaml`）：
+1. 逐个运行本模块的验收用例（用例名与工艺角集合见 `specs/blocks/<block>.yaml`），视图写 `xtor:<你的候选名>`：
 
    ```bash
-   python -m adcflow sim <test> --view <block>=xtor --corners all     # 例如 tb_comp_delay
-   python -m adcflow report --block <block>                           # 结果对照规格
+   python -m adcflow sim <test> --view <block>=xtor:<name> --corners all     # 例如 tb_comp_delay
+   python -m adcflow report --block <block>                                  # 结果对照规格
+   python -m adcflow candidates --block <block>                              # 排行榜：你的候选与其它候选
    ```
 
-   规格要求蒙特卡洛的用例另行运行；验收用 `--mode aps`（默认）。
-2. 全部指标在其工艺角集合上通过后，再做顶层混合仿真（其余模块行为级）：
-   `python -m adcflow sim tb_top_sine --view <block>=xtor --corners quick`。
-3. 把 `results/<block>/` 的结果 JSON（`adcflow sim` 自动写入，meta 里记录了所用网表的哈希）连同网表一起提交；
-   结果必须对应提交的那一版网表，否则 CI 判定过期。结果还会带图（`results/` 下的指标图，由工具生成），一并提交即可。
+   结果写入 `results/<block>/<test>/xtor-<name>/<corner>.json`。规格要求蒙特卡洛的用例另行运行；验收用 `--mode aps`（默认）。
+   单独写 `xtor`（不带候选名）表示该模块已选定的候选，不是你的候选。
+2. 全部指标在其工艺角集合上通过后，可以自己做顶层混合仿真（其余模块行为级）作参考：
+   `python -m adcflow sim tb_top_sine --view <block>=xtor:<name> --corners quick`。正式的顶层混合回归由项目负责人做。
+3. 把结果 JSON（`adcflow sim` 自动写入，meta 里记录了所用网表的哈希）和图连同网表一起提交；
+   结果必须对应提交的那一版网表和当前规格，否则 CI 和排行榜判定过期（stale）。
 4. 提交前本地运行 CI 的检查，必须全部通过：
 
    ```bash
@@ -140,20 +175,24 @@ git config core.hooksPath tools/hooks     # 提交前检查（hygiene / ports / 
    ```
 
 CI 会检查：hygiene（无站点信息、模型卡片、工艺厂商名、大文件）、端口契约、RNL（0 错误 0 警告，网表必须画完整）、
-生成文件同步、`owner` 变更规则、`results/` 与当前规格一致且未过期、单元测试。
+生成文件同步、候选 PR 的路径和作者规则、`results/` 与当前规格一致且未过期、单元测试。
 
-## 10. PR 流程与评审
+## 10. PR 流程、评比与选定
 
-1. 从最新 `main` 分支（例如 `block/<block>-<topic>`）工作，增量提交；可以先发草稿 PR 让项目负责人早期看到方向。
-   发 PR 或更新 PR 前先看本模块的未关闭 `[<block>]` issue（第 4 节第 6 条），并在 PR 里勾选 “checked open `[<block>]` issues”。
-   规格变更合并后，基于旧 `main` 的分支要 rebase；规格、网表等输入的哈希变了，之前的 `results/` 会被判为过期（stale），
-   必须重新运行相应用例再提交。
-2. 向 `main` 发 PR，标题 `[<block>] <summary>`，按 PR 模板填写：做了什么、模块状态变化、证据（`report` 摘要与运行的命令）、检查清单。
-3. CI 全绿后，项目负责人评审：端口与规格一致；没有改动其它模块、测试台或规格；结果未过期且在全部工艺角通过；
-   原理图可读（信号从左到右、电源在上地在下、对称结构对齐、关键尺寸有标注）。意见在 PR 里讨论并修改。
-4. 状态流转：`behavioral`（未开始）→ `xtor-wip` → `xtor-review`（交付评审）→ `signoff`。项目负责人在顶层混合仿真和
-   全角回归通过后把状态改为 `signoff` 并合并；`signoff` 的模块要求每个指标在其工艺角集合上都有未过期且通过的结果。
-5. 合并后网站自动更新进度、结果和原理图。
+1. 从最新 `main` 分支工作，增量提交；可以先发草稿 PR。发 PR 或更新 PR 前先看本模块的未关闭 `[<block>]` issue（第 4 节第 6 步），
+   并在 PR 里勾选 “checked open `[<block>]` issues”。规格变更合并后，基于旧 `main` 的分支要 rebase，并重新运行受影响的用例。
+2. 向 `main` 发 PR，标题 `[<block>] candidate <name> <摘要>`，按 PR 模板填写：做了什么、候选状态、证据（`report` / `candidates` 摘要与运行的命令）、检查清单。
+3. CI 全绿后项目负责人合并：端口与规格一致、只改了自己的候选、原理图完整、结果未过期。合并即收录到排行榜，不做设计评审。
+4. **候选状态**（`candidate.yaml` 的 `status`）：`wip`（进行中）→ `ready`（认为完整，可评比）；`withdrawn`（撤回，不再显示）。
+5. **评比。** 排行榜用同一套测试台和规格，列出规格通过数与工艺角覆盖、过期 / 未复核标记、关键裕量、功耗、面积代理和（有则）顶层 ENOB 裕量。
+   你自己跑的结果是**自报**的；项目负责人在同一网表哈希上复跑后标为**已复核**，**只有已复核的结果才能用于选定**。
+6. **选定。** 资格：规格要求的全部指标在全部工艺角都通过且结果未过期、已复核，通过 SOA 检查，且换进顶层后的混合回归全部通过。
+   排序依次为：顶层 ENOB 裕量（容差 0.05 bit）→ 功耗（5 %）→ 面积代理（5 %）→ 其余鲁棒性裕量（5 % 限值）；容差内相同则已选定的保持。
+   项目负责人做最终决定，并在块规格里写 `selected: <候选名>`，网站显示其作者。**只有选定的候选进入顶层混合运行。**
+7. **挑战。** 任何人可以提交严格更好的候选来替换已选定的候选：满足全部资格，且按上面的排序在容差之外更好；
+   替换由项目负责人改 `selected:`，原候选保留在排行榜上。
+8. 块状态：`behavioral`（未选定）→ `xtor-review`（已选定，待签核）→ `signoff`（45 角顶层回归通过，由项目负责人设置）。
+9. 合并后网站自动更新排行榜、进度、结果和原理图。
 
 ## 11. 联系项目负责人
 
@@ -164,13 +203,14 @@ CI 会检查：hygiene（无站点信息、模型卡片、工艺厂商名、大�
 
 ## 12. 给 AI agent 的清单
 
-1. 读第 1~6 节，选一个 `owner: TBD` 的模块，向用户确认。
-2. fork → 分支 → 只改 `owner` → 发 `[<block>] claim` PR，等待合并。
-3. 合并后先运行 `gh issue list --state open --search "[<block>] in:title"`，读完所有未关闭的 `[<block>]` issue，
-   对规格变更通知在 issue 里回复确认；每次开始工作前、发 PR 或更新 PR 前都重复这一步。
-   然后读 `specs/blocks/<block>.yaml` 与 `docs/handoff.md`，在 `design/xtor/<block>/` 里写网表和 RNL；
-   端口、规格、测试台、其它模块的改动一律先开 issue。
-4. 用户提供的仿真环境只写进被忽略的 `site.local.yaml`；在任何文件、提交信息、PR 和 issue 里都不要出现工艺厂商名、
+1. 读第 1~6 节。看排行榜（网站或 `python -m adcflow candidates`），和用户确认做哪个模块；不需要认领或许可。
+2. 运行 `gh issue list --state open --search "[<block>] in:title"`，读完所有未关闭的 `[<block>]` issue，对规格变更通知在 issue 里回复确认；
+   每次开始工作前、发 PR 或更新 PR 前都重复这一步。
+3. fork → 分支 → 在 `design/xtor/<block>/<name>/` 写 `<block>.scs`（无 `include`，带完整 RNL）和 `candidate.yaml`
+   （`authors: [{github: <登录名>, name: <你的 agent 名>}]`，`acknowledged` 填已确认的 issue 号）。候选名以用户的 GitHub 登录名开头。
+4. 用 `--view <block>=xtor:<name>` 跑本模块全部用例并提交 `results/<block>/*/xtor-<name>/`。
+   端口、规格、测试台、其它模块、其它候选的改动一律先开 issue，不放进候选 PR。
+5. 用户提供的仿真环境只写进被忽略的 `site.local.yaml`；在任何文件、提交信息、PR 和 issue 里都不要出现工艺厂商名、
    PDK 内容、机器、服务器或路径信息。
-5. 规格变更后 rebase 到最新 `main` 并重新运行受影响的用例（旧结果的输入哈希已变，会被判为过期）。
-6. `adcflow check all` 与 `pytest` 通过、结果已提交，再发 `[<block>] …` PR，等待项目负责人评审。
+6. 规格变更后 rebase 到最新 `main` 并重新运行受影响的用例（旧结果的输入哈希已变，会被判为过期）。
+7. `adcflow check all` 与 `pytest` 通过、结果已提交，再发标题为 `[<block>] candidate <name> …` 的 PR，一个 PR 只含一个候选。

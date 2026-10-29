@@ -76,11 +76,11 @@ python -m adcflow clean-remote --older-than-h 12   # 清理服务器上本项目
 
 ## 5. 晶体管级设计的签核
 
-1. `design/xtor/<block>/<block>.scs`：子电路名、端口与规格一致，完整 RNL 原理图与语义。
-2. 本模块全部用例：`--view <block>=xtor --corners all`（规格要求 `mc` 的用例另跑蒙特卡洛）。
-3. 顶层混合仿真：`python -m adcflow sim tb_top_sine --view <block>=xtor --corners quick`。
-4. 提交网表与 `results/`，规格状态改为 `xtor-review`，PR 标题以 `[<block>]` 开头；模块负责人（认领者，`owner:`）发 PR，
-   项目负责人（`many-question`）复核、合并，并把状态改为 `signoff`。
+1. `design/xtor/<block>/<name>/<block>.scs`（候选目录，另有 `candidate.yaml`）：子电路名、端口与规格一致，完整 RNL 原理图与语义，不含 `include`。
+2. 本模块全部用例：`--view <block>=xtor:<name> --corners all`（规格要求 `mc` 的用例另跑蒙特卡洛）；结果在 `results/<block>/<test>/xtor-<name>/`。
+3. 提交网表与 `results/`，PR 标题 `[<block>] candidate <name> …`，一个 PR 一个候选；贡献者发 PR，项目负责人（`many-question`）合并、
+   对排在前面的候选在同一网表哈希上复跑（“已复核”），换进顶层做混合回归，选定一个候选（`selected:`），45 角顶层回归通过后把块状态改为 `signoff`。
+4. 规格变更通知发在 `[<block>]` issue；每个活跃候选确认并重跑（`candidate.yaml` 的 `acknowledged`）。
 
 ## 6. 服务器使用规则
 
