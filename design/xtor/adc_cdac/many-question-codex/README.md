@@ -62,7 +62,11 @@ covers the sampling switches, not complete device stress or a joint bootstrap
 implementation. Additional checks of the 52 output devices found a worst
 absolute Vds of 1.15899 V on an H-side output NMOS during sampling entry.
 That check uses recorded bottom-plate and gate voltages and the exact ideal
-reference rails. Bottom-plate overshoot is therefore another unresolved
+reference rails. On the frozen `2ecc285` circuit, the exact maximum is at
+20.127200335 ns on j12H: D = 1.1589942 V, G = 0.0004423 V, S = B = 0 V.
+This is positive H-bottom-plate overshoot with ideal VG generation and the
+5% parasitic estimate. The 22 sampling and 52 output devices checked so far
+do not cover all 626 MOS instances. Bottom-plate overshoot is another unresolved
 stress failure; improving the sampling switches alone is not sufficient.
 Convergence comparisons, representative PVT,
 complete corner coverage, long-hold behavior, device stress, and joint bootstrap
