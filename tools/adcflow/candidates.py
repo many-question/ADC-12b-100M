@@ -489,3 +489,213 @@ def migrate(block: str, name: str, authors: list[dict], description: str, dry: b
             m["migrated"] = dict(stamp)
             f.write_text(json.dumps(doc, indent=1, default=float) + "\n", encoding="utf-8", newline="\n")
     return log + [f"wrote {rel(dst / 'candidate.yaml')}"]
+
+
+# ------------------------------------------------------------------ CI rules (§2): check candidates
+PRIMITIVES = {"resistor", "capacitor", "inductor"}         # Spectre primitives a candidate may use
+DIR_FILES = {".md", ".png", ".svg", ".txt"}                # besides <block>.scs and candidate.yaml
+RESULT_FILES = {".json", ".png"}
+MAX_DIR_BYTES = 2_000_000                                  # a candidate directory
+MAX_JSON_BYTES = 1_000_000                                 # one result JSON
+
+
+def pdk_devices() -> set[str]:
+    """Device models a candidate may instantiate: those of the RNL package (design/rnl/adc28.rnl)
+    and the MOS lists of specs/soa.yaml."""
+    from .soa import config
+
+    text = (ROOT / "design" / "rnl" / "adc28.rnl").read_text(encoding="utf-8")
+    out = set(re.findall(r'@DEVICE\(name="\*", model="([^"]+)"', text))
+    c = config()
+    for names in c["thin_oxide"].values():
+        out |= set(names)
+    return out | set(c["thick_oxide"])
+
+
+def owner_of_path(path: str) -> tuple[str, str] | None:
+    """(block, candidate) of a repository path that belongs to a candidate: its directory
+    design/xtor/<block>/<name>/... or its results results/<block>/<test>/xtor-<name>/...;
+    None for any other path (legacy views, adc_top runs, specs, tools ...)."""
+    p = path.split("/")
+    if len(p) >= 5 and p[0] == "design" and p[1] == "xtor":
+        return p[2], p[3]
+    if len(p) >= 5 and p[0] == "results" and p[3].startswith("xtor-") and "@" not in p[3] and p[1] != "adc_top":
+        return p[1], p[3][5:]
+    return None
+
+
+def netlist_problems(block: str, name: str, text: str) -> list[str]:
+    """A candidate netlist holds only subcircuits built from PDK devices, Spectre primitives and its
+    own subcircuits: no include / ahdl_include (models come from the run deck), no instances at its
+    top level, no Verilog-A or other blocks."""
+    from .netlist import parse
+
+    where = f"design/xtor/{block}/{name}/{block}.scs"
+    nl = parse(where, text=text)
+    errs = [f"{where}: {e}" for e in nl.errors]
+    errs += [f'{where}: {kind} "{f}" is not allowed: a candidate is self-contained, the run deck '
+             "provides the models" for kind, f in nl.includes]
+    if nl.top_instances:
+        errs.append(f"{where}: {len(nl.top_instances)} instance(s) outside a subcircuit ({nl.top_instances[0].name})")
+    if block not in nl.subckts:
+        errs.append(f"{where}: does not define subckt {block}")
+    allowed = pdk_devices() | PRIMITIVES | set(nl.subckts)
+    for sc in nl.subckts.values():
+        for i in sc.instances:
+            if i.master not in allowed:
+                errs.append(f"{where}:{i.line}: {sc.name}.{i.name} uses {i.master}: only PDK devices, "
+                            f"{'/'.join(sorted(PRIMITIVES))} and subcircuits of the candidate are allowed")
+    return errs
+
+
+def tree_problems(block: str, name: str, files: dict[str, bytes]) -> list[str]:
+    """Rules for the files of one candidate (repo-relative path -> content): its directory holds
+    <block>.scs, candidate.yaml and notes / figures, within the size limits; its results are
+    result JSONs of this candidate and PNGs. Includes the naming and candidate.yaml rules."""
+    from .checks import FIGURE_MAX_BYTES
+
+    if block not in _blocks() or block == "adc_top":
+        return [f"design/xtor/{block}/{name}: {block} is not a block that can have candidates"]
+    errs = []
+    d = f"design/xtor/{block}/{name}/"
+    own = {p: b for p, b in files.items() if p.startswith(d)}
+    total = sum(len(b) for b in own.values())
+    if total > MAX_DIR_BYTES:
+        errs.append(f"{d}: {total / 1e6:.1f} MB (limit {MAX_DIR_BYTES / 1e6:.0f} MB)")
+    meta = None
+    if d + "candidate.yaml" in own:
+        try:
+            meta = yaml.safe_load(own[d + "candidate.yaml"].decode("utf-8"))
+        except (yaml.YAMLError, UnicodeDecodeError) as e:
+            errs.append(f"{d}candidate.yaml: {e}")
+    if own:
+        errs += validate(block, name, meta, d + f"{block}.scs" in own)
+    for p, b in sorted(files.items()):
+        ext = Path(p).suffix.lower()
+        if p.startswith(d):
+            rel = p[len(d):]
+            if "/" in rel:
+                errs.append(f"{p}: a candidate directory has no subdirectories")
+            elif rel == f"{block}.scs":
+                try:
+                    errs += netlist_problems(block, name, b.decode("utf-8"))
+                except UnicodeDecodeError:
+                    errs.append(f"{p}: not UTF-8 text")
+            elif rel != "candidate.yaml" and ext not in DIR_FILES:
+                errs.append(f"{p}: only {block}.scs, candidate.yaml and {', '.join(sorted(DIR_FILES))} files")
+            if ext == ".png" and len(b) > FIGURE_MAX_BYTES:
+                errs.append(f"{p}: {len(b) // 1000} kB (limit {FIGURE_MAX_BYTES // 1000} kB)")
+            continue
+        if ext not in RESULT_FILES:
+            errs.append(f"{p}: results of a candidate are .json and .png files")
+        elif ext == ".png" and len(b) > FIGURE_MAX_BYTES:
+            errs.append(f"{p}: {len(b) // 1000} kB (limit {FIGURE_MAX_BYTES // 1000} kB)")
+        elif ext == ".json":
+            if len(b) > MAX_JSON_BYTES:
+                errs.append(f"{p}: {len(b) / 1e6:.1f} MB (limit {MAX_JSON_BYTES / 1e6:.0f} MB)")
+                continue
+            try:
+                doc = json.loads(b.decode("utf-8"))
+            except (ValueError, UnicodeDecodeError) as e:
+                errs.append(f"{p}: not a result JSON ({e})")
+                continue
+            parts = p.split("/")
+            want = {"block": parts[1], "test": parts[2], "view": parts[3]}
+            got = {k: (doc.get(k) if isinstance(doc, dict) else None) for k in want}
+            if got != want:
+                errs.append(f"{p}: block / test / view {got} do not match its path {want}")
+    return errs
+
+
+def _blocks() -> dict:
+    from .specs import blocks
+    return blocks()
+
+
+def disk_files(block: str, name: str) -> dict[str, bytes]:
+    """Every file of a candidate on disk: its directory and its result directories."""
+    out = {}
+    roots = [candidate_dir(block, name)] + sorted((ROOT / "results" / block).glob(f"*/xtor-{name}"))
+    for r in roots:
+        for f in (sorted(r.rglob("*")) if r.is_dir() else []):
+            if f.is_file():
+                out[f.relative_to(ROOT).as_posix()] = f.read_bytes()
+    return out
+
+
+def disk_problems() -> list[str]:
+    """tree_problems of every candidate in the repository, including result directories
+    xtor-<name> whose candidate directory does not exist."""
+    names = {(c.block, c.name) for c in candidates()}
+    for d in (ROOT / "results").glob("*/*/xtor-*"):
+        o = owner_of_path(d.relative_to(ROOT).as_posix() + "/x")
+        if o:
+            names.add(o)
+    errs = []
+    for b, n in sorted(names):
+        if not candidate_dir(b, n).is_dir():
+            errs.append(f"results/{b}/*/xtor-{n}/: no candidate design/xtor/{b}/{n}/")
+        errs += tree_problems(b, n, disk_files(b, n))
+    return errs
+
+
+def _authors(text: str | None) -> list[dict] | None:
+    """authors of a candidate.yaml text; None without a file."""
+    if text is None:
+        return None
+    try:
+        meta = yaml.safe_load(text)
+    except yaml.YAMLError:
+        return []
+    a = meta.get("authors") if isinstance(meta, dict) else None
+    return [x for x in a if isinstance(x, dict)] if isinstance(a, list) else []
+
+
+def pr_problems(changed: list[str], author: str, base_text, head_files) -> list[str]:
+    """The pull-request rules of §2 for the paths a PR changes (added, modified or deleted).
+
+    A PR that changes no candidate path is a lead PR: no candidate rule applies (the lead reviews
+    it). There is no exemption by login, the lead's account is also used by contributors: any PR
+    that touches a candidate follows these rules. A candidate PR changes exactly one candidate and
+    nothing outside its directory and its result directories. Its author is in the base authors
+    of an existing candidate (whose authors it may not change, and which it may not delete), or,
+    for a new candidate, in the new candidate.yaml, and the new name starts with the author's login.
+
+    base_text(path) -> str | None: a file at the merge base; head_files(block, name) -> {path: bytes}:
+    every file of the candidate in the PR head (for the content rules of tree_problems)."""
+    owners = {p: owner_of_path(p) for p in changed}
+    touched = sorted({o for o in owners.values() if o})
+    if not touched:
+        return []
+    errs = []
+    if len(touched) > 1:
+        errs.append(f"the PR changes {len(touched)} candidates ({', '.join(f'{b}/{n}' for b, n in touched)}): "
+                    "a candidate PR changes exactly one")
+    for p, o in sorted(owners.items()):
+        if o is None:
+            errs.append(f"{p}: a candidate PR may only change design/xtor/<block>/<name>/ and "
+                        "results/<block>/<test>/xtor-<name>/ of its candidate")
+    login = author.lower()
+    for block, name in touched:
+        y = f"design/xtor/{block}/{name}/candidate.yaml"
+        base_authors = _authors(base_text(y))
+        files = head_files(block, name)
+        head_authors = _authors(files[y].decode("utf-8")) if y in files else None
+        if base_authors is None:                                   # a new candidate
+            if head_authors is None:
+                errs.append(f"{y}: a new candidate needs candidate.yaml")
+            elif login not in {str(a.get("github", "")).lower() for a in head_authors}:
+                errs.append(f"{y}: the PR author @{author} must be in authors[].github of a new candidate")
+            if not (name == login or name.startswith(login + "-")):
+                errs.append(f"design/xtor/{block}/{name}: a new candidate's name starts with the PR author's "
+                            f"login ({login} or {login}-<variant>)")
+        else:
+            if login not in {str(a.get("github", "")).lower() for a in base_authors}:
+                errs.append(f"{block}/{name}: @{author} is not an author of this candidate (base candidate.yaml)")
+            if head_authors is None:
+                errs.append(f"{y}: a candidate PR may not delete a candidate (set status: withdrawn)")
+            elif head_authors != base_authors:
+                errs.append(f"{y}: authors may not change in a candidate PR; the lead changes them in a "
+                            "PR that touches no candidate")
+        errs += tree_problems(block, name, files)
+    return errs
