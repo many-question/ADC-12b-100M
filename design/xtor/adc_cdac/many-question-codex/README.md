@@ -84,6 +84,9 @@ validate the frozen circuit or establish complete acceptance.
 A 32-sample diagnostic on that variant estimates the third harmonic at
 -75.13 dBc, improved from the frozen circuit but still requiring further work;
 it is not an official SFDR/SNDR or convergence result.
+A subsequent 125 ns sine-input check of all 1,008 MOS in both halves finds
+70 failing terminal pairs, with 1.14792 V output stress and 1.00487 V sampling
+stress. The fixed-input experimental passes do not extend to this stimulus.
 Convergence comparisons, representative PVT,
 complete corner coverage, long-hold behavior, device stress, and joint bootstrap
 validation remain outstanding. No selection or signoff is claimed.
