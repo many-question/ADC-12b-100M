@@ -1,5 +1,5 @@
 name: many-question-strongarm
-description: Single-stage StrongARM comparator with four precharge devices and inverting RTZ outputs.
+description: Single-stage StrongARM comparator with phased input/output precharge, drain MOM capacitors and inverting RTZ outputs.
 status: wip
 acknowledged: [40, 63, 69]
 authors:
