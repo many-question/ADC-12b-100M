@@ -109,8 +109,22 @@ them in the issue and in `candidate.yaml` (section 4).
 
 候选 PR **不得改**其它候选（包括它们的结果）、`specs/`、`tb/`、`tools/`、`.github/`、`docs/`、`design/top/`、`design/behav/`、
 其它模块，也不要放生成文件。更新一个已有候选，PR 作者的 GitHub 登录名必须在该候选 `candidate.yaml` 的 `authors[].github` 里
-（以基准分支为准）；加共同作者由现有作者的 PR 做，改别人候选的作者只有项目负责人能做。CI 的 `candidates` 检查会拒绝违规的 PR；
-项目负责人的账号提交的候选 PR 也遵守同样的规则。
+（大小写不敏感，以基准分支为准）。**候选 PR 不能改 `authors`**，改作者只有项目负责人在不含候选路径的单独 PR 里能做；
+候选不能删除，要撤回就把 `status` 改成 `withdrawn`。新候选必须带 `candidate.yaml` 并列出 PR 作者。
+没有例外：任何涉及候选路径的 PR（包括项目负责人账号提交的）都遵守这些规则；不涉及候选路径的 PR 是项目负责人的 PR，不受候选规则约束。
+`adc_top` 没有候选。PR 标题不由 CI 检查，但网站按 `[<block>]` 前缀链接 PR，请按第 4 节命名。
+
+本地先自查（先提交再运行，`check all` 里也包含内容规则）：
+
+```bash
+python -m adcflow check candidates                                       # 候选目录与网表的内容规则
+python -m adcflow check candidates --base origin/main --author <你的登录名>   # 再加上 PR 的路径和作者规则
+```
+
+候选目录的限制：只能有 `<block>.scs`、`candidate.yaml` 和 `.md` / `.png` / `.svg` / `.txt` 文件，不能有子目录，总共 ≤ 2 MB，
+每个 PNG ≤ 200 kB。网表里只能有子电路内部的实例，器件只能是 PDK 器件（`design/rnl/adc28.rnl` 里的模型，以及 SOA 配置里的 MOS）、
+`resistor` / `capacitor` / `inductor` 或自己的子电路，不得含 `include` / `ahdl_include`。结果目录里只放 `.json`（≤ 1 MB，
+`block` / `test` / `view` 与路径一致）和 `.png`（≤ 200 kB）；结果目录不能脱离它的候选目录单独存在。
 
 端口、端口顺序、电源域、负载条件、规格指标、`specs/arch.yaml`、测试台、度量函数、工具和 CI 的任何改动都**先开 issue**
 （用仓库的 issue 模板，说明哪个模块、要改什么、为什么、对其它模块的影响），由项目负责人决定后单独处理。
@@ -207,7 +221,7 @@ CI 会检查：hygiene（无站点信息、模型卡片、工艺厂商名、大�
 2. 运行 `gh issue list --state open --search "[<block>] in:title"`，读完所有未关闭的 `[<block>]` issue，对规格变更通知在 issue 里回复确认；
    每次开始工作前、发 PR 或更新 PR 前都重复这一步。
 3. fork → 分支 → 在 `design/xtor/<block>/<name>/` 写 `<block>.scs`（无 `include`，带完整 RNL）和 `candidate.yaml`
-   （`authors: [{github: <登录名>, name: <你的 agent 名>}]`，`acknowledged` 填已确认的 issue 号）。候选名以用户的 GitHub 登录名开头。
+   （`authors: [{github: <登录名>, name: <你的 agent 名>}]`，`acknowledged` 填已确认的 issue 号）。候选名是用户的 GitHub 登录名或以 `<登录名>-` 开头。
 4. 用 `--view <block>=xtor:<name>` 跑本模块全部用例并提交 `results/<block>/*/xtor-<name>/`。
    端口、规格、测试台、其它模块、其它候选的改动一律先开 issue，不放进候选 PR。
 5. 用户提供的仿真环境只写进被忽略的 `site.local.yaml`；在任何文件、提交信息、PR 和 issue 里都不要出现工艺厂商名、
