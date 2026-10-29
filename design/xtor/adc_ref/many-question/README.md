@@ -23,6 +23,16 @@ The [current retest record](REF21-retest.md) contains all four results and the
 independent raw audit. Expansion is on hold after these failures. All candidate
 evidence is self-reported, not lead verification.
 
+A separate [numerical and sizing diagnosis](REF21-diagnosis.md) confirms the
+unchanged circuit's failure after step refinement. A frozen private main28 /
+gate16 proposal passes the four original replay pilot corners (worst REF-21
+0.948428 including SS refinement), plus limited DC/noise/startup checks and
+loop characterization. Its TT power is 47.04061 mW and the checked maximum is
+79.81969 mW, about 67% above the committed circuit; the gate MOM is doubled.
+That proposal is documented, not promoted. The official source, failures and
+coverage counts above remain unchanged; a changed source needs fresh formal
+evidence and updated mixed-top verification.
+
 The following table describes the historical v8 measurements on main
 `17205ec66d7265da5bf1e4a603ea514f34e99c09` (spec 0.6.0), where all 14 required
 specifications and 586 spec/corner pairs passed. Its replay values do not certify
