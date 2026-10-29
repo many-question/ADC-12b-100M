@@ -1,5 +1,11 @@
 # PR #48 impact and retest plan
 
+**Historical review.** This document records the unmerged `88b7624` snapshot
+and its then-current base. PRs #48, #57 and #62 have since merged. For the actual
+merged-input audit, current freshness and reruns, see [REF21-retest.md](REF21-retest.md).
+The statements below about pending changes and an empty stale list apply only
+to the historical base named below.
+
 This is a read-only review of [PR #48 at 88b7624](https://github.com/many-question/ADC-12b-100M/pull/48),
 full head `88b7624e1e1bf4c66aeb024d7fcc5c03087ca588`, while it is unmerged.
 Current main is `17205ec66d7265da5bf1e4a603ea514f34e99c09`.
