@@ -336,8 +336,8 @@ def run_test(test_id: str, block_name: str | None = None, corners: str = "typ",
                 metrics = measure(test, jd, ctx) if rc[0] == "0" else {}
             if rc[0] != "0":
                 metrics = {"error": "; ".join(errs) or f"spectre rc={rc[0]}"}
-            if "error" in metrics:                 # never record server paths
-                metrics["error"] = str(metrics["error"]).replace(rroot, "<run>")
+            if "error" in metrics:                 # never record server (or local) paths
+                metrics["error"] = str(metrics["error"]).replace(rroot, "<run>").replace(str(run_dir), "<run>")
         except Exception as e:  # keep going, record the failure
             traceback.print_exc()
             metrics = {"error": f"measure failed: {e}"}

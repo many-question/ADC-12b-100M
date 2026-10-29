@@ -336,6 +336,8 @@ python -m adcflow verify <test> --block <block> --candidate <name> [--corners <�
    每个结果的 `meta.files` 记录了候选网表 `design/xtor/<block>/<name>/<block>.scs`，且其哈希等于网表现在的哈希（网表不同就拒绝，
    由作者先重跑）；结果未过期（`checks.judge`，过期的由作者重跑或 `rehash`）；不是错误结果；不是蒙特卡洛运行。
    `--dry-run` 只做这一步并列出要复跑的结果。
+   取回的单个文件有上限（`specs/sim.yaml` 的 `fetch_max_mb`，50 MB）；逐管 SOA 要保存全部时间点，`tb_clkgen_timing` 每个 job 的波形约
+   150 MB，复跑前在 `site.local.yaml` 的 `sim` 段设 `fetch_max_mb: 400`。没取回的波形使度量出错，记录为不符，不会当作相符。
 2. **复跑**：`--view <block>=xtor:<name>`，与验收相同的运行器、用例参数和 `aps` 模式（`--mode` 可改），不写 `results/`。
 3. **比较并写记录**：每个结果写一条记录，`status` 为 `match` 或 `mismatch`。不符的记录照样写入并标为 `mismatch`，命令列出原因、
    以退出码 1 结束，不会悄悄写入。复跑缺少某个 job 也记为不符。
