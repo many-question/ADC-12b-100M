@@ -15,14 +15,14 @@ Runner content hash of adc_comp.scs: `150dd81755a64d66`. The result JSON files p
 |---|---:|
 | Noise rms | 187.108 uV |
 | Noise 95% profile-likelihood interval | [179.33, 195.28] uV |
-| Systematic offset magnitude | 0.007 mV |
+| Systematic offset magnitude | 0.00747647 mV |
 | Mismatch sigma (sample standard deviation) | 1.898 mV |
 | Valid / failed mismatch samples | 50 / 0 |
 | Delay at 1 / 30 mV | 56.937 / 44.921 ps |
 | Reset | 28.900 ps |
 | Official AVDD window-average energy normalized to 400 ps | 187.299 fJ |
 | Input / CLKC capacitance | 19.313 / 15.156 fF |
-| Differential kickback | 0.387 uV |
+| Differential kickback | 0.386579 uV |
 | Estimated external clock-driver charge energy | 12.277 fJ |
 | AVDD plus that clock-driver estimate | 199.575 fJ |
 
@@ -51,7 +51,7 @@ CMP-12 and CMP-14 impose their capacitance limits at TT only. Non-TT capacitance
 
 Read-back of the 45 official delay waveforms finds 36 rising and 36 falling clock edges per corner, 1620 reset responses in total, and 0 invalid/wrong late decisions among 1260 samples with |vd| >= 100 uV. The late sample is 150 ps after the rising 50% clock crossing; a valid output has one side above 80% VDD and the other below 20%. Reset plateaus at 100–170 ps after the falling 50% clock crossing stay below 10% VDD. These checks supplement the official metric extraction.
 
-No simultaneous-high saved points are present in this audit. This statement concerns the saved standard-setting waveforms, not a continuous-time guarantee.
+No simultaneous-high saved points are present in this audit. This statement concerns the saved standard-setting waveforms, not a continuous-time guarantee. [Issue #77](https://github.com/many-question/ADC-12b-100M/issues/77) tracks a shared measurement gap demonstrated by the separate Miyahara candidate; its dual-high result is not attributed to this StrongARM circuit. This audit does not establish real receiver threshold margins, first-event noise/mismatch behavior or closed-loop SAR/CDAC performance.
 
 ## Separate 1 mV energy diagnostic
 
