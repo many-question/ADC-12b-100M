@@ -368,11 +368,12 @@ python -m adcflow verify <test> --block <block> --candidate <name> [--corners <�
 
 1. **前提**（不满足即拒绝，什么都不仿真）：所选工艺角（缺省为该用例各项标称指标要求的工艺角的并集）都有该候选的自报结果；
    每个结果的 `meta.files` 记录了候选网表 `design/xtor/<block>/<name>/<block>.scs`，且其哈希等于网表现在的哈希（网表不同就拒绝，
-   由作者先重跑）；结果未过期（`checks.judge`，过期的由作者重跑或 `rehash`）；不是错误结果；不是蒙特卡洛运行。
+   由作者先重跑）；结果未过期（`checks.judge`，过期的由作者重跑或 `rehash`）；不是错误结果；一次复跑的结果蒙特卡洛设置相同。
    `--dry-run` 只做这一步并列出要复跑的结果。
    取回的单个文件有上限（`specs/sim.yaml` 的 `fetch_max_mb`，50 MB）；逐管 SOA 要保存全部时间点，`tb_clkgen_timing` 每个 job 的波形约
    150 MB，复跑前在 `site.local.yaml` 的 `sim` 段设 `fetch_max_mb: 400`。没取回的波形使度量出错，记录为不符，不会当作相符。
 2. **复跑**：`--view <block>=xtor:<name>`，与验收相同的运行器、用例参数和 `aps` 模式（`--mode` 可改），不写 `results/`。
+   蒙特卡洛结果（如 CMP-03 的 `tb_comp_offset_mc`）用结果 `meta.mc` 记录的样本数与种子复跑，得到同一组样本。
 3. **比较并写记录**：每个结果写一条记录，`status` 为 `match` 或 `mismatch`。不符的记录照样写入并标为 `mismatch`，命令列出原因、
    以退出码 1 结束，不会悄悄写入。复跑缺少某个 job 也记为不符。
 
@@ -404,9 +405,12 @@ python -m adcflow verify <test> --block <block> --candidate <name> [--corners <�
 | `*_lsb` | ±max(0.05 LSB, 5 %) | |
 | 其它数值 | ±2 % | |
 | `soa_points`、`soa_dt_max_ps` | 不比较 | 仿真器的时间步统计，不是电路的性质 |
-| 列表与字典（`soa_table`、`weights_*` 等） | 不比较 | 明细；它们的标量摘要（`soa_max_V`、`soa_violations` 等）参与比较 |
+| 标量的列表（蒙特卡洛的逐样本 `offsets_mV`、`sample_status`，`vgs_levels_V`、`weights_*` 等） | 逐个元素，按该指标的容差 | 长度必须相同 |
+| `p1`（`tb_comp_noise` 各电平的判决概率） | ±0.1 | 每电平 512 次判决的统计量 |
+| 元素不是标量的列表与字典（`soa_table`、`soa_worst`、`mc_fail_reasons` 等） | 不比较 | 明细；它们的标量摘要（`soa_max_V`、`soa_violations`、`mc_failed` 等）参与比较 |
 
-此外：`params` 必须完全相同（用例参数变了，旧结果就无法按现行用例复现）；两者都记录的 `globals` 必须相同，只有一方记录的全局参数
+蒙特卡洛指标的判定按 `Spec.judge`（#68）：值在限值内，并且有效样本数够、没有失败的样本；两边的样本数不同即判定不同。
+此外：`meta.mc` 的样本数、种子、变化类型与统计模型段必须相同；`params` 必须完全相同（用例参数变了，旧结果就无法按现行用例复现）；两者都记录的 `globals` 必须相同，只有一方记录的全局参数
 （例如之后才加进 deck 的参数）只作说明；复跑记录的每个输入文件（候选网表在内）的哈希必须与自报结果记录的相同。
 
 **排行榜怎么算**（`adcflow candidates`、站点，`verify.state`）。结果自己的 meta 一律不作数。一个结果是

@@ -13,10 +13,10 @@ checks.judge judges its freshness as it judges a result's. It adds the candidate
 (`verifies`: path, netlist and netlist hash, the result's date and commit), the comparison with
 the self-reported values (`comparison`, TOLERANCES) and `status`: match | mismatch.
 
-`verify` refuses before simulating when a result to verify is missing, stale, an error, a Monte
-Carlo run, or recorded on another netlist than the candidate's netlist now. It reruns with
-``--view <block>=xtor:<name>`` and writes one record per result, a mismatch included (status
-mismatch, exit code 1).
+`verify` refuses before simulating when a result to verify is missing, stale, an error, or recorded
+on another netlist than the candidate's netlist now. It reruns with ``--view <block>=xtor:<name>``
+(a Monte Carlo result: with its recorded samples and seed, meta.mc) and writes one record per
+result, a mismatch included (status mismatch, exit code 1).
 
 The leaderboard (candidates.score, the site) never trusts a result's own meta: `state` counts a
 result as verified only when its record exists, verifies the netlist hash the result records (and
@@ -39,6 +39,7 @@ TOL_DOC = "docs/verification.md §7"
 TOLERANCES: list[tuple[str, float, float]] = [
     (r"^enob", 0.0, 0.05),                       # bit (the ranking tolerance of the top-level ENOB)
     (r"_dBc?$", 0.0, 0.5),                       # dB, dBc
+    (r"^p1$", 0.0, 0.1),                         # decision probabilities of tb_comp_noise (512 trials per level)
     (r"^jitter_fs$", 0.10, 0.0),                 # transient-noise statistic (200 edges)
     (r"noise.*_uV$", 0.08, 0.0),                 # noise statistics / noise integrals
     (r"_fs$", 0.02, 1.0),
@@ -87,30 +88,58 @@ def _scalar(v) -> bool:
     return v is None or isinstance(v, (bool, int, float, str))
 
 
+def _num(v) -> bool:
+    return isinstance(v, (int, float)) and not isinstance(v, bool)
+
+
+def _same(k: str, a, b) -> tuple[bool, float | None, float | None]:
+    """(equal, diff, tol) of two scalars of metric k: floats within its tolerance, anything else
+    exactly (1 == True, but a count is no flag)."""
+    if _num(a) and _num(b) and (isinstance(a, float) or isinstance(b, float)):
+        rel, ab = tolerance(k)
+        tol = max(ab, rel * abs(a))
+        return abs(b - a) <= tol * (1 + 1e-12), b - a, tol
+    return a == b and (_num(a) or type(a) is type(b)), None, None
+
+
 # ------------------------------------------------------------------ comparison
 def compare_metrics(self_m: dict, rerun: dict) -> tuple[dict, list[str], list[str]]:
-    """(per metric {self, rerun, diff, tol, ok}, problems, not compared) of two metric sets."""
+    """(per metric {self, rerun, diff, tol, ok}, problems, not compared) of two metric sets.
+
+    Scalars compare as _same; a list of scalars (e.g. the per-sample offsets of a Monte Carlo run)
+    element by element with the tolerance of its metric, and it must have the same length. Other
+    lists and dicts (soa_table ...) are not compared, nor NOT_COMPARED."""
     out, problems, skipped = {}, [], []
     for k in sorted(set(self_m) | set(rerun)):
         a, b = self_m.get(k), rerun.get(k)
-        if k in NOT_COMPARED or not (_scalar(a) and _scalar(b)):
+        lists = all(isinstance(x, list) and all(_scalar(e) for e in x) for x in (a, b))
+        if k in NOT_COMPARED or not (lists or (_scalar(a) and _scalar(b))):
             skipped.append(k)
             continue
         if k not in self_m or k not in rerun:
             out[k] = {"self": a, "rerun": b, "ok": False}
             problems.append(f"{k}: {'not self-reported' if k not in self_m else 'not in the rerun'}")
             continue
-        num = isinstance(a, (int, float)) and isinstance(b, (int, float)) and not isinstance(a, bool) \
-            and not isinstance(b, bool)
-        if num and (isinstance(a, float) or isinstance(b, float)):
-            rel, ab = tolerance(k)
-            tol = max(ab, rel * abs(a))
-            ok = abs(b - a) <= tol * (1 + 1e-12)
-            out[k] = {"self": a, "rerun": b, "diff": b - a, "tol": tol, "ok": ok}
+        if lists:
+            if len(a) != len(b):
+                out[k] = {"n": [len(a), len(b)], "ok": False}
+                problems.append(f"{k}: {len(a)} values self-reported, {len(b)} rerun")
+                continue
+            res = [_same(k, x, y) for x, y in zip(a, b)]
+            bad = [i for i, r in enumerate(res) if not r[0]]
+            out[k] = {"n": len(a), "bad": bad, "ok": not bad,
+                      "worst_diff_per_tol": max((abs(d) / t for _, d, t in res if t), default=0.0)}
+            if bad:
+                i = bad[0]
+                problems.append(f"{k}: {len(bad)} of {len(a)} values differ (first [{i}]: {a[i]!r} self-reported, "
+                                f"{b[i]!r} rerun)")
+            continue
+        ok, d, tol = _same(k, a, b)
+        if tol is not None:
+            out[k] = {"self": a, "rerun": b, "diff": d, "tol": tol, "ok": ok}
             if not ok:
-                problems.append(f"{k}: {a:.6g} self-reported, {b:.6g} rerun (|diff| {abs(b - a):.3g} > {tol:.3g})")
+                problems.append(f"{k}: {a:.6g} self-reported, {b:.6g} rerun (|diff| {abs(d):.3g} > {tol:.3g})")
         else:
-            ok = a == b and (num or type(a) is type(b))       # 1 == True, but a count is no flag
             out[k] = {"self": a, "rerun": b, "ok": ok}
             if not ok:
                 problems.append(f"{k}: {a!r} self-reported, {b!r} rerun (must be equal)")
@@ -120,9 +149,10 @@ def compare_metrics(self_m: dict, rerun: dict) -> tuple[dict, list[str], list[st
 def compare(doc: dict, rec: dict) -> dict:
     """A self-reported result (doc) against a rerun (rec, shaped like a result).
 
-    Identical verdicts of every spec of the test (judged now, with the specs of now), each metric
-    within its tolerance, the same params, and the same content of every input the rerun recorded
-    (the candidate netlist among them). Globals that both record must be equal; a global only one
+    Identical verdicts of every spec of the test (judged now, with the specs of now; a Monte Carlo
+    spec with each run's meta.mc, so its sample count counts too), each metric within its
+    tolerance, the same params, the same Monte Carlo settings (runs, seed, variations, models), and
+    the same content of every input the rerun recorded (the candidate netlist among them). Globals that both record must be equal; a global only one
     of them records (a parameter added to the deck since) is a note."""
     from .specs import blocks
 
@@ -138,6 +168,9 @@ def compare(doc: dict, rec: dict) -> dict:
         if a != r:
             problems.insert(0, f"{sid}: {'pass' if a else 'fail'} self-reported, {'pass' if r else 'fail'} rerun")
     notes = []
+    m1, m2 = (doc.get("meta") or {}).get("mc"), (rec.get("meta") or {}).get("mc")
+    if bool(m1) != bool(m2) or (m1 and any(m1.get(k) != m2.get(k) for k in ("runs", "seed", "variations", "models"))):
+        problems.append(f"Monte Carlo settings differ: {m1} self-reported, {m2} rerun")
     if _norm(doc.get("params")) != _norm(rec.get("params")):
         problems.append(f"params differ: {doc.get('params')} self-reported, {rec.get('params')} rerun")
     g1, g2 = _norm(doc.get("globals") or {}), _norm(rec.get("globals") or {})
@@ -244,12 +277,13 @@ def record_problems() -> tuple[list[str], list[str]]:
 
 # ------------------------------------------------------------------ the rerun
 def required_corners(block, test_id: str) -> list[str]:
-    """Corners that a nominal spec of the test requires (union of their corner sets)."""
+    """Corners that a spec of the test requires (union of their corner sets; those of a Monte Carlo
+    test come from its Monte Carlo specs)."""
     from .corners import corner_names
 
     out: set[str] = set()
     for s in block.specs:
-        if s.test == test_id and not s.mc:
+        if s.test == test_id:
             out |= corner_names(s.corners)
     return sorted(out)
 
@@ -270,7 +304,7 @@ def plan(test_id: str, block: str | None, name: str, corners: str | None = None)
         return [], [f"no candidate {name!r} (design/xtor/{b.name}/{name}/{b.name}.scs)"]
     want = [x.name for x in corner_set(corners)] if corners else required_corners(b, test_id)
     if not want:
-        return [], [f"{test_id}: no nominal spec requires a corner; give --corners"]
+        return [], [f"{test_id}: no spec requires a corner; give --corners"]
     nl, h_now = netlist_rel(b.name, name), content_hash(c.netlist)
     docs = [d for d in cand._results(b.name, f"xtor-{name}") if d["test"] == test_id and d["corner"] in want]
     refusals = [f"{test_id} at {x}: no self-reported result of {name} to verify"
@@ -279,9 +313,7 @@ def plan(test_id: str, block: str | None, name: str, corners: str | None = None)
         where = Path(d["_path"]).relative_to(cand.ROOT).as_posix()
         meta = d.get("meta") or {}
         h = (meta.get("files") or {}).get(nl)
-        if meta.get("mc"):
-            refusals.append(f"{where}: a Monte Carlo result (verify runs nominal corners)")
-        elif h is None:
+        if h is None:
             refusals.append(f"{where}: does not record the candidate netlist {nl}")
         elif h != h_now:
             refusals.append(f"{where}: recorded on netlist {h}, {nl} is now {h_now}: the netlist differs "
@@ -292,6 +324,10 @@ def plan(test_id: str, block: str | None, name: str, corners: str | None = None)
             st = judge(d)["stale"]
             if st:
                 refusals.append(f"{where}: stale ({', '.join(st[:3])}); the author re-runs or rehashes it first")
+    mcs = {json.dumps([((d.get("meta") or {}).get("mc") or {}).get(k) for k in ("runs", "seed")]) for d in docs}
+    if len(mcs) > 1:
+        refusals.append(f"{test_id}: the results have different Monte Carlo settings [runs, seed] "
+                        f"({', '.join(sorted(mcs))}): verify them one corner at a time")
     return sorted(docs, key=lambda d: Path(d["_path"]).stem), refusals
 
 
@@ -354,8 +390,9 @@ def verify(test_id: str, block: str | None, name: str, corners: str | None = Non
     if run is None:
         from .runner import run_test as run
     t0 = _dt.datetime.now()
+    mc = (docs[0].get("meta") or {}).get("mc")              # a Monte Carlo result: the same samples and seed
     summary = run(test_id, b.name, ",".join(sorted({d["corner"] for d in docs})), {b.name: f"xtor:{name}"},
-                  {}, mode, parallel, keep, False)
+                  {}, mode, parallel, keep, False, mc={"runs": mc["runs"], "seed": mc["seed"]} if mc else None)
     rows = {r["job"]: r for r in summary}
     bad = 0
     print(f"[adcflow] verify {test_id} {b.name}/{name}: rerun took {(_dt.datetime.now() - t0).total_seconds():.0f} s")

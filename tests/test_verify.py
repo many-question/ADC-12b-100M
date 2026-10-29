@@ -42,12 +42,12 @@ def nl_hash(root):
     return content_hash(root / NL)
 
 
-def result(root, corner="tt_nom_27", metrics=None, files=None, **meta):
-    d = root / "results" / B / TEST / f"xtor-{NAME}"
+def result(root, corner="tt_nom_27", metrics=None, files=None, test=TEST, **meta):
+    d = root / "results" / B / test / f"xtor-{NAME}"
     d.mkdir(parents=True, exist_ok=True)
     m = {"date": "2026-10-01T00:00:00", "git": "abc1234", "mode": "aps", "mc": None,
          "files": files if files is not None else {NL: nl_hash(root)}, **meta}
-    doc = {"block": B, "test": TEST, "view": f"xtor-{NAME}", "corner": corner, "params": {},
+    doc = {"block": B, "test": test, "view": f"xtor-{NAME}", "corner": corner, "params": {},
            "globals": GLOBALS, "metrics": dict(GOOD if metrics is None else metrics), "meta": m}
     p = d / f"{corner}.json"
     p.write_text(json.dumps(doc))
@@ -55,15 +55,18 @@ def result(root, corner="tt_nom_27", metrics=None, files=None, **meta):
     return doc
 
 
+MC = {"runs": 50, "seed": 7, "firstrun": 1, "variations": "mismatch", "models": "tt_mm"}
+
+
 def fake_run(root, metrics=None, calls=None, **row):
     """A runner.run_test stand-in: one job per corner with the given metrics and the netlist hash of now."""
-    def run(test_id, block, corners, views, params, mode, parallel, keep, do_record):
+    def run(test_id, block, corners, views, params, mode, parallel, keep, do_record, mc=None):
         if calls is not None:
-            calls.append((test_id, block, corners, views, mode, do_record))
+            calls.append((test_id, block, corners, views, mode, do_record) + ((mc,) if mc else ()))
         out = []
         for c in corners.split(","):
             meta = {"date": "2026-10-30T00:00:00", "git": "def5678", "git_clean": True, "mode": mode, "pdk": True,
-                    "mc": None, "rc": "0", "sim_s": "12", "numerics": {"reltol": 1e-7},
+                    "mc": dict(MC, **mc) if mc else None, "rc": "0", "sim_s": "12", "numerics": {"reltol": 1e-7},
                     "files": {NL: nl_hash(root)}, "views": dict(views)}
             r = {"job": c, "corner": c, "rc": "0", "metrics": dict(GOOD if metrics is None else metrics), "out": None,
                  "params": {}, "globals": dict(GLOBALS), "meta": meta}
@@ -85,9 +88,10 @@ def test_tolerance_by_metric_name(metric, tol):
 
 
 def test_compare_metrics():
-    a = {"sfdr_dBc": 90.0, "t_off_ps": 18.0, "soa_violations": 0, "soa_scope": "device", "soa_table": [1],
+    a = {"sfdr_dBc": 90.0, "t_off_ps": 18.0, "soa_violations": 0, "soa_scope": "device", "soa_table": [{"max_V": 1}],
          "soa_points": 100, "cal_independent": True}
-    m, probs, skipped = verify.compare_metrics(a, dict(a, sfdr_dBc=90.45, t_off_ps=18.9, soa_points=120, soa_table=[2]))
+    m, probs, skipped = verify.compare_metrics(a, dict(a, sfdr_dBc=90.45, t_off_ps=18.9, soa_points=120,
+                                                       soa_table=[{"max_V": 2}]))
     assert probs == [] and sorted(skipped) == ["soa_points", "soa_table"]
     assert m["sfdr_dBc"]["ok"] and m["sfdr_dBc"]["tol"] == 0.5 and m["t_off_ps"]["tol"] == 1.0
     for change, what in (({"sfdr_dBc": 89.4}, "sfdr_dBc: 90 self-reported, 89.4 rerun"),
@@ -101,6 +105,16 @@ def test_compare_metrics():
     assert probs == ["error: not self-reported"]
     _, probs, _ = verify.compare_metrics({**a, "extra_ps": 1.0}, a)
     assert probs == ["extra_ps: not in the rerun"]
+    # lists of scalars: element by element with the metric's tolerance, same length
+    off = {"offsets_mV": [1.0, -2.0, None], "sample_status": ["ok", "ok", "failed"]}
+    m, probs, _ = verify.compare_metrics(off, {"offsets_mV": [1.3, -2.4, None], "sample_status": ["ok", "ok", "failed"]})
+    assert probs == [] and m["offsets_mV"]["n"] == 3 and m["offsets_mV"]["worst_diff_per_tol"] == pytest.approx(0.8)
+    _, probs, _ = verify.compare_metrics(off, {**off, "offsets_mV": [1.0, -3.0, None]})
+    assert probs == ["offsets_mV: 1 of 3 values differ (first [1]: -2.0 self-reported, -3.0 rerun)"]
+    _, probs, _ = verify.compare_metrics(off, {**off, "offsets_mV": [1.0, -2.0, 0.5]})
+    assert probs[0].startswith("offsets_mV: 1 of 3 values differ (first [2]: None")
+    _, probs, _ = verify.compare_metrics(off, {**off, "sample_status": ["ok", "ok"]})
+    assert probs == ["sample_status: 3 values self-reported, 2 rerun"]
 
 
 def test_compare_verdicts_params_globals_and_inputs(root):
@@ -134,12 +148,12 @@ def test_refusals(root, capsys):
     result(root, "ff_high_125", files={})
     result(root, "tt_nom_125", metrics={"error": "spectre rc=1"})
     result(root, "tt_nom_m40", files={NL: nl_hash(root), "tb/x.scs": "dead"})
-    result(root, "tt_low_27", mc="mc12")
+    result(root, "tt_low_27", mc=dict(MC))
     _, ref = verify.plan(TEST, B, NAME, "ss_low_125,ff_high_125,tt_nom_125,tt_nom_m40,tt_low_27")
     text = "\n".join(ref)
     assert "recorded on netlist 0000" in text and "the netlist differs" in text
     assert f"does not record the candidate netlist {NL}" in text
-    assert "an error result" in text and "stale (tb/x.scs)" in text and "a Monte Carlo result" in text
+    assert "an error result" in text and "stale (tb/x.scs)" in text and "different Monte Carlo settings" in text
     assert verify.verify(TEST, B, NAME, "ss_low_125", run=run) == 1 and calls == []
     assert not (root / "verification").exists()
     # the default corners are those the test's specs require: CMP-05 and others are `all`
@@ -186,7 +200,7 @@ def test_a_mismatch_is_written_as_failed(root, capsys):
     assert (row["verified"], row["mismatch"], row["flags"]["mismatch"]) == (0, 1, 1)
     assert "mismatch" in cand.table([row])
     # a rerun without the job is a mismatch too, never silently nothing
-    assert verify.verify(TEST, B, NAME, "tt_nom_27", run=lambda *a: []) == 1
+    assert verify.verify(TEST, B, NAME, "tt_nom_27", run=lambda *a, **k: []) == 1
     rec = json.loads((root / "verification" / B / NAME / TEST / "tt_nom_27.json").read_text())
     assert rec["status"] == "mismatch" and "error: not self-reported" in rec["comparison"]["problems"]
 
@@ -237,3 +251,31 @@ def test_cli_dry_run(root, capsys):
     assert f"1 result(s) on netlist {nl_hash(root)}: tt_nom_27" in capsys.readouterr().out
     assert main(["verify", TEST, "--candidate", NAME, "--corners", "quick", "--dry-run"]) == 1
     assert not (root / "verification").exists()
+
+
+def test_monte_carlo_results_rerun_with_their_samples_and_seed(root):
+    """CMP-03 (tb_comp_offset_mc): verified like the others; the rerun gets the recorded runs and seed,
+    the per-sample offsets compare one by one, and the Monte Carlo verdict needs every sample."""
+    mt = "tb_comp_offset_mc"
+    offs = [round(0.1 * i - 2.5, 3) for i in range(50)]
+    good = {"mc_runs": 50, "mc_ok": 50, "mc_failed": 0, "offset_sigma_mV": 1.5, "offset_mean_mV": 0.0,
+            "offset_max_abs_mV": 2.5, "offsets_mV": offs, "sample_status": ["ok"] * 50}
+    doc = result(root, metrics=good, test=mt, mc=dict(MC))
+    assert verify.required_corners(blocks()[B], mt) == ["tt_nom_27"]
+    calls = []
+    assert verify.verify(mt, B, NAME, run=fake_run(root, good, calls)) == 0
+    assert calls == [(mt, B, "tt_nom_27", {B: f"xtor:{NAME}"}, "aps", False, {"runs": 50, "seed": 7})]
+    rec = json.loads((root / "verification" / B / NAME / mt / "tt_nom_27.json").read_text())
+    assert rec["status"] == "match" and rec["specs"]["CMP-03"]["samples"] == {"ok": 50, "failed": 0, "need": 50}
+    assert rec["comparison"]["metrics"]["offsets_mV"]["n"] == 50 and verify.state(doc)["state"] == "verified"
+    # one sample's offset moved: a mismatch, whatever sigma does
+    moved = dict(good, offsets_mV=offs[:10] + [offs[10] + 1.0] + offs[11:])
+    assert verify.verify(mt, B, NAME, run=fake_run(root, moved)) == 1
+    assert verify.state(doc)["state"] == "mismatch" and "offsets_mV: 1 of 50 values differ" in verify.state(doc)["why"]
+    # a failed sample in the rerun fails CMP-03 there: the verdicts differ
+    failed = dict(good, mc_ok=49, mc_failed=1, sample_status=["ok"] * 49 + ["failed"], offsets_mV=offs[:49] + [None])
+    assert verify.verify(mt, B, NAME, run=fake_run(root, failed)) == 1
+    assert verify.state(doc)["why"].startswith("CMP-03: pass self-reported, fail rerun")
+    # other Monte Carlo settings in the rerun: a mismatch
+    c = verify.compare(doc, {**doc, "meta": {**doc["meta"], "mc": dict(MC, seed=8)}})
+    assert any(p.startswith("Monte Carlo settings differ") for p in c["problems"])
