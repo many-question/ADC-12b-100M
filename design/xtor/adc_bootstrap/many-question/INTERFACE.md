@@ -2,6 +2,8 @@
 
 Candidate `many-question`, circuit hash `f9330137569bdf81`. These constraints describe the existing reference-load evidence; they do not establish a maximum admissible VG load or replace validation with the actual CDAC.
 
+**Readiness is held by [#67](https://github.com/many-question/ADC-12b-100M/issues/67).** The current gs/gd/ds checks pass, but body-source, body-drain and gate-body model operating-range warnings remain unresolved. MDHI and MDUP have grounded bodies and a boosted DU source; the largest observed absolute Vbs across the 45 primary and eight alternate DC waveforms is 1.770898645 V. This is a simulated voltage, not an established permitted body bias. Existing terminal margins below apply only to the stated gs/gd/ds checks; they do not clear body-related operation. The candidate remains wip and PR #25 remains a draft.
+
 ## Reference load per CDAC side
 
 | Item | Standard bootstrap testbench |
@@ -18,7 +20,7 @@ DC uses one side; differential tracking uses two independent copies. The referen
 
 ## Measured margins under that load
 
-The complete 45-primary / eight-alternate DC evidence covers startup and switching over 290 ns, with 20 DUT MOS plus the reference switch and 63 terminal pairs per run.
+The complete 45-primary / eight-alternate DC evidence covers startup and switching over 290 ns, with 20 DUT MOS plus the reference switch and 63 gs/gd/ds pairs per run.
 
 | Quantity | Worst observed value | Remaining margin |
 |---|---:|---:|
@@ -26,7 +28,7 @@ The complete 45-primary / eight-alternate DC evidence covers startup and switchi
 | Turn-off, including alternates | 59.587332 ps, SS-low-hot | 0.412668 ps to 60 ps |
 | Turn-on, primary | 229.944229 ps, SS-low-cold | 70.055771 ps to 300 ps |
 | Minimum VG − VIN, primary | 0.734025962 V, FF-low-hot | 14.025962 mV above 0.72 V |
-| Largest DUT/reference terminal voltage | 0.998681198 V, MPRE gate/drain, FS-high-hot | 1.318802 mV to 1.0 V |
+| Largest checked DUT/reference gs/gd/ds voltage | 0.998681198 V, MPRE gate/drain, FS-high-hot | 1.318802 mV to 1.0 V |
 
 Across all 53 jobs, the reference switch itself reaches at most |Vgs| = 0.971931033 V, |Vgd| = 0.972103642 V and |Vds| = 0.883784451 V. The internal MPRE terminal voltage is more limiting. All values above are evaluated at saved transient points. The two alternate saved-step/first-event limitations and full review are disclosed in the [README](README.md); they remain limitations, without a numerical waiver.
 
@@ -39,3 +41,5 @@ The input clock load at TT is 11.244909 fF on PHI_B and 7.525217 fF on PHI_BB pe
 - Top-plate and bottom-plate switching sequence, PHI_S-to-PHI_B ordering, and terminal-voltage envelopes through startup, track-to-hold and conversion.
 
 The turn-off and internal voltage margins require direct validation with the actual load and switching sequence; they cannot be converted into an extra capacitance allowance by linear extrapolation. A bootstrap-only mixed-top run uses behavioral CDAC switches that read VG to control conductance without modeling physical input-gate charge. That run checks system behavior under the behavioral load; the reference-load module tests and later transistor-CDAC interface checks provide different evidence.
+
+The matched SS-low-hot behavioral/mixed pilot at `a78a9d1` passes its current top criteria, with zero judged spikes, but contains body-related warnings and a calibration-window LTE/VA warning described in the [README](README.md). Internal mixed waveforms were not saved. The result does not establish real-array stress compatibility or resolve #67. Joint diagnostics must use the actual VG and moving bottom-plate waveforms and incorporate the CDAC owner's existing replay, clamp, phase and width comparisons before adding further runs.
