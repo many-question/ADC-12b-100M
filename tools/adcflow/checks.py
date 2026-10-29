@@ -27,13 +27,15 @@ candidates  every candidate (docs/proposals/open-candidates.md §2): its
          inductor and its own subcircuits, with no include / ahdl_include;
          its directory holds the netlist, candidate.yaml (valid) and
          .md/.png/.svg/.txt files, <= 2 MB, PNG <= 200 kB; its results are
-         its JSONs (block / test / view as their path) and PNGs. With --base
-         and --author (pull requests): a PR that touches a candidate touches
-         exactly one and nothing else, and its author is an author of the
-         candidate (base candidate.yaml) or, for a new one, in the new
-         candidate.yaml with the name starting with the login; authors do
-         not change in a candidate PR. A PR that touches no candidate is a
-         lead PR; no login is exempt.
+         its JSONs (block / test / view as their path, no meta.verified_by)
+         and PNGs; the lead's verification records (verification/, adcflow
+         verify) are well formed. With --base and --author (pull requests):
+         a PR that touches a candidate touches exactly one and nothing else
+         (not verification/), and its author is an author of the candidate
+         (base candidate.yaml) or, for a new one, in the new candidate.yaml
+         with the name starting with the login; authors do not change in a
+         candidate PR. A PR that touches no candidate is a lead PR; no login
+         is exempt.
 """
 
 from __future__ import annotations
@@ -421,8 +423,14 @@ def check_candidates(base: str | None = None, author: str | None = None) -> Repo
     (CI, pull requests) the PR also follows the candidate-PR rules (candidates.pr_problems)."""
     from . import candidates as cand
 
+    from . import verify
+
     r = Report("candidates")
     errs = cand.disk_problems()
+    rec_errs, rec_warns = verify.record_problems()
+    errs += rec_errs
+    for w in rec_warns:
+        r.warn(w)
     if base and author:
         rc, mb = _git_out("merge-base", base, "HEAD")
         if rc != 0:

@@ -211,7 +211,9 @@ def test_score(root):
     assert row["specs_passed"] == 3                         # CMP-04, CMP-06, CMP-10 (typ only, recorded)
     assert row["worst_margin"]["spec"] == "CMP-05" and row["worst_margin"]["margin"] == pytest.approx(-10 / 120)
     assert row["coverage"][0] == 3 + 4 * 2                  # typ specs 1 corner each, all-corner specs 2 of 45
-    assert row["results"] == 2 and row["self_reported"] == 1 and row["flags"]["unverified"] == 1
+    # meta.verified_by in a result is not trusted: only a verification record verifies (tests/test_verify.py)
+    assert row["results"] == 2 and row["self_reported"] == 2 and row["flags"]["unverified"] == 2
+    assert row["verified"] == 0 and row["mismatch"] == 0 and row["flags"]["mismatch"] == 0
     assert row["power_uW"] == pytest.approx(100e-15 * 14 * 100e6 * 1e6)
     assert row["area"] == {"devices": 4, "mos": 3, "wl_um2": pytest.approx(2 * 0.06 + 0.04), "caps": 1,
                            "cap_F": pytest.approx(5e-15)}
