@@ -133,8 +133,12 @@ replay records + 41 stale replay records**. The pilot results and audit were
 reported to the coordinator before expansion. All simulation slots are
 released. The remaining 41 runs are on hold following the failures and the
 coordinator's resource schedule; no circuit, limit, timing or numerical setting
-has been changed to remove a failure. A design follow-up and scheduling decision
-precede further simulations.
+has been changed to remove a failure. The subsequent
+[private numerical/sizing diagnosis](REF21-diagnosis.md) is now complete:
+the baseline failure is stable, and a separate main28/gate16 proposal passes
+four pilot corners with measured power, noise, startup and loop tradeoffs.
+It does not replace this committed source or its formal failed records.
+Expansion and formal source promotion remain separate coordinator work.
 
 REF-21 requires the worst envelope ratio at decisions 1–11 to be at most 1,
 using the final decision as the reference and the specified residual-code
