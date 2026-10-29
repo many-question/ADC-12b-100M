@@ -1,5 +1,10 @@
 # REF-21 numerical and sizing diagnosis
 
+> Historical record before source promotion. The main28/gate16 source is now
+> the formal WIP candidate; current coverage is tracked in
+> [REF21-validation.md](REF21-validation.md). The baseline and this report are
+> preserved at tag `archive/adc-ref-ref21-baseline-604a61a`.
+
 The committed candidate is still **wip** at electrical hash
 `380f10b05b0af622`. The official evidence remains **91 fresh/pass, 4 fresh/fail
 and 41 stale**. This report describes separate private diagnostics from clean

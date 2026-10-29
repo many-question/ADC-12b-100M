@@ -2,36 +2,40 @@
 
 Status: **wip**. Author: **Codex adc_ref (@many-question)**.
 
-This candidate uses a native thick-oxide source follower with a 1:16 scaled
+This candidate uses a native thick-oxide source follower with a 1:28 scaled
 replica servo, a reference-absent startup clamp, and a MOS divider for VCM.
-The v8 compensation uses `CGATE multi=8`, with `MPUV multi=2`,
+The main28/gate16 revision uses `CGATE multi=16`, with `MPUV multi=2`,
 `MPOUT multi=16`, and six MOM-unit equivalents of servo compensation (4+1+1).
 Its tradeoff is substantial
 quiescent power and gate capacitance for settling robustness. It is not selected
 or signed off; the archived mixed-top SS-hot ENOB result remains a failure.
 
-## Module evidence
+## Current module validation
 
-The candidate contains 136 result JSONs and 136 figures: 45 DC, 45 startup,
-45 reference replay, and one TT noise result. On main
-`3f1f7ce4d36cd2053dd0663856a52d58844c727a` (adc_ref spec 0.8.0), the official
-`adcflow rehash` command preserves **91 fresh, passing DC/startup/noise records**.
-Their measured values, original simulation provenance and figures are unchanged.
-Four fresh replay pilots now **all fail REF-21**; `ss_low_125` also fails REF-13
-(247.534969 uV > 200 uV). The other **41 old replay records remain stale**.
-The [current retest record](REF21-retest.md) contains all four results and the
-independent raw audit. Expansion is on hold after these failures. All candidate
-evidence is self-reported, not lead verification.
+The main28/gate16 source is promoted to the formal **WIP** candidate at electrical
+hash `2b1163f0eb481376`, after rebasing onto main
+`fac0194179a4ae593438b022a0713d6e5b59663f` (adc_ref spec 0.8.0).
+The [formal validation record](REF21-validation.md) tracks fresh committed-source
+runs. At source promotion all 136 old result records are stale; none is rehashed
+into acceptance for this changed circuit. First are the four original official
+replay pilots, followed by DC/noise, startup and the remaining replay corners
+only if the pilots pass. Mixed-top validation is coordinated separately.
 
-A separate [numerical and sizing diagnosis](REF21-diagnosis.md) confirms the
-unchanged circuit's failure after step refinement. A frozen private main28 /
-gate16 proposal passes the four original replay pilot corners (worst REF-21
-0.948428 including SS refinement), plus limited DC/noise/startup checks and
-loop characterization. Its TT power is 47.04061 mW and the checked maximum is
-79.81969 mW, about 67% above the committed circuit; the gate MOM is doubled.
-That proposal is documented, not promoted. The official source, failures and
-coverage counts above remain unchanged; a changed source needs fresh formal
-evidence and updated mixed-top verification.
+The [numerical and sizing diagnosis](REF21-diagnosis.md) documents the unchanged
+baseline's converged failure and the exact main28/gate16 proposal. Its four
+private replay pilots pass (worst REF-21 0.948428 including SS refinement),
+with limited DC/noise/startup checks and loop characterization. These diagnostic
+runs are separate from the new formal evidence. **Private TT power is 47.04061 mW
+and the checked fast/cold maximum is 79.81969 mW, about 67% above the baseline**;
+the gate MOM is doubled. This is an optimization cost, with no power limit in
+the current reference specification.
+
+The preceding formal source (`380f10b05b0af622`), its four fresh replay failures,
+91 fresh DC/startup/noise passes and 41 stale replay records remain recoverable
+at [commit 604a61a](https://github.com/many-question/ADC-12b-100M/commit/604a61a144e54e7d6cfae2eaa162f202318c8ece)
+and tag `archive/adc-ref-ref21-baseline-604a61a`. The
+[baseline retest record](REF21-retest.md) preserves the results and raw audit.
+All candidate evidence is self-reported, not lead verification.
 
 The following table describes the historical v8 measurements on main
 `17205ec66d7265da5bf1e4a603ea514f34e99c09` (spec 0.6.0), where all 14 required
@@ -129,7 +133,8 @@ the actual merged inputs, official rehash audit and replay coverage.
 The architecture adds per-step waits, and REF-21 changes the definition
 and acceptance of `env_ratio`. The behavioral reference's 8 mA / 6 pF is a
 reference-model starting point, not a transistor bias or capacitance requirement.
-The candidate circuit is unchanged. The four pilots establish that it does not
-meet the new replay acceptance; remaining corners have not been rerun.
+The archived baseline circuit failed the four new replay pilots. The current
+main28/gate16 source is undergoing fresh formal validation; see
+[REF21-validation.md](REF21-validation.md) for current coverage.
 Updated mixed-top regression, including TOP-10, is coordinated
 separately. The archived top failure retains its original inputs and provenance.

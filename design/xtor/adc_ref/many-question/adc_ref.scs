@@ -5,24 +5,24 @@
 // }
 simulator lang=spectre
 
-// The replica includes the VCM divider load at one sixteenth of the main scale.
+// The replica includes the VCM divider load at one twenty-eighth of the main scale.
 // All bias gates draw from VREF_IN; AVDD is reserved and unused in this view.
 // The startup clamp inhibits drive while the reference is absent.
 subckt adc_ref (VREF_IN VREFP VCM AVDD18 AVDD VSS)
 XSERVO (VREF_IN VREP VG VREF_IN AVDD18 VSS) adc_ref_servo
 XSTART (VREF_IN VG AVDD18 VSS) adc_ref_startup
 MREP (AVDD18 VG VREP VSS) nch_na18_mac w=64u l=800n nf=32
-MDRV (AVDD18 VG VREFP VSS) nch_na18_mac w=64u l=800n nf=32 multi=16
+MDRV (AVDD18 VG VREFP VSS) nch_na18_mac w=64u l=800n nf=32 multi=28
 MSREP (VREP VREF_IN VSS VSS) nch_18_mac w=16u l=500n nf=8
-MSINK (VREFP VREF_IN VSS VSS) nch_18_mac w=64u l=500n nf=32 multi=4
+MSINK (VREFP VREF_IN VSS VSS) nch_18_mac w=64u l=500n nf=32 multi=7
 MCRH (CMR CMR VREP VREP) pch_lvt_mac w=4u l=120n nf=2
 MCRL (VSS VSS CMR CMR) pch_lvt_mac w=4u l=120n nf=2
-MCMH (VCM VCM VREFP VREFP) pch_lvt_mac w=8u l=120n nf=4 multi=8
-MCML (VSS VSS VCM VCM) pch_lvt_mac w=8u l=120n nf=4 multi=8
+MCMH (VCM VCM VREFP VREFP) pch_lvt_mac w=8u l=120n nf=4 multi=14
+MCML (VSS VSS VCM VCM) pch_lvt_mac w=8u l=120n nf=4 multi=14
 CREF0 (VREFP VSS) cfmom_2t w=50n s=50n nr=80 lr=40u stm=1 spm=5
 CREF1 (VREFP VSS) cfmom_2t w=50n s=50n nr=80 lr=40u stm=1 spm=5
 CCM (VCM VSS) cfmom_2t w=50n s=50n nr=80 lr=40u stm=1 spm=5
-CGATE (VG VSS) cfmom_2t w=50n s=50n nr=80 lr=40u stm=1 spm=5 multi=8
+CGATE (VG VSS) cfmom_2t w=50n s=50n nr=80 lr=40u stm=1 spm=5 multi=16
 // @RNL {
 //   {&AVDD18 &AVDD} @ADD-TO $SUPPLY_NET_SET;
 //   &VSS @ADD-TO $GROUND_NET_SET;
@@ -122,15 +122,15 @@ CGATE (VG VSS) cfmom_2t w=50n s=50n nr=80 lr=40u stm=1 spm=5 multi=8
 //   %gstart = $GROUND @ATTACH &VSS => @PLACE(0, -52) => @ORIENT("R0");
 //   &VSS @WIRE {#XSTART:VSS %gstart:p};
 //   $JUNCTION @ATTACH {%jin %jib %jbr %jg %jgc %jr %jrh %jcmr %jo %jc0 %jc1 %jph %jch %jcm %jccm %js0 %js1 %jd0 %jd1};
-//   #MDRV @TEXT("64u/800n; nf=32; x16", key="size", dx=3, dy=2, size=0.6, halign="start");
+//   #MDRV @TEXT("64u/800n; nf=32; x28", key="size", dx=3, dy=2, size=0.6, halign="start");
 //   #MREP @TEXT("64u/800n; nf=32", key="size", dx=3, dy=2, size=0.6, halign="start");
-//   #MSINK @TEXT("64u/500n; nf=32; x4", key="size", dx=3, dy=-5, size=0.6, halign="start");
+//   #MSINK @TEXT("64u/500n; nf=32; x7", key="size", dx=3, dy=-5, size=0.6, halign="start");
 //   #MSREP @TEXT("16u/500n; nf=8", key="size", dx=-2, dy=-9, size=0.6, halign="end");
 //   (-22, 18) @TEXT("adc_ref: replica servo, native source follower and matched VCM divider", halign="start") => @SET-STYLE $title_style;
-//   (-22, 15.5) @TEXT("Main / replica scale = 16. W is total width per multiplier. Bias is derived from VREF_IN gates.", halign="start") => @SET-STYLE $note_style;
+//   (-22, 15.5) @TEXT("Main / replica scale = 28. W is total width per multiplier. Bias is derived from VREF_IN gates.", halign="start") => @SET-STYLE $note_style;
 //   (-22, 13.5) @TEXT("VCM uses two equal source-body-tied PMOS diodes; AVDD is unused.", halign="start") => @SET-STYLE $note_style;
-//   (-22, -58) @TEXT("Divider PMOS: main 8u/120n, nf=4, x8; replica 4u/120n, nf=2.", halign="start", size=0.75);
-//   (-22, -60) @TEXT("MOM geometry: 80 fingers, 40u length, 50n width/space, layers 1..5; CGATE has x8 multiplier.", halign="start", size=0.75)
+//   (-22, -58) @TEXT("Divider PMOS: main 8u/120n, nf=4, x14; replica 4u/120n, nf=2.", halign="start", size=0.75);
+//   (-22, -60) @TEXT("MOM geometry: 80 fingers, 40u length, 50n width/space, layers 1..5; CGATE has x16 multiplier.", halign="start", size=0.75)
 // }
 ends adc_ref
 
