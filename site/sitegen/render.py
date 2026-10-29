@@ -574,6 +574,15 @@ def live_overview(site: Site, data: dict[str, BlockData]) -> str:
 <tbody>{''.join(rows)}</tbody></table></div></section>"""
 
 
+def extra_waits(add) -> str:
+    """timing.t_dac_add (extra DAC wait after decision 1, 2, ...) as text, e.g. " · 附加 DAC 等待 +10/+30 ps（判决 3/4）"."""
+    steps = [(k + 1, float(v)) for k, v in enumerate(add or []) if float(v) > 0]
+    if not steps:
+        return ""
+    waits = "/".join(f"+{v * 1e12:g}" for _, v in steps)
+    return f" · 附加 DAC 等待 {waits} ps（判决 {'/'.join(str(k) for k, _ in steps)} 之后）"
+
+
 def overview(site: Site, data: dict[str, BlockData]) -> str:
     a = arch()
     raw = a.raw
@@ -583,7 +592,8 @@ def overview(site: Site, data: dict[str, BlockData]) -> str:
     for d in data["adc_top"].docs if "adc_top" in data else []:
         if d["test"] == "tb_top_sine" and d["corner"] == "tt_nom_27":
             enob, enob_doc = d["metrics"].get("enob"), d
-    t = {k: float(v) for k, v in raw["timing"].items()}   # PyYAML reads 100.0e6 as a string
+    # PyYAML reads 100.0e6 as a string; list values (timing.t_dac_add, per DAC step) are not scalars
+    t = {k: float(v) for k, v in raw["timing"].items() if not isinstance(v, (list, tuple))}
     tg = raw["targets"]
     stats = "".join([
         stat("采样率", f"{t['fs'] / 1e6:g}<small> MS/s</small>", "单一 CLK，高电平采样，低电平保持 + 转换"),
@@ -593,7 +603,8 @@ def overview(site: Site, data: dict[str, BlockData]) -> str:
         stat("行为级 ENOB", (f"{enob:.2f}<small> bit</small>" if enob else "–"),
              "顶层行为级仿真，TT/0.9 V/27 °C" + (f" · {site.evidence(evidence_path(enob_doc), '证据 ↗', doc=enob_doc)}" if enob_doc else "")),
         stat("LSB", f"{s['LSB_uV']:.1f}<small> µV</small>", f"C_S = {s['C_S_per_side_pF']:.3f} pF / 侧 · kT/C {s['kTC_noise_27C_uV']:.0f} µV"),
-        stat("转换时间", f"≤ {t['t_conv_max'] * 1e9:g}<small> ns</small>", f"最坏角，每次比较 ≤ {t['t_cycle_max'] * 1e12:g} ps"),
+        stat("转换时间", f"≤ {t['t_conv_max'] * 1e9:g}<small> ns</small>",
+             f"最坏角，每次比较 ≤ {t['t_cycle_max'] * 1e12:g} ps" + extra_waits(raw["timing"].get("t_dac_add"))),
         stat("工艺 / 电源", "28<small> nm</small>", f"{PROCESS} · {raw['process']['vdd_core']:g} V / {raw['process']['vdd_io']:g} V"),
     ])
     pct = round(100 * cnt["pass_"] / max(cnt["total"], 1))
