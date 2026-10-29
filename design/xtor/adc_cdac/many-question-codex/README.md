@@ -108,8 +108,15 @@ the top N/P switches from 16 to 8 um each gives h3 = -79.90 dBc in the matched
 case. Its own 70 ns fixed-input check gives RL12 = 35.2 ps,
 Qref = 1.12394 pC, PHI_SB capacitance = 32.99 fF, and zero violations across
 1,578 terminal pairs (maximum 0.97734 V). Sine-input stress and official
-linearity acceptance remain unverified for this geometry. These experiments
-have not replaced the candidate.
+linearity acceptance remain unverified for this geometry. Further reducing
+only the top N/P switches to 4 um worsens the matched third harmonic to
+-61.99 dBc; that geometry is not pursued. These experiments have not
+replaced the candidate. A subsequent physical pulse circuit limits PMOS
+assistance to sampling entry while retaining the 8 um top switches. Its
+70 ns fixed-input check covers all 539 MOS, with zero stress violations
+(maximum 0.97736 V), RL12 = 35.2 ps, and Qref = 1.12350 pC. Internal DVDD
+logic charge increases by about 0.183 pC; its tracking benefit remains to be
+measured. This limited pass does not establish sine-input or PVT acceptance.
 Convergence comparisons, representative PVT,
 complete corner coverage, long-hold behavior, device stress, and joint bootstrap
 validation remain outstanding. No selection or signoff is claimed.

@@ -544,3 +544,67 @@ reference-plus-prelogic sum of 2.060519 pC with the previously stated
 exclusions. This is not total circuit power. The new geometry still needs
 its own sine-input stress, weight/calibration, and official tracking checks;
 no prior circuit's finite-stimulus pass is inherited.
+
+## Further reduction to 4 um
+
+The next single-variable comparison reduces only the top N/P widths from
+8 to 4 um each, with two fingers at the same finger width and length. Both
+geometries are validated; the expanded circuit and all other parameters
+remain unchanged. It uses the same 32-point stimulus and numerical settings.
+
+The result deteriorates sharply: h3 = -61.9891 dBc, h5 = -81.6905 dBc,
+h7 = -91.0520 dBc, fundamental = 0.785761 V, and regression residual =
+5.705 uV. The smaller residual measures fit error, not total distortion;
+the fitted third harmonic is much larger. This geometry is not pursued.
+The measured trend therefore does not support continued uniform shrinking
+of the top switch. Subsequent diagnosis uses the 8 um circuit as its basis.
+The 4 um circuit has no full settling, weight, or sine-stress acceptance.
+
+## Physical pulse for sampling-entry assistance
+
+Separate device diagnostics motivated limiting PMOS assistance to sampling
+entry. The next circuit retains the 8 um top switches, ENB sharing, and all
+526 existing MOS. Thirteen additional MOS generate a short auxiliary-gate
+pulse. A small PHI_S inverter drives four physical MOS gate loads; two
+inverters restore its delayed control. A transmission gate initially passes
+PHI_SB to the auxiliary gate, then disconnects it while a PMOS pulls that
+gate high. The delay uses physical devices, without an ideal timing element.
+All added dimensions come from validated geometries already used in the
+candidate experiments.
+
+Only the 22 existing PMOS-assistance gate connections change. Every other
+existing MOS connection, all 36 explicit parasitic capacitances, and all
+six physical MID transmission gates remain unchanged. MID control and the
+top-plate gate control still use PHI_S/PHI_SB directly. The added pulse
+circuit uses the monitored internal DVDD logic supply. Expanded connection
+and geometry checks, complete RNL validation, and drawing inspection cover
+the 539-device circuit.
+
+![Physical auxiliary pulse and selected bottom-plate voltages](entry-assist-pulse.png)
+
+In the full 70 ns fixed-input sequence, the auxiliary-gate falling 50%
+crossing follows PHI_S rising by 3.14-3.36 ps. Its low pulse lasts
+110.34-110.55 ps. Across every conversion, the auxiliary gate remains between
+0.899929 and 0.900355 V during the last 500 ps before PHI_S falls. These are
+voltage-timing measurements, not a channel-current non-overlap proof or a
+guarantee across input waveforms, startup conditions, and corners.
+
+All 539 MOS / 1,617 gs/gd/ds pairs are checked over 231,062 accepted points
+from 0 to 70 ns, with a 0.5 ps maximum step. There are zero project stress
+violations. The exact saved-point maximum is 0.977358790 V on j2L's output
+NMOS Vds at 60.071987741 ns: D = 0.977358790 V, G = 0.409143528 V,
+S = B = 0 V.
+
+RL12 = 35.2 ps, RL5 = 47.3 ps, tau = 9.120 ps, start = 83.4 ps, and
+droop = 0.004808 LSB meet their limits. Qref = 1.123502 pC and
+control/PHI_S/PHI_SB/CONV capacitances = 0.831/4.717/11.889/9.849 fF
+also meet their limits for this stimulus.
+
+Reference output branches contribute 0.907877 pC and other reference branches
+0.215625 pC. Internal DVDD logic, now including the pulse circuit, contributes
+1.119784 pC, an increase of approximately 0.183207 pC. The reference-plus-
+logic signed sum is 2.243286 pC, with the previously stated exclusions;
+it is not total circuit power. The pulse therefore has a measurable charge
+cost. Its tracking benefit remains to be measured before selecting it.
+Sine-input stress, weights/calibration, startup, long hold, PVT, and actual
+bootstrap integration have not been established for this version.
