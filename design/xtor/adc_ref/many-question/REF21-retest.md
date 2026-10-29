@@ -1,5 +1,10 @@
 # REF-21 retest record
 
+> Historical record before source promotion. The main28/gate16 source is now
+> the formal WIP candidate; current coverage is tracked in
+> [REF21-validation.md](REF21-validation.md). The baseline and this report are
+> preserved at tag `archive/adc-ref-ref21-baseline-604a61a`.
+
 Candidate `many-question` remains **wip**, with unchanged electrical content
 hash `380f10b05b0af622`. This stage uses main
 `3f1f7ce4d36cd2053dd0663856a52d58844c727a` and adc_ref spec 0.8.0.
