@@ -20,6 +20,10 @@ SLASH = "/"                       # site-like strings are assembled so this file
 def root(tmp_path, monkeypatch):
     monkeypatch.setattr(cand, "ROOT", tmp_path)
     monkeypatch.setattr(checks, "REPO_ROOT", tmp_path)
+    for b in blocks().values():             # main's selections name candidates this tree does not have
+        if b.raw.get("selected") not in (None, "none"):
+            monkeypatch.setitem(b.raw, "selected", "none")
+            monkeypatch.setitem(b.raw, "status", "behavioral")
     return tmp_path
 
 
@@ -135,7 +139,8 @@ def test_runner_uses_candidates(root, monkeypatch):
 
 
 def test_selected_field(monkeypatch, tmp_path):
-    """Every block except adc_top has selected: (open-candidates row 4); owner: is retired for them."""
+    """Every block except adc_top has selected: (open-candidates row 4); owner: is retired for them.
+    A selected candidate exists, and only a selected block leaves `behavioral`."""
     import re
 
     from adcflow.specs import SpecError, _load_block
@@ -144,8 +149,11 @@ def test_selected_field(monkeypatch, tmp_path):
         if name == "adc_top":
             assert b.raw["owner"] == "many-question" and "selected" not in b.raw
         else:
-            assert b.raw["selected"] == "none" and "owner" not in b.raw and b.status == "behavioral"
-            assert "xtor" not in b.views                       # no legacy single views
+            assert "owner" not in b.raw and "xtor" not in b.views    # no legacy single views
+            if b.raw["selected"] == "none":
+                assert b.status == "behavioral"
+            else:
+                assert cand.netlist_path(name, b.raw["selected"]).exists() and b.status != "behavioral"
     b = blocks()[BLOCK]
     assert b.selected is None
     monkeypatch.setitem(b.raw, "selected", "alice")
@@ -211,7 +219,9 @@ def test_score(root):
     assert row["specs_passed"] == 3                         # CMP-04, CMP-06, CMP-10 (typ only, recorded)
     assert row["worst_margin"]["spec"] == "CMP-05" and row["worst_margin"]["margin"] == pytest.approx(-10 / 120)
     assert row["coverage"][0] == 3 + 4 * 2                  # typ specs 1 corner each, all-corner specs 2 of 45
-    assert row["results"] == 2 and row["self_reported"] == 1 and row["flags"]["unverified"] == 1
+    # meta.verified_by in a result is not trusted: only a verification record verifies (tests/test_verify.py)
+    assert row["results"] == 2 and row["self_reported"] == 2 and row["flags"]["unverified"] == 2
+    assert row["verified"] == 0 and row["mismatch"] == 0 and row["flags"]["mismatch"] == 0
     assert row["power_uW"] == pytest.approx(100e-15 * 14 * 100e6 * 1e6)
     assert row["area"] == {"devices": 4, "mos": 3, "wl_um2": pytest.approx(2 * 0.06 + 0.04), "caps": 1,
                            "cap_F": pytest.approx(5e-15)}

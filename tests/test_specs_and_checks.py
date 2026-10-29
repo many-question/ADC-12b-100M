@@ -175,6 +175,7 @@ def test_git_state_ignores_results_and_caps_paths():
     ])
     assert dirty_paths(porcelain) == ["specs/arch.yaml", "tools/adcflow/model.py", "analysis/new.py", "docs/new.md"]
     assert dirty_paths(" M results/x.json\n") == []
+    assert dirty_paths("?? verification/\n M verification/a/b/c/d.json\n") == []
     assert dirty_paths("") == []
 
 

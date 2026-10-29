@@ -80,17 +80,19 @@ def _git(*args: str) -> str:
 
 
 def dirty_paths(porcelain: str) -> list[str]:
-    """Paths that ``git status --porcelain`` lists (modified, staged or untracked) outside results/.
+    """Paths that ``git status --porcelain`` lists (modified, staged or untracked) outside results/
+    and verification/.
 
-    results/ does not count: a suite run rewrites results while it runs. Ignored files
-    (site.local.yaml) are not listed by git at all. A rename counts by its new path.
+    Those do not count: they are outputs that a suite run (or a verify run, verify.py) rewrites
+    while others run. Ignored files (site.local.yaml) are not listed by git at all. A rename counts
+    by its new path.
     """
     out = []
     for line in porcelain.splitlines():
         if len(line) < 4:
             continue
         path = line[3:].split(" -> ")[-1].strip('"')
-        if path == "results" or path.startswith("results/"):
+        if path.split("/")[0] in ("results", "verification"):
             continue
         out.append(path)
     return out
@@ -300,7 +302,8 @@ def run_test(test_id: str, block_name: str | None = None, corners: str = "typ",
     """Run a test at the corners of `corners`; with `crosscheck` every job runs a second time
     with the test's `crosscheck:` settings (numerics.py) and only the first is recorded, with the
     differences in its meta.crosscheck. A test with `montecarlo:` runs its samples (mc_settings;
-    `mc` overrides its runs and seed)."""
+    `mc` overrides its runs and seed). Returns one row per job: job, corner, rc, metrics, out (the
+    recorded file, None without recording), params, globals and meta (as a result records them)."""
     views = views or {}
     block, test = find_test(test_id, block_name)
     cl = corner_set(corners)
@@ -384,8 +387,8 @@ def run_test(test_id: str, block_name: str | None = None, corners: str = "typ",
                 metrics = measure(test, jd, ctx) if rc[0] == "0" or mcset else {}
             if rc[0] != "0":
                 metrics["error"] = "; ".join(errs) or f"spectre rc={rc[0]}"
-            if "error" in metrics:                 # never record server paths
-                metrics["error"] = str(metrics["error"]).replace(rroot, "<run>")
+            if "error" in metrics:                 # never record server (or local) paths
+                metrics["error"] = str(metrics["error"]).replace(rroot, "<run>").replace(str(run_dir), "<run>")
         except Exception as e:  # keep going, record the failure
             traceback.print_exc()
             metrics = {"error": f"measure failed: {e}"}
@@ -402,10 +405,12 @@ def run_test(test_id: str, block_name: str | None = None, corners: str = "typ",
         if name in twins:
             meta["crosscheck"] = _crosscheck(block, test_id, xc, run_dir / "jobs", metrics, done[name + XCHECK])
         out = record(block, test_id, viewsig, j, metrics, meta, entries) if do_record else None
-        summary.append({"job": name, "corner": j.corner.name, "rc": meta["rc"], "metrics": metrics, "out": out})
+        summary.append({"job": name, "corner": j.corner.name, "rc": meta["rc"], "metrics": metrics, "out": out,
+                        "params": j.params, "globals": j.globals_, "meta": meta})
         if name in twins:
             t, tm, tmeta, _ = done[name + XCHECK]
-            summary.append({"job": t.name, "corner": t.corner.name, "rc": tmeta["rc"], "metrics": tm, "out": None})
+            summary.append({"job": t.name, "corner": t.corner.name, "rc": tmeta["rc"], "metrics": tm, "out": None,
+                            "params": t.params, "globals": t.globals_, "meta": tmeta})
     _print_summary(block, test_id, summary, mcset)
     for name in twins:
         _print_crosscheck(name, done[name][2]["crosscheck"])

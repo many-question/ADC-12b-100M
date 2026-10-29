@@ -9,7 +9,9 @@
 
 The ranking is the public order of §4: top-level ENOB margin (±0.05 bit), power (±5 %), area proxy (±5 %), the smallest
 robustness margin (±5 % of the limit); inside a tolerance the next criterion decides, and then the selected candidate stays first.
-Candidates that are not fully passing (a failed, incomplete, stale, SOA or error result) come after the eligible ones.
+Candidates that are not fully passing (a failed, incomplete, stale, SOA or error result, or one the lead's rerun contradicts) come
+after the eligible ones. Verification (docs/verification.md §7) is the lead's record in verification/ on main; an open PR's candidate
+is scored on a temporary tree of its own files, which holds no records: its results are self-reported.
 """
 
 from __future__ import annotations
@@ -68,10 +70,11 @@ class Collected:
 
 # ------------------------------------------------------------------ ranking (§4)
 def eligible(row: dict) -> bool:
-    """No failed, incomplete, stale, SOA-violating or erroring result (reviewing is separate: unverified is shown, not excluded)."""
+    """No failed, incomplete, stale, SOA-violating or erroring result, and none that the lead's rerun contradicts (a mismatch);
+    not yet verified is shown, not excluded (the lead verifies the leading candidates)."""
     f = row["flags"]
     return (row["results"] > 0 and row["specs_failed"] == 0 and row["specs_incomplete"] == 0
-            and not (f["stale"] or f["soa"] or f["error"]))
+            and not (f["stale"] or f["soa"] or f["error"] or f.get("mismatch")))
 
 
 def _better(a, b, *, higher: bool, tol: float, relative: bool) -> int:

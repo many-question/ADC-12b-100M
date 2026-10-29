@@ -34,6 +34,7 @@ python -m adcflow sim <test> [--corners typ|quick|all|<name,...>] [--view <block
        [--param name=value ...] [--mode aps] [--jobs 6] [--keep] [--no-record]
 python -m adcflow report [--block adc_comp]     # 结果对照规格
 python -m adcflow candidates [--block adc_comp] [--json]   # 晶体管级候选的排行榜（docs/proposals/open-candidates.md §3）
+python -m adcflow verify <test> --block <block> --candidate <name> [--corners …] [--dry-run]   # 项目负责人在同一网表哈希上复跑候选的结果，写复核记录 verification/…（docs/verification.md §7）
 python -m adcflow migrate-candidate <block> <name> --author <login>[=<显示名>] --description "…"   # 旧的单一 xtor 视图迁成候选（项目负责人）
 python -m adcflow remeasure <test> --run build/runs/<run_id> [--dry-run]   # 不重仿真，用现行度量重算并重记该次运行的结果（只允许 SFDR 变化，#36）
 python -m adcflow remeasure <test> --run build/runs/<run_id> --redraw     # 只重画证据图：任何指标变化即中止，结果中写 meta.redrawn（#47）
@@ -52,7 +53,7 @@ python -m adcflow clean-remote --older-than-h 12   # 清理服务器上本项目
    `meta.arch` 记录建作业与度量时读到的 `specs/arch.yaml` 键及其取值的哈希，`meta.views` 记录视图
    （何时过期见 [`verification.md`](verification.md) §2「结果过期」），`meta.git` 记录当时的提交，
    `meta.git_clean` 记录仿真时工作区是否干净（`git status --porcelain` 在 `results/` 之外没有任何改动、暂存或未跟踪的文件；
-   被忽略的文件如 `site.local.yaml` 不算；`results/` 不算，因为成套重跑时结果本身在变），不干净时
+   被忽略的文件如 `site.local.yaml` 不算；`results/` 与 `verification/` 不算，因为成套重跑、复核时它们本身在变），不干净时
    `meta.git_dirty_paths` 列出这些路径（最多 20 个）。要提交的结果应先提交代码再仿真，使其为 `true`；度量函数同时用已读入的数据画证据图，
    写在 JSON 旁（`<corner>.<tag>.png`），清单记在 JSON 的 `figures`（见 [`verification.md`](verification.md) §4）。
    重跑同一结果会先删除它旧的图。
@@ -97,7 +98,7 @@ python -m adcflow clean-remote --older-than-h 12   # 清理服务器上本项目
 2. 本模块全部用例：`--view <block>=xtor:<name> --corners all`；规格要求 `mc` 的蒙特卡洛用例（`tb_comp_offset_mc`）只在其工艺角
    （`typ`）上跑，`sim` 按规格自动跑全部样本（`docs/verification.md` §2）；结果在 `results/<block>/<test>/xtor-<name>/`。
 3. 提交网表与 `results/`，PR 标题 `[<block>] candidate <name> …`，一个 PR 一个候选；贡献者发 PR，项目负责人（`many-question`）合并、
-   对排在前面的候选在同一网表哈希上复跑（“已复核”），换进顶层做混合回归，选定一个候选（`selected:`），45 角顶层回归通过后把块状态改为 `signoff`。
+   对排在前面的候选用 `adcflow verify` 在同一网表哈希上复跑（记录在 `verification/`，相符且未过期即“已复核”，[`verification.md`](verification.md) §7），换进顶层做混合回归，选定一个候选（`selected:`），45 角顶层回归通过后把块状态改为 `signoff`。
 4. 规格变更通知发在 `[<block>]` issue；每个活跃候选确认并重跑（`candidate.yaml` 的 `acknowledged`）。
 
 ## 6. 服务器使用规则

@@ -1,8 +1,8 @@
 block: adc_clkgen
 title: Sampling clock phase generator
-version: 0.5.0
-selected: none          # the selected candidate (design/xtor/<block>/<name>/); none yet
-status: behavioral
+version: 0.5.1
+selected: many-question # the selected candidate (design/xtor/<block>/<name>/); verified, mixed top level passed (#66)
+status: xtor-review
 views:
   behav: design/behav/adc_clkgen.scs
 summary: >

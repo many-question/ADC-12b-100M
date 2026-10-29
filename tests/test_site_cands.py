@@ -34,8 +34,8 @@ CAND_YAML = (f"name: {NAME}\ndescription: A dynamic latch, one stage.\nstatus: w
 
 def row(passed=1, failed=0, incomplete=0, results=1, **kw):
     r = {"block": BLOCK, "candidate": "x", "status": "wip", "specs_passed": passed, "specs_failed": failed,
-         "specs_incomplete": incomplete, "specs_total": 3, "coverage": [passed, 3], "results": results, "self_reported": results,
-         "flags": {"stale": 0, "unverified": results, "soa": 0, "error": 0}, "worst_margin": {"margin": 0.3, "spec": "CMP-01"},
+         "specs_incomplete": incomplete, "specs_total": 3, "coverage": [passed, 3], "results": results, "verified": 0,
+         "self_reported": results, "mismatch": 0, "flags": {"stale": 0, "unverified": results, "mismatch": 0, "soa": 0, "error": 0}, "worst_margin": {"margin": 0.3, "spec": "CMP-01"},
          "power_uW": 100.0, "area": {"mos": 10, "wl_um2": 5.0, "caps": 0, "cap_F": 0.0, "devices": 10}, "top_enob_margin": 0.5,
          "author_text": "@a", "description": "", "problems": [], "selected": False}
     r.update(kw)
@@ -58,7 +58,7 @@ def names(cs):
 def test_fully_passing_candidates_rank_before_the_others():
     good = cand("good")
     failing = cand("a-failing", failed=1, passed=2)          # more specs passed, but one fails
-    stale = cand("b-stale", flags={"stale": 1, "unverified": 1, "soa": 0, "error": 0})
+    stale = cand("b-stale", flags={"stale": 1, "unverified": 1, "mismatch": 0, "soa": 0, "error": 0})
     assert names([failing, stale, good]) == ["good", "a-failing", "b-stale"]
 
 
@@ -161,7 +161,7 @@ def test_merged_candidate_row_comes_from_adcflow_candidates(tmp_path):
     (c,) = got[BLOCK]
     assert (c.name, c.source, c.reviewed, c.selected) == (NAME, "main", True, False)
     assert c.row["author_text"] == "Alice's agent (@alice)" and c.row["status"] == "wip"
-    assert c.row["flags"]["stale"] == 0 and c.row["self_reported"] == 1            # no verified_by: self-reported
+    assert c.row["flags"]["stale"] == 0 and c.row["self_reported"] == 1            # no verification record: self-reported
     assert c.row["specs_passed"] >= 1 and c.row["power_uW"] is not None and c.row["area"]["devices"] == 1
     assert c.view == f"xtor-{NAME}" and c.anchor == f"cand-{NAME}"
 

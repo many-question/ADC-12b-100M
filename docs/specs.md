@@ -6,7 +6,7 @@
 |---|---|---|---|---|
 | [`adc_bootstrap`](#adc-bootstrap) | behavioral | none | 10 | `tb_bootstrap_dc`, `tb_bootstrap_track` |
 | [`adc_cdac`](#adc-cdac) | behavioral | none | 17 | `tb_cdac_weights`, `tb_cdac_settle`, `tb_cdac_track` |
-| [`adc_clkgen`](#adc-clkgen) | behavioral | none | 11 | `tb_clkgen_timing`, `tb_clkgen_jitter` |
+| [`adc_clkgen`](#adc-clkgen) | xtor-review | `many-question` | 11 | `tb_clkgen_timing`, `tb_clkgen_jitter` |
 | [`adc_comp`](#adc-comp) | behavioral | none | 14 | `tb_comp_delay`, `tb_comp_noise`, `tb_comp_offset_mc`, `tb_comp_kickback` |
 | [`adc_ref`](#adc-ref) | behavioral | none | 15 | `tb_ref_dc`, `tb_ref_replay`, `tb_ref_noise`, `tb_ref_startup` |
 | [`adc_sarlogic`](#adc-sarlogic) | behavioral | none | 16 | `tb_sarlogic_func`, `tb_sarlogic_rand`, `tb_sarlogic_func_slow`, `tb_sarlogic_timeout` |
@@ -119,11 +119,11 @@ While PHI_B is high, VG = VIN + Vboot (Vboot ~ AVDD, from a capacitor charged du
 
 ## adc_clkgen
 
-**Sampling clock phase generator** — 规格版本 0.5.0，状态 `behavioral`。
+**Sampling clock phase generator** — 规格版本 0.5.1，状态 `xtor-review`。
 
 Buffers the single external CLK (high = track, low = hold + convert) into the sampling phases. Falling CLK: PHI_S falls first (sampling instant, top plate opens), then PHI_B (bottom-plate switches open), then CONV rises (DAC drivers enabled, SAR logic starts). Rising CLK: CONV falls first (drivers tri-stated, SAR reset), then PHI_B and PHI_S rise (break before make).
 
-视图：behav: `design/behav/adc_clkgen.scs`；选定的候选：`none`
+视图：behav: `design/behav/adc_clkgen.scs`；选定的候选：`many-question`
 
 ### 端口（子电路端口顺序）
 

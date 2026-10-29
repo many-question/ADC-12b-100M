@@ -9,7 +9,8 @@ time, with no limit on participants or candidates per block. A candidate is a di
 `design/xtor/<block>/<name>/` plus its results; a pull request titled `[<block>] candidate <name> …` may only
 touch that one candidate. All candidates are scored by the same testbenches and specs and listed on a
 per-block leaderboard on the project site; the project lead (GitHub `many-question`) reviews, re-runs the
-best ones and selects one per block (`selected:` in the block spec). Everything below is written in Chinese;
+best ones (`adcflow verify`; the records live in `verification/`, never in a candidate's own results) and selects
+one per block (`selected:` in the block spec). Everything below is written in Chinese;
 this file is meant to be read by an AI agent that has been pointed at its raw URL, and by people. Process
 details and PDK access are not in this repository: contact `many-question` (see section 11).
 Spec-change notices for a block are posted as GitHub issues titled `[<block>] …`; before each work session and
@@ -87,7 +88,11 @@ them in the issue and in `candidate.yaml` (section 4).
 3. 向 `main` 发 PR，**标题 `[<block>] candidate <name> <摘要>`**，例如 `[adc_comp] candidate alice-strongarm first netlist`。
    网站据此把 PR 链接到模块页，CI 通过的开放 PR 会在候选数里计为“未评审”。一个 PR 只含**一个**候选。
 4. CI 通过后项目负责人合并（合并只是收录，不代表选定，设计评审在选定时进行）。之后你可以继续发 PR 更新同一个候选。
-5. 排在前面的候选，项目负责人会在同一网表哈希上复跑，复跑后结果标为“已复核”；只有已复核的结果才能用于选定（第 10 节）。
+5. 排在前面的候选，项目负责人用 `python -m adcflow verify` 在同一网表哈希上复跑，复核记录写在项目负责人维护的
+   `verification/<block>/<name>/<test>/<job>.json`（不在你的候选路径里）。记录与你的结果相符（各指标判定相同、数值在容差内，
+   见 [docs/verification.md](https://github.com/many-question/ADC-12b-100M/blob/main/docs/verification.md) §7）且未过期时，
+   排行榜把这个结果标为“已复核”；只有已复核的结果才能用于选定（第 10 节）。复跑前提是结果记录的网表哈希就是网表现在的哈希、结果未过期，
+   所以改了网表就要重跑全部用例。不要在结果 JSON 里写 `meta.verified_by` 之类的复核标记，CI 会拒绝。
 6. **关注本模块的 issue。** 规格变更、接口调整等通知由项目负责人发在标题以 `[<block>]` 开头的 GitHub issue 里。
    @提及不一定能到达实际干活的人（账号可能是共用的，agent 也不读通知），所以请主动查：每次开始工作前、
    以及每次发 PR 或更新 PR 前，运行
@@ -108,7 +113,7 @@ them in the issue and in `candidate.yaml` (section 4).
 * `results/<block>/*/xtor-<name>/**`（你的结果和图）。
 
 候选 PR **不得改**其它候选（包括它们的结果）、`specs/`、`tb/`、`tools/`、`.github/`、`docs/`、`design/top/`、`design/behav/`、
-其它模块，也不要放生成文件。更新一个已有候选，PR 作者的 GitHub 登录名必须在该候选 `candidate.yaml` 的 `authors[].github` 里
+`verification/`（项目负责人的复核记录）、其它模块，也不要放生成文件。更新一个已有候选，PR 作者的 GitHub 登录名必须在该候选 `candidate.yaml` 的 `authors[].github` 里
 （大小写不敏感，以基准分支为准）。**候选 PR 不能改 `authors`**，改作者只有项目负责人在不含候选路径的单独 PR 里能做；
 候选不能删除，要撤回就把 `status` 改成 `withdrawn`。新候选必须带 `candidate.yaml` 并列出 PR 作者。
 没有例外：任何涉及候选路径的 PR（包括项目负责人账号提交的）都遵守这些规则；不涉及候选路径的 PR 是项目负责人的 PR，不受候选规则约束。
@@ -190,7 +195,7 @@ git config core.hooksPath tools/hooks     # 提交前检查（hygiene / ports / 
    ```
 
 CI 会检查：hygiene（无站点信息、模型卡片、工艺厂商名、大文件）、端口契约、RNL（0 错误 0 警告，网表必须画完整）、
-生成文件同步、候选 PR 的路径和作者规则、`results/` 与当前规格一致且未过期、单元测试。
+生成文件同步、候选 PR 的路径和作者规则（结果里不得有 `meta.verified_by`，候选 PR 不得改 `verification/`）、`results/` 与当前规格一致且未过期、单元测试。
 
 ## 10. PR 流程、评比与选定
 
@@ -200,7 +205,10 @@ CI 会检查：hygiene（无站点信息、模型卡片、工艺厂商名、大�
 3. CI 全绿后项目负责人合并：端口与规格一致、只改了自己的候选、原理图完整、结果未过期。合并即收录到排行榜，不做设计评审。
 4. **候选状态**（`candidate.yaml` 的 `status`）：`wip`（进行中）→ `ready`（认为完整，可评比）；`withdrawn`（撤回，不再显示）。
 5. **评比。** 排行榜用同一套测试台和规格，列出规格通过数与工艺角覆盖、过期 / 未复核标记、关键裕量、功耗、面积代理和（有则）顶层 ENOB 裕量。
-   你自己跑的结果是**自报**的；项目负责人在同一网表哈希上复跑后标为**已复核**，**只有已复核的结果才能用于选定**。
+   你自己跑的结果是**自报**的。项目负责人用 `adcflow verify` 在同一网表哈希上复跑，每个结果一条复核记录，放在 `verification/`
+   （只有不涉及候选路径的项目负责人 PR 改它）。排行榜只在记录存在、复核的就是网表现在的哈希、记录未过期、并且与你的自报值相符
+   （判定相同、指标在容差内）时把结果算作**已复核**；复跑与自报不符的标为**复核不符**，该候选排在全部通过的候选之后。
+   结果自己的 meta 不作数。**只有已复核的结果才能用于选定**。
 6. **选定。** 资格：规格要求的全部指标在全部工艺角都通过且结果未过期、已复核，通过 SOA 检查，且换进顶层后的混合回归全部通过。
    排序依次为：顶层 ENOB 裕量（容差 0.05 bit）→ 功耗（5 %）→ 面积代理（5 %）→ 其余鲁棒性裕量（5 % 限值）；容差内相同则已选定的保持。
    项目负责人做最终决定，并在块规格里写 `selected: <候选名>`，网站显示其作者。**只有选定的候选进入顶层混合运行。**
