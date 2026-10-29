@@ -49,7 +49,12 @@ notifications #17 and #37. The initial official TT run before the 5% estimate
 passed the five weight/calibration metrics but failed RL12 settling
 (49.3 ps against 40 ps) and reference charge (2.562 pC against 1.2 pC).
 That evidence remains in commit history and does not validate the current
-parasitic model. Updated TT weights, settling, and tracking are being measured.
+parasitic model. With the 5% estimate, official TT weights/calibration pass:
+C_S = 2.061 pF, full scale = 0.9931 V, calibration margin = 0.4409 LSB,
+calibrated ENOB loss = -0.01008 bit, and top gain = 0.8886. Settling still
+fails RL12 (50.1 ps) and reference charge (2.629 pC); the other eight settling,
+droop, and input-capacitance metrics pass. These are preliminary TT results
+on the frozen circuit. Tracking with its numerical cross-check is in progress.
 Convergence comparisons, representative PVT,
 complete corner coverage, long-hold behavior, device stress, and joint bootstrap
 validation remain outstanding. No selection or signoff is claimed.

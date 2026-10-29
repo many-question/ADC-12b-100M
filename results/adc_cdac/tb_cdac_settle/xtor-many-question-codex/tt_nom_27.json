@@ -15,56 +15,56 @@
   "cdac_behav": 0
  },
  "metrics": {
-  "start_step_mV": -148.9193295795469,
-  "t_start_settle_ps": 60.49999999999994,
-  "droop_lsb": 0.0037731565178331407,
-  "t_settle_rl12_ps": 49.299999999998995,
-  "step_rl12_mV": 190.55526806892192,
-  "tau_ps": 5.124674886459584,
-  "t_settle_rl5_ps": 53.400000000002315,
-  "step_rl5_mV": 3.5006224953637033,
-  "t_settle_rl0_ps": 34.400000000000624,
-  "step_rl0_mV": 0.19498766498404763,
-  "qref_pC": 2.56176018,
+  "start_step_mV": -154.43998409431703,
+  "t_start_settle_ps": 62.20000000000005,
+  "droop_lsb": 0.0037692922317667647,
+  "t_settle_rl12_ps": 50.09999999999924,
+  "step_rl12_mV": 190.54933441717114,
+  "tau_ps": 5.298392679218782,
+  "t_settle_rl5_ps": 54.60000000000103,
+  "step_rl5_mV": 3.500586487592272,
+  "t_settle_rl0_ps": 34.800000000002406,
+  "step_rl0_mV": 0.19032390493750606,
+  "qref_pC": 2.6290641119999996,
   "cin_ctrl_fF": 0.8308651973123778,
-  "cin_phs_fF": 13.835877210681495,
-  "cin_phsb_fF": 16.18613419954317,
-  "cin_conv_fF": 9.850112648068729
+  "cin_phs_fF": 13.835322599009118,
+  "cin_phsb_fF": 16.18602992615899,
+  "cin_conv_fF": 9.850066890075208
  },
  "specs": {
   "DAC-05": {
    "metric": "t_settle_rl5_ps",
-   "value": 53.400000000002315,
+   "value": 54.60000000000103,
    "limit": "<= 75",
    "pass": true
   },
   "DAC-06": {
    "metric": "t_settle_rl12_ps",
-   "value": 49.299999999998995,
+   "value": 50.09999999999924,
    "limit": "<= 40",
    "pass": false
   },
   "DAC-07": {
    "metric": "tau_ps",
-   "value": 5.124674886459584,
+   "value": 5.298392679218782,
    "limit": "<= 15",
    "pass": true
   },
   "DAC-08": {
    "metric": "t_start_settle_ps",
-   "value": 60.49999999999994,
+   "value": 62.20000000000005,
    "limit": "<= 100",
    "pass": true
   },
   "DAC-11": {
    "metric": "droop_lsb",
-   "value": 0.0037731565178331407,
+   "value": 0.0037692922317667647,
    "limit": "<= 0.1",
    "pass": true
   },
   "DAC-12": {
    "metric": "qref_pC",
-   "value": 2.56176018,
+   "value": 2.6290641119999996,
    "limit": "<= 1.2",
    "pass": false
   },
@@ -76,19 +76,19 @@
   },
   "DAC-15": {
    "metric": "cin_phs_fF",
-   "value": 13.835877210681495,
+   "value": 13.835322599009118,
    "limit": "<= 40",
    "pass": true
   },
   "DAC-16": {
    "metric": "cin_phsb_fF",
-   "value": 16.18613419954317,
+   "value": 16.18602992615899,
    "limit": "<= 40",
    "pass": true
   },
   "DAC-17": {
    "metric": "cin_conv_fF",
-   "value": 9.850112648068729,
+   "value": 9.850066890075208,
    "limit": "<= 80",
    "pass": true
   }
@@ -104,13 +104,13 @@
   }
  ],
  "meta": {
-  "date": "2026-10-29T21:44:00",
-  "git": "0317944",
+  "date": "2026-10-29T21:58:44",
+  "git": "2ecc285",
   "git_clean": true,
   "mode": "aps",
   "pdk": true,
   "mc": null,
-  "wall_s": 40.5,
+  "wall_s": 40.7,
   "rc": "0",
   "sim_s": "34",
   "numerics": {
@@ -121,8 +121,8 @@
    "errpreset": "moderate",
    "lteratio": 3.5,
    "abstol_V": 1e-06,
-   "steps_accepted": 35907,
-   "step_mean_ps": 1.94948,
+   "steps_accepted": 35914,
+   "step_mean_ps": 1.9491,
    "step_max_ps": 2.0
   },
   "files": {
@@ -132,7 +132,7 @@
    "tb/common/veriloga/tb_cdac_seq_va.va": "800f16f07345b3b9",
    "design/behav/veriloga/adc_bootstrap_va.va": "12338aad16f4913b",
    "tb/common/veriloga/tb_qmeter_va.va": "fed84d572a912b39",
-   "design/xtor/adc_cdac/many-question-codex/adc_cdac.scs": "0a8934b402ebcb77"
+   "design/xtor/adc_cdac/many-question-codex/adc_cdac.scs": "15f43aa1bfaa439c"
   },
   "arch": {
    "keys": [
