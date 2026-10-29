@@ -24,7 +24,8 @@ raw evidence retain their original provenance.
 
 ## Validation stages
 
-At source promotion: **0 fresh / 136 stale**. New formal results are pending.
+After the official replay pilots: **4 fresh passes / 132 stale**. DC/noise,
+startup and the other 41 replay corners remain pending.
 All simulations use the current official flow, APS and one job at a time,
 with a clean committed source frozen through staging, simulation and fetch.
 Uploaded inputs and fetched raw files are SHA-256 checked. Only owned remote
@@ -39,6 +40,29 @@ run directories are removed after retrieval and audit.
 
 Private strict-step diagnostics retain their actual settings and are not
 relabeled as official bench conditions. Public testbenches and tools are unchanged.
+
+## Four official replay pilots
+
+All four pilots pass REF-12/13/14/21 on clean committed source
+`2514708ac5419eef7b5b1066ebccf47880aa0c67`, using the official APS bench
+without numeric or load overrides. All 15,840 samples per corner are present
+and contiguous; independent raw-sample calculation reproduces REF-13/14/21.
+All 20 fetched files match their remote SHA-256; device-limit warning count is zero.
+
+| Corner | REF-12 (bit) | REF-13 (uV) | REF-14 (uV) | Official REF-21 | Strict 2 ps REF-21 |
+|---|---:|---:|---:|---:|---:|
+| tt_nom_27 | 0.00647509 | 84.413866 | 29.779911 | 0.775648167 | 0.779194753 |
+| ss_low_125 | -0.02420498 | 136.131103 | 36.716586 | 0.945148039 | 0.948422378 |
+| ff_high_125 | 0.03659651 | 86.534358 | 39.577543 | 0.824105773 | 0.827859457 |
+| ff_low_m40 | 0.03610901 | 40.547451 | 20.028976 | 0.659818462 | 0.661112557 |
+
+The official logged settings are reltol 0.001, voltage absolute tolerance 1 uV,
+trap-only and moderate. The maximum-step setting is 211.6 ns; PWL breakpoints
+drive much smaller accepted steps. The strict diagnostic uses its separately
+reported 2 ps setting and tighter tolerance. The maximum absolute envelope
+difference is 0.00375368, with all four pass/fail decisions unchanged.
+SS refinement to 1 ps gives REF-21 0.948427649 and tail deviation 139.544419 uV;
+the official SS values above are retained without substitution.
 
 ## Power cost before formal reruns
 

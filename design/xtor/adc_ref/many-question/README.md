@@ -16,10 +16,10 @@ The main28/gate16 source is promoted to the formal **WIP** candidate at electric
 hash `2b1163f0eb481376`, after rebasing onto main
 `fac0194179a4ae593438b022a0713d6e5b59663f` (adc_ref spec 0.8.0).
 The [formal validation record](REF21-validation.md) tracks fresh committed-source
-runs. At source promotion all 136 old result records are stale; none is rehashed
-into acceptance for this changed circuit. First are the four original official
-replay pilots, followed by DC/noise, startup and the remaining replay corners
-only if the pilots pass. Mixed-top validation is coordinated separately.
+runs. Four official replay pilots now pass REF-12/13/14/21 (worst REF-21
+0.945148 at SS low/125 C), leaving 132 stale records. None of the old records
+is rehashed into acceptance for the changed circuit. DC/noise, startup and the
+remaining 41 replay corners follow. Mixed-top validation is coordinated separately.
 
 The [numerical and sizing diagnosis](REF21-diagnosis.md) documents the unchanged
 baseline's converged failure and the exact main28/gate16 proposal. Its four
