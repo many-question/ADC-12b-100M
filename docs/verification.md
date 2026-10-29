@@ -102,7 +102,7 @@
     适用于所有带 `mc:` 的指标），再看 σ 是否在限值内。**不剔除任何样本**：一个样本失败，CMP-03 即不通过。
     判定里的 `samples: {ok, failed, need}` 由 `report`、`candidates` 排行榜与站点显示（“CMP-03 MC 50/50”）。
   * **结果**：`results/adc_comp/tb_comp_offset_mc/<view>/tt_nom_27.json`，与 nominal、noise 用例的结果分目录并存；
-    `meta.mc` 记录 `runs`、`seed`、`firstrun`、`variations`、`models`，`meta.provenance.offset_search` 记录搜索方法、范围、
+    `meta.mc` 记录 `runs`、`seed`、`firstrun`、`variations`、`models`（行为级运行没有 PDK，为 null），`meta.provenance.offset_search` 记录搜索方法、范围、
     位数、分辨率与复查距离。
   * **运行**：`python -m adcflow sim tb_comp_offset_mc --view adc_comp=xtor:<name>` 按规格跑 50 个样本。快速检查可用
     `--mc-runs N`（及 `--mc-seed S`）；样本少于 50 时 CMP-03 判为不通过，不能用作验收。一个约 30 管的比较器，

@@ -208,9 +208,12 @@ def test_mc_settings_from_the_spec_and_overrides():
 
 
 def test_dry_run_passes_samples_and_seed_to_the_testbench(monkeypatch):
-    staged = {}
+    staged, models = {}, []
     monkeypatch.setattr(runner, "stage", lambda run_dir, jobs, decks: staged.update(jobs=jobs, decks=decks))
+    make_deck = runner.make_deck
+    monkeypatch.setattr(runner, "make_deck", lambda j, r, v, pdk, mc, extra: models.append(mc) or make_deck(j, r, v, pdk, mc, extra))
     runner.run_test(TEST, dry=True, mc={"runs": 7, "seed": 11}, mode="aps")
+    assert models == [None]                                              # behavioral: no statistical model sections
     (job,) = staged["jobs"]
     tb, deck = job.tb_text, staged["decks"][job.name]
     assert job.params["mc_runs"] == 7 and job.params["mc_seed"] == 11

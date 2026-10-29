@@ -309,6 +309,8 @@ def run_test(test_id: str, block_name: str | None = None, corners: str = "typ",
     params = dict(params or {})
     if mcset:
         params.update(mc_runs=mcset["runs"], mc_seed=mcset["seed"])
+        if not needs_pdk:                      # no model sections: the testbench's own statistics only
+            mcset["models"] = None
     jobs = build_jobs(block, test_id, test, cl, views, params, needs_pdk)
     xc = dict(test.get("crosscheck") or {})
     if crosscheck and not xc:
