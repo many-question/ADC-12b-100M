@@ -95,9 +95,12 @@ PHI_SB capacitance = 45.13 fF fails the 40 fF limit. Its matched 32-sample
 diagnostic gives h3 = -72.56 dBc, worse than PMOS assistance alone. Reducing
 only the top-plate N/P switches from 32 to 16 um each lowers PHI_SB capacitance
 to 37.04 fF while retaining RL12 = 35.3 ps, Qref = 1.1039 pC, and zero stress
-violations in the 70 ns control sequence. That size change still needs its
-own tracking and sine-stress evidence. Neither experimental circuit has
-replaced the candidate.
+violations in the 70 ns control sequence. Its matched 32-sample diagnostic
+gives h3 = -75.11 dBc, an improvement of about 2.55 dB that still leaves
+linearity unresolved. It has no sine-stress or official tracking acceptance
+yet. Driving the NMOS sharing gates from internal ENB instead of PHI_S also
+passes the 70 ns checks, but its matched h3 = -75.71 dBc gives only another
+0.61 dB improvement. These experiments have not replaced the candidate.
 Convergence comparisons, representative PVT,
 complete corner coverage, long-hold behavior, device stress, and joint bootstrap
 validation remain outstanding. No selection or signoff is claimed.

@@ -400,6 +400,63 @@ source/bulk branches and 0.208286 pC through other reference branches.
 Internal DVDD prelogic adds 0.902994 pC; the resulting signed sum of
 2.006852 pC has the same exclusions stated above.
 
-This geometry change requires its own sine-input stress and tracking checks;
-the larger-switch circuit's sine pass cannot be inherited. The formal
-candidate and official result records remain unchanged.
+Its matched 32-sample tracking diagnostic gives h3 = -75.1069 dBc,
+h5 = -86.3977 dBc, h7 = -88.0209 dBc, a 0.788909 V fundamental, and a
+7.827 uV regression residual. The third harmonic improves by about 2.55 dB
+relative to the 32 um top switches, but remains too large to resolve
+linearity. The same short-fit limitations apply.
+
+This geometry change still requires its own sine-input stress and official
+tracking checks; the larger-switch circuit's sine pass cannot be inherited.
+The formal candidate and official result records remain unchanged.
+
+## Shared-node switches controlled by ENB
+
+A further single-connection comparison drives the 22 shared-node NMOS gates
+from the existing internal ENB signal instead of PHI_S. All device dimensions,
+six MID transmission gates, and 36 explicit 5% capacitances remain unchanged.
+Eight unused internal PHI_S ports are removed with their matching parent
+arguments. A comparison of every expanded MOS connection confirms that only
+the 22 sharing-gate nodes change. The top-plate TG remains directly driven
+by PHI_S/PHI_SB.
+
+![Measured PHI_S and ENB sharing-control timing relative to CONV](sharing-control-timing.png)
+
+The original 70 ns fixed-input TT control sequence gives zero project
+voltage-stress violations over 526 MOS / 1,578 pairs, with a 0.97729 V maximum,
+164,183 accepted points, and a 0.5 ps maximum step. RL12 = 35.3 ps,
+RL5 = 47.3 ps, tau = 9.164 ps, conversion-start settling = 83.4 ps, and
+droop = 0.003816 LSB meet their limits. Reference charge rises from
+1.103859 to 1.125511 pC, still below 1.2 pC. Control/PHI_S/PHI_SB/CONV
+capacitances are 0.831/7.185/37.036/9.849 fF, all below their limits.
+
+ENB crosses half supply about 15.14 ps after CONV rises, versus 13.12 ps
+before the added gate load. On sampling entry, its rising crossing occurs
+13.84-14.27 ps after CONV falls, versus 12.12-12.33 ps before. These voltage
+crossings document timing; they are not a test of channel-current non-overlap.
+Internal DVDD prelogic charge increases to 0.936574 pC. The reference-plus-
+prelogic sum is 2.062085 pC, with the same exclusions stated above.
+
+Keeping sharing enabled across the top-plate aperture separates its turn-off
+event from sampling. The matched 32-sample result is h3 = -75.7139 dBc,
+h5 = -85.6893 dBc, h7 = -87.9167 dBc, fundamental = 0.788851 V, and regression
+residual = 7.842 uV. The approximately 0.61 dB third-harmonic improvement over
+PHI_S-controlled sharing is small and leaves linearity unresolved. This is
+still a short diagnostic, not SFDR/SNDR or convergence acceptance.
+
+| Differential third-harmonic peak from the same 32-point fit (uV) | PHI_S sharing | ENB sharing |
+|---|---:|---:|
+| VIN at the PHI_S falling 50% crossing | 3265.86 | 104.33 |
+| TOP at the PHI_S falling 50% crossing | 3434.70 | 392.61 |
+| TOP at the PHI_B falling 50% crossing | 154.84 | 96.93 |
+| Final TOP, 300 ps after CONV rises | 138.57 | 129.21 |
+
+The large decrease in VIN's instantaneous harmonic does not translate into
+the same decrease in final TOP error. Clock crossings are measurement markers,
+not exact physical switch-opening times. Cancellation between these stages,
+finite tracking response, nonlinear capacitance, and charge injection remain
+mixed; the table is not a unique decomposition of their causes.
+
+The full sine-input stress test is also still required for this control
+change. The limited fixed-input pass does not establish acceptance or
+replace the formal circuit.
