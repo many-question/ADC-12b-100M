@@ -105,6 +105,7 @@ def test_tt_missing_is_incomplete_not_a_pass(monkeypatch):
     assert r.status == "none" and r.worst is None and (r.covered, r.need) == (0, 1)
     assert len(r.na) == 1
     # a block in sign-off needs the applicable corner, and only that one
+    monkeypatch.setitem(blocks()[BLOCK].raw, "selected", "none")      # these docs are the legacy plain xtor view
     monkeypatch.setitem(blocks()[BLOCK].raw, "status", "signoff")
     errs = [e for e in _check(monkeypatch, [_doc(by_name("ff_high_125").name)]).errors if "CLK-10" in e]
     assert errs == ["adc_clkgen CLK-10: no xtor result for corner tt_nom_27 (tb_clkgen_timing)"]
@@ -113,6 +114,7 @@ def test_tt_missing_is_incomplete_not_a_pass(monkeypatch):
 def test_signoff_needs_every_applicable_corner_and_ignores_the_others(monkeypatch):
     docs = [_doc(c) for c in sorted(corner_names("all"))]
     docs = [d if d["corner"] != "ff_high_125" else _doc("ff_high_125", iavg_uA=569.0) for d in docs]
+    monkeypatch.setitem(blocks()[BLOCK].raw, "selected", "none")      # these docs are the legacy plain xtor view
     monkeypatch.setitem(blocks()[BLOCK].raw, "status", "signoff")
     assert [e for e in _check(monkeypatch, docs).errors if "CLK-09" not in e] == []     # CLK-09: jitter test
     docs.remove(next(d for d in docs if d["corner"] == "ss_low_m40"))

@@ -20,6 +20,10 @@ SLASH = "/"                       # site-like strings are assembled so this file
 def root(tmp_path, monkeypatch):
     monkeypatch.setattr(cand, "ROOT", tmp_path)
     monkeypatch.setattr(checks, "REPO_ROOT", tmp_path)
+    for b in blocks().values():             # main's selections name candidates this tree does not have
+        if b.raw.get("selected") not in (None, "none"):
+            monkeypatch.setitem(b.raw, "selected", "none")
+            monkeypatch.setitem(b.raw, "status", "behavioral")
     return tmp_path
 
 
@@ -135,7 +139,8 @@ def test_runner_uses_candidates(root, monkeypatch):
 
 
 def test_selected_field(monkeypatch, tmp_path):
-    """Every block except adc_top has selected: (open-candidates row 4); owner: is retired for them."""
+    """Every block except adc_top has selected: (open-candidates row 4); owner: is retired for them.
+    A selected candidate exists, and only a selected block leaves `behavioral`."""
     import re
 
     from adcflow.specs import SpecError, _load_block
@@ -144,8 +149,11 @@ def test_selected_field(monkeypatch, tmp_path):
         if name == "adc_top":
             assert b.raw["owner"] == "many-question" and "selected" not in b.raw
         else:
-            assert b.raw["selected"] == "none" and "owner" not in b.raw and b.status == "behavioral"
-            assert "xtor" not in b.views                       # no legacy single views
+            assert "owner" not in b.raw and "xtor" not in b.views    # no legacy single views
+            if b.raw["selected"] == "none":
+                assert b.status == "behavioral"
+            else:
+                assert cand.netlist_path(name, b.raw["selected"]).exists() and b.status != "behavioral"
     b = blocks()[BLOCK]
     assert b.selected is None
     monkeypatch.setitem(b.raw, "selected", "alice")
