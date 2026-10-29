@@ -11,59 +11,61 @@
   "noise_en": 0,
   "devnoise": 1,
   "beh_speed": 1.0,
-  "vref_in": 0.9
+  "vref_in": 0.9,
+  "cdac_behav": 1,
+  "comp_behav": 1
  },
  "metrics": {
-  "vrefp_max_V": 0.9005696473996989,
-  "vrefp_min_V": -7.773092693851877e-19,
-  "vcm_max_V": 0.4502888786940865,
-  "vcm_min_V": -5.773921740201436e-21,
-  "vrefp_max_t_us": 16.15099999999994,
-  "vcm_max_t_us": 16.15099999999994,
-  "vrefp_dwell_max_V": 0.3146474350910868,
-  "vcm_dwell_max_V": 0.1544324334268289,
-  "ready_err_mV": 0.38247769712940194,
-  "vcm_ready_V": 0.4501949188461115,
-  "ready_dev_mV": 1.3389289676979388e-10,
-  "vrefp_final_err_mV": 0.38247769699550904,
-  "vcm_final_V": 0.4501949188461096,
-  "ramp_lag_mV": 336.51725917068865,
+  "vrefp_max_V": 0.901176299251692,
+  "vrefp_min_V": -1.511856327602228e-46,
+  "vcm_max_V": 0.4505950422173622,
+  "vcm_min_V": -5.34205322401103e-47,
+  "vrefp_max_t_us": 16.15299999999993,
+  "vcm_max_t_us": 16.15299999999993,
+  "vrefp_dwell_max_V": 0.3178329525069609,
+  "vcm_dwell_max_V": 0.1585473280273162,
+  "ready_err_mV": 0.3965507348073771,
+  "vcm_ready_V": 0.4502010321093635,
+  "ready_dev_mV": 8.426592756904938e-11,
+  "vrefp_final_err_mV": 0.39655073480349134,
+  "vcm_final_V": 0.4502010321093626,
+  "ramp_lag_mV": 336.60046327790104,
   "t_settle_us": 0.0
  },
  "specs": {
   "REF-15": {
    "metric": "vrefp_max_V",
-   "value": 0.9005696473996989,
+   "value": 0.901176299251692,
    "limit": "<= 1.0",
    "pass": true
   },
   "REF-16": {
    "metric": "vrefp_min_V",
-   "value": -7.773092693851877e-19,
+   "value": -1.511856327602228e-46,
    "limit": ">= -0.1",
    "pass": true
   },
   "REF-17": {
    "metric": "vcm_max_V",
-   "value": 0.4502888786940865,
+   "value": 0.4505950422173622,
    "limit": "<= 1.0",
    "pass": true
   },
   "REF-18": {
    "metric": "vcm_min_V",
-   "value": -5.773921740201436e-21,
+   "value": -5.34205322401103e-47,
    "limit": ">= -0.1",
    "pass": true
   },
   "REF-19": {
    "metric": "ready_err_mV",
-   "value": 0.38247769712940194,
+   "value": 0.3965507348073771,
    "limit": "<= 5",
    "pass": true
   },
   "REF-20": {
    "metric": "vcm_ready_V",
-   "value": 0.4501949188461115,
+   "value": 0.4502010321093635,
    "limit": "0.44 .. 0.46",
    "pass": true
   }
@@ -75,15 +77,15 @@
   }
  ],
  "meta": {
-  "date": "2026-10-29T02:45:01",
-  "git": "136f90e",
+  "date": "2026-10-30T01:37:14",
+  "git": "5bac854",
   "git_clean": true,
   "mode": "aps",
   "pdk": true,
   "mc": null,
-  "wall_s": 499.2,
+  "wall_s": 280.2,
   "rc": "0",
-  "sim_s": "14",
+  "sim_s": "15",
   "numerics": {
    "source": "spectre.log",
    "reltol": 0.001,
@@ -98,13 +100,7 @@
   },
   "files": {
    "tb/ref/tb_ref_startup.scs": "d0842a4224af4dfb",
-   "design/xtor/adc_ref/many-question/adc_ref.scs": "380f10b05b0af622"
-  },
-  "migrated": {
-   "date": "2026-10-29T12:07:14",
-   "git": "c48b605",
-   "from": "xtor",
-   "candidate": "many-question"
+   "design/xtor/adc_ref/many-question/adc_ref.scs": "2b1163f0eb481376"
   },
   "arch": {
    "keys": [],
@@ -112,11 +108,6 @@
   },
   "views": {
    "adc_ref": "xtor:many-question"
-  },
-  "rehashed": {
-   "date": "2026-10-29T20:57:31",
-   "git": "d9c9d1a",
-   "files_before": 15
   }
  }
 }
