@@ -20,7 +20,7 @@ Validation is in progress. No full-corner, noise or mismatch pass is claimed.
 |---|---|
 | `205f419` (26 MOS, smaller input pair) | Official TT timing and input-charge checks pass. Noise pilot: 325.1 uV, 95% CI 295.4–359.2 uV. Supplemental ff/high/125 SOA fails: 6 of 78 pairs, maximum 1.01193 V. |
 | `3cc79ff` (26 MOS, larger input pair) | TT noise pilot improves to 249.5 uV, CI 224.8–277.6 uV, but reset is 46.85 ps and fails. |
-| `ea81846` / `227305a` (30 MOS, NAND/INV outputs) | Official TT delay is 51.50 ps at 1 mV and 44.50 ps at 30 mV; reset 23.28 ps; energy 178.8 fJ; errors 0. Input capacitance 18.83 fF, CLKC 5.063 fF. The noise pilot worsens to 754.4 uV, CI 665.0–869.0 uV; further input-stage work is required. |
+| `ea81846` / `227305a` (30 MOS, NAND/INV outputs) | Official TT delay is 51.50 ps at 1 mV and 44.50 ps at 30 mV; reset 23.28 ps; energy 178.8 fJ; errors 0. Input capacitance 18.83 fF, CLKC 5.063 fF. The noise pilot worsens to 754.4 uV, CI 665.0–869.0 uV; this topology is no longer being optimized. |
 
 Each noise pilot used 17 levels, 64 decisions per level, fixed seed 1 and a
 50 GHz noise bandwidth. These pilots are characterization, not the official
@@ -30,5 +30,7 @@ Numbers from different revisions must not be combined into a passing result.
 Issue #40 is acknowledged. Under the decision in #63, CMP-03 will use 50 TT
 local-mismatch samples, transient noise off, a fixed seed, a +/-25 mV offset
 search with about 10 uV resolution, and sample standard deviation (n-1).
-Any failed sample must fail CMP-03. The independent public flow is pending;
+Any failed sample must fail CMP-03. Issue #69 now provides the independent public flow in spec v0.5.0;
 transient-noise repetitions do not satisfy this requirement.
+
+This candidate is retained as failed exploration history. Active comparison has moved to separate Miyahara and StrongARM candidates. Old records are source-specific and do not establish compliance with the new mismatch test.
