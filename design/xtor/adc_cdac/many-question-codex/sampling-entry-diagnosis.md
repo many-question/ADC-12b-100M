@@ -509,3 +509,38 @@ That tradeoff leaves linearity unresolved and materially reduces charge
 margin. The next size comparison uses the earlier ENB-sharing circuit with
 PMOS gates on PHI_SB. Sine-input stress and official acceptance have not been
 established for this EN-controlled PMOS experiment; its evidence is retained.
+
+## Top-plate switches reduced to 8 um
+
+This comparison returns to ENB-controlled NMOS sharing with PMOS assistance
+on PHI_SB. Only the top N/P total widths change from 16 to 8 um each, with
+finger counts reduced from eight to four at unchanged finger width and
+length. Both geometries are validated. All other device connections and
+dimensions, the six physical MID transmission gates, and the 36 explicit
+5% capacitances remain unchanged. The circuit still has 526 MOS per half.
+
+The matched 32-sample diagnostic gives h3 = -79.8954 dBc,
+h5 = -86.3692 dBc, h7 = -89.0435 dBc, fundamental = 0.789395 V, and regression
+residual = 7.101 uV. The third harmonic improves approximately 4.18 dB from
+the ENB-sharing 16 um circuit. This remains a short known-frequency
+regression, not an official SFDR/SNDR or convergence result.
+
+The harmonic phase also changes with size. Width changes affect on-state
+resistance, off-state capacitance, and switching charge together; the
+comparison does not isolate a unique distortion mechanism or establish
+that further shrinking will improve linearity monotonically.
+
+The geometry's own original 70 ns fixed-input TT sequence checks all 526 MOS
+and 1,578 gs/gd/ds pairs from time zero through subsequent cycles, using
+164,181 accepted points and a 0.5 ps maximum step. It gives zero project
+stress violations and a 0.97734 V maximum. RL12 = 35.2 ps, RL5 = 47.3 ps,
+tau = 9.120 ps, conversion-start settling = 83.4 ps, and droop = 0.004805 LSB
+meet their limits. Qref = 1.123941 pC and control/PHI_S/PHI_SB/CONV
+capacitances = 0.831/3.741/32.989/9.849 fF also meet their limits.
+
+Reference output branches contribute 0.908316 pC and other reference branches
+0.215625 pC. Internal DVDD prelogic contributes 0.936578 pC, for a signed
+reference-plus-prelogic sum of 2.060519 pC with the previously stated
+exclusions. This is not total circuit power. The new geometry still needs
+its own sine-input stress, weight/calibration, and official tracking checks;
+no prior circuit's finite-stimulus pass is inherited.

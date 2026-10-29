@@ -102,7 +102,14 @@ yet. Driving the NMOS sharing gates from internal ENB instead of PHI_S also
 passes the 70 ns checks, but its matched h3 = -75.71 dBc gives only another
 0.61 dB improvement. Moving PMOS assistance to EN gives h3 = -76.13 dBc but
 increases Qref to 1.1855 pC, leaving little charge margin. That tradeoff
-remains insufficient. These experiments have not replaced the candidate.
+remains insufficient. Returning PMOS assistance to PHI_SB and reducing only
+the top N/P switches from 16 to 8 um each gives h3 = -79.90 dBc in the matched
+32-sample diagnostic, approximately 4.18 dB better than the ENB-sharing 16 um
+case. Its own 70 ns fixed-input check gives RL12 = 35.2 ps,
+Qref = 1.12394 pC, PHI_SB capacitance = 32.99 fF, and zero violations across
+1,578 terminal pairs (maximum 0.97734 V). Sine-input stress and official
+linearity acceptance remain unverified for this geometry. These experiments
+have not replaced the candidate.
 Convergence comparisons, representative PVT,
 complete corner coverage, long-hold behavior, device stress, and joint bootstrap
 validation remain outstanding. No selection or signoff is claimed.
