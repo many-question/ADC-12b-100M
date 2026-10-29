@@ -11,33 +11,35 @@
   "noise_en": 0,
   "devnoise": 1,
   "beh_speed": 1.0,
-  "vref_in": 0.9
+  "vref_in": 0.9,
+  "cdac_behav": 1,
+  "comp_behav": 1
  },
  "metrics": {
-  "vrefp_err_mV": -1.0436246010994132,
-  "vcm_V": 0.4494749359493943,
-  "i18_uA": 15569.67395205571,
+  "vrefp_err_mV": -0.41012110088234355,
+  "vcm_V": 0.4497949394495589,
+  "i18_uA": 26091.30572658207,
   "i09_uA": -0.0,
   "iin_uA": 0.0,
-  "loadreg_mV": 1.4396126743347892,
-  "line_mV_per_V": 0.029092868223871433
+  "loadreg_mV": 0.8241123055166,
+  "line_mV_per_V": 0.048833669280895935
  },
  "specs": {
   "REF-01": {
    "metric": "vrefp_err_mV",
-   "value": -1.0436246010994132,
+   "value": -0.41012110088234355,
    "limit": "-5 .. 5",
    "pass": true
   },
   "REF-02": {
    "metric": "vcm_V",
-   "value": 0.4494749359493943,
+   "value": 0.4497949394495589,
    "limit": "0.44 .. 0.46",
    "pass": true
   },
   "REF-04": {
    "metric": "line_mV_per_V",
-   "value": 0.029092868223871433,
+   "value": 0.048833669280895935,
    "limit": "<= 5",
    "pass": true
   },
@@ -55,30 +57,19 @@
   }
  ],
  "meta": {
-  "date": "2026-10-29T02:59:27",
-  "git": "379662f",
+  "date": "2026-10-30T00:46:08",
+  "git": "4c61b98",
   "git_clean": true,
   "mode": "aps",
   "pdk": true,
   "mc": null,
-  "wall_s": 487.9,
+  "wall_s": 285.9,
   "rc": "0",
-  "sim_s": "18",
-  "numerics": {
-   "source": "spectre.log",
-   "reltol": 0.001,
-   "abstol_V": 1e-06,
-   "step_max_ps": null
-  },
+  "sim_s": "19",
+  "numerics": {},
   "files": {
    "tb/ref/tb_ref_dc.scs": "6c0b4787bdd7e2bb",
-   "design/xtor/adc_ref/many-question/adc_ref.scs": "380f10b05b0af622"
-  },
-  "migrated": {
-   "date": "2026-10-29T12:07:14",
-   "git": "c48b605",
-   "from": "xtor",
-   "candidate": "many-question"
+   "design/xtor/adc_ref/many-question/adc_ref.scs": "2b1163f0eb481376"
   },
   "arch": {
    "keys": [],
@@ -86,11 +77,6 @@
   },
   "views": {
    "adc_ref": "xtor:many-question"
-  },
-  "rehashed": {
-   "date": "2026-10-29T20:56:37",
-   "git": "d9c9d1a",
-   "files_before": 15
   }
  }
 }
