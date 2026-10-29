@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass, field
 from functools import lru_cache
 from pathlib import Path
@@ -83,6 +84,13 @@ class Block:
         return self.raw.get("status", "behavioral")
 
     @property
+    def selected(self) -> str | None:
+        """The selected candidate (`selected: <name>`), None for `selected: none` or no field
+        (docs/proposals/open-candidates.md §4; accepted next to `owner:` during the transition)."""
+        sel = self.raw.get("selected")
+        return None if sel in (None, "none") else str(sel)
+
+    @property
     def views(self) -> dict:
         return self.raw.get("views", {})
 
@@ -126,6 +134,11 @@ def _load_block(path: Path) -> Block:
             errs.append(f"missing key {key!r}")
     if errs:
         raise SpecError(f"{path.name}: " + "; ".join(errs))
+    sel = raw.get("selected")
+    if sel is not None and (not isinstance(sel, str) or not re.match(r"^(none|[a-z0-9-]{2,24})$", sel)):
+        errs.append(f"selected {sel!r} must be `none` or a candidate name")
+    if sel not in (None, "none") and raw.get("block") == "adc_top":
+        errs.append("adc_top has no candidates: it keeps owner:")
     if raw["status"] not in STATUSES:
         errs.append(f"status {raw['status']!r} not in {sorted(STATUSES)}")
     ports = []

@@ -21,6 +21,8 @@ def gen_specs_md() -> str:
         L += ["", f"## {b.name}", "", f"**{b.raw['title']}** — 规格版本 {b.raw['version']}，状态 `{b.status}`。", "",
               " ".join(str(b.raw.get("summary", "")).split()), ""]
         views = ", ".join(f"{k}: `{v}`" for k, v in b.views.items())
+        if "selected" in b.raw:
+            views += f"；选定的候选：`{b.raw['selected']}`"
         L += [f"视图：{views}", "", "### 端口（子电路端口顺序）", "",
               "| # | 端口 | 方向 | 类型 | 说明 |", "|---|---|---|---|---|"]
         buses: dict[str, list[str]] = {}
