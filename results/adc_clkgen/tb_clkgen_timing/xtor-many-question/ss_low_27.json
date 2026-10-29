@@ -2301,23 +2301,22 @@
    "step_max_ps": 1.0
   },
   "files": {
-   "design/behav/adc_bootstrap.scs": "eee3a0a78eec4c5f",
-   "design/behav/adc_cdac.scs": "5b8837cc5d2a76bc",
-   "design/xtor/adc_clkgen/many-question/adc_clkgen.scs": "878752080031c251",
-   "design/behav/adc_comp.scs": "c0da9398b6e09fc2",
-   "design/behav/adc_ref.scs": "a83c6feaac8c9c1a",
-   "design/behav/adc_sarlogic.scs": "7982e36f6743bf80",
-   "design/top/adc_top.scs": "362a964ffe162797",
-   "design/behav/veriloga/adc_bootstrap_va.va": "12338aad16f4913b",
-   "design/behav/veriloga/adc_cdac_sw_va.va": "e465880479187179",
-   "design/behav/veriloga/adc_comp_va.va": "ab8a6bf210351e31",
-   "design/behav/veriloga/adc_ktc_va.va": "a1cf98faf5bf9b33",
-   "design/behav/veriloga/adc_ref_va.va": "746d2530d4ff6d5c",
-   "design/behav/veriloga/adc_sarlogic_va.va": "42f06909a81347ef",
-   "tb/common/veriloga/tb_imeter_va.va": "d4be49aca417ad61",
-   "specs/soa.yaml": "df574d3582df9b2c",
    "tb/clkgen/tb_clkgen_timing.scs": "8af53acc5af8b6cf",
-   "specs/arch.yaml": "bffadef750bb5205"
+   "tb/common/veriloga/tb_imeter_va.va": "d4be49aca417ad61",
+   "design/xtor/adc_clkgen/many-question/adc_clkgen.scs": "878752080031c251",
+   "specs/soa.yaml": "df574d3582df9b2c"
+  },
+  "arch": {
+   "keys": [],
+   "sha": "44136fa355b3678a"
+  },
+  "views": {
+   "adc_clkgen": "xtor:many-question"
+  },
+  "rehashed": {
+   "date": "2026-10-29T20:48:22",
+   "git": "aae19ba",
+   "files_before": 17
   }
  }
 }

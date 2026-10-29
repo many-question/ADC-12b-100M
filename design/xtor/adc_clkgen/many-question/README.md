@@ -2,13 +2,13 @@
 
 A 60-MOS static CMOS phase generator with feedback from the loaded PHI_B and CONV outputs. MOS gate loads shape internal voltage excursions; smaller output stages retain the current budget. All five RNL levels are complete, and the 19 used device geometries retain their callback verification.
 
-**Status: wip.** The mixed-top SS low-voltage / 125 C ENOB failure remains open in [#35](https://github.com/many-question/ADC-12b-100M/issues/35). This candidate has not been selected or signed off.
+**Status: wip.** The historical mixed-top SS low-voltage / 125 C failure from [#35](https://github.com/many-question/ADC-12b-100M/issues/35) is preserved below. #35 was closed by the baseline changes in #48; this candidate has not yet been validated in the new mixed top. It has not been selected or signed off.
 
 Electrical content hash: `878752080031c251`. Current netlist SHA256: `7dbeabe408e25b960281545139f02c7e736807b30210db72edbed59cc81ce3bd`.
 
 ## Current module evidence
 
-45/45 timing/SOA corners have current inputs after [#53](https://github.com/many-question/ADC-12b-100M/pull/53). All 46 module records have current inputs. The TT jitter input hashes are unchanged, so its existing result is retained.
+45/45 timing/SOA corners and the TT jitter record have current circuit dependencies on main `3f1f7ce`. After #48 and #57, all 46 records were checked and migrated with the official `adcflow rehash` from merged [#62](https://github.com/many-question/ADC-12b-100M/pull/62). Metrics, figures, original simulation commits and dates are unchanged; this transition ran no new simulations. See [the baseline audit](BASELINE.md).
 
 Timing covers the complete 0–161 ns waveform: startup, eight 50% cycles, four 45% cycles and four 55% cycles, with 530 fF output load. Every current timing run checks 60 devices / 180 Vgs, Vgd and Vds pairs. CLK-10 uses the whole AVDD branch over 10–80 ns and applies only at TT.
 
@@ -54,12 +54,12 @@ The seven-corner mixed-top run `20261029-001710-fcf5-tb_top_sine` used the same 
 
 The matched all-behavioral SS control `20261029-013758-current-behav-ss-0059c9` also fails: **ENOB 10.324003109 bit**. Seventeen common source inputs, parameters, globals and seed were matched. This single-seed comparison does not isolate a noise contribution or waive the mixed-top failure. [Comparison and provenance](https://github.com/many-question/ADC-12b-100M/issues/35#issuecomment-6476475531).
 
-The #50 redraw used the official periodic-Hann implementation and preserved every metric and raw hash. #53 and this directory migration do not change top or jitter electrical inputs. Original private captures, summaries and simulation provenance are retained; public top results are not part of this candidate.
+The #50 redraw used the official periodic-Hann implementation and preserved every metric and raw hash. Subsequent #48 changes the top-level reference, DAC waits and noise conditions and adds TOP-10. The old mixed-top records are historical evidence, not acceptance of that new baseline. Original private captures, summaries and simulation provenance are retained; public top results are not part of this candidate. A new mixed-top run requires a separate input plan and a simulation slot from the coordinator.
 
 ## Migration and history
 
 The official `migrate-candidate` operation preserves all 46 original result metrics, verdicts, `meta.git`, `meta.git_clean` and content hashes, remaps the source keys and records `meta.migrated`. All 91 evidence PNGs were byte-identical at migration. The sole netlist text edit is the RNL package path comment (`../../rnl/adc28.rnl` to `../../../rnl/adc28.rnl`); its electrical hash is unchanged. The original netlist SHA256 is `a7dce7b4cb6a47787aa9b27d3df676c2464ec22976025de396640c359b0e79b7`.
 
-Published tags under `history/adc_clkgen/` retain `legacy-before-candidates`, `legacy-before-numerics53`, `legacy-before-main50`, `legacy-before-main43` and `legacy-52mos-soa-failure`. Earlier failures and old numerical settings remain historical evidence.
+Published tags under `history/adc_clkgen/` retain `legacy-before-candidates`, `legacy-before-numerics53`, `legacy-before-main50`, `legacy-before-main43`, `legacy-52mos-soa-failure` and `numerics53-before-arch48`. The last tag preserves the complete 45-corner stage at `441d48c` before rebasing. Earlier failures and old numerical settings remain historical evidence.
 
 Acknowledged notices: [#18](https://github.com/many-question/ADC-12b-100M/issues/18), [#27](https://github.com/many-question/ADC-12b-100M/issues/27), [#29](https://github.com/many-question/ADC-12b-100M/issues/29), [#49](https://github.com/many-question/ADC-12b-100M/issues/49).
