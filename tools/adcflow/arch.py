@@ -1,7 +1,18 @@
-"""Architecture parameters (specs/arch.yaml) and the quantities derived from them."""
+"""Architecture parameters (specs/arch.yaml) and the quantities derived from them.
+
+`Arch.load()` gives a read-tracked view of the file: inside ``with track() as keys`` every key
+read is added to `keys` as a dotted path (``timing.t_dac_add``; ``*`` = the whole file). The
+runner records the keys a run read, and a hash of their values (`values_sha`), as the arch
+values its result depends on (deps.py).
+"""
 
 from __future__ import annotations
 
+import copy
+import hashlib
+import json
+from collections.abc import Mapping
+from contextlib import contextmanager
 from dataclasses import dataclass
 from functools import cached_property
 from pathlib import Path
@@ -15,6 +26,99 @@ ARCH_YAML = REPO_ROOT / "specs" / "arch.yaml"
 
 K_BOLTZMANN = 1.380649e-23
 
+WHOLE = "*"                    # key path of the whole file
+_LOGS: list[set[str]] = []     # the key sets of the active track() blocks
+
+
+@contextmanager
+def track():
+    """Collect the key paths of arch.yaml read inside the block (nested blocks all collect)."""
+    keys: set[str] = set()
+    _LOGS.append(keys)
+    try:
+        yield keys
+    finally:
+        _LOGS.remove(keys)
+
+
+def _log(path: str) -> None:
+    for keys in _LOGS:
+        keys.add(path)
+
+
+class _Tracked(Mapping):
+    """Read-only view of a mapping of arch.yaml that logs what is read: every leaf value and every
+    missing key (``.get`` with a default reads one too) by its path; listing the keys or copying
+    logs the whole mapping. Nested mappings are views as well."""
+
+    __slots__ = ("_data", "_path", "_kids")
+
+    def __init__(self, data: dict, path: str = ""):
+        self._data, self._path, self._kids = data, path, {}
+
+    def __getitem__(self, k):
+        p = f"{self._path}.{k}" if self._path else str(k)
+        if k not in self._data:
+            _log(p)
+            raise KeyError(k)
+        v = self._data[k]
+        if isinstance(v, dict):
+            if k not in self._kids:
+                self._kids[k] = _Tracked(v, p)
+            return self._kids[k]
+        _log(p)
+        return v
+
+    def __iter__(self):
+        _log(self._path or WHOLE)
+        return iter(self._data)
+
+    def __len__(self) -> int:
+        _log(self._path or WHOLE)
+        return len(self._data)
+
+    def __deepcopy__(self, memo) -> dict:
+        _log(self._path or WHOLE)
+        return copy.deepcopy(self._data, memo)
+
+    def __repr__(self) -> str:
+        return f"_Tracked({self._path or WHOLE})"
+
+
+def minimal(keys) -> list[str]:
+    """Sorted key paths without those under another one of the set (``*`` covers all)."""
+    keys = set(keys)
+    if WHOLE in keys:
+        return [WHOLE]
+    return sorted(k for k in keys if not any(k.startswith(o + ".") for o in keys if o != k))
+
+
+_ABSENT = {"absent": True}
+
+
+def value_at(data: dict, key: str):
+    """The value of a key path in the plain data of arch.yaml (a marker when it is absent)."""
+    if key == WHOLE:
+        return {"value": data}
+    cur = data
+    for part in key.split("."):
+        if not isinstance(cur, dict) or part not in cur:
+            return _ABSENT
+        cur = cur[part]
+    return {"value": cur}
+
+
+def values_sha(data: dict, keys) -> str:
+    """Hash of the values of `keys` in the plain data of arch.yaml (formatting and comments do not count)."""
+    vals = {k: value_at(data, k) for k in minimal(keys)}
+    return hashlib.sha256(json.dumps(vals, sort_keys=True, default=repr).encode()).hexdigest()[:16]
+
+
+def load_data(path: Path | str = ARCH_YAML) -> dict:
+    """The plain (untracked) data of arch.yaml."""
+    with open(path, encoding="utf-8") as f:
+        return yaml.safe_load(f)
+
 
 @dataclass(frozen=True)
 class Arch:
@@ -22,8 +126,7 @@ class Arch:
 
     @classmethod
     def load(cls, path: Path | str = ARCH_YAML) -> "Arch":
-        with open(path, encoding="utf-8") as f:
-            return cls(yaml.safe_load(f))
+        return cls(_Tracked(load_data(path)))
 
     # --- basic parameters -------------------------------------------------
     @property

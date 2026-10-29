@@ -131,8 +131,8 @@ def substitute_parameters(text: str, values: dict[str, str]) -> tuple[str, set[s
     return "".join(out), done
 
 
-def content_hash(path: Path | str) -> str:
-    """Hash of what a simulation depends on.
+def content_hash(path: Path | str, data: bytes | None = None) -> str:
+    """Hash of what a simulation depends on (of `data` instead of the file's content when given).
 
     Netlists (.scs) are hashed on their logical lines, so editing the RNL
     drawing (comments) does not make recorded results stale; other files
@@ -141,8 +141,10 @@ def content_hash(path: Path | str) -> str:
     import hashlib
 
     path = Path(path)
+    if data is None:
+        data = path.read_bytes()
     if path.suffix == ".scs":
-        data = "\n".join(line for _, line in logical_lines(path.read_text(encoding="utf-8"))).encode()
+        data = "\n".join(line for _, line in logical_lines(data.decode("utf-8"))).encode()
     else:
-        data = path.read_bytes().replace(b"\r\n", b"\n")
+        data = data.replace(b"\r\n", b"\n")
     return hashlib.sha256(data).hexdigest()[:16]

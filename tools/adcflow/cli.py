@@ -70,6 +70,15 @@ def main(argv: list[str] | None = None) -> int:
     rm.add_argument("--redraw", action="store_true",
                     help="figures only: every metric must come out as recorded (meta.redrawn)")
 
+    rh = sub.add_parser("rehash", help="record, without simulating, only what each result's circuit depends on "
+                                       "(the files its testbench reaches, the arch.yaml values it read); "
+                                       "a result whose dependencies changed stays stale")
+    rh.add_argument("--block")
+    rh.add_argument("--test")
+    rh.add_argument("--view", help="result directory, e.g. behav or xtor-alice")
+    rh.add_argument("--dry-run", action="store_true", help="only report what would be rehashed")
+    rh.add_argument("-v", "--verbose", action="store_true", help="list every result, not only the stale ones")
+
     r = sub.add_parser("report", help="summarise recorded results against specs")
     r.add_argument("--block")
 
@@ -117,6 +126,9 @@ def main(argv: list[str] | None = None) -> int:
         from .runner import remeasure
         remeasure(a.test, Path(a.run), a.block, dict(v.split("=", 1) for v in a.view),
                   tuple(a.allow) or ("sfdr",), a.dry_run, a.redraw)
+    elif a.cmd == "rehash":
+        from .deps import rehash
+        rehash(a.block, a.test, a.view, a.dry_run, a.verbose)
     elif a.cmd == "report":
         from .results import report
         return report(a.block)
