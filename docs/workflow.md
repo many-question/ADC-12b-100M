@@ -53,7 +53,7 @@ python -m adcflow clean-remote --older-than-h 12   # 清理服务器上本项目
    `meta.arch` 记录建作业与度量时读到的 `specs/arch.yaml` 键及其取值的哈希，`meta.views` 记录视图
    （何时过期见 [`verification.md`](verification.md) §2「结果过期」），`meta.git` 记录当时的提交，
    `meta.git_clean` 记录仿真时工作区是否干净（`git status --porcelain` 在 `results/` 之外没有任何改动、暂存或未跟踪的文件；
-   被忽略的文件如 `site.local.yaml` 不算；`results/` 不算，因为成套重跑时结果本身在变），不干净时
+   被忽略的文件如 `site.local.yaml` 不算；`results/` 与 `verification/` 不算，因为成套重跑、复核时它们本身在变），不干净时
    `meta.git_dirty_paths` 列出这些路径（最多 20 个）。要提交的结果应先提交代码再仿真，使其为 `true`；度量函数同时用已读入的数据画证据图，
    写在 JSON 旁（`<corner>.<tag>.png`），清单记在 JSON 的 `figures`（见 [`verification.md`](verification.md) §4）。
    重跑同一结果会先删除它旧的图。

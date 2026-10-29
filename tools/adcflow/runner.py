@@ -73,17 +73,19 @@ def _git(*args: str) -> str:
 
 
 def dirty_paths(porcelain: str) -> list[str]:
-    """Paths that ``git status --porcelain`` lists (modified, staged or untracked) outside results/.
+    """Paths that ``git status --porcelain`` lists (modified, staged or untracked) outside results/
+    and verification/.
 
-    results/ does not count: a suite run rewrites results while it runs. Ignored files
-    (site.local.yaml) are not listed by git at all. A rename counts by its new path.
+    Those do not count: they are outputs that a suite run (or a verify run, verify.py) rewrites
+    while others run. Ignored files (site.local.yaml) are not listed by git at all. A rename counts
+    by its new path.
     """
     out = []
     for line in porcelain.splitlines():
         if len(line) < 4:
             continue
         path = line[3:].split(" -> ")[-1].strip('"')
-        if path == "results" or path.startswith("results/"):
+        if path.split("/")[0] in ("results", "verification"):
             continue
         out.append(path)
     return out
