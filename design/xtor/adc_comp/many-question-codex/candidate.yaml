@@ -1,0 +1,6 @@
+name: many-question-codex
+description: Dynamic differential preamplifier and complementary regenerative latch with return-to-zero output buffers.
+status: wip
+acknowledged: [40, 63]
+authors:
+  - {github: many-question, name: "Codex adc_comp"}
