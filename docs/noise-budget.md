@@ -329,3 +329,6 @@ PHI_B/PHI_BB、CONV 负载不变（CDAC 内部缓冲三态使能）。
 **行为级确认**（全行为级 `tb_top_sine`，噪声开，新的噪声计法，先断后合 CDAC；行为级没有工艺时序，只有温度与电压；
 记录的全角基线见 `docs/verification.md` §3）：Spectre 回放（`tb_ref_replay`）的 `env_ratio` 在 tt_nom_27 / tt_nom_125 /
 ss_low_125 / ff_high_m40 为 0.63 / 0.78 / 0.78 / 0.51（4 mA 时 2.04 / 2.52 / — / 1.70），判决 12~14 的变化 ≤ 109 µV。
+记录的结果（采用的方案，`377842e`，干净工作区）：TT 回放 `env_ratio` 0.63（REF-21），REF-12 损失 ≈ 0，REF-13 73 µV；
+全行为级 `tb_top_sine` 的 TOP-01：tt_nom_125 / ss_low_125 / ff_high_125 为 10.85 / 10.83 / 10.81，27 °C 10.82~10.92，−40 °C 10.84~10.89，
+TOP-02（TT）10.92，TOP-08 10.96，TOP-09 10.90 / 10.95（`docs/verification.md` §3）。

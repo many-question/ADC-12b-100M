@@ -22,50 +22,50 @@
  "metrics": {
   "n_samples": 2049,
   "missing_rdy": 0,
-  "t_conv_max_ns": 2.69098,
-  "t_conv_mean_ns": 2.6071003872070313,
+  "t_conv_max_ns": 2.8236809999999997,
+  "t_conv_mean_ns": 2.7361361215820312,
   "cal_independent": true,
   "weights_cal": [
-   1959.712,
-   1119.773,
-   635.804,
-   359.881,
-   204.041,
-   114.021,
-   64.047,
-   36.123,
-   20.178,
-   12.118,
-   6.212,
-   3.97,
-   2.027,
-   1.09
+   1960.421,
+   1120.214,
+   636.13,
+   360.081,
+   204.088,
+   114.059,
+   63.935,
+   35.913,
+   19.93,
+   11.794,
+   5.926,
+   3.717,
+   1.827,
+   0.964
   ],
-  "enob": 10.630056413101535,
-  "sndr_dBc": 65.75293960687124,
-  "sfdr_dBc": 83.45327964656155,
-  "snr_dBc": 65.95544594888003,
-  "thd_dBc": -79.27522119577282,
-  "enob_nom": 10.596544205003648,
-  "sndr_nom_dBc": 65.55119611412195,
-  "sfdr_nom_dBc": 83.52923767496334,
-  "snr_nom_dBc": 65.75082637280211,
-  "thd_nom_dBc": -79.13277460741446,
-  "amp_codes": 2022.5139455744875,
-  "fs_peak_V": 0.993063608299251,
-  "code_min": 247,
-  "code_max": 4292,
-  "p_avdd_mW": 0.28223867673,
-  "p_dvdd_mW": 0.21071506311000002,
-  "p_avdd18_mW": 7.5110530446,
-  "power_mW": 8.00400678444
+  "enob": 10.960426372420482,
+  "sndr_dBc": 67.7417667619713,
+  "sfdr_dBc": 84.45547431135768,
+  "snr_dBc": 67.77793527102628,
+  "thd_dBc": -88.76562761488069,
+  "enob_nom": 10.906422751916006,
+  "sndr_nom_dBc": 67.41666496653436,
+  "sfdr_nom_dBc": 85.15901328649966,
+  "snr_nom_dBc": 67.46912651915768,
+  "thd_nom_dBc": -86.93126965510794,
+  "amp_codes": 2023.211110123058,
+  "fs_peak_V": 0.9927214152682233,
+  "code_min": 246,
+  "code_max": 4293,
+  "p_avdd_mW": 0.28193678541,
+  "p_dvdd_mW": 0.21070461734999998,
+  "p_avdd18_mW": 14.711437798200002,
+  "power_mW": 15.204079200960003
  },
  "specs": {
   "TOP-08": {
    "metric": "enob",
-   "value": 10.630056413101535,
+   "value": 10.960426372420482,
    "limit": ">= 10.8",
-   "pass": false
+   "pass": true
   }
  },
  "figures": [
@@ -79,15 +79,15 @@
   }
  ],
  "meta": {
-  "date": "2026-10-29T04:09:31",
-  "git": "da7e8c7",
+  "date": "2026-10-29T12:12:41",
+  "git": "377842e",
   "git_clean": true,
   "mode": "aps",
   "pdk": false,
   "mc": null,
-  "wall_s": 792.1,
+  "wall_s": 824.3,
   "rc": "0",
-  "sim_s": "684",
+  "sim_s": "716",
   "numerics": {
    "source": "spectre.log",
    "reltol": 0.001,
@@ -96,8 +96,8 @@
    "errpreset": "moderate",
    "lteratio": 3.5,
    "abstol_V": 1e-06,
-   "steps_accepted": 3727957,
-   "step_mean_ps": 5.50596,
+   "steps_accepted": 3751966,
+   "step_mean_ps": 5.47073,
    "step_max_ps": null
   },
   "files": {
@@ -105,7 +105,7 @@
    "design/behav/adc_cdac.scs": "5b8837cc5d2a76bc",
    "design/behav/adc_clkgen.scs": "0e7831ed888587e6",
    "design/behav/adc_comp.scs": "c0da9398b6e09fc2",
-   "design/behav/adc_ref.scs": "a83c6feaac8c9c1a",
+   "design/behav/adc_ref.scs": "bc2eec0046129145",
    "design/behav/adc_sarlogic.scs": "7982e36f6743bf80",
    "design/top/adc_top.scs": "362a964ffe162797",
    "design/behav/veriloga/adc_bootstrap_va.va": "12338aad16f4913b",
@@ -114,12 +114,12 @@
    "design/behav/veriloga/adc_comp_va.va": "ab8a6bf210351e31",
    "design/behav/veriloga/adc_ktc_va.va": "a1cf98faf5bf9b33",
    "design/behav/veriloga/adc_ref_va.va": "746d2530d4ff6d5c",
-   "design/behav/veriloga/adc_sarlogic_va.va": "42f06909a81347ef",
+   "design/behav/veriloga/adc_sarlogic_va.va": "5cd9dbd22bf395eb",
    "tb/common/veriloga/tb_capture_va.va": "1a05df990a1ef806",
    "tb/common/veriloga/tb_imeter_va.va": "d4be49aca417ad61",
    "tb/common/veriloga/tb_rsrc_va.va": "66b85ead5a038eb0",
    "tb/top/tb_top_sine.scs": "d131f9666cdb9650",
-   "specs/arch.yaml": "bffadef750bb5205"
+   "specs/arch.yaml": "04b74bfe28a6229a"
   },
   "provenance": {
    "spectrum": {
@@ -128,12 +128,6 @@
     "sfdr": "plotspec definition: peak bin of the fundamental / largest other single bin (DC and signal bins excluded, Nyquist included)",
     "enob_sndr_snr_thd": "adctoolbox 0.6.4 compute_spectrum"
    }
-  },
-  "redrawn": {
-   "date": "2026-10-29T05:42:28",
-   "git": "5959baa",
-   "git_clean": true,
-   "run": "20261029-035558-20ae-tb_top_sine_lf"
   }
  }
 }

@@ -23,48 +23,48 @@
  "metrics": {
   "n_samples": 2048,
   "missing_rdy": 0,
-  "t_conv_max_ns": 2.68133,
-  "t_conv_mean_ns": 2.6071911318359375,
+  "t_conv_max_ns": 2.806232,
+  "t_conv_mean_ns": 2.735575232421875,
   "cal_independent": true,
   "weights_cal": [
-   1959.842,
-   1119.889,
-   635.857,
-   359.967,
-   203.954,
-   113.98,
-   64.039,
-   36.105,
-   20.188,
-   12.135,
-   6.084,
-   3.896,
-   1.953,
-   1.112
+   1960.555,
+   1120.337,
+   636.135,
+   360.132,
+   203.992,
+   114.03,
+   63.998,
+   35.98,
+   19.958,
+   11.793,
+   5.79,
+   3.591,
+   1.731,
+   0.976
   ],
-  "enob": 10.584042628114826,
-  "sndr_dBc": 65.47593662125125,
-  "sfdr_dBc": 82.37288991788596,
-  "snr_dBc": 65.60921383830664,
-  "thd_dBc": -81.06226139516963,
-  "enob_nom": 10.54520761491666,
-  "sndr_nom_dBc": 65.24214984179828,
-  "sfdr_nom_dBc": 82.43002920022613,
-  "snr_nom_dBc": 65.39312887919236,
-  "thd_nom_dBc": -80.18654493087058,
-  "amp_codes": 2020.5126615647077,
-  "fs_peak_V": 0.9940472211999711,
-  "code_min": 248,
-  "code_max": 4289,
-  "p_avdd_mW": 0.28221454692,
-  "p_dvdd_mW": 0.21072517155,
-  "p_avdd18_mW": 7.5109649094,
-  "power_mW": 8.00390462787
+  "enob": 10.901995031107253,
+  "sndr_dBc": 67.39001008726567,
+  "sfdr_dBc": 83.98279908766831,
+  "snr_dBc": 67.57005723414905,
+  "thd_dBc": -81.48210641901814,
+  "enob_nom": 10.818108943059514,
+  "sndr_nom_dBc": 66.88501583721828,
+  "sfdr_nom_dBc": 83.93280203045968,
+  "snr_nom_dBc": 67.02168724050031,
+  "thd_nom_dBc": -82.19166106085896,
+  "amp_codes": 2021.19751409857,
+  "fs_peak_V": 0.9937104031732968,
+  "code_min": 247,
+  "code_max": 4290,
+  "p_avdd_mW": 0.28197513521999995,
+  "p_dvdd_mW": 0.21071512449000002,
+  "p_avdd18_mW": 14.711349331800001,
+  "power_mW": 15.204039591510002
  },
  "specs": {
   "TOP-09": {
    "metric": "enob",
-   "value": 10.584042628114826,
+   "value": 10.901995031107253,
    "limit": ">= 10.5",
    "pass": true
   }
@@ -80,15 +80,15 @@
   }
  ],
  "meta": {
-  "date": "2026-10-29T03:55:53",
-  "git": "da7e8c7",
+  "date": "2026-10-29T11:58:32",
+  "git": "377842e",
   "git_clean": true,
   "mode": "aps",
   "pdk": false,
   "mc": null,
-  "wall_s": 1410.2,
+  "wall_s": 1453.3,
   "rc": "0",
-  "sim_s": "706",
+  "sim_s": "735",
   "numerics": {
    "source": "spectre.log",
    "reltol": 0.001,
@@ -97,8 +97,8 @@
    "errpreset": "moderate",
    "lteratio": 3.5,
    "abstol_V": 1e-06,
-   "steps_accepted": 3730527,
-   "step_mean_ps": 5.50217,
+   "steps_accepted": 3755342,
+   "step_mean_ps": 5.46581,
    "step_max_ps": null
   },
   "files": {
@@ -106,7 +106,7 @@
    "design/behav/adc_cdac.scs": "5b8837cc5d2a76bc",
    "design/behav/adc_clkgen.scs": "0e7831ed888587e6",
    "design/behav/adc_comp.scs": "c0da9398b6e09fc2",
-   "design/behav/adc_ref.scs": "a83c6feaac8c9c1a",
+   "design/behav/adc_ref.scs": "bc2eec0046129145",
    "design/behav/adc_sarlogic.scs": "7982e36f6743bf80",
    "design/top/adc_top.scs": "362a964ffe162797",
    "design/behav/veriloga/adc_bootstrap_va.va": "12338aad16f4913b",
@@ -115,12 +115,12 @@
    "design/behav/veriloga/adc_comp_va.va": "ab8a6bf210351e31",
    "design/behav/veriloga/adc_ktc_va.va": "a1cf98faf5bf9b33",
    "design/behav/veriloga/adc_ref_va.va": "746d2530d4ff6d5c",
-   "design/behav/veriloga/adc_sarlogic_va.va": "42f06909a81347ef",
+   "design/behav/veriloga/adc_sarlogic_va.va": "5cd9dbd22bf395eb",
    "tb/common/veriloga/tb_capture_va.va": "1a05df990a1ef806",
    "tb/common/veriloga/tb_imeter_va.va": "d4be49aca417ad61",
    "tb/common/veriloga/tb_rsrc_va.va": "66b85ead5a038eb0",
    "tb/top/tb_top_sine.scs": "d131f9666cdb9650",
-   "specs/arch.yaml": "bffadef750bb5205"
+   "specs/arch.yaml": "04b74bfe28a6229a"
   },
   "provenance": {
    "spectrum": {
@@ -129,12 +129,6 @@
     "sfdr": "plotspec definition: peak bin of the fundamental / largest other single bin (DC and signal bins excluded, Nyquist included)",
     "enob_sndr_snr_thd": "adctoolbox 0.6.4 compute_spectrum"
    }
-  },
-  "redrawn": {
-   "date": "2026-10-29T05:42:31",
-   "git": "5959baa",
-   "git_clean": true,
-   "run": "20261029-033202-5cf3-tb_top_duty"
   }
  }
 }

@@ -19,7 +19,7 @@
  },
  "metrics": {
   "timeout_errors": 0,
-  "t_timeout_ps": 284.99999999998715,
+  "t_timeout_ps": 284.9999999999884,
   "n_conversions": 40
  },
  "specs": {
@@ -31,7 +31,7 @@
   },
   "LOG-12": {
    "metric": "t_timeout_ps",
-   "value": 284.99999999998715,
+   "value": 284.9999999999884,
    "limit": "200 .. 350",
    "pass": true
   }
@@ -47,15 +47,15 @@
   }
  ],
  "meta": {
-  "date": "2026-10-29T03:31:56",
-  "git": "da7e8c7",
+  "date": "2026-10-29T11:33:45",
+  "git": "377842e",
   "git_clean": true,
   "mode": "aps",
   "pdk": false,
   "mc": null,
-  "wall_s": 152.1,
+  "wall_s": 174.8,
   "rc": "0",
-  "sim_s": "44",
+  "sim_s": "66",
   "numerics": {
    "source": "spectre.log",
    "reltol": 0.001,
@@ -64,8 +64,8 @@
    "errpreset": "moderate",
    "lteratio": 3.5,
    "abstol_V": 1e-06,
-   "steps_accepted": 32539,
-   "step_mean_ps": 12.3274,
+   "steps_accepted": 32144,
+   "step_mean_ps": 12.4788,
    "step_max_ps": 2558.56
   },
   "files": {
@@ -73,7 +73,7 @@
    "design/behav/adc_cdac.scs": "5b8837cc5d2a76bc",
    "design/behav/adc_clkgen.scs": "0e7831ed888587e6",
    "design/behav/adc_comp.scs": "c0da9398b6e09fc2",
-   "design/behav/adc_ref.scs": "a83c6feaac8c9c1a",
+   "design/behav/adc_ref.scs": "bc2eec0046129145",
    "design/behav/adc_sarlogic.scs": "7982e36f6743bf80",
    "design/top/adc_top.scs": "362a964ffe162797",
    "design/behav/veriloga/adc_bootstrap_va.va": "12338aad16f4913b",
@@ -82,13 +82,13 @@
    "design/behav/veriloga/adc_comp_va.va": "ab8a6bf210351e31",
    "design/behav/veriloga/adc_ktc_va.va": "a1cf98faf5bf9b33",
    "design/behav/veriloga/adc_ref_va.va": "746d2530d4ff6d5c",
-   "design/behav/veriloga/adc_sarlogic_va.va": "42f06909a81347ef",
+   "design/behav/veriloga/adc_sarlogic_va.va": "5cd9dbd22bf395eb",
    "tb/common/veriloga/tb_capture_va.va": "1a05df990a1ef806",
    "tb/common/veriloga/tb_cmp_emu_va.va": "1173f23365da8b7f",
    "tb/common/veriloga/tb_imeter_va.va": "d4be49aca417ad61",
    "tb/common/veriloga/tb_qmeter_va.va": "fed84d572a912b39",
-   "tb/sarlogic/tb_sarlogic_func.scs": "c0f86730099feb62",
-   "specs/arch.yaml": "bffadef750bb5205"
+   "tb/sarlogic/tb_sarlogic_func.scs": "8e2ed844aed00bc1",
+   "specs/arch.yaml": "04b74bfe28a6229a"
   }
  }
 }

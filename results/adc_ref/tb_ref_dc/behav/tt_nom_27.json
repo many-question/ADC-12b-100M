@@ -15,30 +15,30 @@
   "cdac_behav": 1
  },
  "metrics": {
-  "vrefp_err_mV": -2.0066062044298283,
-  "vcm_V": 0.4489966964602622,
-  "i18_uA": 4200.000000897993,
+  "vrefp_err_mV": -1.0129567134014028,
+  "vcm_V": 0.4494935214200982,
+  "i18_uA": 8200.000000898986,
   "i09_uA": 5.0,
   "iin_uA": 0.0,
-  "loadreg_mV": 2.006606195223637,
-  "line_mV_per_V": 3.389881678328103e-13
+  "loadreg_mV": 1.0129567087983071,
+  "line_mV_per_V": 5.344682828472291e-13
  },
  "specs": {
   "REF-01": {
    "metric": "vrefp_err_mV",
-   "value": -2.0066062044298283,
+   "value": -1.0129567134014028,
    "limit": "-5 .. 5",
    "pass": true
   },
   "REF-02": {
    "metric": "vcm_V",
-   "value": 0.4489966964602622,
+   "value": 0.4494935214200982,
    "limit": "0.44 .. 0.46",
    "pass": true
   },
   "REF-04": {
    "metric": "line_mV_per_V",
-   "value": 3.389881678328103e-13,
+   "value": 5.344682828472291e-13,
    "limit": "<= 5",
    "pass": true
   },
@@ -56,15 +56,15 @@
   }
  ],
  "meta": {
-  "date": "2026-10-29T05:45:14",
-  "git": "fcc500d",
+  "date": "2026-10-29T11:12:46",
+  "git": "377842e",
   "git_clean": true,
   "mode": "aps",
   "pdk": false,
   "mc": null,
-  "wall_s": 118.5,
+  "wall_s": 120.7,
   "rc": "0",
-  "sim_s": "11",
+  "sim_s": "14",
   "numerics": {
    "source": "spectre.log",
    "reltol": 0.001,
@@ -76,7 +76,7 @@
    "design/behav/adc_cdac.scs": "5b8837cc5d2a76bc",
    "design/behav/adc_clkgen.scs": "0e7831ed888587e6",
    "design/behav/adc_comp.scs": "c0da9398b6e09fc2",
-   "design/behav/adc_ref.scs": "a83c6feaac8c9c1a",
+   "design/behav/adc_ref.scs": "bc2eec0046129145",
    "design/behav/adc_sarlogic.scs": "7982e36f6743bf80",
    "design/top/adc_top.scs": "362a964ffe162797",
    "design/behav/veriloga/adc_bootstrap_va.va": "12338aad16f4913b",
@@ -85,9 +85,9 @@
    "design/behav/veriloga/adc_comp_va.va": "ab8a6bf210351e31",
    "design/behav/veriloga/adc_ktc_va.va": "a1cf98faf5bf9b33",
    "design/behav/veriloga/adc_ref_va.va": "746d2530d4ff6d5c",
-   "design/behav/veriloga/adc_sarlogic_va.va": "42f06909a81347ef",
+   "design/behav/veriloga/adc_sarlogic_va.va": "5cd9dbd22bf395eb",
    "tb/ref/tb_ref_dc.scs": "6c0b4787bdd7e2bb",
-   "specs/arch.yaml": "bffadef750bb5205"
+   "specs/arch.yaml": "04b74bfe28a6229a"
   }
  }
 }
