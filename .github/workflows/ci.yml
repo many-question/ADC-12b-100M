@@ -16,7 +16,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
-          fetch-depth: 0                # the owner check diffs against the base branch
+          fetch-depth: 0                # the candidates check diffs against the base branch
       - uses: actions/setup-python@v7
         with:
           python-version: "3.11"
@@ -37,15 +37,15 @@ jobs:
           echo "$PWD" >> "$GITHUB_PATH"
       - name: Hygiene (no site data, model cards or large files)
         run: python -m adcflow check hygiene
-      - name: Block owners (a PR may only claim for, or release to, its author)
+      - name: Candidates (one candidate per PR, its author, its paths only; netlist and size rules)
         env:
           PR_AUTHOR: ${{ github.event.pull_request.user.login }}
           PR_BASE: ${{ github.base_ref }}
         run: |
           if [ -n "$PR_AUTHOR" ]; then
-            python -m adcflow check owners --base "origin/$PR_BASE" --author "$PR_AUTHOR"
+            python -m adcflow check candidates --base "origin/$PR_BASE" --author "$PR_AUTHOR"
           else
-            python -m adcflow check owners
+            python -m adcflow check candidates
           fi
       - name: Port contracts (specs vs every view, instance and Verilog-A header)
         run: python -m adcflow check ports

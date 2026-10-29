@@ -134,6 +134,10 @@ def _load_block(path: Path) -> Block:
             errs.append(f"missing key {key!r}")
     if errs:
         raise SpecError(f"{path.name}: " + "; ".join(errs))
+    owner = raw.get("owner")
+    if owner is not None and not (owner == "TBD" or (isinstance(owner, str)
+                                                     and re.match(r"^[A-Za-z0-9](?:[A-Za-z0-9-]{0,38})$", owner))):
+        errs.append(f"owner {owner!r} must be TBD or a GitHub login")
     sel = raw.get("selected")
     if sel is not None and (not isinstance(sel, str) or not re.match(r"^(none|[a-z0-9-]{2,24})$", sel)):
         errs.append(f"selected {sel!r} must be `none` or a candidate name")

@@ -1,4 +1,4 @@
-"""CI checks: ``python -m adcflow check [ports|rnl|results|hygiene|all]``.
+"""CI checks: ``python -m adcflow check [ports|rnl|results|hygiene|candidates|all]``.
 
 ports    every view and every candidate (design/xtor/<block>/<name>/) of every
          block defines its subcircuit with exactly the port list of
@@ -16,13 +16,21 @@ results  recorded results (results/**.json) are re-judged with the current
          listed files must exist next to the JSON and stay below 200 kB; with
          --strict every result needs figures. They are not hashed: a figure is
          as stale as the JSON it belongs to.
-owners   `owner:` of every block spec is `TBD` or a GitHub login. With --base and
-         --author (CI, pull requests) a change of an owner is only allowed from
-         `TBD` to the author's own login or from the author back to `TBD`;
-         changes by the repository owner are exempt.
 hygiene  nothing site specific (servers, server paths, shell setup, PDK paths),
          no foundry name or PDK product code, and no model cards or large
          binaries in tracked files.
+candidates  every candidate (docs/proposals/open-candidates.md §2): its
+         netlist <block>.scs only uses PDK devices, resistor / capacitor /
+         inductor and its own subcircuits, with no include / ahdl_include;
+         its directory holds the netlist, candidate.yaml (valid) and
+         .md/.png/.svg/.txt files, <= 2 MB, PNG <= 200 kB; its results are
+         its JSONs (block / test / view as their path) and PNGs. With --base
+         and --author (pull requests): a PR that touches a candidate touches
+         exactly one and nothing else, and its author is an author of the
+         candidate (base candidate.yaml) or, for a new one, in the new
+         candidate.yaml with the name starting with the login; authors do
+         not change in a candidate PR. A PR that touches no candidate is a
+         lead PR; no login is exempt.
 """
 
 from __future__ import annotations
@@ -388,41 +396,35 @@ def check_hygiene() -> Report:
     return r
 
 
-# ------------------------------------------------------------------ owners
-REPO_OWNER = "many-question"
-LOGIN = re.compile(r"^[A-Za-z0-9](?:[A-Za-z0-9-]{0,38})$")
+# ------------------------------------------------------------------ candidates
+def _git_out(*args: str) -> tuple[int, str]:
+    p = subprocess.run(["git", *args], cwd=REPO_ROOT, capture_output=True, text=True)
+    return p.returncode, p.stdout
 
 
-def _owner_of(text: str | None) -> str | None:
-    if text is None:
-        return None
-    return str((yaml.safe_load(text) or {}).get("owner", "TBD")).strip()
+def check_candidates(base: str | None = None, author: str | None = None) -> Report:
+    """Every candidate (directory and results) follows the content rules; with --base and --author
+    (CI, pull requests) the PR also follows the candidate-PR rules (candidates.pr_problems)."""
+    from . import candidates as cand
 
+    r = Report("candidates")
+    errs = cand.disk_problems()
+    if base and author:
+        rc, mb = _git_out("merge-base", base, "HEAD")
+        if rc != 0:
+            r.err(f"cannot find the merge base of {base} and HEAD")
+            return r
+        mb = mb.strip()
+        _, out = _git_out("diff", "--name-only", "--no-renames", mb, "HEAD")
+        changed = [p for p in out.splitlines() if p]
 
-def owner_change_allowed(old: str | None, new: str | None, author: str) -> bool:
-    """Claim (TBD -> author) or release (author -> TBD); anything else needs the repository owner."""
-    old, new = old or "TBD", new or "TBD"
-    if old == new:
-        return True
-    a = author.lower()
-    return (old == "TBD" and new.lower() == a) or (old.lower() == a and new == "TBD")
+        def base_text(path: str) -> str | None:
+            rc, text = _git_out("show", f"{mb}:{path}")
+            return text if rc == 0 else None
 
-
-def check_owners(base: str | None = None, author: str | None = None) -> Report:
-    r = Report("owners")
-    paths = sorted((REPO_ROOT / "specs" / "blocks").glob("*.yaml"))
-    for p in paths:
-        rel = p.relative_to(REPO_ROOT).as_posix()
-        new = _owner_of(p.read_text(encoding="utf-8"))
-        if new != "TBD" and not LOGIN.match(new):
-            r.err(f"{rel}: owner {new!r} must be TBD or a GitHub login")
-        if not base or not author or author.lower() == REPO_OWNER:
-            continue
-        show = subprocess.run(["git", "show", f"{base}:{rel}"], cwd=REPO_ROOT, capture_output=True, text=True)
-        old = _owner_of(show.stdout) if show.returncode == 0 else None
-        if not owner_change_allowed(old, new, author):
-            r.err(f"{rel}: owner changed {old or 'TBD'} -> {new}; a pull request may only set TBD -> its "
-                  f"author ({author}) or the author -> TBD, other changes are made by {REPO_OWNER}")
+        errs += cand.pr_problems(changed, author, base_text, cand.disk_files)
+    for e in dict.fromkeys(errs):
+        r.err(e)
     return r
 
 
@@ -439,8 +441,8 @@ def run_checks(what: str = "all", strict: bool = False, base: str | None = None,
         reports.append(check_results(strict))
     if what in ("hygiene", "all"):
         reports.append(check_hygiene())
-    if what in ("owners", "all"):
-        reports.append(check_owners(base, author))
+    if what in ("candidates", "all"):
+        reports.append(check_candidates(base, author))
     for rep in reports:
         rep.print()
     rc = 1 if any(rep.errors for rep in reports) else 0
