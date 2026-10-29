@@ -72,6 +72,21 @@ CI 状态：通过 / 失败 / 运行中）和**未关闭的通知（issue）**�
   仓库 60 天没有活动时 GitHub 会停掉定时工作流，重新启用即可。
 * 数据层的测试用固定的 JSON 夹具，不联网：`tests/test_site_live.py`。
 
+### 什么时候重建（`.github/workflows/site.yml`，`site/events.py`）
+
+GitHub 的定时任务在负载高时会被丢弃，所以每小时的定时重建只是兜底，真正的重建由事件触发（都重建并部署**主分支**的站点）：
+PR 打开 / 更新 / 重新打开 / 标记就绪 / 转草稿 / 关闭（`pull_request_target`）、通知（issue）打开 / 编辑 / 关闭 / 重新打开和新评论、
+`ci` 工作流在 PR 上跑完（`workflow_run`，所以草稿预览在该提交的 CI 通过后很快出现）。`pull_request` 仍然只构建并上传预览，不部署。
+
+* 先由很小的 `gate` 作业（`site/events.py`，只用标准库）判断事件能不能改变站点，不能的就跳过：标题不以 `[<block>]` 开头的 PR / issue、
+  对 PR 或别的 issue 的评论、分支 push 触发的 CI（同一个提交 PR 自己的 CI 会再报一次）、不是模块 PR 的 CI。被跳过的构建不会取消正在跑的构建。
+* 构建合并：同一个 ref 的新构建取消旧的（开头有 20 秒的缓冲，让连发的事件先互相取消），已经开始的部署永远不会被取消（只等待一个更新的部署）。
+* **为什么用 `pull_request_target` 是安全的**：这些事件用主分支的工作流文件、带令牌运行（fork 的 PR 也是），所以规则是不运行任何来自 PR 的东西：
+  每个作业只检出默认分支，从不检出或运行 PR 的提交；PR 的文件只被当数据读（`git cat-file`），并先过工艺名称和卫生检查；
+  PR / issue 的标题、正文、评论从不进入 shell 命令或日志（`events.py` 在 Python 里解析事件、只输出固定的原因代码）；权限按作业最小化
+  （`gate`、`build` 只读，只有 `deploy` 有 `pages: write` 和 `id-token: write`），只用作业自带的 `GITHUB_TOKEN`，不给 PR 控制的代码任何密钥。
+* 测试：`tests/test_site_events.py`（事件过滤、工作流的权限 / 检出 / 并发约束）。
+
 ### 草稿预览（`sitegen/preview.py`）
 
 模块页用标签页组织：“主分支”（主分支的全部内容，含“进行中”面板）是默认标签，每个有预览的 PR 一个“草稿 PR #N”标签（带 CI 徽标）。
