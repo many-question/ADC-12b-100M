@@ -1,11 +1,10 @@
 block: adc_clkgen
 title: Sampling clock phase generator
-version: 0.4.0
-owner: many-question
+version: 0.5.0
+selected: none          # the selected candidate (design/xtor/<block>/<name>/); none yet
 status: behavioral
 views:
   behav: design/behav/adc_clkgen.scs
-  xtor: design/xtor/adc_clkgen/adc_clkgen.scs
 summary: >
   Buffers the single external CLK (high = track, low = hold + convert) into
   the sampling phases. Falling CLK: PHI_S falls first (sampling instant, top

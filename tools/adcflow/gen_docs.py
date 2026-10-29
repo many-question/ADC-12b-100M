@@ -13,9 +13,10 @@ def _limit(s) -> str:
 def gen_specs_md() -> str:
     L = ["# 模块规格与验收用例", "",
          f"> {GEN_HEADER}（`tools/adcflow/gen_docs.py`）。修改规格请改 `specs/blocks/*.yaml`。", "",
-         "| 模块 | 状态 | 负责人 | 指标数 | 用例 |", "|---|---|---|---|---|"]
+         "| 模块 | 状态 | 选定的候选 | 指标数 | 用例 |", "|---|---|---|---|---|"]
     for b in blocks().values():
-        L.append(f"| [`{b.name}`](#{b.name.replace('_', '-')}) | {b.status} | {b.raw.get('owner', 'TBD')} | "
+        who = f"负责人 {b.raw['owner']}" if "owner" in b.raw else (f"`{b.selected}`" if b.selected else "none")
+        L.append(f"| [`{b.name}`](#{b.name.replace('_', '-')}) | {b.status} | {who} | "
                  f"{len(b.specs)} | {', '.join(f'`{t}`' for t in b.tests)} |")
     for b in blocks().values():
         L += ["", f"## {b.name}", "", f"**{b.raw['title']}** — 规格版本 {b.raw['version']}，状态 `{b.status}`。", "",

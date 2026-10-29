@@ -22,7 +22,8 @@ SCS = "// demo\nsimulator lang=spectre\nsubckt adc_demo (A B)\nends adc_demo\n"
 SPEC = f"""block: {BLOCK}
 title: demo
 version: 0.1.0
-status: xtor-wip
+selected: none
+status: behavioral
 views: {{xtor: {NETLIST}}}
 ports:
   - {{name: A, dir: in, type: analog, side: left}}

@@ -1,11 +1,10 @@
 block: adc_cdac
 title: Split-capacitor redundant CDAC, one side (instantiated twice)
-version: 0.5.0
-owner: many-question
+version: 0.6.0
+selected: none          # the selected candidate (design/xtor/<block>/<name>/); none yet
 status: behavioral
 views:
   behav: design/behav/adc_cdac.scs
-  xtor: design/xtor/adc_cdac/adc_cdac.scs
 summary: >
   13 weights w_j (j = 12..0) = 980 560 318 180 102 57 32 18 10 6 3 2 1 x cu,
   cu = 1.0 fF (arch v0.3; the LSB half is 0.5 fF). Each weight is two equal halves: H (neutral state VREFP) and

@@ -106,20 +106,23 @@ def test_view_keys_resolve_to_candidates_and_result_dirs(root, monkeypatch):
     assert cand.resolve(BLOCK, "behav")[1] == "behav"
     with pytest.raises(cand.ViewError, match="no candidate 'bob'"):
         cand.resolve(BLOCK, "xtor:bob")
-    # plain xtor: the legacy single view until the block is migrated ...
-    assert cand.resolve(BLOCK, "xtor") == (blocks()[BLOCK].view_path("xtor"), "xtor")
-    # ... then the selected candidate
-    monkeypatch.setitem(blocks()[BLOCK].raw, "selected", "alice")
-    assert cand.resolve(BLOCK, "xtor") == (path, "xtor-alice")
-    monkeypatch.setitem(blocks()[BLOCK].raw, "selected", "none")
-    monkeypatch.delitem(blocks()[BLOCK].raw["views"], "xtor")
+    # plain xtor: the selected candidate; with selected: none an error (no legacy views on main) ...
     with pytest.raises(cand.ViewError, match="no candidate is selected"):
         cand.resolve(BLOCK, "xtor")
+    monkeypatch.setitem(blocks()[BLOCK].raw, "selected", "alice")
+    assert cand.resolve(BLOCK, "xtor") == (path, "xtor-alice")
+    # ... and a legacy single view (views.xtor) is still read while nothing is selected
+    monkeypatch.setitem(blocks()[BLOCK].raw, "selected", "none")
+    monkeypatch.setitem(blocks()[BLOCK].raw["views"], "xtor", "design/xtor/adc_comp/adc_comp.scs")
+    assert cand.resolve(BLOCK, "xtor") == (blocks()[BLOCK].view_path("xtor"), "xtor")
 
 
-def test_runner_uses_candidates(root):
+def test_runner_uses_candidates(root, monkeypatch):
     _make(root)
     b = blocks()
+    for n in b:                                           # legacy single views, as before migration
+        if n != "adc_top":
+            monkeypatch.setitem(b[n].raw["views"], "xtor", f"design/xtor/{n}/{n}.scs")
     assert runner._viewsig(b[BLOCK], {BLOCK: "xtor:alice"}) == "xtor-alice"
     assert runner._viewsig(b[BLOCK], {}) == "behav"
     assert runner._viewsig(b["adc_top"], {BLOCK: "xtor:alice"}) == "xtor-comp@alice"
@@ -131,25 +134,45 @@ def test_runner_uses_candidates(root):
     assert root / "design" / "xtor" / BLOCK / "alice" / f"{BLOCK}.scs" in files
 
 
-def test_selected_field(monkeypatch):
+def test_selected_field(monkeypatch, tmp_path):
+    """Every block except adc_top has selected: (open-candidates row 4); owner: is retired for them."""
+    import re
+
     from adcflow.specs import SpecError, _load_block
 
+    for name, b in blocks().items():
+        if name == "adc_top":
+            assert b.raw["owner"] == "many-question" and "selected" not in b.raw
+        else:
+            assert b.raw["selected"] == "none" and "owner" not in b.raw and b.status == "behavioral"
+            assert "xtor" not in b.views                       # no legacy single views
     b = blocks()[BLOCK]
-    assert b.selected is None
-    monkeypatch.setitem(b.raw, "selected", "none")
     assert b.selected is None
     monkeypatch.setitem(b.raw, "selected", "alice")
     assert b.selected == "alice"
-    import tempfile
-    from pathlib import Path
-    text = b.path.read_text(encoding="utf-8").replace("owner:", "selected: Not_A_Name\nowner:", 1)
-    with tempfile.TemporaryDirectory() as t:
-        p = Path(t) / f"{BLOCK}.yaml"
-        p.write_text(text, encoding="utf-8")
-        with pytest.raises(SpecError, match="selected"):
+    text = b.path.read_text(encoding="utf-8")
+    p = tmp_path / f"{BLOCK}.yaml"
+
+    def load(t):
+        p.write_text(t, encoding="utf-8")
+        return _load_block(p)
+
+    sel = re.compile(r"^selected: .*$", re.M)
+    assert load(sel.sub("selected: alice", text)).selected == "alice"
+    for bad, msg in ((sel.sub("selected: Not_A_Name", text), "selected: must be"),
+                     (sel.sub("", text), "selected: must be"),                         # required
+                     (sel.sub("selected: none\nowner: alice", text), "owner: is retired"),
+                     (text.replace("status: behavioral", "status: xtor-review"), "needs a selected candidate"),
+                     (text.replace("status: behavioral", "status: xtor-wip"), "status 'xtor-wip'")):
+        with pytest.raises(SpecError, match=msg):
+            load(bad)
+    top = blocks()["adc_top"].path.read_text(encoding="utf-8")
+    p = tmp_path / "adc_top.yaml"
+    for bad, msg in ((top.replace("owner: many-question", "owner: not a login"), "adc_top needs owner"),
+                     (top.replace("owner: many-question", "owner: many-question\nselected: none"), "keeps owner")):
+        p.write_text(bad, encoding="utf-8")
+        with pytest.raises(SpecError, match=msg):
             _load_block(p)
-        p.write_text(text.replace("Not_A_Name", "alice"), encoding="utf-8")
-        assert _load_block(p).selected == "alice"             # accepted next to owner:
 
 
 # ------------------------------------------------------------------ checks

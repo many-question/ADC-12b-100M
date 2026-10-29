@@ -21,7 +21,7 @@ from adcflow.checks import judge, load_results     # noqa: E402
 from adcflow.corners import corner_set             # noqa: E402
 from adcflow.specs import STATUSES, blocks        # noqa: E402
 
-STATUS_ORDER = ["behavioral", "xtor-wip", "xtor-review", "signoff"]
+STATUS_ORDER = ["behavioral", "xtor-review", "signoff"]
 assert set(STATUS_ORDER) == set(STATUSES), "specs.STATUSES changed: update STATUS_ORDER and the stepper"
 
 DOCS = [  # (file, slug, title, blurb) in reading order

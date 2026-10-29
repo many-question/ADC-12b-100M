@@ -17,7 +17,7 @@ BLOCK_DIR = REPO_ROOT / "specs" / "blocks"
 PORT_DIRS = {"in", "out", "inout", "supply", "ground"}
 PORT_TYPES = {"analog", "digital", "clock", "supply"}
 SIDES = {"left", "right", "top", "bottom"}
-STATUSES = {"behavioral", "xtor-wip", "xtor-review", "signoff"}
+STATUSES = {"behavioral", "xtor-review", "signoff"}    # docs/proposals/open-candidates.md §4 (no xtor-wip)
 
 
 @dataclass
@@ -86,7 +86,7 @@ class Block:
     @property
     def selected(self) -> str | None:
         """The selected candidate (`selected: <name>`), None for `selected: none` or no field
-        (docs/proposals/open-candidates.md §4; accepted next to `owner:` during the transition)."""
+        (docs/proposals/open-candidates.md §4; every block except adc_top has the field)."""
         sel = self.raw.get("selected")
         return None if sel in (None, "none") else str(sel)
 
@@ -134,15 +134,21 @@ def _load_block(path: Path) -> Block:
             errs.append(f"missing key {key!r}")
     if errs:
         raise SpecError(f"{path.name}: " + "; ".join(errs))
-    owner = raw.get("owner")
-    if owner is not None and not (owner == "TBD" or (isinstance(owner, str)
-                                                     and re.match(r"^[A-Za-z0-9](?:[A-Za-z0-9-]{0,38})$", owner))):
-        errs.append(f"owner {owner!r} must be TBD or a GitHub login")
-    sel = raw.get("selected")
-    if sel is not None and (not isinstance(sel, str) or not re.match(r"^(none|[a-z0-9-]{2,24})$", sel)):
-        errs.append(f"selected {sel!r} must be `none` or a candidate name")
-    if sel not in (None, "none") and raw.get("block") == "adc_top":
-        errs.append("adc_top has no candidates: it keeps owner:")
+    owner, sel = raw.get("owner"), raw.get("selected")
+    if raw.get("block") == "adc_top":                     # the lead's block: owner:, no candidates
+        if not isinstance(owner, str) or not re.match(r"^[A-Za-z0-9](?:[A-Za-z0-9-]{0,38})$", owner):
+            errs.append(f"adc_top needs owner: <GitHub login> (got {owner!r})")
+        if sel is not None:
+            errs.append("adc_top has no candidates: it keeps owner:, not selected:")
+    else:
+        if owner is not None:
+            errs.append("owner: is retired for blocks: anyone may submit a candidate; the spec names the "
+                        "selected one with `selected: <candidate>` or `selected: none` "
+                        "(docs/proposals/open-candidates.md §4)")
+        if not isinstance(sel, str) or not re.match(r"^(none|[a-z0-9-]{2,24})$", sel):
+            errs.append(f"selected: must be `none` or a candidate name (got {sel!r})")
+        elif sel == "none" and raw.get("status") != "behavioral":
+            errs.append(f"status {raw.get('status')!r} needs a selected candidate (selected: none -> behavioral)")
     if raw["status"] not in STATUSES:
         errs.append(f"status {raw['status']!r} not in {sorted(STATUSES)}")
     ports = []
