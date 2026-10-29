@@ -87,6 +87,12 @@ it is not an official SFDR/SNDR or convergence result.
 A subsequent 125 ns sine-input check of all 1,008 MOS in both halves finds
 70 failing terminal pairs, with 1.14792 V output stress and 1.00487 V sampling
 stress. The fixed-input experimental passes do not extend to this stimulus.
+A later variant combines NMOS sharing with PMOS-to-VIN assistance and stronger
+nonsampled outputs. It has zero project stress violations over both the
+125 ns sine stimulus (maximum 0.98568 V) and the original 70 ns control sequence
+(0.97887 V). RL12 = 35.3 ps and Qref = 1.1072 pC also meet their limits, but
+PHI_SB capacitance = 45.13 fF fails the 40 fF limit. Its tracking acceptance
+remains outstanding. This experimental circuit has not replaced the candidate.
 Convergence comparisons, representative PVT,
 complete corner coverage, long-hold behavior, device stress, and joint bootstrap
 validation remain outstanding. No selection or signoff is claimed.
