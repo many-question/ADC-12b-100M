@@ -74,6 +74,10 @@ This is positive H-bottom-plate overshoot with ideal VG generation and the
 5% parasitic estimate. The 22 sampling and 52 output devices checked so far
 do not cover all 626 MOS instances. Bottom-plate overshoot is another unresolved
 stress failure; improving the sampling switches alone is not sufficient.
+The [six-case sampling-entry diagnosis](sampling-entry-diagnosis.md)
+confirms both failures with a finer step and compares isolated timing, VG,
+top-plate, and sampling-width changes. No tested change repairs both failure
+classes; these exploratory comparisons are not acceptance results.
 Convergence comparisons, representative PVT,
 complete corner coverage, long-hold behavior, device stress, and joint bootstrap
 validation remain outstanding. No selection or signoff is claimed.
