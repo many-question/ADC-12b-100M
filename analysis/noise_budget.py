@@ -61,7 +61,7 @@ def sigma_cu(k: float) -> float:
 
 def slow(ni: m.NonIdeal, s: float) -> m.NonIdeal:
     """Comparator, loop and DAC timing s x the TT values (as budget.timing_table)."""
-    return replace(ni, t_cmp0=ni.t_cmp0 * s, tau_reg=ni.tau_reg * s, t_loop=ni.t_loop * s, t_bit=ni.t_bit * s, t_drv=ni.t_drv * s,
+    return replace(ni, t_cmp0=ni.t_cmp0 * s, tau_reg=ni.tau_reg * s, t_loop=ni.t_loop * s, t_bit=ni.t_bit * s, t_drv=ni.t_drv * s, t_dac_add_scale=ni.t_dac_add_scale * s,
                    t_dac=ni.t_dac * s, t_dac_fast=ni.t_dac_fast * s, tau_dac=ni.tau_dac * s,
                    t_start=0.1e-9 + (ni.t_start - 0.1e-9) * s)
 
@@ -194,11 +194,11 @@ def table(c: Case) -> str:
 
 V02_WORST = Case("v0.2 limits, worst corner", k=1.0, cmp_top=80e-6)
 V02_ISSUE = Case("v0.2 sizing, comparator 240 uV (all-corner)", k=1.0, cmp_top=240e-6)
-V03_WORST = Case("v0.3, worst corner", k=2.0, cmp_top=240e-6, i_ref=4e-3, c_dec=3e-12)
+V03_WORST = Case("v0.3, worst corner (8 mA, 6 pF reference, #35)", k=2.0, cmp_top=240e-6, i_ref=8e-3, c_dec=6e-12)
 V03_TT = replace(V03_WORST, name="v0.3, TT (27 C, TT timing, comparator at its TT limit)",
                  cmp_top=200e-6, temp_c=27.0, timing=1.0)
 V03_TT_BEHAV = replace(V03_TT, name="v0.3, TT, behavioral conditions (no mismatch, no HD3, follower gamma = 2)",
-                       hd3_dbc=None, mismatch=False, ref_noise=float(np.sqrt(2 * K_BOLTZMANN * 300.15 / 4.2e-12)))
+                       hd3_dbc=None, mismatch=False, ref_noise=float(np.sqrt(2 * K_BOLTZMANN * 300.15 / 7.2e-12)))
 
 CMP_SWEEP = (180, 200, 220, 240, 260)
 

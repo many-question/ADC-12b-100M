@@ -278,3 +278,31 @@ def test_source_resistor_noise_follows_the_cdac_view():
     assert beh.globals_["cdac_behav"] == 1 and xt.globals_["cdac_behav"] == 0
     assert "tb_rsrc_va r=rsrc noisy=1-cdac_behav" in beh.tb_text
     assert "noisefmax=nfmax*noise_en " in beh.tb_text           # top-level transient noise follows noise_en
+
+
+def test_ref21_env_ratio_uses_the_redundancy_of_decisions_1_to_11():
+    import numpy as np
+
+    from adcflow.arch import Arch
+    from adcflow.measure.ref import env_ratios
+
+    a = Arch.load()
+    tol = a.redundancy()[:11] * a.lsb * a.vref / a.fs_peak
+    w = np.zeros((3, 14))
+    w[1, :11] = 0.5 * tol                       # half the tolerance everywhere
+    w[2, 6] = -1.25 * tol[6]                    # one conversion over at decision 7
+    w[:, 11:] = 1e-3                            # decisions 12..14 (no redundancy) are REF-13, not REF-21
+    r = env_ratios(a, w)
+    assert len(r) == 11 and r[6] == pytest.approx(1.25) and np.delete(r, 6) == pytest.approx(0.5)
+
+
+def test_log16_extra_wait_is_measured_against_the_steps_without_one():
+    from adcflow.arch import Arch
+    from adcflow.measure.sarlogic import _extra_waits
+
+    a = Arch.load()
+    base = {k: (40e-12 if k <= 6 else 75e-12) for k in (1, 2, 3, 4, 5, 6, 7, 9, 13)}
+    waits = {k: [base[k] + a.t_dac_add[k - 1] * (1.1 if k == 4 else 1.0)] for k in base}
+    m = _extra_waits(a, waits)
+    assert m["t_dac_add_ps"]["9"] == pytest.approx(25.0) and m["t_dac_add_ps"]["4"] == pytest.approx(33.0)
+    assert m["t_dac_add_err_pct"] == pytest.approx(10.0)

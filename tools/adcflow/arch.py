@@ -56,6 +56,14 @@ class Arch:
         return int(self.raw["conversion"]["n_decisions"])
 
     # --- derived ----------------------------------------------------------
+    @cached_property
+    def t_dac_add(self) -> np.ndarray:
+        """Extra DAC wait (s, TT) after the DAC step of decision 1 .. n_dec - 1 (timing.t_dac_add)."""
+        add = np.zeros(self.n_dec - 1)
+        v = np.asarray(self.raw["timing"].get("t_dac_add", []), dtype=float)
+        add[:v.size] = v
+        return add
+
     @property
     def sigma_cu(self) -> float:
         """Relative random mismatch of one unit cap cu (Pelgrom scaling from the 1 fF value)."""

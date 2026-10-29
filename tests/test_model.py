@@ -102,4 +102,22 @@ def test_reference_charge_is_drawn_at_the_dac_drive():
     t_cmp = t_sw - t_dec[:, :-1] - ni.t_bit - ni.t_drv
     assert np.all(t_cmp >= ni.t_cmp0 - 1e-15)                     # comparator delay, then t_bit + t_drv
     gap = t_dec[:, 1:] - (t_sw - ni.t_drv)                          # UP/DN -> next decision
-    assert np.allclose(gap[:, :ni.n_fast], ni.t_dac_fast) and np.allclose(gap[:, ni.n_fast:], ni.t_dac)
+    base = np.where(np.arange(a.n_dec - 1) < ni.n_fast, ni.t_dac_fast, ni.t_dac)
+    assert np.allclose(gap, base + a.t_dac_add, rtol=0, atol=1e-16)  # plus the architecture's extra waits
+
+
+def test_extra_dac_waits_come_from_the_architecture_and_scale_with_timing():
+    a = Arch.load()
+    assert a.t_dac_add[[2, 3, 4, 5, 8]] == pytest.approx([10e-12, 30e-12, 30e-12, 30e-12, 25e-12])
+    assert np.count_nonzero(a.t_dac_add) == 5
+    vin = np.array([0.3]) * a.fs_peak
+    t0 = m.convert(vin, a, m.ideal(t_dac_add=(0.0,) * 13)).t_conv[0]
+    t1 = m.convert(vin, a, m.ideal()).t_conv[0]
+    t2 = m.convert(vin, a, m.ideal(t_dac_add_scale=1.6)).t_conv[0]
+    assert t1 - t0 == pytest.approx(a.t_dac_add.sum(), abs=1e-15)
+    assert t2 - t0 == pytest.approx(1.6 * a.t_dac_add.sum(), abs=1e-15)
+    # the generated Verilog-A constants of the SAR logic carry the same values
+    from adcflow import REPO_ROOT
+    vams = (REPO_ROOT / "design" / "behav" / "veriloga" / "adc_arch.vams").read_text(encoding="utf-8")
+    for k, t in enumerate(a.t_dac_add):
+        assert f"`define ADC_TDX{k} {t:.6e}" in vams

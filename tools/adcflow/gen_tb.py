@@ -336,6 +336,8 @@ def tb_comp() -> list[TBDef]:
 
 
 def tb_sarlogic() -> list[TBDef]:
+    from .measure.sarlogic import WAIT_SAVES
+
     log_ports = ["CONV", "OUTP", "OUTN", "CLKC"] + UPS + DNS + DS + ["RDY", "DVDD", "0"]
     op = _op("adc_sarlogic")
     els = [El("XDUT", "adc_sarlogic", ["CONVX"] + log_ports[1:], where="dut"),
@@ -360,7 +362,7 @@ def tb_sarlogic() -> list[TBDef]:
          f"cupdn={_ff(op['load_updn'])} cclk={_ff(op['load_clkc'])} cload={_ff(op['load_dout'])}",
          "parameters tstop=nconv*tper+tdel+1n"],
         els, ["tran1 tran stop=tstop outputstart=nowave*tstop",
-              "save CONV CLKC OUTP OUTN RDY UP12 DN12 UP6 DN6 UP0 DN0 D0 QCV QOP QON"],
+              f"save CONV CLKC OUTP OUTN RDY {WAIT_SAVES} D0 QCV QOP QON"],
         notes=["UP/DN loaded by cupdn and CLKC by cclk inside the emulator, D/RDY by cload inside the capture",
                "QMCV / QMOP / QMON: the charge into CONV, OUTP, OUTN per rising edge / VDD (LOG-14, LOG-15)",
                "stuck=k: the emulator never answers decision k of every odd conversion (timeout test);"

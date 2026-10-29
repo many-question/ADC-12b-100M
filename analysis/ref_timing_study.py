@@ -50,7 +50,7 @@ def tolerance() -> np.ndarray:
 
 
 def timing(ni: m.NonIdeal, s: float, c: Cand) -> m.NonIdeal:
-    ni = replace(ni, n_fast=c.n_fast, t_dac_add=tuple(x * s for x in c.add) or None)
+    ni = replace(ni, n_fast=c.n_fast, t_dac_add=tuple(x * s for x in c.add) if c.add else (0.0,) * 13)
     return nb.slow(ni, s) if s != 1.0 else ni
 
 

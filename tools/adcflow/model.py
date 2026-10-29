@@ -89,9 +89,9 @@ class Follower:
     follower and its bias source). VREFP is taken as recovered between
     conversions, so (c_node + c2) / g_s must stay well below the clock period.
     """
-    i_bias: float = 4e-3
+    i_bias: float = 8e-3
     ic: float = 1.0
-    c_node: float = 4.2e-12      # behavioral adc_ref: 3 pF decap + ~1.2 pF of CDAC bottom plates (arch v0.3)
+    c_node: float = 7.2e-12      # behavioral adc_ref: 6 pF decap + ~1.2 pF of CDAC bottom plates (#35)
     c2: float = 0.0
     r2: float = 0.0
     gamma: float = 2.0
@@ -128,7 +128,8 @@ class NonIdeal:
     t_dac: float = 75e-12            # DAC update -> next comparator clock
     t_dac_fast: float | None = 40e-12  # shorter wait after the first n_fast steps
     n_fast: int = 6                  # steps 1..n_fast use t_dac_fast (redundancy covers them)
-    t_dac_add: tuple | None = None   # extra wait (s) after DAC step 1, 2, ...; None = none
+    t_dac_add: tuple | None = None   # extra wait (s) after DAC step 1, 2, ...; None = arch timing.t_dac_add
+    t_dac_add_scale: float = 1.0     # timing scale applied to the arch extra waits (delay cells)
     tau_start: float = 20e-12        # conversion-start (VIN -> neutral) settling
     # reference
     ref_follower: Follower | None = field(default_factory=Follower)  # behavioral adc_ref (on-chip follower)
@@ -295,6 +296,8 @@ def convert(vin: np.ndarray, arch: Arch | None = None, ni: NonIdeal | None = Non
     """
     arch = arch or Arch.load()
     ni = ni or NonIdeal()
+    if ni.t_dac_add is None:          # the architecture's extra DAC waits, scaled like the other delays
+        ni = replace(ni, t_dac_add=tuple(arch.t_dac_add * ni.t_dac_add_scale))
     p, r = _ref_modes(ni)
     x0 = np.zeros((np.size(vin), p.size), complex)
     res, own, t_last = _convert(vin, arch, ni, dvdt, p, r, x0)
