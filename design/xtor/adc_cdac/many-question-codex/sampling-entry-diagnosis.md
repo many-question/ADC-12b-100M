@@ -42,9 +42,8 @@ charge from 38.47–40.24 fC to 76.95–80.48 fC and peak rise current from abou
 1.05 to 2.13 mA. This uses the ideal behavioral gate source and excludes wire
 capacitance. A width-only change is therefore not selected.
 
-The next physical hypotheses are stronger top-plate clamping within the clock
-load limits and H/L charge sharing during sampling. Neither is accepted by this
-comparison. Any implementation must check sampling, output, top-switch, added,
+The physical follow-ups below test stronger top-plate clamping and H/L charge
+sharing during sampling. Any implementation must check sampling, output, top-switch, added,
 and internal devices, as well as settling, reference charge, tracking distortion,
 and joint bootstrap behavior. The candidate remains `wip`.
 
@@ -83,3 +82,57 @@ Zero-volt output-source probes partition reference charge into 1.116475 pC
 through the output PMOS source/bulk branches and 1.554800 pC through the other
 logic. These figures motivate further driver work; no new official acceptance
 result or candidate selection is implied.
+
+## Driver and supply-domain comparisons
+
+Further private experiments use the full original 70 ns TT settling sequence,
+the same physical-unit 5% estimate, and a 0.5 ps maximum step. All MOS terminal
+nodes are saved. These are unselected circuit variants; the committed netlist
+and official results still describe `2ecc285`.
+
+The shared-node variant connects each sampled bottom plate through one
+PHI_S-controlled NMOS to a common internal node. It improves the pair-sharing
+result but still fails. After the full decision pattern, j0L output Vgd reaches
+1.009743 V: its bottom plate is 0.984858 V while GN has undershot to -0.024885 V.
+The sampling-switch maximum is 1.000276 V, also a failure. The shared node has
+no extracted wire capacitance in these experiments.
+
+The simpler driver uses skewed NAND2/NOR2 gates and removes the turn-off
+feedback. The split-supply driver moves command and enable prelogic to the
+specified DVDD port, followed by standard-threshold inverters that restore
+GP/GN to the reference rails. Its H and L command paths are also shortened.
+Both driver families use 75% of the original output width, with geometry
+validated before simulation. Boolean functions alone do not establish
+non-overlap.
+
+| Variant | Sharing arrangement | MOS / failing gs-gd-ds pairs | Maximum (V) | RL12 (ps) | Qref (pC) |
+|---|---|---:|---:|---:|---:|
+| Original feedback driver | Shared node | 648 / 4 | 1.00974 | 50.2 | 2.639093 |
+| Simple driver, low threshold | H/L pair | 440 / 18 | 1.08464 | 36.8 | 2.272340 |
+| Simple driver, standard threshold | H/L pair | 440 / 36 | 1.09772 | 48.2 | 1.505366 |
+| DVDD prelogic, low-threshold outputs | Shared node | 492 / 2 | 1.00150 | 30.5 | 1.236260 |
+| DVDD prelogic, standard-threshold outputs | Shared node | 492 / 9 | 1.02125 | 34.1 | 1.071765 |
+
+Limits are 1.0 V, 40 ps, and 1.2 pC respectively. The last row satisfies the
+two listed performance limits in this experiment but fails device stress.
+The two failures in the preceding row are Vgd and Vds of the same j0H output
+NMOS near 30.086 ns; the small excess is not rounded into a pass. Its sampling
+maximum is 0.99889 V, leaving little margin. No row is a complete repair.
+
+The supply split also changes where energy is drawn. Over the official
+54.8–64.8 ns charge window, zero-volt probes give:
+
+| Output threshold | Reference output branches (pC) | Other reference branches (pC) | DVDD prelogic (pC) | Signed sum (pC) |
+|---|---:|---:|---:|---:|
+| Low | 1.034075 | 0.202185 | 0.902989 | 2.139249 |
+| Standard | 0.875401 | 0.196364 | 0.902991 | 1.974755 |
+
+The DVDD column measures internal prelogic only; these sums exclude ideal
+external clock and bootstrap sources. The integrated minimum of the positive
+P-output-source and N-output-source currents is 0.153061 pC and 0.014734 pC,
+respectively. This proxy includes leakage and displacement current and does
+not prove channel-current non-overlap or safety at other supply values.
+
+The remaining work includes sampling-entry injection, physical series-midpoint
+initialization, tracking distortion, actual-bootstrap integration, startup,
+and PVT. Original failures and model warnings remain in the retained evidence.
