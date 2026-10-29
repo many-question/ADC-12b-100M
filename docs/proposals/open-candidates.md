@@ -1,6 +1,6 @@
 # 提案：用公开竞争的候选设计取代模块认领
 
-> 状态：**草案，待用户评审，尚未实现。** 本文只定规则和实施顺序；批准后按第 7 节分 PR 实现。
+> 状态：**用户已批准方向和第 8 节的各点，尚未实现。** 本文定规则和实施顺序；按第 7 节分 PR 实现。
 
 **English summary.** Today a contributor *claims* one block (`owner:` in the block spec) and works alone.
 This proposal drops claiming. Anyone may submit a transistor-level **candidate** for any block except
@@ -9,7 +9,7 @@ This proposal drops claiming. Anyone may submit a transistor-level **candidate**
 on a per-block **leaderboard** on the website (number of candidates, current metrics). The project lead selects
 one eligible candidate per block (`selected: <candidate>` replaces `owner:`) by a published tie-break order;
 only the selected candidate is used in the mixed top-level runs, and it can be challenged by a strictly better
-one. Spec-change notices stay as `[<block>]` issues. Sections 1–7 below define layout, PR rules and CI,
+one. Spec-change notices stay as `[<block>]` issues. Contributors may declare a display name next to their GitHub login (shown as `name (@login)`, never verified). Sections 1–7 below define layout, PR rules and CI,
 scoring, selection, notices, migration and the implementation plan.
 
 ## 0. 动机与已定的原则
@@ -30,7 +30,7 @@ scoring, selection, notices, migration and the implementation plan.
 | 内容 | 路径 |
 |---|---|
 | 候选目录 | `design/xtor/<block>/<candidate>/`，网表为 `<block>.scs`（子电路名、端口顺序与规格一致），可有 `candidate.yaml`、说明、图 |
-| `candidate.yaml` | `authors: [<GitHub 登录名>, …]`、`description:`（一两句）、`status: wip \| ready \| withdrawn`、可选 `acknowledged: [<issue 号>]`（第 5 节） |
+| `candidate.yaml` | `authors: [{github: <登录名>, name: <显示名，可选>}, …]`、`description:`（一两句）、`status: wip \| ready \| withdrawn`、可选 `acknowledged: [<issue 号>]`（第 5 节） |
 | 运行器视图键 | `--view adc_cdac=xtor:<candidate>`；单独的 `xtor` 表示该模块 `selected` 的候选（未选定则报错）。规格里不再列 `views.xtor` |
 | 结果路径 | `results/<block>/<test>/xtor-<candidate>/<corner>.json`（`:` 在路径里换成 `-`，与现有 `behav`、`xtor` 并列） |
 | 顶层混合运行 | `results/adc_top/<test>/xtor-<blk>@<candidate>[+<blk>@<candidate>…]`（`blk` 为去掉 `adc_` 的简称，如 `xtor-comp@alice`） |
@@ -42,7 +42,7 @@ scoring, selection, notices, migration and the implementation plan.
 
 | 现状 | 迁成 |
 |---|---|
-| #25 bootstrap、#26 clkgen、#31 ref（草稿 PR，`design/xtor/<block>/<block>.scs`） | 改标题 `[<block>] candidate many-question …`；目录移到 `design/xtor/<block>/many-question/`；结果目录 `xtor` → `xtor-many-question`；加 `candidate.yaml`。`adcflow migrate-candidate` 只改路径和 `meta.files` 的键，文件内容哈希不变，所以结果不会变过期 |
+| #25 bootstrap、#26 clkgen、#31 ref（草稿 PR，`design/xtor/<block>/<block>.scs`） | 改标题 `[<block>] candidate many-question …`（候选名与 `candidate.yaml` 的作者署名按提交者确认的为准）；目录移到 `design/xtor/<block>/many-question/`；结果目录 `xtor` → `xtor-many-question`；加 `candidate.yaml`。`adcflow migrate-candidate` 只改路径和 `meta.files` 的键，文件内容哈希不变，所以结果不会变过期 |
 | `adc_comp` 的标签 `adc-comp-mc12` 等（历史版本，网表不在 `main`） | 标签保留作历史；`mc12`（`docs/noise-budget.md` 引用的版本）导入为候选 `many-question-mc12`；其它标签按需再导入，不自动迁 |
 | `adc_cdac`、`adc_sarlogic`（尚无晶体管级工作） | 无需迁移。`adc_sarlogic` 的 `owner: Arcadia-1` 失去特殊地位，他/她可随时提交候选 `arcadia-1` |
 
@@ -62,13 +62,15 @@ scoring, selection, notices, migration and the implementation plan.
 **谁可以更新一个候选**：`candidate.yaml` 的 `authors`。CI 检查 `check candidates --base --author`（取代 `check owners`）：
 
 1. 变更路径必须落在上面的允许前缀内，且只涉及**一个**候选 `<name>`；
-2. 新候选：`<name>` 在基准分支上不存在，且以 PR 作者的登录名开头；必须带合法的 `candidate.yaml`，作者在 `authors` 里；
-3. 已有候选：PR 作者必须在**基准分支上**该候选的 `authors` 里（改 `authors` 本身也要这个条件，所以共同作者由现有作者加）；
+2. 新候选：`<name>` 在基准分支上不存在，且以 PR 作者的登录名开头；必须带合法的 `candidate.yaml`，PR 作者的登录名在 `authors[].github` 里（首个 PR 即由此设定）；
+3. 已有候选：PR 作者的登录名必须在**基准分支上**该候选的 `authors[].github` 里（改 `authors` 本身也要这个条件，所以共同作者由现有作者加；改别人候选的 `authors` 只有项目负责人能做）；
 4. 目录大小 ≤ 2 MB，PNG ≤ 200 kB（与结果的限制一致），不含二进制/大文件，不含 `include`；
 5. `adcflow check hygiene`（工艺名、站点信息、模型卡）、端口契约、`rnl` 对该候选的网表照常；
 6. 项目负责人的 PR 不受 1~4 限制（他要迁移、删候选、改规格）。
 
-共享账号提交也被允许（作者在 `authors` 里写账号即可）；`authors` 里可另写真实署名用于展示。
+**显示名。** `authors[].name` 是可选的自由文本（例如某个 agent 的名字），用来区分同一个人的不同 agent。同一个 GitHub 账号可以在不同显示名下拥有多个候选；
+候选名仍是模块内的唯一键。CI 只验证 `github` 部分；显示名是自报的、不被验证，但必须通过工艺名称检查和 hygiene。
+排行榜和候选页一律显示 `显示名 (@登录名)`（没有显示名时只显示 `@登录名`），所以显示名无法冒充别的账号。
 `withdrawn` 的候选不再显示在排行榜上（目录保留，作者或项目负责人可恢复）。
 
 ## 3. 打分与排行榜
@@ -81,6 +83,7 @@ scoring, selection, notices, migration and the implementation plan.
 |---|---|
 | 规格通过数 / 总数 | 以规格要求的工艺角集合判定（规格里的 `corners`），任一角不过即该项不过 |
 | 工艺角覆盖 | 已有结果的（规格, 角）数 / 要求的数 |
+| 作者 | `显示名 (@登录名)`，来自 `candidate.yaml` |
 | 状态标记 | `stale`（输入哈希已变）、`unverified`（项目负责人尚未在同一网表哈希上复跑，见下）、`SOA 违例`、仿真/度量错误 |
 | 关键裕量 | 各规格 (限值−值)/限值 的最小值及对应规格号 |
 | 功耗 | 各测试台报告的供电电流 × 电源电压（没有该度量的模块由项目负责人经 issue 补充；缺失显示 “—”） |
@@ -132,7 +135,9 @@ scoring, selection, notices, migration and the implementation plan.
 ## 6. 现有 owner 与认领怎么办
 
 * 六个模块的 `owner:` 全部删除，换成 `selected: none`（`adc_top` 保持 `owner: many-question`）。目前没有开放的认领 PR；此后不再接受 `[<block>] claim`。
-* 项目负责人自己的工作（#25、#26、#31 和 `adc_comp` 的标签）以候选 `many-question` 的身份参加竞争，与别人同等对待（项目负责人也可以是被挑战方）。
+* #25、#26、#31 和 `adc_comp` 的标签是从 `many-question` 账号提交的，但**不一定是项目负责人自己的工作**，也可能是其他贡献者的 agent。
+  迁移时每个候选的 `candidate.yaml` 记录真实的作者 / agent 名，由提交者在迁移 PR 里确认（确认前暂用 `{github: many-question}`）；
+  它们与所有候选同等对待，项目负责人账号提交的候选也可以被挑战。
 * `check owners` 退役：新的 `check candidates` 的路径白名单已经覆盖“PR 不能改 `specs/`”，所以任何人（含贡献者）的 PR 都无法再改 `selected`/`owner`，只有项目负责人能改。
 * `CONTRIBUTING.md` 要重写的部分：§2（角色：贡献者 / 项目负责人，去掉“模块负责人”）、§3（选模块 → 看排行榜、选模块）、§4（认领 → 提交候选：命名、`candidate.yaml`、PR）、
   §5（可改范围表改为“自己的候选目录和结果”）、§9（`--view <block>=xtor:<name>`、结果路径）、§10（流程与状态）、§12（agent 清单）和英文摘要；
@@ -151,10 +156,11 @@ scoring, selection, notices, migration and the implementation plan.
 顺序：1 → 2 与 3 一起合并（切换点）→ 4 → 5。5 只依赖 1 的数据格式，1 合并后可与 2~4 并行。
 切换前现有的草稿 PR 先留着不动；切换当天按第 1 节迁移。
 
-## 8. 需要用户确认的点
+## 8. 已决定（用户）
 
-1. 第 4 节的排序和容差（0.05 bit / 5 % / 5 % / 5 %）；
-2. “候选：N”是否包含未合并的开放 PR（提议：包含 CI 通过的，标“未评审”）；
-3. 只有“已复核”的结果才能用于选定（提议：是）；这意味着项目负责人需要为排在前面的候选复跑；
-4. 候选合并门槛：CI 全绿 + 路径白名单即可合并，不做设计评审（评审在选定时）——提议：是；
-5. 功耗和面积代理的定义是否够用，缺少功耗度量的模块（如 `adc_cdac`）是否先由项目负责人补测试台度量。
+1. 排序和容差：顶层 ENOB 裕量 0.05 bit → 功耗 5 % → 面积代理 5 % → 其余鲁棒性裕量 5 % 限值；
+2. “候选：N”包含 CI 通过的开放 PR，标“未评审”；
+3. 只有项目负责人**已复核**的结果才能用于选定，所以要为排在前面的候选复跑；
+4. 候选合并门槛：CI 全绿 + 路径白名单；设计评审放在选定时；
+5. 功耗和面积代理按第 3 节定义；缺少功耗度量的模块由项目负责人补（`adc_cdac` 最先）；
+6. 参与者可以在 `candidate.yaml` 声明显示名，以区分同一个人的不同 agent（第 2 节）。
