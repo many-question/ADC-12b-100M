@@ -100,7 +100,9 @@ gives h3 = -75.11 dBc, an improvement of about 2.55 dB that still leaves
 linearity unresolved. It has no sine-stress or official tracking acceptance
 yet. Driving the NMOS sharing gates from internal ENB instead of PHI_S also
 passes the 70 ns checks, but its matched h3 = -75.71 dBc gives only another
-0.61 dB improvement. These experiments have not replaced the candidate.
+0.61 dB improvement. Moving PMOS assistance to EN gives h3 = -76.13 dBc but
+increases Qref to 1.1855 pC, leaving little charge margin. That tradeoff
+remains insufficient. These experiments have not replaced the candidate.
 Convergence comparisons, representative PVT,
 complete corner coverage, long-hold behavior, device stress, and joint bootstrap
 validation remain outstanding. No selection or signoff is claimed.
