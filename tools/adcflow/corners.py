@@ -76,17 +76,17 @@ def supply_envelope(key: str = "vdd18") -> tuple[float, float]:
 def model_includes(corner: Corner, mc: str | None = None) -> str:
     """Spectre include lines for the corner (server paths from the site config; nothing is copied).
 
-    With `mc` (the `models` of a test's `montecarlo:`) the statistical sections of the site
-    configuration's pdk.mc_sections.<mc> ({mos, res, mom}) replace the corner sections."""
-    from .site import SiteConfigError, get, site
+    With `mc` (the `models` of a test's `montecarlo:`) the statistical sections pdk.mc_sections.<mc>
+    ({mos, res, mom}) of this file replace the corner sections."""
+    from .site import get
 
     pdk = _cfg()["pdk"]
     d = get("pdk", "model_dir")
     if mc:
-        secs = (get("pdk", "mc_sections") or {}).get(mc)
+        secs = (pdk.get("mc_sections") or {}).get(mc)
         if not isinstance(secs, dict) or not all(secs.get(k) for k in ("mos", "res", "mom")):
-            raise SiteConfigError(f"{site()['_path']}: pdk.mc_sections.{mc} needs mos, res and mom "
-                                  "(the statistical model sections; see site.example.yaml)")
+            raise KeyError(f"{CORNERS_YAML.name}: pdk.mc_sections.{mc} needs mos, res and mom "
+                           f"(the statistical model sections; defined: {sorted(pdk.get('mc_sections') or {})})")
     else:
         secs = pdk["sections"][corner.process]
     core = f"{d}/{get('pdk', 'core_file')}"

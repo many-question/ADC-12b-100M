@@ -19,7 +19,7 @@ PORT_TYPES = {"analog", "digital", "clock", "supply"}
 SIDES = {"left", "right", "top", "bottom"}
 STATUSES = {"behavioral", "xtor-review", "signoff"}    # docs/proposals/open-candidates.md §4 (no xtor-wip)
 # a test's `montecarlo:` (one Spectre montecarlo analysis, runner.mc_settings); `models` names the
-# statistical model sections of the site configuration (pdk.mc_sections)
+# statistical model sections of specs/corners.yaml (pdk.mc_sections)
 MC_KEYS = {"runs", "seed", "variations", "models"}
 MC_VARIATIONS = {"mismatch", "process", "all"}
 
@@ -240,7 +240,7 @@ def _mc_problems(mc, where: str) -> list[str]:
     if mc["variations"] not in MC_VARIATIONS:
         out.append(f"{where}: variations must be one of {sorted(MC_VARIATIONS)}")
     if not isinstance(mc["models"], str) or not re.match(r"^[a-z0-9_]+$", mc["models"]):
-        out.append(f"{where}: models must name a pdk.mc_sections entry of the site configuration")
+        out.append(f"{where}: models must name a pdk.mc_sections entry of specs/corners.yaml")
     return out
 
 

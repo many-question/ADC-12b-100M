@@ -232,16 +232,15 @@ def test_comp_behav_follows_the_comparator_view():
     assert j.globals_["comp_behav"] == 0
 
 
-def test_statistical_sections_come_from_the_site_config(monkeypatch):
-    cfg = {"_path": "site.local.yaml", "pdk": {"model_dir": "M", "core_file": "c.lib", "hv_file": "h.lib",
-                                               "mc_sections": {"local_tt": {"mos": "m1", "res": "r1", "mom": "o1"}}}}
+def test_statistical_sections_come_from_the_corner_file(monkeypatch):
+    cfg = {"_path": "site.local.yaml", "pdk": {"model_dir": "M", "core_file": "c.lib", "hv_file": "h.lib"}}
     monkeypatch.setattr(site, "site", lambda: cfg)
+    secs = corners._cfg()["pdk"]["mc_sections"]["local_tt"]
     lines = corners.model_includes(by_name("tt_nom_27"), mc="local_tt").splitlines()
-    assert lines == ['include "M/c.lib" section=m1', 'include "M/c.lib" section=r1', 'include "M/c.lib" section=o1',
-                     'include "M/h.lib" section=m1']
-    with pytest.raises(site.SiteConfigError, match="pdk.mc_sections.global_local"):
-        corners.model_includes(by_name("tt_nom_27"), mc="global_local")
-    assert "mc_sections" not in corners._cfg()["pdk"]                   # not in the public corner file
+    assert lines == [f'include "M/c.lib" section={secs["mos"]}', f'include "M/c.lib" section={secs["res"]}',
+                     f'include "M/c.lib" section={secs["mom"]}', f'include "M/h.lib" section={secs["mos"]}']
+    with pytest.raises(KeyError, match="pdk.mc_sections.local_ff needs mos, res and mom"):
+        corners.model_includes(by_name("tt_nom_27"), mc="local_ff")
 
 
 def test_generated_testbench():
@@ -289,10 +288,3 @@ def test_leaderboard_shows_sample_coverage(tmp_path, monkeypatch, ok, failed, te
     assert cand.mc_text(row["mc"]) == text and text in cand.table([row])
     assert [c[0] for c in site_cands.mc_chips(row)] == [kind]
 
-
-def test_statistical_section_names_are_site_literals(monkeypatch):
-    """The hygiene check treats the private statistical section names like the other site strings."""
-    cfg = {"_path": "s", "pdk": {"mc_sections": {"local_tt": {"mos": "sec_mos_x", "res": "sec_res_x", "mom": "sec_mom_x"}}}}
-    monkeypatch.setattr(site, "site", lambda: cfg)
-    pats = [p for p, _ in checks._site_literals()]
-    assert {"sec_mos_x", "sec_res_x", "sec_mom_x"} <= set(pats)

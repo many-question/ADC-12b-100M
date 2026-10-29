@@ -63,7 +63,7 @@ tests:
     netlist: tb/comp/tb_comp_offset_mc.scs
     measure: adcflow.measure.comp:offset_mc
     # one Spectre montecarlo analysis: local device mismatch only (statistical model sections
-    # `models` of the site configuration: TT global, local mismatch), fixed seed, no nominal run
+    # `models` = pdk.mc_sections of specs/corners.yaml: TT global, local mismatch), fixed seed, no nominal run
     montecarlo: {runs: 50, seed: 6303, variations: mismatch, models: local_tt}
     desc: >
       Input offset under local device mismatch at TT: one Spectre montecarlo analysis of 50

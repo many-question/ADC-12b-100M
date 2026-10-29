@@ -382,8 +382,6 @@ def _site_literals() -> list[tuple[str, str]]:
     for k in ("model_dir", "core_file", "hv_file"):
         if pdk.get(k):
             vals.append(str(pdk[k]))
-    for secs in (pdk.get("mc_sections") or {}).values():      # statistical model sections (private, #63)
-        vals += [str(v) for v in (secs.values() if isinstance(secs, dict) else ())]
     return [(re.escape(v), "site-specific string from the site config") for v in vals if len(v) >= 4]
 
 

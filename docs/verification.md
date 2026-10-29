@@ -85,8 +85,8 @@
   * **统计模式**：只做局部器件失配，在 TT（`tt_nom_27`）下；全局工艺偏差由工艺角覆盖。规格的
     `montecarlo: {runs: 50, seed: 6303, variations: mismatch, models: local_tt}` 定义一次 Spectre `montecarlo` 分析：
     50 个样本（迭代 1~50，`firstrun=1`，固定 seed，`donominal=no`，只变 `mismatch` 统计量），包住一个关掉瞬态噪声的瞬态。
-    `models` 指向私有站点配置里的统计模型段落 `pdk.mc_sections.local_tt`（TT 全局、局部失配；`site.example.yaml`
-    只有占位键），不进仓库。MC 用例只在其 MC 指标适用的工艺角上运行（CMP-03：`typ`），其它角直接报错。
+    `models` 指向 `specs/corners.yaml` 的统计模型段落 `pdk.mc_sections.local_tt`（TT 全局、局部失配；模型文件本身
+    仍由站点配置给出）。MC 用例只在其 MC 指标适用的工艺角上运行（CMP-03：`typ`），其它角直接报错。
   * **每个样本的失调**：测试台 Verilog-A `tb_offset_search_va` 在共模 0.49 V 附近直接驱动差分输入，每个 1 ns 的 CLKC 周期
     一次判决（CLKC 下降时读 OUTP/OUTN，复位期间改输入；1 ns 让离失调 1 µV 以内的判决也来得及完成）：
     先确认 vd = +25 mV 判 OUTP、−25 mV 判 OUTN（否则失调**超出范围**），再对 [−25, +25] mV 逐次逼近 13 次

@@ -12,9 +12,10 @@ pdk:
     ss: {mos: ssmacro_mos_moscap, res: ss_res_bip_dio_disres, mom: ss_mom, rmetal: ss_r_metal, ind: ss_ind_jvar}
     fs: {mos: fsmacro_mos_moscap, res: tt_res_bip_dio_disres, mom: tt_mom, rmetal: tt_r_metal, ind: tt_ind_jvar}
     sf: {mos: sfmacro_mos_moscap, res: tt_res_bip_dio_disres, mom: tt_mom, rmetal: tt_r_metal, ind: tt_ind_jvar}
-  # Monte Carlo runs (a test's `montecarlo:`, e.g. tb_comp_offset_mc) include the statistical model
-  # sections named by its `models` (local_tt: TT global, local mismatch); those sections come from
-  # the private site configuration (pdk.mc_sections, site.example.yaml), not from this file.
+  # Monte Carlo (global + local mismatch, or local only around a corner)
+  mc_sections:
+    global_local: {mos: globalmc_localmc_mos_moscap, res: globalmc_localmc_res_bip_dio_disres, mom: globalmc_localmc_mom}
+    local_tt: {mos: ttglobalcorner_localmc_mos_moscap, res: ttglobalcorner_localmc_res_bip_dio_disres, mom: ttglobalcorner_localmc_mom}
 
 process: [tt, ff, ss, fs, sf]       # first letter NMOS, second PMOS
 supply:

@@ -62,7 +62,6 @@ CONV 的分配：CDAC 的 CONV 使能 22 个采样半电容的三态驱动器（
   一次 Spectre `montecarlo` 跑 50 个样本（固定 seed），每个样本关掉瞬态噪声、在 ±25 mV 内逐次逼近搜出翻转点（约 6 µV 分辨率，
   再在 ±50 µV 复查），σ 取样本标准差（n − 1）。运行 `python -m adcflow sim tb_comp_offset_mc --view adc_comp=xtor:<name>`。
   任一样本失调超出 ±25 mV、判决缺失、复查不一致或仿真失败，CMP-03 即不通过，不剔除样本（`docs/verification.md` §2）。
-  需要私有站点配置里的统计模型段落 `pdk.mc_sections.local_tt`（见 `site.example.yaml`）。
 * CLKC 输入 ≤ 16 fF（CMP-14，每个上升沿的电荷 / VDD）：SAR 逻辑的 CLKC 负载 20 fF 减 4 fF 走线。尾管与复位管若超出，
   可在比较器内加一级缓冲（其延时计入 CMP-04/05/06）。输出负载 10 fF = SAR 逻辑输入（LOG-15 ≤ 7 fF）+ 3 fF 走线。
 

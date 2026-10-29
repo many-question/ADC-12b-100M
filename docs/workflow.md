@@ -10,7 +10,7 @@ git config core.hooksPath tools/hooks     # 提交前检查（hygiene / ports / 
 * **RNL 命令行**：安装与 CI 相同的版本 `core-v0.5.2`（见 rnl 项目的 Release 页，下载后核对 SHA256），
   放到 `PATH` 中，`rnl --version` 应显示 0.5.2。
 * **站点配置**：复制 `site.example.yaml` 为 `site.local.yaml`（已被 git 忽略）或 `~/.adcflow/site.yaml`，
-  填写仿真服务器的 ssh 别名、服务器本地盘上的临时目录、Spectre 环境脚本、PDK 模型目录与文件名，以及蒙特卡洛用例的统计模型段落（`pdk.mc_sections`）。
+  填写仿真服务器的 ssh 别名、服务器本地盘上的临时目录、Spectre 环境脚本、PDK 模型目录与文件名。
   这些信息**绝不提交**。ssh 需要免密（`ssh -o BatchMode=yes <alias> true` 能通过）。
 * MATLAB 版 ADCToolbox 可选，用于 `analysis/` 中的交互分析；CI 与验收只用 Python 版。
 

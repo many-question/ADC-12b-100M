@@ -17,8 +17,8 @@ them (`vdd`, `vdd18`, `tempc`, `noise_en`, `beh_speed`, `vref_in`, `cdac_behav`,
 
 A test with `montecarlo:` in its spec (tb_comp_offset_mc) is one Spectre montecarlo analysis in its
 testbench: the runner passes the number of samples and the seed as the testbench parameters
-`mc_runs` and `mc_seed`, includes the statistical model sections of the site configuration
-(corners.model_includes), records the settings as meta.mc and always measures the job, so that a
+`mc_runs` and `mc_seed`, includes the statistical model sections of specs/corners.yaml
+(pdk.mc_sections, corners.model_includes), records the settings as meta.mc and always measures the job, so that a
 failed sample is recorded as failed (Spec.judge) and not lost with the run.
 
 A result records only what its circuit depends on (deps.py): the files the testbench reaches
