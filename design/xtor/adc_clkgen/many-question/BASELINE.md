@@ -28,7 +28,7 @@ The regenerated job parameters match the recorded parameters. The new runner add
 
 #48 changes the behavioral reference to 8 mA / 6 pF, introduces extra DAC waits, changes reference-charge timing and noise accounting, and adds the top-level TOP-10 spike counter. Those changes affect a mixed-top circuit. The old seven-corner clock mixed-top run and matched behavioral SS control retain their real failures (10.348264814 and 10.324003109 bit respectively).
 
-Issue #35 is closed after the project baseline fix. This candidate has no new-baseline mixed-top acceptance result. Its status remains `wip`, the block remains `selected: none`, and any new mixed-top run needs a separately reviewed input plan and a coordinator-assigned slot.
+Issue #35 is closed after the project baseline fix. This candidate has no new-baseline mixed-top acceptance result. Its status is `ready`: module validation is complete, with 46 fresh records covering all 11 specifications and 407 required spec/corner combinations, so it is available for comparison under CONTRIBUTING. Results remain self-reported. Project-led reproduction and new-baseline mixed-top validation are pending for selection/signoff; the block remains `selected: none`. Any new mixed-top run needs a separately reviewed input plan and a coordinator-assigned slot. Historical failures remain preserved.
 
 ## Receiver interfaces
 

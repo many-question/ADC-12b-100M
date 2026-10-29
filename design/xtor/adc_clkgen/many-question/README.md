@@ -2,7 +2,9 @@
 
 A 60-MOS static CMOS phase generator with feedback from the loaded PHI_B and CONV outputs. MOS gate loads shape internal voltage excursions; smaller output stages retain the current budget. All five RNL levels are complete, and the 19 used device geometries retain their callback verification.
 
-**Status: wip.** The historical mixed-top SS low-voltage / 125 C failure from [#35](https://github.com/many-question/ADC-12b-100M/issues/35) is preserved below. #35 was closed by the baseline changes in #48; this candidate has not yet been validated in the new mixed top. It has not been selected or signed off.
+**Status: ready.** Module validation is complete: 11/11 specifications and 407/407 required spec/corner combinations pass, with all 46 records fresh. The candidate is complete and available for comparison. Results remain self-reported; project-led reproduction and new-baseline mixed-top validation are pending. It has not been selected or signed off.
+
+The historical mixed-top SS low-voltage / 125 C failure from [#35](https://github.com/many-question/ADC-12b-100M/issues/35) is preserved below. #35 was closed by the baseline changes in #48; this candidate has not yet been validated in the new mixed top.
 
 Electrical content hash: `878752080031c251`. Current netlist SHA256: `7dbeabe408e25b960281545139f02c7e736807b30210db72edbed59cc81ce3bd`.
 

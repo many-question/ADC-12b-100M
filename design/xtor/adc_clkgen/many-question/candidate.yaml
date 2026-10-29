@@ -1,7 +1,7 @@
 name: many-question
 description: 60-MOS static CMOS phase generator with loaded-output interlocks and
   MOS gate loads for internal voltage shaping.
-status: wip
+status: ready
 acknowledged:
 - 18
 - 27
