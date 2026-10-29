@@ -8,7 +8,7 @@ Electrical content hash: `878752080031c251`. Current netlist SHA256: `7dbeabe408
 
 ## Current module evidence
 
-5/45 timing/SOA corners have current inputs after [#53](https://github.com/many-question/ADC-12b-100M/pull/53). 40 records remain stale and retain their original results until rerun. The TT jitter input hashes are unchanged, so its existing result is retained.
+45/45 timing/SOA corners have current inputs after [#53](https://github.com/many-question/ADC-12b-100M/pull/53). All 46 module records have current inputs. The TT jitter input hashes are unchanged, so its existing result is retained.
 
 Timing covers the complete 0–161 ns waveform: startup, eight 50% cycles, four 45% cycles and four 55% cycles, with 530 fF output load. Every current timing run checks 60 devices / 180 Vgs, Vgd and Vds pairs. CLK-10 uses the whole AVDD branch over 10–80 ns and applies only at TT.
 
@@ -18,17 +18,21 @@ The table uses only records with current inputs; ranges describe the evaluated c
 
 | Spec | Metric | Current value or range | Unit | Fresh coverage | Failures |
 |---|---|---:|---|---:|---:|
-| CLK-01 | td_s_ps | 35.1008876 to 49.3358605 | ps | 5/45 | 0 |
-| CLK-02 | skew_sb_ps | 40.3922449 to 60.3045487 | ps | 5/45 | 0 |
-| CLK-03 | nov_bc_ps | 63.1321193 to 86.8205253 | ps | 5/45 | 0 |
-| CLK-04 | td_conv_ps | 138.625252 to 196.460932 | ps | 5/45 | 0 |
-| CLK-05 | nov_cb_ps | 90.1238742 to 131.124127 | ps | 5/45 | 0 |
-| CLK-06 | tf_s_ps | 8.71500065 to 12.6687664 | ps | 5/45 | 0 |
-| CLK-07 | skew_ssb_ps | 4.69708281 to 6.47457617 | ps | 5/45 | 0 |
-| CLK-08 | duty_errors | 0 | count | 5/45 | 0 |
+| CLK-01 | td_s_ps | 28.9438986 to 49.3358605 | ps | 45/45 | 0 |
+| CLK-02 | skew_sb_ps | 32.3964476 to 60.3045487 | ps | 45/45 | 0 |
+| CLK-03 | nov_bc_ps | 51.8129726 to 86.8205253 | ps | 45/45 | 0 |
+| CLK-04 | td_conv_ps | 113.153312 to 196.460932 | ps | 45/45 | 0 |
+| CLK-05 | nov_cb_ps | 71.5851153 to 131.124127 | ps | 45/45 | 0 |
+| CLK-06 | tf_s_ps | 8.05509429 to 12.6687664 | ps | 45/45 | 0 |
+| CLK-07 | skew_ssb_ps | 4.12699066 to 6.47457617 | ps | 45/45 | 0 |
+| CLK-08 | duty_errors | 0 | count | 45/45 | 0 |
 | CLK-09 | jitter_fs | 41.3761389 | fs | 1/1 | 0 |
 | CLK-10 | iavg_uA | 79.6718147 | uA | 1/1 | 0 |
-| CLK-11 | soa_violations | 0 | count | 5/45 | 0 |
+| CLK-11 | soa_violations | 0 | count | 45/45 | 0 |
+
+The timing results retain their actual clean source commits: `5c87359` (40 corners), `cef765f` (5 corners). All complete raw waveforms (8,694,913,518 bytes including convergence alternates) were audited locally and matched the remote SHA256 hashes before the exact owned run directories were removed. No new limiting corner required another convergence comparison.
+
+The limiting CLK-07 corner moved from `sf_low_125` to `ss_low_125`, which is already covered by the five convergence comparisons.
 
 ## Representative convergence checks
 
