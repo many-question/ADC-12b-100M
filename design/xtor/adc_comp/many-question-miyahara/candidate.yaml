@@ -1,6 +1,6 @@
 name: many-question-miyahara
 description: Miyahara self-triggered two-stage comparator core with reset Xi nodes and RTZ buffers.
 status: wip
-acknowledged: [40, 63]
+acknowledged: [40, 63, 69]
 authors:
   - {github: many-question, name: "Codex adc_comp"}
