@@ -48,22 +48,19 @@
   "sim_s": "13",
   "numerics": {},
   "files": {
-   "design/behav/adc_bootstrap.scs": "eee3a0a78eec4c5f",
-   "design/behav/adc_cdac.scs": "5b8837cc5d2a76bc",
-   "design/behav/adc_clkgen.scs": "0e7831ed888587e6",
-   "design/behav/adc_comp.scs": "c0da9398b6e09fc2",
-   "design/behav/adc_ref.scs": "bc2eec0046129145",
-   "design/behav/adc_sarlogic.scs": "7982e36f6743bf80",
-   "design/top/adc_top.scs": "362a964ffe162797",
-   "design/behav/veriloga/adc_bootstrap_va.va": "12338aad16f4913b",
-   "design/behav/veriloga/adc_cdac_sw_va.va": "25fa7719fc730a3a",
-   "design/behav/veriloga/adc_clkgen_va.va": "7fff1b9368bc1a20",
-   "design/behav/veriloga/adc_comp_va.va": "ab8a6bf210351e31",
-   "design/behav/veriloga/adc_ktc_va.va": "a1cf98faf5bf9b33",
-   "design/behav/veriloga/adc_ref_va.va": "746d2530d4ff6d5c",
-   "design/behav/veriloga/adc_sarlogic_va.va": "5cd9dbd22bf395eb",
    "tb/ref/tb_ref_noise.scs": "edce75b69c56ee11",
-   "specs/arch.yaml": "04b74bfe28a6229a"
+   "design/behav/adc_ref.scs": "bc2eec0046129145",
+   "design/behav/veriloga/adc_ref_va.va": "746d2530d4ff6d5c"
+  },
+  "arch": {
+   "keys": [],
+   "sha": "44136fa355b3678a"
+  },
+  "views": {},
+  "rehashed": {
+   "date": "2026-10-29T20:21:38",
+   "git": "b748f30",
+   "files_before": 16
   }
  }
 }

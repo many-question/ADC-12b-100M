@@ -97,8 +97,8 @@ them in the issue and in `candidate.yaml` (section 4).
    ```
 
    （或在 GitHub / 项目网站的 issue 列表里看），读完每一个未关闭的 `[<block>]` issue。**每个活跃候选（`status` 为 `wip` 或 `ready`）
-   都必须确认规格变更通知**：在 issue 里回复，并在下一个 PR 里把 issue 号加进该候选的 `acknowledged`。规格一变，所有候选旧结果的输入哈希就变了，
-   显示为过期（stale），要重跑；没有确认通知的候选不会被选定，也不进入顶层混合回归。
+   都必须确认规格变更通知**：在 issue 里回复，并在下一个 PR 里把 issue 号加进该候选的 `acknowledged`。规格变更若改到了某个结果的电路实际依赖的输入
+   （它的测试台、它用到的网表与 Verilog-A、它读到的 arch 取值），该结果显示为过期（stale），要重跑；没有确认通知的候选不会被选定，也不进入顶层混合回归。
 
 ## 5. 候选 PR 可以改什么，什么要先开 issue
 
@@ -179,7 +179,7 @@ git config core.hooksPath tools/hooks     # 提交前检查（hygiene / ports / 
    单独写 `xtor`（不带候选名）表示该模块已选定的候选，不是你的候选。
 2. 全部指标在其工艺角集合上通过后，可以自己做顶层混合仿真（其余模块行为级）作参考：
    `python -m adcflow sim tb_top_sine --view <block>=xtor:<name> --corners quick`。正式的顶层混合回归由项目负责人做。
-3. 把结果 JSON（`adcflow sim` 自动写入，meta 里记录了所用网表的哈希）和图连同网表一起提交；
+3. 把结果 JSON（`adcflow sim` 自动写入，meta 里记录了电路实际依赖的网表与 Verilog-A 的哈希及读到的 arch 取值）和图连同网表一起提交；
    结果必须对应提交的那一版网表和当前规格，否则 CI 和排行榜判定过期（stale）。
 4. 提交前本地运行 CI 的检查，必须全部通过：
 
@@ -226,5 +226,6 @@ CI 会检查：hygiene（无站点信息、模型卡片、工艺厂商名、大�
    端口、规格、测试台、其它模块、其它候选的改动一律先开 issue，不放进候选 PR。
 5. 用户提供的仿真环境只写进被忽略的 `site.local.yaml`；在任何文件、提交信息、PR 和 issue 里都不要出现工艺厂商名、
    PDK 内容、机器、服务器或路径信息。
-6. 规格变更后 rebase 到最新 `main` 并重新运行受影响的用例（旧结果的输入哈希已变，会被判为过期）。
+6. 规格变更后 rebase 到最新 `main`，运行 `python -m adcflow rehash --block <block> --view xtor-<name>`（不重仿真；依赖未变的结果改记、保持有效），
+   再重新运行仍判为过期的用例。
 7. `adcflow check all` 与 `pytest` 通过、结果已提交，再发标题为 `[<block>] candidate <name> …` 的 PR，一个 PR 只含一个候选。
