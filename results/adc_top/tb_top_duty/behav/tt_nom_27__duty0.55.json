@@ -17,53 +17,57 @@
   "noise_en": 1,
   "devnoise": 0,
   "beh_speed": 1.0,
-  "vref_in": 0.9
+  "vref_in": 0.9,
+  "cdac_behav": 1
  },
  "metrics": {
   "n_samples": 2049,
   "missing_rdy": 0,
-  "t_conv_max_ns": 2.702731,
-  "t_conv_mean_ns": 2.6096749853515626,
+  "t_conv_max_ns": 2.829621,
+  "t_conv_mean_ns": 2.736268443359375,
   "cal_independent": true,
   "weights_cal": [
-   1960.043,
-   1120.088,
-   636.181,
-   360.108,
-   204.082,
-   113.977,
-   64.112,
-   36.064,
-   20.002,
-   11.95,
-   5.921,
-   3.706,
-   1.774,
-   0.992
+   1960.536,
+   1120.225,
+   636.26,
+   360.137,
+   204.097,
+   114.012,
+   64.031,
+   35.947,
+   19.894,
+   11.8,
+   5.815,
+   3.572,
+   1.73,
+   0.943
   ],
-  "enob": 10.954667365054705,
-  "sndr_dBc": 67.70709753762932,
-  "sfdr_dBc": 84.6438843882177,
-  "snr_dBc": 67.86188562244601,
-  "thd_dBc": -82.49539289192525,
-  "enob_nom": 10.896989998526056,
-  "sndr_nom_dBc": 67.35987979112686,
-  "sfdr_nom_dBc": 84.41201945920282,
-  "snr_nom_dBc": 67.54775245522,
-  "thd_nom_dBc": -81.26776385097975,
-  "amp_codes": 2020.8249729737822,
-  "fs_peak_V": 0.9938935946897629,
+  "enob": 10.949239019286225,
+  "sndr_dBc": 67.67441889610308,
+  "sfdr_dBc": 84.4859910186457,
+  "snr_dBc": 67.85945074376951,
+  "thd_dBc": -81.61422384814097,
+  "enob_nom": 10.901829454139817,
+  "sndr_nom_dBc": 67.3890133139217,
+  "sfdr_nom_dBc": 83.5266927703722,
+  "snr_nom_dBc": 67.54981501497271,
+  "thd_nom_dBc": -82.07859136526767,
+  "amp_codes": 2021.1773788116518,
+  "fs_peak_V": 0.9937203026726141,
   "code_min": 247,
   "code_max": 4291,
-  "p_avdd_mW": 0.28001812419,
-  "p_dvdd_mW": 0.21064097537999998,
-  "p_avdd18_mW": 7.524261954000001,
-  "power_mW": 8.014921053570001
+  "spike_count": 0,
+  "spike_max_lsb": 1.8056171322523369,
+  "spike_index": [],
+  "p_avdd_mW": 0.28196068004999997,
+  "p_dvdd_mW": 0.21068639424,
+  "p_avdd18_mW": 14.711436207000002,
+  "power_mW": 15.204083281290002
  },
  "specs": {
   "TOP-09": {
    "metric": "enob",
-   "value": 10.954667365054705,
+   "value": 10.949239019286225,
    "limit": ">= 10.5",
    "pass": true
   }
@@ -75,19 +79,19 @@
   },
   {
    "file": "tt_nom_27__duty0.55.codes.png",
-   "caption": "Calibrated output codes of the judged record folded on the phase of the input sine with the fit, the error against the fit for every sample, and the conversion-time histogram (calibration and judged records) against its limit."
+   "caption": "Calibrated output codes of the judged record folded on the phase of the input sine with the fit, the error against the fit for every sample with the spikes beyond 3 LSB marked (TOP-10), and the conversion-time histogram (calibration and judged records) against its limit."
   }
  ],
  "meta": {
-  "date": "2026-10-28T22:42:11",
-  "git": "7b5fcd8",
+  "date": "2026-10-29T13:27:44",
+  "git": "3460c8c",
   "git_clean": true,
   "mode": "aps",
   "pdk": false,
   "mc": null,
-  "wall_s": 899.5,
+  "wall_s": 1379.1,
   "rc": "0",
-  "sim_s": "380",
+  "sim_s": "598",
   "numerics": {
    "source": "spectre.log",
    "reltol": 0.001,
@@ -96,8 +100,8 @@
    "errpreset": "moderate",
    "lteratio": 3.5,
    "abstol_V": 1e-06,
-   "steps_accepted": 2732917,
-   "step_mean_ps": 7.51066,
+   "steps_accepted": 3755153,
+   "step_mean_ps": 5.46609,
    "step_max_ps": null
   },
   "files": {
@@ -105,20 +109,21 @@
    "design/behav/adc_cdac.scs": "5b8837cc5d2a76bc",
    "design/behav/adc_clkgen.scs": "0e7831ed888587e6",
    "design/behav/adc_comp.scs": "c0da9398b6e09fc2",
-   "design/behav/adc_ref.scs": "a83c6feaac8c9c1a",
+   "design/behav/adc_ref.scs": "bc2eec0046129145",
    "design/behav/adc_sarlogic.scs": "7982e36f6743bf80",
    "design/top/adc_top.scs": "362a964ffe162797",
    "design/behav/veriloga/adc_bootstrap_va.va": "12338aad16f4913b",
-   "design/behav/veriloga/adc_cdac_sw_va.va": "e465880479187179",
+   "design/behav/veriloga/adc_cdac_sw_va.va": "25fa7719fc730a3a",
    "design/behav/veriloga/adc_clkgen_va.va": "7fff1b9368bc1a20",
    "design/behav/veriloga/adc_comp_va.va": "ab8a6bf210351e31",
    "design/behav/veriloga/adc_ktc_va.va": "a1cf98faf5bf9b33",
    "design/behav/veriloga/adc_ref_va.va": "746d2530d4ff6d5c",
-   "design/behav/veriloga/adc_sarlogic_va.va": "42f06909a81347ef",
+   "design/behav/veriloga/adc_sarlogic_va.va": "5cd9dbd22bf395eb",
    "tb/common/veriloga/tb_capture_va.va": "1a05df990a1ef806",
    "tb/common/veriloga/tb_imeter_va.va": "d4be49aca417ad61",
-   "tb/top/tb_top_sine.scs": "c71c5ef949bb4ab1",
-   "specs/arch.yaml": "bffadef750bb5205"
+   "tb/common/veriloga/tb_rsrc_va.va": "66b85ead5a038eb0",
+   "tb/top/tb_top_sine.scs": "d131f9666cdb9650",
+   "specs/arch.yaml": "04b74bfe28a6229a"
   },
   "provenance": {
    "spectrum": {
@@ -127,12 +132,6 @@
     "sfdr": "plotspec definition: peak bin of the fundamental / largest other single bin (DC and signal bins excluded, Nyquist included)",
     "enob_sndr_snr_thd": "adctoolbox 0.6.4 compute_spectrum"
    }
-  },
-  "redrawn": {
-   "date": "2026-10-29T01:48:40",
-   "git": "4d48ff4",
-   "git_clean": true,
-   "run": "20261028-222650-65ec-tb_top_duty"
   }
  }
 }

@@ -265,3 +265,58 @@ def test_ref04_line_sweep_stays_inside_the_supply_envelope():
     pts = np.arange(start, stop + step / 2, step)
     assert pts[0] == pytest.approx(lo) and pts[-1] == pytest.approx(hi) and len(pts) == 5
     assert all(lo - 1e-12 <= v <= hi + 1e-12 for v in pts)
+
+
+def test_source_resistor_noise_follows_the_cdac_view():
+    from adcflow.runner import build_jobs
+    from adcflow.specs import find_test
+
+    b, test = find_test("tb_top_sine")
+    c = corner_set("typ")
+    beh = build_jobs(b, "tb_top_sine", test, c, {}, {"fin_target": 1e6})[0]
+    xt = build_jobs(b, "tb_top_sine", test, c, {"adc_cdac": "xtor"}, {"fin_target": 1e6})[0]
+    assert beh.globals_["cdac_behav"] == 1 and xt.globals_["cdac_behav"] == 0
+    assert "tb_rsrc_va r=rsrc noisy=1-cdac_behav" in beh.tb_text
+    assert "noisefmax=nfmax*noise_en " in beh.tb_text           # top-level transient noise follows noise_en
+
+
+def test_ref21_env_ratio_uses_the_redundancy_of_decisions_1_to_11():
+    import numpy as np
+
+    from adcflow.arch import Arch
+    from adcflow.measure.ref import env_ratios
+
+    a = Arch.load()
+    tol = a.redundancy()[:11] * a.lsb * a.vref / a.fs_peak
+    w = np.zeros((3, 14))
+    w[1, :11] = 0.5 * tol                       # half the tolerance everywhere
+    w[2, 6] = -1.25 * tol[6]                    # one conversion over at decision 7
+    w[:, 11:] = 1e-3                            # decisions 12..14 (no redundancy) are REF-13, not REF-21
+    r = env_ratios(a, w)
+    assert len(r) == 11 and r[6] == pytest.approx(1.25) and np.delete(r, 6) == pytest.approx(0.5)
+
+
+def test_log16_extra_wait_is_measured_against_the_steps_without_one():
+    from adcflow.arch import Arch
+    from adcflow.measure.sarlogic import _extra_waits
+
+    a = Arch.load()
+    base = {k: (40e-12 if k <= 6 else 75e-12) for k in (1, 2, 3, 4, 5, 6, 7, 9, 13)}
+    waits = {k: [base[k] + a.t_dac_add[k - 1] * (1.1 if k == 4 else 1.0)] for k in base}
+    m = _extra_waits(a, waits)
+    assert m["t_dac_add_ps"]["9"] == pytest.approx(25.0) and m["t_dac_add_ps"]["4"] == pytest.approx(33.0)
+    assert m["t_dac_add_err_pct"] == pytest.approx(10.0)
+
+
+def test_top10_counts_conversions_beyond_3_lsb():
+    import numpy as np
+
+    from adcflow.measure.top import spikes
+
+    fit = 2000 * np.sin(np.arange(64) * 0.3)
+    codes = np.round(fit) + np.where(np.arange(64) % 7 == 0, 0.4, 0.0)
+    codes[[5, 40]] += [4.5, -7.6]
+    m = spikes(codes, fit)
+    assert m["spike_count"] == 2 and m["spike_index"] == [5, 40] and m["spike_max_lsb"] > 7.0
+    assert spikes(np.round(fit), fit)["spike_count"] == 0
+

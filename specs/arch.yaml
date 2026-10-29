@@ -3,7 +3,7 @@
 # parameter include), the block specs and the docs all read these numbers.
 # Changing anything here is an architecture change: open a PR labelled `arch`.
 
-version: 0.3.0
+version: 0.3.1
 
 process:
   name: 28 nm HPC+
@@ -20,6 +20,11 @@ timing:
   t_cycle_max: 0.28e-9   # per comparison cycle, worst corner
   t_cycle_typ: 0.17e-9   # per comparison cycle, TT/0.9V/27C target
   t_out_margin: 0.2e-9   # EOC -> CLK rising minimum margin
+  # Extra DAC wait (s, at TT) after the DAC step of decision 1, 2, ... 13, on top of the
+  # 40 / 75 ps waits (LOG-04 / 05): delay cells in the SAR logic, so they scale with the
+  # corner like every other loop delay. They give the 8 mA reference follower time to
+  # recover before decisions 4..7 and 10 (issue #35, REF-21; docs/noise-budget.md 9).
+  t_dac_add: [0, 0, 10.0e-12, 30.0e-12, 30.0e-12, 30.0e-12, 0, 0, 25.0e-12, 0, 0, 0, 0]
 
 reference:
   vref: 0.90             # V, VREFP - VREFN applied to the CDAC

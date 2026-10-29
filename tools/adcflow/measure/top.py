@@ -18,7 +18,7 @@ import numpy as np
 
 from .. import calib
 from ..arch import Arch
-from ..figures import C1, C3, C7, MUTED, limits, note, plot_spectrum, sink_of
+from ..figures import C1, C3, C7, GRID, LIMIT, MUTED, limits, note, plot_spectrum, sink_of
 from .common import read_capture, read_meters, spectrum
 
 
@@ -41,6 +41,21 @@ def prepare(params: dict) -> dict:
             fin, k = find_coherent_frequency(fs, (k - 2) * fs / n, n)
         params["fin"] = f"{fin:.9e}"
     return params
+
+
+SPIKE_LSB = 3.0          # TOP-10: a judged conversion further than this from the sine fit is a spike
+
+
+def spikes(codes: np.ndarray, fitted: np.ndarray) -> dict:
+    """TOP-10: judged conversions whose calibrated code is more than SPIKE_LSB from the sine fit.
+
+    Noise and quantization stay well below 3 LSB (rms ~0.6 LSB); a spike is a decision error
+    that the redundancy did not absorb, e.g. VREFP not recovered for a near-full-scale code (#35).
+    """
+    err = np.asarray(codes, dtype=float) - np.asarray(fitted, dtype=float)
+    idx = np.nonzero(np.abs(err) > SPIKE_LSB)[0]
+    return {"spike_count": int(idx.size), "spike_max_lsb": float(np.abs(err).max()),
+            "spike_index": [int(i) for i in idx[:50]]}
 
 
 def sine(job_dir: Path, ctx: dict) -> dict:
@@ -81,6 +96,7 @@ def sine(job_dir: Path, ctx: dict) -> dict:
     m["fs_peak_V"] = float(amp_v * a.code_offset / amp_codes) if amp_codes > 0 else None
     m["code_min"] = int(codes.min())
     m["code_max"] = int(codes.max())
+    m.update(spikes(codes, fit["fitted_signal"]))
     meters = read_meters(Path(job_dir) / "power.txt")
     vdd, vdd18 = float(g["vdd"]), float(g["vdd18"])
     pw = {"AVDD": vdd, "DVDD": vdd, "AVDD18": vdd18}
@@ -122,8 +138,15 @@ def _figs(fg, ctx, a, fs, fin, codes, codes_nom, fit, tconv, m, ncal) -> None:
     ax = axs[0, 1]
     err = codes - np.asarray(fit["fitted_signal"])
     ax.plot(np.arange(n), err, ".", color=C3, ms=3)
-    ax.set(xlabel="sample", ylabel="code - sine fit (LSB)", title="Error against the fitted sine")
-    note(ax, f"rms {err.std():.2f} LSB, peak {np.abs(err).max():.1f} LSB", loc="upper right")
+    ax.axhspan(-SPIKE_LSB, SPIKE_LSB, color=GRID, alpha=0.5, lw=0, label=f"+/-{SPIKE_LSB:g} LSB (TOP-10)")
+    big = np.abs(err) > SPIKE_LSB
+    if big.any():
+        ax.plot(np.nonzero(big)[0], err[big], "o", ms=7, mfc="none", color=LIMIT, label="spike")
+    ax.set(xlabel="sample", ylabel="code - sine fit (LSB)", title="Error against the fitted sine",
+           ylim=(-max(5.0, np.abs(err).max() * 1.2), max(5.0, np.abs(err).max() * 1.2)))
+    ax.legend(loc="lower left", fontsize=7.5)
+    note(ax, f"rms {err.std():.2f} LSB, peak {np.abs(err).max():.1f} LSB\n"
+             f"spikes > {SPIKE_LSB:g} LSB: {int(big.sum())}", loc="upper right")
     ax = axs[0, 2]
     tc = np.asarray(tconv) * 1e9
     ax.hist(tc, bins=40, color=C7, edgecolor="white", linewidth=0.3)
@@ -132,5 +155,6 @@ def _figs(fg, ctx, a, fs, fin, codes, codes_nom, fit, tconv, m, ncal) -> None:
     note(ax, f"mean {tc.mean():.3f} ns, max {tc.max():.3f} ns" + (f"\nlimit on the maximum {hi:g} ns" if hi else ""),
          loc="upper right")
     fg.save(fig, "codes", "Calibrated output codes of the judged record folded on the phase of the input sine "
-            "with the fit, the error against the fit for every sample, and the conversion-time histogram "
+            "with the fit, the error against the fit for every sample with the spikes beyond 3 LSB marked "
+            "(TOP-10), and the conversion-time histogram "
             "(calibration and judged records) against its limit.")

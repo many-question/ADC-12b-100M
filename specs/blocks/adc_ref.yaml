@@ -1,6 +1,6 @@
 block: adc_ref
 title: Reference driver (VREFP = 0.9 V) and top-plate common-mode (VCM = 0.45 V)
-version: 0.6.0
+version: 0.7.0
 owner: many-question
 status: behavioral
 views:
@@ -17,8 +17,9 @@ summary: >
   topology, bias current and decap are the designer's choice; the specs only
   constrain VREFP at the instants the comparator uses it (tb_ref_replay) and
   its noise. The behavioral view is an open-loop NMOS follower from AVDD18
-  (4 mA, 3 pF decap; v0.2 had 2 mA and 1.5 pF for half the charge, the same
-  VREFP waveform) - a starting point, not a requirement. Runs from AVDD18
+  (8 mA, 6 pF decap since #35; v0.3 had 4 mA and 3 pF, which leaves VREFP
+  too far from its final value at decisions 4..7 and 10 once the charge is
+  drawn at the DAC drive) - a starting point, not a requirement. Runs from AVDD18
   because a 0.9 V output cannot be regulated from the 0.9 V rail. VCM
   (0.45 V) resets the top plates during tracking and only sees small
   common-mode charge.
@@ -72,6 +73,7 @@ specs:
   - {id: REF-12, name: "ENOB loss from VREFP at the decision instants (charge replay)", metric: enob_loss_bit, unit: bit, max: 0.10, corners: all, test: tb_ref_replay}
   - {id: REF-13, name: "VREFP change over decisions 12..14 (no redundancy), max", metric: tail_dev_uV, unit: uV, max: 200, corners: all, test: tb_ref_replay}
   - {id: REF-14, name: "VREFP before conversion start, p-p over the replay (memory)", metric: start_pp_uV, unit: uV, max: 100, corners: all, test: tb_ref_replay}
+  - {id: REF-21, name: "VREFP deviation at decisions 1..11 over its redundancy tolerance, max (env_ratio)", metric: env_ratio, unit: '', max: 1, corners: all, test: tb_ref_replay}
   - {id: REF-15, name: "VREFP maximum during the supported power-up (whole run)", metric: vrefp_max_V, unit: V, max: 1.0, corners: all, test: tb_ref_startup}
   - {id: REF-16, name: "VREFP minimum during the supported power-up (whole run)", metric: vrefp_min_V, unit: V, min: -0.1, corners: all, test: tb_ref_startup}
   - {id: REF-17, name: "VCM maximum during the supported power-up (whole run)", metric: vcm_max_V, unit: V, max: 1.0, corners: all, test: tb_ref_startup}
@@ -98,14 +100,25 @@ tests:
     params: {npts: 1024, nwarm: 32, fin_target: 49.7e6}
     desc: >
       The system model converts a coherent 49.7 MHz -1 dBFS sine (1024 + 32
-      conversions, ideal reference, TT ADC timing - the shortest decision
-      spacing); its start charge and 13 switch charges per conversion are
+      conversions, ideal reference, TT ADC timing with each DAC step's charge
+      drawn at the DAC drive, t_bit + t_drv = 45 ps after its decision, and the
+      extra DAC waits of timing.t_dac_add; the hot-fast x0.88 timing is checked
+      in the system model, analysis/ref_timing_study.py); its start charge and
+      13 switch charges per conversion are
       played into VREFP as 20 ps current pulses (iload.pwl) and VREFP is
       sampled at every comparator clock and just before every conversion
       start (trig.pwl -> vdec.txt). The sampled deviations are fed back into
       the same model conversion: REF-12 is the ENOB lost against an ideal
       reference. REF-13 is the change over the last three decisions, which
       have no redundancy (decisions 8..11 tolerate 2.0 / 1.2 / 0.4 / 0.4 mV).
+      REF-21 (env_ratio, measure adcflow.measure.ref:replay): for every
+      decision k with redundancy (delta_k >= 1 LSB, k = 1..11), the largest
+      |VREFP(k) - VREFP(14)| over the record (VREFP at decision 14 is the end
+      of the conversion), divided by tolerance_k = delta_k * LSB * VREF / FS,
+      the VREFP error at which a full-scale DAC level makes a decision error
+      of delta_k LSB; env_ratio is the largest ratio. REF-12 alone misses this
+      error: it bites only the few near-full-scale codes whose residue falls
+      inside a narrow window, so one record can pass or fail by its phase.
       Transient noise is off; noise is REF-08.
   tb_ref_noise:
     netlist: tb/ref/tb_ref_noise.scs

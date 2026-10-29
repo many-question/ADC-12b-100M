@@ -3,7 +3,7 @@
 Deck layout (all paths absolute on the server):
 
     simulator lang=spectre
-    parameters vdd=... vdd18=... tempc=... noise_en=... beh_speed=... vref_in=...
+    parameters vdd=... vdd18=... tempc=... noise_en=... beh_speed=... vref_in=... cdac_behav=...
     adcflow_opts options temp=<T> tnom=27
     include <PDK sections>                 (when a transistor view or the test needs it)
     ahdl_include <Verilog-A of the behavioral views and the testbench>
@@ -13,7 +13,7 @@ Deck layout (all paths absolute on the server):
     save <device terminal nodes>           (tests with `soa:` in their spec, see soa.py)
 
 Global parameters are declared by the deck only; testbenches and views use
-them (`vdd`, `vdd18`, `tempc`, `noise_en`, `beh_speed`, `vref_in`).
+them (`vdd`, `vdd18`, `tempc`, `noise_en`, `beh_speed`, `vref_in`, `cdac_behav`).
 """
 
 from __future__ import annotations
@@ -42,7 +42,7 @@ from .specs import Block, blocks, find_test
 STAGE_DIRS = ("design", "tb")
 STAGE_EXT = {".scs", ".va", ".vams"}
 VA_YAML = REPO_ROOT / "specs" / "va_modules.yaml"
-GLOBAL_PARAMS = ("vdd", "vdd18", "tempc", "noise_en", "devnoise", "beh_speed", "vref_in")
+GLOBAL_PARAMS = ("vdd", "vdd18", "tempc", "noise_en", "devnoise", "beh_speed", "vref_in", "cdac_behav")
 
 
 @dataclass
@@ -153,7 +153,10 @@ def build_jobs(block: Block, test_id: str, test: dict, corners: list[Corner], vi
             extra = params.pop("_files", {})
             g = {"vdd": c.vdd, "vdd18": c.vdd18, "tempc": c.temp,
                  "noise_en": 1 if test.get("tran_noise") else 0, "devnoise": 1 if needs_pdk else 0,
-                 "beh_speed": 1.0, "vref_in": vref_in()}
+                 "beh_speed": 1.0, "vref_in": vref_in(),
+                 # 1 while adc_cdac is behavioral: its kT/C source counts the sampled noise of the
+                 # whole sampling network, so the testbench source resistors must be noiseless
+                 "cdac_behav": 0 if views.get("adc_cdac", "behav") != "behav" else 1}
             for k in list(params):
                 if k in GLOBAL_PARAMS:
                     g[k] = params.pop(k)

@@ -50,8 +50,11 @@
   `meta.provenance.spectrum` 记录所用的估计器。注意：ADCToolbox 0.6.4 `compute_spectrum` 返回的 `plot_data.is_coherent`
   实际是参数 `coherent_averaging`（是否做了多次记录的相干平均），不是按频点偏差判断的相干性。不能用它判断输入频率是否相干，
   相干性看实际的 fin、N 与 k（#47）。
-* **噪声**：`noise_en=1` 时行为级模型注入比较器噪声、采样 kT/C 与时钟抖动；有晶体管级视图时
-  （`devnoise=1`）打开 Spectre 瞬态噪声（`noisefmax`）。
+* **噪声**（每个噪声源只计一次）：`noise_en=1` 时行为级模型注入比较器噪声、采样 kT/C 与时钟抖动。
+  顶层测试台（`tb_top_*`）的 Spectre 瞬态噪声（`noisefmax`）也只随 `noise_en` 打开，因此行为级参考的
+  follower 噪声（`white_noise`）和晶体管级视图的器件噪声在顶层总是计入；模块测试台仍按 `noise_en·devnoise`。
+  50 Ω 源电阻是 `tb_rsrc_va`：行为级 CDAC 时无噪声（其 kT/C 源按均分定理已包含源电阻的份额，
+  `cdac_behav=1`，由 runner 按视图设定），晶体管级 CDAC 时有热噪声（真实开关与源电阻自己产生采样噪声）。
 * **正弦测试频率**：`fin_target=49.9 MHz` 取不超过 Nyquist−3 个频点的最大相干奇数频点
   （1024 点：49.71 MHz；256 点：48.83 MHz），避免窗函数主瓣碰到 Nyquist 频点。测试台模板里的 `fin` 只是占位值，
   不一定相干：用例的 `prepare`（`measure.top:prepare`、`measure.ref:replay_prepare`）按 `npts` 换成相干频率，
@@ -63,6 +66,12 @@
   用这组权重解码后算 ENOB / SNDR / SFDR（`enob`、`sndr_dBc`、`sfdr_dBc`，TOP-01/02/03/08/09 用它们）。
   权重不在被判定的记录上拟合，因此不会过拟合。同一记录按标称权重解码的结果报告为 `enob_nom`、`sfdr_nom_dBc` 等，
   不设限。实现见 `tools/adcflow/calib.py`、`measure/top.py`；系统模型用同一方法（`model.sine_test_cal`）。
+* **尖峰**（TOP-10，`tb_top_sine` 的判定记录）：校准后的码与正弦拟合相差超过 3 LSB 的转换数，限值 0（全部角），同时报告最大偏差
+  并在码图中标出。噪声与量化远小于 3 LSB（rms 约 0.6 LSB），尖峰是冗余没有吸收的判决错误；它们只占少数码时 ENOB 几乎看不出来（#35）。
+* **参考电压的判决时刻偏差**（REF-21，`tb_ref_replay`）：判决 k = 1..11 时刻的 VREFP 相对转换结束时的偏差，取记录中的
+  最大值，除以容差 δ_k × LSB × VREF / FS（δ_k 为该判决的冗余），各判决比值的最大值 `env_ratio` ≤ 1；判决 12~14 由 REF-13 约束。
+  回放的电荷序列按 SAR 逻辑的实际时序（DAC 驱动时刻，含 `timing.t_dac_add` 的附加等待）产生。它与 REF-12 不同，不依赖采样
+  是否恰好落在少数接近满量程的码窗口里（#35）。
 * **比较器噪声**（`tb_comp_noise`）：17 个差分输入电平（±800 µV）× 每电平 512 次判决，用二项分布最大似然的
   probit 模型 `P(OUTP) = Φ((vd − μ)/σ)` 拟合计数，σ 为输入等效噪声、μ 为失调；同时报告 σ 的 95 % 剖面似然区间
   `noise_ci95_uV`。120~300 µV 时 σ 的 1σ 统计误差 ≤ 2.7 %（蒙特卡洛，无可测偏差）。验收仍按点估计对限值判定；
@@ -84,14 +93,22 @@
 
 | 模块 | 关键结果 |
 |---|---|
-| 顶层 `tb_top_sine`（1024 点校准 + 1024 点判定，49.71 MHz，−1 dBFS，噪声开） | ENOB 10.91（校准权重，验收；标称权重 10.88），SNR 67.6 dB，THD −83.4 dBc，SFDR 84.0 dB（`adcflow.spectrum`，#36；ADCToolbox 0.6.4 报 83.3 dB），FS 0.994 V，t_conv 2.72 ns，无丢失 RDY，8.01 mW（AVDD18 7.52 mW） |
-| 顶层低频 / 占空比 45 %、55 % | ENOB 10.94 / 10.95 / 10.95（标称 10.90 / 10.89 / 10.90） |
+| 顶层 `tb_top_sine`（1024 点校准 + 1024 点判定，49.71 MHz，−1 dBFS，噪声开） | ENOB 10.92（校准权重，验收；标称权重 10.88），SNR 67.7 dB，THD −82.2 dBc，SFDR 85.3 dB，FS 0.994 V，t_conv 2.83 ns，无丢失 RDY，15.2 mW（AVDD18 14.7 mW，8 mA 参考，#35） |
+| 顶层低频 / 占空比 45 %、55 % | ENOB 10.96 / 10.90 / 10.95（标称 10.91 / 10.82 / 10.90） |
 | `adc_comp` | 噪声 189.5 µV，95 % 区间 181.7~197.7 µV（行为级 σ = 190 µV；17 × 512 次判决，二项最大似然），1 mV 时延 76 ps，30 mV 49 ps，τ 8 ps，回踢 ≈ 0（行为级比较器无回踢），Cin 15 fF，CLKC 12 fF，能耗 112 fJ |
-| `adc_sarlogic`（UP/DN 负载 15 fF） | 1000 次随机转换 0 错误，转换 2.57 ns（比较器 70 ps 时 2.90 ns），超时 285 ps，210 µW；输入电容 CONV 30 fF、OUTP/OUTN 5 fF |
+| `adc_sarlogic`（UP/DN 负载 15 fF） | 1000 次随机转换 0 错误，转换 2.70 ns（60 次 2.67 ns，LOG-08 ≤ 2.75；比较器 70 ps 时 3.02 ns），超时 285 ps，210 µW；DAC 等待（扣除附加等待）48 / 83 ps，附加等待 10 / 30 / 30 / 30 / 25 ps（判决 3/4/5/6/9，LOG-16 误差 ≈ 0）；输入电容 CONV 30 fF、OUTP/OUTN 5 fF |
 | `adc_cdac` | C_S 2.057 pF，FS 0.993 V，可校准性裕量 0.465 LSB，校准后 ENOB 损失 ≈ 0（标称 0.07 bit，4 颗失配芯片）；RL12 建立 12.7 ps，τ 1.2 ps，起始建立 11.4 ps；VREFP 电荷 0.77 pC；跟踪 SFDR 132.7 dB / SNDR 130.6 dB（显式数值设置，已到数值底噪，> 130 dB；默认设置的 109.3 / 101.8 dB 是数值噪声，见下）；输入电容 DH/RL 4.5 fF、PHI_S/PHI_SB 30 fF、CONV 60 fF |
 | `adc_bootstrap`（参考开关 96 µm + 2.057 pF） | VG−VIN 0.855 V，关断 18 ps，开启 68 ps；跟踪 SFDR 94.6 dB / SNDR 94.6 dB（显式数值设置；默认设置为 92.6 / 85.8，v0.2 为 97.2 / 89.6，均未收敛，见下）；SOA 仅外部节点（参考开关，§5）：最大 \|Vgs\| 0.900 V（VG 为 0、VIN = 0.9 V 时，负向），0 违例；PHI_B/PHI_BB 输入 12 fF |
 | `adc_clkgen`（规格负载共 530 fF） | PHI_S 延时 46 ps，PHI_S→PHI_B 40 ps，抖动 46 fs，占空比 45/55 % 无错误，AVDD 70 µA（行为级占位，含负载，CLK-10 ≤ 80 µA）；SOA（CLK-11，§5）：行为级没有可检查的器件（`external`，0 对，`soa_note` 说明），不是晶体管级证据 |
-| `adc_ref`（follower 4 mA + 3 pF） | 回放 ENOB 损失 0.018 bit，判决 12~14 变化 41 µV，记忆 ≈ 0，最大跌落 9.1 mV；噪声 43.9 µV（带 1.2 pF 与 200 µA）；直流 −2.0 mV（200 µA 负载）；上电（支持的顺序，`tb_ref_startup`）VREFP 0~0.900 V、VCM 0~0.450 V，电源已上、VREF_IN 为 0 的 5 µs 内两者都为 0，斜坡期间跟随误差 4 µV，就绪后 |VREFP − VREF_IN| ≈ 0、VCM 450.0 mV（行为级 follower 与电源无关，只体现 VREF_IN 斜坡；交叉检查 maxstep 0.1 ns / gear2only 差 < 0.1 µV） |
+| `adc_ref`（follower 8 mA + 6 pF，#35） | 回放（电荷在 DAC 驱动时刻、含附加等待）ENOB 损失 ≈ 0，`env_ratio` 0.63（判决 3；REF-21 ≤ 1），判决 12~14 变化 73 µV，记忆 ≈ 0，最大跌落 25 mV；噪声 34.5 µV（带 1.2 pF 与 200 µA）；直流 −1.0 mV（200 µA 负载）；上电（支持的顺序，`tb_ref_startup`）VREFP 0~0.900 V、VCM 0~0.450 V，电源已上、VREF_IN 为 0 的 5 µs 内两者都为 0，斜坡期间跟随误差 4 µV，就绪后 |VREFP − VREF_IN| ≈ 0、VCM 450.0 mV（行为级 follower 与电源无关，只体现 VREF_IN 斜坡；交叉检查 maxstep 0.1 ns / gear2only 差 < 0.1 µV） |
+
+**顶层工艺角基线（#35，全行为级，`tb_top_sine`，噪声开，校准 ENOB）**：行为级视图没有工艺时序（`beh_speed` = 1），
+工艺字母不起作用，角只体现温度与电压；快 / 慢时序由系统级模型覆盖（`docs/noise-budget.md` §9）。
+
+| 角 | tt_nom_27 | ss_low_m40 | ss_low_125 | ff_high_m40 | ff_high_125 | fs_nom_27 | sf_nom_27 | tt_nom_125 | tt_low_27 | tt_high_27 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| TOP-01（8 mA + 附加等待） | 10.92 | 10.89 | 10.83 | 10.84 | 10.81 | 10.92 | 10.92 | 10.85 | 10.86 | 10.82 |
+| 同上，4 mA + 3 pF（#48 第一版基线） | 10.54 | 10.82 | 9.86 | 10.79 | 9.86 | 10.54 | 10.54 | 9.87 | 10.53 | 10.50 |
 
 * TT 顶层 ENOB 10.91 比模型的行为级条件（比较器 200 µV 时 10.97，8192 点）低约 0.06 bit：一部分是行为级的
   THD（−83.4 dBc，模型未计），其余是 1024 点记录的统计起伏（SNR 估计约 ±3 %）。比较器取 200 µV 时实测为 10.84，
@@ -101,7 +118,7 @@
   0.195 → 0.211 mW，即占位值本身（14 × 150 fJ × 100 MHz + 漏电 = 0.211 mW）；CDAC 跟踪 SFDR 97.9 → 109.3 dB
   （行为级采样网络是线性的）。推测原因是时钟沿处的电容迫使仿真器在这些沿上取更细的步长。
 * 噪声关闭时顶层 ENOB 约 11.85（量化极限 12.0；v0.1 测得，v0.2/v0.3 未重测）；`ax` 模式下行为级 ADC 精度不足，因此验收一律用 `aps`。
-* 行为级参考的 AVDD18 电流即 follower 偏置（4 mA）加 CDAC 平均电流；其余模块的功耗为预算值
+* 行为级参考的 AVDD18 电流即 follower 偏置（8 mA，#35）加 CDAC 平均电流；其余模块的功耗为预算值
   （固定电流 + 每次判决的电荷），不代表电路实际功耗。
 * 参考电压的规格只约束判决时刻的行为（`tb_ref_replay`），回放方法见 `docs/reference.md` §6。
 

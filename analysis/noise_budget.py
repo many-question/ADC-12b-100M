@@ -10,7 +10,9 @@ calibrated weights as in the acceptance tests (``adcflow.calib``: weights fitted
 on a calibration record of the same chip, ENOB judged on an independent record);
 the nominal-weight ENOB is reported for information. The worst corner of the
 model is 125 C (kT/C, follower g_s and noise) with the comparator, logic and DAC
-timing 1.6 x slower than TT, the comparator noise at its all-corner limit, the
+timing 0.88 (hot-fast, transistor-level clock generator #26), 1.0 or 1.6 x TT, whichever is worst (slow timing costs settling and
+conversion time, fast timing leaves the reference less time to recover between
+decisions, issue #35), the comparator noise at its all-corner limit, the
 VREFP noise at the REF-08 limit, a static HD3 allowance for the sampling network
 and random capacitor mismatch (relative sigma 0.5 % for a 1 fF unit, averaging
 over the units of a weight).
@@ -59,7 +61,7 @@ def sigma_cu(k: float) -> float:
 
 def slow(ni: m.NonIdeal, s: float) -> m.NonIdeal:
     """Comparator, loop and DAC timing s x the TT values (as budget.timing_table)."""
-    return replace(ni, t_cmp0=ni.t_cmp0 * s, tau_reg=ni.tau_reg * s, t_loop=ni.t_loop * s,
+    return replace(ni, t_cmp0=ni.t_cmp0 * s, tau_reg=ni.tau_reg * s, t_loop=ni.t_loop * s, t_bit=ni.t_bit * s, t_drv=ni.t_drv * s, t_dac_add_scale=ni.t_dac_add_scale * s,
                    t_dac=ni.t_dac * s, t_dac_fast=ni.t_dac_fast * s, tau_dac=ni.tau_dac * s,
                    t_start=0.1e-9 + (ni.t_start - 0.1e-9) * s)
 
@@ -192,11 +194,11 @@ def table(c: Case) -> str:
 
 V02_WORST = Case("v0.2 limits, worst corner", k=1.0, cmp_top=80e-6)
 V02_ISSUE = Case("v0.2 sizing, comparator 240 uV (all-corner)", k=1.0, cmp_top=240e-6)
-V03_WORST = Case("v0.3, worst corner", k=2.0, cmp_top=240e-6, i_ref=4e-3, c_dec=3e-12)
+V03_WORST = Case("v0.3, worst corner (8 mA, 6 pF reference, #35)", k=2.0, cmp_top=240e-6, i_ref=8e-3, c_dec=6e-12)
 V03_TT = replace(V03_WORST, name="v0.3, TT (27 C, TT timing, comparator at its TT limit)",
                  cmp_top=200e-6, temp_c=27.0, timing=1.0)
 V03_TT_BEHAV = replace(V03_TT, name="v0.3, TT, behavioral conditions (no mismatch, no HD3, follower gamma = 2)",
-                       hd3_dbc=None, mismatch=False, ref_noise=float(np.sqrt(2 * K_BOLTZMANN * 300.15 / 4.2e-12)))
+                       hd3_dbc=None, mismatch=False, ref_noise=float(np.sqrt(2 * K_BOLTZMANN * 300.15 / 7.2e-12)))
 
 CMP_SWEEP = (180, 200, 220, 240, 260)
 
@@ -208,18 +210,33 @@ def sweep() -> str:
         cells = []
         for c in CMP_SWEEP:
             cs = Case("", k=k, cmp_top=c * 1e-6, i_ref=2e-3 * k, c_dec=1.5e-12 * k)
-            cells.append(f"{total(cs, chips=4)['mean']:.2f}")
+            cells.append(f"{min(total(replace(cs, timing=s), chips=4)['mean'] for s in WORST_TIMINGS):.2f}")
         a = arch_k(k)
         out.append(f"| {a.c_s*1e12:.2f} | {k:g} | {a.ktc_noise(125)*1e6:.1f} | " + " | ".join(cells) + " |")
     return "\n".join(out)
+
+
+# hot-fast x0.88: transistor-level clock generator, ff_high_125 vs TT (#26); slow x1.6
+WORST_TIMINGS = (0.88, 1.0, 1.6)
+
+
+def worst(c: Case) -> Case:
+    """The case at the timing scale (WORST_TIMINGS) with the lowest all-together mean ENOB."""
+    if c.temp_c != 125.0:
+        return c
+    cases = [replace(c, timing=s, name=f"{c.name} (binding timing x{s:g})") for s in WORST_TIMINGS]
+    return min(cases, key=lambda x: total(x, chips=4)["mean"])
 
 
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--sweep", action="store_true")
     args = ap.parse_args()
+    for c in (V02_WORST, V02_ISSUE, V03_WORST):
+        print(f"{c.name}, all items at their limits: " + ", ".join(
+            f"timing x{s:g} ENOB {total(replace(c, timing=s), chips=4)['mean']:.2f}" for s in WORST_TIMINGS), flush=True)
     for c in (V02_WORST, V02_ISSUE, V03_WORST, V03_TT):
-        print(table(c), "\n", flush=True)
+        print(table(worst(c)), "\n", flush=True)
     t = total(V03_TT_BEHAV, chips=4)
     print(f"{V03_TT_BEHAV.name}: ENOB {t['mean']:.2f} calibrated, {t['nominal']:.2f} nominal\n", flush=True)
     if args.sweep:

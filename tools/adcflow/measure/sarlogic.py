@@ -63,9 +63,38 @@ def _check(job_dir: Path, ctx: dict) -> tuple[int, int, dict, dict]:
     return bit_err, lvl_err, emu, detail
 
 
+# decisions whose DAC wait (UP/DN -> next CLKC) is timed, with the UP/DN index j = 13 - k they drive:
+# 1, 2 (fast, no extra wait), 3..6 (fast, extra wait), 7, 13 (slow, none), 9 (slow, extra wait)
+WAIT_STEPS = (1, 2, 3, 4, 5, 6, 7, 9, 13)
+N_FAST = 6                       # steps 1 .. 6 use the fast DAC wait (LOG-04), the rest the slow one (LOG-05)
+WAIT_SAVES = " ".join(f"UP{13 - k} DN{13 - k}" for k in WAIT_STEPS)
+
+
 def _next(arr: np.ndarray, t: float) -> float | None:
     after = arr[arr > t]
     return float(after[0]) if len(after) else None
+
+
+def _extra_waits(a: Arch, waits: dict[int, list]) -> dict:
+    """LOG-16: the extra DAC wait of every step that has one (timing.t_dac_add), measured as its wait minus
+    the mean wait of the steps of the same kind (fast 1..6 / slow 7..13) without one; error in % of nominal."""
+    mean = {k: float(np.mean(v)) for k, v in waits.items() if v}
+    m: dict = {}
+    err, meas = [], {}
+    for fast in (True, False):
+        group = [k for k in mean if (k <= N_FAST) == fast]
+        base = [mean[k] for k in group if a.t_dac_add[k - 1] == 0]
+        if not base:
+            continue
+        for k in group:
+            nom = a.t_dac_add[k - 1]
+            if nom > 0:
+                meas[k] = mean[k] - float(np.mean(base))
+                err.append(abs(meas[k] / nom - 1) * 100)
+    if meas:
+        m["t_dac_add_ps"] = {str(k): round(v * 1e12, 2) for k, v in sorted(meas.items())}
+        m["t_dac_add_err_pct"] = float(max(err))
+    return m
 
 
 def func(job_dir: Path, ctx: dict) -> dict:
@@ -85,20 +114,24 @@ def func(job_dir: Path, ctx: dict) -> dict:
             _fig_decisions(fg, ctx, det, m)
         return m
     t = w["time"]
-    x = {n: psf.crossings(t, w[n], vdd / 2, +1) for n in ("CONV", "CLKC", "OUTP", "OUTN", "UP12", "DN12",
-                                                          "UP6", "DN6", "UP0", "DN0", "RDY")}
+    a = Arch.load()
+    names = ["CONV", "CLKC", "OUTP", "OUTN", "RDY"] + [n for k in WAIT_STEPS for n in (f"UP{13 - k}", f"DN{13 - k}")
+                                                     if n in w]
+    x = {n: psf.crossings(t, w[n], vdd / 2, +1) for n in names}
     clk_f = psf.crossings(t, w["CLKC"], vdd / 2, -1)
     d0 = psf.crossings(t, w["D0"], vdd / 2, 0)
     valid = np.sort(np.concatenate([x["OUTP"], x["OUTN"]]))
     t_start, t_bit, t_rst, t_fast, t_slow, t_setup = [], [], [], [], [], []
+    waits: dict[int, list] = {k: [] for k in WAIT_STEPS}
     for tc in x["CONV"][:50]:
         c1 = _next(x["CLKC"], tc)
         if c1 is None:
             break
         t_start.append(c1 - tc)
         clks = x["CLKC"][x["CLKC"] >= c1][:14]
-        for k, (up, dn) in {1: ("UP12", "DN12"), 7: ("UP6", "DN6"), 13: ("UP0", "DN0")}.items():
-            if len(clks) < k:
+        for k in WAIT_STEPS:
+            up, dn = f"UP{13 - k}", f"DN{13 - k}"
+            if len(clks) < k or up not in x:
                 continue
             v = _next(valid, clks[k - 1])
             b = min(filter(None, (_next(x[up], clks[k - 1]), _next(x[dn], clks[k - 1]))), default=None)
@@ -110,7 +143,9 @@ def func(job_dir: Path, ctx: dict) -> dict:
                 t_rst.append(f - v)
             nxt = _next(x["CLKC"], b)
             if nxt is not None and (k < 13 or len(clks) >= 14):
-                (t_fast if k <= 6 else t_slow).append(nxt - b)
+                waits[k].append(nxt - b)
+                # LOG-04 / 05: the wait net of the designed extra wait of this step (timing.t_dac_add)
+                (t_fast if k <= 6 else t_slow).append(nxt - b - a.t_dac_add[k - 1])
         r = _next(x["RDY"], tc)
         if r is not None:
             prev = d0[(d0 < r) & (d0 > tc)]
@@ -122,6 +157,7 @@ def func(job_dir: Path, ctx: dict) -> dict:
             m[key] = float(np.mean(vals) * 1e12)
             m[key.replace("_ps", "_max_ps")] = float(np.max(vals) * 1e12)
             m[key.replace("_ps", "_min_ps")] = float(np.min(vals) * 1e12)
+    m.update(_extra_waits(a, waits))
     if t_setup:
         m["t_setup_ps"] = float(np.min(t_setup) * 1e12)
     meters = read_meters(Path(job_dir) / "power.txt")

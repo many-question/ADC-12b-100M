@@ -1,0 +1,21 @@
+// Source resistor of the 50 ohm input drive, with switchable thermal noise.
+// The behavioral adc_cdac injects the full sampled kT/C (2 kT C_tot / C_S^2, which by
+// equipartition already contains the share of the source resistance), so with it the
+// source must be noiseless (noisy = 0); with the transistor-level adc_cdac the real switch
+// and source resistances make the sampled noise themselves (noisy = 1). The deck global
+// cdac_behav (adcflow runner) selects it.
+`include "disciplines.vams"
+`include "constants.vams"
+
+module tb_rsrc_va(P, N);
+  inout P, N;
+  electrical P, N;
+
+  parameter real r = 50 from (0:inf);
+  parameter real noisy = 1 from [0:1];
+
+  analog begin
+    I(P, N) <+ V(P, N) / r;
+    I(P, N) <+ white_noise(noisy * 4 * `P_K * $temperature / r, "thermal");
+  end
+endmodule

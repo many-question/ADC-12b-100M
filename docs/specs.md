@@ -8,9 +8,9 @@
 | [`adc_cdac`](#adc-cdac) | behavioral | many-question | 17 | `tb_cdac_weights`, `tb_cdac_settle`, `tb_cdac_track` |
 | [`adc_clkgen`](#adc-clkgen) | behavioral | many-question | 11 | `tb_clkgen_timing`, `tb_clkgen_jitter` |
 | [`adc_comp`](#adc-comp) | behavioral | many-question | 14 | `tb_comp_delay`, `tb_comp_noise`, `tb_comp_kickback` |
-| [`adc_ref`](#adc-ref) | behavioral | many-question | 14 | `tb_ref_dc`, `tb_ref_replay`, `tb_ref_noise`, `tb_ref_startup` |
-| [`adc_sarlogic`](#adc-sarlogic) | behavioral | Arcadia-1 | 15 | `tb_sarlogic_func`, `tb_sarlogic_rand`, `tb_sarlogic_func_slow`, `tb_sarlogic_timeout` |
-| [`adc_top`](#adc-top) | behavioral | many-question | 8 | `tb_top_sine`, `tb_top_sine_lf`, `tb_top_duty` |
+| [`adc_ref`](#adc-ref) | behavioral | many-question | 15 | `tb_ref_dc`, `tb_ref_replay`, `tb_ref_noise`, `tb_ref_startup` |
+| [`adc_sarlogic`](#adc-sarlogic) | behavioral | Arcadia-1 | 16 | `tb_sarlogic_func`, `tb_sarlogic_rand`, `tb_sarlogic_func_slow`, `tb_sarlogic_timeout` |
+| [`adc_top`](#adc-top) | behavioral | many-question | 9 | `tb_top_sine`, `tb_top_sine_lf`, `tb_top_duty` |
 
 ## adc_bootstrap
 
@@ -216,9 +216,9 @@ Single fully-dynamic comparator of the asynchronous SAR loop. CLKC low resets (O
 
 ## adc_ref
 
-**Reference driver (VREFP = 0.9 V) and top-plate common-mode (VCM = 0.45 V)** — 规格版本 0.6.0，状态 `behavioral`。
+**Reference driver (VREFP = 0.9 V) and top-plate common-mode (VCM = 0.45 V)** — 规格版本 0.7.0，状态 `behavioral`。
 
-Buffers the high-impedance 0.9 V reference input VREF_IN into VREFP, which supplies the CDAC drivers (arch v0.3, cu = 1 fF): per conversion 0.93 pC at the start (the sampled H halves go from VIN to VREFP) and 13 switch charges of w_j * 0.45 fC (0.44 pC for the MSB, <= 14 fC from decision 7 on), first-order independent of the code, plus a signal-dependent part (-cu * LSB * gain * L^2 / 4, up to 0.36 pC). Everything is on-chip: decoupling in the nF range would have to be off-chip and its bond wires are not modelled, so it is not an option. The topology, bias current and decap are the designer's choice; the specs only constrain VREFP at the instants the comparator uses it (tb_ref_replay) and its noise. The behavioral view is an open-loop NMOS follower from AVDD18 (4 mA, 3 pF decap; v0.2 had 2 mA and 1.5 pF for half the charge, the same VREFP waveform) - a starting point, not a requirement. Runs from AVDD18 because a 0.9 V output cannot be regulated from the 0.9 V rail. VCM (0.45 V) resets the top plates during tracking and only sees small common-mode charge.
+Buffers the high-impedance 0.9 V reference input VREF_IN into VREFP, which supplies the CDAC drivers (arch v0.3, cu = 1 fF): per conversion 0.93 pC at the start (the sampled H halves go from VIN to VREFP) and 13 switch charges of w_j * 0.45 fC (0.44 pC for the MSB, <= 14 fC from decision 7 on), first-order independent of the code, plus a signal-dependent part (-cu * LSB * gain * L^2 / 4, up to 0.36 pC). Everything is on-chip: decoupling in the nF range would have to be off-chip and its bond wires are not modelled, so it is not an option. The topology, bias current and decap are the designer's choice; the specs only constrain VREFP at the instants the comparator uses it (tb_ref_replay) and its noise. The behavioral view is an open-loop NMOS follower from AVDD18 (8 mA, 6 pF decap since #35; v0.3 had 4 mA and 3 pF, which leaves VREFP too far from its final value at decisions 4..7 and 10 once the charge is drawn at the DAC drive) - a starting point, not a requirement. Runs from AVDD18 because a 0.9 V output cannot be regulated from the 0.9 V rail. VCM (0.45 V) resets the top plates during tracking and only sees small common-mode charge.
 
 视图：behav: `design/behav/adc_ref.scs`, xtor: `design/xtor/adc_ref/adc_ref.scs`
 
@@ -254,6 +254,7 @@ Buffers the high-impedance 0.9 V reference input VREF_IN into VREFP, which suppl
 | REF-12 | ENOB loss from VREFP at the decision instants (charge replay) | ≤ 0.1 | bit | all | `tb_ref_replay` |
 | REF-13 | VREFP change over decisions 12..14 (no redundancy), max | ≤ 200 | uV | all | `tb_ref_replay` |
 | REF-14 | VREFP before conversion start, p-p over the replay (memory) | ≤ 100 | uV | all | `tb_ref_replay` |
+| REF-21 | VREFP deviation at decisions 1..11 over its redundancy tolerance, max (env_ratio) | ≤ 1 |  | all | `tb_ref_replay` |
 | REF-15 | VREFP maximum during the supported power-up (whole run) | ≤ 1.0 | V | all | `tb_ref_startup` |
 | REF-16 | VREFP minimum during the supported power-up (whole run) | ≥ -0.1 | V | all | `tb_ref_startup` |
 | REF-17 | VCM maximum during the supported power-up (whole run) | ≤ 1.0 | V | all | `tb_ref_startup` |
@@ -264,13 +265,13 @@ Buffers the high-impedance 0.9 V reference input VREF_IN into VREFP, which suppl
 ### 验收用例
 
 - **`tb_ref_dc`** (`tb/ref/tb_ref_dc.scs`, 度量 `adcflow.measure.ref:dc`)：DC operating point with the 200 uA average CDAC load (load_vrefp_dc): REF-01, REF-02 and REF-11 there; REF-04 is the slope of VREFP over a sweep of AVDD18 across the specified supply envelope, 1.62 .. 1.98 V (corners.yaml low .. high, nominal +/-10 %), at that load at every corner: the sweep does not depend on the corner's own supply, so no corner goes beyond the envelope (#46); process and temperature still vary by corner. A dc sweep of the load 0..200 uA is characterization (load regulation, reported, no limit); supply currents are reported.
-- **`tb_ref_replay`** (`tb/ref/tb_ref_replay.scs`, 度量 `adcflow.measure.ref:replay`; 参数 `npts=1024`, `nwarm=32`, `fin_target=49.7e6`)：The system model converts a coherent 49.7 MHz -1 dBFS sine (1024 + 32 conversions, ideal reference, TT ADC timing - the shortest decision spacing); its start charge and 13 switch charges per conversion are played into VREFP as 20 ps current pulses (iload.pwl) and VREFP is sampled at every comparator clock and just before every conversion start (trig.pwl -> vdec.txt). The sampled deviations are fed back into the same model conversion: REF-12 is the ENOB lost against an ideal reference. REF-13 is the change over the last three decisions, which have no redundancy (decisions 8..11 tolerate 2.0 / 1.2 / 0.4 / 0.4 mV). Transient noise is off; noise is REF-08.
+- **`tb_ref_replay`** (`tb/ref/tb_ref_replay.scs`, 度量 `adcflow.measure.ref:replay`; 参数 `npts=1024`, `nwarm=32`, `fin_target=49.7e6`)：The system model converts a coherent 49.7 MHz -1 dBFS sine (1024 + 32 conversions, ideal reference, TT ADC timing with each DAC step's charge drawn at the DAC drive, t_bit + t_drv = 45 ps after its decision, and the extra DAC waits of timing.t_dac_add; the hot-fast x0.88 timing is checked in the system model, analysis/ref_timing_study.py); its start charge and 13 switch charges per conversion are played into VREFP as 20 ps current pulses (iload.pwl) and VREFP is sampled at every comparator clock and just before every conversion start (trig.pwl -> vdec.txt). The sampled deviations are fed back into the same model conversion: REF-12 is the ENOB lost against an ideal reference. REF-13 is the change over the last three decisions, which have no redundancy (decisions 8..11 tolerate 2.0 / 1.2 / 0.4 / 0.4 mV). REF-21 (env_ratio, measure adcflow.measure.ref:replay): for every decision k with redundancy (delta_k >= 1 LSB, k = 1..11), the largest |VREFP(k) - VREFP(14)| over the record (VREFP at decision 14 is the end of the conversion), divided by tolerance_k = delta_k * LSB * VREF / FS, the VREFP error at which a full-scale DAC level makes a decision error of delta_k LSB; env_ratio is the largest ratio. REF-12 alone misses this error: it bites only the few near-full-scale codes whose residue falls inside a narrow window, so one record can pass or fail by its phase. Transient noise is off; noise is REF-08.
 - **`tb_ref_noise`** (`tb/ref/tb_ref_noise.scs`, 度量 `adcflow.measure.ref:noise`)：Small-signal noise of VREFP (and VCM) from 1 kHz to 100 GHz with the decoupling, the 1.2 pF CDAC load and the 200 uA average load. VREFP noise multiplies the signal (input-referred ~0.7 x at -1 dBFS): 80 / 120 / 160 / 300 uV rms cost 0.06 / 0.12 / 0.20 / 0.49 bit. REF-08 integrates from 10 kHz, about one bin of a long (8k-16k point) record; noise below that is a slow gain wander, reported as noise_lf_uV (1 - 10 kHz) with no limit, and noise_total_uV is the whole band.
 - **`tb_ref_startup`** (`tb/ref/tb_ref_startup.scs`, 度量 `adcflow.measure.ref:startup`; 数值设置 `maxstep=1n`; 收敛交叉检查 `maxstep=0.1n`, `method=gear2only`（`--crosscheck`，`docs/verification.md` §2）)：The supported power-up sequence (power_up_sequence): AVDD and AVDD18 ramp together from 0.1 to 1.1 us with VREF_IN at 0 V; VREF_IN stays at 0 V for 5 us more (vref_dwell), then ramps 0 -> 0.9 V from 6.1 to 16.1 us; ready at 21.1 us; the run ends at 25.1 us. Loads: 1.2 pF on VREFP (CDAC bottom plates, as tb_ref_replay / tb_ref_noise) and 2 x 2.5 pF on VCM (the two top plates, C_tot); no DC load (CLK is static, no conversions). REF-15..18: the largest and smallest VREFP and VCM over the whole run, against -0.1 .. 1.0 V, the window the thin-oxide CDAC and comparator devices on these nets need; the dwell with VREF_IN at 0 V lets a circuit that raises its outputs without a reference show there. REF-19: the largest |VREFP - VREF_IN| from ready to the end, the REF-01 tolerance at no load, so a reference that settles late or does not start fails. REF-20: the VCM value furthest from 0.45 V from ready to the end, against the REF-02 range. Reported: the largest VREFP and VCM during the dwell, the largest |VREFP - VREFP(end)| from ready on, the final VREFP - VREF_IN, VCM at the end, the largest |VREFP - VREF_IN| during the VREF_IN ramp and the time after the ramp from which VREFP stays within 5 mV of VREF_IN. The per-device SOA check is not applied: the thin-oxide limit does not apply to the thick-oxide devices of adc_ref. The behavioral view's follower and VCM driver are ideal current sources that do not depend on AVDD18 / AVDD, so it shows the VREF_IN ramp and the settling, not supply headroom or bias start-up.
 
 ## adc_sarlogic
 
-**Asynchronous SAR controller, bit registers and output register** — 规格版本 0.2.0，状态 `behavioral`。
+**Asynchronous SAR controller, bit registers and output register** — 规格版本 0.3.0，状态 `behavioral`。
 
 Self-timed SAR loop. CONV low = reset (CLKC = 0, all UP/DN = 0; D and RDY hold). CONV rising starts a conversion: after t_start the first CLKC rises; each comparator decision (OUTP or OUTN rising) is stored, drives the CDAC control of that step (UP<j> or DN<j>, one-hot, j = 13 - k for decision k = 1..13), resets the comparator (CLKC low) and, after the DAC settle wait, clocks the comparator again. Decision 14 has no DAC step. After decision 14 (EOC) D<13:0> is loaded and RDY rises. RDY falls at the next CONV rising. A decision that is not made within t_timeout is forced to 1. If CONV falls before EOC, the output register is loaded with the bits decided so far (undecided = 0) and RDY rises.
 
@@ -304,11 +305,11 @@ Self-timed SAR loop. CONV low = reset (CLKC = 0, all UP/DN = 0; D and RDY hold).
 | LOG-01 | functional errors (1000 conversions vs ideal emulator) | ≤ 0 | count | all | `tb_sarlogic_rand` |
 | LOG-02 | OUTP/OUTN rise -> UP/DN 50 % | ≤ 40 | ps | typ | `tb_sarlogic_func` |
 | LOG-03 | OUTP/OUTN rise -> CLKC fall 50 % | ≤ 45 | ps | typ | `tb_sarlogic_func` |
-| LOG-04 | DAC wait UP/DN -> CLKC rise, steps 1-6 | 35 .. 60 | ps | typ | `tb_sarlogic_func` |
-| LOG-05 | DAC wait UP/DN -> CLKC rise, steps 7-13 | 70 .. 100 | ps | typ | `tb_sarlogic_func` |
-| LOG-06 | DAC wait steps 7-13 (all corners) | ≥ 70 | ps | all | `tb_sarlogic_func` |
+| LOG-04 | DAC wait UP/DN -> CLKC rise, steps 1-6, net of the designed extra wait | 35 .. 60 | ps | typ | `tb_sarlogic_func` |
+| LOG-05 | DAC wait UP/DN -> CLKC rise, steps 7-13, net of the designed extra wait | 70 .. 100 | ps | typ | `tb_sarlogic_func` |
+| LOG-06 | DAC wait steps 7-13, net of the extra wait (all corners) | ≥ 70 | ps | all | `tb_sarlogic_func` |
 | LOG-07 | CONV rise -> first CLKC rise | 80 .. 160 | ps | all | `tb_sarlogic_func` |
-| LOG-08 | conversion time CONV rise -> RDY rise (emulated comparator 45 ps) | ≤ 2.6 | ns | typ | `tb_sarlogic_func` |
+| LOG-08 | conversion time CONV rise -> RDY rise (emulated comparator 45 ps) | ≤ 2.75 | ns | typ | `tb_sarlogic_func` |
 | LOG-09 | conversion time (all corners, comparator 70 ps) | ≤ 4.1 | ns | all | `tb_sarlogic_func_slow` |
 | LOG-10 | D setup to RDY rise | ≥ 100 | ps | all | `tb_sarlogic_func` |
 | LOG-11 | forced-decision recovery (stuck comparator) errors | ≤ 0 | count | all | `tb_sarlogic_timeout` |
@@ -316,17 +317,18 @@ Self-timed SAR loop. CONV low = reset (CLKC = 0, all UP/DN = 0; D and RDY hold).
 | LOG-13 | average DVDD power at 100 MS/s | ≤ 300 | uW | typ | `tb_sarlogic_func` |
 | LOG-14 | CONV input capacitance (charge per rising edge / VDD) | ≤ 40 | fF | typ | `tb_sarlogic_func` |
 | LOG-15 | OUTP / OUTN input capacitance (charge per rising edge / VDD, larger of the two) | ≤ 7 | fF | typ | `tb_sarlogic_func` |
+| LOG-16 | extra DAC wait of each step (timing.t_dac_add), worst error against nominal | ≤ 20 | % | typ | `tb_sarlogic_func` |
 
 ### 验收用例
 
-- **`tb_sarlogic_func`** (`tb/sarlogic/tb_sarlogic_func.scs`, 度量 `adcflow.measure.sarlogic:func`)：60 conversions with waveforms for the loop timing. CONV from an ideal 100 MHz clock. A Verilog-A comparator emulator holds a pseudo-random input per conversion, follows the DAC level from UP/DN and answers each CLKC with a delay t0 + tau*ln(vsat/|residue|); it logs the ideal decisions. The capture monitor logs D at RDY. Checks bits, timing of every loop edge, conversion time and DVDD energy. LOG-14/15: CONV, OUTP and OUTN reach the DUT through charge meters (tb_qmeter_va, a 0 V path); the charge a pin draws over each rising edge divided by the voltage step, mean over all rising edges (window as in adc_cdac tb_cdac_settle).
+- **`tb_sarlogic_func`** (`tb/sarlogic/tb_sarlogic_func.scs`, 度量 `adcflow.measure.sarlogic:func`)：60 conversions with waveforms for the loop timing. CONV from an ideal 100 MHz clock. A Verilog-A comparator emulator holds a pseudo-random input per conversion, follows the DAC level from UP/DN and answers each CLKC with a delay t0 + tau*ln(vsat/|residue|); it logs the ideal decisions. The capture monitor logs D at RDY. Checks bits, timing of every loop edge, conversion time and DVDD energy. LOG-14/15: CONV, OUTP and OUTN reach the DUT through charge meters (tb_qmeter_va, a 0 V path); the charge a pin draws over each rising edge divided by the voltage step, mean over all rising edges (window as in adc_cdac tb_cdac_settle). DAC waits (UP/DN -> next CLKC) are timed after decisions 1, 2, 3, 4, 5, 6, 7, 9 and 13. Decisions 3, 4, 5, 6 and 9 get an extra wait of 10, 30, 30, 30 and 25 ps at TT (specs/arch.yaml timing.t_dac_add, issue #35: VREFP recovery before decisions 4..7 and 10); LOG-04/05/06 judge the waits net of it. LOG-16: the extra wait of a step is its mean wait minus the mean wait of the steps of the same kind (fast 1..6 / slow 7..13) without one; the worst error against nominal, in %.
 - **`tb_sarlogic_rand`** (`tb/sarlogic/tb_sarlogic_func.scs`, 度量 `adcflow.measure.sarlogic:func`; 参数 `nconv=1000`, `nowave=1`)：1000 random conversions without waveforms: bit-exact comparison with the emulator (and of the DAC level the emulator reads before each decision).
 - **`tb_sarlogic_func_slow`** (`tb/sarlogic/tb_sarlogic_func.scs`, 度量 `adcflow.measure.sarlogic:func`; 参数 `t0cmp=7e-11`, `nconv=100`, `nowave=1`)：Same as func with a slow-corner comparator (70 ps large-signal delay) for the all-corner conversion-time limit.
 - **`tb_sarlogic_timeout`** (`tb/sarlogic/tb_sarlogic_func.scs`, 度量 `adcflow.measure.sarlogic:timeout`; 参数 `stuck=5`, `nconv=40`)：Same as func but the emulator never answers decision 5 of every other conversion. Checks that the decision is forced to 1 after t_timeout and that the conversion completes with correct remaining decisions.
 
 ## adc_top
 
-**12-bit-class 100 MS/s asynchronous SAR ADC (top level)** — 规格版本 0.3.0，状态 `behavioral`。
+**12-bit-class 100 MS/s asynchronous SAR ADC (top level)** — 规格版本 0.4.0，状态 `behavioral`。
 
 Fully differential bottom-plate-sampled SAR, 14 decisions, raw output bits with weights 1960 1120 636 360 204 114 64 36 20 12 6 4 2 1 (sum 4539, 4540 levels). Reconstruction in software: code = sum(W * D) with calibrated weights W (adcflow.calib; nominal W for information).
 
@@ -359,9 +361,10 @@ Fully differential bottom-plate-sampled SAR, 14 decisions, raw output bits with 
 | TOP-06 | conversion time CLK fall -> RDY rise (max) | ≤ 4.4 | ns | all | `tb_top_sine` |
 | TOP-08 | ENOB at ~1 MHz -1 dBFS | ≥ 10.8 | bit | typ | `tb_top_sine_lf` |
 | TOP-09 | ENOB with CLK duty 45 % / 55 % | ≥ 10.5 | bit | quick | `tb_top_duty` |
+| TOP-10 | spikes: judged conversions > 3 LSB from the sine fit (calibrated) | ≤ 0 | count | all | `tb_top_sine` |
 
 ### 验收用例
 
-- **`tb_top_sine`** (`tb/top/tb_top_sine.scs`, 度量 `adcflow.measure.top:sine`; 参数 `fin_target=49.9e6`, `amp_dbfs=-1.0`, `npts=1024`, `ncal=1024`; 瞬态噪声)：Differential coherent sine from 50 ohm per side, CM 0.45 V, 100 MHz ideal CLK, ideal 0.900 V VREF_IN, supplies through current meters. tb_capture logs D at every RDY rise and the CLK-fall -> RDY time. The first ncal conversions are the calibration record: the bit weights are fitted to the sine (adcflow.calib, wcalsin method). The next npts conversions are the judged record, decoded with those weights: ENOB / SNDR / SFDR there are the acceptance values; the same record with the nominal weights is reported as enob_nom etc. Also full scale, conversion time over both records and power per supply.
+- **`tb_top_sine`** (`tb/top/tb_top_sine.scs`, 度量 `adcflow.measure.top:sine`; 参数 `fin_target=49.9e6`, `amp_dbfs=-1.0`, `npts=1024`, `ncal=1024`; 瞬态噪声)：Differential coherent sine from 50 ohm per side, CM 0.45 V, 100 MHz ideal CLK, ideal 0.900 V VREF_IN, supplies through current meters. tb_capture logs D at every RDY rise and the CLK-fall -> RDY time. The first ncal conversions are the calibration record: the bit weights are fitted to the sine (adcflow.calib, wcalsin method). The next npts conversions are the judged record, decoded with those weights: ENOB / SNDR / SFDR there are the acceptance values; the same record with the nominal weights is reported as enob_nom etc. Also full scale, conversion time over both records and power per supply. TOP-10: the number of judged conversions whose calibrated code is more than 3 LSB from the sine fit (spike_count, worst deviation spike_max_lsb): a decision error the redundancy did not absorb, e.g. VREFP not recovered for a near-full-scale code (#35). ENOB can miss a few such conversions; noise and quantization stay well below 3 LSB. The low-frequency and duty-cycle tests report the same metrics.
 - **`tb_top_sine_lf`** (`tb/top/tb_top_sine.scs`, 度量 `adcflow.measure.top:sine`; 参数 `fin_target=1.0e6`, `amp_dbfs=-1.0`, `npts=1024`, `ncal=1024`; 瞬态噪声)：
 - **`tb_top_duty`** (`tb/top/tb_top_sine.scs`, 度量 `adcflow.measure.top:sine`; 参数 `fin_target=49.9e6`, `amp_dbfs=-1.0`, `npts=1024`, `ncal=1024`, `duty=0.45`; 瞬态噪声)：

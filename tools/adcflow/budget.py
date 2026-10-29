@@ -70,12 +70,12 @@ def timing_table(arch: Arch) -> str:
     out = ["| Timing scale vs TT | t_conv median (ns) | t_conv max (ns) | Incomplete | ENOB |",
            "|---|---|---|---|---|"]
     ni0 = m.NonIdeal(temp_c=125, sigma_cmp_top=cmp_limit("all"))
-    for s in (1.0, 1.4, 1.6, 1.8):
-        ni = replace(ni0, t_cmp0=ni0.t_cmp0 * s, tau_reg=ni0.tau_reg * s, t_loop=ni0.t_loop * s,
+    for s in (0.88, 1.0, 1.4, 1.6, 1.8):          # 0.88: hot-fast (transistor-level clock generator, #26)
+        ni = replace(ni0, t_cmp0=ni0.t_cmp0 * s, tau_reg=ni0.tau_reg * s, t_loop=ni0.t_loop * s, t_bit=ni0.t_bit * s, t_drv=ni0.t_drv * s, t_dac_add_scale=ni0.t_dac_add_scale * s,
                      t_dac=ni0.t_dac * s, t_dac_fast=ni0.t_dac_fast * s, tau_dac=ni0.tau_dac * s,
                      t_start=0.1e-9 + (ni0.t_start - 0.1e-9) * s)
         r, met, _ = _sine(arch, ni)
-        out.append(f"| x{s:.1f} | {np.median(r.t_conv)*1e9:.2f} | {r.t_conv.max()*1e9:.2f} | "
+        out.append(f"| x{s:g} | {np.median(r.t_conv)*1e9:.2f} | {r.t_conv.max()*1e9:.2f} | "
                    f"{int(r.incomplete.sum())} | {met['enob']:.2f} |")
     return "\n".join(out)
 
