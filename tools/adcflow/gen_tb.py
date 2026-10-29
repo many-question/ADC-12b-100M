@@ -478,10 +478,12 @@ def tb_bootstrap() -> list[TBDef]:
     out.append(TBDef(
         "tb/bootstrap/tb_bootstrap_dc.scs", "tb_bootstrap_dc: boosted gate over the input range, edges, current",
         [f"parameters tper=10n rsrc=50 wsw={_WSW} nfsw={_NFSW} cs={_CS}", "parameters tstop=29*tper"],
-        els, ["tran1 tran stop=tstop", "save VG VIN PHI_B PHI_BB BP QPB QPBB"],
+        els, _numerics("adc_bootstrap", "tb_bootstrap_dc",
+                       ["tran1 tran stop=tstop", "tbopts options", "save VG VIN PHI_B PHI_BB BP QPB QPBB"]),
         notes=["VIN steps 0 .. 0.9 V in 0.15 V steps, 4 cycles each, through 50 ohm with the reference switch load",
                "QMPB / QMPBB: the charge into PHI_B, PHI_BB per rising edge / VDD (BST-09, BST-10)",
-               "BST-08: the run deck also saves the d/g/s nodes of every thin-oxide MOS in XDUT (adcflow soa)"]))
+               "BST-08: the run deck also saves the d/g/s nodes of every thin-oxide MOS in XDUT (adcflow soa)",
+               _numerics_note("adc_bootstrap", "tb_bootstrap_dc")]))
     els = [El("XBSP", "adc_bootstrap", ["VINP", "PHI_B", "PHI_BB", "VGP", "AVDD", "0"], where="dut"),
            El("XBSN", "adc_bootstrap", ["VINN", "PHI_B", "PHI_BB", "VGN", "AVDD", "0"], where="dut"),
            El("VSP", "vsource", ["SRCP", "0"], "type=sine sinedc=vcm_in ampl=amp/2 freq=fin"),

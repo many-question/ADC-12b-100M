@@ -63,6 +63,30 @@ def test_crosscheck_replaces_only_step_and_method():
                      "tran1 tran stop=tstop outputstart=tstop maxstep=0.5p method=gear2only")]
 
 
+def test_bootstrap_dc_generates_numerics_and_preserves_full_waveform_crosscheck():
+    _, test = find_test("tb_bootstrap_dc")
+    assert test["numerics"] == {"reltol": 1e-7, "vabstol": 1e-8, "maxstep": "1p",
+                                "method": "traponly", "errpreset": "conservative"}
+    assert test["crosscheck"] == {"maxstep": "0.5p", "method": "gear2only", "samples": "vgs.txt"}
+    text = (REPO_ROOT / test["netlist"]).read_text(encoding="utf-8")
+    tran, opts = _analyses("tb_bootstrap_dc")
+    assert tran == "tran1 tran stop=tstop maxstep=1p method=traponly errpreset=conservative"
+    assert opts == "tbopts options reltol=1e-07 vabstol=1e-08"
+    assert "save VG VIN PHI_B PHI_BB BP QPB QPBB" in text.splitlines()
+    alt = numerics.apply(text, {k: v for k, v in test["crosscheck"].items() if k != "samples"})
+    diff = [(a, b) for a, b in zip(text.splitlines(), alt.splitlines()) if a != b]
+    assert diff == [(tran, "tran1 tran stop=tstop maxstep=0.5p method=gear2only errpreset=conservative")]
+
+
+def test_conservative_log_uses_effective_transient_reltol():
+    # The unchanged global request is 1e-7; the transient reports 1e-8.
+    text = LOG.replace("reltol = 100e-09", "reltol = 10e-09").replace("errpreset = moderate", "errpreset = conservative")
+    nu = numerics.from_log(text)
+    assert nu["reltol"] == pytest.approx(1e-8)
+    assert nu["vabstol"] == pytest.approx(1e-8)
+    assert nu["errpreset"] == "conservative"
+
+
 def test_apply_sets_and_appends():
     text = "simulator lang=spectre\ntran1 tran stop=1n maxstep=2p\nsave X\n"
     out = numerics.apply(text, {"maxstep": "1p", "method": "traponly"})

@@ -1,6 +1,6 @@
 block: adc_bootstrap
 title: Bootstrapped gate generator for the bottom-plate input switches (one per side)
-version: 0.5.0
+version: 0.6.0
 owner: many-question
 status: behavioral
 views:
@@ -46,6 +46,8 @@ tests:
     measure: adcflow.measure.bootstrap:dc
     needs_pdk: true
     soa: {dut: [XDUT], external: [MSWP]}
+    numerics: {reltol: 1.0e-7, vabstol: 1.0e-8, maxstep: 1p, method: traponly, errpreset: conservative}
+    crosscheck: {maxstep: 0.5p, method: gear2only, samples: vgs.txt}
     desc: >
       100 MHz ideal phases; VIN stepped 0, 0.15 .. 0.9 V (one level per 4
       cycles) through 50 ohm with the reference load. Measures VG - VIN at the
@@ -64,6 +66,10 @@ tests:
       through charge meters (tb_qmeter_va, a 0 V path); the charge a pin draws over each rising edge
       divided by the voltage step, mean over all rising edges (window as in
       adc_cdac tb_cdac_settle).
+      Explicit DC/SOA settings are applied from numerics; --crosscheck repeats
+      representative limiting corners with the listed half-step/method settings.
+      These are requested settings: meta.numerics records the effective values
+      reported by the simulator, which can differ with the conservative preset.
   tb_bootstrap_track:
     netlist: tb/bootstrap/tb_bootstrap_track.scs
     measure: adcflow.measure.bootstrap:track
