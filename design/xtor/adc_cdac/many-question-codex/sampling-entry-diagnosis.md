@@ -133,6 +133,76 @@ P-output-source and N-output-source currents is 0.153061 pC and 0.014734 pC,
 respectively. This proxy includes leakage and displacement current and does
 not prove channel-current non-overlap or safety at other supply values.
 
-The remaining work includes sampling-entry injection, physical series-midpoint
-initialization, tracking distortion, actual-bootstrap integration, startup,
-and PVT. Original failures and model warnings remain in the retained evidence.
+## Limited TT passes with smaller output devices
+
+Two subsequent variants retain the split supply and shared sampling node. One
+reduces low-threshold output width to about 50% of the original, with j0 output
+N/P widths of 0.12/0.24 um. The other retains standard-threshold 75% outputs,
+reduces both j0 and j1 to those widths, and adds a physical transmission gate
+from each of the six series midpoints to VIN. These minimum-size midpoint
+switches use PHI_S/PHI_SB and open with the top-plate switch. Their junction
+and gate parasitics are part of the simulated circuit.
+
+| Variant, original 70 ns TT sequence at VIN=0.65 V | MOS / gs-gd-ds pairs | Failing pairs | Maximum (V) | RL12 (ps) | Qref (pC) |
+|---|---:|---:|---:|---:|---:|
+| Low-threshold 50% outputs, smaller j0 | 492 / 1,476 | 0 | 0.98671 | 34.9 | 1.116935 |
+| Standard-threshold 75% outputs, smaller j0/j1, physical MID switches | 504 / 1,512 | 0 | 0.99707 | 34.1 | 1.068123 |
+
+These are **limited experimental passes**, not a validation of the committed
+candidate. In the second row, the sampling maximum is 0.99351 V and the output
+maximum is 0.99707 V, leaving little voltage margin. RL5 is 46.2 ps, conversion
+start is 80.0 ps, tau is 9.989 ps, and droop is 0.002369 LSB. PHI_S/PHI_SB/CONV
+capacitance is 27.814/16.610/9.849 fF. Internal DVDD prelogic draws another
+0.902993 pC in the reference-charge window, for a signed two-rail sum of
+1.971116 pC, excluding ideal external clock and bootstrap sources.
+
+The second variant also passes the five weight and calibration limits with the
+original weight stimulus: C_S = 2.065030 pF, top gain = 0.888807, full scale =
+0.992823 V, minimum calibration margin = 0.369004 LSB, and calibrated ENOB loss
+= 0.001320 bit. The actual midpoint-switch parasitics reduce the j0 weight to
+0.9038 LSB; this 9.61% maximum nominal weight error is retained in the evidence,
+and the measured array remains calibratable under the specified model.
+
+At seven late-tracking observations, all six midpoints agree with VIN within
+the transient voltage tolerance. Over the 4 ns quiet-hold windows in the first
+two conversions, their largest voltage drift is 17.53 uV. This establishes
+physical initialization for this stimulus, not long-term behavior across the
+full input range or supply-ramp startup. The simulator still reports a roughly
+11.4 uV Gmin influence on an internal logic node; no global Gmin-independence
+claim is made.
+
+Complete tracking acceptance, actual-bootstrap integration, startup, and PVT
+remain unverified for these variants. Original failures and all model warnings remain
+in the retained evidence. In particular, a pass against the project's
+gs/gd/ds criterion is not a claim that every model-specific voltage warning
+has passed. The formal netlist and official results have not been replaced.
+
+## Short tracking probe of the midpoint-switch variant
+
+The standard-threshold smaller-j0/j1 variant with physical midpoint switches
+was also run for 32 samples at 48.828125 MHz, using the original 50 ohm sources,
+ideal VG generators, 1 ps maximum step, traponly, reltol 1e-7, and voltage
+tolerance 1e-8. A least-squares fit at the known fundamental and odd harmonics
+3, 5, and 7 gives:
+
+| Diagnostic | Frozen circuit, first 32 samples | Midpoint-switch variant, 32 samples |
+|---|---:|---:|
+| Third harmonic relative to fundamental (dBc) | -69.6431 | -75.1339 |
+| Fifth harmonic relative to fundamental (dBc) | -90.6398 | -87.6231 |
+| Seventh harmonic relative to fundamental (dBc) | -103.2819 | -90.9593 |
+| Residual RMS after fitting (uV) | 0.46 | 7.76 |
+
+The frozen-circuit reference reuses its completed strict run; that simulation
+was not repeated. The third harmonic improves by about 5.5 dB, but the new
+variant still needs substantial linearity improvement. This short regression
+is not an FFT, SFDR/SNDR result, or numerical convergence comparison. The
+noncoherent 32-sample fit has condition number 9.84, and its higher residual
+also limits interpretation of individual fitted harmonics.
+
+Additional voltage observations at PHI_S falling and immediately before VG
+turn-off show large, opposing VIN and TOP harmonic terms. The top-plate switch
+is already opening during the PHI_S crossing, so the observed VIN harmonic
+cannot be assigned directly to final sampled error. A static-gain charge
+reconstruction is only approximate: finite tracking lag, nonlinear parasitics,
+and switch injection remain mixed. Full sine-input device stress and the
+remaining physical sampling changes require separate evidence.
