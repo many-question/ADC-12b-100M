@@ -504,6 +504,7 @@ def cand_flags(site: Site, c) -> str:
                                       f"已复核 {r['verified']} / {r['results']}{note}"))
     if f["mismatch"]:
         out.append(chip("fail", f"复核不符 {f['mismatch']}", "项目负责人在同一网表哈希上的复跑与自报值不符：判定不同或指标超出容差"))
+    out += [chip(kind, label, title) for kind, label, title in candmod.mc_chips(r)]
     if f["stale"]:
         out.append(chip("stale", f"过期 {f['stale']}", "输入文件自仿真后已变化，需要重跑"))
     if f["soa"]:

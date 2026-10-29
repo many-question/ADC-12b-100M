@@ -40,6 +40,10 @@ def main(argv: list[str] | None = None) -> int:
     s.add_argument("--keep", action="store_true", help="keep the remote run directory")
     s.add_argument("--no-record", action="store_true", help="do not write results/")
     s.add_argument("--dry-run", action="store_true", help="only build the run deck locally")
+    s.add_argument("--mc-runs", type=int,
+                   help="Monte Carlo test (`montecarlo:` in its spec, e.g. tb_comp_offset_mc): number of samples "
+                        "instead of the spec's (fewer than a spec's mc: fail it; for a quick check)")
+    s.add_argument("--mc-seed", type=int, help="Monte Carlo test: seed instead of the spec's")
     s.add_argument("--crosscheck", action="store_true",
                    help="also run every job with the test's `crosscheck:` numerical settings and record "
                         "the differences in meta.crosscheck (docs/verification.md section 2)")

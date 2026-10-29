@@ -1,6 +1,6 @@
 block: adc_comp
 title: Dynamic latched comparator
-version: 0.4.0
+version: 0.5.0
 selected: none          # the selected candidate (design/xtor/<block>/<name>/); none yet
 status: behavioral
 views:
@@ -28,7 +28,7 @@ specs:
   - {id: CMP-01, name: "input-referred noise (diff rms)",            metric: noise_uV,       unit: uV,    max: 200, corners: typ, test: tb_comp_noise}
   - {id: CMP-13, name: "input-referred noise (diff rms, all corners)", metric: noise_uV,     unit: uV,    max: 240, corners: all, test: tb_comp_noise}
   - {id: CMP-02, name: "systematic offset",                          metric: offset_abs_mV,  unit: mV,    max: 2,   corners: all, test: tb_comp_noise}
-  - {id: CMP-03, name: "offset sigma (Monte Carlo, 50 runs)",        metric: offset_sigma_mV, unit: mV,   max: 5,   corners: typ, test: tb_comp_noise, mc: 50}
+  - {id: CMP-03, name: "offset sigma (Monte Carlo, 50 runs)",        metric: offset_sigma_mV, unit: mV,   max: 5,   corners: typ, test: tb_comp_offset_mc, mc: 50}
   - {id: CMP-04, name: "delay CLKC->OUT at 1 mV",                    metric: tdelay_1mV_ps,  unit: ps,    max: 80,  corners: typ, test: tb_comp_delay}
   - {id: CMP-05, name: "delay CLKC->OUT at 1 mV (all corners)",      metric: tdelay_1mV_ps,  unit: ps,    max: 120,  corners: all, test: tb_comp_delay}
   - {id: CMP-06, name: "delay CLKC->OUT at 30 mV",                   metric: tdelay_30mV_ps, unit: ps,    max: 50,  corners: typ, test: tb_comp_delay}
@@ -59,6 +59,26 @@ tests:
       by binomial maximum likelihood with a probit (Gaussian CDF) model:
       sigma = noise, mean = offset; noise_ci95_uV is the 95 % profile-likelihood
       interval of sigma. The 1-sigma error of sigma is <= 2.7 % for 120..300 uV.
+  tb_comp_offset_mc:
+    netlist: tb/comp/tb_comp_offset_mc.scs
+    measure: adcflow.measure.comp:offset_mc
+    # one Spectre montecarlo analysis: local device mismatch only (statistical model sections
+    # `models` = pdk.mc_sections of specs/corners.yaml: TT global, local mismatch), fixed seed, no nominal run
+    montecarlo: {runs: 50, seed: 6303, variations: mismatch, models: local_tt}
+    desc: >
+      Input offset under local device mismatch at TT: one Spectre montecarlo analysis of 50
+      samples (seed 6303, samples 1..50, no nominal run) over a transient with transient noise
+      off. In every sample a Verilog-A stimulus (tb_offset_search_va) searches the differential
+      input at which the decision flips, one decision per 1 ns CLKC cycle around VCM = 0.49 V:
+      vd = +25 mV must give OUTP and -25 mV OUTN (else the offset is out of range), 13 halvings of
+      [-25, +25] mV (6.1 uV), then offset + 50 uV must give OUTP and offset - 50 uV OUTN (else the
+      search did not converge). offset_sigma_mV is the sample standard deviation (n - 1) of the
+      offsets. A sample that is out of range, has no valid decision, fails the re-check, ends with
+      a simulation error or is missing counts in mc_failed: CMP-03 passes only with all 50 samples
+      valid (mc_ok = 50, mc_failed = 0); no sample is dropped. The behavioral comparator has no
+      device statistics: while adc_comp is behavioral a series offset source in the testbench gives
+      every sample vos_beh * N(0, 1) from the montecarlo mismatch statistics (vos_beh = 2 mV), so
+      the search, the Monte Carlo loop and the aggregation run end to end.
   tb_comp_kickback:
     netlist: tb/comp/tb_comp_kickback.scs
     measure: adcflow.measure.comp:kickback

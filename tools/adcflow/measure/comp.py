@@ -16,6 +16,15 @@ DELAY_LEVELS = [100e-3, -100e-3, 30e-3, -30e-3, 10e-3, -10e-3, 3e-3, -3e-3, 1e-3
                 300e-6, -300e-6, 100e-6, -100e-6, 30e-6, -30e-6, 10e-6, -10e-6]
 NOISE_LEVELS = [round(-800e-6 + 100e-6 * i, 9) for i in range(17)]   # +/-3.3 sigma at the 240 uV limit
 NOISE_REPEAT = 512                    # 1-sigma error of sigma <= 2.7 % for 120..300 uV (binomial ML)
+# tb_comp_offset_mc: offset search per Monte Carlo sample (tb_offset_search_va)
+MC_TCYC = 1e-9                        # one decision per 1 ns: no metastable miss even within 1 uV of the offset
+MC_RANGE = 25e-3                      # search range +/-25 mV (5 sigma at the CMP-03 limit)
+MC_BITS = 13                          # 50 mV / 2^13 = 6.1 uV
+MC_CHECK = 50e-6                      # re-check of the result at +/-50 uV
+MC_VOS_BEH = 2e-3                     # behavioral stand-in for device mismatch (not a design value)
+# status of a sample: R-line codes of tb_offset_search_va, and what the measurement adds
+MC_STATUS = {0: "ok", 1: "out of range", 2: "no valid decision", 3: "re-check failed", 4: "search incomplete"}
+MC_ABORTED, MC_MISSING = "simulation aborted", "missing"
 
 
 def delay(job_dir: Path, ctx: dict) -> dict:
@@ -140,6 +149,81 @@ def noise(job_dir: Path, ctx: dict) -> dict:
     return m
 
 
+def read_offset_samples(path: Path, runs: int, firstrun: int = 1) -> list[dict]:
+    """The samples of one tb_comp_offset_mc run in iteration order, from the file that
+    tb_offset_search_va appends to (one B ... R block per sample; the montecarlo analysis runs
+    its iterations in order in one process, so block k is iteration firstrun + k - 1).
+
+    Every one of the `runs` samples is returned: {run, status, offset (V, None unless ok), lo,
+    hi, search: [(cycle, vd, decision)]}; a block without its R line is MC_ABORTED (the
+    transient stopped), a sample without a block MC_MISSING. More blocks than runs is an error
+    (the file is not of this run)."""
+    blocks: list[dict] = []
+    text = Path(path).read_text() if Path(path).exists() else ""
+    for line in text.splitlines():
+        f = line.split()
+        if not f:
+            continue
+        if f[0] == "B":
+            blocks.append({"status": MC_ABORTED, "offset": None, "lo": None, "hi": None, "search": []})
+        elif not blocks:
+            raise ValueError(f"{Path(path).name}: {f[0]} line before the first sample")
+        elif f[0] == "D":
+            blocks[-1]["search"].append((int(f[1]), float(f[2]), int(f[3])))
+        elif f[0] == "R":
+            st = int(f[1])
+            b = blocks[-1]
+            b.update(status=MC_STATUS.get(st, f"status {st}"), lo=float(f[3]), hi=float(f[4]))
+            if st == 0:
+                b["offset"] = float(f[2])
+    if len(blocks) > runs:
+        raise ValueError(f"{Path(path).name}: {len(blocks)} samples for {runs} Monte Carlo runs")
+    blocks += [{"status": MC_MISSING, "offset": None, "lo": None, "hi": None, "search": []}
+               for _ in range(runs - len(blocks))]
+    return [{"run": firstrun + i, **b} for i, b in enumerate(blocks)]
+
+
+def offset_stats(samples: list[dict]) -> dict:
+    """Metrics of the samples: offset_sigma_mV = sample standard deviation (n - 1) of the valid
+    offsets, their mean and largest magnitude, mc_runs / mc_ok / mc_failed (failed and missing
+    samples are counted, never dropped: Spec.judge fails a Monte Carlo spec on any of them), the
+    reasons of the failures, and the offset (mV, None when failed) and status of every sample."""
+    ok = np.array([s["offset"] for s in samples if s["status"] == "ok"], dtype=float)
+    m = {"mc_runs": len(samples), "mc_ok": int(ok.size), "mc_failed": len(samples) - int(ok.size)}
+    if ok.size >= 2:
+        m["offset_sigma_mV"] = float(np.std(ok, ddof=1) * 1e3)
+    if ok.size:
+        m["offset_mean_mV"] = float(np.mean(ok) * 1e3)
+        m["offset_max_abs_mV"] = float(np.max(np.abs(ok)) * 1e3)
+    reasons: dict[str, int] = {}
+    for s in samples:
+        if s["status"] != "ok":
+            reasons[s["status"]] = reasons.get(s["status"], 0) + 1
+    if reasons:
+        m["mc_fail_reasons"] = reasons
+    m["offsets_mV"] = [None if s["offset"] is None else round(s["offset"] * 1e3, 6) for s in samples]
+    m["sample_status"] = [s["status"] for s in samples]
+    return m
+
+
+def offset_mc(job_dir: Path, ctx: dict) -> dict:
+    """tb_comp_offset_mc: the offset of every Monte Carlo sample and their spread (CMP-03)."""
+    mc = ctx.get("mc") or {}
+    runs = int(mc.get("runs") or ctx["params"].get("mc_runs") or 0)
+    samples = read_offset_samples(Path(job_dir) / "offset.txt", runs, int(mc.get("firstrun") or 1))
+    m = offset_stats(samples)
+    head = next((s["search"] for s in samples if s["search"]), None)
+    ctx.setdefault("provenance", {})["offset_search"] = {
+        "method": "successive approximation per sample (tb_offset_search_va), transient noise off",
+        "range_mV": MC_RANGE * 1e3, "bits": MC_BITS, "lsb_uV": round(2 * MC_RANGE / 2 ** MC_BITS * 1e6, 3),
+        "recheck_uV": MC_CHECK * 1e6, "cycle_ns": MC_TCYC * 1e9,
+        "sigma": "sample standard deviation (n - 1) of the valid samples; any failed sample fails the spec"}
+    fg = sink_of(ctx)
+    if fg and head is not None:
+        _fig_offset_mc(fg, ctx, samples, m)
+    return m
+
+
 def kickback(job_dir: Path, ctx: dict) -> dict:
     s = read_samples(Path(job_dir) / "vdiff.txt")
     vd = s[:, 2]
@@ -247,6 +331,79 @@ def _fig_noise(fg, ctx, vd, p1, mu, sig, n, ci) -> None:
     fg.save(fig, "noise", "Probability of OUTP = 1 against input difference with the binomial maximum-likelihood "
             "probit fit that gives the input-referred noise and offset, the 95 % interval of the noise and the "
             "curve at the noise limit; fit residuals against the binomial scatter.")
+
+
+def _fig_offset_mc(fg, ctx, samples, m) -> None:
+    from scipy.stats import norm
+
+    fig, axs = fg.new(1, 3, size=(15.0, 3.9))
+    ok = [s for s in samples if s["status"] == "ok"]
+    bad = [s for s in samples if s["status"] != "ok"]
+    x = np.array([s["offset"] for s in ok]) * 1e3
+    hi = limits(ctx, "offset_sigma_mV")[1]
+    sig, mu = m.get("offset_sigma_mV"), m.get("offset_mean_mV")
+    ax = axs[0, 0]
+    if x.size:
+        span = max(np.max(np.abs(x)) * 1.15, 3 * (hi or 0), 3 * (sig or 0), 0.05)
+        ax.hist(x, bins=np.linspace(-span, span, 25), color=C1, alpha=0.75, label=f"{x.size} valid samples")
+        xx = np.linspace(-span, span, 300)
+        width = 2 * span / 24
+        if sig:
+            ax.plot(xx, x.size * width * norm.pdf(xx, mu, sig), color=MUTED, lw=1.4,
+                    label=f"normal, mean {mu:.3g} mV, sigma {sig:.3g} mV")
+        if hi is not None:
+            ax.plot(xx, x.size * width * norm.pdf(xx, 0, hi), color=LIMIT, ls="--", lw=1.1,
+                    label=f"sigma at the limit, {hi:g} mV")
+    ax.set(xlabel="input offset (mV)", ylabel="samples", title="Offset over the Monte Carlo samples")
+    ax.legend(loc="upper left")
+    note(ax, f"sigma (n - 1) {sig:.3g} mV" if sig is not None else "sigma: fewer than 2 valid samples",
+         loc="upper right")
+    ax = axs[0, 1]
+    runs = [s["run"] for s in ok]
+    ax.plot(runs, x, "o", color=C1, ms=4, label="offset")
+    for k, s in enumerate(bad):
+        ax.axvline(s["run"], color=LIMIT, lw=1.0, alpha=0.6, label="failed sample" if k == 0 else None)
+    ax.axhline(0, color=GRIDLINE, lw=0.8)
+    ax.set(xlabel="Monte Carlo iteration", ylabel="input offset (mV)", title="Offset of every sample",
+           xlim=(0.5, max([s["run"] for s in samples] + [1]) + 0.5))
+    reasons = ", ".join(f"{v} {k}" for k, v in (m.get("mc_fail_reasons") or {}).items())
+    note(ax, f"{m['mc_ok']} of {m['mc_runs']} samples valid, {m['mc_failed']} failed"
+         + (f" ({reasons})" if reasons else "") + (f"\nCMP-03 needs {s_need(ctx)} valid, 0 failed" if s_need(ctx) else ""),
+         loc="lower right")
+    if bad:
+        ax.legend(loc="upper right")
+    ax = axs[0, 2]
+    pick = sorted(ok, key=lambda s: abs(s["offset"] * 1e3 - (mu or 0)))[0] if ok else next(s for s in samples if s["search"])
+    cyc = np.array([c for c, _, _ in pick["search"]])
+    vd = np.array([v for _, v, _ in pick["search"]])
+    dec = np.array([d for _, _, d in pick["search"]])
+    ref = pick["offset"] if pick["offset"] is not None else 0.0
+    lsb = 2 * MC_RANGE / 2 ** MC_BITS
+    for d, c, name in ((1, C3, "OUTP"), (0, C2, "OUTN"), (-1, LIMIT, "none / both")):
+        sel = (dec == d) if d >= 0 else (dec < 0) | (dec > 1)
+        if sel.any():
+            ax.plot(cyc[sel], (vd[sel] - ref) * 1e6, "o", ms=6, color=c, label=name)
+    ax.plot(cyc, (vd - ref) * 1e6, color=MUTED, lw=0.8, zorder=0)
+    ax.set_yscale("symlog", linthresh=10)
+    ax.set_yticks([-1e4, -1e3, -1e2, -1e1, 0, 1e1, 1e2, 1e3, 1e4])
+    ax.axhline(0, color=GRIDLINE, lw=0.8)
+    ax.set(xlabel="decision (CLKC cycle)", ylabel="vd - result (uV)",
+           title=f"Search of iteration {pick['run']} ({pick['status']})")
+    ax.legend(loc="upper right")
+    note(ax, f"+/-{MC_RANGE * 1e3:g} mV range checks, {MC_BITS} halvings ({lsb * 1e6:.1f} uV),\n"
+             f"re-check at +/-{MC_CHECK * 1e6:g} uV; result {ref * 1e3:.4f} mV", loc="lower right")
+    fg.save(fig, "offset_mc", "Input offset of the Monte Carlo samples: histogram with the normal curve of the "
+            "sample mean and standard deviation (n - 1) and the curve at the CMP-03 limit, the offset of every "
+            "iteration with failed samples marked, and the successive-approximation search of the sample nearest "
+            "the mean (range checks, halvings, re-check).")
+
+
+def s_need(ctx) -> int | None:
+    """Samples the Monte Carlo spec of this test needs (CMP-03: mc: 50)."""
+    from ..specs import blocks
+
+    b = blocks().get(ctx.get("block"))
+    return next((s.mc for s in (b.specs if b else []) if s.test == ctx.get("test") and s.mc), None)
 
 
 def _fig_kickback(fg, ctx, m) -> None:

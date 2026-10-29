@@ -21,7 +21,7 @@
   在每个工艺角都把 AVDD18 扫过 1.62~1.98 V（`corners.supply_envelope`），与该角自己的电源无关，工艺与温度仍随工艺角变化。
   以前的 `vdd18*0.9 … vdd18*1.1` 会叠加在该角电源上，高压角扫到 2.178 V，超出包络（#46）。
 * **指标的适用工艺角**：每项指标只在其 `corners:` 集合（按 `corner_set` 展开）内的工艺角上判定；蒙特卡洛指标（`mc:`）
-  只判 MC 运行，其它指标 MC 与标称运行都判。判断由同一个函数 `Spec.applies` 给出，结果写入、终端摘要、`check results`、
+  只判 MC 运行（结果的 `meta.mc` 记录该次运行的 MC 设置，标称运行为 null），其它指标 MC 与标称运行都判。判断由同一个函数 `Spec.applies` 给出，结果写入、终端摘要、`check results`、
   `report`、证据图的规格表和站点共用。同一用例中其它工艺角的结果照常保存全部原始 metrics，结果 JSON 的 `specs_na`
   列出不适用的指标（值与适用集合，无判定），报告与站点标为 n/a；它们不计入该指标的最坏值、失败数和覆盖率。
   覆盖率 = 已记录的适用工艺角（去重，同一角的多个变体只算一次）/ 适用集合。适用角缺失时该指标无结果（签核时报错），
@@ -81,6 +81,36 @@
   在同一模型上得到 75.9 µV（σ = 80 µV）和 179.7 µV（σ = 200 µV），偏低是单次的统计起伏而不是方法偏差，但 ±6 % 的起伏
   与离限值的余量同量级，因此改为最大似然并加到每电平 512 次。仿真时间：行为级每次约 2.6 min（17 × 128 时约 2.1 min），
   瞬态长度 3.5 µs（原来的 4 倍）；晶体管级按比例增加。
+* **比较器失调的器件失配蒙特卡洛**（`tb_comp_offset_mc`，CMP-03，#63）：
+  * **统计模式**：只做局部器件失配，在 TT（`tt_nom_27`）下；全局工艺偏差由工艺角覆盖。规格的
+    `montecarlo: {runs: 50, seed: 6303, variations: mismatch, models: local_tt}` 定义一次 Spectre `montecarlo` 分析：
+    50 个样本（迭代 1~50，`firstrun=1`，固定 seed，`donominal=no`，只变 `mismatch` 统计量），包住一个关掉瞬态噪声的瞬态。
+    `models` 指向 `specs/corners.yaml` 的统计模型段落 `pdk.mc_sections.local_tt`（TT 全局、局部失配；模型文件本身
+    仍由站点配置给出）。MC 用例只在其 MC 指标适用的工艺角上运行（CMP-03：`typ`），其它角直接报错。
+  * **每个样本的失调**：测试台 Verilog-A `tb_offset_search_va` 在共模 0.49 V 附近直接驱动差分输入，每个 1 ns 的 CLKC 周期
+    一次判决（CLKC 下降时读 OUTP/OUTN，复位期间改输入；1 ns 让离失调 1 µV 以内的判决也来得及完成）：
+    先确认 vd = +25 mV 判 OUTP、−25 mV 判 OUTN（否则失调**超出范围**），再对 [−25, +25] mV 逐次逼近 13 次
+    （分辨率 50 mV / 2¹³ = 6.1 µV），最后复查结果 +50 µV 判 OUTP、−50 µV 判 OUTN（否则**搜索不收敛**）。
+    一个样本 17 个周期。判决缺失或两路同时为高记为**无有效判决**。±25 mV 是 CMP-03 限值的 5σ；50 µV 的复查距离
+    远大于仿真的数值精度（约 µV），又远小于 mV 级的失调。
+  * **汇总**：每个样本的瞬态把结果追加到 `offset.txt`（开始一行、每次判决一行、结束一行）；Spectre 在一个进程里按顺序跑
+    各次迭代，第 k 段即迭代 k。`measure.comp:offset_mc` 读出全部 50 个样本，`offset_sigma_mV` 取有效样本的**样本标准差（n − 1）**，
+    另报 `offset_mean_mV`、`offset_max_abs_mV`。超出范围、无有效判决、复查失败、瞬态在搜索完成前结束、仿真中止（只有开始行）
+    以及缺失的样本（中止之后的迭代）都计入 `mc_failed`，原因见 `mc_fail_reasons`；`offsets_mV` 与 `sample_status` 逐个列出
+    每个样本（失败的为 null）。Spectre 出错时 MC 用例也照常度量，已完成的样本保留，其余计为失败，错误一并记录。
+  * **判定**：蒙特卡洛指标只有在 `mc_ok`（有效样本数）≥ 规格的 `mc` 且 `mc_failed` = 0 时才可能通过（`Spec.judge`，
+    适用于所有带 `mc:` 的指标），再看 σ 是否在限值内。**不剔除任何样本**：一个样本失败，CMP-03 即不通过。
+    判定里的 `samples: {ok, failed, need}` 由 `report`、`candidates` 排行榜与站点显示（“CMP-03 MC 50/50”）。
+  * **结果**：`results/adc_comp/tb_comp_offset_mc/<view>/tt_nom_27.json`，与 nominal、noise 用例的结果分目录并存；
+    `meta.mc` 记录 `runs`、`seed`、`firstrun`、`variations`、`models`（行为级运行没有 PDK，为 null），`meta.provenance.offset_search` 记录搜索方法、范围、
+    位数、分辨率与复查距离。
+  * **运行**：`python -m adcflow sim tb_comp_offset_mc --view adc_comp=xtor:<name>` 按规格跑 50 个样本。快速检查可用
+    `--mc-runs N`（及 `--mc-seed S`）；样本少于 50 时 CMP-03 判为不通过，不能用作验收。一个约 30 管的比较器，
+    50 个样本的 Spectre 时间约 45 s（`aps`），连同上传、编译与取回约 3 min。
+  * **行为级**：行为级比较器没有器件统计量。`adc_comp` 为行为级时（deck 全局参数 `comp_behav` = 1，像 `cdac_behav`），
+    测试台在 INP 上串一个替身失调源 `XVOS`（子电路 `tb_mm_vos`），其值 `vos_beh` × N(0, 1) 由测试台自己的 `mismatch`
+    统计量在每个样本里重新抽取（`vos_beh` = 2 mV，不是设计值）；晶体管级视图时它为 0 V。这样行为级结果走通同一个
+    Monte Carlo 分析、搜索与汇总，σ 按构造约为 2 mV（50 个样本的统计起伏约 ±10 %）。
 * **可校准性**：校准只能纠正没有缺口的传递函数。CDAC 的 DAC-03 要求实测权重的系统误差加 4σ 失配
   落在每次判决的冗余之内，DAC-14 要求按上述方法校准后的 ENOB 损失 ≤ 0.02 bit（`docs/noise-budget.md` §5.2）。
 * **结果过期**：结果只记录被仿真电路实际依赖的输入（`tools/adcflow/deps.py`），只有这些输入变了才过期：
@@ -107,7 +137,7 @@
 |---|---|
 | 顶层 `tb_top_sine`（1024 点校准 + 1024 点判定，49.71 MHz，−1 dBFS，噪声开） | ENOB 10.92（校准权重，验收；标称权重 10.88），SNR 67.7 dB，THD −82.2 dBc，SFDR 85.3 dB，FS 0.994 V，t_conv 2.83 ns，无丢失 RDY，15.2 mW（AVDD18 14.7 mW，8 mA 参考，#35） |
 | 顶层低频 / 占空比 45 %、55 % | ENOB 10.96 / 10.90 / 10.95（标称 10.91 / 10.82 / 10.90） |
-| `adc_comp` | 噪声 189.5 µV，95 % 区间 181.7~197.7 µV（行为级 σ = 190 µV；17 × 512 次判决，二项最大似然），1 mV 时延 76 ps，30 mV 49 ps，τ 8 ps，回踢 ≈ 0（行为级比较器无回踢），Cin 15 fF，CLKC 12 fF，能耗 112 fJ |
+| `adc_comp` | 噪声 189.5 µV，95 % 区间 181.7~197.7 µV（行为级 σ = 190 µV；17 × 512 次判决，二项最大似然），1 mV 时延 76 ps，30 mV 49 ps，τ 8 ps，回踢 ≈ 0（行为级比较器无回踢），Cin 15 fF，CLKC 12 fF，能耗 112 fJ；失调 σ（`tb_comp_offset_mc`，50 个样本全部有效）2.05 mV，即测试台的替身失调（2 mV，§2），不是电路的性质 |
 | `adc_sarlogic`（UP/DN 负载 15 fF） | 1000 次随机转换 0 错误，转换 2.70 ns（60 次 2.67 ns，LOG-08 ≤ 2.75；比较器 70 ps 时 3.02 ns），超时 285 ps，210 µW；DAC 等待（扣除附加等待）48 / 83 ps，附加等待 10 / 30 / 30 / 30 / 25 ps（判决 3/4/5/6/9，LOG-16 误差 ≈ 0）；输入电容 CONV 30 fF、OUTP/OUTN 5 fF |
 | `adc_cdac` | C_S 2.057 pF，FS 0.993 V，可校准性裕量 0.465 LSB，校准后 ENOB 损失 ≈ 0（标称 0.07 bit，4 颗失配芯片）；RL12 建立 12.7 ps，τ 1.2 ps，起始建立 11.4 ps；VREFP 电荷 0.77 pC；跟踪 SFDR 132.7 dB / SNDR 130.6 dB（显式数值设置，已到数值底噪，> 130 dB；默认设置的 109.3 / 101.8 dB 是数值噪声，见下）；输入电容 DH/RL 4.5 fF、PHI_S/PHI_SB 30 fF、CONV 60 fF |
 | `adc_bootstrap`（参考开关 96 µm + 2.057 pF） | VG−VIN 0.855 V，关断 18 ps，开启 68 ps；跟踪 SFDR 94.6 dB / SNDR 94.6 dB（显式数值设置；默认设置为 92.6 / 85.8，v0.2 为 97.2 / 89.6，均未收敛，见下）；SOA 仅外部节点（参考开关，§5）：最大 \|Vgs\| 0.900 V（VG 为 0、VIN = 0.9 V 时，负向），0 违例；PHI_B/PHI_BB 输入 12 fF |
@@ -184,6 +214,7 @@
 |---|---|---|
 | `tb_comp_delay` | `delay` | 延时随输入差的变化（含 ln 拟合与限值）、±1 mV 判决瞬态并标出延时、复位到 10 % VDD |
 | `tb_comp_noise` | `noise` | 判决概率与二项分布最大似然 probit 拟合（及 σ 的 95 % 区间带、限值处的曲线）、拟合残差与二项分布误差带 |
+| `tb_comp_offset_mc` | `offset_mc` | 各样本失调的直方图（样本均值与 n − 1 标准差的正态曲线、限值 σ 处的曲线）、每次迭代的失调并标出失败样本、最接近均值的样本的逐次逼近过程（范围检查、13 次折半、复查） |
 | `tb_comp_kickback` | `kickback`、`cin` | 每个周期后的差分输入、每周期变化量对限值、Cin 与 CLKC 输入电容；CLKC 各上升沿的输入电容对限值（§6） |
 | `tb_cdac_weights` | `weights` | 各位权重与标称、各位权重误差对 0.5 % 限值、上升/下降步长不对称 |
 | `tb_cdac_settle` | `settle`、`cin` | 整个序列的顶板波形；起始与 RL12 / RL5 / RL0 之后的误差（对数坐标），标出容差线、建立时间与限值；规格表；PHI_S、PHI_SB、CONV 各上升沿的输入电容对限值（§6） |
@@ -230,6 +261,9 @@ tests:
 薄栅 MOS 电容（p n）检查 pn；厚栅（1.8 V）器件不检查，列在结果的 `soa_skipped`。名称像 MOS 器件（`mos_pattern`）
 却没有列出的模型使检查无法验证。该文件记入运行了 SOA 检查的结果的 `meta.files`，改动会使这些结果过期。端电压取 PDK 宏模型
 （`*_mac`）实例的端口，即网表中写出的节点。
+
+**体端不检查**（#67）：与体端有关的 Vgb、Vbs、Vbd 不作为验收条件。Vgb 只在器件导通时超过 1.0 V，此时沟道把栅氧与体端隔开，
+栅氧承受的是已检查的 Vgs/Vgd；Vbs、Vbd 是反偏的结（二极管），耐压更高。仿真器报出的体端工作范围警告因此不影响验收。
 
 **机制**：建 deck 时（`runner.make_deck`）从 `dut` 实例往下展开所选视图的网表（包括子电路层次），列出每个器件及其
 端口所接的节点：接到 DUT 端口的映射为测试台网络，内部节点写成层次名（`XDUT.net1`、`XDUT.X1.net2`）；deck 在测试台之后

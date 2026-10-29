@@ -18,6 +18,10 @@ PORT_DIRS = {"in", "out", "inout", "supply", "ground"}
 PORT_TYPES = {"analog", "digital", "clock", "supply"}
 SIDES = {"left", "right", "top", "bottom"}
 STATUSES = {"behavioral", "xtor-review", "signoff"}    # docs/proposals/open-candidates.md §4 (no xtor-wip)
+# a test's `montecarlo:` (one Spectre montecarlo analysis, runner.mc_settings); `models` names the
+# statistical model sections of specs/corners.yaml (pdk.mc_sections)
+MC_KEYS = {"runs", "seed", "variations", "models"}
+MC_VARIATIONS = {"mismatch", "process", "all"}
 
 
 @dataclass
@@ -60,7 +64,8 @@ class Spec:
 
     def applies(self, corner, mc=None) -> bool:
         """Whether this spec judges a run at `corner` (a corner name or a Corner); `mc` is the
-        Monte Carlo setting of the run (empty for a nominal run).
+        Monte Carlo setting of the run (meta.mc: the run's montecarlo settings; empty for a
+        nominal run).
 
         The one applicability rule of the flow (runner, check, report, figures, site): the corner
         is in the spec's corner set, expanded as `corner_set` does, and a Monte Carlo spec
@@ -68,6 +73,24 @@ class Spec:
         if self.mc and not mc:
             return False
         return getattr(corner, "name", corner) in corner_names(self.corners)
+
+    def samples(self, metrics: dict) -> dict | None:
+        """Sample coverage of a Monte Carlo spec on the metrics of a run: {ok, failed, need}
+        from the metrics `mc_ok` (valid samples) and `mc_failed` (failed or missing samples)
+        that every Monte Carlo measure reports; None for a spec without `mc:`."""
+        if not self.mc:
+            return None
+        ok, bad = metrics.get("mc_ok"), metrics.get("mc_failed")
+        return {"ok": ok if isinstance(ok, int) else 0, "failed": bad if isinstance(bad, int) else None,
+                "need": self.mc}
+
+    def judge(self, metrics: dict) -> bool:
+        """Pass of an applicable spec: the value within the limits and, for a Monte Carlo spec,
+        at least `mc` valid samples and no failed or missing one (a failed sample is never
+        dropped to pass: it fails the spec)."""
+        ok = self.check(metrics.get(self.metric))
+        n = self.samples(metrics)
+        return ok and (n is None or (n["ok"] >= n["need"] and n["failed"] == 0))
 
 
 @dataclass
@@ -108,14 +131,17 @@ class Block:
         (Spec.applies); na = {id: {metric, value, limit, corners}} of the specs that do not apply
         at this corner but whose metric was measured. Their raw values are kept and shown as N/A,
         never judged: they count for no worst value, failure or coverage. A Monte Carlo spec is
-        left out of a nominal run altogether."""
+        left out of a nominal run altogether; on a Monte Carlo run its verdict also needs every
+        sample (Spec.judge) and gives the sample coverage as `samples`."""
         judged, na = {}, {}
         for s in self.specs:
             if s.test != test:
                 continue
             v = metrics.get(s.metric)
             if s.applies(corner, mc):
-                judged[s.id] = {"metric": s.metric, "value": v, "limit": s.limit_text(), "pass": s.check(v)}
+                judged[s.id] = {"metric": s.metric, "value": v, "limit": s.limit_text(), "pass": s.judge(metrics)}
+                if s.mc:
+                    judged[s.id]["samples"] = s.samples(metrics)
             elif v is not None and not (s.mc and not mc):
                 na[s.id] = {"metric": s.metric, "value": v, "limit": s.limit_text(), "corners": s.corners}
         return judged, na
@@ -186,6 +212,8 @@ def _load_block(path: Path) -> Block:
             errs.append(f"spec {spec.id}: corners {spec.corners!r}: {e}")
         if spec.test not in tests:
             errs.append(f"spec {spec.id}: test {spec.test!r} not defined in tests:")
+        elif spec.mc and int((tests[spec.test].get("montecarlo") or {}).get("runs") or 0) < spec.mc:
+            errs.append(f"spec {spec.id}: mc: {spec.mc} needs a test with `montecarlo:` of at least {spec.mc} runs")
         specs.append(spec)
     for tid, t in tests.items():
         if "netlist" not in t or "measure" not in t:
@@ -194,9 +222,26 @@ def _load_block(path: Path) -> Block:
             errs += numerics.validate(t["numerics"], f"test {tid}: numerics")
         if "crosscheck" in t:
             errs += numerics.validate(t["crosscheck"], f"test {tid}: crosscheck", ("samples",))
+        if "montecarlo" in t:
+            errs += _mc_problems(t["montecarlo"], f"test {tid}: montecarlo")
     if errs:
         raise SpecError(f"{path.name}: " + "; ".join(errs))
     return Block(name=raw["block"], raw=raw, ports=ports, specs=specs, tests=tests, path=path)
+
+
+def _mc_problems(mc, where: str) -> list[str]:
+    if not isinstance(mc, dict) or set(mc) != MC_KEYS:
+        return [f"{where}: needs exactly {sorted(MC_KEYS)}"]
+    out = []
+    if not isinstance(mc["runs"], int) or mc["runs"] < 2:
+        out.append(f"{where}: runs must be an integer >= 2")
+    if not isinstance(mc["seed"], int) or mc["seed"] < 0:
+        out.append(f"{where}: seed must be a non-negative integer (a fixed seed: reproducible samples)")
+    if mc["variations"] not in MC_VARIATIONS:
+        out.append(f"{where}: variations must be one of {sorted(MC_VARIATIONS)}")
+    if not isinstance(mc["models"], str) or not re.match(r"^[a-z0-9_]+$", mc["models"]):
+        out.append(f"{where}: models must name a pdk.mc_sections entry of specs/corners.yaml")
+    return out
 
 
 @lru_cache
