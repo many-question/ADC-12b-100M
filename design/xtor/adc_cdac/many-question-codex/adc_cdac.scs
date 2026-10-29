@@ -1,4 +1,4 @@
-// adc_cdac: all-device candidate with unit MOM banks and reference-domain nonoverlap drivers.
+// adc_cdac: MOM banks and transistor drivers with user-specified pre-layout parasitic estimates.
 // @RNL(type="header") {
 //   @VERSION("0.3");
 //   @USE-PACKAGE(name="adc28", version="0.1", path="../../../rnl/adc28.rnl")
@@ -1217,13 +1217,18 @@ ends mq_cdac_drv12
 
 // Matched half-capacitor pair j=12, weight 980
 subckt mq_cdac_bit12 (VIN VG DH RL EN ENB TOP VREFP VREFN VSS)
+// CP*: user-specified pre-layout estimate, 5% of each physical MOM unit to VSS.
+// The second MOM terminal is its bottom plate; parallel multipliers are aggregated.
+// Series tails add one unit parasitic at MID and one at B, not 5% of the equivalent half unit.
 XHCTL (DH HHI VREFP VREFN VSS) mq_cdac_ctl_h
 XLCTL (RL LHI VREFP VREFN VSS) mq_cdac_ctl_l
 XDH (HHI EN ENB BH VREFP VREFN VSS) mq_cdac_drv12
 CH (TOP BH) cfmom_2t w=5e-08 s=2.4e-07 nr=6 lr=1.69e-06 stm=2 spm=4 multi=490
+CPH (BH VSS) capacitor c=2.45561050e-14
 MSH (BH VG VIN VSS) nch_ulvt_mac w=1.143e-05 l=3e-08 nf=6
 XDL (LHI EN ENB BL VREFP VREFN VSS) mq_cdac_drv12
 CL (TOP BL) cfmom_2t w=5e-08 s=2.4e-07 nr=6 lr=1.69e-06 stm=2 spm=4 multi=490
+CPL (BL VSS) capacitor c=2.45561050e-14
 MSL (BL VG VIN VSS) nch_ulvt_mac w=1.143e-05 l=3e-08 nf=6
 // @RNL {
 //   /* pins connected by net name: the net-name label of rnl-std-fill on every unwired pin, placed below by its key netname */
@@ -1267,35 +1272,45 @@ MSL (BL VG VIN VSS) nch_ulvt_mac w=1.143e-05 l=3e-08 nf=6
 //   #CH @PLACE(14, 24) => @ORIENT("R270");
 //   #CH:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", dx=0.4, dy=0);
 //   #CH:2 @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
+//   #CPH @PLACE(60, 20);
+//   #CPH @ORIENT("R0");
+//   #CPH:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", rotate=90, dx=0, dy=0.4);
+//   %g10 = $GROUND @ATTACH &VSS => @PLACE(60, 14.8);
+//   &VSS @WIRE {#CPH:2 (60, 18) %g10:p};
 //   #MSH @PLACE(2, 8);
 //   #MSH @ORIENT("R0");
 //   #MSH:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", rotate=90, dx=0, dy=0.4);
 //   #MSH:2 @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
 //   #MSH:3 @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", rotate=90, dx=0, dy=-0.4);
-//   %g10 = $GROUND @ATTACH &VSS => @PLACE(5, 4.8);
-//   &VSS @WIRE {#MSH:4 (5, 8) %g10:p};
+//   %g11 = $GROUND @ATTACH &VSS => @PLACE(5, 4.8);
+//   &VSS @WIRE {#MSH:4 (5, 8) %g11:p};
 //   #XDL @PLACE(-34, -26);
 //   #XDL @ORIENT("R0");
 //   #XDL:HI @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
 //   #XDL:EN @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
 //   #XDL:ENB @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
 //   #XDL:BP @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", dx=0.4, dy=0);
-//   %v11 = $SUPPLY @ATTACH &VREFP => @PLACE(-34, -17.8);
-//   &VREFP @WIRE {#XDL:VREFP (-34, -21) %v11:p};
-//   %g12 = $GROUND @ATTACH &VREFN => @PLACE(-36, -34.2);
-//   &VREFN @WIRE {#XDL:VREFN (-36, -31) %g12:p};
-//   %g13 = $GROUND @ATTACH &VSS => @PLACE(-32, -34.2);
-//   &VSS @WIRE {#XDL:VSS (-32, -31) %g13:p};
+//   %v12 = $SUPPLY @ATTACH &VREFP => @PLACE(-34, -17.8);
+//   &VREFP @WIRE {#XDL:VREFP (-34, -21) %v12:p};
+//   %g13 = $GROUND @ATTACH &VREFN => @PLACE(-36, -34.2);
+//   &VREFN @WIRE {#XDL:VREFN (-36, -31) %g13:p};
+//   %g14 = $GROUND @ATTACH &VSS => @PLACE(-32, -34.2);
+//   &VSS @WIRE {#XDL:VSS (-32, -31) %g14:p};
 //   #CL @PLACE(14, -26) => @ORIENT("R270");
 //   #CL:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", dx=0.4, dy=0);
 //   #CL:2 @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
+//   #CPL @PLACE(60, -30);
+//   #CPL @ORIENT("R0");
+//   #CPL:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", rotate=90, dx=0, dy=0.4);
+//   %g15 = $GROUND @ATTACH &VSS => @PLACE(60, -35.2);
+//   &VSS @WIRE {#CPL:2 (60, -32) %g15:p};
 //   #MSL @PLACE(2, -42);
 //   #MSL @ORIENT("R0");
 //   #MSL:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", rotate=90, dx=0, dy=0.4);
 //   #MSL:2 @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
 //   #MSL:3 @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", rotate=90, dx=0, dy=-0.4);
-//   %g14 = $GROUND @ATTACH &VSS => @PLACE(5, -45.2);
-//   &VSS @WIRE {#MSL:4 (5, -42) %g14:p};
+//   %g16 = $GROUND @ATTACH &VSS => @PLACE(5, -45.2);
+//   &VSS @WIRE {#MSL:4 (5, -42) %g16:p};
 //   &HHI @WIRE {#XHCTL:HI (-52, 24) (-52, 26) #XDH:HI};
 //   %b_H = (-12, 24);
 //   $JUNCTION @ATTACH %b_H;
@@ -1537,13 +1552,18 @@ ends mq_cdac_drv11
 
 // Matched half-capacitor pair j=11, weight 560
 subckt mq_cdac_bit11 (VIN VG DH RL EN ENB TOP VREFP VREFN VSS)
+// CP*: user-specified pre-layout estimate, 5% of each physical MOM unit to VSS.
+// The second MOM terminal is its bottom plate; parallel multipliers are aggregated.
+// Series tails add one unit parasitic at MID and one at B, not 5% of the equivalent half unit.
 XHCTL (DH HHI VREFP VREFN VSS) mq_cdac_ctl_h
 XLCTL (RL LHI VREFP VREFN VSS) mq_cdac_ctl_l
 XDH (HHI EN ENB BH VREFP VREFN VSS) mq_cdac_drv11
 CH (TOP BH) cfmom_2t w=5e-08 s=2.4e-07 nr=6 lr=1.69e-06 stm=2 spm=4 multi=280
+CPH (BH VSS) capacitor c=1.40320600e-14
 MSH (BH VG VIN VSS) nch_ulvt_mac w=6.54e-06 l=3e-08 nf=4
 XDL (LHI EN ENB BL VREFP VREFN VSS) mq_cdac_drv11
 CL (TOP BL) cfmom_2t w=5e-08 s=2.4e-07 nr=6 lr=1.69e-06 stm=2 spm=4 multi=280
+CPL (BL VSS) capacitor c=1.40320600e-14
 MSL (BL VG VIN VSS) nch_ulvt_mac w=6.54e-06 l=3e-08 nf=4
 // @RNL {
 //   /* pins connected by net name: the net-name label of rnl-std-fill on every unwired pin, placed below by its key netname */
@@ -1587,35 +1607,45 @@ MSL (BL VG VIN VSS) nch_ulvt_mac w=6.54e-06 l=3e-08 nf=4
 //   #CH @PLACE(14, 24) => @ORIENT("R270");
 //   #CH:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", dx=0.4, dy=0);
 //   #CH:2 @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
+//   #CPH @PLACE(60, 20);
+//   #CPH @ORIENT("R0");
+//   #CPH:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", rotate=90, dx=0, dy=0.4);
+//   %g10 = $GROUND @ATTACH &VSS => @PLACE(60, 14.8);
+//   &VSS @WIRE {#CPH:2 (60, 18) %g10:p};
 //   #MSH @PLACE(2, 8);
 //   #MSH @ORIENT("R0");
 //   #MSH:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", rotate=90, dx=0, dy=0.4);
 //   #MSH:2 @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
 //   #MSH:3 @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", rotate=90, dx=0, dy=-0.4);
-//   %g10 = $GROUND @ATTACH &VSS => @PLACE(5, 4.8);
-//   &VSS @WIRE {#MSH:4 (5, 8) %g10:p};
+//   %g11 = $GROUND @ATTACH &VSS => @PLACE(5, 4.8);
+//   &VSS @WIRE {#MSH:4 (5, 8) %g11:p};
 //   #XDL @PLACE(-34, -26);
 //   #XDL @ORIENT("R0");
 //   #XDL:HI @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
 //   #XDL:EN @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
 //   #XDL:ENB @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
 //   #XDL:BP @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", dx=0.4, dy=0);
-//   %v11 = $SUPPLY @ATTACH &VREFP => @PLACE(-34, -17.8);
-//   &VREFP @WIRE {#XDL:VREFP (-34, -21) %v11:p};
-//   %g12 = $GROUND @ATTACH &VREFN => @PLACE(-36, -34.2);
-//   &VREFN @WIRE {#XDL:VREFN (-36, -31) %g12:p};
-//   %g13 = $GROUND @ATTACH &VSS => @PLACE(-32, -34.2);
-//   &VSS @WIRE {#XDL:VSS (-32, -31) %g13:p};
+//   %v12 = $SUPPLY @ATTACH &VREFP => @PLACE(-34, -17.8);
+//   &VREFP @WIRE {#XDL:VREFP (-34, -21) %v12:p};
+//   %g13 = $GROUND @ATTACH &VREFN => @PLACE(-36, -34.2);
+//   &VREFN @WIRE {#XDL:VREFN (-36, -31) %g13:p};
+//   %g14 = $GROUND @ATTACH &VSS => @PLACE(-32, -34.2);
+//   &VSS @WIRE {#XDL:VSS (-32, -31) %g14:p};
 //   #CL @PLACE(14, -26) => @ORIENT("R270");
 //   #CL:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", dx=0.4, dy=0);
 //   #CL:2 @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
+//   #CPL @PLACE(60, -30);
+//   #CPL @ORIENT("R0");
+//   #CPL:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", rotate=90, dx=0, dy=0.4);
+//   %g15 = $GROUND @ATTACH &VSS => @PLACE(60, -35.2);
+//   &VSS @WIRE {#CPL:2 (60, -32) %g15:p};
 //   #MSL @PLACE(2, -42);
 //   #MSL @ORIENT("R0");
 //   #MSL:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", rotate=90, dx=0, dy=0.4);
 //   #MSL:2 @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
 //   #MSL:3 @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", rotate=90, dx=0, dy=-0.4);
-//   %g14 = $GROUND @ATTACH &VSS => @PLACE(5, -45.2);
-//   &VSS @WIRE {#MSL:4 (5, -42) %g14:p};
+//   %g16 = $GROUND @ATTACH &VSS => @PLACE(5, -45.2);
+//   &VSS @WIRE {#MSL:4 (5, -42) %g16:p};
 //   &HHI @WIRE {#XHCTL:HI (-52, 24) (-52, 26) #XDH:HI};
 //   %b_H = (-12, 24);
 //   $JUNCTION @ATTACH %b_H;
@@ -1857,13 +1887,18 @@ ends mq_cdac_drv10
 
 // Matched half-capacitor pair j=10, weight 318
 subckt mq_cdac_bit10 (VIN VG DH RL EN ENB TOP VREFP VREFN VSS)
+// CP*: user-specified pre-layout estimate, 5% of each physical MOM unit to VSS.
+// The second MOM terminal is its bottom plate; parallel multipliers are aggregated.
+// Series tails add one unit parasitic at MID and one at B, not 5% of the equivalent half unit.
 XHCTL (DH HHI VREFP VREFN VSS) mq_cdac_ctl_h
 XLCTL (RL LHI VREFP VREFN VSS) mq_cdac_ctl_l
 XDH (HHI EN ENB BH VREFP VREFN VSS) mq_cdac_drv10
 CH (TOP BH) cfmom_2t w=5e-08 s=2.4e-07 nr=6 lr=1.69e-06 stm=2 spm=4 multi=159
+CPH (BH VSS) capacitor c=7.9682055e-15
 MSH (BH VG VIN VSS) nch_ulvt_mac w=3.71e-06 l=3e-08 nf=2
 XDL (LHI EN ENB BL VREFP VREFN VSS) mq_cdac_drv10
 CL (TOP BL) cfmom_2t w=5e-08 s=2.4e-07 nr=6 lr=1.69e-06 stm=2 spm=4 multi=159
+CPL (BL VSS) capacitor c=7.9682055e-15
 MSL (BL VG VIN VSS) nch_ulvt_mac w=3.71e-06 l=3e-08 nf=2
 // @RNL {
 //   /* pins connected by net name: the net-name label of rnl-std-fill on every unwired pin, placed below by its key netname */
@@ -1907,35 +1942,45 @@ MSL (BL VG VIN VSS) nch_ulvt_mac w=3.71e-06 l=3e-08 nf=2
 //   #CH @PLACE(14, 24) => @ORIENT("R270");
 //   #CH:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", dx=0.4, dy=0);
 //   #CH:2 @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
+//   #CPH @PLACE(60, 20);
+//   #CPH @ORIENT("R0");
+//   #CPH:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", rotate=90, dx=0, dy=0.4);
+//   %g10 = $GROUND @ATTACH &VSS => @PLACE(60, 14.8);
+//   &VSS @WIRE {#CPH:2 (60, 18) %g10:p};
 //   #MSH @PLACE(2, 8);
 //   #MSH @ORIENT("R0");
 //   #MSH:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", rotate=90, dx=0, dy=0.4);
 //   #MSH:2 @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
 //   #MSH:3 @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", rotate=90, dx=0, dy=-0.4);
-//   %g10 = $GROUND @ATTACH &VSS => @PLACE(5, 4.8);
-//   &VSS @WIRE {#MSH:4 (5, 8) %g10:p};
+//   %g11 = $GROUND @ATTACH &VSS => @PLACE(5, 4.8);
+//   &VSS @WIRE {#MSH:4 (5, 8) %g11:p};
 //   #XDL @PLACE(-34, -26);
 //   #XDL @ORIENT("R0");
 //   #XDL:HI @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
 //   #XDL:EN @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
 //   #XDL:ENB @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
 //   #XDL:BP @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", dx=0.4, dy=0);
-//   %v11 = $SUPPLY @ATTACH &VREFP => @PLACE(-34, -17.8);
-//   &VREFP @WIRE {#XDL:VREFP (-34, -21) %v11:p};
-//   %g12 = $GROUND @ATTACH &VREFN => @PLACE(-36, -34.2);
-//   &VREFN @WIRE {#XDL:VREFN (-36, -31) %g12:p};
-//   %g13 = $GROUND @ATTACH &VSS => @PLACE(-32, -34.2);
-//   &VSS @WIRE {#XDL:VSS (-32, -31) %g13:p};
+//   %v12 = $SUPPLY @ATTACH &VREFP => @PLACE(-34, -17.8);
+//   &VREFP @WIRE {#XDL:VREFP (-34, -21) %v12:p};
+//   %g13 = $GROUND @ATTACH &VREFN => @PLACE(-36, -34.2);
+//   &VREFN @WIRE {#XDL:VREFN (-36, -31) %g13:p};
+//   %g14 = $GROUND @ATTACH &VSS => @PLACE(-32, -34.2);
+//   &VSS @WIRE {#XDL:VSS (-32, -31) %g14:p};
 //   #CL @PLACE(14, -26) => @ORIENT("R270");
 //   #CL:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", dx=0.4, dy=0);
 //   #CL:2 @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
+//   #CPL @PLACE(60, -30);
+//   #CPL @ORIENT("R0");
+//   #CPL:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", rotate=90, dx=0, dy=0.4);
+//   %g15 = $GROUND @ATTACH &VSS => @PLACE(60, -35.2);
+//   &VSS @WIRE {#CPL:2 (60, -32) %g15:p};
 //   #MSL @PLACE(2, -42);
 //   #MSL @ORIENT("R0");
 //   #MSL:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", rotate=90, dx=0, dy=0.4);
 //   #MSL:2 @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
 //   #MSL:3 @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", rotate=90, dx=0, dy=-0.4);
-//   %g14 = $GROUND @ATTACH &VSS => @PLACE(5, -45.2);
-//   &VSS @WIRE {#MSL:4 (5, -42) %g14:p};
+//   %g16 = $GROUND @ATTACH &VSS => @PLACE(5, -45.2);
+//   &VSS @WIRE {#MSL:4 (5, -42) %g16:p};
 //   &HHI @WIRE {#XHCTL:HI (-52, 24) (-52, 26) #XDH:HI};
 //   %b_H = (-12, 24);
 //   $JUNCTION @ATTACH %b_H;
@@ -2177,12 +2222,17 @@ ends mq_cdac_drv9
 
 // Matched half-capacitor pair j=9, weight 180
 subckt mq_cdac_bit9 (DH RL EN ENB TOP VREFP VREFN VSS)
+// CP*: user-specified pre-layout estimate, 5% of each physical MOM unit to VSS.
+// The second MOM terminal is its bottom plate; parallel multipliers are aggregated.
+// Series tails add one unit parasitic at MID and one at B, not 5% of the equivalent half unit.
 XHCTL (DH HHI VREFP VREFN VSS) mq_cdac_ctl_h
 XLCTL (RL LHI VREFP VREFN VSS) mq_cdac_ctl_l
 XDH (HHI EN ENB BH VREFP VREFN VSS) mq_cdac_drv9
 CH (TOP BH) cfmom_2t w=5e-08 s=2.4e-07 nr=6 lr=1.69e-06 stm=2 spm=4 multi=90
+CPH (BH VSS) capacitor c=4.5103050e-15
 XDL (LHI EN ENB BL VREFP VREFN VSS) mq_cdac_drv9
 CL (TOP BL) cfmom_2t w=5e-08 s=2.4e-07 nr=6 lr=1.69e-06 stm=2 spm=4 multi=90
+CPL (BL VSS) capacitor c=4.5103050e-15
 // @RNL {
 //   /* pins connected by net name: the net-name label of rnl-std-fill on every unwired pin, placed below by its key netname */
 //   $LABEL_TERMINAL_SET @TEXT("${net}", key="netname", size=0.6);
@@ -2224,21 +2274,31 @@ CL (TOP BL) cfmom_2t w=5e-08 s=2.4e-07 nr=6 lr=1.69e-06 stm=2 spm=4 multi=90
 //   #CH @PLACE(14, 24) => @ORIENT("R270");
 //   #CH:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", dx=0.4, dy=0);
 //   #CH:2 @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
+//   #CPH @PLACE(60, 20);
+//   #CPH @ORIENT("R0");
+//   #CPH:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", rotate=90, dx=0, dy=0.4);
+//   %g10 = $GROUND @ATTACH &VSS => @PLACE(60, 14.8);
+//   &VSS @WIRE {#CPH:2 (60, 18) %g10:p};
 //   #XDL @PLACE(-34, -26);
 //   #XDL @ORIENT("R0");
 //   #XDL:HI @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
 //   #XDL:EN @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
 //   #XDL:ENB @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
 //   #XDL:BP @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", dx=0.4, dy=0);
-//   %v10 = $SUPPLY @ATTACH &VREFP => @PLACE(-34, -17.8);
-//   &VREFP @WIRE {#XDL:VREFP (-34, -21) %v10:p};
-//   %g11 = $GROUND @ATTACH &VREFN => @PLACE(-36, -34.2);
-//   &VREFN @WIRE {#XDL:VREFN (-36, -31) %g11:p};
-//   %g12 = $GROUND @ATTACH &VSS => @PLACE(-32, -34.2);
-//   &VSS @WIRE {#XDL:VSS (-32, -31) %g12:p};
+//   %v11 = $SUPPLY @ATTACH &VREFP => @PLACE(-34, -17.8);
+//   &VREFP @WIRE {#XDL:VREFP (-34, -21) %v11:p};
+//   %g12 = $GROUND @ATTACH &VREFN => @PLACE(-36, -34.2);
+//   &VREFN @WIRE {#XDL:VREFN (-36, -31) %g12:p};
+//   %g13 = $GROUND @ATTACH &VSS => @PLACE(-32, -34.2);
+//   &VSS @WIRE {#XDL:VSS (-32, -31) %g13:p};
 //   #CL @PLACE(14, -26) => @ORIENT("R270");
 //   #CL:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", dx=0.4, dy=0);
 //   #CL:2 @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
+//   #CPL @PLACE(60, -30);
+//   #CPL @ORIENT("R0");
+//   #CPL:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", rotate=90, dx=0, dy=0.4);
+//   %g14 = $GROUND @ATTACH &VSS => @PLACE(60, -35.2);
+//   &VSS @WIRE {#CPL:2 (60, -32) %g14:p};
 //   &HHI @WIRE {#XHCTL:HI (-52, 24) (-52, 26) #XDH:HI};
 //   %b_H = (-12, 24);
 //   $JUNCTION @ATTACH %b_H;
@@ -2472,13 +2532,18 @@ ends mq_cdac_drv8
 
 // Matched half-capacitor pair j=8, weight 102
 subckt mq_cdac_bit8 (VIN VG DH RL EN ENB TOP VREFP VREFN VSS)
+// CP*: user-specified pre-layout estimate, 5% of each physical MOM unit to VSS.
+// The second MOM terminal is its bottom plate; parallel multipliers are aggregated.
+// Series tails add one unit parasitic at MID and one at B, not 5% of the equivalent half unit.
 XHCTL (DH HHI VREFP VREFN VSS) mq_cdac_ctl_h
 XLCTL (RL LHI VREFP VREFN VSS) mq_cdac_ctl_l
 XDH (HHI EN ENB BH VREFP VREFN VSS) mq_cdac_drv8
 CH (TOP BH) cfmom_2t w=5e-08 s=2.4e-07 nr=6 lr=1.69e-06 stm=2 spm=4 multi=51
+CPH (BH VSS) capacitor c=2.5558395e-15
 MSH (BH VG VIN VSS) nch_ulvt_mac w=1.19e-06 l=3e-08 nf=1
 XDL (LHI EN ENB BL VREFP VREFN VSS) mq_cdac_drv8
 CL (TOP BL) cfmom_2t w=5e-08 s=2.4e-07 nr=6 lr=1.69e-06 stm=2 spm=4 multi=51
+CPL (BL VSS) capacitor c=2.5558395e-15
 MSL (BL VG VIN VSS) nch_ulvt_mac w=1.19e-06 l=3e-08 nf=1
 // @RNL {
 //   /* pins connected by net name: the net-name label of rnl-std-fill on every unwired pin, placed below by its key netname */
@@ -2522,35 +2587,45 @@ MSL (BL VG VIN VSS) nch_ulvt_mac w=1.19e-06 l=3e-08 nf=1
 //   #CH @PLACE(14, 24) => @ORIENT("R270");
 //   #CH:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", dx=0.4, dy=0);
 //   #CH:2 @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
+//   #CPH @PLACE(60, 20);
+//   #CPH @ORIENT("R0");
+//   #CPH:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", rotate=90, dx=0, dy=0.4);
+//   %g10 = $GROUND @ATTACH &VSS => @PLACE(60, 14.8);
+//   &VSS @WIRE {#CPH:2 (60, 18) %g10:p};
 //   #MSH @PLACE(2, 8);
 //   #MSH @ORIENT("R0");
 //   #MSH:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", rotate=90, dx=0, dy=0.4);
 //   #MSH:2 @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
 //   #MSH:3 @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", rotate=90, dx=0, dy=-0.4);
-//   %g10 = $GROUND @ATTACH &VSS => @PLACE(5, 4.8);
-//   &VSS @WIRE {#MSH:4 (5, 8) %g10:p};
+//   %g11 = $GROUND @ATTACH &VSS => @PLACE(5, 4.8);
+//   &VSS @WIRE {#MSH:4 (5, 8) %g11:p};
 //   #XDL @PLACE(-34, -26);
 //   #XDL @ORIENT("R0");
 //   #XDL:HI @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
 //   #XDL:EN @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
 //   #XDL:ENB @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
 //   #XDL:BP @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", dx=0.4, dy=0);
-//   %v11 = $SUPPLY @ATTACH &VREFP => @PLACE(-34, -17.8);
-//   &VREFP @WIRE {#XDL:VREFP (-34, -21) %v11:p};
-//   %g12 = $GROUND @ATTACH &VREFN => @PLACE(-36, -34.2);
-//   &VREFN @WIRE {#XDL:VREFN (-36, -31) %g12:p};
-//   %g13 = $GROUND @ATTACH &VSS => @PLACE(-32, -34.2);
-//   &VSS @WIRE {#XDL:VSS (-32, -31) %g13:p};
+//   %v12 = $SUPPLY @ATTACH &VREFP => @PLACE(-34, -17.8);
+//   &VREFP @WIRE {#XDL:VREFP (-34, -21) %v12:p};
+//   %g13 = $GROUND @ATTACH &VREFN => @PLACE(-36, -34.2);
+//   &VREFN @WIRE {#XDL:VREFN (-36, -31) %g13:p};
+//   %g14 = $GROUND @ATTACH &VSS => @PLACE(-32, -34.2);
+//   &VSS @WIRE {#XDL:VSS (-32, -31) %g14:p};
 //   #CL @PLACE(14, -26) => @ORIENT("R270");
 //   #CL:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", dx=0.4, dy=0);
 //   #CL:2 @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
+//   #CPL @PLACE(60, -30);
+//   #CPL @ORIENT("R0");
+//   #CPL:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", rotate=90, dx=0, dy=0.4);
+//   %g15 = $GROUND @ATTACH &VSS => @PLACE(60, -35.2);
+//   &VSS @WIRE {#CPL:2 (60, -32) %g15:p};
 //   #MSL @PLACE(2, -42);
 //   #MSL @ORIENT("R0");
 //   #MSL:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", rotate=90, dx=0, dy=0.4);
 //   #MSL:2 @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
 //   #MSL:3 @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", rotate=90, dx=0, dy=-0.4);
-//   %g14 = $GROUND @ATTACH &VSS => @PLACE(5, -45.2);
-//   &VSS @WIRE {#MSL:4 (5, -42) %g14:p};
+//   %g16 = $GROUND @ATTACH &VSS => @PLACE(5, -45.2);
+//   &VSS @WIRE {#MSL:4 (5, -42) %g16:p};
 //   &HHI @WIRE {#XHCTL:HI (-52, 24) (-52, 26) #XDH:HI};
 //   %b_H = (-12, 24);
 //   $JUNCTION @ATTACH %b_H;
@@ -2792,17 +2867,26 @@ ends mq_cdac_drv7
 
 // Matched half-capacitor pair j=7, weight 57
 subckt mq_cdac_bit7 (VIN VG DH RL EN ENB TOP VREFP VREFN VSS)
+// CP*: user-specified pre-layout estimate, 5% of each physical MOM unit to VSS.
+// The second MOM terminal is its bottom plate; parallel multipliers are aggregated.
+// Series tails add one unit parasitic at MID and one at B, not 5% of the equivalent half unit.
 XHCTL (DH HHI VREFP VREFN VSS) mq_cdac_ctl_h
 XLCTL (RL LHI VREFP VREFN VSS) mq_cdac_ctl_l
 XDH (HHI EN ENB BH VREFP VREFN VSS) mq_cdac_drv7
 CH (TOP BH) cfmom_2t w=5e-08 s=2.4e-07 nr=6 lr=1.69e-06 stm=2 spm=4 multi=28
+CPH (BH VSS) capacitor c=1.4032060e-15
 CHA (TOP MIDH) cfmom_2t w=5e-08 s=2.4e-07 nr=6 lr=1.69e-06 stm=2 spm=4 multi=1
+CPHA (MIDH VSS) capacitor c=5.01145e-17
 CHB (MIDH BH) cfmom_2t w=5e-08 s=2.4e-07 nr=6 lr=1.69e-06 stm=2 spm=4 multi=1
+CPHB (BH VSS) capacitor c=5.01145e-17
 MSH (BH VG VIN VSS) nch_ulvt_mac w=6.65e-07 l=3e-08 nf=1
 XDL (LHI EN ENB BL VREFP VREFN VSS) mq_cdac_drv7
 CL (TOP BL) cfmom_2t w=5e-08 s=2.4e-07 nr=6 lr=1.69e-06 stm=2 spm=4 multi=28
+CPL (BL VSS) capacitor c=1.4032060e-15
 CLA (TOP MIDL) cfmom_2t w=5e-08 s=2.4e-07 nr=6 lr=1.69e-06 stm=2 spm=4 multi=1
+CPLA (MIDL VSS) capacitor c=5.01145e-17
 CLB (MIDL BL) cfmom_2t w=5e-08 s=2.4e-07 nr=6 lr=1.69e-06 stm=2 spm=4 multi=1
+CPLB (BL VSS) capacitor c=5.01145e-17
 MSL (BL VG VIN VSS) nch_ulvt_mac w=6.65e-07 l=3e-08 nf=1
 // @RNL {
 //   /* pins connected by net name: the net-name label of rnl-std-fill on every unwired pin, placed below by its key netname */
@@ -2848,47 +2932,77 @@ MSL (BL VG VIN VSS) nch_ulvt_mac w=6.65e-07 l=3e-08 nf=1
 //   #CH @PLACE(14, 24) => @ORIENT("R270");
 //   #CH:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", dx=0.4, dy=0);
 //   #CH:2 @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
+//   #CPH @PLACE(60, 20);
+//   #CPH @ORIENT("R0");
+//   #CPH:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", rotate=90, dx=0, dy=0.4);
+//   %g10 = $GROUND @ATTACH &VSS => @PLACE(60, 14.8);
+//   &VSS @WIRE {#CPH:2 (60, 18) %g10:p};
 //   #CHA @PLACE(30, 38) => @ORIENT("R270");
 //   #CHA:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", dx=0.4, dy=0);
 //   #CHA:2 @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
+//   #CPHA @PLACE(76, 20);
+//   #CPHA @ORIENT("R0");
+//   #CPHA:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", rotate=90, dx=0, dy=0.4);
+//   %g11 = $GROUND @ATTACH &VSS => @PLACE(76, 14.8);
+//   &VSS @WIRE {#CPHA:2 (76, 18) %g11:p};
 //   #CHB @PLACE(10, 38) => @ORIENT("R270");
 //   #CHB:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", dx=0.4, dy=0);
 //   #CHB:2 @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
+//   #CPHB @PLACE(92, 20);
+//   #CPHB @ORIENT("R0");
+//   #CPHB:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", rotate=90, dx=0, dy=0.4);
+//   %g12 = $GROUND @ATTACH &VSS => @PLACE(92, 14.8);
+//   &VSS @WIRE {#CPHB:2 (92, 18) %g12:p};
 //   #MSH @PLACE(2, 8);
 //   #MSH @ORIENT("R0");
 //   #MSH:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", rotate=90, dx=0, dy=0.4);
 //   #MSH:2 @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
 //   #MSH:3 @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", rotate=90, dx=0, dy=-0.4);
-//   %g10 = $GROUND @ATTACH &VSS => @PLACE(5, 4.8);
-//   &VSS @WIRE {#MSH:4 (5, 8) %g10:p};
+//   %g13 = $GROUND @ATTACH &VSS => @PLACE(5, 4.8);
+//   &VSS @WIRE {#MSH:4 (5, 8) %g13:p};
 //   #XDL @PLACE(-34, -26);
 //   #XDL @ORIENT("R0");
 //   #XDL:HI @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
 //   #XDL:EN @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
 //   #XDL:ENB @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
 //   #XDL:BP @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", dx=0.4, dy=0);
-//   %v11 = $SUPPLY @ATTACH &VREFP => @PLACE(-34, -17.8);
-//   &VREFP @WIRE {#XDL:VREFP (-34, -21) %v11:p};
-//   %g12 = $GROUND @ATTACH &VREFN => @PLACE(-36, -34.2);
-//   &VREFN @WIRE {#XDL:VREFN (-36, -31) %g12:p};
-//   %g13 = $GROUND @ATTACH &VSS => @PLACE(-32, -34.2);
-//   &VSS @WIRE {#XDL:VSS (-32, -31) %g13:p};
+//   %v14 = $SUPPLY @ATTACH &VREFP => @PLACE(-34, -17.8);
+//   &VREFP @WIRE {#XDL:VREFP (-34, -21) %v14:p};
+//   %g15 = $GROUND @ATTACH &VREFN => @PLACE(-36, -34.2);
+//   &VREFN @WIRE {#XDL:VREFN (-36, -31) %g15:p};
+//   %g16 = $GROUND @ATTACH &VSS => @PLACE(-32, -34.2);
+//   &VSS @WIRE {#XDL:VSS (-32, -31) %g16:p};
 //   #CL @PLACE(14, -26) => @ORIENT("R270");
 //   #CL:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", dx=0.4, dy=0);
 //   #CL:2 @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
+//   #CPL @PLACE(60, -30);
+//   #CPL @ORIENT("R0");
+//   #CPL:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", rotate=90, dx=0, dy=0.4);
+//   %g17 = $GROUND @ATTACH &VSS => @PLACE(60, -35.2);
+//   &VSS @WIRE {#CPL:2 (60, -32) %g17:p};
 //   #CLA @PLACE(30, -12) => @ORIENT("R270");
 //   #CLA:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", dx=0.4, dy=0);
 //   #CLA:2 @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
+//   #CPLA @PLACE(76, -30);
+//   #CPLA @ORIENT("R0");
+//   #CPLA:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", rotate=90, dx=0, dy=0.4);
+//   %g18 = $GROUND @ATTACH &VSS => @PLACE(76, -35.2);
+//   &VSS @WIRE {#CPLA:2 (76, -32) %g18:p};
 //   #CLB @PLACE(10, -12) => @ORIENT("R270");
 //   #CLB:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", dx=0.4, dy=0);
 //   #CLB:2 @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
+//   #CPLB @PLACE(92, -30);
+//   #CPLB @ORIENT("R0");
+//   #CPLB:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", rotate=90, dx=0, dy=0.4);
+//   %g19 = $GROUND @ATTACH &VSS => @PLACE(92, -35.2);
+//   &VSS @WIRE {#CPLB:2 (92, -32) %g19:p};
 //   #MSL @PLACE(2, -42);
 //   #MSL @ORIENT("R0");
 //   #MSL:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", rotate=90, dx=0, dy=0.4);
 //   #MSL:2 @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
 //   #MSL:3 @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", rotate=90, dx=0, dy=-0.4);
-//   %g14 = $GROUND @ATTACH &VSS => @PLACE(5, -45.2);
-//   &VSS @WIRE {#MSL:4 (5, -42) %g14:p};
+//   %g20 = $GROUND @ATTACH &VSS => @PLACE(5, -45.2);
+//   &VSS @WIRE {#MSL:4 (5, -42) %g20:p};
 //   &HHI @WIRE {#XHCTL:HI (-52, 24) (-52, 26) #XDH:HI};
 //   %b_H = (-12, 24);
 //   $JUNCTION @ATTACH %b_H;
@@ -3136,12 +3250,17 @@ ends mq_cdac_drv6
 
 // Matched half-capacitor pair j=6, weight 32
 subckt mq_cdac_bit6 (DH RL EN ENB TOP VREFP VREFN VSS)
+// CP*: user-specified pre-layout estimate, 5% of each physical MOM unit to VSS.
+// The second MOM terminal is its bottom plate; parallel multipliers are aggregated.
+// Series tails add one unit parasitic at MID and one at B, not 5% of the equivalent half unit.
 XHCTL (DH HHI VREFP VREFN VSS) mq_cdac_ctl_h
 XLCTL (RL LHI VREFP VREFN VSS) mq_cdac_ctl_l
 XDH (HHI EN ENB BH VREFP VREFN VSS) mq_cdac_drv6
 CH (TOP BH) cfmom_2t w=5e-08 s=2.4e-07 nr=6 lr=1.69e-06 stm=2 spm=4 multi=16
+CPH (BH VSS) capacitor c=8.018320e-16
 XDL (LHI EN ENB BL VREFP VREFN VSS) mq_cdac_drv6
 CL (TOP BL) cfmom_2t w=5e-08 s=2.4e-07 nr=6 lr=1.69e-06 stm=2 spm=4 multi=16
+CPL (BL VSS) capacitor c=8.018320e-16
 // @RNL {
 //   /* pins connected by net name: the net-name label of rnl-std-fill on every unwired pin, placed below by its key netname */
 //   $LABEL_TERMINAL_SET @TEXT("${net}", key="netname", size=0.6);
@@ -3183,21 +3302,31 @@ CL (TOP BL) cfmom_2t w=5e-08 s=2.4e-07 nr=6 lr=1.69e-06 stm=2 spm=4 multi=16
 //   #CH @PLACE(14, 24) => @ORIENT("R270");
 //   #CH:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", dx=0.4, dy=0);
 //   #CH:2 @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
+//   #CPH @PLACE(60, 20);
+//   #CPH @ORIENT("R0");
+//   #CPH:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", rotate=90, dx=0, dy=0.4);
+//   %g10 = $GROUND @ATTACH &VSS => @PLACE(60, 14.8);
+//   &VSS @WIRE {#CPH:2 (60, 18) %g10:p};
 //   #XDL @PLACE(-34, -26);
 //   #XDL @ORIENT("R0");
 //   #XDL:HI @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
 //   #XDL:EN @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
 //   #XDL:ENB @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
 //   #XDL:BP @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", dx=0.4, dy=0);
-//   %v10 = $SUPPLY @ATTACH &VREFP => @PLACE(-34, -17.8);
-//   &VREFP @WIRE {#XDL:VREFP (-34, -21) %v10:p};
-//   %g11 = $GROUND @ATTACH &VREFN => @PLACE(-36, -34.2);
-//   &VREFN @WIRE {#XDL:VREFN (-36, -31) %g11:p};
-//   %g12 = $GROUND @ATTACH &VSS => @PLACE(-32, -34.2);
-//   &VSS @WIRE {#XDL:VSS (-32, -31) %g12:p};
+//   %v11 = $SUPPLY @ATTACH &VREFP => @PLACE(-34, -17.8);
+//   &VREFP @WIRE {#XDL:VREFP (-34, -21) %v11:p};
+//   %g12 = $GROUND @ATTACH &VREFN => @PLACE(-36, -34.2);
+//   &VREFN @WIRE {#XDL:VREFN (-36, -31) %g12:p};
+//   %g13 = $GROUND @ATTACH &VSS => @PLACE(-32, -34.2);
+//   &VSS @WIRE {#XDL:VSS (-32, -31) %g13:p};
 //   #CL @PLACE(14, -26) => @ORIENT("R270");
 //   #CL:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", dx=0.4, dy=0);
 //   #CL:2 @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
+//   #CPL @PLACE(60, -30);
+//   #CPL @ORIENT("R0");
+//   #CPL:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", rotate=90, dx=0, dy=0.4);
+//   %g14 = $GROUND @ATTACH &VSS => @PLACE(60, -35.2);
+//   &VSS @WIRE {#CPL:2 (60, -32) %g14:p};
 //   &HHI @WIRE {#XHCTL:HI (-52, 24) (-52, 26) #XDH:HI};
 //   %b_H = (-12, 24);
 //   $JUNCTION @ATTACH %b_H;
@@ -3431,13 +3560,18 @@ ends mq_cdac_drv5
 
 // Matched half-capacitor pair j=5, weight 18
 subckt mq_cdac_bit5 (VIN VG DH RL EN ENB TOP VREFP VREFN VSS)
+// CP*: user-specified pre-layout estimate, 5% of each physical MOM unit to VSS.
+// The second MOM terminal is its bottom plate; parallel multipliers are aggregated.
+// Series tails add one unit parasitic at MID and one at B, not 5% of the equivalent half unit.
 XHCTL (DH HHI VREFP VREFN VSS) mq_cdac_ctl_h
 XLCTL (RL LHI VREFP VREFN VSS) mq_cdac_ctl_l
 XDH (HHI EN ENB BH VREFP VREFN VSS) mq_cdac_drv5
 CH (TOP BH) cfmom_2t w=5e-08 s=2.4e-07 nr=6 lr=1.69e-06 stm=2 spm=4 multi=9
+CPH (BH VSS) capacitor c=4.510305e-16
 MSH (BH VG VIN VSS) nch_ulvt_mac w=2.1e-07 l=3e-08 nf=1
 XDL (LHI EN ENB BL VREFP VREFN VSS) mq_cdac_drv5
 CL (TOP BL) cfmom_2t w=5e-08 s=2.4e-07 nr=6 lr=1.69e-06 stm=2 spm=4 multi=9
+CPL (BL VSS) capacitor c=4.510305e-16
 MSL (BL VG VIN VSS) nch_ulvt_mac w=2.1e-07 l=3e-08 nf=1
 // @RNL {
 //   /* pins connected by net name: the net-name label of rnl-std-fill on every unwired pin, placed below by its key netname */
@@ -3481,35 +3615,45 @@ MSL (BL VG VIN VSS) nch_ulvt_mac w=2.1e-07 l=3e-08 nf=1
 //   #CH @PLACE(14, 24) => @ORIENT("R270");
 //   #CH:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", dx=0.4, dy=0);
 //   #CH:2 @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
+//   #CPH @PLACE(60, 20);
+//   #CPH @ORIENT("R0");
+//   #CPH:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", rotate=90, dx=0, dy=0.4);
+//   %g10 = $GROUND @ATTACH &VSS => @PLACE(60, 14.8);
+//   &VSS @WIRE {#CPH:2 (60, 18) %g10:p};
 //   #MSH @PLACE(2, 8);
 //   #MSH @ORIENT("R0");
 //   #MSH:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", rotate=90, dx=0, dy=0.4);
 //   #MSH:2 @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
 //   #MSH:3 @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", rotate=90, dx=0, dy=-0.4);
-//   %g10 = $GROUND @ATTACH &VSS => @PLACE(5, 4.8);
-//   &VSS @WIRE {#MSH:4 (5, 8) %g10:p};
+//   %g11 = $GROUND @ATTACH &VSS => @PLACE(5, 4.8);
+//   &VSS @WIRE {#MSH:4 (5, 8) %g11:p};
 //   #XDL @PLACE(-34, -26);
 //   #XDL @ORIENT("R0");
 //   #XDL:HI @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
 //   #XDL:EN @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
 //   #XDL:ENB @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
 //   #XDL:BP @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", dx=0.4, dy=0);
-//   %v11 = $SUPPLY @ATTACH &VREFP => @PLACE(-34, -17.8);
-//   &VREFP @WIRE {#XDL:VREFP (-34, -21) %v11:p};
-//   %g12 = $GROUND @ATTACH &VREFN => @PLACE(-36, -34.2);
-//   &VREFN @WIRE {#XDL:VREFN (-36, -31) %g12:p};
-//   %g13 = $GROUND @ATTACH &VSS => @PLACE(-32, -34.2);
-//   &VSS @WIRE {#XDL:VSS (-32, -31) %g13:p};
+//   %v12 = $SUPPLY @ATTACH &VREFP => @PLACE(-34, -17.8);
+//   &VREFP @WIRE {#XDL:VREFP (-34, -21) %v12:p};
+//   %g13 = $GROUND @ATTACH &VREFN => @PLACE(-36, -34.2);
+//   &VREFN @WIRE {#XDL:VREFN (-36, -31) %g13:p};
+//   %g14 = $GROUND @ATTACH &VSS => @PLACE(-32, -34.2);
+//   &VSS @WIRE {#XDL:VSS (-32, -31) %g14:p};
 //   #CL @PLACE(14, -26) => @ORIENT("R270");
 //   #CL:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", dx=0.4, dy=0);
 //   #CL:2 @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
+//   #CPL @PLACE(60, -30);
+//   #CPL @ORIENT("R0");
+//   #CPL:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", rotate=90, dx=0, dy=0.4);
+//   %g15 = $GROUND @ATTACH &VSS => @PLACE(60, -35.2);
+//   &VSS @WIRE {#CPL:2 (60, -32) %g15:p};
 //   #MSL @PLACE(2, -42);
 //   #MSL @ORIENT("R0");
 //   #MSL:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", rotate=90, dx=0, dy=0.4);
 //   #MSL:2 @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
 //   #MSL:3 @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", rotate=90, dx=0, dy=-0.4);
-//   %g14 = $GROUND @ATTACH &VSS => @PLACE(5, -45.2);
-//   &VSS @WIRE {#MSL:4 (5, -42) %g14:p};
+//   %g16 = $GROUND @ATTACH &VSS => @PLACE(5, -45.2);
+//   &VSS @WIRE {#MSL:4 (5, -42) %g16:p};
 //   &HHI @WIRE {#XHCTL:HI (-52, 24) (-52, 26) #XDH:HI};
 //   %b_H = (-12, 24);
 //   $JUNCTION @ATTACH %b_H;
@@ -3751,13 +3895,18 @@ ends mq_cdac_drv4
 
 // Matched half-capacitor pair j=4, weight 10
 subckt mq_cdac_bit4 (VIN VG DH RL EN ENB TOP VREFP VREFN VSS)
+// CP*: user-specified pre-layout estimate, 5% of each physical MOM unit to VSS.
+// The second MOM terminal is its bottom plate; parallel multipliers are aggregated.
+// Series tails add one unit parasitic at MID and one at B, not 5% of the equivalent half unit.
 XHCTL (DH HHI VREFP VREFN VSS) mq_cdac_ctl_h
 XLCTL (RL LHI VREFP VREFN VSS) mq_cdac_ctl_l
 XDH (HHI EN ENB BH VREFP VREFN VSS) mq_cdac_drv4
 CH (TOP BH) cfmom_2t w=5e-08 s=2.4e-07 nr=6 lr=1.69e-06 stm=2 spm=4 multi=5
+CPH (BH VSS) capacitor c=2.505725e-16
 MSH (BH VG VIN VSS) nch_ulvt_mac w=1.2e-07 l=3e-08 nf=1
 XDL (LHI EN ENB BL VREFP VREFN VSS) mq_cdac_drv4
 CL (TOP BL) cfmom_2t w=5e-08 s=2.4e-07 nr=6 lr=1.69e-06 stm=2 spm=4 multi=5
+CPL (BL VSS) capacitor c=2.505725e-16
 MSL (BL VG VIN VSS) nch_ulvt_mac w=1.2e-07 l=3e-08 nf=1
 // @RNL {
 //   /* pins connected by net name: the net-name label of rnl-std-fill on every unwired pin, placed below by its key netname */
@@ -3801,35 +3950,45 @@ MSL (BL VG VIN VSS) nch_ulvt_mac w=1.2e-07 l=3e-08 nf=1
 //   #CH @PLACE(14, 24) => @ORIENT("R270");
 //   #CH:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", dx=0.4, dy=0);
 //   #CH:2 @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
+//   #CPH @PLACE(60, 20);
+//   #CPH @ORIENT("R0");
+//   #CPH:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", rotate=90, dx=0, dy=0.4);
+//   %g10 = $GROUND @ATTACH &VSS => @PLACE(60, 14.8);
+//   &VSS @WIRE {#CPH:2 (60, 18) %g10:p};
 //   #MSH @PLACE(2, 8);
 //   #MSH @ORIENT("R0");
 //   #MSH:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", rotate=90, dx=0, dy=0.4);
 //   #MSH:2 @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
 //   #MSH:3 @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", rotate=90, dx=0, dy=-0.4);
-//   %g10 = $GROUND @ATTACH &VSS => @PLACE(5, 4.8);
-//   &VSS @WIRE {#MSH:4 (5, 8) %g10:p};
+//   %g11 = $GROUND @ATTACH &VSS => @PLACE(5, 4.8);
+//   &VSS @WIRE {#MSH:4 (5, 8) %g11:p};
 //   #XDL @PLACE(-34, -26);
 //   #XDL @ORIENT("R0");
 //   #XDL:HI @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
 //   #XDL:EN @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
 //   #XDL:ENB @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
 //   #XDL:BP @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", dx=0.4, dy=0);
-//   %v11 = $SUPPLY @ATTACH &VREFP => @PLACE(-34, -17.8);
-//   &VREFP @WIRE {#XDL:VREFP (-34, -21) %v11:p};
-//   %g12 = $GROUND @ATTACH &VREFN => @PLACE(-36, -34.2);
-//   &VREFN @WIRE {#XDL:VREFN (-36, -31) %g12:p};
-//   %g13 = $GROUND @ATTACH &VSS => @PLACE(-32, -34.2);
-//   &VSS @WIRE {#XDL:VSS (-32, -31) %g13:p};
+//   %v12 = $SUPPLY @ATTACH &VREFP => @PLACE(-34, -17.8);
+//   &VREFP @WIRE {#XDL:VREFP (-34, -21) %v12:p};
+//   %g13 = $GROUND @ATTACH &VREFN => @PLACE(-36, -34.2);
+//   &VREFN @WIRE {#XDL:VREFN (-36, -31) %g13:p};
+//   %g14 = $GROUND @ATTACH &VSS => @PLACE(-32, -34.2);
+//   &VSS @WIRE {#XDL:VSS (-32, -31) %g14:p};
 //   #CL @PLACE(14, -26) => @ORIENT("R270");
 //   #CL:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", dx=0.4, dy=0);
 //   #CL:2 @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
+//   #CPL @PLACE(60, -30);
+//   #CPL @ORIENT("R0");
+//   #CPL:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", rotate=90, dx=0, dy=0.4);
+//   %g15 = $GROUND @ATTACH &VSS => @PLACE(60, -35.2);
+//   &VSS @WIRE {#CPL:2 (60, -32) %g15:p};
 //   #MSL @PLACE(2, -42);
 //   #MSL @ORIENT("R0");
 //   #MSL:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", rotate=90, dx=0, dy=0.4);
 //   #MSL:2 @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
 //   #MSL:3 @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", rotate=90, dx=0, dy=-0.4);
-//   %g14 = $GROUND @ATTACH &VSS => @PLACE(5, -45.2);
-//   &VSS @WIRE {#MSL:4 (5, -42) %g14:p};
+//   %g16 = $GROUND @ATTACH &VSS => @PLACE(5, -45.2);
+//   &VSS @WIRE {#MSL:4 (5, -42) %g16:p};
 //   &HHI @WIRE {#XHCTL:HI (-52, 24) (-52, 26) #XDH:HI};
 //   %b_H = (-12, 24);
 //   $JUNCTION @ATTACH %b_H;
@@ -4071,13 +4230,18 @@ ends mq_cdac_drv3
 
 // Matched half-capacitor pair j=3, weight 6
 subckt mq_cdac_bit3 (VIN VG DH RL EN ENB TOP VREFP VREFN VSS)
+// CP*: user-specified pre-layout estimate, 5% of each physical MOM unit to VSS.
+// The second MOM terminal is its bottom plate; parallel multipliers are aggregated.
+// Series tails add one unit parasitic at MID and one at B, not 5% of the equivalent half unit.
 XHCTL (DH HHI VREFP VREFN VSS) mq_cdac_ctl_h
 XLCTL (RL LHI VREFP VREFN VSS) mq_cdac_ctl_l
 XDH (HHI EN ENB BH VREFP VREFN VSS) mq_cdac_drv3
 CH (TOP BH) cfmom_2t w=5e-08 s=2.4e-07 nr=6 lr=1.69e-06 stm=2 spm=4 multi=3
+CPH (BH VSS) capacitor c=1.503435e-16
 MSH (BH VG VIN VSS) nch_ulvt_mac w=1.2e-07 l=3e-08 nf=1
 XDL (LHI EN ENB BL VREFP VREFN VSS) mq_cdac_drv3
 CL (TOP BL) cfmom_2t w=5e-08 s=2.4e-07 nr=6 lr=1.69e-06 stm=2 spm=4 multi=3
+CPL (BL VSS) capacitor c=1.503435e-16
 MSL (BL VG VIN VSS) nch_ulvt_mac w=1.2e-07 l=3e-08 nf=1
 // @RNL {
 //   /* pins connected by net name: the net-name label of rnl-std-fill on every unwired pin, placed below by its key netname */
@@ -4121,35 +4285,45 @@ MSL (BL VG VIN VSS) nch_ulvt_mac w=1.2e-07 l=3e-08 nf=1
 //   #CH @PLACE(14, 24) => @ORIENT("R270");
 //   #CH:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", dx=0.4, dy=0);
 //   #CH:2 @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
+//   #CPH @PLACE(60, 20);
+//   #CPH @ORIENT("R0");
+//   #CPH:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", rotate=90, dx=0, dy=0.4);
+//   %g10 = $GROUND @ATTACH &VSS => @PLACE(60, 14.8);
+//   &VSS @WIRE {#CPH:2 (60, 18) %g10:p};
 //   #MSH @PLACE(2, 8);
 //   #MSH @ORIENT("R0");
 //   #MSH:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", rotate=90, dx=0, dy=0.4);
 //   #MSH:2 @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
 //   #MSH:3 @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", rotate=90, dx=0, dy=-0.4);
-//   %g10 = $GROUND @ATTACH &VSS => @PLACE(5, 4.8);
-//   &VSS @WIRE {#MSH:4 (5, 8) %g10:p};
+//   %g11 = $GROUND @ATTACH &VSS => @PLACE(5, 4.8);
+//   &VSS @WIRE {#MSH:4 (5, 8) %g11:p};
 //   #XDL @PLACE(-34, -26);
 //   #XDL @ORIENT("R0");
 //   #XDL:HI @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
 //   #XDL:EN @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
 //   #XDL:ENB @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
 //   #XDL:BP @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", dx=0.4, dy=0);
-//   %v11 = $SUPPLY @ATTACH &VREFP => @PLACE(-34, -17.8);
-//   &VREFP @WIRE {#XDL:VREFP (-34, -21) %v11:p};
-//   %g12 = $GROUND @ATTACH &VREFN => @PLACE(-36, -34.2);
-//   &VREFN @WIRE {#XDL:VREFN (-36, -31) %g12:p};
-//   %g13 = $GROUND @ATTACH &VSS => @PLACE(-32, -34.2);
-//   &VSS @WIRE {#XDL:VSS (-32, -31) %g13:p};
+//   %v12 = $SUPPLY @ATTACH &VREFP => @PLACE(-34, -17.8);
+//   &VREFP @WIRE {#XDL:VREFP (-34, -21) %v12:p};
+//   %g13 = $GROUND @ATTACH &VREFN => @PLACE(-36, -34.2);
+//   &VREFN @WIRE {#XDL:VREFN (-36, -31) %g13:p};
+//   %g14 = $GROUND @ATTACH &VSS => @PLACE(-32, -34.2);
+//   &VSS @WIRE {#XDL:VSS (-32, -31) %g14:p};
 //   #CL @PLACE(14, -26) => @ORIENT("R270");
 //   #CL:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", dx=0.4, dy=0);
 //   #CL:2 @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
+//   #CPL @PLACE(60, -30);
+//   #CPL @ORIENT("R0");
+//   #CPL:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", rotate=90, dx=0, dy=0.4);
+//   %g15 = $GROUND @ATTACH &VSS => @PLACE(60, -35.2);
+//   &VSS @WIRE {#CPL:2 (60, -32) %g15:p};
 //   #MSL @PLACE(2, -42);
 //   #MSL @ORIENT("R0");
 //   #MSL:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", rotate=90, dx=0, dy=0.4);
 //   #MSL:2 @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
 //   #MSL:3 @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", rotate=90, dx=0, dy=-0.4);
-//   %g14 = $GROUND @ATTACH &VSS => @PLACE(5, -45.2);
-//   &VSS @WIRE {#MSL:4 (5, -42) %g14:p};
+//   %g16 = $GROUND @ATTACH &VSS => @PLACE(5, -45.2);
+//   &VSS @WIRE {#MSL:4 (5, -42) %g16:p};
 //   &HHI @WIRE {#XHCTL:HI (-52, 24) (-52, 26) #XDH:HI};
 //   %b_H = (-12, 24);
 //   $JUNCTION @ATTACH %b_H;
@@ -4391,17 +4565,26 @@ ends mq_cdac_drv2
 
 // Matched half-capacitor pair j=2, weight 3
 subckt mq_cdac_bit2 (VIN VG DH RL EN ENB TOP VREFP VREFN VSS)
+// CP*: user-specified pre-layout estimate, 5% of each physical MOM unit to VSS.
+// The second MOM terminal is its bottom plate; parallel multipliers are aggregated.
+// Series tails add one unit parasitic at MID and one at B, not 5% of the equivalent half unit.
 XHCTL (DH HHI VREFP VREFN VSS) mq_cdac_ctl_h
 XLCTL (RL LHI VREFP VREFN VSS) mq_cdac_ctl_l
 XDH (HHI EN ENB BH VREFP VREFN VSS) mq_cdac_drv2
 CH (TOP BH) cfmom_2t w=5e-08 s=2.4e-07 nr=6 lr=1.69e-06 stm=2 spm=4 multi=1
+CPH (BH VSS) capacitor c=5.01145e-17
 CHA (TOP MIDH) cfmom_2t w=5e-08 s=2.4e-07 nr=6 lr=1.69e-06 stm=2 spm=4 multi=1
+CPHA (MIDH VSS) capacitor c=5.01145e-17
 CHB (MIDH BH) cfmom_2t w=5e-08 s=2.4e-07 nr=6 lr=1.69e-06 stm=2 spm=4 multi=1
+CPHB (BH VSS) capacitor c=5.01145e-17
 MSH (BH VG VIN VSS) nch_ulvt_mac w=1.2e-07 l=3e-08 nf=1
 XDL (LHI EN ENB BL VREFP VREFN VSS) mq_cdac_drv2
 CL (TOP BL) cfmom_2t w=5e-08 s=2.4e-07 nr=6 lr=1.69e-06 stm=2 spm=4 multi=1
+CPL (BL VSS) capacitor c=5.01145e-17
 CLA (TOP MIDL) cfmom_2t w=5e-08 s=2.4e-07 nr=6 lr=1.69e-06 stm=2 spm=4 multi=1
+CPLA (MIDL VSS) capacitor c=5.01145e-17
 CLB (MIDL BL) cfmom_2t w=5e-08 s=2.4e-07 nr=6 lr=1.69e-06 stm=2 spm=4 multi=1
+CPLB (BL VSS) capacitor c=5.01145e-17
 MSL (BL VG VIN VSS) nch_ulvt_mac w=1.2e-07 l=3e-08 nf=1
 // @RNL {
 //   /* pins connected by net name: the net-name label of rnl-std-fill on every unwired pin, placed below by its key netname */
@@ -4447,47 +4630,77 @@ MSL (BL VG VIN VSS) nch_ulvt_mac w=1.2e-07 l=3e-08 nf=1
 //   #CH @PLACE(14, 24) => @ORIENT("R270");
 //   #CH:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", dx=0.4, dy=0);
 //   #CH:2 @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
+//   #CPH @PLACE(60, 20);
+//   #CPH @ORIENT("R0");
+//   #CPH:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", rotate=90, dx=0, dy=0.4);
+//   %g10 = $GROUND @ATTACH &VSS => @PLACE(60, 14.8);
+//   &VSS @WIRE {#CPH:2 (60, 18) %g10:p};
 //   #CHA @PLACE(30, 38) => @ORIENT("R270");
 //   #CHA:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", dx=0.4, dy=0);
 //   #CHA:2 @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
+//   #CPHA @PLACE(76, 20);
+//   #CPHA @ORIENT("R0");
+//   #CPHA:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", rotate=90, dx=0, dy=0.4);
+//   %g11 = $GROUND @ATTACH &VSS => @PLACE(76, 14.8);
+//   &VSS @WIRE {#CPHA:2 (76, 18) %g11:p};
 //   #CHB @PLACE(10, 38) => @ORIENT("R270");
 //   #CHB:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", dx=0.4, dy=0);
 //   #CHB:2 @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
+//   #CPHB @PLACE(92, 20);
+//   #CPHB @ORIENT("R0");
+//   #CPHB:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", rotate=90, dx=0, dy=0.4);
+//   %g12 = $GROUND @ATTACH &VSS => @PLACE(92, 14.8);
+//   &VSS @WIRE {#CPHB:2 (92, 18) %g12:p};
 //   #MSH @PLACE(2, 8);
 //   #MSH @ORIENT("R0");
 //   #MSH:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", rotate=90, dx=0, dy=0.4);
 //   #MSH:2 @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
 //   #MSH:3 @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", rotate=90, dx=0, dy=-0.4);
-//   %g10 = $GROUND @ATTACH &VSS => @PLACE(5, 4.8);
-//   &VSS @WIRE {#MSH:4 (5, 8) %g10:p};
+//   %g13 = $GROUND @ATTACH &VSS => @PLACE(5, 4.8);
+//   &VSS @WIRE {#MSH:4 (5, 8) %g13:p};
 //   #XDL @PLACE(-34, -26);
 //   #XDL @ORIENT("R0");
 //   #XDL:HI @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
 //   #XDL:EN @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
 //   #XDL:ENB @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
 //   #XDL:BP @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", dx=0.4, dy=0);
-//   %v11 = $SUPPLY @ATTACH &VREFP => @PLACE(-34, -17.8);
-//   &VREFP @WIRE {#XDL:VREFP (-34, -21) %v11:p};
-//   %g12 = $GROUND @ATTACH &VREFN => @PLACE(-36, -34.2);
-//   &VREFN @WIRE {#XDL:VREFN (-36, -31) %g12:p};
-//   %g13 = $GROUND @ATTACH &VSS => @PLACE(-32, -34.2);
-//   &VSS @WIRE {#XDL:VSS (-32, -31) %g13:p};
+//   %v14 = $SUPPLY @ATTACH &VREFP => @PLACE(-34, -17.8);
+//   &VREFP @WIRE {#XDL:VREFP (-34, -21) %v14:p};
+//   %g15 = $GROUND @ATTACH &VREFN => @PLACE(-36, -34.2);
+//   &VREFN @WIRE {#XDL:VREFN (-36, -31) %g15:p};
+//   %g16 = $GROUND @ATTACH &VSS => @PLACE(-32, -34.2);
+//   &VSS @WIRE {#XDL:VSS (-32, -31) %g16:p};
 //   #CL @PLACE(14, -26) => @ORIENT("R270");
 //   #CL:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", dx=0.4, dy=0);
 //   #CL:2 @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
+//   #CPL @PLACE(60, -30);
+//   #CPL @ORIENT("R0");
+//   #CPL:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", rotate=90, dx=0, dy=0.4);
+//   %g17 = $GROUND @ATTACH &VSS => @PLACE(60, -35.2);
+//   &VSS @WIRE {#CPL:2 (60, -32) %g17:p};
 //   #CLA @PLACE(30, -12) => @ORIENT("R270");
 //   #CLA:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", dx=0.4, dy=0);
 //   #CLA:2 @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
+//   #CPLA @PLACE(76, -30);
+//   #CPLA @ORIENT("R0");
+//   #CPLA:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", rotate=90, dx=0, dy=0.4);
+//   %g18 = $GROUND @ATTACH &VSS => @PLACE(76, -35.2);
+//   &VSS @WIRE {#CPLA:2 (76, -32) %g18:p};
 //   #CLB @PLACE(10, -12) => @ORIENT("R270");
 //   #CLB:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", dx=0.4, dy=0);
 //   #CLB:2 @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
+//   #CPLB @PLACE(92, -30);
+//   #CPLB @ORIENT("R0");
+//   #CPLB:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", rotate=90, dx=0, dy=0.4);
+//   %g19 = $GROUND @ATTACH &VSS => @PLACE(92, -35.2);
+//   &VSS @WIRE {#CPLB:2 (92, -32) %g19:p};
 //   #MSL @PLACE(2, -42);
 //   #MSL @ORIENT("R0");
 //   #MSL:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", rotate=90, dx=0, dy=0.4);
 //   #MSL:2 @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
 //   #MSL:3 @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", rotate=90, dx=0, dy=-0.4);
-//   %g14 = $GROUND @ATTACH &VSS => @PLACE(5, -45.2);
-//   &VSS @WIRE {#MSL:4 (5, -42) %g14:p};
+//   %g20 = $GROUND @ATTACH &VSS => @PLACE(5, -45.2);
+//   &VSS @WIRE {#MSL:4 (5, -42) %g20:p};
 //   &HHI @WIRE {#XHCTL:HI (-52, 24) (-52, 26) #XDH:HI};
 //   %b_H = (-12, 24);
 //   $JUNCTION @ATTACH %b_H;
@@ -4735,13 +4948,18 @@ ends mq_cdac_drv1
 
 // Matched half-capacitor pair j=1, weight 2
 subckt mq_cdac_bit1 (VIN VG DH RL EN ENB TOP VREFP VREFN VSS)
+// CP*: user-specified pre-layout estimate, 5% of each physical MOM unit to VSS.
+// The second MOM terminal is its bottom plate; parallel multipliers are aggregated.
+// Series tails add one unit parasitic at MID and one at B, not 5% of the equivalent half unit.
 XHCTL (DH HHI VREFP VREFN VSS) mq_cdac_ctl_h
 XLCTL (RL LHI VREFP VREFN VSS) mq_cdac_ctl_l
 XDH (HHI EN ENB BH VREFP VREFN VSS) mq_cdac_drv1
 CH (TOP BH) cfmom_2t w=5e-08 s=2.4e-07 nr=6 lr=1.69e-06 stm=2 spm=4 multi=1
+CPH (BH VSS) capacitor c=5.01145e-17
 MSH (BH VG VIN VSS) nch_ulvt_mac w=1.2e-07 l=3e-08 nf=1
 XDL (LHI EN ENB BL VREFP VREFN VSS) mq_cdac_drv1
 CL (TOP BL) cfmom_2t w=5e-08 s=2.4e-07 nr=6 lr=1.69e-06 stm=2 spm=4 multi=1
+CPL (BL VSS) capacitor c=5.01145e-17
 MSL (BL VG VIN VSS) nch_ulvt_mac w=1.2e-07 l=3e-08 nf=1
 // @RNL {
 //   /* pins connected by net name: the net-name label of rnl-std-fill on every unwired pin, placed below by its key netname */
@@ -4785,35 +5003,45 @@ MSL (BL VG VIN VSS) nch_ulvt_mac w=1.2e-07 l=3e-08 nf=1
 //   #CH @PLACE(14, 24) => @ORIENT("R270");
 //   #CH:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", dx=0.4, dy=0);
 //   #CH:2 @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
+//   #CPH @PLACE(60, 20);
+//   #CPH @ORIENT("R0");
+//   #CPH:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", rotate=90, dx=0, dy=0.4);
+//   %g10 = $GROUND @ATTACH &VSS => @PLACE(60, 14.8);
+//   &VSS @WIRE {#CPH:2 (60, 18) %g10:p};
 //   #MSH @PLACE(2, 8);
 //   #MSH @ORIENT("R0");
 //   #MSH:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", rotate=90, dx=0, dy=0.4);
 //   #MSH:2 @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
 //   #MSH:3 @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", rotate=90, dx=0, dy=-0.4);
-//   %g10 = $GROUND @ATTACH &VSS => @PLACE(5, 4.8);
-//   &VSS @WIRE {#MSH:4 (5, 8) %g10:p};
+//   %g11 = $GROUND @ATTACH &VSS => @PLACE(5, 4.8);
+//   &VSS @WIRE {#MSH:4 (5, 8) %g11:p};
 //   #XDL @PLACE(-34, -26);
 //   #XDL @ORIENT("R0");
 //   #XDL:HI @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
 //   #XDL:EN @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
 //   #XDL:ENB @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
 //   #XDL:BP @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", dx=0.4, dy=0);
-//   %v11 = $SUPPLY @ATTACH &VREFP => @PLACE(-34, -17.8);
-//   &VREFP @WIRE {#XDL:VREFP (-34, -21) %v11:p};
-//   %g12 = $GROUND @ATTACH &VREFN => @PLACE(-36, -34.2);
-//   &VREFN @WIRE {#XDL:VREFN (-36, -31) %g12:p};
-//   %g13 = $GROUND @ATTACH &VSS => @PLACE(-32, -34.2);
-//   &VSS @WIRE {#XDL:VSS (-32, -31) %g13:p};
+//   %v12 = $SUPPLY @ATTACH &VREFP => @PLACE(-34, -17.8);
+//   &VREFP @WIRE {#XDL:VREFP (-34, -21) %v12:p};
+//   %g13 = $GROUND @ATTACH &VREFN => @PLACE(-36, -34.2);
+//   &VREFN @WIRE {#XDL:VREFN (-36, -31) %g13:p};
+//   %g14 = $GROUND @ATTACH &VSS => @PLACE(-32, -34.2);
+//   &VSS @WIRE {#XDL:VSS (-32, -31) %g14:p};
 //   #CL @PLACE(14, -26) => @ORIENT("R270");
 //   #CL:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", dx=0.4, dy=0);
 //   #CL:2 @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
+//   #CPL @PLACE(60, -30);
+//   #CPL @ORIENT("R0");
+//   #CPL:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", rotate=90, dx=0, dy=0.4);
+//   %g15 = $GROUND @ATTACH &VSS => @PLACE(60, -35.2);
+//   &VSS @WIRE {#CPL:2 (60, -32) %g15:p};
 //   #MSL @PLACE(2, -42);
 //   #MSL @ORIENT("R0");
 //   #MSL:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", rotate=90, dx=0, dy=0.4);
 //   #MSL:2 @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
 //   #MSL:3 @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", rotate=90, dx=0, dy=-0.4);
-//   %g14 = $GROUND @ATTACH &VSS => @PLACE(5, -45.2);
-//   &VSS @WIRE {#MSL:4 (5, -42) %g14:p};
+//   %g16 = $GROUND @ATTACH &VSS => @PLACE(5, -45.2);
+//   &VSS @WIRE {#MSL:4 (5, -42) %g16:p};
 //   &HHI @WIRE {#XHCTL:HI (-52, 24) (-52, 26) #XDH:HI};
 //   %b_H = (-12, 24);
 //   $JUNCTION @ATTACH %b_H;
@@ -5055,15 +5283,22 @@ ends mq_cdac_drv0
 
 // Matched half-capacitor pair j=0, weight 1
 subckt mq_cdac_bit0 (VIN VG DH RL EN ENB TOP VREFP VREFN VSS)
+// CP*: user-specified pre-layout estimate, 5% of each physical MOM unit to VSS.
+// The second MOM terminal is its bottom plate; parallel multipliers are aggregated.
+// Series tails add one unit parasitic at MID and one at B, not 5% of the equivalent half unit.
 XHCTL (DH HHI VREFP VREFN VSS) mq_cdac_ctl_h
 XLCTL (RL LHI VREFP VREFN VSS) mq_cdac_ctl_l
 XDH (HHI EN ENB BH VREFP VREFN VSS) mq_cdac_drv0
 CHA (TOP MIDH) cfmom_2t w=5e-08 s=2.4e-07 nr=6 lr=1.69e-06 stm=2 spm=4 multi=1
+CPHA (MIDH VSS) capacitor c=5.01145e-17
 CHB (MIDH BH) cfmom_2t w=5e-08 s=2.4e-07 nr=6 lr=1.69e-06 stm=2 spm=4 multi=1
+CPHB (BH VSS) capacitor c=5.01145e-17
 MSH (BH VG VIN VSS) nch_ulvt_mac w=1.2e-07 l=3e-08 nf=1
 XDL (LHI EN ENB BL VREFP VREFN VSS) mq_cdac_drv0
 CLA (TOP MIDL) cfmom_2t w=5e-08 s=2.4e-07 nr=6 lr=1.69e-06 stm=2 spm=4 multi=1
+CPLA (MIDL VSS) capacitor c=5.01145e-17
 CLB (MIDL BL) cfmom_2t w=5e-08 s=2.4e-07 nr=6 lr=1.69e-06 stm=2 spm=4 multi=1
+CPLB (BL VSS) capacitor c=5.01145e-17
 MSL (BL VG VIN VSS) nch_ulvt_mac w=1.2e-07 l=3e-08 nf=1
 // @RNL {
 //   /* pins connected by net name: the net-name label of rnl-std-fill on every unwired pin, placed below by its key netname */
@@ -5108,41 +5343,61 @@ MSL (BL VG VIN VSS) nch_ulvt_mac w=1.2e-07 l=3e-08 nf=1
 //   #CHA @PLACE(30, 38) => @ORIENT("R270");
 //   #CHA:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", dx=0.4, dy=0);
 //   #CHA:2 @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
+//   #CPHA @PLACE(76, 20);
+//   #CPHA @ORIENT("R0");
+//   #CPHA:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", rotate=90, dx=0, dy=0.4);
+//   %g10 = $GROUND @ATTACH &VSS => @PLACE(76, 14.8);
+//   &VSS @WIRE {#CPHA:2 (76, 18) %g10:p};
 //   #CHB @PLACE(10, 38) => @ORIENT("R270");
 //   #CHB:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", dx=0.4, dy=0);
 //   #CHB:2 @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
+//   #CPHB @PLACE(92, 20);
+//   #CPHB @ORIENT("R0");
+//   #CPHB:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", rotate=90, dx=0, dy=0.4);
+//   %g11 = $GROUND @ATTACH &VSS => @PLACE(92, 14.8);
+//   &VSS @WIRE {#CPHB:2 (92, 18) %g11:p};
 //   #MSH @PLACE(2, 8);
 //   #MSH @ORIENT("R0");
 //   #MSH:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", rotate=90, dx=0, dy=0.4);
 //   #MSH:2 @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
 //   #MSH:3 @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", rotate=90, dx=0, dy=-0.4);
-//   %g10 = $GROUND @ATTACH &VSS => @PLACE(5, 4.8);
-//   &VSS @WIRE {#MSH:4 (5, 8) %g10:p};
+//   %g12 = $GROUND @ATTACH &VSS => @PLACE(5, 4.8);
+//   &VSS @WIRE {#MSH:4 (5, 8) %g12:p};
 //   #XDL @PLACE(-34, -26);
 //   #XDL @ORIENT("R0");
 //   #XDL:HI @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
 //   #XDL:EN @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
 //   #XDL:ENB @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
 //   #XDL:BP @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", dx=0.4, dy=0);
-//   %v11 = $SUPPLY @ATTACH &VREFP => @PLACE(-34, -17.8);
-//   &VREFP @WIRE {#XDL:VREFP (-34, -21) %v11:p};
-//   %g12 = $GROUND @ATTACH &VREFN => @PLACE(-36, -34.2);
-//   &VREFN @WIRE {#XDL:VREFN (-36, -31) %g12:p};
-//   %g13 = $GROUND @ATTACH &VSS => @PLACE(-32, -34.2);
-//   &VSS @WIRE {#XDL:VSS (-32, -31) %g13:p};
+//   %v13 = $SUPPLY @ATTACH &VREFP => @PLACE(-34, -17.8);
+//   &VREFP @WIRE {#XDL:VREFP (-34, -21) %v13:p};
+//   %g14 = $GROUND @ATTACH &VREFN => @PLACE(-36, -34.2);
+//   &VREFN @WIRE {#XDL:VREFN (-36, -31) %g14:p};
+//   %g15 = $GROUND @ATTACH &VSS => @PLACE(-32, -34.2);
+//   &VSS @WIRE {#XDL:VSS (-32, -31) %g15:p};
 //   #CLA @PLACE(30, -12) => @ORIENT("R270");
 //   #CLA:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", dx=0.4, dy=0);
 //   #CLA:2 @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
+//   #CPLA @PLACE(76, -30);
+//   #CPLA @ORIENT("R0");
+//   #CPLA:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", rotate=90, dx=0, dy=0.4);
+//   %g16 = $GROUND @ATTACH &VSS => @PLACE(76, -35.2);
+//   &VSS @WIRE {#CPLA:2 (76, -32) %g16:p};
 //   #CLB @PLACE(10, -12) => @ORIENT("R270");
 //   #CLB:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", dx=0.4, dy=0);
 //   #CLB:2 @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
+//   #CPLB @PLACE(92, -30);
+//   #CPLB @ORIENT("R0");
+//   #CPLB:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", rotate=90, dx=0, dy=0.4);
+//   %g17 = $GROUND @ATTACH &VSS => @PLACE(92, -35.2);
+//   &VSS @WIRE {#CPLB:2 (92, -32) %g17:p};
 //   #MSL @PLACE(2, -42);
 //   #MSL @ORIENT("R0");
 //   #MSL:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", rotate=90, dx=0, dy=0.4);
 //   #MSL:2 @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", dx=-0.4, dy=0);
 //   #MSL:3 @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", rotate=90, dx=0, dy=-0.4);
-//   %g14 = $GROUND @ATTACH &VSS => @PLACE(5, -45.2);
-//   &VSS @WIRE {#MSL:4 (5, -42) %g14:p};
+//   %g18 = $GROUND @ATTACH &VSS => @PLACE(5, -45.2);
+//   &VSS @WIRE {#MSL:4 (5, -42) %g18:p};
 //   &HHI @WIRE {#XHCTL:HI (-52, 24) (-52, 26) #XDH:HI};
 //   %b_H = (-12, 24);
 //   $JUNCTION @ATTACH %b_H;
