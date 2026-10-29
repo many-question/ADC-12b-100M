@@ -3,6 +3,7 @@
 Fixture trees and fixture git repositories, no network. The verdicts are main's specs (adcflow.specs of this checkout)."""
 
 import json
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -400,3 +401,37 @@ def test_collect_without_the_api_keeps_the_merged_candidates(tmp_path):
     with cands.tree_root(tmp_path):
         got = cands.collect(site_stub(), main_data(), Live(ok=False, fetched_at="x", error="down"), out)
     assert [c.name for c in got.cands[BLOCK]] == [NAME] and got.previews == {}
+
+
+# ------------------------------------------------------------------ reported-only specs on the site (#75)
+def test_reported_only_specs_show_a_value_without_a_verdict():
+    """CMP-10 (reported only): its row gives the value and 仅报告, no pass / fail, and is left out of the verdict counts."""
+    from sitegen import render
+    from sitegen.data import _spec_rows, judged_rows, verdict_counts
+
+    b = blocks()[BLOCK]
+    doc = result_doc("0" * 16, value=500.0)                          # CMP-04 fails at 500 ps; CMP-10 100 fJ
+    doc["_path"] = ROOT / RESULT
+    doc["_judged"] = {"specs": b.verdicts(TEST, "tt_nom_27", None, doc["metrics"])[0], "na": {}, "stale": [], "error": None}
+    rows = _spec_rows(b, doc["view"], [doc])
+    cmp10 = next(r for r in rows if r.id == "CMP-10")
+    assert (cmp10.status, cmp10.limit, cmp10.worst) == ("reported", "仅报告", 100.0)
+    chip = render.verdict_chip(cmp10)
+    assert ">仅报告</span>" in chip and "chip pass" not in chip and "chip fail" not in chip
+    assert next(r for r in rows if r.id == "CMP-04").status == "fail"
+    bd = BlockData(b, [doc], {doc["view"]: rows}, [], [])
+    main = BlockData(b, [doc], {"behav": rows}, [], [])             # the counts look at main's views
+    assert len(judged_rows(main)) == len(b.specs) - 1               # the reported one is not counted
+    c = verdict_counts({BLOCK: main})
+    # CMP-04 / CMP-05 (500 ps) and CMP-09 (not measured) fail, CMP-06 / 07 / 08 pass, CMP-10 counts nowhere
+    assert (c["total"], c["fail"], c["pass_"], c["none"]) == (len(b.specs) - 1, 3, 3, len(b.specs) - 7)
+    html = render.corner_detail(site_stub_with_evidence(), bd, doc["view"])
+    cell = re.search(r"<td class='num' title='仅报告的指标[^']*'>100</td>", html)
+    assert cell, "the CMP-10 cell is neither ok nor bad"
+    assert "<td>仅报告" not in render._spec_limit_table(b) and "仅报告 <span class=muted>fJ</span>" in render._spec_limit_table(b)
+
+
+def site_stub_with_evidence():
+    s = site_stub()
+    s.evidence = lambda rel, label="JSON ↗", doc=None: ""
+    return s
