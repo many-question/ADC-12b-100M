@@ -244,6 +244,11 @@ The high bottom plate overshoots while TOP returns from its prior held level
 to VCM. Thus the earlier fixed-VIN pass does not cover sampling entry after
 the larger sine-driven top-plate excursions.
 
+Rechecking all terminal pairs only over 40-125 ns still finds 70 failing
+pairs, with a 1.132552531 V maximum on N-side j12H at 40.109095358 ns.
+The failure therefore persists beyond the initial four cycles. This interval
+comparison does not establish periodic steady state or supply-ramp startup.
+
 A second failure occurs when entering conversion: on the N side, the
 nonsampled j9H output NMOS reaches Vds = 1.106712376 V at 5.161260550 ns;
 j6H reaches 1.103907729 V. These halves remain connected to their reference
@@ -263,3 +268,42 @@ cover the project's gs/gd/ds limit for this stimulus, including its initial
 condition and subsequent cycles. They do not establish a supply-ramp startup,
 PVT, real-bootstrap, or model-warning pass. The candidate remains WIP and the
 frozen official results remain unchanged.
+
+## PMOS sampling assistance and stronger nonsampled outputs
+
+A further physical variant replaces the 22 shared-node NMOS per side with
+PHI_SB-controlled PMOS switches from each sampled bottom plate to VIN. Their
+widths match the main sampling NMOS widths. It also triples only the j9/j6
+output N/P finger counts to strengthen the nonsampled reference connections.
+All changed geometries were validated before simulation; the six MID TGs,
+clock phases, and 5% estimate remain. These two changes address the distinct
+sampling-entry and conversion-entry events above; this comparison does not
+isolate their individual effects.
+
+The same 125 ns sine-input check covers 1,008 MOS, 3,024 terminal pairs, and
+281,891 accepted points at a 0.5 ps maximum step:
+
+| Group | Failing pairs | Maximum absolute terminal difference (V) |
+|---|---:|---:|
+| Main sampling NMOS | 0 | 0.98061 |
+| New PMOS assistance | 0 | 0.99369 |
+| j9/j6 output devices | 0 | 0.98673 |
+| All output devices | **36** | **1.11951** |
+| Top-plate TG | 0 | 0.88415 |
+| MID TG | 0 | 0.93844 |
+
+All remaining failures are on sampled L-side output PMOS devices. The worst
+is N-side j12L at 50.099391365 ns: D = -0.219514683 V, G = 0.899838051 V,
+and S = B = 0.9 V, giving Vds = -1.119514683 V. At that instant TOP is
+0.539874370 V, VIN is 0.322397778 V, VG is 0.238380961 V, PHI_S is high,
+and CONV is low. The low bottom plate undershoots while TOP returns toward
+VCM. With PMOS assistance and no NMOS sharing path, this negative excursion
+remains uncontrolled even though the main sampling-device failures are removed.
+This variant is therefore still unsuccessful. Loaded VIN also peaks at
+0.934345 V in this run; its input kickback has not been accepted.
+
+Its matched 32-sample tracking probe gives h3 = -77.2407 dBc, h5 = -86.6147 dBc,
+h7 = -95.5741 dBc, and a 2.658 uV regression residual. The approximately 2.1 dB
+third-harmonic improvement over the MID-switch/shared-node variant remains
+insufficient to resolve linearity. The same short-fit limitations apply; this
+is not an SFDR/SNDR or convergence pass, and the output stress failure remains.
