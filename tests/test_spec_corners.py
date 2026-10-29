@@ -2,7 +2,9 @@
 
 tb_clkgen_timing mixes `corners: all` specs (CLK-01 .. CLK-08) with CLK-10 (`corners: typ`):
 a result at ff_high_125 is judged on CLK-01 .. CLK-08, while its AVDD current stays in the
-result as a raw value that CLK-10 does not judge (N/A).
+result as a raw value that CLK-10 does not judge (N/A). CLK-10 is reported only since adc_clkgen
+0.6.0 (#75: no limit, no verdict); the tests of the corner rule with a limit give it back the TT
+limit it had until 0.5.1 (`clk10_limit`), the last tests check the reported-only spec itself.
 
 The synthetic records live under a temporary repository root and the verdict checks stub the
 evidence-figure check (tests/test_figures.py tests it): real results/ and their figures, which
@@ -26,6 +28,15 @@ def _isolated_root(tmp_path, monkeypatch):
     """The checks see a temporary repository root, never the real results/ directory."""
     monkeypatch.setattr(checks, "REPO_ROOT", tmp_path)
     return tmp_path
+
+
+@pytest.fixture
+def clk10_limit(monkeypatch):
+    """CLK-10 as it was until adc_clkgen 0.5.1: a TT limit of 80 uA (the corner rule with a limit)."""
+    s = _spec("CLK-10")
+    monkeypatch.setattr(s, "reported", False)
+    monkeypatch.setattr(s, "max", 80)
+    return s
 
 
 def _doc(corner: str, test: str = TEST, view: str = "xtor", mc=None, job: str | None = None, **metrics) -> dict:
@@ -79,7 +90,7 @@ def test_monte_carlo_rule_is_kept():
     # (sample coverage and failed samples: tests/test_comp_offset_mc.py)
 
 
-def test_tt_passes_while_another_corner_exceeds_the_tt_limit(monkeypatch):
+def test_tt_passes_while_another_corner_exceeds_the_tt_limit(monkeypatch, clk10_limit):
     tt, ff = _doc("tt_nom_27", iavg_uA=79.34202385), _doc("ff_high_125", iavg_uA=569.2671382)
     j = checks.judge(ff)
     assert "CLK-10" not in j["specs"] and j["na"]["CLK-10"]["value"] == pytest.approx(569.2671382)
@@ -91,7 +102,7 @@ def test_tt_passes_while_another_corner_exceeds_the_tt_limit(monkeypatch):
     assert not any("CLK-10" in w for w in _warnings(monkeypatch, [tt, ff]))
 
 
-def test_tt_really_fails(monkeypatch):
+def test_tt_really_fails(monkeypatch, clk10_limit):
     tt, ff = _doc("tt_nom_27", iavg_uA=85.0), _doc("ff_high_125", iavg_uA=569.0)
     r = _summary("CLK-10", [tt, ff])
     assert r.status == "fail" and r.worst == pytest.approx(85.0) and (r.covered, r.need) == (1, 1)
@@ -123,7 +134,7 @@ def test_signoff_needs_every_applicable_corner_and_ignores_the_others(monkeypatc
     assert len(errs) == n_all and all("CLK-10" not in e for e in errs)
 
 
-def test_an_all_corner_metric_failing_at_one_corner(monkeypatch):
+def test_an_all_corner_metric_failing_at_one_corner(monkeypatch, clk10_limit):
     docs = [_doc("tt_nom_27"), _doc("ss_low_125", td_s_ps=95.0), _doc("ff_high_125", iavg_uA=569.0)]
     r = _summary("CLK-01", docs)
     assert r.status == "fail" and r.worst == pytest.approx(95.0) and (r.covered, r.need) == (3, 45)
@@ -133,7 +144,7 @@ def test_an_all_corner_metric_failing_at_one_corner(monkeypatch):
     assert len(w) == 1 and "CLK-01" in w[0] and "ss_low_125" in w[0]
 
 
-def test_non_applicable_raw_data_stay_in_the_result(capsys):
+def test_non_applicable_raw_data_stay_in_the_result(capsys, clk10_limit):
     b = blocks()[BLOCK]
     job = runner.Job("ff_high_125", by_name("ff_high_125"), {}, {})
     m = {**GOOD, "iavg_uA": 569.2671382}
@@ -149,7 +160,7 @@ def test_non_applicable_raw_data_stay_in_the_result(capsys):
     assert tt["specs"]["CLK-10"]["pass"] is False and "specs_na" not in tt
 
 
-def test_one_test_mixing_all_and_typ_specs():
+def test_one_test_mixing_all_and_typ_specs(clk10_limit):
     b = blocks()[BLOCK]
     judged, na = b.verdicts(TEST, "ff_high_125", None, {**GOOD, "iavg_uA": 569.0})
     all_ids = sorted(s.id for s in b.specs if s.test == TEST and s.corners == "all")
@@ -160,7 +171,7 @@ def test_one_test_mixing_all_and_typ_specs():
     assert not judged["CLK-10"]["pass"]
 
 
-def test_errors_and_stale_results_are_never_filtered(monkeypatch, capsys):
+def test_errors_and_stale_results_are_never_filtered(monkeypatch, capsys, clk10_limit):
     """An error or a stale input at a corner where some spec does not apply is still reported."""
     err = _doc("ff_high_125")
     err["metrics"] = {"iavg_uA": 569.0, "error": "spectre rc=1"}
@@ -179,7 +190,7 @@ def test_errors_and_stale_results_are_never_filtered(monkeypatch, capsys):
     assert "stale  tb_clkgen_timing/ss_low_m40: specs/arch.yaml" in out
 
 
-def test_report_counts_unique_applicable_corners(monkeypatch, capsys):
+def test_report_counts_unique_applicable_corners(monkeypatch, capsys, clk10_limit):
     docs = [_doc("tt_nom_27", iavg_uA=79.3), _doc("tt_nom_27", job="tt_nom_27__v2", iavg_uA=79.4),
             _doc("ff_high_125", iavg_uA=569.3)]
     assert _summary("CLK-10", docs).covered == 1
@@ -220,3 +231,57 @@ def test_unlisted_figures_are_still_reported_by_the_production_check(monkeypatch
     assert sorted(w for w in rep.warnings if "is not listed in figures" in w) == \
         sorted(f"results/{BLOCK}/{TEST}/xtor/{p.stem.split('.')[0]}.json: {p.name} is not listed in figures"
                for p in pngs)
+
+
+# ------------------------------------------------------------------ CLK-10 reported only (#75)
+def test_reported_only_spec_has_no_verdict_at_its_corners():
+    """CLK-10 (adc_clkgen 0.6.0): judged nowhere, a value at TT (pass None, limit "reported"), N/A elsewhere."""
+    b, s = blocks()[BLOCK], _spec("CLK-10")
+    assert s.reported and s.max is None and s.min is None and s.limit_text() == "reported"
+    assert s.judge({"iavg_uA": 1e6}) is None and s.judge({}) is None
+    judged, na = b.verdicts(TEST, "tt_nom_27", None, {**GOOD, "iavg_uA": 569.0})
+    assert judged["CLK-10"] == {"metric": "iavg_uA", "value": 569.0, "limit": "reported", "pass": None}
+    assert all(v["pass"] for k, v in judged.items() if k != "CLK-10")
+    judged, na = b.verdicts(TEST, "ff_high_125", None, {**GOOD, "iavg_uA": 569.0})
+    assert "CLK-10" not in judged and na["CLK-10"]["limit"] == "reported"
+
+
+def test_reported_only_spec_is_reported_never_failed(monkeypatch, capsys):
+    tt, ff = _doc("tt_nom_27", iavg_uA=569.0), _doc("ff_high_125", iavg_uA=900.0)
+    r = _summary("CLK-10", [tt, ff])
+    assert r.status == "reported" and r.worst == pytest.approx(569.0) and (r.covered, r.need) == (1, 1)
+    assert not any("CLK-10" in w for w in _warnings(monkeypatch, [tt, ff]))
+    monkeypatch.setattr(results, "load_results", lambda: [tt, ff])
+    results.report(BLOCK)
+    line = next(ln for ln in capsys.readouterr().out.splitlines() if ln.strip().startswith("CLK-10"))
+    assert "reported" in line and "569" in line and "INFO" in line and "1/1" in line
+    assert "PASS" not in line and "FAIL" not in line
+    runner._print_summary(blocks()[BLOCK], TEST, [{"job": "tt_nom_27", "corner": "tt_nom_27", "metrics": tt["metrics"]}])
+    out = capsys.readouterr().out
+    assert "CLK-10=569(reported)" in out and "FAIL" not in out
+
+
+def test_signoff_needs_the_reported_value_but_no_verdict(monkeypatch):
+    monkeypatch.setitem(blocks()[BLOCK].raw, "selected", "none")      # these docs are the legacy plain xtor view
+    monkeypatch.setitem(blocks()[BLOCK].raw, "status", "signoff")
+    docs = [_doc(c, iavg_uA=900.0 if c == "tt_nom_27" else 70.0) for c in sorted(corner_names("all"))]
+    assert [e for e in _check(monkeypatch, docs).errors if "CLK-09" not in e] == []     # any value, no limit
+    tt = next(d for d in docs if d["corner"] == "tt_nom_27")
+    del tt["metrics"]["iavg_uA"]
+    errs = [e for e in _check(monkeypatch, docs).errors if "CLK-10" in e]
+    assert errs == ["adc_clkgen CLK-10 tt_nom_27: reported metric iavg_uA not measured"]
+
+
+def test_reported_only_spec_takes_no_limit(tmp_path):
+    import yaml
+
+    from adcflow.specs import SpecError, _load_block
+
+    raw = yaml.safe_load(blocks()[BLOCK].path.read_text(encoding="utf-8"))
+    path = tmp_path / f"{BLOCK}.yaml"
+    for bad, msg in (({"max": 80}, "has no min, max or mc"), ({"reported": "yes"}, "reported must be true or false"),
+                     ({"reported": False}, "needs min or max")):
+        path.write_text(yaml.safe_dump(dict(raw, specs=[dict(s, **bad) if s["id"] == "CLK-10" else s
+                                                        for s in raw["specs"]])), encoding="utf-8")
+        with pytest.raises(SpecError, match=msg):
+            _load_block(path)

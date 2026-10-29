@@ -312,7 +312,7 @@ def _build(pv: Preview, site, out: Path, repo: Path, base: str) -> None:
     # --- counts of the most advanced view, for the home table (draft: never added to main's numbers)
     view = next((v for v in ("xtor", "behav") if v in rows), None)
     if view:
-        rr = rows[view]
+        rr = [r for s, r in zip(pr_block.specs, rows[view]) if not s.reported]     # a reported-only spec has no verdict
         pv.counts = (sum(r.status == "pass" for r in rr), sum(r.status == "fail" for r in rr), len(rr))
 
 

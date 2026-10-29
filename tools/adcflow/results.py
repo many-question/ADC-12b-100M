@@ -21,14 +21,16 @@ def _fmt(v) -> str:
 class SpecSummary:
     """One spec over the judged results of one block view."""
     spec: Spec
-    vals: list[tuple[str, object, bool, bool]] = field(default_factory=list)  # applicable: corner, value, pass, stale
+    vals: list[tuple[str, object, bool | None, bool]] = field(default_factory=list)  # applicable: corner, value, pass, stale
     na: list[tuple[str, object]] = field(default_factory=list)                 # not applicable: corner, raw value
     samples: list[dict] = field(default_factory=list)                          # Monte Carlo spec: Spec.samples per result
 
     def _worst(self, nums: list[float]) -> float | None:
+        """The value nearest the limit; the largest of a reported-only spec (the power figures:
+        lower is better)."""
         if not nums:
             return None
-        return max(nums) if self.spec.max is not None else min(nums)
+        return max(nums) if self.spec.max is not None or self.spec.reported else min(nums)
 
     @property
     def worst(self) -> float | None:
@@ -40,9 +42,12 @@ class SpecSummary:
 
     @property
     def status(self) -> str:
-        """pass | fail | none (no result at an applicable corner)."""
+        """pass | fail | reported (a reported-only spec: no verdict) | none (no result at an
+        applicable corner)."""
         if not self.vals:
             return "none"
+        if self.spec.reported:
+            return "reported"
         return "pass" if all(p for _, _, p, _ in self.vals) else "fail"
 
     @property
@@ -69,7 +74,8 @@ def summarize(spec: Spec, judged: list[tuple[dict, dict]]) -> SpecSummary:
             continue
         if spec.applies(d["corner"], d.get("meta", {}).get("mc")):
             v = j["specs"].get(spec.id, {})
-            out.vals.append((d["corner"], v.get("value"), bool(v.get("pass")), bool(j["stale"])))
+            out.vals.append((d["corner"], v.get("value"), None if spec.reported else bool(v.get("pass")),
+                             bool(j["stale"])))
             if v.get("samples"):
                 out.samples.append(v["samples"])
         elif spec.id in j.get("na", {}):
@@ -99,7 +105,7 @@ def report(block: str | None = None) -> int:
                 if r.status == "none":
                     flag = f"MC{s.mc}" if s.mc else "-"
                 else:
-                    flag = ("PASS" if r.status == "pass" else "FAIL") + ("*" if r.stale else "")
+                    flag = {"pass": "PASS", "fail": "FAIL", "reported": "INFO"}[r.status] + ("*" if r.stale else "")
                 na = (f"  [n/a at {len(r.na)} corner(s) outside {s.corners}, worst {_fmt(r.na_worst)}: not judged]"
                       if r.na else "")
                 mc = "".join(f"  [MC samples {n['ok']}/{n['need']} valid, {n['failed']} failed]" for n in r.samples)
@@ -113,5 +119,6 @@ def report(block: str | None = None) -> int:
                     print(f"   stale  {where}: {', '.join(j['stale'][:3])}")
     print("\n(worst, pass and corners count only the results at corners in a spec's corner set; corners = "
           "unique such corners recorded / the set. n/a = raw values at other corners, not judged. "
+          "INFO = a reported-only spec (limit 'reported'): its value, no verdict. "
           "* = stale: a file changed after the simulation. Errors and stale results are listed per view.)")
     return 0

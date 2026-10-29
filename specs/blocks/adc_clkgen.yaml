@@ -1,6 +1,6 @@
 block: adc_clkgen
 title: Sampling clock phase generator
-version: 0.5.1
+version: 0.6.0
 selected: many-question # the selected candidate (design/xtor/<block>/<name>/); verified, mixed top level passed (#66)
 status: xtor-review
 views:
@@ -38,7 +38,8 @@ specs:
   - {id: CLK-07, name: "PHI_S / PHI_SB crossing skew",             metric: skew_ssb_ps, unit: ps, max: 15,  corners: all, test: tb_clkgen_timing}
   - {id: CLK-08, name: "function at CLK duty 45 % and 55 %",       metric: duty_errors, unit: count, max: 0, corners: all, test: tb_clkgen_timing}
   - {id: CLK-09, name: "PHI_S falling-edge jitter (device noise)", metric: jitter_fs,   unit: fs, max: 60,  corners: typ, test: tb_clkgen_jitter}
-  - {id: CLK-10, name: "average AVDD current at 100 MHz incl. output loads", metric: iavg_uA, unit: uA, max: 80, corners: typ, test: tb_clkgen_timing}
+  # reported only (#75): power has no acceptance limit, lower is better; docs/architecture.md §8 keeps the budget
+  - {id: CLK-10, name: "average AVDD current at 100 MHz incl. output loads", metric: iavg_uA, unit: uA, reported: true, corners: typ, test: tb_clkgen_timing}
   - {id: CLK-11, name: "SOA violations: thin-oxide device / terminal pairs over 1.0 V (Vgs, Vgd, Vds; absolute, whole transient)", metric: soa_violations, unit: count, max: 0, corners: all, test: tb_clkgen_timing}
 tests:
   tb_clkgen_timing:

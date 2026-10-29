@@ -29,12 +29,19 @@ def read_capture(path: Path) -> dict:
 
 
 def read_meters(path: Path) -> dict[str, float]:
+    """tb_imeter_va file -> {label: average current (A)}."""
+    return {k: i for k, (i, _) in read_meter_windows(path).items()}
+
+
+def read_meter_windows(path: Path) -> dict[str, tuple[float, float | None]]:
+    """tb_imeter_va file -> {label: (average current (A), length of the integration window (s))};
+    the window is None in a line without it."""
     out = {}
     if Path(path).exists():
         for line in Path(path).read_text().splitlines():
             f = line.split()
             if len(f) >= 2:
-                out[f[0]] = float(f[1])
+                out[f[0]] = (float(f[1]), float(f[2]) if len(f) >= 3 else None)
     return out
 
 
