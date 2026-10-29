@@ -47,27 +47,26 @@
   "sim_s": "19",
   "numerics": {},
   "files": {
-   "design/behav/adc_bootstrap.scs": "eee3a0a78eec4c5f",
-   "design/behav/adc_cdac.scs": "5b8837cc5d2a76bc",
-   "design/behav/adc_clkgen.scs": "0e7831ed888587e6",
-   "design/behav/adc_comp.scs": "c0da9398b6e09fc2",
-   "design/xtor/adc_ref/many-question/adc_ref.scs": "380f10b05b0af622",
-   "design/behav/adc_sarlogic.scs": "7982e36f6743bf80",
-   "design/top/adc_top.scs": "362a964ffe162797",
-   "design/behav/veriloga/adc_bootstrap_va.va": "12338aad16f4913b",
-   "design/behav/veriloga/adc_cdac_sw_va.va": "e465880479187179",
-   "design/behav/veriloga/adc_clkgen_va.va": "7fff1b9368bc1a20",
-   "design/behav/veriloga/adc_comp_va.va": "ab8a6bf210351e31",
-   "design/behav/veriloga/adc_ktc_va.va": "a1cf98faf5bf9b33",
-   "design/behav/veriloga/adc_sarlogic_va.va": "42f06909a81347ef",
    "tb/ref/tb_ref_noise.scs": "edce75b69c56ee11",
-   "specs/arch.yaml": "bffadef750bb5205"
+   "design/xtor/adc_ref/many-question/adc_ref.scs": "380f10b05b0af622"
   },
   "migrated": {
    "date": "2026-10-29T12:07:14",
    "git": "c48b605",
    "from": "xtor",
    "candidate": "many-question"
+  },
+  "arch": {
+   "keys": [],
+   "sha": "44136fa355b3678a"
+  },
+  "views": {
+   "adc_ref": "xtor:many-question"
+  },
+  "rehashed": {
+   "date": "2026-10-29T20:56:39",
+   "git": "d9c9d1a",
+   "files_before": 15
   }
  }
 }
