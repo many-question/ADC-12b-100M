@@ -10,7 +10,7 @@ from urllib.parse import quote, quote_plus
 
 from .data import (CONTRIBUTING_RAW, FALLBACK_REPO, PROCESS, ROOT, STATUS_ORDER, BlockData, Build, SpecRow, arch, best_rows,
                    docs, evidence_path, figures, fmt, has_doc, last_change, owner_login, verdict_counts)
-from . import livepanel
+from . import cands as candmod, livepanel
 from .live import Live, unavailable
 from .manifest import name_of
 from .md import esc, slug
@@ -30,6 +30,7 @@ class Site:
     def __init__(self, build: Build, netlist_base: str, base_url: str, manifests: bool = False):
         self.build, self.netlist_base, self.base_url, self.manifests = build, netlist_base, base_url, manifests
         self.live: Live = unavailable("本次构建没有获取")      # per-block PRs and notices (build.py sets the real data)
+        self.cands: dict[str, list] = {}                       # block -> ranked candidates (merged + open PRs), see cands.py
         self.previews: dict = {}                               # block -> [preview.Preview] of its open PRs (draft content, never main's)
         self.prov_scope = "本次构建"                            # what recorded inputs are compared with ("该 PR 的提交" in a preview)
         self.fig_prefix = ""                                   # where figures of the results shown live in the site ("preview/pr<N>/" for a PR)
@@ -276,12 +277,16 @@ def verification_section(site: Site, bd: BlockData, level: int = 2, link: bool =
         parts.append("<p class='empty'>尚无记录的仿真结果。</p></section>")
         return "".join(parts)
     for view in sorted(bd.rows, key=lambda v: (v != "xtor", v)):
-        label = {"behav": "行为级 behav", "xtor": "晶体管级 xtor"}.get(view, view)
+        label = view_label(view)
         parts.append(f"<h{level + 1}>{label}</h{level + 1}>{spec_table(site, bd.rows[view])}{corner_detail(site, bd, view, root)}")
     if "xtor" not in bd.rows and "xtor" in b.views:
         parts.append("<p class='empty'>晶体管级（xtor）视图：尚无结果。</p>")
     parts.append("</section>")
     return "".join(parts)
+
+
+def view_label(view: str) -> str:
+    return {"behav": "行为级 behav", "xtor": "晶体管级 xtor"}.get(view) or (f"候选 {view[5:]}" if view.startswith("xtor-") else view)
 
 
 # ------------------------------------------------------------------ schematic viewer
@@ -314,20 +319,58 @@ def viewer(site: Site, files: list[dict], vid: str, height: int = 460, note: str
 
 
 # ------------------------------------------------------------------ blocks
-def owner_html(site: Site, block: str, raw_owner, root: str, links: bool = True) -> str:
-    """Owner of a block: @login linked to the GitHub profile, and the block's open PRs; unclaimed blocks say so.
+def contributing_href(site: Site, root: str) -> str | None:
+    """The rendered CONTRIBUTING.md, at its "提交一个候选" section when that heading exists."""
+    if not has_doc("contributing"):
+        return None
+    anchor = next((i for i in sorted(site.doc_ids.get("contributing", ())) if "提交一个候选" in i), "")
+    return f"{root}docs/contributing.html" + (f"#{anchor}" if anchor else "")
 
-    `links=False` is for text inside another link (the block cards)."""
-    login = owner_login(raw_owner)
+
+def selection_label(b) -> str:
+    """"选定候选" once the block spec has `selected:` (open candidates), "负责人" while it still has `owner:` (and for adc_top)."""
+    return "选定候选" if "selected" in b.raw and b.name != "adc_top" else "负责人"
+
+
+def selection_html(site: Site, b, root: str, links: bool = True) -> str:
+    """Who the block belongs to: the selected candidate as `name (@login)` (adc_top and a spec that still has `owner:`: the
+    owner); an unselected block invites a candidate. `links=False` is for text inside another link (the cards)."""
+    block = b.name
     prs = f'<a href="{esc(site.prs_url(block))}" target="_blank" rel="noopener" title="标题以 [{esc(block)}] 开头的进行中 PR">进行中的 PR ↗</a>'
-    if login:
-        who = f'<a href="https://github.com/{esc(login)}" target="_blank" rel="noopener">@{esc(login)}</a>' if links else f"@{esc(login)}"
-    elif str(raw_owner or "TBD").strip().upper() == "TBD":
-        claim = f' <a href="{root}docs/contributing.html">认领方式</a>' if links and has_doc("contributing") else ""
-        who = f'<span class="unclaimed">待认领</span>{claim}'
+    href = contributing_href(site, root)
+    if block == "adc_top" or "selected" not in b.raw:            # the project lead's block, or a spec that still has `owner:`
+        owner = owner_login(b.raw.get("owner"))
+        if owner:
+            who = f'<a href="https://github.com/{esc(owner)}" target="_blank" rel="noopener">@{esc(owner)}</a>' if links else f"@{esc(owner)}"
+        else:
+            who = '<span class="unselected">未选定</span>'
+    elif b.selected:
+        c = next((c for c in site.cands.get(block, []) if c.name == b.selected and c.source == "main"), None)
+        text = esc(b.selected) + (f" · {esc(c.row['author_text'])}" if c and c.row["author_text"] else "")
+        who = f'<a href="{root}blocks/{block}.html#cand-{esc(b.selected)}">{text}</a>' if links else text
     else:
-        who = esc(str(raw_owner))                       # not a GitHub login (yet): shown as written
+        invite = f' <a href="{esc(href)}">提交候选</a>' if links and href else ""
+        who = f'<span class="unselected">未选定</span>{invite}'
     return who + (f' · {prs}' if links else "")
+
+
+def card_selection(site: Site, b) -> str:
+    """Compact "候选 N · 选定 X" for the cards (text only: the card is a link)."""
+    if b.name == "adc_top" or "selected" not in b.raw:
+        return selection_html(site, b, "", links=False)
+    sel = f" · 选定 {esc(b.selected)}" if b.selected else ""
+    return f"候选 {candmod.count(site.cands.get(b.name, []))}{sel}"
+
+
+def cand_cell(site: Site, b) -> str:
+    """Home table: "N" candidates (not withdrawn: merged, and open PRs whose head passed CI) and the selected one."""
+    if b.name == "adc_top":
+        return selection_html(site, b, "", links=False)
+    n = candmod.count(site.cands.get(b.name, []))
+    sel = ""
+    if "selected" in b.raw:
+        sel = f"<br><small>{'选定 ' + esc(b.selected) if b.selected else '<span class=muted>未选定</span>'}</small>"
+    return f'<a href="blocks/{b.name}.html#candidates">候选：{n}</a>{sel}'
 
 
 def port_table(b) -> str:
@@ -380,10 +423,10 @@ def block_page(site: Site, bd: BlockData, all_names: list[str]) -> str:
     note = ("上面是该模块的网表：行为级视图（Verilog-A 符号）与验收测试台；"
             + ("晶体管级视图已就绪时在最前面。" if bd.xtor_files else "晶体管级网表放入 design/xtor/ 后会自动出现在这里。"))
     vsec = ""
-    if bd.rows:
-        for view in sorted(bd.rows, key=lambda v: (v != "xtor", v)):
-            label = {"behav": "行为级 behav", "xtor": "晶体管级 xtor"}.get(view, view)
-            vsec += f"<h3>{label}</h3>{spec_table(site, bd.rows[view], with_test=True)}{corner_detail(site, bd, view, '../')}"
+    main_views = [v for v in bd.rows if not v.startswith("xtor-")]       # the candidates' results are in the 候选 tab
+    if main_views:
+        for view in sorted(main_views, key=lambda v: (v != "xtor", v)):
+            vsec += f"<h3>{view_label(view)}</h3>{spec_table(site, bd.rows[view], with_test=True)}{corner_detail(site, bd, view, '../')}"
     else:
         vsec = "<p class='empty'>尚无记录的仿真结果。</p>"
     body = f"""<div class="pills" aria-label="切换模块">{chips}</div>
@@ -392,7 +435,7 @@ def block_page(site: Site, bd: BlockData, all_names: list[str]) -> str:
   <h1><code class="h1code">{esc(b.name)}</code></h1>
   <p class="lead">{esc(raw['title'])}</p>
   <div class="meta">{status_chip(b.status)} {stepper(b.status)}
-    <span><span class="muted">负责人</span> {owner_html(site, b.name, raw.get('owner', 'TBD'), '../')}</span>
+    <span><span class="muted">{selection_label(b)}</span> {selection_html(site, b, '../')}</span>
     <span><span class="muted">最近更新</span> {esc(last_change(bd) or '–')}</span>
     <span>{cfg_link}</span></div>
 </div>
@@ -415,21 +458,147 @@ DRAFT = "未评审的草稿，不是签核证据"
 
 
 def block_tabs(site: Site, block: str, main_html: str) -> str:
-    """The block's content: the main-branch content, and (when it has open PRs) one tab per draft preview next to it.
+    """The block's content in tabs: 主分支 (default), 候选 (the leaderboard: merged candidates and open PRs whose head passed CI), and one
+    tab per draft PR that is not a candidate (a legacy draft, or a PR shown as metadata only).
 
-    Without JavaScript every panel is visible, stacked, each with its heading; app.js turns them into tabs (the tab is in the
-    URL hash: #pr<N> for a draft, nothing for main). Draft panels are separate from main: labelled, never counted for main."""
+    The tab is in the URL hash (#candidates, #pr<N>; none for main). Without JavaScript every panel is visible, stacked, each with
+    its heading. Candidate and draft panels are separate from main: labelled, never counted for main."""
     pvs = site.previews.get(block, [])
-    if not pvs:
+    cs = site.cands.get(block, [])
+    with_cands = block != "adc_top"                                     # the project lead's block takes no candidates
+    if not with_cands and not pvs:
         return main_html
     tabs = ['<button type="button" role="tab" id="tab-main" aria-controls="content-main" aria-selected="true" tabindex="0">主分支</button>']
+    panels = [f'<div role="tabpanel" id="content-main" aria-labelledby="tab-main"><h2 class="panel-title">主分支</h2>{main_html}</div>']
+    if with_cands:
+        tabs.append(f'<button type="button" role="tab" id="tab-candidates" aria-controls="candidates" aria-selected="false" tabindex="-1">'
+                    f'候选 <span class="chip none">{candmod.count(cs)}</span></button>')
+        panels.append(candidates_panel(site, block, cs, pvs))
     for pv in pvs:
         kind, label = livepanel.CI.get(pv.pr.ci, livepanel.CI["unknown"])
         tabs.append(f'<button type="button" role="tab" id="tab-pr{pv.pr.number}" aria-controls="pr{pv.pr.number}" aria-selected="false" tabindex="-1" '
                     f'title="{DRAFT}">草稿 PR #{pv.pr.number} <span class="chip {kind}">{esc(label)}</span></button>')
-    return (f'<div class="btabs" data-tabs><div class="tabbar" role="tablist" aria-label="内容来源：主分支或草稿 PR">{"".join(tabs)}</div>'
-            f'<div role="tabpanel" id="content-main" aria-labelledby="tab-main"><h2 class="panel-title">主分支</h2>{main_html}</div>'
-            f'{"".join(preview_section(site, pv) for pv in pvs)}</div>')
+        panels.append(preview_section(site, pv))
+    return (f'<div class="btabs" data-tabs><div class="tabbar" role="tablist" aria-label="内容来源：主分支、候选或草稿 PR">{"".join(tabs)}</div>'
+            f'{"".join(panels)}</div>')
+
+
+def _pct(m: float) -> str:
+    return f"{m * 100:+.1f}%"
+
+
+def cand_flags(site: Site, c) -> str:
+    """The flags of a candidate row: results stale, self-reported vs verified, SOA, errors, problems, unacknowledged notices."""
+    r, f = c.row, c.row["flags"]
+    out = []
+    if not r["results"]:
+        out.append(chip("none", "无结果"))
+    elif r["self_reported"] == 0:
+        out.append(chip("pass", "已复核", "所有结果都有 verified_by：项目负责人在同一网表哈希上复跑过"))
+    else:
+        out.append(chip("none", "自报", f"{r['self_reported']} / {r['results']} 个结果没有 verified_by（自报，未经项目负责人复核）"))
+    if f["stale"]:
+        out.append(chip("stale", f"过期 {f['stale']}", "输入文件自仿真后已变化，需要重跑"))
+    if f["soa"]:
+        out.append(chip("fail", f"SOA {f['soa']}", "有结果报告了 SOA 违例"))
+    if f["error"]:
+        out.append(chip("fail", f"错误 {f['error']}", "仿真或度量出错的结果"))
+    if r["problems"]:
+        out.append(chip("fail", f"{len(r['problems'])} 个问题", "candidate.yaml 或网表不符合规则"))
+    if c.unacked:
+        links = "，".join(f'<a href="https://github.com/{esc(site.repo)}/issues/{n}" target="_blank" rel="noopener">#{n}</a>' for n in c.unacked)
+        out.append(f'<span class="chip stale" title="规格变更通知，candidate.yaml 的 acknowledged 里还没有">未确认通知 {links}</span>')
+    return " ".join(out)
+
+
+def cand_row(site: Site, c, i: int) -> str:
+    r = c.row
+    wm = r["worst_margin"]
+    a = r["area"] or {}
+    area = "–"
+    if a:
+        area = f"MOS {a['mos']} · ΣWL {fmt(a['wl_um2'])} µm²" + (f" · {a['caps']} 电容 {fmt(a['cap_F'] * 1e15)} fF" if a.get("caps") else "")
+    badges = ""
+    if c.selected:
+        badges += " " + chip("pass", "★ 选定", "项目负责人选定的候选")
+    if c.source == "pr":
+        badges += " " + chip("stale", "未评审", DRAFT)
+    badges += " " + chip({"ready": "st-xtor-review", "wip": "st-xtor-wip"}.get(r["status"], "none"), r["status"] or "无 candidate.yaml")
+    pct = max(3, round(100 * r["coverage"][0] / r["coverage"][1])) if r["coverage"][1] else 0
+    cov = (f'<span class="cov" title="{r["coverage"][0]} / {r["coverage"][1]}（规格, 工艺角）"><i style="width:{pct}%"></i></span>'
+           f'<span class="muted">{r["coverage"][0]}/{r["coverage"][1]}</span>')
+    where = (f'<a href="{esc(c.pr.url)}" target="_blank" rel="noopener">PR #{c.pr.number} ↗</a>' if c.pr else
+             f'<a href="{esc(site.gh(f"design/xtor/{c.block}/{c.name}", True))}" target="_blank" rel="noopener">目录 ↗</a>')
+    spec = (f"<b class=ok-t>{r['specs_passed']}</b> / {r['specs_total']}"
+            + (f' · <b class="bad-t">{r["specs_failed"]} 不过</b>' if r["specs_failed"] else "")
+            + (f' · <span class="muted">{r["specs_incomplete"]} 不完整</span>' if r["specs_incomplete"] else ""))
+    who = esc(r["author_text"]) or "–"
+    enob = f"{r['top_enob_margin']:+.3f} bit" if r["top_enob_margin"] is not None else "–"
+    return (f'<tr class="{"selected" if c.selected else ""}"><td class=num>{i}</td>'
+            f'<td><a href="#{esc(c.anchor)}"><code>{esc(c.name)}</code></a>{badges}<br><small class="muted">{who}</small></td>'
+            f'<td>{spec}</td><td class=cov-cell>{cov}</td><td>{cand_flags(site, c)}</td>'
+            f'<td class=num>{(_pct(wm["margin"]) + " <small class=muted>" + esc(wm["spec"]) + "</small>") if wm else "–"}</td>'
+            f'<td class=num>{fmt(r["power_uW"]) + " µW" if r["power_uW"] is not None else "–"}</td>'
+            f'<td class=num>{area}</td>'
+            f'<td class=num>{enob}</td>'
+            f'<td>{where}</td></tr>')
+
+
+def cand_detail(site: Site, c) -> str:
+    """One candidate's section under the table: its description, netlist in the viewer, and its metrics (judged with main's specs)."""
+    s2 = c.site or site
+    r = c.row
+    head = f'<code>{esc(c.name)}</code> {esc(r["author_text"])}' + (" " + chip("stale", "未评审", DRAFT) if c.source == "pr" else "")
+    body = [f'<p class="muted">{esc(r["description"])}</p>'] if r["description"] else []
+    if c.pr:
+        sha = (f'<a href="https://github.com/{esc(c.head_repo)}/commit/{esc(c.pr.sha)}" target="_blank" rel="noopener"><code>{esc(c.pr.sha[:7])}</code></a>')
+        body.append(f'<p class="muted"><b>{DRAFT}</b>。{livepanel.pr_link(c.pr)} · {livepanel.pr_badges(c.pr)} · 提交 {sha}，PR 最近更新 '
+                    f'{esc(livepanel.when(c.pr.updated))} UTC。内容读自该 PR 的提交，经过与主分支相同的检查；判定用主分支的规格；'
+                    f'不计入主分支的状态、判定和统计。</p>')
+    if c.viewer_files:
+        body.append("<h4>网表</h4>" + viewer(s2, c.viewer_files, f"v-{c.anchor}", 420, "该候选的晶体管级网表。"))
+        if c.xtor_change:
+            sha, date, title = c.xtor_change
+            body.append(f'<p class="muted">网表最近一次改动：<a href="https://github.com/{esc(s2.repo)}/commit/{esc(sha)}" target="_blank" rel="noopener">'
+                        f'<code>{esc(sha)}</code></a> {esc(date)} {esc(title)}</p>')
+        if c.commits:
+            lis = "".join(f'<li><a href="https://github.com/{esc(c.head_repo)}/commit/{esc(h)}" target="_blank" rel="noopener"><code>{esc(h)}</code></a> {esc(t)}</li>'
+                          for h, t in c.commits)
+            body.append(f"<details class='corners'><summary>PR 的最近 {len(c.commits)} 个提交</summary><ul class='plain'>{lis}</ul></details>")
+    else:
+        body.append("<p class='empty'>这个候选里没有可画的网表。</p>")
+    rows = c.bd.rows.get(c.view) if c.bd else None
+    if rows:
+        body.append(f"<h4>指标</h4>{spec_table(s2, rows, with_test=True)}{corner_detail(s2, c.bd, c.view, '../')}"
+                    "<p class='muted legend'>判定按主分支的规格；“过期”表示结果记录的输入已不是当前的文件。</p>")
+    else:
+        body.append("<h4>指标</h4><p class='empty'>这个候选还没有提交仿真结果。</p>")
+    return f'<details class="cand" id="{esc(c.anchor)}"><summary>{head}</summary>{"".join(body)}</details>'
+
+
+def candidates_panel(site: Site, block: str, cs: list, pvs: list) -> str:
+    """The 候选 tab: the leaderboard in the order of the open-candidates rules, then each candidate's netlist and metrics."""
+    href = contributing_href(site, "../")
+    invite = f'<a href="{esc(href)}">提交候选（协作流程 §4）</a>' if href else "提交候选"
+    intro = (f'<p>任何人都可以为这个模块提交候选，没有人数和候选数上限；{invite}。排行榜按公开的顺序比较：顶层 ENOB 裕量（±0.05 bit）→ 功耗（±5 %）→ '
+             f'面积代理（±5 %）→ 最小规格裕量（±5 % 限值）；容差内相同时看下一项，再相同时已选定的保持。全部通过且未过期的排在前面。'
+             f'提交的结果是<b>自报</b>的，项目负责人复核后才标“已复核”，只有已复核的结果才能用于选定。</p>')
+    head = f'<h2 class="panel-title">候选</h2>'
+    panel = f'role="tabpanel" id="candidates" aria-labelledby="tab-candidates"'
+    if not cs:
+        body = (f"<p class='empty'>这个模块现在没有候选。{invite}。</p>")
+    else:
+        rows = "".join(cand_row(site, c, i) for i, c in enumerate(cs, 1))
+        body = ('<div class="table-wrap"><table class="cands"><thead><tr><th>#<th>候选<th>规格 通过 / 总数<th>工艺角覆盖<th>标记'
+                '<th title="各规格 (限值−值)/限值 的最小值及规格号">最小裕量<th>功耗<th title="器件数、ΣW·L、电容：由网表算出，不依赖版图">面积代理'
+                '<th title="项目负责人把该候选换进顶层后的结果">顶层 ENOB 裕量<th>来源</tr></thead>'
+                f'<tbody>{rows}</tbody></table></div>'
+                '<p class="muted legend">★ = 已选定；“未评审”的是开放 PR 里的候选（CI 已通过，内容读自 PR 的提交并过了与主分支相同的检查），不计入主分支的状态；'
+                '“—” = 没有这项数据。</p>'
+                + "".join(cand_detail(site, c) for c in cs))
+    n_draft = len(pvs)
+    extra = (f'<p class="muted legend">另有 {n_draft} 个草稿 PR 还不是候选（旧的单一视图、CI 未通过或内容未通过检查），见各自的“草稿 PR”标签。</p>' if n_draft else "")
+    return f'<section {panel}>{head}{intro}{body}{extra}</section>'
 
 
 def preview_section(site: Site, pv) -> str:
@@ -437,7 +606,9 @@ def preview_section(site: Site, pv) -> str:
     panel = f'class="preview" role="tabpanel" id="pr{pr.number}" aria-labelledby="tab-pr{pr.number}"'
     head = (f'<a href="https://github.com/{esc(pv.head_repo)}/commit/{esc(pr.sha)}" target="_blank" rel="noopener"><code>{esc(pr.sha[:7])}</code></a>')
     top = (f'<h2>草稿预览 PR #{pr.number} @ <code>{esc(pr.sha[:7])}</code> '
-           f'<span class="chip stale draft-label">{DRAFT}</span></h2>'
+           f'<span class="chip stale draft-label">{DRAFT}</span>'
+           + ('<span class="chip none draft-label" title="还在用旧的单一视图 design/xtor/&lt;block&gt;/&lt;block&gt;.scs，没有候选目录">未迁移为候选</span>' if pv.unmigrated else "")
+           + '</h2>'
            f'<p class="muted">{livepanel.pr_link(pr)} · {livepanel.pr_badges(pr)} · @{esc(pr.author)} · 提交 {head}，PR 最近更新 {esc(livepanel.when(pr.updated))} UTC。'
            f'内容读自该 PR 的提交，经过与主分支相同的检查；不计入主分支的状态、判定和统计。</p>')
     if not pv.ok:
@@ -499,7 +670,7 @@ def block_card(site: Site, bd: BlockData, root: str) -> str:
     return f"""<a class="card block" href="{root}blocks/{b.name}.html">
 <div class="card-top"><code>{esc(b.name)}</code>{status_chip(b.status)}</div>
 <p>{esc(b.raw['title'])}</p>
-<div class="card-foot">{stepper(b.status)}<span class="muted">v{esc(b.raw['version'])} · {owner_html(site, b.name, b.raw.get('owner', 'TBD'), '', links=False)}</span></div>
+<div class="card-foot">{stepper(b.status)}<span class="muted">v{esc(b.raw['version'])} · {card_selection(site, b)}</span></div>
 <div class="card-foot">{views}<span class="{'bad-t' if bad else 'muted'}">{prog}</span></div></a>"""
 
 
@@ -524,10 +695,10 @@ def collaboration(site: Site, root: str) -> str:
     """The entry for a person to hand to their agent: the rendered CONTRIBUTING.md and its raw address, with a copy button."""
     raw = CONTRIBUTING_RAW.format(repo=site.repo)
     return f"""<section class="collab" id="collab"><h2>参与协作</h2>
-<p>想认领一个模块、或者让自己的 AI 助手（agent）来帮忙？把下面这个地址交给它：协作流程里写明了怎样认领模块、
-分支与 PR 的约定、评审和签核，读完就能按流程动手。</p>
+<p>想为某个模块提交一个晶体管级候选、或者让自己的 AI 助手（agent）来帮忙？把下面这个地址交给它：无需事先申请，任何人随时可以提交；
+协作流程（§4 提交候选）里写明了候选的命名、<code>candidate.yaml</code>、PR 规则，以及候选怎样被评比和选定。</p>
 <div class="copyline"><code id="contrib-raw">{esc(raw)}</code><button type="button" class="btn small" data-copy="{esc(raw)}">复制</button></div>
-<div class="cta"><a class="btn primary" href="{root}docs/contributing.html">阅读协作流程 →</a>
+<div class="cta"><a class="btn primary" href="{esc(contributing_href(site, root))}">提交候选（协作流程 §4）→</a>
 <a class="btn" href="{esc(raw)}" target="_blank" rel="noopener">原始 Markdown ↗</a></div>
 </section>"""
 
@@ -547,6 +718,26 @@ def design_library(site: Site) -> str:
 </section>"""
 
 
+def draft_cell(site: Site, b) -> str:
+    """Home table, "草稿预览（未评审）": the newest open PR's draft result (a PR candidate's, or a legacy draft's), marked as a draft."""
+    pr_cands = [c for c in site.cands.get(b.name, []) if c.source == "pr"]
+    pvs = site.previews.get(b.name) or []
+    best_cand = max(pr_cands, key=lambda c: c.pr.updated, default=None)
+    legacy = pvs[0] if pvs else None
+    if best_cand and (legacy is None or best_cand.pr.updated >= legacy.pr.updated):
+        r = best_cand.row
+        fail = f" · {r['specs_failed']} 不通过" if r["specs_failed"] else ""
+        return (f'<a href="blocks/{b.name}.html#{best_cand.anchor}"><code>{esc(best_cand.name)}</code> {r["specs_passed"]}/{r["specs_total"]} 通过{fail}</a> '
+                f'{chip("stale", "草稿", DRAFT)}')
+    if legacy and legacy.ok and legacy.counts[2]:
+        p, f, n = legacy.counts
+        return (f'<a href="blocks/{b.name}.html#pr{legacy.pr.number}">{p}/{n} 通过{f" · {f} 不通过" if f else ""}</a> '
+                f'{chip("stale", "草稿", DRAFT)} {chip("none", "未迁移", "未迁移为候选")}')
+    if legacy:
+        return f'<a href="blocks/{b.name}.html#pr{legacy.pr.number}" class="muted">仅元数据</a>'
+    return '<span class="muted">–</span>'
+
+
 def live_overview(site: Site, data: dict[str, BlockData]) -> str:
     """One table across the blocks: owner, status on main, newest open PR (draft / CI), its last update, open notices."""
     live = site.live
@@ -554,23 +745,15 @@ def live_overview(site: Site, data: dict[str, BlockData]) -> str:
     for bd in data.values():
         b = bd.b
         pr, upd, notes = livepanel.overview_cells(live, b.name, site.repo)
-        pvs = site.previews.get(b.name) or []
-        if pvs and pvs[0].ok and pvs[0].counts[2]:
-            p, f, n = pvs[0].counts
-            draft = (f'<a href="blocks/{b.name}.html#pr{pvs[0].pr.number}">{p}/{n} 通过{f" · {f} 不通过" if f else ""}</a> '
-                     f'{chip("stale", "草稿", DRAFT)}')
-        elif pvs:
-            draft = f'<a href="blocks/{b.name}.html#pr{pvs[0].pr.number}" class="muted">仅元数据</a>'
-        else:
-            draft = '<span class="muted">–</span>'
+        draft = draft_cell(site, b)
         rows.append(f"""<tr><td><a href="blocks/{b.name}.html"><code>{esc(b.name)}</code></a></td>
-<td>{owner_html(site, b.name, b.raw.get('owner', 'TBD'), '', links=False)}</td><td>{status_chip(b.status)}</td>
+<td>{cand_cell(site, b)}</td><td>{status_chip(b.status)}</td>
 <td>{pr}</td><td class=muted>{upd}</td><td>{draft}</td><td class=num>{notes}</td></tr>""")
     note = (livepanel.unavailable_note(live) if not live.ok else "")
     return f"""<section id="live"><h2>实时进展 {livepanel.stamp_html(live)}</h2>
 <p class="muted legend">状态是主分支上的（来自 <code>specs/blocks/*.yaml</code>）；晶体管级工作在各模块的 PR 里，下表显示每个模块最近更新的进行中 PR
 （草稿 / 待评审、CI 状态）和未关闭的通知数。只显示标题和状态，不显示正文；站点每小时重建一次。</p>{note}
-<div class="table-wrap"><table class="live"><thead><tr><th>模块<th>负责人<th>主分支状态<th>最新进行中 PR<th>最近更新 (UTC)<th title="取自该 PR 的提交，未评审，不计入主分支">草稿预览（未评审）<th>通知</tr></thead>
+<div class="table-wrap"><table class="live"><thead><tr><th>模块<th>候选<th>主分支状态<th>最新进行中 PR<th>最近更新 (UTC)<th title="取自该 PR 的提交，未评审，不计入主分支">草稿预览（未评审）<th>通知</tr></thead>
 <tbody>{''.join(rows)}</tbody></table></div></section>"""
 
 
@@ -663,7 +846,7 @@ def progress(site: Site, data: dict[str, BlockData]) -> str:
         v = {k: ((ROOT / p).is_file() or (k == "xtor" and bool(bd.xtor_files))) for k, p in b.views.items()}
         vc = " ".join(chip("pass" if ok_ else "none", k) for k, ok_ in v.items())
         rows.append(f"""<tr><td><a href="blocks/{b.name}.html"><code>{esc(b.name)}</code></a><br><small class=muted>{esc(b.raw['title'])}</small></td>
-<td>{status_chip(b.status)}<br>{stepper(b.status)}</td><td>v{esc(b.raw['version'])}</td><td>{owner_html(site, b.name, b.raw.get('owner', 'TBD'), '')}</td>
+<td>{status_chip(b.status)}<br>{stepper(b.status)}</td><td>v{esc(b.raw['version'])}</td><td>{selection_html(site, b, '')}</td>
 <td>{vc}</td><td class=num>{ntb}</td>
 <td class=num><b>{ok}</b>/{len(rr)}{f' <span class=bad-t>· {bad} 不通过</span>' if bad else ''}</td>
 <td class=muted>{esc(last_change(bd) or '–')}</td></tr>""")
@@ -678,7 +861,7 @@ def progress(site: Site, data: dict[str, BlockData]) -> str:
     body = f"""<div class="page-head"><p class="eyebrow">进展</p><h1>模块进展</h1>
 <p class="lead">状态、负责人和版本来自 <code>specs/blocks/*.yaml</code>；视图是否存在由仓库里的网表文件决定。</p></div>
 <section><h2 id="blocks">各模块</h2><p class="muted legend">状态流程：{legend}</p>
-<div class="table-wrap"><table class="progress"><thead><tr><th>模块<th>状态<th>规格版本<th>负责人<th>视图<th>测试台<th>规格通过<th>最近更新</tr></thead>
+<div class="table-wrap"><table class="progress"><thead><tr><th>模块<th>状态<th>规格版本<th>选定候选 / 负责人<th>视图<th>测试台<th>规格通过<th>最近更新</tr></thead>
 <tbody>{''.join(rows)}</tbody></table></div>
 <p class="muted">“规格通过”按每条规格的最高级视图（xtor 优先于 behav）统计；覆盖的工艺角数见验证页。
 晶体管级设计的分工与要点见 <a href="docs/handoff.html">分工包</a>。</p></section>
