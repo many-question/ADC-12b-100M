@@ -59,7 +59,11 @@ An exploratory run with the official settling stimulus and ideal bootstrap,
 adding only zero-volt current probes, found a 1.06433 V peak absolute Vgd on
 one sampling switch. This exceeds 1.0 V and remains unresolved. That diagnostic
 covers the sampling switches, not complete device stress or a joint bootstrap
-implementation.
+implementation. Additional checks of the 52 output devices found a worst
+absolute Vds of 1.15899 V on an H-side output NMOS during sampling entry.
+That check uses recorded bottom-plate and gate voltages and the exact ideal
+reference rails. Bottom-plate overshoot is therefore another unresolved
+stress failure; improving the sampling switches alone is not sufficient.
 Convergence comparisons, representative PVT,
 complete corner coverage, long-hold behavior, device stress, and joint bootstrap
 validation remain outstanding. No selection or signoff is claimed.
