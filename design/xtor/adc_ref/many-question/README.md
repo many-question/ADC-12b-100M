@@ -16,7 +16,7 @@ The main28/gate16 source is promoted to the formal **WIP** candidate at electric
 hash `2b1163f0eb481376`, after rebasing onto main
 `fac0194179a4ae593438b022a0713d6e5b59663f` (adc_ref spec 0.8.0).
 The [formal validation record](REF21-validation.md) tracks fresh committed-source
-runs. Current committed-source evidence: **50 fresh passes / 0 fresh failures / 86 stale**.
+runs. Current committed-source evidence: **95 fresh passes / 0 fresh failures / 41 stale**.
 The detailed record reports per-test coverage, source provenance, power per
 supply and remaining work. Mixed-top validation is coordinated separately.
 
