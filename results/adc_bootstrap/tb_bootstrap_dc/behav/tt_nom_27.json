@@ -24,10 +24,10 @@
    0.855,
    0.855
   ],
-  "vgs_min_V": 0.8549996342006,
-  "vgs_var_mV": 4.897200001074964e-05,
-  "t_off_ps": 18.11268762669665,
-  "t_on_ps": 68.0269807225522,
+  "vgs_min_V": 0.8549996348569,
+  "vgs_var_mV": 4.517740004317261e-05,
+  "t_off_ps": 17.24951480450592,
+  "t_on_ps": 64.54317473048683,
   "soa_scope": "external",
   "soa_limit_V": 1.0,
   "soa_devices": 1,
@@ -38,13 +38,13 @@
   "soa_worst": {
    "device": "MSWP",
    "pair": "gs",
-   "signed_V": -0.89991,
-   "t_ns": 245.132,
-   "dt_ps": 4.86,
+   "signed_V": -0.89989,
+   "t_ns": 245.1326,
+   "dt_ps": 0.382,
    "t_over_ps": 0.0
   },
-  "soa_points": 3148,
-  "soa_dt_max_ps": 2384.506,
+  "soa_points": 318762,
+  "soa_dt_max_ps": 1.0,
   "soa_table": [
    {
     "device": "MSWP",
@@ -52,9 +52,9 @@
     "where": "external",
     "pair": "gs",
     "max_V": 0.89999,
-    "signed_V": -0.89991,
-    "t_ns": 245.132,
-    "dt_ps": 4.86,
+    "signed_V": -0.89989,
+    "t_ns": 245.1326,
+    "dt_ps": 0.382,
     "t_over_ps": 0.0,
     "pass": true
    },
@@ -63,10 +63,10 @@
     "master": "nch_ulvt_mac",
     "where": "external",
     "pair": "gd",
-    "max_V": 0.85834,
-    "signed_V": 0.85826,
-    "t_ns": 160.5,
-    "dt_ps": 44.904,
+    "max_V": 0.85833,
+    "signed_V": 0.85824,
+    "t_ns": 160.4997,
+    "dt_ps": 1.0,
     "t_over_ps": 0.0,
     "pass": true
    },
@@ -75,40 +75,40 @@
     "master": "nch_ulvt_mac",
     "where": "external",
     "pair": "ds",
-    "max_V": 0.72028,
-    "signed_V": -0.72022,
-    "t_ns": 245.1296,
-    "dt_ps": 3.523,
+    "max_V": 0.72087,
+    "signed_V": -0.72077,
+    "t_ns": 245.1302,
+    "dt_ps": 0.475,
     "t_over_ps": 0.0,
     "pass": true
    }
   ],
   "iavg_uA": 30.0,
-  "cin_phb_fF": 11.999999999999986,
-  "cin_phbb_fF": 11.99999999999998
+  "cin_phb_fF": 11.999999999999591,
+  "cin_phbb_fF": 11.999999999999655
  },
  "specs": {
   "BST-01": {
    "metric": "vgs_min_V",
-   "value": 0.8549996342006,
+   "value": 0.8549996348569,
    "limit": ">= 0.72",
    "pass": true
   },
   "BST-02": {
    "metric": "vgs_var_mV",
-   "value": 4.897200001074964e-05,
+   "value": 4.517740004317261e-05,
    "limit": "<= 40",
    "pass": true
   },
   "BST-03": {
    "metric": "t_off_ps",
-   "value": 18.11268762669665,
+   "value": 17.24951480450592,
    "limit": "<= 60",
    "pass": true
   },
   "BST-04": {
    "metric": "t_on_ps",
-   "value": 68.0269807225522,
+   "value": 64.54317473048683,
    "limit": "<= 300",
    "pass": true
   },
@@ -120,13 +120,13 @@
   },
   "BST-09": {
    "metric": "cin_phb_fF",
-   "value": 11.999999999999986,
+   "value": 11.999999999999591,
    "limit": "<= 16",
    "pass": true
   },
   "BST-10": {
    "metric": "cin_phbb_fF",
-   "value": 11.99999999999998,
+   "value": 11.999999999999655,
    "limit": "<= 16",
    "pass": true
   },
@@ -152,26 +152,27 @@
   }
  ],
  "meta": {
-  "date": "2026-10-29T10:39:35",
-  "git": "377842e",
+  "date": "2026-10-29T13:00:48",
+  "git": "6bfc0e8",
   "git_clean": true,
   "mode": "aps",
   "pdk": true,
   "mc": null,
-  "wall_s": 150.2,
+  "wall_s": 187.1,
   "rc": "0",
-  "sim_s": "43",
+  "sim_s": "77",
   "numerics": {
    "source": "spectre.log",
-   "reltol": 0.001,
-   "maxstep_ps": 5800.0,
+   "reltol": 1e-08,
+   "maxstep_ps": 1.0,
    "method": "traponly",
-   "errpreset": "moderate",
-   "lteratio": 3.5,
-   "abstol_V": 1e-06,
-   "steps_accepted": 3147,
-   "step_mean_ps": 92.1513,
-   "step_max_ps": 2384.51
+   "errpreset": "conservative",
+   "lteratio": 10.0,
+   "abstol_V": 1e-08,
+   "vabstol": 1e-08,
+   "steps_accepted": 318761,
+   "step_mean_ps": 0.909773,
+   "step_max_ps": 1.0
   },
   "files": {
    "design/behav/adc_bootstrap.scs": "eee3a0a78eec4c5f",
@@ -192,7 +193,7 @@
    "tb/common/veriloga/tb_qmeter_va.va": "fed84d572a912b39",
    "tb/common/veriloga/tb_sampler_va.va": "4092bc16170c588d",
    "specs/soa.yaml": "df574d3582df9b2c",
-   "tb/bootstrap/tb_bootstrap_dc.scs": "9fb3f878fa23b2ab",
+   "tb/bootstrap/tb_bootstrap_dc.scs": "7623413b05a0014a",
    "specs/arch.yaml": "04b74bfe28a6229a"
   }
  }
