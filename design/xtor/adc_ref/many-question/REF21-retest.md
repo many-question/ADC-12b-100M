@@ -45,9 +45,10 @@ changed. Metrics, original simulation git/date/clean state, numerics, startup
 cross-checks and migration provenance are preserved. All 136 figure files and
 the candidate source are byte-identical. This step ran no simulations.
 
-All **45 old replay records remain byte-identical and stale**: their generated
-load depends on the changed `timing.t_dac_add`. They cannot be rehashed into
-acceptance. Old replay metrics do not establish REF-21 compliance.
+After rehash, all **45 old replay records were byte-identical and stale**:
+their generated load depends on the changed `timing.t_dac_add`. The pilot below
+replaces four of them with actual new simulations; 41 remain stale. Old replay
+metrics cannot be rehashed into REF-21 acceptance.
 
 ## Actual stimulus audit
 
@@ -75,14 +76,65 @@ comparator clock for steps 1–13 is **30, 30, 40, 60, 60, 60, 65, 65, 90, 65,
 65, 65, 65 ps**. The first interval is measured from DAC charge onset; the
 40 ps interval cited from UP/DN uses a different origin.
 
-## Rerun coverage
+## Four-pilot result: failed
 
-No new replay simulation has completed at this stage. First run
-`tt_nom_27`, `ss_low_125`, `ff_high_125`, `ff_low_m40` with APS and at most two
-concurrent jobs. Freeze the committed inputs for each batch. Audit fetched raw
-data, original return codes/logs, sample continuity, numerics and REF-12/13/14/21,
-then report the pilots before expanding to the remaining 41 corners. A failing
-pilot requires diagnosis before expansion; no limit is waived.
+Four new APS simulations completed from clean commit
+`607d9a52f95888fc4a24b481c3a0280c4b69bc19`, with at most two jobs in parallel.
+All four return codes are zero, but **all four fail REF-21** and the SS low/hot
+corner also fails REF-13. All four pass REF-12 and REF-14.
+
+| Corner | REF-12 loss (bit), <= 0.1 | REF-13 tail (uV), <= 200 | REF-14 start p-p (uV), <= 100 | REF-21 ratio, <= 1 | Worst decision |
+|---|---:|---:|---:|---:|---:|
+| tt_nom_27 | 0.031287772 | 153.466465 | 37.829798 | **1.220239888 FAIL** | 4 |
+| ss_low_125 | 0.015125222 | **247.534969 FAIL** | 54.220195 | **1.797049059 FAIL** | 10 |
+| ff_high_125 | -0.021391916 | 151.106846 | 53.106662 | **1.302602236 FAIL** | 3 |
+| ff_low_m40 | -0.015732304 | 71.349927 | 17.223801 | **1.050423077 FAIL** | 3 |
+
+The actual 59 uploaded input files match the staged SHA-256 values. All 20
+fetched raw/log/return-code files match their remote SHA-256 values, with no
+skipped files. Each corner has 15,840 finite, contiguous samples. The largest
+trigger-time error is 5.25 fs. Independent calculations from raw samples
+reproduce REF-13, REF-14, the complete REF-21 vector and its worst decision.
+All four evidence figures were inspected. All original raw evidence is retained.
+
+The actual numerical settings are the same as the previous formal replay:
+APS, `reltol=0.001`, `traponly`, `errpreset=moderate`, `lteratio=3.5`,
+voltage absolute tolerance 1 uV. Accepted step counts are 565,614–568,807,
+with mean steps 18.60–18.71 ps. The logged maximum-step setting is 211.6 ns;
+the sampled-event timing is separately verified above. The bench saves only
+the endpoint waveform, so an actual largest transient step cannot be recovered
+from it. These runs are not an additional numerical convergence cross-check.
+There are no reported device-limit violations; this is not an independent SOA
+signoff. The existing environment/model-option and removed unused-instance
+warnings are retained in the original logs.
+
+## Failure localization and remaining work
+
+| Corner | Decisions exceeding REF-21 | Worst absolute deviation / tolerance |
+|---|---|---|
+| tt_nom_27 | 3, 4, 6, 7 | 25.162911 / 20.621282 mV at decision 4 |
+| ss_low_125 | 3 through 11 | 0.712643 / 0.396563 mV at decision 10 |
+| ff_high_125 | 3 through 7 | 48.557017 / 37.276933 mV at decision 3 |
+| ff_low_m40 | 3 | 39.156551 / 37.276933 mV at decision 3 |
+
+At the worst SS tail event, decisions 12, 13 and 14 are respectively
+0.9006725023374, 0.9008796560713 and 0.9009200373068 V. Decision 12 is therefore
+247.534969 uV below the final decision. The failures include both early
+recovery and late residual error; passing REF-12 does not remove them.
+
+The new formal pattern changes pulse amplitudes as well as times (maximum
+amplitude difference from the archived pattern: 6.0298089 mA). Both follow their
+respective model preparation. Their comparison is not a controlled timing-only
+experiment. These output samples establish the acceptance failures, but do not
+alone isolate which bias or compensation change would fix the circuit.
+
+Current coverage is **91 fresh/passing unaffected records + 4 fresh/failing
+replay records + 41 stale replay records**. The pilot results and audit were
+reported to the coordinator before expansion. All simulation slots are
+released. The remaining 41 runs are on hold following the failures and the
+coordinator's resource schedule; no circuit, limit, timing or numerical setting
+has been changed to remove a failure. A design follow-up and scheduling decision
+precede further simulations.
 
 REF-21 requires the worst envelope ratio at decisions 1–11 to be at most 1,
 using the final decision as the reference and the specified residual-code

@@ -17,9 +17,11 @@ The candidate contains 136 result JSONs and 136 figures: 45 DC, 45 startup,
 `3f1f7ce4d36cd2053dd0663856a52d58844c727a` (adc_ref spec 0.8.0), the official
 `adcflow rehash` command preserves **91 fresh, passing DC/startup/noise records**.
 Their measured values, original simulation provenance and figures are unchanged.
-The **45 old replay records remain stale** and require new simulations for the
-changed DAC-drive timing and REF-21. The [current retest record](REF21-retest.md)
-tracks that work. All candidate evidence is self-reported, not lead verification.
+Four fresh replay pilots now **all fail REF-21**; `ss_low_125` also fails REF-13
+(247.534969 uV > 200 uV). The other **41 old replay records remain stale**.
+The [current retest record](REF21-retest.md) contains all four results and the
+independent raw audit. Expansion is on hold after these failures. All candidate
+evidence is self-reported, not lead verification.
 
 The following table describes the historical v8 measurements on main
 `17205ec66d7265da5bf1e4a603ea514f34e99c09` (spec 0.6.0), where all 14 required
@@ -117,6 +119,7 @@ the actual merged inputs, official rehash audit and replay coverage.
 The architecture adds per-step waits, and REF-21 changes the definition
 and acceptance of `env_ratio`. The behavioral reference's 8 mA / 6 pF is a
 reference-model starting point, not a transistor bias or capacitance requirement.
-The candidate circuit is unchanged. Four replay pilots precede expansion to
-all 45 corners. Updated mixed-top regression, including TOP-10, is coordinated
+The candidate circuit is unchanged. The four pilots establish that it does not
+meet the new replay acceptance; remaining corners have not been rerun.
+Updated mixed-top regression, including TOP-10, is coordinated
 separately. The archived top failure retains its original inputs and provenance.
