@@ -7,7 +7,7 @@ Deck layout (all paths absolute on the server):
     adcflow_opts options temp=<T> tnom=27
     include <PDK sections>                 (when a transistor view or the test needs it)
     ahdl_include <Verilog-A of the behavioral views and the testbench>
-    include <one view of every block>      (behav unless --view block=xtor)
+    include <one view of every block>      (behav unless --view block=xtor or block=xtor:<candidate>)
     include design/top/adc_top.scs
     include jobs/<job>/tb.scs              (the testbench with its parameters substituted)
     save <device terminal nodes>           (tests with `soa:` in their spec, see soa.py)
@@ -33,7 +33,7 @@ from pathlib import Path
 import yaml
 
 from . import REPO_ROOT
-from . import numerics, remote, soa
+from . import candidates, numerics, remote, soa
 from .corners import Corner, by_name, corner_set, model_includes, vref_in
 from .figures import FigureSink
 from .netlist import content_hash, parse, substitute_parameters
@@ -107,9 +107,9 @@ def view_files(views: dict[str, str]) -> list[Path]:
         if b.name == "adc_top":
             continue
         v = views.get(b.name, "behav")
-        p = b.view_path(v)
+        p = candidates.resolve(b.name, v)[0]        # behav, xtor (selected or legacy) or xtor:<candidate>
         if not p.exists():
-            raise FileNotFoundError(f"{b.name}: view {v!r} file {p.relative_to(REPO_ROOT)} does not exist")
+            raise FileNotFoundError(f"{b.name}: view {v!r} file {p} does not exist")
         out.append(p)
     out.append(REPO_ROOT / "design" / "top" / "adc_top.scs")
     return out
@@ -131,14 +131,11 @@ def _needed_va(netlists: list[Path], tb_text: str) -> list[Path]:
 
 
 def _viewsig(block: Block, views: dict[str, str]) -> str:
+    """Result-directory name of a run: behav, xtor (legacy view) or xtor-<candidate>; for adc_top
+    xtor-<blk>[@<candidate>]+... over the blocks that are not behavioral (candidates.top_signature)."""
     if block.name == "adc_top":
-        x = sorted(b for b, v in views.items() if v != "behav")
-        if not x:
-            return "behav"
-        if len(x) == len(blocks()) - 1:
-            return "xtor"
-        return "xtor-" + "+".join(s.replace("adc_", "") for s in x)
-    return views.get(block.name, "behav")
+        return candidates.top_signature(views, len(blocks()) - 1)
+    return candidates.view_dir(block.name, views.get(block.name, "behav"))
 
 
 def build_jobs(block: Block, test_id: str, test: dict, corners: list[Corner], views: dict,

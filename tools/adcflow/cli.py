@@ -31,7 +31,8 @@ def main(argv: list[str] | None = None) -> int:
     s.add_argument("--block", help="block that owns the test (default: searched)")
     s.add_argument("--corners", default="typ", help="corner set or comma list")
     s.add_argument("--view", action="append", default=[],
-                   help="block=view override, e.g. adc_comp=xtor (default: behav)")
+                   help="block=view override: behav (default), xtor (the selected candidate) or xtor:<candidate>, "
+                        "e.g. adc_comp=xtor:alice")
     s.add_argument("--param", action="append", default=[], help="tb parameter override name=value")
     s.add_argument("--mode", default="aps",
                    help="spectre mode: spectre aps cx ax mx (default aps; ax/mx lose accuracy with the Verilog-A views)")
@@ -42,6 +43,20 @@ def main(argv: list[str] | None = None) -> int:
     s.add_argument("--crosscheck", action="store_true",
                    help="also run every job with the test's `crosscheck:` numerical settings and record "
                         "the differences in meta.crosscheck (docs/verification.md section 2)")
+
+    cd = sub.add_parser("candidates", help="leaderboard of the transistor-level candidates (scores from results)")
+    cd.add_argument("--block")
+    cd.add_argument("--json", action="store_true", help="structured data (as the site uses it)")
+    cd.add_argument("--withdrawn", action="store_true", help="also list withdrawn candidates")
+
+    mg = sub.add_parser("migrate-candidate", help="move the legacy view design/xtor/<block>/ and its xtor results "
+                                                  "into a named candidate")
+    mg.add_argument("block")
+    mg.add_argument("name")
+    mg.add_argument("--author", action="append", default=[], required=True,
+                    help="login or login=display name (repeat for co-authors)")
+    mg.add_argument("--description", required=True)
+    mg.add_argument("--dry-run", action="store_true")
 
     rm = sub.add_parser("remeasure", help="measure the fetched jobs of an earlier run again (no simulation) "
                                           "and re-record their results")
@@ -83,6 +98,19 @@ def main(argv: list[str] | None = None) -> int:
     elif a.cmd == "sim":
         from .runner import run_test_cli
         return run_test_cli(a)
+    elif a.cmd == "candidates":
+        import json
+
+        from .candidates import leaderboard, table
+        rows = leaderboard(a.block, a.withdrawn)
+        print(json.dumps(rows, indent=1, default=float) if a.json else table(rows))
+    elif a.cmd == "migrate-candidate":
+        from .candidates import migrate
+        authors = [dict(zip(("github", "name"), x.split("=", 1))) for x in a.author]
+        for line in migrate(a.block, a.name, authors, a.description, a.dry_run):
+            print(("would move " if a.dry_run else "") + line)
+        if not a.dry_run:
+            print(f"next: in specs/blocks/{a.block}.yaml replace views.xtor by `selected: none` or `selected: {a.name}`")
     elif a.cmd == "remeasure":
         from pathlib import Path
 

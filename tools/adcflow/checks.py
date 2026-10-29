@@ -1,11 +1,14 @@
 """CI checks: ``python -m adcflow check [ports|rnl|results|hygiene|all]``.
 
-ports    every view of every block defines its subcircuit with exactly the port
-         list of specs/blocks/<block>.yaml; every instance of a block (top level,
-         testbenches) has that many terminals; Verilog-A module headers match
+ports    every view and every candidate (design/xtor/<block>/<name>/) of every
+         block defines its subcircuit with exactly the port list of
+         specs/blocks/<block>.yaml; candidate.yaml is valid and a `selected:`
+         candidate exists; every instance of a block (top level, testbenches)
+         has that many terminals; Verilog-A module headers match
          specs/va_modules.yaml.
-rnl      `rnl check` on every netlist and package: no errors, no warnings;
-         netlists under design/ and tb/ must be completely drawn (no hints).
+rnl      `rnl check` on every netlist and package (candidates included, design/
+         is walked recursively): no errors, no warnings; netlists under design/
+         and tb/ must be completely drawn (no hints).
 results  recorded results (results/**.json) are re-judged with the current
          limits; results whose files changed since the simulation are stale;
          blocks in status `signoff` need passing, fresh results for every spec
@@ -78,6 +81,16 @@ def check_ports() -> Report:
     r = Report("ports")
     bl = blocks()
     defined: dict[str, Path] = {}
+    def contract(b, path: Path, rel: str) -> None:
+        nl = parse(path)
+        for e in nl.errors:
+            r.err(e)
+        sc = nl.subckts.get(b.name)
+        if sc is None:
+            r.err(f"{rel}: does not define subckt {b.name}")
+        elif sc.ports != b.port_names:
+            r.err(f"{rel}: ports of {b.name} differ from specs: {sc.ports} != {b.port_names}")
+
     for b in bl.values():
         for view, rel in b.views.items():
             path = REPO_ROOT / rel
@@ -86,15 +99,21 @@ def check_ports() -> Report:
                     continue                      # not started yet
                 r.err(f"{b.name}: view {view} file {rel} missing (status {b.status})")
                 continue
-            nl = parse(path)
-            for e in nl.errors:
-                r.err(e)
-            sc = nl.subckts.get(b.name)
-            if sc is None:
-                r.err(f"{rel}: does not define subckt {b.name}")
-                continue
-            if sc.ports != b.port_names:
-                r.err(f"{rel}: ports of {b.name} differ from specs: {sc.ports} != {b.port_names}")
+            contract(b, path, rel)
+    # every candidate (design/xtor/<block>/<name>/): candidate.yaml and the same port contract
+    from . import candidates as cand
+    names: dict[str, set[str]] = {}
+    for c in cand.candidates():
+        names.setdefault(c.block, set()).add(c.name)
+        for e in c.problems:
+            r.err(e)
+        if c.netlist.exists():
+            contract(bl[c.block], c.netlist, c.netlist.relative_to(cand.ROOT).as_posix())
+    for b in bl.values():
+        if b.selected and b.selected not in names.get(b.name, set()):
+            r.err(f"{b.name}: selected candidate {b.selected!r} does not exist (design/xtor/{b.name}/{b.selected}/)")
+        elif b.selected and next(c for c in cand.candidates(b.name) if c.name == b.selected).status == "withdrawn":
+            r.err(f"{b.name}: selected candidate {b.selected!r} is withdrawn")
     # every instance of a block or VA module has the right number of terminals
     va = yaml.safe_load(open(REPO_ROOT / "specs" / "va_modules.yaml", encoding="utf-8"))["modules"]
     from .gen import cdac_sw_symbol, va_ports
@@ -253,7 +272,7 @@ def check_results(strict: bool = False) -> Report:
         need_signoff = b.status == "signoff" or (strict and b.status == "xtor-review")
         if not need_signoff:
             continue
-        view = "xtor" if b.name != "adc_top" else "xtor"
+        view = f"xtor-{b.selected}" if b.selected else "xtor"     # the selected candidate, or the legacy view
         for s in b.specs:
             corners = [c.name for c in corner_set(s.corners)]
             got = by.get((b.name, s.test, view), {})
