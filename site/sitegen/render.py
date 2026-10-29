@@ -16,8 +16,8 @@ from .manifest import name_of
 from .md import esc, slug
 
 VIEWER = "https://rich-netlist.github.io/rnl/viewer/"
-STATUS_LABEL = {"behavioral": "行为级", "xtor-wip": "晶体管级 · 设计中", "xtor-review": "晶体管级 · 待评审", "signoff": "签核"}
-STATUS_HINT = {"behavioral": "只有行为级视图（Verilog-A）", "xtor-wip": "xtor 视图开发中", "xtor-review": "全部用例已跑，等待复核",
+STATUS_LABEL = {"behavioral": "行为级", "xtor-review": "晶体管级 · 待评审", "signoff": "签核"}
+STATUS_HINT = {"behavioral": "只有行为级视图（Verilog-A）", "xtor-review": "全部用例已跑，等待复核",
                "signoff": "全角通过并已复核"}
 NAV = [("index", "概览", "index.html"), ("progress", "进展", "progress.html"), ("verification", "验证", "verification.html"),
        ("blocks", "模块", "blocks/index.html"), ("docs", "文档", "docs/index.html")]
@@ -523,7 +523,7 @@ def cand_row(site: Site, c, i: int) -> str:
         badges += " " + chip("pass", "★ 选定", "项目负责人选定的候选")
     if c.source == "pr":
         badges += " " + chip("stale", "未评审", DRAFT)
-    badges += " " + chip({"ready": "st-xtor-review", "wip": "st-xtor-wip"}.get(r["status"], "none"), r["status"] or "无 candidate.yaml")
+    badges += " " + chip({"ready": "st-xtor-review", "wip": "st-wip"}.get(r["status"], "none"), r["status"] or "无 candidate.yaml")
     pct = max(3, round(100 * r["coverage"][0] / r["coverage"][1])) if r["coverage"][1] else 0
     cov = (f'<span class="cov" title="{r["coverage"][0]} / {r["coverage"][1]}（规格, 工艺角）"><i style="width:{pct}%"></i></span>'
            f'<span class="muted">{r["coverage"][0]}/{r["coverage"][1]}</span>')

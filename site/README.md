@@ -26,7 +26,7 @@ python site/build.py --serve                  # 构建并在 http://127.0.0.1:80
 | 候选排行榜 | 模块页的“候选”标签、首页表的“候选：N”列和选定的候选：见下面“候选排行榜”。块规格里 `selected: <候选>` 显示为选定候选，`selected: none` 显示“未选定”并链到协作流程 §4“提交候选”；规格还是旧的 `owner:` 时（切换期间）显示 `@用户名`，`adc_top` 始终显示它的 `owner:` |
 | 协作入口 | 顶栏“参与协作”和首页的协作区：链到渲染后的 `CONTRIBUTING.md`，并给出可复制的原始地址（`raw.githubusercontent.com/.../main/CONTRIBUTING.md`），交给自己的 agent 即可；文件不存在时入口自动隐藏 |
 
-模块状态变化（例如 `design/xtor/<block>/` 出现网表、`status` 变为 `xtor-wip`）后，重新构建即可，页面不需要手改。
+模块状态变化（例如 `design/xtor/<block>/<候选名>/` 出现新候选、规格的 `selected:` 选定候选、`status` 由 `behavioral` 变为 `xtor-review` 或 `signoff`）后，重新构建即可，页面不需要手改。
 
 ## 原理图
 
