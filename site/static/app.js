@@ -179,7 +179,10 @@
     function fromHash() {
       show(indexOfHash(), false);
       var id = location.hash.slice(1), el = id && document.getElementById(id);
-      if (el && panels.indexOf(el) < 0) el.scrollIntoView();
+      if (el && panels.indexOf(el) < 0) {
+        for (var d = el.closest("details"); d; d = d.parentElement && d.parentElement.closest("details")) d.open = true;   // a candidate's section
+        el.scrollIntoView();
+      }
     }
     tabs.forEach(function (t, i) {
       t.addEventListener("click", function () { show(i, false); setHash(i); });

@@ -31,7 +31,7 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 
-from sitegen import guard, linkcheck, live as livedata, manifest, preview, render      # noqa: E402
+from sitegen import cands, guard, linkcheck, live as livedata, manifest, render      # noqa: E402
 from sitegen.data import ROOT, build_info, collect_blocks, docs, figures   # noqa: E402
 from sitegen.md import Links, render as md_render, split_title   # noqa: E402
 
@@ -90,7 +90,6 @@ def build(out: Path, netlist_base: str, base_url: str, use_live: bool = True) ->
     site.live = livedata.fetch(info.repo, list(data)) if use_live else livedata.unavailable("本次构建没有联网获取（--no-live）")
     for s in site.live.skipped:
         print(f"live: left out {s} (title or author would trip the name guard)")
-    use_previews = use_live and site.live.ok
     print("live: " + (f"{sum(map(len, site.live.prs.values()))} open PRs, {sum(map(len, site.live.issues.values()))} notices"
                       if site.live.ok else f"unavailable: {site.live.error}"))
 
@@ -99,13 +98,21 @@ def build(out: Path, netlist_base: str, base_url: str, use_live: bool = True) ->
     out.mkdir(parents=True)
     shutil.copytree(HERE / "static", out / "assets")
     write(out, ".nojekyll", "")
-    if use_previews:                       # draft content of the open PRs, read as data and screened (sitegen/preview.py)
-        site.previews = preview.build_previews(site, site.live, out)
-        for pvs in site.previews.values():
-            for pv in pvs:
-                print(f"preview: PR #{pv.pr.number} [{pv.block}] " + ("shown" if pv.ok else f"metadata only ({pv.reason})"))
-                for n in pv.notes:
-                    print(f"preview: PR #{pv.pr.number}: {n}")
+    # candidates: merged ones from main's tree (adcflow.candidates), and those of open PRs, read as data and screened
+    # (sitegen/cands.py, preview.py); PRs that are not candidates keep their draft tab
+    got = cands.collect(site, data, site.live, out)
+    site.cands, site.previews = got.cands, got.previews
+    for line in got.logs:
+        print(f"candidates: {line}")
+    for pvs in site.previews.values():
+        for pv in pvs:
+            print(f"preview: PR #{pv.pr.number} [{pv.block}] " + ("shown" if pv.ok else f"metadata only ({pv.reason})"))
+            for n in pv.notes:
+                print(f"preview: PR #{pv.pr.number}: {n}")
+    for cs in site.cands.values():
+        for c in cs:
+            for n in c.notes:
+                print(f"candidates: {c.block}/{c.name}: {n}")
 
     rendered = {}
     for f, slug_, title, _ in docs():
@@ -135,7 +142,8 @@ def build(out: Path, netlist_base: str, base_url: str, use_live: bool = True) ->
     problems += bad
     nman = 0
     if files_base:
-        entries = sorted({f["path"] for bd in data.values() for f in bd.files} | {"design/top/adc_top.scs"})
+        entries = sorted({f["path"] for bd in data.values() for f in bd.files} | {"design/top/adc_top.scs"}
+                         | {f["path"] for cs in site.cands.values() for c in cs if c.source == "main" for f in c.viewer_files})
         problems += manifest.write_all(out, [(e, None) for e in entries],
                                        manifest.file_entries(info.sha, from_git=netlist_base.startswith("http")),
                                        files_base, info.repo, info.sha)

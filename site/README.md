@@ -19,11 +19,11 @@ python site/build.py --serve                  # 构建并在 http://127.0.0.1:80
 | 页面 | 来源（用 `adcflow` 的读取函数，不重复实现逻辑） |
 |---|---|
 | 概览 | `specs/arch.yaml`（`adcflow.arch.Arch` 的派生量）、`results/` 中顶层 ENOB、所有规格的判定统计 |
-| 进展 | `specs/blocks/*.yaml`（状态、负责人、版本）、网表文件是否存在、`git` 标签与最近修改日期 |
+| 进展 | `specs/blocks/*.yaml`（状态、选定候选、版本）、网表文件是否存在、`git` 标签与最近修改日期 |
 | 验证 | `adcflow.checks.load_results` / `judge`：用当前限值重新判定每个结果文件，哈希不一致标“过期” |
 | 模块 | 端口、指标、用例来自 `specs/blocks/<block>.yaml`；原理图来自该模块的视图与测试台网表 |
 | 文档 | `docs/*.md`、`CONTRIBUTING.md`（仓库内链接改写成站内页面或 GitHub 链接） |
-| 负责人 | 每个 `specs/blocks/<block>.yaml` 的 `owner:`：GitHub 用户名显示为 `@用户名`（链到其主页），`TBD` 显示“待认领”并链到协作流程；旁边链到标题以 `[<block>]` 开头的进行中 PR（GitHub 搜索） |
+| 候选排行榜 | 模块页的“候选”标签、首页表的“候选：N”列和选定的候选：见下面“候选排行榜”。块规格里 `selected: <候选>` 显示为选定候选，`selected: none` 显示“未选定”并链到协作流程 §4“提交候选”；规格还是旧的 `owner:` 时（切换期间）显示 `@用户名`，`adc_top` 始终显示它的 `owner:` |
 | 协作入口 | 顶栏“参与协作”和首页的协作区：链到渲染后的 `CONTRIBUTING.md`，并给出可复制的原始地址（`raw.githubusercontent.com/.../main/CONTRIBUTING.md`），交给自己的 agent 即可；文件不存在时入口自动隐藏 |
 
 模块状态变化（例如 `design/xtor/<block>/` 出现网表、`status` 变为 `xtor-wip`）后，重新构建即可，页面不需要手改。
@@ -86,6 +86,20 @@ PR 打开 / 更新 / 重新打开 / 标记就绪 / 转草稿 / 关闭（`pull_re
   PR / issue 的标题、正文、评论从不进入 shell 命令或日志（`events.py` 在 Python 里解析事件、只输出固定的原因代码）；权限按作业最小化
   （`gate`、`build` 只读，只有 `deploy` 有 `pages: write` 和 `id-token: write`），只用作业自带的 `GITHUB_TOKEN`，不给 PR 控制的代码任何密钥。
 * 测试：`tests/test_site_events.py`（事件过滤、工作流的权限 / 检出 / 并发约束）。
+
+### 候选排行榜（`sitegen/cands.py`，设计见 `docs/proposals/open-candidates.md`）
+
+* **已合并的候选**：`adcflow.candidates.leaderboard()` 在主分支的目录树上算（规格通过 / 不通过 / 不完整、工艺角覆盖、各种标记、最小裕量、功耗、面积代理、顶层 ENOB 裕量），
+  站点只负责显示，不另算指标；撤回（`withdrawn`）的不显示。
+* **开放 PR 的候选**：同一个 `candidates.score` 用在 PR 提交的候选文件上（临时目录里只放这个候选的目录和结果，输入文件的哈希按主分支的当前文件比，所以 PR 落后于主分支时会显示“过期”）。
+  规则和草稿预览一样：只看 CI「contracts, drawings, results」通过的提交；取自 PR 的全部内容先过工艺名称检查和 hygiene 规则，不过就整个 PR 只显示元数据；从不运行 PR 的代码；
+  **判定用主分支的规格**（PR 里的规格副本不被读取）；图只取不超过 200 kB 的 PNG。它们标“未评审”，不计入主分支的状态、判定和统计，也不会被标成选定。
+* **排序**（§4，公开）：全部通过且未过期的在前；然后依次比较顶层 ENOB 裕量（±0.05 bit）→ 功耗（±5 %）→ 面积代理（先 ΣW·L 再总电容，±5 %）→ 最小规格裕量（±5 % 限值）；
+  容差内相同就看下一项，全部相同时已选定的保持在前。缺少数据（“—”）的比有数据的差。
+* **每行显示**：`显示名 (@登录名)`（显示名是自报的，登录名才是身份）、状态 `wip` / `ready`、规格通过 / 不过 / 不完整、覆盖、标记（过期、自报 / 已复核、SOA、错误、
+  candidate.yaml 的问题、**未确认通知 #N**：还开着的 `[<block>]` issue 里 `candidate.yaml` 的 `acknowledged` 没有的）、最小裕量和规格号、功耗、面积代理、顶层 ENOB 裕量，
+  以及链接（PR 或目录）；每个候选在表下面有自己的一节（网表查看器、指标表、PR 的最近提交）。
+* 旧的草稿 PR（只有 `design/xtor/<block>/<block>.scs`，没有候选目录）仍显示为草稿预览标签，标“未迁移为候选”。没有候选的模块显示“提交候选”的入口。
 
 ### 草稿预览（`sitegen/preview.py`）
 

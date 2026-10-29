@@ -57,6 +57,7 @@ class Preview:
     commits: list[tuple[str, str]] = field(default_factory=list)   # (short sha, title) of the PR's own commits
     counts: tuple[int, int, int] = (0, 0, 0)            # pass, fail, total specs of the most advanced view
     notes: list[str] = field(default_factory=list)      # log lines (skipped figures, ...)
+    unmigrated: bool = False                            # a draft that still has the legacy view (design/xtor/<block>/<block>.scs): not a candidate yet
 
 
 # ------------------------------------------------------------------ git (read only)
@@ -130,6 +131,59 @@ def screen(label: str, text: str) -> None:
         raise PreviewError(f"{label}: 未通过卫生检查（{'、'.join(hits)}）")
 
 
+# ------------------------------------------------------------------ pieces shared by the legacy preview and the candidate rows
+def commit_titles(repo: Path, sha: str, base: str) -> list[tuple[str, str]]:
+    """(short sha, title) of the PR's own commits (`sha --not base`), titles screened."""
+    out = []
+    for line in _git(repo, "log", f"-{MAX_COMMITS}", "--format=%h%x1f%s", sha, "--not", base).decode("utf-8", "replace").splitlines():
+        short, _, title = line.partition("\x1f")
+        screen(f"提交 {short} 的标题", title)
+        out.append((short, title))
+    return out
+
+
+def last_commit(repo: Path, sha: str, path: str) -> tuple[str, str, str] | None:
+    """(short sha, date, title) of the last commit that touched `path` at `sha`; the title is screened."""
+    line = _git(repo, "log", "-1", "--format=%h%x1f%cs%x1f%s", sha, "--", path).decode("utf-8", "replace").strip()
+    if not line:
+        return None
+    short, date, title = (line.split("\x1f") + ["", ""])[:3]
+    screen("网表最近一次提交的标题", title)
+    return short, date, title
+
+
+def copy_figures(tree: "Tree", docs: list[dict], out: Path, number: int, notes: list[str]) -> None:
+    """Copy the small PNGs the results list to out/preview/pr<N>/<repo path>; others are dropped from the doc (figures() skips an
+    empty name) and noted. A doc's `_path` is ROOT / <repo path>."""
+    for d in docs:
+        for f in (d.get("figures") or []):
+            name = str(f.get("file", "")) if isinstance(f, dict) else ""
+            rel = (PurePosixPath(d["_path"].relative_to(ROOT).as_posix()).parent / name).as_posix() if name else ""
+            ok = bool(name) and "/" not in name and name.lower().endswith(".png") and rel in tree.files
+            data = tree.read(rel, FIGURE_MAX_BYTES) if ok and tree.files[rel] <= FIGURE_MAX_BYTES else b""
+            if not data.startswith(PNG_MAGIC):
+                f["file"] = ""
+                notes.append(f"{rel or name}: figure skipped (missing, not a small PNG)")
+                continue
+            dst = out / "preview" / f"pr{number}" / rel
+            dst.parent.mkdir(parents=True, exist_ok=True)
+            dst.write_bytes(data)
+
+
+def write_manifests(out: Path, pr: PR, head_repo: str, entries: list[dict], rels: list[str]) -> dict[str, str]:
+    """Viewer manifests at the PR head, one per entry netlist; returns {entry path: manifest name} (manifests/<name>.json)."""
+    if mf.check_limits(entries):
+        raise PreviewError("清单超出查看器的限制")
+    raw, names = _raw_base(head_repo, pr.sha), {}
+    for rel in rels:
+        name = f"pr{pr.number}-{pr.sha[:7]}-{mf.name_of(rel)}"
+        doc = mf.manifest(rel, entries, raw, head_repo, pr.sha)
+        (out / "manifests").mkdir(parents=True, exist_ok=True)
+        (out / "manifests" / f"{name}.json").write_text(json.dumps(doc, indent=1, ensure_ascii=False) + "\n", encoding="utf-8", newline="\n")
+        names[rel] = name
+    return names
+
+
 # ------------------------------------------------------------------ building one preview
 def judge_at(block, doc: dict, root: Path) -> dict:
     """What `adcflow.checks.judge` gives for a result, against the PR's own block (specs) and the PR's input files under `root`."""
@@ -181,11 +235,7 @@ def _build(pv: Preview, site, out: Path, repo: Path, base: str) -> None:
     tree = Tree(repo, pr.sha)
 
     # --- everything the preview shows or the viewer will fetch, screened first
-    commits = []
-    for line in _git(repo, "log", f"-{MAX_COMMITS}", "--format=%h%x1f%s", pr.sha, "--not", base).decode("utf-8", "replace").splitlines():
-        short, _, title = line.partition("\x1f")
-        screen(f"提交 {short} 的标题", title)
-        commits.append((short, title))
+    commits = commit_titles(repo, pr.sha, base)
     screen("PR 标题", pr.title)
     screen("PR 作者名", pr.author)
     spec_rel = f"specs/blocks/{block}.yaml"
@@ -242,45 +292,22 @@ def _build(pv: Preview, site, out: Path, repo: Path, base: str) -> None:
     pv.bd = BlockData(pr_block, docs, rows, [], xtor)
     pv.site = s2
 
-    # --- figures: small PNGs only
-    for d in docs:
-        for f in (d.get("figures") or []):
-            name = str(f.get("file", "")) if isinstance(f, dict) else ""
-            rel = (PurePosixPath(d["_path"].relative_to(ROOT).as_posix()).parent / name).as_posix() if name else ""
-            ok = bool(name) and "/" not in name and name.lower().endswith(".png") and rel in tree.files
-            data = tree.read(rel, FIGURE_MAX_BYTES) if ok and tree.files[rel] <= FIGURE_MAX_BYTES else b""
-            if not data.startswith(PNG_MAGIC):
-                f["file"] = ""                                   # figures() skips an empty name
-                pv.notes.append(f"{rel or name}: figure skipped (missing, not a small PNG)")
-                continue
-            dst = out / "preview" / f"pr{pr.number}" / rel
-            dst.parent.mkdir(parents=True, exist_ok=True)
-            dst.write_bytes(data)
+    copy_figures(tree, docs, out, pr.number, pv.notes)
 
     # --- the netlist viewer: raw files at the head, through a manifest at that sha
     entries = []
     for rel in published:
         data = texts[rel]
         entries.append({"path": rel, "sha256": hashlib.sha256(data).hexdigest(), "size": len(data)})
-    problems = mf.check_limits(entries)
-    if problems:
-        raise PreviewError("清单超出查看器的限制")
     raw = _raw_base(pv.head_repo, pr.sha)
-    stem = f"pr{pr.number}-{pr.sha[:7]}"
+    names = write_manifests(out, pr, pv.head_repo, entries, xtor)
     for rel in xtor:
-        name = f"{stem}-{mf.name_of(rel)}"
-        doc = mf.manifest(rel, entries, raw, pv.head_repo, pr.sha)
-        (out / "manifests").mkdir(parents=True, exist_ok=True)
-        (out / "manifests" / f"{name}.json").write_text(json.dumps(doc, indent=1, ensure_ascii=False) + "\n", encoding="utf-8", newline="\n")
         label = "晶体管级 xtor" + ("" if len(xtor) == 1 else f" · {PurePosixPath(rel).name}")
-        pv.viewer_files.append({"label": label, "kind": "xtor", "path": rel, "level": block, "url": raw + rel, "mf": name})
+        pv.viewer_files.append({"label": label, "kind": "xtor", "path": rel, "level": block, "url": raw + rel, "mf": names[rel]})
     if xtor:
-        line = _git(repo, "log", "-1", "--format=%h%x1f%cs%x1f%s", pr.sha, "--", f"design/xtor/{block}").decode("utf-8", "replace").strip()
-        if line:
-            short, date, title = (line.split("\x1f") + ["", ""])[:3]
-            screen("网表最近一次提交的标题", title)
-            pv.xtor_change = (short, date, title)
+        pv.xtor_change = last_commit(repo, pr.sha, f"design/xtor/{block}")
     pv.commits = commits
+    pv.unmigrated = bool(pv.viewer_files) or any(d["view"] == "xtor" for d in docs)
 
     # --- counts of the most advanced view, for the home table (draft: never added to main's numbers)
     view = next((v for v in ("xtor", "behav") if v in rows), None)
