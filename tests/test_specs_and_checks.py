@@ -162,20 +162,6 @@ def test_process_names_allow_plain_process():
     assert checks.find_names("28 nm HPC+ (0.9 V / 1.8 V), 工艺角") == []
 
 
-def test_owner_field_is_validated_on_load(tmp_path):
-    """check owners is retired (open-candidates row 2); the spec loader still rejects a bad owner:
-    and adc_top keeps owner: many-question."""
-    from adcflow.specs import SpecError, _load_block
-
-    assert blocks()["adc_top"].raw["owner"] == "many-question"
-    text = blocks()["adc_comp"].path.read_text(encoding="utf-8")
-    bad = re.sub(r"^owner: .*$", "owner: not a login", text, count=1, flags=re.M)
-    p = tmp_path / "adc_comp.yaml"
-    p.write_text(bad, encoding="utf-8")
-    with pytest.raises(SpecError, match="owner"):
-        _load_block(p)
-
-
 def test_git_state_ignores_results_and_caps_paths():
     from adcflow.runner import dirty_paths
 

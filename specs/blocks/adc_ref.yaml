@@ -1,11 +1,10 @@
 block: adc_ref
 title: Reference driver (VREFP = 0.9 V) and top-plate common-mode (VCM = 0.45 V)
-version: 0.7.0
-owner: many-question
+version: 0.8.0
+selected: none          # the selected candidate (design/xtor/<block>/<name>/); none yet
 status: behavioral
 views:
   behav: design/behav/adc_ref.scs
-  xtor: design/xtor/adc_ref/adc_ref.scs
 summary: >
   Buffers the high-impedance 0.9 V reference input VREF_IN into VREFP, which
   supplies the CDAC drivers (arch v0.3, cu = 1 fF): per conversion 0.93 pC at

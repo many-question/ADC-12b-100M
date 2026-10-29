@@ -1,11 +1,10 @@
 block: adc_sarlogic
 title: Asynchronous SAR controller, bit registers and output register
-version: 0.3.0
-owner: Arcadia-1
+version: 0.4.0
+selected: none          # the selected candidate (design/xtor/<block>/<name>/); none yet
 status: behavioral
 views:
   behav: design/behav/adc_sarlogic.scs
-  xtor: design/xtor/adc_sarlogic/adc_sarlogic.scs
 summary: >
   Self-timed SAR loop. CONV low = reset (CLKC = 0, all UP/DN = 0; D and RDY
   hold). CONV rising starts a conversion: after t_start the first CLKC rises;
