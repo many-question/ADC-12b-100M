@@ -100,11 +100,15 @@ at commit `5cafd1afb17b883f2b2b29556b24e8687f290848` through the archive tag.
 ## Pending shared changes
 
 [PR #48](https://github.com/many-question/ADC-12b-100M/pull/48) is unmerged at
-reviewed head `1b37045b7f858c16e7dc74437d27fffc21d1c66e`. It changes DAC charge
-timing in the model (and therefore reference replay stimulus), CDAC behavioral
-break-before-make switching, and top-level source-noise accounting. The current
-records have not been validated against those pending semantics. All 136
-module records track the CDAC behavioral source that PR changes, so they will
-require a fresh stale audit if that change merges; replay and mixed-top evidence
-also need renewed physical interpretation. No pending bias, decoupling, wait,
-or acceptance-limit choice is applied by this candidate migration.
+reviewed head `88b7624e1e1bf4c66aeb024d7fcc5c03087ca588`. The
+[impact audit and retest plan](PR48-impact.md) distinguishes recorded input-hash
+changes from changes to replay stimulus, REF-21 measurement, and top-level
+noise accounting. All 136 records remain fresh and passing on the stated
+current main; they do not validate the pending version.
+
+The pending architecture adds per-step waits, and REF-21 changes the definition
+and acceptance of `env_ratio`. The behavioral reference's 8 mA / 6 pF is a
+reference-model starting point, not a transistor bias or capacitance requirement.
+No pending code or specification is applied, and no new simulation is run for
+this review. The candidate and archived top failure retain their original inputs
+and provenance.
