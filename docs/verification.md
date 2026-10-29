@@ -253,9 +253,12 @@ level; not transistor-level evidence"`，`soa_violations` 为 0 个对中的 0 �
 **时钟（CLK-11）**：规则与 bootstrap 相同（|Vgs|、|Vgd|、|Vds| ≤ `limit_V` = 1.0 V，绝对值、两个方向、`corners: all`），
 `soa: {dut: [XDUT]}`。覆盖的窗口就是 `tb_clkgen_timing` 的整段瞬态：t = 0 起的启动、占空比 50 % 的 8 个周期、45 % 与 55 %
 各 4 个周期，0~161 ns 的每个时间点，包括全部跳变沿；窗口之外（更长的运行、其它占空比或频率）不在 CLK-11 的范围内。
-测试台 `maxstep=2p`，保存的点就是仿真器接受的全部时间点。晶体管级视图的时间分辨率按 #19 的做法核对：在有代表性的
+按 #49，测试台从规格 `numerics` 显式设置 `maxstep=1p`、`method=traponly`、`errpreset=conservative`、
+`reltol=1e-7`、`vabstol=1e-8`，保存的点就是仿真器接受的全部时间点。`meta.numerics` 记录日志报告的实际值；
+conservative 下的有效容差可能不同于请求值。晶体管级视图的时间分辨率按 #19 的做法核对：在有代表性的
 最坏工艺角运行 `sim tb_clkgen_timing --view adc_clkgen=xtor --corners <角> --crosscheck`（规格 `crosscheck: {maxstep: 0.5p}`，§2），
-结果的 `meta.crosscheck.soa` 给出各对峰值的最大差值与违例数的对比，记入设计 PR。
+交叉检查保留相同的积分方法及容差，只将最大步长减半。结果的 `meta.crosscheck.metrics` 比较时序等指标，
+`meta.crosscheck.soa` 给出各对峰值的最大差值与违例数的对比，记入设计 PR。
 体端与结的正向偏置不设项目门槛，由设计按器件的合法使用条件保证（#27）。
 
 ## 6. 时钟与数字输入的输入电容

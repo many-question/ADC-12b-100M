@@ -1,6 +1,6 @@
 block: adc_clkgen
 title: Sampling clock phase generator
-version: 0.3.0
+version: 0.4.0
 owner: many-question
 status: behavioral
 views:
@@ -46,6 +46,7 @@ tests:
     netlist: tb/clkgen/tb_clkgen_timing.scs
     measure: adcflow.measure.clkgen:timing
     soa: {dut: [XDUT]}
+    numerics: {reltol: 1.0e-7, vabstol: 1.0e-8, maxstep: 1p, method: traponly, errpreset: conservative}
     crosscheck: {maxstep: 0.5p}           # time resolution of the SOA peaks (docs/verification.md §5)
     desc: >
       Ideal 100 MHz CLK (20 ps edges), 8 cycles at 50 % duty, then 4 at 45 %
@@ -63,6 +64,10 @@ tests:
       The behavioral view has no devices and the testbench none at its top
       level: soa_scope external with soa_pairs 0 and soa_note "nothing to
       check", which is not transistor-level evidence.
+      Explicit timing/SOA settings are applied from numerics; --crosscheck
+      repeats with half the maximum step and the same integration method.
+      These are requested settings: meta.numerics records the effective values
+      reported by the simulator, which can differ with the conservative preset.
   tb_clkgen_jitter:
     netlist: tb/clkgen/tb_clkgen_jitter.scs
     measure: adcflow.measure.clkgen:jitter

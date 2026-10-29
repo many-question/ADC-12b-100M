@@ -478,10 +478,12 @@ def tb_bootstrap() -> list[TBDef]:
     out.append(TBDef(
         "tb/bootstrap/tb_bootstrap_dc.scs", "tb_bootstrap_dc: boosted gate over the input range, edges, current",
         [f"parameters tper=10n rsrc=50 wsw={_WSW} nfsw={_NFSW} cs={_CS}", "parameters tstop=29*tper"],
-        els, ["tran1 tran stop=tstop", "save VG VIN PHI_B PHI_BB BP QPB QPBB"],
+        els, _numerics("adc_bootstrap", "tb_bootstrap_dc",
+                       ["tran1 tran stop=tstop", "tbopts options", "save VG VIN PHI_B PHI_BB BP QPB QPBB"]),
         notes=["VIN steps 0 .. 0.9 V in 0.15 V steps, 4 cycles each, through 50 ohm with the reference switch load",
                "QMPB / QMPBB: the charge into PHI_B, PHI_BB per rising edge / VDD (BST-09, BST-10)",
-               "BST-08: the run deck also saves the d/g/s nodes of every thin-oxide MOS in XDUT (adcflow soa)"]))
+               "BST-08: the run deck also saves the d/g/s nodes of every thin-oxide MOS in XDUT (adcflow soa)",
+               _numerics_note("adc_bootstrap", "tb_bootstrap_dc")]))
     els = [El("XBSP", "adc_bootstrap", ["VINP", "PHI_B", "PHI_BB", "VGP", "AVDD", "0"], where="dut"),
            El("XBSN", "adc_bootstrap", ["VINN", "PHI_B", "PHI_BB", "VGN", "AVDD", "0"], where="dut"),
            El("VSP", "vsource", ["SRCP", "0"], "type=sine sinedc=vcm_in ampl=amp/2 freq=fin"),
@@ -526,11 +528,12 @@ def tb_clkgen() -> list[TBDef]:
     els += _sup("AVDD", "vdd", True, t0="10n", t1="80n")
     out.append(TBDef(
         "tb/clkgen/tb_clkgen_timing.scs", "tb_clkgen_timing: phase order, delays, skews and edge rates",
-        ["parameters tstop=161n"], els, ["tran1 tran stop=tstop maxstep=2p",
-                                         "save CLK PHI_S PHI_SB PHI_B PHI_BB CONV"],
+        ["parameters tstop=161n"], els,
+        _numerics("adc_clkgen", "tb_clkgen_timing",
+                  ["tran1 tran stop=tstop", "tbopts options", "save CLK PHI_S PHI_SB PHI_B PHI_BB CONV"]),
         notes=[load_note, "power.txt: average AVDD current over 10-80 ns, output-load charging included (CLK-10)",
                "CLK-11: the run deck also saves the d/g/s nodes of every thin-oxide MOS in XDUT (adcflow soa); "
-               "whole run from t = 0"]))
+               "whole run from t = 0", _numerics_note("adc_clkgen", "tb_clkgen_timing")]))
     els = [El("XDUT", "adc_clkgen", gen_ports, where="dut"),
            El("VCLK", "vsource", ["CLK", "0"], "type=pulse val0=0 val1=vdd period=10n width=4.98n rise=20p fall=20p"),
            El("ISMP", "tb_sampler_va", ["PHI_S", "0", "PHI_S", "0"], 'vth=vdd/2 dir=-1 delay=0 tstart=10n fname="edges.txt"',
