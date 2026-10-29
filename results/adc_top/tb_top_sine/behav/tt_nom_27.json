@@ -55,6 +55,9 @@
   "fs_peak_V": 0.9937507134173732,
   "code_min": 247,
   "code_max": 4291,
+  "spike_count": 0,
+  "spike_max_lsb": 1.8206981882458422,
+  "spike_index": [],
   "p_avdd_mW": 0.28197038484,
   "p_dvdd_mW": 0.21070834038,
   "p_avdd18_mW": 14.7114521532,
@@ -96,6 +99,12 @@
    "value": 2.826358,
    "limit": "<= 4.4",
    "pass": true
+  },
+  "TOP-10": {
+   "metric": "spike_count",
+   "value": 0,
+   "limit": "<= 0",
+   "pass": true
   }
  },
  "figures": [
@@ -105,19 +114,19 @@
   },
   {
    "file": "tt_nom_27.codes.png",
-   "caption": "Calibrated output codes of the judged record folded on the phase of the input sine with the fit, the error against the fit for every sample, and the conversion-time histogram (calibration and judged records) against its limit."
+   "caption": "Calibrated output codes of the judged record folded on the phase of the input sine with the fit, the error against the fit for every sample with the spikes beyond 3 LSB marked (TOP-10), and the conversion-time histogram (calibration and judged records) against its limit."
   }
  ],
  "meta": {
-  "date": "2026-10-29T12:47:30",
-  "git": "377842e",
+  "date": "2026-10-29T14:14:51",
+  "git": "3460c8c",
   "git_clean": true,
   "mode": "aps",
   "pdk": false,
   "mc": null,
-  "wall_s": 2064.3,
+  "wall_s": 1976.8,
   "rc": "0",
-  "sim_s": "720",
+  "sim_s": "666",
   "numerics": {
    "source": "spectre.log",
    "reltol": 0.001,
