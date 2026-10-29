@@ -74,10 +74,16 @@ This is positive H-bottom-plate overshoot with ideal VG generation and the
 5% parasitic estimate. The 22 sampling and 52 output devices checked so far
 do not cover all 626 MOS instances. Bottom-plate overshoot is another unresolved
 stress failure; improving the sampling switches alone is not sufficient.
-The [six-case sampling-entry diagnosis](sampling-entry-diagnosis.md)
+The [sampling-entry and driver diagnosis](sampling-entry-diagnosis.md)
 confirms both failures with a finer step and compares isolated timing, VG,
-top-plate, and sampling-width changes. No tested change repairs both failure
-classes; these exploratory comparisons are not acceptance results.
+top-plate, and sampling-width changes. Later unselected variants pass the
+full 70 ns TT stress check at VIN=0.65 V together with the listed settling
+and charge limits; one also passes the five weight/calibration limits with
+physical midpoint-initialization switches. These limited experiments do not
+validate the frozen circuit or establish complete acceptance.
+A 32-sample diagnostic on that variant estimates the third harmonic at
+-75.13 dBc, improved from the frozen circuit but still requiring further work;
+it is not an official SFDR/SNDR or convergence result.
 Convergence comparisons, representative PVT,
 complete corner coverage, long-hold behavior, device stress, and joint bootstrap
 validation remain outstanding. No selection or signoff is claimed.
