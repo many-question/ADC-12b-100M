@@ -115,8 +115,10 @@ replaced the candidate. A subsequent physical pulse circuit limits PMOS
 assistance to sampling entry while retaining the 8 um top switches. Its
 70 ns fixed-input check covers all 539 MOS, with zero stress violations
 (maximum 0.97736 V), RL12 = 35.2 ps, and Qref = 1.12350 pC. Internal DVDD
-logic charge increases by about 0.183 pC; its tracking benefit remains to be
-measured. This limited pass does not establish sine-input or PVT acceptance.
+logic charge increases by about 0.183 pC, while matched h3 worsens to
+-75.08 dBc. Lower fifth and seventh harmonics do not offset this third-
+harmonic deterioration. The pulse with 8/8 um top switches remains unselected;
+its fixed-input pass does not establish sine-input or PVT acceptance.
 Convergence comparisons, representative PVT,
 complete corner coverage, long-hold behavior, device stress, and joint bootstrap
 validation remain outstanding. No selection or signoff is claimed.
