@@ -66,6 +66,8 @@
   用这组权重解码后算 ENOB / SNDR / SFDR（`enob`、`sndr_dBc`、`sfdr_dBc`，TOP-01/02/03/08/09 用它们）。
   权重不在被判定的记录上拟合，因此不会过拟合。同一记录按标称权重解码的结果报告为 `enob_nom`、`sfdr_nom_dBc` 等，
   不设限。实现见 `tools/adcflow/calib.py`、`measure/top.py`；系统模型用同一方法（`model.sine_test_cal`）。
+* **尖峰**（TOP-10，`tb_top_sine` 的判定记录）：校准后的码与正弦拟合相差超过 3 LSB 的转换数，限值 0（全部角），同时报告最大偏差
+  并在码图中标出。噪声与量化远小于 3 LSB（rms 约 0.6 LSB），尖峰是冗余没有吸收的判决错误；它们只占少数码时 ENOB 几乎看不出来（#35）。
 * **参考电压的判决时刻偏差**（REF-21，`tb_ref_replay`）：判决 k = 1..11 时刻的 VREFP 相对转换结束时的偏差，取记录中的
   最大值，除以容差 δ_k × LSB × VREF / FS（δ_k 为该判决的冗余），各判决比值的最大值 `env_ratio` ≤ 1；判决 12~14 由 REF-13 约束。
   回放的电荷序列按 SAR 逻辑的实际时序（DAC 驱动时刻，含 `timing.t_dac_add` 的附加等待）产生。它与 REF-12 不同，不依赖采样

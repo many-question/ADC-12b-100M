@@ -10,7 +10,7 @@
 | [`adc_comp`](#adc-comp) | behavioral | many-question | 14 | `tb_comp_delay`, `tb_comp_noise`, `tb_comp_kickback` |
 | [`adc_ref`](#adc-ref) | behavioral | many-question | 15 | `tb_ref_dc`, `tb_ref_replay`, `tb_ref_noise`, `tb_ref_startup` |
 | [`adc_sarlogic`](#adc-sarlogic) | behavioral | Arcadia-1 | 16 | `tb_sarlogic_func`, `tb_sarlogic_rand`, `tb_sarlogic_func_slow`, `tb_sarlogic_timeout` |
-| [`adc_top`](#adc-top) | behavioral | many-question | 8 | `tb_top_sine`, `tb_top_sine_lf`, `tb_top_duty` |
+| [`adc_top`](#adc-top) | behavioral | many-question | 9 | `tb_top_sine`, `tb_top_sine_lf`, `tb_top_duty` |
 
 ## adc_bootstrap
 
@@ -328,7 +328,7 @@ Self-timed SAR loop. CONV low = reset (CLKC = 0, all UP/DN = 0; D and RDY hold).
 
 ## adc_top
 
-**12-bit-class 100 MS/s asynchronous SAR ADC (top level)** — 规格版本 0.3.0，状态 `behavioral`。
+**12-bit-class 100 MS/s asynchronous SAR ADC (top level)** — 规格版本 0.4.0，状态 `behavioral`。
 
 Fully differential bottom-plate-sampled SAR, 14 decisions, raw output bits with weights 1960 1120 636 360 204 114 64 36 20 12 6 4 2 1 (sum 4539, 4540 levels). Reconstruction in software: code = sum(W * D) with calibrated weights W (adcflow.calib; nominal W for information).
 
@@ -361,9 +361,10 @@ Fully differential bottom-plate-sampled SAR, 14 decisions, raw output bits with 
 | TOP-06 | conversion time CLK fall -> RDY rise (max) | ≤ 4.4 | ns | all | `tb_top_sine` |
 | TOP-08 | ENOB at ~1 MHz -1 dBFS | ≥ 10.8 | bit | typ | `tb_top_sine_lf` |
 | TOP-09 | ENOB with CLK duty 45 % / 55 % | ≥ 10.5 | bit | quick | `tb_top_duty` |
+| TOP-10 | spikes: judged conversions > 3 LSB from the sine fit (calibrated) | ≤ 0 | count | all | `tb_top_sine` |
 
 ### 验收用例
 
-- **`tb_top_sine`** (`tb/top/tb_top_sine.scs`, 度量 `adcflow.measure.top:sine`; 参数 `fin_target=49.9e6`, `amp_dbfs=-1.0`, `npts=1024`, `ncal=1024`; 瞬态噪声)：Differential coherent sine from 50 ohm per side, CM 0.45 V, 100 MHz ideal CLK, ideal 0.900 V VREF_IN, supplies through current meters. tb_capture logs D at every RDY rise and the CLK-fall -> RDY time. The first ncal conversions are the calibration record: the bit weights are fitted to the sine (adcflow.calib, wcalsin method). The next npts conversions are the judged record, decoded with those weights: ENOB / SNDR / SFDR there are the acceptance values; the same record with the nominal weights is reported as enob_nom etc. Also full scale, conversion time over both records and power per supply.
+- **`tb_top_sine`** (`tb/top/tb_top_sine.scs`, 度量 `adcflow.measure.top:sine`; 参数 `fin_target=49.9e6`, `amp_dbfs=-1.0`, `npts=1024`, `ncal=1024`; 瞬态噪声)：Differential coherent sine from 50 ohm per side, CM 0.45 V, 100 MHz ideal CLK, ideal 0.900 V VREF_IN, supplies through current meters. tb_capture logs D at every RDY rise and the CLK-fall -> RDY time. The first ncal conversions are the calibration record: the bit weights are fitted to the sine (adcflow.calib, wcalsin method). The next npts conversions are the judged record, decoded with those weights: ENOB / SNDR / SFDR there are the acceptance values; the same record with the nominal weights is reported as enob_nom etc. Also full scale, conversion time over both records and power per supply. TOP-10: the number of judged conversions whose calibrated code is more than 3 LSB from the sine fit (spike_count, worst deviation spike_max_lsb): a decision error the redundancy did not absorb, e.g. VREFP not recovered for a near-full-scale code (#35). ENOB can miss a few such conversions; noise and quantization stay well below 3 LSB. The low-frequency and duty-cycle tests report the same metrics.
 - **`tb_top_sine_lf`** (`tb/top/tb_top_sine.scs`, 度量 `adcflow.measure.top:sine`; 参数 `fin_target=1.0e6`, `amp_dbfs=-1.0`, `npts=1024`, `ncal=1024`; 瞬态噪声)：
 - **`tb_top_duty`** (`tb/top/tb_top_sine.scs`, 度量 `adcflow.measure.top:sine`; 参数 `fin_target=49.9e6`, `amp_dbfs=-1.0`, `npts=1024`, `ncal=1024`, `duty=0.45`; 瞬态噪声)：

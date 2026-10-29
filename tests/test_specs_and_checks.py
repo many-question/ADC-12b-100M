@@ -306,3 +306,17 @@ def test_log16_extra_wait_is_measured_against_the_steps_without_one():
     m = _extra_waits(a, waits)
     assert m["t_dac_add_ps"]["9"] == pytest.approx(25.0) and m["t_dac_add_ps"]["4"] == pytest.approx(33.0)
     assert m["t_dac_add_err_pct"] == pytest.approx(10.0)
+
+
+def test_top10_counts_conversions_beyond_3_lsb():
+    import numpy as np
+
+    from adcflow.measure.top import spikes
+
+    fit = 2000 * np.sin(np.arange(64) * 0.3)
+    codes = np.round(fit) + np.where(np.arange(64) % 7 == 0, 0.4, 0.0)
+    codes[[5, 40]] += [4.5, -7.6]
+    m = spikes(codes, fit)
+    assert m["spike_count"] == 2 and m["spike_index"] == [5, 40] and m["spike_max_lsb"] > 7.0
+    assert spikes(np.round(fit), fit)["spike_count"] == 0
+
