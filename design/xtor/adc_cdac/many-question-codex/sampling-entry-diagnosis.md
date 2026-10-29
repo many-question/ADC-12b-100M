@@ -363,3 +363,43 @@ the auxiliary and MID switch bulk currents. Internal DVDD prelogic draws
 This sum excludes direct DVDD top-switch bulk current and ideal external
 clock/bootstrap sources; it is not total circuit power. The candidate remains
 WIP, with the committed netlist and official results unchanged.
+
+The combined-path circuit's matched 32-sample tracking diagnostic gives
+h3 = -72.5568 dBc, h5 = -86.0754 dBc, h7 = -87.1466 dBc, and an 8.219 uV
+regression residual. Restoring NMOS sharing therefore repairs the observed
+stress cases but worsens the third harmonic relative to PMOS assistance
+alone (-77.2407 dBc). This short regression does not establish official
+SFDR/SNDR or numerical convergence.
+
+## Smaller top-plate switches
+
+Changing only the combined circuit's top-plate N/P switch widths from 32 to
+16 um each, with the same channel length and finger width, addresses the
+measured clock-load failure. Both geometries were validated before use.
+All 526 MOS, six MID transmission gates, and 36 explicit 5% parasitics remain.
+The original 70 ns TT sequence gives:
+
+| Quantity | Top N/P 32 um each | Top N/P 16 um each |
+|---|---:|---:|
+| PHI_S capacitance (fF) | 27.799 | 20.892 |
+| PHI_SB capacitance (fF), limit 40 | **45.126, fail** | 37.036 |
+| RL12 settling (ps), limit 40 | 35.3 | 35.3 |
+| RL5 settling (ps) | 47.3 | 47.3 |
+| Tau (ps) | 9.120 | 9.164 |
+| Conversion-start settling (ps) | 81.5 | 81.4 |
+| Droop (LSB) | 0.002368 | 0.004270 |
+| Reference charge (pC), limit 1.2 | 1.107164 | 1.103859 |
+| Maximum project terminal stress (V) | 0.97887 | 0.97898 |
+| Failing terminal pairs | 0 of 1,578 | 0 of 1,578 |
+
+The smaller-switch run retains the 0.5 ps maximum step over all 164,339
+accepted points. Control and CONV capacitances are 0.831 and 9.849 fF.
+All listed settling, charge, and input-capacitance limits pass for this
+stimulus. The reference charge consists of 0.895573 pC through output
+source/bulk branches and 0.208286 pC through other reference branches.
+Internal DVDD prelogic adds 0.902994 pC; the resulting signed sum of
+2.006852 pC has the same exclusions stated above.
+
+This geometry change requires its own sine-input stress and tracking checks;
+the larger-switch circuit's sine pass cannot be inherited. The formal
+candidate and official result records remain unchanged.
