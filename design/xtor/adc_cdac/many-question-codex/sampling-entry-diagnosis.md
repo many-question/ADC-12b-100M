@@ -605,6 +605,19 @@ Reference output branches contribute 0.907877 pC and other reference branches
 1.119784 pC, an increase of approximately 0.183207 pC. The reference-plus-
 logic signed sum is 2.243286 pC, with the previously stated exclusions;
 it is not total circuit power. The pulse therefore has a measurable charge
-cost. Its tracking benefit remains to be measured before selecting it.
-Sine-input stress, weights/calibration, startup, long hold, PVT, and actual
-bootstrap integration have not been established for this version.
+cost.
+
+The matched 32-sample result is h3 = -75.0770 dBc, h5 = -89.5628 dBc,
+h7 = -93.2795 dBc, fundamental = 0.789321 V, and regression residual =
+6.699 uV. Although the fifth and seventh harmonics decrease, the third
+harmonic worsens by approximately 4.82 dB from continuous PMOS assistance
+with the same 8/8 um top switches. This pulse configuration therefore
+provides no overall tracking-linearity benefit in this diagnostic, while
+increasing internal logic charge. It remains unselected.
+
+A subsequent diagnostic keeps the pulse and changes only the top N/P
+widths to 12/4 um at the same total width, using validated geometries.
+This tests the remaining top-switch contribution and its interaction with
+the auxiliary timing; it is not an acceptance claim or a decision to adopt
+the pulse. Sine-input stress, weights/calibration, startup, long hold, PVT,
+and actual bootstrap integration have not been established for this version.
