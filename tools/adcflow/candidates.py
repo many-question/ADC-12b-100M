@@ -307,8 +307,13 @@ def _results(block: str, view: str) -> list[dict]:
 
 def score(c: Candidate) -> dict:
     """The leaderboard row of a candidate (§3): spec pass count, corner coverage, flags, worst
-    margin, power, area proxy and the top-level ENOB margin; results without meta.verified_by
-    are self-reported."""
+    margin, power, area proxy and the top-level ENOB margin.
+
+    Each result is verified, self-reported or a mismatch (verify.state: only a matching, fresh
+    verification record of the lead in verification/ verifies it; nothing in the result's own meta
+    counts). flags.unverified counts the self-reported results at corners that a spec of their test
+    requires, flags.mismatch every mismatch."""
+    from . import verify
     from .checks import judge
     from .corners import corner_names
     from .specs import blocks
@@ -316,6 +321,8 @@ def score(c: Candidate) -> dict:
     b = blocks()[c.block]
     view = f"xtor-{c.name}"
     docs = [(d, judge(d)) for d in _results(c.block, view)]
+    states = [verify.state(d)["state"] for d, _ in docs]
+    required = {t: set(verify.required_corners(b, t)) for t in {d["test"] for d, _ in docs}}
     passed = failed = incomplete = 0
     need = got = 0
     worst = None
@@ -336,16 +343,18 @@ def score(c: Candidate) -> dict:
             mg = _margin(s, v["value"])
             if mg is not None and (worst is None or mg < worst[0]):
                 worst = (mg, s.id)
-    self_reported = sum(not d.get("meta", {}).get("verified_by") for d, _ in docs)
     flags = {"stale": sum(bool(j["stale"]) for _, j in docs),
-             "unverified": self_reported,
+             "unverified": sum(s == "self-reported" and d["corner"] in required[d["test"]]
+                               for (d, _), s in zip(docs, states)),
+             "mismatch": states.count("mismatch"),
              "soa": sum(1 for d, _ in docs if (d["metrics"].get("soa_violations") or 0) > 0),
              "error": sum(bool(j["error"]) for _, j in docs)}
     return {"block": c.block, "candidate": c.name, "status": c.status, "authors": c.authors,
             "author_text": c.author_text(), "description": c.meta.get("description", ""),
             "problems": list(c.problems), "selected": b.selected == c.name,
             "specs_passed": passed, "specs_failed": failed, "specs_incomplete": incomplete, "specs_total": len(b.specs),
-            "coverage": [got, need], "results": len(docs), "self_reported": self_reported, "flags": flags,
+            "coverage": [got, need], "results": len(docs), "verified": states.count("verified"),
+            "self_reported": states.count("self-reported"), "mismatch": states.count("mismatch"), "flags": flags,
             "worst_margin": None if worst is None else {"margin": worst[0], "spec": worst[1]},
             "power_uW": power_uW(c.block, docs),
             "area": area_proxy(c.netlist) if c.netlist.exists() else None,
@@ -423,7 +432,8 @@ def table(rows: list[dict]) -> str:
                  f"{a.get('mos', '-'):>5} {f(a.get('wl_um2')):>9s} {f(r['top_enob_margin'], '{:+.3f}'):>8s}  "
                  f"{', '.join(flags) or 'ok'} / {r['author_text']}")
     L.append("(* = selected; pass = specs passing at every required corner; corners = (spec, corner) results / "
-             "required; self-reported = results without meta.verified_by)")
+             "required; self-reported = results at required corners without a matching, fresh verification "
+             "record of the lead (verification/, adcflow verify); mismatch = the lead's rerun disagrees)")
     return "\n".join(L)
 
 
@@ -553,7 +563,8 @@ def netlist_problems(block: str, name: str, text: str) -> list[str]:
 def tree_problems(block: str, name: str, files: dict[str, bytes]) -> list[str]:
     """Rules for the files of one candidate (repo-relative path -> content): its directory holds
     <block>.scs, candidate.yaml and notes / figures, within the size limits; its results are
-    result JSONs of this candidate and PNGs. Includes the naming and candidate.yaml rules."""
+    result JSONs of this candidate (without meta.verified_by: verification is the lead's record in
+    verification/) and PNGs. Includes the naming and candidate.yaml rules."""
     from .checks import FIGURE_MAX_BYTES
 
     if block not in _blocks() or block == "adc_top":
@@ -606,6 +617,10 @@ def tree_problems(block: str, name: str, files: dict[str, bytes]) -> list[str]:
             got = {k: (doc.get(k) if isinstance(doc, dict) else None) for k in want}
             if got != want:
                 errs.append(f"{p}: block / test / view {got} do not match its path {want}")
+            meta = doc.get("meta") if isinstance(doc, dict) else None
+            if isinstance(meta, dict) and "verified_by" in meta:
+                errs.append(f"{p}: meta.verified_by is not allowed in a candidate's result: the lead's "
+                            "verification is a record in verification/ (adcflow verify), never in the result")
     return errs
 
 
@@ -659,9 +674,10 @@ def pr_problems(changed: list[str], author: str, base_text, head_files) -> list[
     A PR that changes no candidate path is a lead PR: no candidate rule applies (the lead reviews
     it). There is no exemption by login, the lead's account is also used by contributors: any PR
     that touches a candidate follows these rules. A candidate PR changes exactly one candidate and
-    nothing outside its directory and its result directories. Its author is in the base authors
-    of an existing candidate (whose authors it may not change, and which it may not delete), or,
-    for a new candidate, in the new candidate.yaml, and the new name starts with the author's login.
+    nothing outside its directory and its result directories (verification/, the lead's records of
+    reruns, least of all). Its author is in the base authors of an existing candidate (whose authors
+    it may not change, and which it may not delete), or, for a new candidate, in the new
+    candidate.yaml, and the new name starts with the author's login.
 
     base_text(path) -> str | None: a file at the merge base; head_files(block, name) -> {path: bytes}:
     every file of the candidate in the PR head (for the content rules of tree_problems)."""
@@ -674,7 +690,10 @@ def pr_problems(changed: list[str], author: str, base_text, head_files) -> list[
         errs.append(f"the PR changes {len(touched)} candidates ({', '.join(f'{b}/{n}' for b, n in touched)}): "
                     "a candidate PR changes exactly one")
     for p, o in sorted(owners.items()):
-        if o is None:
+        if o is None and p.startswith("verification/"):
+            errs.append(f"{p}: verification records are written by the lead (adcflow verify) in a PR that "
+                        "touches no candidate, never in a candidate PR")
+        elif o is None:
             errs.append(f"{p}: a candidate PR may only change design/xtor/<block>/<name>/ and "
                         "results/<block>/<test>/xtor-<name>/ of its candidate")
     login = author.lower()

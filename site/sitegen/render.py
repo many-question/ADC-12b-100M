@@ -488,15 +488,22 @@ def _pct(m: float) -> str:
 
 
 def cand_flags(site: Site, c) -> str:
-    """The flags of a candidate row: results stale, self-reported vs verified, SOA, errors, problems, unacknowledged notices."""
+    """The flags of a candidate row: results stale, verified / self-reported / mismatch (the lead's records in verification/),
+    SOA, errors, problems, unacknowledged notices."""
     r, f = c.row, c.row["flags"]
     out = []
+    extra = r["self_reported"] - f["unverified"]                  # self-reported results at corners no spec requires
+    note = f"；另有 {extra} 个结果在规格不要求的工艺角，未复核" if extra else ""
     if not r["results"]:
         out.append(chip("none", "无结果"))
-    elif r["self_reported"] == 0:
-        out.append(chip("pass", "已复核", "所有结果都有 verified_by：项目负责人在同一网表哈希上复跑过"))
-    else:
-        out.append(chip("none", "自报", f"{r['self_reported']} / {r['results']} 个结果没有 verified_by（自报，未经项目负责人复核）"))
+    elif f["unverified"] == 0 and not f["mismatch"] and r["verified"]:
+        out.append(chip("pass", "已复核", f"规格要求的工艺角上的 {r['verified']} 个结果都有项目负责人的复核记录（verification/）："
+                                       f"同一网表哈希上复跑，判定相同，指标在容差内，记录未过期{note}"))
+    elif f["unverified"]:
+        out.append(chip("none", "自报", f"规格要求的工艺角上有 {f['unverified']} 个结果没有有效的复核记录（自报，未经项目负责人复跑）；"
+                                      f"已复核 {r['verified']} / {r['results']}{note}"))
+    if f["mismatch"]:
+        out.append(chip("fail", f"复核不符 {f['mismatch']}", "项目负责人在同一网表哈希上的复跑与自报值不符：判定不同或指标超出容差"))
     if f["stale"]:
         out.append(chip("stale", f"过期 {f['stale']}", "输入文件自仿真后已变化，需要重跑"))
     if f["soa"]:
@@ -582,7 +589,7 @@ def candidates_panel(site: Site, block: str, cs: list, pvs: list) -> str:
     invite = f'<a href="{esc(href)}">提交候选（协作流程 §4）</a>' if href else "提交候选"
     intro = (f'<p>任何人都可以为这个模块提交候选，没有人数和候选数上限；{invite}。排行榜按公开的顺序比较：顶层 ENOB 裕量（±0.05 bit）→ 功耗（±5 %）→ '
              f'面积代理（±5 %）→ 最小规格裕量（±5 % 限值）；容差内相同时看下一项，再相同时已选定的保持。全部通过且未过期的排在前面。'
-             f'提交的结果是<b>自报</b>的，项目负责人复核后才标“已复核”，只有已复核的结果才能用于选定。</p>')
+             f'提交的结果是<b>自报</b>的；项目负责人用 <code>adcflow verify</code> 在同一网表哈希上复跑，复核记录（<code>verification/</code>）匹配、未过期时才标“已复核”，只有已复核的结果才能用于选定。</p>')
     head = f'<h2 class="panel-title">候选</h2>'
     panel = f'role="tabpanel" id="candidates" aria-labelledby="tab-candidates"'
     if not cs:

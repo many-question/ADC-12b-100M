@@ -34,6 +34,7 @@ python -m adcflow sim <test> [--corners typ|quick|all|<name,...>] [--view <block
        [--param name=value ...] [--mode aps] [--jobs 6] [--keep] [--no-record]
 python -m adcflow report [--block adc_comp]     # 结果对照规格
 python -m adcflow candidates [--block adc_comp] [--json]   # 晶体管级候选的排行榜（docs/proposals/open-candidates.md §3）
+python -m adcflow verify <test> --block <block> --candidate <name> [--corners …] [--dry-run]   # 项目负责人在同一网表哈希上复跑候选的结果，写复核记录 verification/…（docs/verification.md §7）
 python -m adcflow migrate-candidate <block> <name> --author <login>[=<显示名>] --description "…"   # 旧的单一 xtor 视图迁成候选（项目负责人）
 python -m adcflow remeasure <test> --run build/runs/<run_id> [--dry-run]   # 不重仿真，用现行度量重算并重记该次运行的结果（只允许 SFDR 变化，#36）
 python -m adcflow remeasure <test> --run build/runs/<run_id> --redraw     # 只重画证据图：任何指标变化即中止，结果中写 meta.redrawn（#47）
@@ -96,7 +97,7 @@ python -m adcflow clean-remote --older-than-h 12   # 清理服务器上本项目
 1. `design/xtor/<block>/<name>/<block>.scs`（候选目录，另有 `candidate.yaml`）：子电路名、端口与规格一致，完整 RNL 原理图与语义，不含 `include`。
 2. 本模块全部用例：`--view <block>=xtor:<name> --corners all`（规格要求 `mc` 的用例另跑蒙特卡洛）；结果在 `results/<block>/<test>/xtor-<name>/`。
 3. 提交网表与 `results/`，PR 标题 `[<block>] candidate <name> …`，一个 PR 一个候选；贡献者发 PR，项目负责人（`many-question`）合并、
-   对排在前面的候选在同一网表哈希上复跑（“已复核”），换进顶层做混合回归，选定一个候选（`selected:`），45 角顶层回归通过后把块状态改为 `signoff`。
+   对排在前面的候选用 `adcflow verify` 在同一网表哈希上复跑（记录在 `verification/`，相符且未过期即“已复核”，[`verification.md`](verification.md) §7），换进顶层做混合回归，选定一个候选（`selected:`），45 角顶层回归通过后把块状态改为 `signoff`。
 4. 规格变更通知发在 `[<block>]` issue；每个活跃候选确认并重跑（`candidate.yaml` 的 `acknowledged`）。
 
 ## 6. 服务器使用规则

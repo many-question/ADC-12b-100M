@@ -87,6 +87,21 @@ def test_candidate_pr_touching_anything_else(path):
     assert has(errs, f"{path}: a candidate PR may only change")
 
 
+def test_candidate_pr_touching_verification_records():
+    rec = f"verification/{B}/alice-sa/tb_comp_delay/tt_nom_27.json"
+    errs = run({}, {**_cand("alice-sa", "alice"), **_res("alice-sa"), rec: "{}"}, "alice")
+    assert has(errs, f"{rec}: verification records are written by the lead (adcflow verify)")
+    assert run({}, {rec: "{}"}, "many-question") == []                     # a lead PR: the lead reviews it
+
+
+def test_verified_by_in_a_candidate_result():
+    errs = run({}, {**_cand("alice-sa", "alice"), **_res("alice-sa", meta={"verified_by": "many-question"})}, "alice")
+    assert has(errs, "meta.verified_by is not allowed in a candidate's result")
+    base = {**_cand("alice-sa", "alice"), **_res("alice-sa", meta={})}
+    errs = run(base, {**_cand("alice-sa", "alice"), **_res("alice-sa", meta={"verified_by": "x"})}, "alice")
+    assert has(errs, "meta.verified_by is not allowed")
+
+
 def test_include_in_a_netlist():
     net = NET.replace("subckt", 'include "models.scs"\nsubckt', 1)
     assert has(run({}, _cand("alice-sa", "alice", net=net), "alice"), 'include "models.scs" is not allowed')

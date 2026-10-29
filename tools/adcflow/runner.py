@@ -261,7 +261,8 @@ def run_test(test_id: str, block_name: str | None = None, corners: str = "typ",
              mc: str | None = None, timeout: float | None = None, crosscheck: bool = False) -> list[dict]:
     """Run a test at the corners of `corners`; with `crosscheck` every job runs a second time
     with the test's `crosscheck:` settings (numerics.py) and only the first is recorded, with the
-    differences in its meta.crosscheck."""
+    differences in its meta.crosscheck. Returns one row per job: job, corner, rc, metrics, out (the
+    recorded file, None without recording), params, globals and meta (as a result records them)."""
     views = views or {}
     block, test = find_test(test_id, block_name)
     cl = corner_set(corners)
@@ -351,10 +352,12 @@ def run_test(test_id: str, block_name: str | None = None, corners: str = "typ",
         if name in twins:
             meta["crosscheck"] = _crosscheck(block, test_id, xc, run_dir / "jobs", metrics, done[name + XCHECK])
         out = record(block, test_id, viewsig, j, metrics, meta, entries) if do_record else None
-        summary.append({"job": name, "corner": j.corner.name, "rc": meta["rc"], "metrics": metrics, "out": out})
+        summary.append({"job": name, "corner": j.corner.name, "rc": meta["rc"], "metrics": metrics, "out": out,
+                        "params": j.params, "globals": j.globals_, "meta": meta})
         if name in twins:
             t, tm, tmeta, _ = done[name + XCHECK]
-            summary.append({"job": t.name, "corner": t.corner.name, "rc": tmeta["rc"], "metrics": tm, "out": None})
+            summary.append({"job": t.name, "corner": t.corner.name, "rc": tmeta["rc"], "metrics": tm, "out": None,
+                            "params": t.params, "globals": t.globals_, "meta": tmeta})
     _print_summary(block, test_id, summary, mc)
     for name in twins:
         _print_crosscheck(name, done[name][2]["crosscheck"])

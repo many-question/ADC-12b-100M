@@ -101,6 +101,8 @@ scoring, selection, notices, migration and the implementation plan.
 
 **可信度。** 仿真需要各人自己的 PDK 和 Spectre，CI 无法复现，所以提交的结果是**自报**的。排行榜把“自报”和“已复核”分开：
 项目负责人在同一网表哈希上复跑后，结果加 `meta.verified_by`；只有已复核的结果才能用于选定（第 4 节），未复核的显示为灰色。
+（实现时改为：复核记录放在候选路径之外的 `verification/`，由 `adcflow verify` 写入，候选结果里的 `meta.verified_by` 被 CI 拒绝、也不被采信，
+见 [`docs/verification.md`](../verification.md) §7；放在结果里，作者在自己的 PR 里就能伪造。）
 复跑只在候选排到前面时做，不是每个候选都复跑；在项目负责人的环境里运行前先审查网表（无 `include`、器件均为 PDK 器件）。
 
 ## 4. 选定

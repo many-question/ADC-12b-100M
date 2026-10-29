@@ -49,6 +49,18 @@ def main(argv: list[str] | None = None) -> int:
     cd.add_argument("--json", action="store_true", help="structured data (as the site uses it)")
     cd.add_argument("--withdrawn", action="store_true", help="also list withdrawn candidates")
 
+    vf = sub.add_parser("verify", help="the lead's rerun of a candidate's results on the same netlist: compare with "
+                                       "the self-reported values and write verification/<block>/<name>/<test>/<job>.json "
+                                       "(docs/verification.md section 7)")
+    vf.add_argument("test", help="test id, e.g. tb_bootstrap_dc")
+    vf.add_argument("--block", help="block that owns the test (default: searched)")
+    vf.add_argument("--candidate", required=True, help="candidate name (design/xtor/<block>/<name>/)")
+    vf.add_argument("--corners", help="corner set or comma list (default: every corner a spec of the test requires)")
+    vf.add_argument("--mode", default="aps", help="spectre mode (default aps, as for acceptance)")
+    vf.add_argument("--jobs", type=int, default=6)
+    vf.add_argument("--keep", action="store_true", help="keep the remote run directory")
+    vf.add_argument("--dry-run", action="store_true", help="only check what would be verified (no simulation)")
+
     mg = sub.add_parser("migrate-candidate", help="move the legacy view design/xtor/<block>/ and its xtor results "
                                                   "into a named candidate")
     mg.add_argument("block")
@@ -113,6 +125,9 @@ def main(argv: list[str] | None = None) -> int:
         from .candidates import leaderboard, table
         rows = leaderboard(a.block, a.withdrawn)
         print(json.dumps(rows, indent=1, default=float) if a.json else table(rows))
+    elif a.cmd == "verify":
+        from .verify import verify
+        return verify(a.test, a.block, a.candidate, a.corners, a.mode, a.jobs, a.keep, a.dry_run)
     elif a.cmd == "migrate-candidate":
         from .candidates import migrate
         authors = [dict(zip(("github", "name"), x.split("=", 1))) for x in a.author]
