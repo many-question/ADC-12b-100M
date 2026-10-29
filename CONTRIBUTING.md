@@ -59,7 +59,7 @@ them in the issue and in `candidate.yaml` (section 4).
 
 ## 4. 提交一个候选
 
-**命名。** 候选名 `<name>` 只能含小写字母、数字和连字符（2~24 个字符），新候选必须以你的 GitHub 登录名（小写）开头，可再加变体：
+**命名。** 候选名 `<name>` 只能含小写字母、数字和连字符（2~24 个字符），新候选的名字必须是你的 GitHub 登录名（小写），或以 `<登录名>-` 开头加变体：
 `alice`、`alice-strongarm`。候选名在同一模块内唯一，合并后不改名。
 
 **目录。** `design/xtor/<block>/<name>/`：
