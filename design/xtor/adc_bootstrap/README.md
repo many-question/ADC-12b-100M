@@ -1,6 +1,6 @@
 # adc_bootstrap development evidence
 
-**Status: xtor-wip.** Circuit content hash `f9330137569bdf81`. Six representative DC corners pass all applicable limits under the explicit private settings below. This stage still needs expanded PVT coverage, same-hash numerical cross-checks, tracking and mixed top-level acceptance.
+**Status: xtor-wip.** Circuit content hash `f9330137569bdf81`. All 45 standard tracking corners and three representative alternate runs pass. All 45 private DC primary corners and four alternate runs also pass. Formal DC and mixed top-level acceptance remain outstanding.
 
 The circuit uses **20 thin-oxide MOS and eight MOM capacitors**, with the complete drawing embedded as RNL in `adc_bootstrap.scs`. MAUX connects CBN to VIN through the limited startup control before MTRK fully turns on. This reduces the SS-low-cold MTRK drain/source peak from 1.039716 V in the preceding public circuit to 0.996974 V here. CMD distributes the switching transient across the discharge stack; the long precharge device retains the reduction in high-temperature leakage.
 
@@ -8,29 +8,52 @@ Three small clock-coupled capacitors control switching feedthrough. CFF connects
 
 All changed dimensions were callback-normalized before simulation. CFF uses 6 fingers of length 1 µm on layers 1–6, approximately 2.90249 fF. CBI and CCONT use the same finger geometry on layers 1–3, approximately 1.46055 fF each. CBG and CMD use 12 fingers of length 5 µm on layers 1–6, approximately 30.3137 fF each; CDN uses 20 fingers of length 5 µm, approximately 52.653 fF. Finger width and spacing are 50 nm throughout. Callback payloads and device models remain private.
 
-## Completed representative DC evidence
+## Complete private DC sweep
 
-These are private staged simulations of this exact circuit hash, using the original 290 ns stimulus, 50-ohm source and reference switch/load, project measurement functions and unchanged specification 0.5.0 limits. Requested settings are reltol=1e-7, vabstol=1e-8, maxstep=1 ps, traponly, errpreset=conservative. Logs report **effective transient reltol=1e-8**. The generic SOA checker evaluates all 63 terminal pairs of 20 DUT MOS plus the reference switch, over the whole transient including startup and switching.
+The 45 primary corners cover five process, three supply and three temperature conditions. Every applicable limit of specification 0.5.0 passes. The unchanged generic SOA checker covers all 63 terminal pairs of 20 DUT MOS plus the reference switch throughout startup and switching: 2,835 pair/corner peaks, zero violations.
 
-| Corner | min boost (V) | variation (mV) | off (ps) | on (ps) | AVDD (µA) | PHI_B / PHI_BB (fF) | SOA violations / pairs | max abs. V (V) |
-|---|---:|---:|---:|---:|---:|---:|---:|---:|
-| `tt_nom_27` | 0.862540 | 13.794 | 41.379 | 156.666 | 48.567 | 11.245 / 7.525 | 0/63 | 0.97800 |
-| `ss_low_125` | 0.775052 | 13.534 | 59.525 | 220.430 | 58.316 | 11.033 / 7.614 | 0/63 | 0.95167 |
-| `ss_low_m40` | 0.785622 | 10.031 | 55.423 | 229.944 | 37.071 | 9.491 / 7.220 | 0/63 | 0.99697 |
-| `ss_high_m40` | 0.961469 | 10.166 | 40.345 | 155.561 | 47.488 | 11.075 / 7.351 | 0/63 | 0.99825 |
-| `fs_high_m40` | 0.950412 | 14.209 | 33.804 | 140.168 | 49.022 | 11.993 / 7.435 | 0/63 | 0.99725 |
-| `fs_high_125` | 0.921178 | 27.062 | 39.348 | 169.720 | 129.514 | 12.486 / 7.736 | 0/63 | 0.99868 |
+| DC metric | Worst result | Corner | Limit |
+|---|---:|---|---:|
+| Minimum boost | 0.734025962 V | `ff_low_125` | ≥0.72 V |
+| Boost variation | 35.581542847 mV | `ff_high_125` | ≤40 mV |
+| Turn-off | 59.524580635 ps | `ss_low_125` | ≤60 ps |
+| Turn-on | 229.944229313 ps | `ss_low_m40` | ≤300 ps |
+| Largest absolute terminal voltage | 0.998681198 V | `fs_high_125` | ≤1 V |
+| TT average current | 48.567152 µA | `tt_nom_27` | ≤50 µA |
+| TT PHI_B / PHI_BB input capacitance | 11.244909 / 7.525217 fF | `tt_nom_27` | ≤16 fF each |
 
-All applicable DC limits pass in these six rows. Current and clock-input-capacitance limits apply only at TT. The SS-low-hot turn-off margin is approximately 0.475 ps and still needs the new hash's finer-step check. Exact worst stresses are 0.998247131 V at SS-high-cold, 0.996974147 V at SS-low-cold, 0.997253479 V at FS-high-cold and 0.998681198 V at FS-high-hot.
+Current and input-capacitance limits apply only at TT nominal / 27 °C. Two instances plus the allocated 8 fF wiring give estimated PHI_B / PHI_BB driver loads of 30.489817 / 23.050434 fF, below the 40 fF allocation for each phase.
 
-Source: `20261029-044015-9a5503-bootstrap-control-trim-v050`, cases suffixed `pcp_m13_cbi_m13`. The entire run was retrieved and its unique remote directory removed. Every one of the 63 peak values and peak times at each of these six corners matches the independent full-pair preview exactly. Raw waveforms, samples and logs remain private. Selected-pair previews are never substituted for the complete SOA result.
+The original 290 ns stimulus, 50-ohm source, reference switch/load and project measurement functions are unchanged. Private primary settings request reltol=1e-7, vabstol=1e-8, maxstep=1 ps, traponly and conservative. All 45 logs report effective transient reltol=1e-8, and all saved-step maxima were checked against 1 ps. Exact peaks above use the complete saved data. Generic SOA diagnostics may identify the start of the peak plateau rather than the exact maximum's timestamp.
 
-The current default generated DC testbench does not yet specify these numerical settings. [#49](https://github.com/many-question/ADC-12b-100M/issues/49) tracks their integration into the shared flow. These rows are not formal default-flow acceptance records. Ten additional corners and four same-hash 0.5 ps/gear checks are running separately; they are not included in the completed table.
+Sources are `20261029-044015-9a5503-bootstrap-control-trim-v050` (six cases suffixed `pcp_m13_cbi_m13`), `20261029-045040-29685d-bootstrap-cbi-extended-v050` (ten `cbi_extended` cases), and `20261029-050355-82a86f-bootstrap-cbi-remaining-v050` (29 `cbi_remaining` cases). All data was retrieved and each unique remote directory's removal verified. Independent full-pair previews at 19 corners match all local peak values and exact peak timestamps. Raw samples, waveforms, logs, models and callback payloads remain private.
 
-## Tracking and remaining validation
+Four same-hash 0.5 ps / gear2only comparisons also pass: SS high/cold, SS low/cold, SS low/hot and FS high/cold. Each checks all 63 terminal pairs. The largest absolute change of a corresponding peak is 0.013060 mV; the largest turn-off change is 0.075221 ps. SS-low-hot turn-off changes from 59.524581 to 59.587332 ps, leaving 0.412668 ps of margin. The 29 sample timestamps agree exactly in all four comparisons, and the largest RMS sample difference is 0.0192 µV. These are four representative comparisons, not alternate coverage of all 45 corners.
 
-No tracking result is claimed for this new hash yet. The preceding public circuit `e07b810975de733d` had passing FF-hot and SS-low-hot tracking captures, but those captures do not validate this circuit. Required work remains: this hash's convergence comparisons, all 45 DC and tracking corners, representative tracking cross-checks with recorded numerical provenance, and mixed top-level acceptance on the coordinated flow. No formal transistor signoff JSON is supplied by this stage note.
+This module branch's generated DC testbench does not yet specify these settings. The configuration and separate flow PR have been approved in [#49](https://github.com/many-question/ADC-12b-100M/issues/49); integration and fresh transistor runs remain outstanding. The private sweep is not formal default-flow acceptance. Formal reruns will also cross-check FS-high-hot (maximum SOA), FF-low-hot (minimum boost), FF-high-hot (maximum boost variation) and TT nominal (the applicable current/input-capacitance limits), for eight representative DC comparisons in total.
 
-The branch is synchronized with main `ad5134e` ([#50](https://github.com/many-question/ADC-12b-100M/pull/50)). Its periodic-Hann drawing correction was applied to five retained historical tracking records using official `remeasure --redraw`; all metrics, verdicts, capture hashes and original provenance were verified unchanged. Those historical results retain their circuit hashes and any staleness. #50 does not resolve the separate DC numerical-configuration issue #49.
+## Complete standard tracking sweep
 
-Repository validation for this stage: `adcflow check all` reports no errors or warnings, generated files are current, the complete RNL was rendered and visually inspected, and tests pass: **188 passed, 1 deselected**.
+**45/45 standard primary records pass** over the complete five-process, three-supply and three-temperature matrix. The lowest SFDR is 85.077394 dBc at `ss_low_125`; the lowest SNDR is 84.480775 dB at `ss_low_m40`. Limits remain 82 dBc and 78 dB. Every selected JSON record and its official spectrum figure are committed under `results/adc_bootstrap/tb_bootstrap_track/xtor/`.
+
+The unchanged standard runner has completed three representative primary/alternate comparisons, including the minimum-SFDR and minimum-SNDR corners:
+
+| Corner | Primary SFDR / SNDR (dBc / dB) | 0.5 ps / gear2 SFDR / SNDR (dBc / dB) | Sample difference RMS / maximum (µV) |
+|---|---:|---:|---:|
+| `ff_high_125` | 100.297047 / 97.061710 | 100.315767 / 97.452442 | 2.426666 / 3.785004 |
+| `ss_low_m40` | 87.864199 / 84.480775 | 87.942043 / 84.578936 | 1.471096 / 2.305258 |
+| `ss_low_125` | 85.077394 / 84.759671 | 85.030887 / 84.751815 | 1.438738 / 2.212097 |
+
+All three comparisons use 256 samples with identical timestamps. Logs report reltol=1e-7, vabstol=1e-8 and moderate; primary maxstep is 1 ps with traponly, alternate maxstep is 0.5 ps with gear2only. The full waveform is not saved, so the recorded observed maximum step is null; the configured maximum and accepted steps come from the original simulator log.
+
+Sources are `20261029-050406-a36d-tb_bootstrap_track` (two primaries and two alternates), `20261029-055023-1a68-tb_bootstrap_track` (22 primaries), `20261029-062340-8233-tb_bootstrap_track` (21 primaries), and `20261029-095216-1966-tb_bootstrap_track` (SS-low-cold primary repeated with its alternate). The selected SS-low-cold JSON is the entire later cross-checked record; metadata was not transplanted onto the earlier primary. Both primaries were independently remeasured and compared. Their captures and the complete comparison remain private.
+
+All standard records retain `git=1478a35`, `git_clean=true`, actual numerical settings, cross-check differences and current input hashes. Each staged testbench and deck was checked against the standard generator; every primary and alternate was remeasured from its original capture with the unchanged official functions. Completed-capture previews agree with the final records. All run data was retrieved and the unique remote directories' removal verified. Inputs and Git remained frozen throughout recording, under a two-Spectre limit.
+
+## Remaining acceptance
+
+Required work: integrate approved #49 configuration and rerun formal DC with eight representative convergence checks, then run mixed top-level `tb_top_sine` at seven quick corners with only bootstrap replaced by its transistor view. The mixed test retains 1024 calibration and 1024 independent judged conversions, the official coherent frequency and noise settings. It has been prepared locally but not simulated. Formal transistor signoff is not claimed.
+
+The branch is synchronized with main `ad5134e` ([#50](https://github.com/many-question/ADC-12b-100M/pull/50)). Its periodic-Hann drawing correction was applied to five retained historical tracking records through official `remeasure --redraw`; metrics, verdicts, capture hashes and provenance remained unchanged. Historical captures keep their original circuit hashes and any staleness.
+
+Repository validation: `adcflow check all` reports no errors or warnings, generated files are current, the complete RNL was rendered and visually inspected, and tests pass: **188 passed, 1 deselected**. The separate #49 flow checks and behavioral baselines do not constitute circuit acceptance.
