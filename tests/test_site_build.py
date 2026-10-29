@@ -7,6 +7,12 @@ import subprocess
 import sys
 from pathlib import Path
 
+import pytest
+
+# The site's own dependencies (site/requirements.txt) are installed by the site workflow, not by the
+# test jobs: skip there instead of failing at collection.
+pytest.importorskip("markdown_it")
+
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "site"))
 
