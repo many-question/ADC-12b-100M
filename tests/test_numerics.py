@@ -87,6 +87,22 @@ def test_conservative_log_uses_effective_transient_reltol():
     assert nu["errpreset"] == "conservative"
 
 
+def test_clkgen_timing_generates_numerics_and_preserves_step_only_crosscheck():
+    _, test = find_test("tb_clkgen_timing")
+    assert test["numerics"] == {"reltol": 1e-7, "vabstol": 1e-8, "maxstep": "1p",
+                                "method": "traponly", "errpreset": "conservative"}
+    assert test["crosscheck"] == {"maxstep": "0.5p"}
+    text = (REPO_ROOT / test["netlist"]).read_text(encoding="utf-8")
+    tran, opts = _analyses("tb_clkgen_timing")
+    assert tran == "tran1 tran stop=tstop maxstep=1p method=traponly errpreset=conservative"
+    assert opts == "tbopts options reltol=1e-07 vabstol=1e-08"
+    assert "parameters tstop=161n" in text.splitlines()
+    assert "save CLK PHI_S PHI_SB PHI_B PHI_BB CONV" in text.splitlines()
+    alt = numerics.apply(text, test["crosscheck"])
+    diff = [(a, b) for a, b in zip(text.splitlines(), alt.splitlines()) if a != b]
+    assert diff == [(tran, "tran1 tran stop=tstop maxstep=0.5p method=traponly errpreset=conservative")]
+
+
 def test_apply_sets_and_appends():
     text = "simulator lang=spectre\ntran1 tran stop=1n maxstep=2p\nsave X\n"
     out = numerics.apply(text, {"maxstep": "1p", "method": "traponly"})
