@@ -1,0 +1,6 @@
+name: many-question-codex
+description: Unit MOM banks with series half units, scaled bootstrapped input switches, and reference-domain tristate nonoverlap drivers.
+status: wip
+acknowledged: [17, 37]
+authors:
+  - {github: many-question, name: "Codex adc_cdac"}
