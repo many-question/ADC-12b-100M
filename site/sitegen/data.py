@@ -21,7 +21,7 @@ from adcflow.checks import judge, load_results     # noqa: E402
 from adcflow.corners import corner_set             # noqa: E402
 from adcflow.specs import STATUSES, blocks        # noqa: E402
 
-STATUS_ORDER = ["behavioral", "xtor-wip", "xtor-review", "signoff"]
+STATUS_ORDER = ["behavioral", "xtor-review", "signoff"]
 assert set(STATUS_ORDER) == set(STATUSES), "specs.STATUSES changed: update STATUS_ORDER and the stepper"
 
 DOCS = [  # (file, slug, title, blurb) in reading order
@@ -34,7 +34,7 @@ DOCS = [  # (file, slug, title, blurb) in reading order
     ("docs/sfdr-estimator.md", "sfdr-estimator", "SFDR 估计器", "ADCToolbox Python / MATLAB 的 SFDR 比较与项目采用的定义（#36）"),
     ("docs/handoff.md", "handoff", "晶体管级设计分工包", "各模块的风险、依赖与要点"),
     ("docs/workflow.md", "workflow", "工作环境与命令", "本地环境、生成文件、运行验收用例"),
-    ("CONTRIBUTING.md", "contributing", "协作流程", "认领模块、分支与 PR、评审与签核"),
+    ("CONTRIBUTING.md", "contributing", "协作流程", "提交候选、分支与 PR、评审与选定"),
 ]
 CONTRIBUTING_RAW = "https://raw.githubusercontent.com/{repo}/main/CONTRIBUTING.md"
 FALLBACK_REPO = "many-question/ADC-12b-100M"
@@ -155,7 +155,7 @@ def figures(doc: dict) -> list[Figure]:
 
 
 def owner_login(raw_owner) -> str | None:
-    """GitHub login of a block's owner, or None while it is unclaimed (TBD) or not a login."""
+    """GitHub login of a block's owner, or None for TBD or a value that is not a login."""
     o = str(raw_owner or "TBD").strip().lstrip("@")
     return o if o.upper() != "TBD" and LOGIN.match(o) else None
 

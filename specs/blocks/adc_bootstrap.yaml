@@ -1,11 +1,10 @@
 block: adc_bootstrap
 title: Bootstrapped gate generator for the bottom-plate input switches (one per side)
-version: 0.6.0
-owner: many-question
+version: 0.7.0
+selected: none          # the selected candidate (design/xtor/<block>/<name>/); none yet
 status: behavioral
 views:
   behav: design/behav/adc_bootstrap.scs
-  xtor: design/xtor/adc_bootstrap/adc_bootstrap.scs
 summary: >
   While PHI_B is high, VG = VIN + Vboot (Vboot ~ AVDD, from a capacitor charged
   during conversion), so every NMOS input switch inside adc_cdac sees a

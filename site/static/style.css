@@ -107,7 +107,7 @@ footer > div { max-width: 1240px; margin: 0 auto; padding: 18px 20px 28px; displ
 .chip.none { background: var(--surface-2); color: var(--ink-3); }
 .chip.run { background: var(--info-soft); color: var(--info); }
 .chip.st-behavioral { background: var(--info-soft); color: var(--info); }
-.chip.st-xtor-wip { background: var(--warn-soft); color: var(--warn); }
+.chip.st-wip { background: var(--warn-soft); color: var(--warn); }
 .chip.st-xtor-review { background: var(--vio-soft); color: var(--vio); }
 .chip.st-signoff { background: var(--ok-soft); color: var(--ok); }
 .ok-t { color: var(--ok); } .bad-t { color: var(--bad); font-weight: 600; } .warn-t { color: var(--warn); }
@@ -232,7 +232,7 @@ nav a.nav-collab:hover, nav a.nav-collab.on { background: var(--accent); color: 
 .collab { border-color: var(--accent); }
 .copyline { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 10px 0 4px; }
 .copyline code { flex: 1 1 280px; min-width: 0; padding: 7px 11px; font-size: .88rem; overflow-wrap: anywhere; }
-.unclaimed { color: var(--warn); font-weight: 600; }
+.unselected { color: var(--warn); font-weight: 600; }
 .ev { font-size: .84rem; white-space: nowrap; }
 .ev-cell { white-space: nowrap; min-width: 9em; }
 .stamp { font-size: .8rem; font-weight: 400; margin-left: 8px; white-space: nowrap; }
@@ -251,6 +251,14 @@ section.preview { border: 1px dashed var(--warn); border-radius: var(--radius); 
 .btabs > section.preview { margin-top: 28px; }
 .js .btabs > section.preview { margin-top: 12px; }
 .figdet { margin: 6px 0 2px; }
+/* candidate leaderboard */
+table.cands td { vertical-align: top; }
+table.cands tr.selected td { background: var(--ok-soft); }
+table.cands td:nth-child(2) { min-width: 11em; }
+table.cands .chip { margin: 1px 2px 1px 0; }
+details.cand { border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); padding: 6px 16px; margin: 12px 0; }
+details.cand > summary { cursor: pointer; padding: 6px 0; font-weight: 500; }
+details.cand[open] > summary { border-bottom: 1px solid var(--line); margin-bottom: 8px; }
 .figdet > summary { cursor: pointer; color: var(--ink-2); font-size: .85rem; }
 section.preview h4 { margin: 1.2em 0 .3em; }
 table.live td:first-child code, table.live td:nth-child(2) { white-space: nowrap; overflow-wrap: normal; }

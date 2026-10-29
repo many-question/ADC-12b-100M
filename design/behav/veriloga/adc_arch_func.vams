@@ -22,6 +22,28 @@ analog function real capw;   // weight of cap j (LSB)
   end
 endfunction
 
+analog function real tdacx;  // extra DAC wait (s, TT) after the DAC step of decision k + 1
+  input k; integer k;
+  begin
+    case (k)
+      0: tdacx = `ADC_TDX0;
+      1: tdacx = `ADC_TDX1;
+      2: tdacx = `ADC_TDX2;
+      3: tdacx = `ADC_TDX3;
+      4: tdacx = `ADC_TDX4;
+      5: tdacx = `ADC_TDX5;
+      6: tdacx = `ADC_TDX6;
+      7: tdacx = `ADC_TDX7;
+      8: tdacx = `ADC_TDX8;
+      9: tdacx = `ADC_TDX9;
+      10: tdacx = `ADC_TDX10;
+      11: tdacx = `ADC_TDX11;
+      12: tdacx = `ADC_TDX12;
+      default: tdacx = 0;
+    endcase
+  end
+endfunction
+
 analog function integer caps;  // 1 = cap j samples the input
   input j; integer j;
   begin

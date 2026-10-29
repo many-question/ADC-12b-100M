@@ -92,13 +92,17 @@ def replay(job_dir: Path, ctx: dict) -> dict:
     d, w = dv[nwarm:], dv[nwarm:] - dv[nwarm:, -1:]
     m["tail_dev_uV"] = float(np.abs(w[:, 11:]).max() * 1e6)          # decisions 12..14 (no redundancy)
     tol = np.maximum(np.concatenate([a.redundancy(), [0.0]]), 0.25) * a.lsb * a.vref / a.fs_peak
-    m["env_ratio"] = float((np.abs(w) / tol).max())
+    # REF-21: decisions with redundancy (k = 1 .. 11, delta_k >= 1); 12 .. 14 are REF-13
+    ratio = env_ratios(a, w)
+    m["env_ratio"] = float(ratio.max())
+    m["env_ratio_per_decision"] = [round(float(x), 4) for x in ratio]
+    m["env_ratio_decision"] = int(np.argmax(ratio)) + 1
     m["start_pp_uV"] = float(np.ptp(pre[nwarm:]) * 1e6)
     m["droop_max_mV"] = float(np.abs(d).max() * 1e3)
     m["vrefp_V"] = float(pre[nwarm:].mean())
     fg = sink_of(ctx)
     if fg:
-        _fig_replay(fg, ctx, pre[nwarm:], d, w, tol, m)
+        _fig_replay(fg, ctx, pre[nwarm:], d, w, tol, ratio, m)
     return m
 
 
@@ -357,8 +361,17 @@ def _fig_noise(fg, ctx, psd, m) -> None:
             "band, and the integrated rms noise against the limit.")
 
 
-def _fig_replay(fg, ctx, pre, d, w, tol, m) -> None:
-    fig, axs = fg.new(2, 2, size=(11.2, 7.4))
+def env_ratios(a: Arch, w: np.ndarray) -> np.ndarray:
+    """REF-21: per decision k with redundancy (delta_k >= 1, k = 1 .. 11), the largest |VREFP(k) - VREFP(14)|
+    over the record (``w``: conversions x 14 decisions, V) divided by tolerance_k = delta_k * LSB * VREF / FS,
+    the VREFP error that a full-scale DAC level turns into a delta_k LSB decision error."""
+    red = a.redundancy()
+    n = int(np.sum(red >= 1))
+    return np.abs(w[:, :n]).max(0) / (red[:n] * a.lsb * a.vref / a.fs_peak)
+
+
+def _fig_replay(fg, ctx, pre, d, w, tol, ratio, m) -> None:
+    fig, axs = fg.new(2, 3, size=(16.0, 7.4))
     k = np.arange(1, w.shape[1] + 1)
     kd = k[:-1]                                   # decision 14 is the reference of the deviation
     ax = axs[0, 0]
@@ -374,8 +387,17 @@ def _fig_replay(fg, ctx, pre, d, w, tol, m) -> None:
            title="VREFP at the decision instants")
     ax.set_xticks(kd)
     ax.legend(loc="upper right", fontsize=7.5)
-    note(ax, f"worst ratio to the allowed value: {m['env_ratio']:.2f}", loc="lower left")
     ax = axs[0, 1]
+    kr = np.arange(1, len(ratio) + 1)
+    ax.bar(kr, ratio, color=[LIMIT if r > 1 else C1 for r in ratio], width=0.6)
+    hi = limits(ctx, "env_ratio")[1]
+    hline(ax, hi if hi is not None else 1.0, f"limit {hi:g} (REF-21)" if hi is not None else "1")
+    ax.set(xlabel="decision k (redundancy >= 1 LSB)", ylabel="max |VREFP(k) - VREFP(14)| / tolerance_k",
+           title="REF-21: deviation over the redundancy tolerance", ylim=(0, max(1.2, ratio.max() * 1.15)))
+    ax.set_xticks(kr)
+    note(ax, f"env_ratio {m['env_ratio']:.2f} at decision {m['env_ratio_decision']}\n"
+             "tolerance_k = delta_k x LSB x VREF / FS", loc="upper left")
+    ax = axs[0, 2]
     ax.plot(np.arange(1, len(pre) + 1), (pre - pre.mean()) * 1e6, color=C3, lw=0.9)
     hi = limits(ctx, "start_pp_uV")[1]
     if hi is not None:
@@ -390,10 +412,12 @@ def _fig_replay(fg, ctx, pre, d, w, tol, m) -> None:
     ax.set_xticks(k)
     ax.legend(loc="lower left", fontsize=7.5)
     note(ax, f"largest drop {m['droop_max_mV']:.1f} mV", loc="upper right")
-    spec_table(axs[1, 1], ctx, m, ["enob_loss_bit", "tail_dev_uV", "start_pp_uV"])
+    axs[1, 2].axis("off")
+    spec_table(axs[1, 1], ctx, m, ["enob_loss_bit", "tail_dev_uV", "start_pp_uV", "env_ratio"])
     axs[1, 1].text(0.0, 0.62, f"ENOB with an ideal reference {m['enob_ideal_ref']:.2f} bit\n"
                    f"ENOB with the simulated VREFP {m['enob_ref']:.2f} bit, SFDR {m['sfdr_ref_dBc']:.1f} dBc\n"
                    f"recovered VREFP {m['vrefp_V']:.4f} V", fontsize=8, color=INK2,
                    transform=axs[1, 1].transAxes, va="top")
     fg.save(fig, "replay", "VREFP deviation at each decision against the redundancy tolerance envelope, the "
-            "memory of VREFP before each conversion, the droop during a conversion, and the ENOB cost.")
+            "per-decision ratio to the tolerance against its limit (REF-21), the memory of VREFP before each "
+            "conversion, the droop during a conversion, and the ENOB cost.")

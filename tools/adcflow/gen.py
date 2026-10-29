@@ -232,6 +232,9 @@ def gen_va_params() -> str:
         j = len(w) - 1 - i
         lines.append(f"`define ADC_W{j} {wj}")
         lines.append(f"`define ADC_S{j} {sj}")
+    lines.append("// extra DAC wait (s, TT) after the DAC step of decision k + 1, k = 0 .. 12 (timing.t_dac_add)")
+    for k, t in enumerate(a.t_dac_add):
+        lines.append(f"`define ADC_TDX{k} {t:.6e}")
     lines.append("`endif")
     return "\n".join(lines) + "\n"
 
@@ -248,6 +251,12 @@ def gen_va_funcs() -> str:
          "    case (j)"]
     L += [f"      {j}: capw = `ADC_W{j};" for j in range(n - 1, -1, -1)]
     L += ["      default: capw = 0;", "    endcase", "  end", "endfunction", "",
+          "analog function real tdacx;  // extra DAC wait (s, TT) after the DAC step of decision k + 1",
+          "  input k; integer k;",
+          "  begin",
+          "    case (k)"]
+    L += [f"      {k}: tdacx = `ADC_TDX{k};" for k in range(len(a.t_dac_add))]
+    L += ["      default: tdacx = 0;", "    endcase", "  end", "endfunction", "",
           "analog function integer caps;  // 1 = cap j samples the input",
           "  input j; integer j;",
           "  begin",

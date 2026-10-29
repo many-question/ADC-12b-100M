@@ -34,4 +34,18 @@
 `define ADC_S1 1
 `define ADC_W0 1
 `define ADC_S0 1
+// extra DAC wait (s, TT) after the DAC step of decision k + 1, k = 0 .. 12 (timing.t_dac_add)
+`define ADC_TDX0 0.000000e+00
+`define ADC_TDX1 0.000000e+00
+`define ADC_TDX2 1.000000e-11
+`define ADC_TDX3 3.000000e-11
+`define ADC_TDX4 3.000000e-11
+`define ADC_TDX5 3.000000e-11
+`define ADC_TDX6 0.000000e+00
+`define ADC_TDX7 0.000000e+00
+`define ADC_TDX8 2.500000e-11
+`define ADC_TDX9 0.000000e+00
+`define ADC_TDX10 0.000000e+00
+`define ADC_TDX11 0.000000e+00
+`define ADC_TDX12 0.000000e+00
 `endif

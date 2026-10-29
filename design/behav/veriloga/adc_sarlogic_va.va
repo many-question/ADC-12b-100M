@@ -13,7 +13,7 @@
     if (k < `ADC_NDEC - 1) begin \
       pj = `ADC_NCAP - 1 - k; pb = bval; \
       t_bit = $abstime + speed * t_bitd; \
-      t_dacd = $abstime + speed * (t_bitd + ((k < n_fast) ? t_dac_fast : t_dac_slow)); \
+      t_dacd = $abstime + speed * (t_bitd + ((k < n_fast) ? t_dac_fast : t_dac_slow) + tdacx(k)); \
       dac_done = 0; \
     end \
     t_clk_fall = $abstime + speed * t_rst; \
@@ -50,6 +50,8 @@ module adc_sarlogic_va(CONV, OUTP, OUTN, CLKC, UP, DN, D, RDY, DVDD, VSS);
   parameter real e_dec = 150e-15 from [0:inf);    // J per decision (logic + drivers)
   parameter real tw = 30e-12 from (0:inf);
   parameter real ileak = 1e-6 from [0:inf);
+
+  `include "adc_arch_func.vams"   // tdacx(k): extra DAC wait after step k + 1 (timing.t_dac_add)
 
   integer running, waiting, k, clkc, rdy, dac_done, valid_low, pj, pb, i;
   integer up[0:12], dn[0:12], bits[0:13], dreg[0:13];

@@ -1,11 +1,10 @@
 block: adc_sarlogic
 title: Asynchronous SAR controller, bit registers and output register
-version: 0.2.0
-owner: Arcadia-1
+version: 0.4.0
+selected: none          # the selected candidate (design/xtor/<block>/<name>/); none yet
 status: behavioral
 views:
   behav: design/behav/adc_sarlogic.scs
-  xtor: design/xtor/adc_sarlogic/adc_sarlogic.scs
 summary: >
   Self-timed SAR loop. CONV low = reset (CLKC = 0, all UP/DN = 0; D and RDY
   hold). CONV rising starts a conversion: after t_start the first CLKC rises;
@@ -76,11 +75,11 @@ specs:
   - {id: LOG-01, name: "functional errors (1000 conversions vs ideal emulator)", metric: func_errors, unit: count, max: 0, corners: all, test: tb_sarlogic_rand}
   - {id: LOG-02, name: "OUTP/OUTN rise -> UP/DN 50 %",            metric: t_bit_ps,    unit: ps, max: 40,  corners: typ, test: tb_sarlogic_func}
   - {id: LOG-03, name: "OUTP/OUTN rise -> CLKC fall 50 %",         metric: t_rst_ps,    unit: ps, max: 45,  corners: typ, test: tb_sarlogic_func}
-  - {id: LOG-04, name: "DAC wait UP/DN -> CLKC rise, steps 1-6",   metric: t_dac_fast_ps, unit: ps, min: 35, max: 60, corners: typ, test: tb_sarlogic_func}
-  - {id: LOG-05, name: "DAC wait UP/DN -> CLKC rise, steps 7-13",  metric: t_dac_slow_ps, unit: ps, min: 70, max: 100, corners: typ, test: tb_sarlogic_func}
-  - {id: LOG-06, name: "DAC wait steps 7-13 (all corners)",       metric: t_dac_slow_ps, unit: ps, min: 70, corners: all, test: tb_sarlogic_func}
+  - {id: LOG-04, name: "DAC wait UP/DN -> CLKC rise, steps 1-6, net of the designed extra wait", metric: t_dac_fast_ps, unit: ps, min: 35, max: 60, corners: typ, test: tb_sarlogic_func}
+  - {id: LOG-05, name: "DAC wait UP/DN -> CLKC rise, steps 7-13, net of the designed extra wait", metric: t_dac_slow_ps, unit: ps, min: 70, max: 100, corners: typ, test: tb_sarlogic_func}
+  - {id: LOG-06, name: "DAC wait steps 7-13, net of the extra wait (all corners)", metric: t_dac_slow_ps, unit: ps, min: 70, corners: all, test: tb_sarlogic_func}
   - {id: LOG-07, name: "CONV rise -> first CLKC rise",            metric: t_start_ps,  unit: ps, min: 80, max: 160, corners: all, test: tb_sarlogic_func}
-  - {id: LOG-08, name: "conversion time CONV rise -> RDY rise (emulated comparator 45 ps)", metric: t_conv_ns, unit: ns, max: 2.6, corners: typ, test: tb_sarlogic_func}
+  - {id: LOG-08, name: "conversion time CONV rise -> RDY rise (emulated comparator 45 ps)", metric: t_conv_ns, unit: ns, max: 2.75, corners: typ, test: tb_sarlogic_func}
   - {id: LOG-09, name: "conversion time (all corners, comparator 70 ps)", metric: t_conv_ns, unit: ns, max: 4.1, corners: all, test: tb_sarlogic_func_slow}
   - {id: LOG-10, name: "D setup to RDY rise",                     metric: t_setup_ps,  unit: ps, min: 100, corners: all, test: tb_sarlogic_func}
   - {id: LOG-11, name: "forced-decision recovery (stuck comparator) errors", metric: timeout_errors, unit: count, max: 0, corners: all, test: tb_sarlogic_timeout}
@@ -88,6 +87,7 @@ specs:
   - {id: LOG-13, name: "average DVDD power at 100 MS/s",         metric: power_uW,    unit: uW, max: 300, corners: typ, test: tb_sarlogic_func}
   - {id: LOG-14, name: "CONV input capacitance (charge per rising edge / VDD)", metric: cin_conv_fF, unit: fF, max: 40, corners: typ, test: tb_sarlogic_func}
   - {id: LOG-15, name: "OUTP / OUTN input capacitance (charge per rising edge / VDD, larger of the two)", metric: cin_cmp_fF, unit: fF, max: 7, corners: typ, test: tb_sarlogic_func}
+  - {id: LOG-16, name: "extra DAC wait of each step (timing.t_dac_add), worst error against nominal", metric: t_dac_add_err_pct, unit: '%', max: 20, corners: typ, test: tb_sarlogic_func}
 tests:
   tb_sarlogic_func:
     netlist: tb/sarlogic/tb_sarlogic_func.scs
@@ -102,6 +102,13 @@ tests:
       OUTP and OUTN reach the DUT through charge meters (tb_qmeter_va, a 0 V path); the charge a pin draws
       over each rising edge divided by the voltage step, mean over all rising
       edges (window as in adc_cdac tb_cdac_settle).
+      DAC waits (UP/DN -> next CLKC) are timed after decisions 1, 2, 3, 4, 5,
+      6, 7, 9 and 13. Decisions 3, 4, 5, 6 and 9 get an extra wait of 10, 30,
+      30, 30 and 25 ps at TT (specs/arch.yaml timing.t_dac_add, issue #35:
+      VREFP recovery before decisions 4..7 and 10); LOG-04/05/06 judge the
+      waits net of it. LOG-16: the extra wait of a step is its mean wait minus
+      the mean wait of the steps of the same kind (fast 1..6 / slow 7..13)
+      without one; the worst error against nominal, in %.
   tb_sarlogic_rand:
     netlist: tb/sarlogic/tb_sarlogic_func.scs
     measure: adcflow.measure.sarlogic:func

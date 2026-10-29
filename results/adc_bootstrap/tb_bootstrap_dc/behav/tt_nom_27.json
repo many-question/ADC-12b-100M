@@ -11,7 +11,8 @@
   "noise_en": 0,
   "devnoise": 1,
   "beh_speed": 1.0,
-  "vref_in": 0.9
+  "vref_in": 0.9,
+  "cdac_behav": 1
  },
  "metrics": {
   "vgs_levels_V": [
@@ -151,15 +152,15 @@
   }
  ],
  "meta": {
-  "date": "2026-10-29T10:25:00",
-  "git": "2a510a6",
+  "date": "2026-10-29T13:00:48",
+  "git": "6bfc0e8",
   "git_clean": true,
   "mode": "aps",
   "pdk": true,
   "mc": null,
-  "wall_s": 280.2,
+  "wall_s": 187.1,
   "rc": "0",
-  "sim_s": "60",
+  "sim_s": "77",
   "numerics": {
    "source": "spectre.log",
    "reltol": 1e-08,
@@ -178,103 +179,22 @@
    "design/behav/adc_cdac.scs": "5b8837cc5d2a76bc",
    "design/behav/adc_clkgen.scs": "0e7831ed888587e6",
    "design/behav/adc_comp.scs": "c0da9398b6e09fc2",
-   "design/behav/adc_ref.scs": "a83c6feaac8c9c1a",
+   "design/behav/adc_ref.scs": "bc2eec0046129145",
    "design/behav/adc_sarlogic.scs": "7982e36f6743bf80",
    "design/top/adc_top.scs": "362a964ffe162797",
    "design/behav/veriloga/adc_bootstrap_va.va": "12338aad16f4913b",
-   "design/behav/veriloga/adc_cdac_sw_va.va": "e465880479187179",
+   "design/behav/veriloga/adc_cdac_sw_va.va": "25fa7719fc730a3a",
    "design/behav/veriloga/adc_clkgen_va.va": "7fff1b9368bc1a20",
    "design/behav/veriloga/adc_comp_va.va": "ab8a6bf210351e31",
    "design/behav/veriloga/adc_ktc_va.va": "a1cf98faf5bf9b33",
    "design/behav/veriloga/adc_ref_va.va": "746d2530d4ff6d5c",
-   "design/behav/veriloga/adc_sarlogic_va.va": "42f06909a81347ef",
+   "design/behav/veriloga/adc_sarlogic_va.va": "5cd9dbd22bf395eb",
    "tb/common/veriloga/tb_imeter_va.va": "d4be49aca417ad61",
    "tb/common/veriloga/tb_qmeter_va.va": "fed84d572a912b39",
    "tb/common/veriloga/tb_sampler_va.va": "4092bc16170c588d",
    "specs/soa.yaml": "df574d3582df9b2c",
    "tb/bootstrap/tb_bootstrap_dc.scs": "7623413b05a0014a",
-   "specs/arch.yaml": "bffadef750bb5205"
-  },
-  "crosscheck": {
-   "settings": {
-    "maxstep": "0.5p",
-    "method": "gear2only"
-   },
-   "numerics": {
-    "source": "spectre.log",
-    "reltol": 1e-08,
-    "maxstep_ps": 0.5,
-    "method": "gear2only",
-    "errpreset": "conservative",
-    "lteratio": 10.0,
-    "abstol_V": 1e-08,
-    "vabstol": 1e-08,
-    "steps_accepted": 612995,
-    "step_mean_ps": 0.473087,
-    "step_max_ps": 0.5
-   },
-   "rc": "0",
-   "sim_s": "43",
-   "metrics": {
-    "vgs_min_V": {
-     "ref": 0.8549996348569,
-     "xcheck": 0.8549996348568,
-     "diff": -1.000310945187266e-13
-    },
-    "vgs_var_mV": {
-     "ref": 4.517740004317261e-05,
-     "xcheck": 4.517750007426713e-05,
-     "diff": 1.000310945187266e-10
-    },
-    "t_off_ps": {
-     "ref": 17.24951480450592,
-     "xcheck": 17.237802776255492,
-     "diff": -0.01171202825042883
-    },
-    "t_on_ps": {
-     "ref": 64.54317473048683,
-     "xcheck": 64.57926923339512,
-     "diff": 0.03609450290829841
-    },
-    "iavg_uA": {
-     "ref": 30.0,
-     "xcheck": 30.0,
-     "diff": 0.0
-    },
-    "cin_phb_fF": {
-     "ref": 11.999999999999591,
-     "xcheck": 11.999999999999366,
-     "diff": -2.255973186038318e-13
-    },
-    "cin_phbb_fF": {
-     "ref": 11.999999999999655,
-     "xcheck": 11.999999999999002,
-     "diff": -6.536993168992922e-13
-    },
-    "soa_violations": {
-     "ref": 0,
-     "xcheck": 0,
-     "diff": 0
-    }
-   },
-   "soa": {
-    "pairs": 3,
-    "max_V_diff_max_mV": 0.0,
-    "at": "MSWP gs",
-    "violations": [
-     0,
-     0
-    ]
-   },
-   "samples": {
-    "file": "vgs.txt",
-    "n": 29,
-    "n_ref": 29,
-    "n_xcheck": 29,
-    "time_diff_max_ps": 0.0,
-    "diff_rms_uV": 2.626945239261547e-08,
-    "diff_max_uV": 1.000310945187266e-07
-   }
+   "specs/arch.yaml": "04b74bfe28a6229a"
   }
  }
 }

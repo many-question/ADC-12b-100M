@@ -16,8 +16,9 @@ XDUT (VINP VINN CLK VREF_IN D13 D12 D11 D10 D9 D8 D7 D6 D5 D4 D3 D2 D1 D0 RDY AV
 // differential sine, each side through rsrc (no input driver)
 VSP (SRCP 0) vsource type=sine sinedc=vcm_in ampl=amp/2 freq=fin
 VSN (SRCN 0) vsource type=sine sinedc=vcm_in ampl=-amp/2 freq=fin
-RSP (SRCP VINP) resistor r=rsrc
-RSN (SRCN VINN) resistor r=rsrc
+// source resistor, noiseless with the behavioral CDAC (its kT/C source already counts it)
+RSP (SRCP VINP) tb_rsrc_va r=rsrc noisy=1-cdac_behav
+RSN (SRCN VINN) tb_rsrc_va r=rsrc noisy=1-cdac_behav
 // sampling clock: high = track
 VCLK (CLK 0) vsource type=pulse val0=0 val1=vdd period=tper width=duty*tper-20p rise=20p fall=20p
 VREF (VREF_IN 0) vsource dc=vref_in
@@ -29,7 +30,7 @@ VDVDD (DVDD_S 0) vsource dc=vdd
 IMDVDD (DVDD_S DVDD) tb_imeter_va tstart=tstart tstop=tstop label="DVDD" fname="power.txt"
 VAVDD18 (AVDD18_S 0) vsource dc=vdd18
 IMAVDD18 (AVDD18_S AVDD18) tb_imeter_va tstart=tstart tstop=tstop label="AVDD18" fname="power.txt"
-tran1 tran stop=tstop noisefmax=nfmax*noise_en*devnoise noiseseed=1 outputstart=tstop
+tran1 tran stop=tstop noisefmax=nfmax*noise_en noiseseed=1 outputstart=tstop
 tbopts options save=none
 // @RNL {
 //   /* pins connected by net name: the net-name label of rnl-std-fill on every unwired pin, placed below by its key netname */
@@ -68,10 +69,10 @@ tbopts options save=none
 //   #VSN:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", rotate=90, dx=0, dy=0.4);
 //   %g3 = $GROUND @ATTACH &0 => @PLACE(-16, -5.5);
 //   &0 @WIRE {#VSN:2 %g3:p};
-//   #RSP:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", rotate=90, dx=0, dy=0.4);
-//   #RSP:2 @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", rotate=90, dx=0, dy=-0.4);
-//   #RSN:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", rotate=90, dx=0, dy=0.4);
-//   #RSN:2 @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", rotate=90, dx=0, dy=-0.4);
+//   #RSP:P @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", rotate=90, dx=0, dy=0.4);
+//   #RSP:N @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", rotate=90, dx=0, dy=-0.4);
+//   #RSN:P @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", rotate=90, dx=0, dy=0.4);
+//   #RSN:N @TEXT("${net}", key="netname", size=0.6, halign="end", valign="middle", rotate=90, dx=0, dy=-0.4);
 //   #VCLK:1 @TEXT("${net}", key="netname", size=0.6, halign="start", valign="middle", rotate=90, dx=0, dy=0.4);
 //   %g4 = $GROUND @ATTACH &0 => @PLACE(-16, -32.5);
 //   &0 @WIRE {#VCLK:2 %g4:p};
