@@ -8,24 +8,24 @@ subckt adc_comp (INP INN CLKC OUTP OUTN AVDD VSS)
 // Input-pair discharge is sensed by a complementary regenerative stage.
 // DP falls faster for INP > INN; QP then rises and asserts OUTP.
 // All widths and device parasitics are from successful callback solves.
-MCKN (CKB CLKC VSS VSS) nch_ulvt_mac l=3e-08 w=1e-06 nf=2 m=1 ad=5e-14 as=7.5e-14 pd=1.2e-06 ps=2.3e-06 nrd=0.425847 nrs=0.425847 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
-MCKP (CKB CLKC AVDD AVDD) pch_ulvt_mac l=3e-08 w=2e-06 nf=2 m=1 ad=1e-13 as=1.5e-13 pd=2.2e-06 ps=4.3e-06 nrd=0.091833 nrs=0.091833 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
+MCKN (CKB CLKC VSS VSS) nch_ulvt_mac l=3e-08 w=2e-06 nf=2 m=1 ad=1e-13 as=1.5e-13 pd=2.2e-06 ps=4.3e-06 nrd=0.185844 nrs=0.185844 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
+MCKP (CKB CLKC AVDD AVDD) pch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-13 pd=4.4e-06 ps=6.5e-06 nrd=0.048530 nrs=0.048530 sa=1.79203e-07 sb=1.79203e-07 sd=1e-07
 MPIP (DP CKE AVDD AVDD) pch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-13 pd=4.4e-06 ps=6.5e-06 nrd=0.048530 nrs=0.048530 sa=1.79203e-07 sb=1.79203e-07 sd=1e-07
 MPIN (DN CKE AVDD AVDD) pch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-13 pd=4.4e-06 ps=6.5e-06 nrd=0.048530 nrs=0.048530 sa=1.79203e-07 sb=1.79203e-07 sd=1e-07
-MINP (DP INP TAIL VSS) nch_ulvt_mac l=6e-08 w=1.6e-05 nf=16 m=1 ad=8e-13 as=8.5e-13 pd=1.76e-05 ps=1.97e-05 nrd=0.030905 nrs=0.030905 sa=5.89401e-07 sb=5.89401e-07 sd=1e-07
-MINN (DN INN TAIL VSS) nch_ulvt_mac l=6e-08 w=1.6e-05 nf=16 m=1 ad=8e-13 as=8.5e-13 pd=1.76e-05 ps=1.97e-05 nrd=0.030905 nrs=0.030905 sa=5.89401e-07 sb=5.89401e-07 sd=1e-07
+MINP (DP INP TAIL VSS) nch_ulvt_mac l=6e-08 w=4.8e-05 nf=48 m=1 ad=2.4e-12 as=2.45e-12 pd=5.28e-05 ps=5.49e-05 nrd=0.010636 nrs=0.010636 sa=1.43985e-06 sb=1.43985e-06 sd=1e-07
+MINN (DN INN TAIL VSS) nch_ulvt_mac l=6e-08 w=4.8e-05 nf=48 m=1 ad=2.4e-12 as=2.45e-12 pd=5.28e-05 ps=5.49e-05 nrd=0.010636 nrs=0.010636 sa=1.43985e-06 sb=1.43985e-06 sd=1e-07
 MTAIL (TAIL CKE VSS VSS) nch_ulvt_mac l=3e-08 w=8e-06 nf=8 m=1 ad=4e-13 as=4.5e-13 pd=8.8e-06 ps=1.09e-05 nrd=0.059025 nrs=0.059025 sa=2.95835e-07 sb=2.95835e-07 sd=1e-07
-MCK2N (CKE CKB VSS VSS) nch_ulvt_mac l=3e-08 w=2e-06 nf=2 m=1 ad=1e-13 as=1.5e-13 pd=2.2e-06 ps=4.3e-06 nrd=0.185844 nrs=0.185844 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
-MCK2P (CKE CKB AVDD AVDD) pch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-13 pd=4.4e-06 ps=6.5e-06 nrd=0.048530 nrs=0.048530 sa=1.79203e-07 sb=1.79203e-07 sd=1e-07
-MPT (PT CKB AVDD AVDD) pch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-13 pd=4.4e-06 ps=6.5e-06 nrd=0.048530 nrs=0.048530 sa=1.79203e-07 sb=1.79203e-07 sd=1e-07
-MSP (SP DP PT AVDD) pch_ulvt_mac l=3e-08 w=6e-06 nf=6 m=1 ad=3e-13 as=3.5e-13 pd=6.6e-06 ps=8.7e-06 nrd=0.032979 nrs=0.032979 sa=2.39369e-07 sb=2.39369e-07 sd=1e-07
-MSN (SN DN PT AVDD) pch_ulvt_mac l=3e-08 w=6e-06 nf=6 m=1 ad=3e-13 as=3.5e-13 pd=6.6e-06 ps=8.7e-06 nrd=0.032979 nrs=0.032979 sa=2.39369e-07 sb=2.39369e-07 sd=1e-07
-MLPP (QP QN SP AVDD) pch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-13 pd=4.4e-06 ps=6.5e-06 nrd=0.048530 nrs=0.048530 sa=1.79203e-07 sb=1.79203e-07 sd=1e-07
-MLPN (QN QP SN AVDD) pch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-13 pd=4.4e-06 ps=6.5e-06 nrd=0.048530 nrs=0.048530 sa=1.79203e-07 sb=1.79203e-07 sd=1e-07
-MLNP (QP QN VSS VSS) nch_ulvt_mac l=3e-08 w=2e-06 nf=2 m=1 ad=1e-13 as=1.5e-13 pd=2.2e-06 ps=4.3e-06 nrd=0.185844 nrs=0.185844 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
-MLNN (QN QP VSS VSS) nch_ulvt_mac l=3e-08 w=2e-06 nf=2 m=1 ad=1e-13 as=1.5e-13 pd=2.2e-06 ps=4.3e-06 nrd=0.185844 nrs=0.185844 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
-MRP (QP CKB VSS VSS) nch_ulvt_mac l=3e-08 w=2e-06 nf=2 m=1 ad=1e-13 as=1.5e-13 pd=2.2e-06 ps=4.3e-06 nrd=0.185844 nrs=0.185844 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
-MRN (QN CKB VSS VSS) nch_ulvt_mac l=3e-08 w=2e-06 nf=2 m=1 ad=1e-13 as=1.5e-13 pd=2.2e-06 ps=4.3e-06 nrd=0.185844 nrs=0.185844 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
+MCK2N (CKE CKB VSS VSS) nch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-13 pd=4.4e-06 ps=6.5e-06 nrd=0.108289 nrs=0.108289 sa=1.79203e-07 sb=1.79203e-07 sd=1e-07
+MCK2P (CKE CKB AVDD AVDD) pch_ulvt_mac l=3e-08 w=8e-06 nf=8 m=1 ad=4e-13 as=4.5e-13 pd=8.8e-06 ps=1.09e-05 nrd=0.024976 nrs=0.024976 sa=2.95835e-07 sb=2.95835e-07 sd=1e-07
+MPT (PT CKB AVDD AVDD) pch_ulvt_mac l=3e-08 w=8e-06 nf=8 m=1 ad=4e-13 as=4.5e-13 pd=8.8e-06 ps=1.09e-05 nrd=0.024976 nrs=0.024976 sa=2.95835e-07 sb=2.95835e-07 sd=1e-07
+MSP (SP DP PT AVDD) pch_ulvt_mac l=3e-08 w=8e-06 nf=8 m=1 ad=4e-13 as=4.5e-13 pd=8.8e-06 ps=1.09e-05 nrd=0.024976 nrs=0.024976 sa=2.95835e-07 sb=2.95835e-07 sd=1e-07
+MSN (SN DN PT AVDD) pch_ulvt_mac l=3e-08 w=8e-06 nf=8 m=1 ad=4e-13 as=4.5e-13 pd=8.8e-06 ps=1.09e-05 nrd=0.024976 nrs=0.024976 sa=2.95835e-07 sb=2.95835e-07 sd=1e-07
+MLPP (QP QN SP AVDD) pch_ulvt_mac l=3e-08 w=8e-06 nf=8 m=1 ad=4e-13 as=4.5e-13 pd=8.8e-06 ps=1.09e-05 nrd=0.024976 nrs=0.024976 sa=2.95835e-07 sb=2.95835e-07 sd=1e-07
+MLPN (QN QP SN AVDD) pch_ulvt_mac l=3e-08 w=8e-06 nf=8 m=1 ad=4e-13 as=4.5e-13 pd=8.8e-06 ps=1.09e-05 nrd=0.024976 nrs=0.024976 sa=2.95835e-07 sb=2.95835e-07 sd=1e-07
+MLNP (QP QN VSS VSS) nch_ulvt_mac l=3e-08 w=1.2e-05 nf=12 m=1 ad=6e-13 as=6.5e-13 pd=1.32e-05 ps=1.53e-05 nrd=0.040569 nrs=0.040569 sa=4.01767e-07 sb=4.01767e-07 sd=1e-07
+MLNN (QN QP VSS VSS) nch_ulvt_mac l=3e-08 w=1.2e-05 nf=12 m=1 ad=6e-13 as=6.5e-13 pd=1.32e-05 ps=1.53e-05 nrd=0.040569 nrs=0.040569 sa=4.01767e-07 sb=4.01767e-07 sd=1e-07
+MRP (QP CKB VSS VSS) nch_ulvt_mac l=3e-08 w=1e-06 nf=2 m=1 ad=5e-14 as=7.5e-14 pd=1.2e-06 ps=2.3e-06 nrd=0.425847 nrs=0.425847 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
+MRN (QN CKB VSS VSS) nch_ulvt_mac l=3e-08 w=1e-06 nf=2 m=1 ad=5e-14 as=7.5e-14 pd=1.2e-06 ps=2.3e-06 nrd=0.425847 nrs=0.425847 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
 MBPN (BP QP VSS VSS) nch_ulvt_mac l=3e-08 w=1e-06 nf=2 m=1 ad=5e-14 as=7.5e-14 pd=1.2e-06 ps=2.3e-06 nrd=0.425847 nrs=0.425847 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
 MBPP (BP QP AVDD AVDD) pch_ulvt_mac l=3e-08 w=2e-06 nf=2 m=1 ad=1e-13 as=1.5e-13 pd=2.2e-06 ps=4.3e-06 nrd=0.091833 nrs=0.091833 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
 MBNN (BN QN VSS VSS) nch_ulvt_mac l=3e-08 w=1e-06 nf=2 m=1 ad=5e-14 as=7.5e-14 pd=1.2e-06 ps=2.3e-06 nrd=0.425847 nrs=0.425847 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
