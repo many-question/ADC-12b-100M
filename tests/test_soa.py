@@ -263,6 +263,7 @@ def test_clkgen_transistor_view_is_a_device_check(tmp_path, monkeypatch):
                  "MS (PHI_S clkb VSS VSS) nch_ulvt_mac w=1u l=30n\n"
                  "ends adc_clkgen\n")
     monkeypatch.setitem(blocks()["adc_clkgen"].raw["views"], "xtor", str(f))
+    monkeypatch.setitem(blocks()["adc_clkgen"].raw, "selected", "none")   # plain xtor = the view above
     b, t = find_test("tb_clkgen_timing")
     text = (REPO_ROOT / t["netlist"]).read_text(encoding="utf-8")
     views = {"adc_clkgen": "xtor"}
