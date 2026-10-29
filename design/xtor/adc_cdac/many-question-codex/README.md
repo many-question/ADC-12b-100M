@@ -54,7 +54,13 @@ C_S = 2.061 pF, full scale = 0.9931 V, calibration margin = 0.4409 LSB,
 calibrated ENOB loss = -0.01008 bit, and top gain = 0.8886. Settling still
 fails RL12 (50.1 ps) and reference charge (2.629 pC); the other eight settling,
 droop, and input-capacitance metrics pass. These are preliminary TT results
-on the frozen circuit. Tracking with its numerical cross-check is in progress.
+on the frozen circuit. The strict TT tracking baseline also fails:
+SFDR = 69.6121 dBc (limit 85 dBc), SNDR = 69.5735 dB (limit 80 dB).
+It completed with the specified 1 ps maximum step, traponly, reltol 1e-7,
+and voltage tolerance 1e-8. The numerical cross-check was deliberately deferred
+after auditing this failure, so the recorded cross-check status is incomplete
+(scheduling return code 125; no simulator was launched for it). It has not
+passed a convergence comparison. Short causal diagnostics take priority.
 An exploratory run with the official settling stimulus and ideal bootstrap,
 adding only zero-volt current probes, found a 1.06433 V peak absolute Vgd on
 one sampling switch. This exceeds 1.0 V and remains unresolved. That diagnostic
