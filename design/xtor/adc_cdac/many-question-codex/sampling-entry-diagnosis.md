@@ -460,3 +460,52 @@ mixed; the table is not a unique decomposition of their causes.
 The full sine-input stress test is also still required for this control
 change. The limited fixed-input pass does not establish acceptance or
 replace the formal circuit.
+
+## PMOS assistance controlled by EN
+
+Starting from the ENB-sharing circuit, another single-connection comparison
+moves only the 22 PMOS VIN-assistance gates from PHI_SB to existing internal
+EN. All dimensions, physical MID switches, and 5% capacitances remain.
+Removing eight unused internal PHI_SB ports preserves their parent mappings;
+the expanded MOS comparison confirms that only these 22 gate nodes change.
+The top-plate TG still receives PHI_S/PHI_SB directly.
+
+The original 70 ns fixed-input TT sequence checks 526 MOS / 1,578 pairs over
+163,417 accepted points at a 0.5 ps maximum step. It has zero project stress
+violations, with a 0.97394 V maximum. RL12 = 35.3 ps, RL5 = 47.3 ps,
+tau = 9.164 ps, start = 84.0 ps, and droop = 0.004292 LSB pass. Control,
+PHI_S, PHI_SB, and CONV capacitances are 0.831, 7.189, 8.521, and 9.849 fF.
+
+Reference charge rises to 1.185523 pC, leaving only 0.014477 pC below the
+1.2 pC limit. Output source/bulk branches account for 0.966923 pC and other
+reference branches for 0.218600 pC. DVDD prelogic adds 0.949569 pC, giving
+a signed sum of 2.135092 pC with the previously stated exclusions. Both
+reference and internal DVDD prelogic charge increase in this comparison.
+
+Partitioning the same 54.8-64.8 ns charge window localizes the reference
+increment: sampling entry (59.9-60.6 ns) adds 0.074230 pC, while conversion
+entry (54.8-55.6 ns) decreases by 0.014151 pC. The remaining windows change
+by less than 0.0001 pC in total. These are net source-current integrals,
+including displacement current; they do not isolate channel overlap.
+
+The recorded start step changes from -157.786 to -169.354 mV. The official
+measure subtracts TOP at CONV minus 20 ps from TOP at CONV plus 900 ps:
+
+| First conversion, fixed VIN = 0.65 V | PMOS gate on PHI_SB | PMOS gate on EN |
+|---|---:|---:|
+| TOP at CONV - 200 ps (V) | 0.450000 | 0.450000 |
+| TOP at CONV - 20 ps (V) | 0.429151 | 0.440744 |
+| TOP at CONV + 900 ps (V) | 0.271365 | 0.271391 |
+
+The large step difference is mainly a change at the measurement's initial
+time marker, while final TOP differs by approximately 26 uV. The official
+settling definition and limits are unchanged.
+
+The matched 32-sample tracking result is h3 = -76.1315 dBc,
+h5 = -85.2316 dBc, h7 = -87.7472 dBc, fundamental = 0.788814 V, and residual
+= 7.806 uV. Moving the PMOS gates to EN therefore improves the third harmonic
+by only 0.42 dB while increasing reference charge by approximately 0.060 pC.
+That tradeoff leaves linearity unresolved and materially reduces charge
+margin. The next size comparison uses the earlier ENB-sharing circuit with
+PMOS gates on PHI_SB. Sine-input stress and official acceptance have not been
+established for this EN-controlled PMOS experiment; its evidence is retained.
