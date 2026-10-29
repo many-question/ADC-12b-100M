@@ -23,10 +23,10 @@
    0.855,
    0.855
   ],
-  "vgs_min_V": 0.8549996342006,
-  "vgs_var_mV": 4.897200001074964e-05,
-  "t_off_ps": 18.11268762669665,
-  "t_on_ps": 68.0269807225522,
+  "vgs_min_V": 0.8549996348569,
+  "vgs_var_mV": 4.517740004317261e-05,
+  "t_off_ps": 17.24951480450592,
+  "t_on_ps": 64.54317473048683,
   "soa_scope": "external",
   "soa_limit_V": 1.0,
   "soa_devices": 1,
@@ -37,12 +37,13 @@
   "soa_worst": {
    "device": "MSWP",
    "pair": "gs",
-   "signed_V": -0.89991,
-   "t_ns": 245.132,
-   "dt_ps": 4.86
+   "signed_V": -0.89989,
+   "t_ns": 245.1326,
+   "dt_ps": 0.382,
+   "t_over_ps": 0.0
   },
-  "soa_points": 3148,
-  "soa_dt_max_ps": 2384.506,
+  "soa_points": 318762,
+  "soa_dt_max_ps": 1.0,
   "soa_table": [
    {
     "device": "MSWP",
@@ -50,9 +51,10 @@
     "where": "external",
     "pair": "gs",
     "max_V": 0.89999,
-    "signed_V": -0.89991,
-    "t_ns": 245.132,
-    "dt_ps": 4.86,
+    "signed_V": -0.89989,
+    "t_ns": 245.1326,
+    "dt_ps": 0.382,
+    "t_over_ps": 0.0,
     "pass": true
    },
    {
@@ -60,10 +62,11 @@
     "master": "nch_ulvt_mac",
     "where": "external",
     "pair": "gd",
-    "max_V": 0.85834,
-    "signed_V": 0.85826,
-    "t_ns": 160.5,
-    "dt_ps": 44.904,
+    "max_V": 0.85833,
+    "signed_V": 0.85824,
+    "t_ns": 160.4997,
+    "dt_ps": 1.0,
+    "t_over_ps": 0.0,
     "pass": true
    },
    {
@@ -71,39 +74,40 @@
     "master": "nch_ulvt_mac",
     "where": "external",
     "pair": "ds",
-    "max_V": 0.72028,
-    "signed_V": -0.72022,
-    "t_ns": 245.1296,
-    "dt_ps": 3.523,
+    "max_V": 0.72087,
+    "signed_V": -0.72077,
+    "t_ns": 245.1302,
+    "dt_ps": 0.475,
+    "t_over_ps": 0.0,
     "pass": true
    }
   ],
   "iavg_uA": 30.0,
-  "cin_phb_fF": 11.999999999999986,
-  "cin_phbb_fF": 11.99999999999998
+  "cin_phb_fF": 11.999999999999591,
+  "cin_phbb_fF": 11.999999999999655
  },
  "specs": {
   "BST-01": {
    "metric": "vgs_min_V",
-   "value": 0.8549996342006,
+   "value": 0.8549996348569,
    "limit": ">= 0.72",
    "pass": true
   },
   "BST-02": {
    "metric": "vgs_var_mV",
-   "value": 4.897200001074964e-05,
+   "value": 4.517740004317261e-05,
    "limit": "<= 40",
    "pass": true
   },
   "BST-03": {
    "metric": "t_off_ps",
-   "value": 18.11268762669665,
+   "value": 17.24951480450592,
    "limit": "<= 60",
    "pass": true
   },
   "BST-04": {
    "metric": "t_on_ps",
-   "value": 68.0269807225522,
+   "value": 64.54317473048683,
    "limit": "<= 300",
    "pass": true
   },
@@ -115,13 +119,13 @@
   },
   "BST-09": {
    "metric": "cin_phb_fF",
-   "value": 11.999999999999986,
+   "value": 11.999999999999591,
    "limit": "<= 16",
    "pass": true
   },
   "BST-10": {
    "metric": "cin_phbb_fF",
-   "value": 11.99999999999998,
+   "value": 11.999999999999655,
    "limit": "<= 16",
    "pass": true
   },
@@ -147,15 +151,28 @@
   }
  ],
  "meta": {
-  "date": "2026-10-28T20:46:23",
-  "git": "285dcb4",
+  "date": "2026-10-29T10:25:00",
+  "git": "2a510a6",
   "git_clean": true,
   "mode": "aps",
   "pdk": true,
   "mc": null,
-  "wall_s": 147.5,
+  "wall_s": 280.2,
   "rc": "0",
-  "sim_s": "40",
+  "sim_s": "60",
+  "numerics": {
+   "source": "spectre.log",
+   "reltol": 1e-08,
+   "maxstep_ps": 1.0,
+   "method": "traponly",
+   "errpreset": "conservative",
+   "lteratio": 10.0,
+   "abstol_V": 1e-08,
+   "vabstol": 1e-08,
+   "steps_accepted": 318761,
+   "step_mean_ps": 0.909773,
+   "step_max_ps": 1.0
+  },
   "files": {
    "design/behav/adc_bootstrap.scs": "eee3a0a78eec4c5f",
    "design/behav/adc_cdac.scs": "5b8837cc5d2a76bc",
@@ -175,8 +192,89 @@
    "tb/common/veriloga/tb_qmeter_va.va": "fed84d572a912b39",
    "tb/common/veriloga/tb_sampler_va.va": "4092bc16170c588d",
    "specs/soa.yaml": "df574d3582df9b2c",
-   "tb/bootstrap/tb_bootstrap_dc.scs": "9fb3f878fa23b2ab",
+   "tb/bootstrap/tb_bootstrap_dc.scs": "7623413b05a0014a",
    "specs/arch.yaml": "bffadef750bb5205"
+  },
+  "crosscheck": {
+   "settings": {
+    "maxstep": "0.5p",
+    "method": "gear2only"
+   },
+   "numerics": {
+    "source": "spectre.log",
+    "reltol": 1e-08,
+    "maxstep_ps": 0.5,
+    "method": "gear2only",
+    "errpreset": "conservative",
+    "lteratio": 10.0,
+    "abstol_V": 1e-08,
+    "vabstol": 1e-08,
+    "steps_accepted": 612995,
+    "step_mean_ps": 0.473087,
+    "step_max_ps": 0.5
+   },
+   "rc": "0",
+   "sim_s": "43",
+   "metrics": {
+    "vgs_min_V": {
+     "ref": 0.8549996348569,
+     "xcheck": 0.8549996348568,
+     "diff": -1.000310945187266e-13
+    },
+    "vgs_var_mV": {
+     "ref": 4.517740004317261e-05,
+     "xcheck": 4.517750007426713e-05,
+     "diff": 1.000310945187266e-10
+    },
+    "t_off_ps": {
+     "ref": 17.24951480450592,
+     "xcheck": 17.237802776255492,
+     "diff": -0.01171202825042883
+    },
+    "t_on_ps": {
+     "ref": 64.54317473048683,
+     "xcheck": 64.57926923339512,
+     "diff": 0.03609450290829841
+    },
+    "iavg_uA": {
+     "ref": 30.0,
+     "xcheck": 30.0,
+     "diff": 0.0
+    },
+    "cin_phb_fF": {
+     "ref": 11.999999999999591,
+     "xcheck": 11.999999999999366,
+     "diff": -2.255973186038318e-13
+    },
+    "cin_phbb_fF": {
+     "ref": 11.999999999999655,
+     "xcheck": 11.999999999999002,
+     "diff": -6.536993168992922e-13
+    },
+    "soa_violations": {
+     "ref": 0,
+     "xcheck": 0,
+     "diff": 0
+    }
+   },
+   "soa": {
+    "pairs": 3,
+    "max_V_diff_max_mV": 0.0,
+    "at": "MSWP gs",
+    "violations": [
+     0,
+     0
+    ]
+   },
+   "samples": {
+    "file": "vgs.txt",
+    "n": 29,
+    "n_ref": 29,
+    "n_xcheck": 29,
+    "time_diff_max_ps": 0.0,
+    "diff_rms_uV": 2.626945239261547e-08,
+    "diff_max_uV": 1.000310945187266e-07
+   }
   }
  }
 }

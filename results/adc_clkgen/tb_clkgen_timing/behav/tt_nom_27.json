@@ -15,12 +15,12 @@
  },
  "metrics": {
   "duty_errors": 0,
-  "td_s_ps": 46.00500001116114,
-  "skew_sb_ps": 40.00000000000565,
-  "nov_bc_ps": 29.999999999994312,
-  "td_conv_ps": 116.0050000111611,
-  "nov_cb_ps": 29.999999999954607,
-  "tf_s_ps": 7.200000000098162,
+  "td_s_ps": 46.000000511130665,
+  "skew_sb_ps": 40.000000000018886,
+  "nov_bc_ps": 29.99999999998108,
+  "td_conv_ps": 116.00000051113064,
+  "nov_cb_ps": 29.999999999994312,
+  "tf_s_ps": 7.2000000000055175,
   "skew_ssb_ps": 0.0,
   "iavg_uA": 70.0,
   "soa_scope": "external",
@@ -30,44 +30,44 @@
   "soa_pairs": 0,
   "soa_violations": 0,
   "soa_note": "nothing to check: XDUT uses behavioral views (no devices) and the testbench has no thin-oxide device at its top level; not transistor-level evidence",
-  "soa_points": 81160,
-  "soa_dt_max_ps": 2.0,
+  "soa_points": 163317,
+  "soa_dt_max_ps": 1.0,
   "soa_table": []
  },
  "specs": {
   "CLK-01": {
    "metric": "td_s_ps",
-   "value": 46.00500001116114,
+   "value": 46.000000511130665,
    "limit": "<= 80",
    "pass": true
   },
   "CLK-02": {
    "metric": "skew_sb_ps",
-   "value": 40.00000000000565,
+   "value": 40.000000000018886,
    "limit": "20 .. 80",
    "pass": true
   },
   "CLK-03": {
    "metric": "nov_bc_ps",
-   "value": 29.999999999994312,
+   "value": 29.99999999998108,
    "limit": ">= 10",
    "pass": true
   },
   "CLK-04": {
    "metric": "td_conv_ps",
-   "value": 116.0050000111611,
+   "value": 116.00000051113064,
    "limit": "<= 200",
    "pass": true
   },
   "CLK-05": {
    "metric": "nov_cb_ps",
-   "value": 29.999999999954607,
+   "value": 29.999999999994312,
    "limit": ">= 10",
    "pass": true
   },
   "CLK-06": {
    "metric": "tf_s_ps",
-   "value": 7.200000000098162,
+   "value": 7.2000000000055175,
    "limit": "<= 20",
    "pass": true
   },
@@ -103,26 +103,27 @@
   }
  ],
  "meta": {
-  "date": "2026-10-28T21:43:08",
-  "git": "a98c872",
+  "date": "2026-10-29T10:34:06",
+  "git": "d90bad5",
   "git_clean": true,
   "mode": "aps",
   "pdk": false,
   "mc": null,
-  "wall_s": 124.5,
+  "wall_s": 208.4,
   "rc": "0",
-  "sim_s": "17",
+  "sim_s": "24",
   "numerics": {
    "source": "spectre.log",
-   "reltol": 0.001,
-   "maxstep_ps": 2.0,
+   "reltol": 1e-08,
+   "maxstep_ps": 1.0,
    "method": "traponly",
-   "errpreset": "moderate",
-   "lteratio": 3.5,
-   "abstol_V": 1e-06,
-   "steps_accepted": 81159,
-   "step_mean_ps": 1.98376,
-   "step_max_ps": 2.0
+   "errpreset": "conservative",
+   "lteratio": 10.0,
+   "abstol_V": 1e-08,
+   "vabstol": 1e-08,
+   "steps_accepted": 163316,
+   "step_mean_ps": 0.985819,
+   "step_max_ps": 1.0
   },
   "files": {
    "design/behav/adc_bootstrap.scs": "eee3a0a78eec4c5f",
@@ -141,8 +142,80 @@
    "design/behav/veriloga/adc_sarlogic_va.va": "42f06909a81347ef",
    "tb/common/veriloga/tb_imeter_va.va": "d4be49aca417ad61",
    "specs/soa.yaml": "df574d3582df9b2c",
-   "tb/clkgen/tb_clkgen_timing.scs": "12b4f675f9eaddfa",
+   "tb/clkgen/tb_clkgen_timing.scs": "8af53acc5af8b6cf",
    "specs/arch.yaml": "bffadef750bb5205"
+  },
+  "crosscheck": {
+   "settings": {
+    "maxstep": "0.5p"
+   },
+   "numerics": {
+    "source": "spectre.log",
+    "reltol": 1e-08,
+    "maxstep_ps": 0.5,
+    "method": "traponly",
+    "errpreset": "conservative",
+    "lteratio": 10.0,
+    "abstol_V": 1e-08,
+    "vabstol": 1e-08,
+    "steps_accepted": 324097,
+    "step_mean_ps": 0.496765,
+    "step_max_ps": 0.5
+   },
+   "rc": "0",
+   "sim_s": "13",
+   "metrics": {
+    "td_s_ps": {
+     "ref": 46.000000511130665,
+     "xcheck": 46.00000051115713,
+     "diff": 2.6467716907063732e-11
+    },
+    "skew_sb_ps": {
+     "ref": 40.000000000018886,
+     "xcheck": 40.0000000009718,
+     "diff": 9.52915968355228e-10
+    },
+    "nov_bc_ps": {
+     "ref": 29.99999999998108,
+     "xcheck": 29.99999999998108,
+     "diff": 0.0
+    },
+    "td_conv_ps": {
+     "ref": 116.00000051113064,
+     "xcheck": 116.00000051113064,
+     "diff": 0.0
+    },
+    "nov_cb_ps": {
+     "ref": 29.999999999994312,
+     "xcheck": 29.99999999998108,
+     "diff": -1.3233858453531866e-11
+    },
+    "tf_s_ps": {
+     "ref": 7.2000000000055175,
+     "xcheck": 7.200000000045222,
+     "diff": 3.97042398958547e-11
+    },
+    "skew_ssb_ps": {
+     "ref": 0.0,
+     "xcheck": 0.0,
+     "diff": 0.0
+    },
+    "duty_errors": {
+     "ref": 0,
+     "xcheck": 0,
+     "diff": 0
+    },
+    "iavg_uA": {
+     "ref": 70.0,
+     "xcheck": 70.0,
+     "diff": 0.0
+    },
+    "soa_violations": {
+     "ref": 0,
+     "xcheck": 0,
+     "diff": 0
+    }
+   }
   }
  }
 }
