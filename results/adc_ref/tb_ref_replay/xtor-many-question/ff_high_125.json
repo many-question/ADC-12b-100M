@@ -16,58 +16,59 @@
   "devnoise": 1,
   "beh_speed": 1.0,
   "vref_in": 0.9,
-  "cdac_behav": 1
+  "cdac_behav": 1,
+  "comp_behav": 1
  },
  "metrics": {
   "n_samples": 15840,
   "enob_ideal_ref": 10.913433133790065,
-  "enob_ref": 10.934825049913043,
-  "sfdr_ref_dBc": 84.88021890009023,
-  "enob_loss_bit": -0.02139191612297786,
-  "tail_dev_uV": 151.10684579999756,
-  "env_ratio": 1.3026022357067621,
+  "enob_ref": 10.876836623587371,
+  "sfdr_ref_dBc": 84.84156243852627,
+  "enob_loss_bit": 0.03659651020269372,
+  "tail_dev_uV": 86.53435829997224,
+  "env_ratio": 0.8241057728279979,
   "env_ratio_per_decision": [
-   0.2794,
-   0.7564,
-   1.3026,
-   1.3004,
-   1.0131,
-   1.0604,
-   1.1132,
-   0.992,
-   0.8996,
-   0.8833,
-   0.7792
+   0.1249,
+   0.4837,
+   0.8241,
+   0.7891,
+   0.5592,
+   0.5744,
+   0.5883,
+   0.51,
+   0.4766,
+   0.4077,
+   0.4415
   ],
   "env_ratio_decision": 3,
-  "start_pp_uV": 53.10666160007749,
-  "droop_max_mV": 50.54360184506368,
-  "vrefp_V": 0.9010784341105637
+  "start_pp_uV": 39.577542900071094,
+  "droop_max_mV": 32.48806846686059,
+  "vrefp_V": 0.9010802964045606
  },
  "specs": {
   "REF-12": {
    "metric": "enob_loss_bit",
-   "value": -0.02139191612297786,
+   "value": 0.03659651020269372,
    "limit": "<= 0.1",
    "pass": true
   },
   "REF-13": {
    "metric": "tail_dev_uV",
-   "value": 151.10684579999756,
+   "value": 86.53435829997224,
    "limit": "<= 200",
    "pass": true
   },
   "REF-14": {
    "metric": "start_pp_uV",
-   "value": 53.10666160007749,
+   "value": 39.577542900071094,
    "limit": "<= 100",
    "pass": true
   },
   "REF-21": {
    "metric": "env_ratio",
-   "value": 1.3026022357067621,
+   "value": 0.8241057728279979,
    "limit": "<= 1",
-   "pass": false
+   "pass": true
   }
  },
  "figures": [
@@ -77,15 +78,15 @@
   }
  ],
  "meta": {
-  "date": "2026-10-29T21:28:21",
-  "git": "607d9a5",
+  "date": "2026-10-30T00:26:13",
+  "git": "2514708",
   "git_clean": true,
   "mode": "aps",
   "pdk": true,
   "mc": null,
-  "wall_s": 322.3,
+  "wall_s": 346.2,
   "rc": "0",
-  "sim_s": "36",
+  "sim_s": "29",
   "numerics": {
    "source": "spectre.log",
    "reltol": 0.001,
@@ -94,14 +95,14 @@
    "errpreset": "moderate",
    "lteratio": 3.5,
    "abstol_V": 1e-06,
-   "steps_accepted": 565634,
-   "step_mean_ps": 18.7047,
+   "steps_accepted": 565652,
+   "step_mean_ps": 18.7041,
    "step_max_ps": null
   },
   "files": {
    "tb/ref/tb_ref_replay.scs": "2ea234d4ebabeece",
    "tb/common/veriloga/tb_sampler_va.va": "4092bc16170c588d",
-   "design/xtor/adc_ref/many-question/adc_ref.scs": "380f10b05b0af622"
+   "design/xtor/adc_ref/many-question/adc_ref.scs": "2b1163f0eb481376"
   },
   "arch": {
    "keys": [

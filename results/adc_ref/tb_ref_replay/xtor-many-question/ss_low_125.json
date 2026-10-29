@@ -16,58 +16,59 @@
   "devnoise": 1,
   "beh_speed": 1.0,
   "vref_in": 0.9,
-  "cdac_behav": 1
+  "cdac_behav": 1,
+  "comp_behav": 1
  },
  "metrics": {
   "n_samples": 15840,
   "enob_ideal_ref": 10.913433133790065,
-  "enob_ref": 10.898307911770173,
-  "sfdr_ref_dBc": 84.72774713296565,
-  "enob_loss_bit": 0.015125222019891638,
-  "tail_dev_uV": 247.53496939999843,
-  "env_ratio": 1.7970490588362837,
+  "enob_ref": 10.937638115612769,
+  "sfdr_ref_dBc": 84.67164444646949,
+  "enob_loss_bit": -0.02420498182270414,
+  "tail_dev_uV": 136.1311030999568,
+  "env_ratio": 0.9451480385096935,
   "env_ratio_per_decision": [
-   0.4012,
-   0.8327,
-   1.4507,
-   1.5547,
-   1.5551,
-   1.5748,
-   1.6388,
-   1.6193,
-   1.3962,
-   1.797,
-   1.2197
+   0.2175,
+   0.5343,
+   0.9253,
+   0.9451,
+   0.8008,
+   0.835,
+   0.8766,
+   0.8209,
+   0.7465,
+   0.8373,
+   0.6712
   ],
-  "env_ratio_decision": 10,
-  "start_pp_uV": 54.22019510004095,
-  "droop_max_mV": 55.99609483143298,
-  "vrefp_V": 0.900793012560933
+  "env_ratio_decision": 4,
+  "start_pp_uV": 36.71658579995629,
+  "droop_max_mV": 35.997066750034776,
+  "vrefp_V": 0.9007098809379348
  },
  "specs": {
   "REF-12": {
    "metric": "enob_loss_bit",
-   "value": 0.015125222019891638,
+   "value": -0.02420498182270414,
    "limit": "<= 0.1",
    "pass": true
   },
   "REF-13": {
    "metric": "tail_dev_uV",
-   "value": 247.53496939999843,
+   "value": 136.1311030999568,
    "limit": "<= 200",
-   "pass": false
+   "pass": true
   },
   "REF-14": {
    "metric": "start_pp_uV",
-   "value": 54.22019510004095,
+   "value": 36.71658579995629,
    "limit": "<= 100",
    "pass": true
   },
   "REF-21": {
    "metric": "env_ratio",
-   "value": 1.7970490588362837,
+   "value": 0.9451480385096935,
    "limit": "<= 1",
-   "pass": false
+   "pass": true
   }
  },
  "figures": [
@@ -77,15 +78,15 @@
   }
  ],
  "meta": {
-  "date": "2026-10-29T21:28:21",
-  "git": "607d9a5",
+  "date": "2026-10-30T00:26:13",
+  "git": "2514708",
   "git_clean": true,
   "mode": "aps",
   "pdk": true,
   "mc": null,
-  "wall_s": 322.3,
+  "wall_s": 346.2,
   "rc": "0",
-  "sim_s": "32",
+  "sim_s": "27",
   "numerics": {
    "source": "spectre.log",
    "reltol": 0.001,
@@ -101,7 +102,7 @@
   "files": {
    "tb/ref/tb_ref_replay.scs": "2ea234d4ebabeece",
    "tb/common/veriloga/tb_sampler_va.va": "4092bc16170c588d",
-   "design/xtor/adc_ref/many-question/adc_ref.scs": "380f10b05b0af622"
+   "design/xtor/adc_ref/many-question/adc_ref.scs": "2b1163f0eb481376"
   },
   "arch": {
    "keys": [

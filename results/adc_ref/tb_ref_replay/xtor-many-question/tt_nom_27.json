@@ -16,58 +16,59 @@
   "devnoise": 1,
   "beh_speed": 1.0,
   "vref_in": 0.9,
-  "cdac_behav": 1
+  "cdac_behav": 1,
+  "comp_behav": 1
  },
  "metrics": {
   "n_samples": 15840,
   "enob_ideal_ref": 10.913433133790065,
-  "enob_ref": 10.882145361966867,
-  "sfdr_ref_dBc": 84.85876542623049,
-  "enob_loss_bit": 0.031287771823198085,
-  "tail_dev_uV": 153.46646540004284,
-  "env_ratio": 1.2202398875408365,
+  "enob_ref": 10.90695804263775,
+  "sfdr_ref_dBc": 84.00367194975105,
+  "enob_loss_bit": 0.00647509115231415,
+  "tail_dev_uV": 84.41386599999933,
+  "env_ratio": 0.7756481668892871,
   "env_ratio_per_decision": [
-   0.2594,
-   0.6955,
-   1.2038,
-   1.2202,
-   0.9738,
-   1.0261,
-   1.0761,
-   0.9824,
-   0.8898,
-   0.919,
-   0.7871
+   0.1133,
+   0.4553,
+   0.7756,
+   0.7472,
+   0.531,
+   0.5454,
+   0.5636,
+   0.4929,
+   0.4603,
+   0.4024,
+   0.4285
   ],
-  "env_ratio_decision": 4,
-  "start_pp_uV": 37.82979779998197,
-  "droop_max_mV": 46.581196445817376,
-  "vrefp_V": 0.9006309002871173
+  "env_ratio_decision": 3,
+  "start_pp_uV": 29.779911300042983,
+  "droop_max_mV": 30.620204876625646,
+  "vrefp_V": 0.9006238210498256
  },
  "specs": {
   "REF-12": {
    "metric": "enob_loss_bit",
-   "value": 0.031287771823198085,
+   "value": 0.00647509115231415,
    "limit": "<= 0.1",
    "pass": true
   },
   "REF-13": {
    "metric": "tail_dev_uV",
-   "value": 153.46646540004284,
+   "value": 84.41386599999933,
    "limit": "<= 200",
    "pass": true
   },
   "REF-14": {
    "metric": "start_pp_uV",
-   "value": 37.82979779998197,
+   "value": 29.779911300042983,
    "limit": "<= 100",
    "pass": true
   },
   "REF-21": {
    "metric": "env_ratio",
-   "value": 1.2202398875408365,
+   "value": 0.7756481668892871,
    "limit": "<= 1",
-   "pass": false
+   "pass": true
   }
  },
  "figures": [
@@ -77,15 +78,15 @@
   }
  ],
  "meta": {
-  "date": "2026-10-29T21:28:21",
-  "git": "607d9a5",
+  "date": "2026-10-30T00:26:13",
+  "git": "2514708",
   "git_clean": true,
   "mode": "aps",
   "pdk": true,
   "mc": null,
-  "wall_s": 322.3,
+  "wall_s": 346.2,
   "rc": "0",
-  "sim_s": "53",
+  "sim_s": "40",
   "numerics": {
    "source": "spectre.log",
    "reltol": 0.001,
@@ -94,14 +95,14 @@
    "errpreset": "moderate",
    "lteratio": 3.5,
    "abstol_V": 1e-06,
-   "steps_accepted": 565614,
-   "step_mean_ps": 18.7053,
+   "steps_accepted": 565636,
+   "step_mean_ps": 18.7046,
    "step_max_ps": null
   },
   "files": {
    "tb/ref/tb_ref_replay.scs": "2ea234d4ebabeece",
    "tb/common/veriloga/tb_sampler_va.va": "4092bc16170c588d",
-   "design/xtor/adc_ref/many-question/adc_ref.scs": "380f10b05b0af622"
+   "design/xtor/adc_ref/many-question/adc_ref.scs": "2b1163f0eb481376"
   },
   "arch": {
    "keys": [
