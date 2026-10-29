@@ -1,29 +1,79 @@
 name: site
 
 # Builds the project website (site/) from the repository: needs only the repo, no simulation server, no PDK.
-#   pull_request : build (fails on build errors, broken links or the process vendor's name in the output), upload the site as an artifact
-#   push to main : build, deploy to GitHub Pages (repository setting: Pages > Source = GitHub Actions)
-#   schedule     : the same build and deploy every hour, so the live per-block PR and notice panel (GitHub API, metadata only) stays current
-#   workflow_dispatch : the same, on demand
+#
+#   pull_request        : build the PR as it is (fails on build errors, broken links or the process vendor's name in the
+#                         output), upload the site as an artifact; nothing is deployed
+#   push to main        : build and deploy to GitHub Pages (repository setting: Pages > Source = GitHub Actions)
+#   workflow_dispatch   : the same, on demand
+#   schedule (hourly)   : the same, as a fallback; GitHub drops scheduled runs under load, so the events below do the real work
+#   pull_request_target : a PR opened / synchronized / reopened / marked ready / converted to draft / closed
+#   issues, issue_comment : a notice ("[<block>]" issue) opened / edited / closed / reopened / commented
+#   workflow_run (ci)   : CI of a pull request finished, so a draft preview appears as soon as the head's CI has passed
+#   ... all of these rebuild and deploy MAIN's site, whose live panel and draft previews read the open PRs and notices
+#   from the GitHub API (site/sitegen/live.py, preview.py)
+#
+# Why pull_request_target (and issues, issue_comment, workflow_run) is safe here. These events run THIS file from the default
+# branch with a token, also for pull requests from forks, so the rule is: never run anything that comes from a PR.
+#   * Every job checks out the default branch ("main") and nothing else; no job ever checks out or runs a PR head. The PR's
+#     files are read by the generator as data (git cat-file on refs/pull/<N>/head, JSON / YAML / text parsing) after the
+#     process-name and hygiene checks (site/sitegen/preview.py).
+#   * PR and issue titles, bodies and comments are never put into a shell command or a log line: site/events.py parses the
+#     event payload in Python and only prints a fixed reason code; the workflow uses no ${{ github.event.* }} text in `run:`.
+#   * Permissions are per job and least-privilege: gate and build are read-only; only the deploy job has pages: write and
+#     id-token: write. The only secret in use is the job's GITHUB_TOKEN (read-only here); none is passed to PR-controlled code.
+#
+# Load. The `gate` job (site/events.py, tiny) skips events that cannot change the site: PRs and issues whose title does not
+# start with "[<block>]", comments on PRs or on other issues, CI of a push (the PR's own CI run reports the same head) or of
+# a PR that is not a block PR. A skipped build does not touch the concurrency group, so it cannot cancel a running build.
+# Builds of main coalesce: a newer one cancels an older build that has not started deploying (a short debounce at the start
+# lets a burst of events cancel each other cheaply), and a deploy that has started is never cancelled; at most one newer
+# deploy waits behind it.
 
 on:
   push:
     branches: [main]
   pull_request:
+  pull_request_target:
+    types: [opened, synchronize, reopened, ready_for_review, converted_to_draft, closed]
+  issues:
+    types: [opened, edited, closed, reopened]
+  issue_comment:
+    types: [created]
+  workflow_run:
+    workflows: [ci]
+    types: [completed]
   workflow_dispatch:
   schedule:
-    - cron: '17 * * * *'            # hourly, off the hour (scheduled runs always use the default branch)
+    - cron: '17 * * * *'            # hourly, off the hour (scheduled runs always use the default branch); fallback only
 
 permissions:
   contents: read
 
-concurrency:
-  group: site-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
-
 jobs:
+  gate:
+    name: can this event change the site?
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read           # workflow_run: is the CI run of an open "[<block>]" PR?
+    outputs:
+      relevant: ${{ steps.gate.outputs.relevant }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.repository.default_branch }}      # main's code only, whatever the event
+          fetch-depth: 1
+          persist-credentials: false
+      - id: gate
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python3 site/events.py
+
   build:
     name: build site
+    needs: gate
+    if: needs.gate.outputs.relevant == 'true'
     runs-on: ubuntu-latest
     permissions:                    # read-only: the live panel lists open PRs, notices (issues) and their CI state
       contents: read
@@ -31,13 +81,20 @@ jobs:
       issues: read
       checks: read
       statuses: read
+    concurrency:                    # per ref: a pull request's builds cancel each other; builds of main coalesce
+      group: site-build-${{ github.ref }}
+      cancel-in-progress: true
     steps:
+      - name: Debounce (let a burst of events cancel each other before any real work)
+        if: github.event_name != 'push' && github.event_name != 'pull_request'
+        run: sleep 20
       - uses: actions/checkout@v7
         with:
-          fetch-depth: 0              # tags and dates for the progress page
-          # a pull request is built from its head commit, not the merge commit: the viewer manifests carry the SHA-256 of the
-          # files as raw.githubusercontent.com serves them at that commit
-          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0              # tags and dates for the progress page; the PR refs are fetched as data by the generator
+          # pull_request: the PR head (not the merge commit), so the viewer manifests carry the SHA-256 of the files as
+          # raw.githubusercontent.com serves them at that commit. push / workflow_dispatch: that commit. Every other event
+          # (pull_request_target, issues, issue_comment, workflow_run, schedule): the default branch, never a PR.
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || (contains('push workflow_dispatch', github.event_name) && github.sha || github.event.repository.default_branch) }}
       - uses: actions/setup-python@v7
         with:
           python-version: "3.11"
@@ -78,12 +135,16 @@ jobs:
   deploy:
     name: deploy to GitHub Pages
     needs: build
-    # push to main, the hourly schedule and workflow_dispatch (all on the default branch); pull requests only build
+    # everything but pull_request, on the default branch (push to main, schedule, workflow_dispatch, pull_request_target, issues,
+    # issue_comment, workflow_run all run there); pull requests only build
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
       pages: write
       id-token: write
+    concurrency:                    # never cancel a deploy that has started; a newer one waits and replaces older waiting ones
+      group: site-deploy
+      cancel-in-progress: false
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
