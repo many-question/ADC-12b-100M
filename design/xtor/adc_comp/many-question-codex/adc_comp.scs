@@ -14,7 +14,7 @@ MPIP (DP CKE AVDD AVDD) pch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-1
 MPIN (DN CKE AVDD AVDD) pch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-13 pd=4.4e-06 ps=6.5e-06 nrd=0.048530 nrs=0.048530 sa=1.79203e-07 sb=1.79203e-07 sd=1e-07
 MINP (DP INP TAIL VSS) nch_ulvt_mac l=6e-08 w=4.8e-05 nf=48 m=1 ad=2.4e-12 as=2.45e-12 pd=5.28e-05 ps=5.49e-05 nrd=0.010636 nrs=0.010636 sa=1.43985e-06 sb=1.43985e-06 sd=1e-07
 MINN (DN INN TAIL VSS) nch_ulvt_mac l=6e-08 w=4.8e-05 nf=48 m=1 ad=2.4e-12 as=2.45e-12 pd=5.28e-05 ps=5.49e-05 nrd=0.010636 nrs=0.010636 sa=1.43985e-06 sb=1.43985e-06 sd=1e-07
-MTAIL (TAIL CKE VSS VSS) nch_ulvt_mac l=3e-08 w=8e-06 nf=8 m=1 ad=4e-13 as=4.5e-13 pd=8.8e-06 ps=1.09e-05 nrd=0.059025 nrs=0.059025 sa=2.95835e-07 sb=2.95835e-07 sd=1e-07
+MTAIL (TAIL CKE VSS VSS) nch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-13 pd=4.4e-06 ps=6.5e-06 nrd=0.108289 nrs=0.108289 sa=1.79203e-07 sb=1.79203e-07 sd=1e-07
 MCK2N (CKE CKB VSS VSS) nch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-13 pd=4.4e-06 ps=6.5e-06 nrd=0.108289 nrs=0.108289 sa=1.79203e-07 sb=1.79203e-07 sd=1e-07
 MCK2P (CKE CKB AVDD AVDD) pch_ulvt_mac l=3e-08 w=8e-06 nf=8 m=1 ad=4e-13 as=4.5e-13 pd=8.8e-06 ps=1.09e-05 nrd=0.024976 nrs=0.024976 sa=2.95835e-07 sb=2.95835e-07 sd=1e-07
 MPT (PT CKB AVDD AVDD) pch_ulvt_mac l=3e-08 w=8e-06 nf=8 m=1 ad=4e-13 as=4.5e-13 pd=8.8e-06 ps=1.09e-05 nrd=0.024976 nrs=0.024976 sa=2.95835e-07 sb=2.95835e-07 sd=1e-07
@@ -26,14 +26,18 @@ MLNP (QP QN VSS VSS) nch_ulvt_mac l=3e-08 w=1.2e-05 nf=12 m=1 ad=6e-13 as=6.5e-1
 MLNN (QN QP VSS VSS) nch_ulvt_mac l=3e-08 w=1.2e-05 nf=12 m=1 ad=6e-13 as=6.5e-13 pd=1.32e-05 ps=1.53e-05 nrd=0.040569 nrs=0.040569 sa=4.01767e-07 sb=4.01767e-07 sd=1e-07
 MRP (QP CKB VSS VSS) nch_ulvt_mac l=3e-08 w=1e-06 nf=2 m=1 ad=5e-14 as=7.5e-14 pd=1.2e-06 ps=2.3e-06 nrd=0.425847 nrs=0.425847 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
 MRN (QN CKB VSS VSS) nch_ulvt_mac l=3e-08 w=1e-06 nf=2 m=1 ad=5e-14 as=7.5e-14 pd=1.2e-06 ps=2.3e-06 nrd=0.425847 nrs=0.425847 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
-MBPN (BP QP VSS VSS) nch_ulvt_mac l=3e-08 w=1e-06 nf=2 m=1 ad=5e-14 as=7.5e-14 pd=1.2e-06 ps=2.3e-06 nrd=0.425847 nrs=0.425847 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
+MBPN (BP QP ZP VSS) nch_ulvt_mac l=3e-08 w=2e-06 nf=2 m=1 ad=1e-13 as=1.5e-13 pd=2.2e-06 ps=4.3e-06 nrd=0.185844 nrs=0.185844 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
 MBPP (BP QP AVDD AVDD) pch_ulvt_mac l=3e-08 w=2e-06 nf=2 m=1 ad=1e-13 as=1.5e-13 pd=2.2e-06 ps=4.3e-06 nrd=0.091833 nrs=0.091833 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
-MBNN (BN QN VSS VSS) nch_ulvt_mac l=3e-08 w=1e-06 nf=2 m=1 ad=5e-14 as=7.5e-14 pd=1.2e-06 ps=2.3e-06 nrd=0.425847 nrs=0.425847 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
+MBNN (BN QN ZN VSS) nch_ulvt_mac l=3e-08 w=2e-06 nf=2 m=1 ad=1e-13 as=1.5e-13 pd=2.2e-06 ps=4.3e-06 nrd=0.185844 nrs=0.185844 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
 MBNP (BN QN AVDD AVDD) pch_ulvt_mac l=3e-08 w=2e-06 nf=2 m=1 ad=1e-13 as=1.5e-13 pd=2.2e-06 ps=4.3e-06 nrd=0.091833 nrs=0.091833 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
 MOPN (OUTP BP VSS VSS) nch_ulvt_mac l=3e-08 w=2e-06 nf=2 m=1 ad=1e-13 as=1.5e-13 pd=2.2e-06 ps=4.3e-06 nrd=0.185844 nrs=0.185844 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
 MOPP (OUTP BP AVDD AVDD) pch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-13 pd=4.4e-06 ps=6.5e-06 nrd=0.048530 nrs=0.048530 sa=1.79203e-07 sb=1.79203e-07 sd=1e-07
 MONN (OUTN BN VSS VSS) nch_ulvt_mac l=3e-08 w=2e-06 nf=2 m=1 ad=1e-13 as=1.5e-13 pd=2.2e-06 ps=4.3e-06 nrd=0.185844 nrs=0.185844 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
 MONP (OUTN BN AVDD AVDD) pch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-13 pd=4.4e-06 ps=6.5e-06 nrd=0.048530 nrs=0.048530 sa=1.79203e-07 sb=1.79203e-07 sd=1e-07
+MGPN (ZP CKE VSS VSS) nch_ulvt_mac l=3e-08 w=2e-06 nf=2 m=1 ad=1e-13 as=1.5e-13 pd=2.2e-06 ps=4.3e-06 nrd=0.185844 nrs=0.185844 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
+MGPP (BP CKE AVDD AVDD) pch_ulvt_mac l=3e-08 w=2e-06 nf=2 m=1 ad=1e-13 as=1.5e-13 pd=2.2e-06 ps=4.3e-06 nrd=0.091833 nrs=0.091833 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
+MGNN (ZN CKE VSS VSS) nch_ulvt_mac l=3e-08 w=2e-06 nf=2 m=1 ad=1e-13 as=1.5e-13 pd=2.2e-06 ps=4.3e-06 nrd=0.185844 nrs=0.185844 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
+MGNP (BN CKE AVDD AVDD) pch_ulvt_mac l=3e-08 w=2e-06 nf=2 m=1 ad=1e-13 as=1.5e-13 pd=2.2e-06 ps=4.3e-06 nrd=0.091833 nrs=0.091833 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
 // @RNL {
 //   &VSS @ADD-TO $GROUND_NET_SET;
 //   &AVDD @ADD-TO $SUPPLY_NET_SET;
@@ -145,8 +149,6 @@ MONP (OUTN BN AVDD AVDD) pch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-
 //   &VSS @WIRE {#MRN:b %s_MRN_b:p};
 //   #MBPN @PLACE(72, 12) => @ORIENT("R0");
 //   #MBPN @TEXT("W=${w}, L=${l}, nf=${nf}", key="dims", size=0.5, dy=-3.6);
-//   %s_MBPN_s = $GROUND @ATTACH &VSS => @PLACE(72, 7);
-//   &VSS @WIRE {#MBPN:s %s_MBPN_s:p};
 //   %s_MBPN_b = $GROUND @ATTACH &VSS => @PLACE(78, 10);
 //   &VSS @WIRE {#MBPN:b %s_MBPN_b:p};
 //   #MBPP @PLACE(72, 22) => @ORIENT("R0");
@@ -157,8 +159,6 @@ MONP (OUTN BN AVDD AVDD) pch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-
 //   &AVDD @WIRE {#MBPP:b %s_MBPP_b:p};
 //   #MBNN @PLACE(72, -15) => @ORIENT("R0");
 //   #MBNN @TEXT("W=${w}, L=${l}, nf=${nf}", key="dims", size=0.5, dy=-3.6);
-//   %s_MBNN_s = $GROUND @ATTACH &VSS => @PLACE(72, -20);
-//   &VSS @WIRE {#MBNN:s %s_MBNN_s:p};
 //   %s_MBNN_b = $GROUND @ATTACH &VSS => @PLACE(78, -17);
 //   &VSS @WIRE {#MBNN:b %s_MBNN_b:p};
 //   #MBNP @PLACE(72, -5) => @ORIENT("R0");
@@ -167,39 +167,63 @@ MONP (OUTN BN AVDD AVDD) pch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-
 //   &AVDD @WIRE {#MBNP:s %s_MBNP_s:p};
 //   %s_MBNP_b = $SUPPLY @ATTACH &AVDD => @PLACE(78, -3);
 //   &AVDD @WIRE {#MBNP:b %s_MBNP_b:p};
-//   #MOPN @PLACE(94, 12) => @ORIENT("R0");
+//   #MOPN @PLACE(110, 12) => @ORIENT("R0");
 //   #MOPN @TEXT("W=${w}, L=${l}, nf=${nf}", key="dims", size=0.5, dy=-3.6);
-//   %s_MOPN_s = $GROUND @ATTACH &VSS => @PLACE(94, 7);
+//   %s_MOPN_s = $GROUND @ATTACH &VSS => @PLACE(110, 7);
 //   &VSS @WIRE {#MOPN:s %s_MOPN_s:p};
-//   %s_MOPN_b = $GROUND @ATTACH &VSS => @PLACE(100, 10);
+//   %s_MOPN_b = $GROUND @ATTACH &VSS => @PLACE(116, 10);
 //   &VSS @WIRE {#MOPN:b %s_MOPN_b:p};
-//   #MOPP @PLACE(94, 22) => @ORIENT("R0");
+//   #MOPP @PLACE(110, 22) => @ORIENT("R0");
 //   #MOPP @TEXT("W=${w}, L=${l}, nf=${nf}", key="dims", size=0.5, dy=-3.6);
-//   %s_MOPP_s = $SUPPLY @ATTACH &AVDD => @PLACE(94, 27);
+//   %s_MOPP_s = $SUPPLY @ATTACH &AVDD => @PLACE(110, 27);
 //   &AVDD @WIRE {#MOPP:s %s_MOPP_s:p};
-//   %s_MOPP_b = $SUPPLY @ATTACH &AVDD => @PLACE(100, 24);
+//   %s_MOPP_b = $SUPPLY @ATTACH &AVDD => @PLACE(116, 24);
 //   &AVDD @WIRE {#MOPP:b %s_MOPP_b:p};
-//   #MONN @PLACE(94, -15) => @ORIENT("R0");
+//   #MONN @PLACE(110, -15) => @ORIENT("R0");
 //   #MONN @TEXT("W=${w}, L=${l}, nf=${nf}", key="dims", size=0.5, dy=-3.6);
-//   %s_MONN_s = $GROUND @ATTACH &VSS => @PLACE(94, -20);
+//   %s_MONN_s = $GROUND @ATTACH &VSS => @PLACE(110, -20);
 //   &VSS @WIRE {#MONN:s %s_MONN_s:p};
-//   %s_MONN_b = $GROUND @ATTACH &VSS => @PLACE(100, -17);
+//   %s_MONN_b = $GROUND @ATTACH &VSS => @PLACE(116, -17);
 //   &VSS @WIRE {#MONN:b %s_MONN_b:p};
-//   #MONP @PLACE(94, -5) => @ORIENT("R0");
+//   #MONP @PLACE(110, -5) => @ORIENT("R0");
 //   #MONP @TEXT("W=${w}, L=${l}, nf=${nf}", key="dims", size=0.5, dy=-3.6);
-//   %s_MONP_s = $SUPPLY @ATTACH &AVDD => @PLACE(94, 0);
+//   %s_MONP_s = $SUPPLY @ATTACH &AVDD => @PLACE(110, 0);
 //   &AVDD @WIRE {#MONP:s %s_MONP_s:p};
-//   %s_MONP_b = $SUPPLY @ATTACH &AVDD => @PLACE(100, -3);
+//   %s_MONP_b = $SUPPLY @ATTACH &AVDD => @PLACE(116, -3);
 //   &AVDD @WIRE {#MONP:b %s_MONP_b:p};
+//   #MGPN @PLACE(90, 12) => @ORIENT("R0");
+//   #MGPN @TEXT("W=${w}, L=${l}, nf=${nf}", key="dims", size=0.5, dy=-3.6);
+//   %s_MGPN_s = $GROUND @ATTACH &VSS => @PLACE(90, 7);
+//   &VSS @WIRE {#MGPN:s %s_MGPN_s:p};
+//   %s_MGPN_b = $GROUND @ATTACH &VSS => @PLACE(96, 10);
+//   &VSS @WIRE {#MGPN:b %s_MGPN_b:p};
+//   #MGPP @PLACE(90, 22) => @ORIENT("R0");
+//   #MGPP @TEXT("W=${w}, L=${l}, nf=${nf}", key="dims", size=0.5, dy=-3.6);
+//   %s_MGPP_s = $SUPPLY @ATTACH &AVDD => @PLACE(90, 27);
+//   &AVDD @WIRE {#MGPP:s %s_MGPP_s:p};
+//   %s_MGPP_b = $SUPPLY @ATTACH &AVDD => @PLACE(96, 24);
+//   &AVDD @WIRE {#MGPP:b %s_MGPP_b:p};
+//   #MGNN @PLACE(90, -15) => @ORIENT("R0");
+//   #MGNN @TEXT("W=${w}, L=${l}, nf=${nf}", key="dims", size=0.5, dy=-3.6);
+//   %s_MGNN_s = $GROUND @ATTACH &VSS => @PLACE(90, -20);
+//   &VSS @WIRE {#MGNN:s %s_MGNN_s:p};
+//   %s_MGNN_b = $GROUND @ATTACH &VSS => @PLACE(96, -17);
+//   &VSS @WIRE {#MGNN:b %s_MGNN_b:p};
+//   #MGNP @PLACE(90, -5) => @ORIENT("R0");
+//   #MGNP @TEXT("W=${w}, L=${l}, nf=${nf}", key="dims", size=0.5, dy=-3.6);
+//   %s_MGNP_s = $SUPPLY @ATTACH &AVDD => @PLACE(90, 0);
+//   &AVDD @WIRE {#MGNP:s %s_MGNP_s:p};
+//   %s_MGNP_b = $SUPPLY @ATTACH &AVDD => @PLACE(96, -3);
+//   &AVDD @WIRE {#MGNP:b %s_MGNP_b:p};
 //   %p_INP = $IO_PORT @ATTACH &INP => @PLACE(-35, 12);
 //   &INP @WIRE {%p_INP:p #MINP:g};
 //   %p_INN = $IO_PORT @ATTACH &INN => @PLACE(15, 12);
 //   &INN @WIRE {%p_INN:p #MINN:g};
 //   %p_CLKC = $IO_PORT @ATTACH &CLKC => @PLACE(-63, 17);
 //   &CLKC @WIRE {%p_CLKC:p #MCKN:g};
-//   %p_OUTP = $IO_PORT @ATTACH &OUTP => @PLACE(108, 17);
+//   %p_OUTP = $IO_PORT @ATTACH &OUTP => @PLACE(124, 17);
 //   &OUTP @WIRE {%p_OUTP:p #MOPN:d};
-//   %p_OUTN = $IO_PORT @ATTACH &OUTN => @PLACE(108, -10);
+//   %p_OUTN = $IO_PORT @ATTACH &OUTN => @PLACE(124, -10);
 //   &OUTN @WIRE {%p_OUTN:p #MONN:d};
 //   &TAIL @WIRE {#MINP:s (-22, 6) (-10, 6) #MTAIL:d};
 //   &TAIL @WIRE {#MINN:s (2, 6) (-10, 6) #MTAIL:d};
