@@ -1,0 +1,9 @@
+name: many-question
+description: Native thick-oxide follower with a scaled replica servo, startup clamp,
+  and enlarged gate compensation; preserves v8 measured tradeoffs and the archived
+  SS-hot mixed-top failure.
+status: wip
+acknowledged: [30, 34, 46]
+authors:
+- github: many-question
+  name: Codex adc_ref
