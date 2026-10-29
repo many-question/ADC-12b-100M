@@ -15,56 +15,77 @@
   "noise_en": 0,
   "devnoise": 1,
   "beh_speed": 1.0,
-  "vref_in": 0.9
+  "vref_in": 0.9,
+  "cdac_behav": 1
  },
  "metrics": {
   "n_samples": 15840,
-  "enob_ideal_ref": 10.925533985465997,
-  "enob_ref": 10.912461737556011,
-  "sfdr_ref_dBc": 85.21367479941675,
-  "enob_loss_bit": 0.01307224790998518,
-  "tail_dev_uV": 59.73797949998527,
-  "env_ratio": 0.6025570865565181,
-  "start_pp_uV": 17.441118299932334,
-  "droop_max_mV": 15.238996692974904,
-  "vrefp_V": 0.9005835276393749
+  "enob_ideal_ref": 10.913433133790065,
+  "enob_ref": 10.92916543770699,
+  "sfdr_ref_dBc": 85.67579812472349,
+  "enob_loss_bit": -0.01573230391692526,
+  "tail_dev_uV": 71.34992740009949,
+  "env_ratio": 1.0504230767409868,
+  "env_ratio_per_decision": [
+   0.1293,
+   0.6223,
+   1.0504,
+   0.9933,
+   0.6696,
+   0.6822,
+   0.6805,
+   0.5607,
+   0.4983,
+   0.2704,
+   0.3896
+  ],
+  "env_ratio_decision": 3,
+  "start_pp_uV": 17.223800999999206,
+  "droop_max_mV": 41.28924438423742,
+  "vrefp_V": 0.9005827261843374
  },
  "specs": {
   "REF-12": {
    "metric": "enob_loss_bit",
-   "value": 0.01307224790998518,
+   "value": -0.01573230391692526,
    "limit": "<= 0.1",
    "pass": true
   },
   "REF-13": {
    "metric": "tail_dev_uV",
-   "value": 59.73797949998527,
+   "value": 71.34992740009949,
    "limit": "<= 200",
    "pass": true
   },
   "REF-14": {
    "metric": "start_pp_uV",
-   "value": 17.441118299932334,
+   "value": 17.223800999999206,
    "limit": "<= 100",
    "pass": true
+  },
+  "REF-21": {
+   "metric": "env_ratio",
+   "value": 1.0504230767409868,
+   "limit": "<= 1",
+   "pass": false
   }
  },
  "figures": [
   {
    "file": "ff_low_m40.replay.png",
-   "caption": "VREFP deviation at each decision against the redundancy tolerance envelope, the memory of VREFP before each conversion, the droop during a conversion, and the ENOB cost."
+   "caption": "VREFP deviation at each decision against the redundancy tolerance envelope, the per-decision ratio to the tolerance against its limit (REF-21), the memory of VREFP before each conversion, the droop during a conversion, and the ENOB cost."
   }
  ],
  "meta": {
-  "date": "2026-10-29T03:20:25",
-  "git": "d49e474",
+  "date": "2026-10-29T21:28:21",
+  "git": "607d9a5",
   "git_clean": true,
   "mode": "aps",
   "pdk": true,
   "mc": null,
-  "wall_s": 859.8,
+  "wall_s": 322.3,
   "rc": "0",
-  "sim_s": "32",
+  "sim_s": "37",
   "numerics": {
    "source": "spectre.log",
    "reltol": 0.001,
@@ -73,27 +94,32 @@
    "errpreset": "moderate",
    "lteratio": 3.5,
    "abstol_V": 1e-06,
-   "steps_accepted": 572222,
-   "step_mean_ps": 18.4893,
+   "steps_accepted": 568807,
+   "step_mean_ps": 18.6003,
    "step_max_ps": null
   },
   "files": {
-   "design/behav/adc_bootstrap.scs": "eee3a0a78eec4c5f",
-   "design/behav/adc_cdac.scs": "5b8837cc5d2a76bc",
-   "design/behav/adc_clkgen.scs": "0e7831ed888587e6",
-   "design/behav/adc_comp.scs": "c0da9398b6e09fc2",
-   "design/xtor/adc_ref/many-question/adc_ref.scs": "380f10b05b0af622",
-   "design/behav/adc_sarlogic.scs": "7982e36f6743bf80",
-   "design/top/adc_top.scs": "362a964ffe162797",
-   "design/behav/veriloga/adc_bootstrap_va.va": "12338aad16f4913b",
-   "design/behav/veriloga/adc_cdac_sw_va.va": "e465880479187179",
-   "design/behav/veriloga/adc_clkgen_va.va": "7fff1b9368bc1a20",
-   "design/behav/veriloga/adc_comp_va.va": "ab8a6bf210351e31",
-   "design/behav/veriloga/adc_ktc_va.va": "a1cf98faf5bf9b33",
-   "design/behav/veriloga/adc_sarlogic_va.va": "42f06909a81347ef",
-   "tb/common/veriloga/tb_sampler_va.va": "4092bc16170c588d",
    "tb/ref/tb_ref_replay.scs": "2ea234d4ebabeece",
-   "specs/arch.yaml": "bffadef750bb5205"
+   "tb/common/veriloga/tb_sampler_va.va": "4092bc16170c588d",
+   "design/xtor/adc_ref/many-question/adc_ref.scs": "380f10b05b0af622"
+  },
+  "arch": {
+   "keys": [
+    "cdac.cap_sampled",
+    "cdac.cap_weights",
+    "cdac.cp_top_ratio",
+    "cdac.cu",
+    "conversion.n_decisions",
+    "conversion.out_weights",
+    "reference.vin_cm",
+    "reference.vref",
+    "timing.fs",
+    "timing.t_dac_add"
+   ],
+   "sha": "978c7ff34d3af1b1"
+  },
+  "views": {
+   "adc_ref": "xtor:many-question"
   },
   "provenance": {
    "spectrum": {
@@ -102,12 +128,6 @@
     "sfdr": "plotspec definition: peak bin of the fundamental / largest other single bin (DC and signal bins excluded, Nyquist included)",
     "enob_sndr_snr_thd": "adctoolbox 0.6.4 compute_spectrum"
    }
-  },
-  "migrated": {
-   "date": "2026-10-29T12:07:14",
-   "git": "c48b605",
-   "from": "xtor",
-   "candidate": "many-question"
   }
  }
 }
