@@ -1,0 +1,312 @@
+// adc_ref: native thick-oxide follower with a scaled replica servo
+// @RNL(type="header") {
+//   @VERSION("0.3");
+//   @USE-PACKAGE(name="adc28", version="0.1", path="../../../rnl/adc28.rnl")
+// }
+simulator lang=spectre
+
+// The replica includes the VCM divider load at one sixteenth of the main scale.
+// All bias gates draw from VREF_IN; AVDD is reserved and unused in this view.
+// The startup clamp inhibits drive while the reference is absent.
+subckt adc_ref (VREF_IN VREFP VCM AVDD18 AVDD VSS)
+XSERVO (VREF_IN VREP VG VREF_IN AVDD18 VSS) adc_ref_servo
+XSTART (VREF_IN VG AVDD18 VSS) adc_ref_startup
+MREP (AVDD18 VG VREP VSS) nch_na18_mac w=64u l=800n nf=32
+MDRV (AVDD18 VG VREFP VSS) nch_na18_mac w=64u l=800n nf=32 multi=16
+MSREP (VREP VREF_IN VSS VSS) nch_18_mac w=16u l=500n nf=8
+MSINK (VREFP VREF_IN VSS VSS) nch_18_mac w=64u l=500n nf=32 multi=4
+MCRH (CMR CMR VREP VREP) pch_lvt_mac w=4u l=120n nf=2
+MCRL (VSS VSS CMR CMR) pch_lvt_mac w=4u l=120n nf=2
+MCMH (VCM VCM VREFP VREFP) pch_lvt_mac w=8u l=120n nf=4 multi=8
+MCML (VSS VSS VCM VCM) pch_lvt_mac w=8u l=120n nf=4 multi=8
+CREF0 (VREFP VSS) cfmom_2t w=50n s=50n nr=80 lr=40u stm=1 spm=5
+CREF1 (VREFP VSS) cfmom_2t w=50n s=50n nr=80 lr=40u stm=1 spm=5
+CCM (VCM VSS) cfmom_2t w=50n s=50n nr=80 lr=40u stm=1 spm=5
+CGATE (VG VSS) cfmom_2t w=50n s=50n nr=80 lr=40u stm=1 spm=5 multi=8
+// @RNL {
+//   {&AVDD18 &AVDD} @ADD-TO $SUPPLY_NET_SET;
+//   &VSS @ADD-TO $GROUND_NET_SET;
+//   {#MREP #MDRV} @AS $MATCHED;
+//   {#MSREP #MSINK} @AS $MATCHED;
+//   {#MCRH #MCRL} @AS $MATCHED;
+//   {#MCMH #MCML} @AS $MATCHED;
+//   {#MREP #MSREP #MCRH #MCRL} @GROUP;
+//   {#MDRV #MSINK #MCMH #MCML #CREF0 #CREF1 #CCM} @GROUP;
+//   #XSERVO @PLACE(0, 0) => @ORIENT("R0");
+//   #XSTART @PLACE(0, -44) => @ORIENT("R0");
+//   #MREP @PLACE(24, 0) => @ORIENT("R0");
+//   #MDRV @PLACE(58, 0) => @ORIENT("R0");
+//   #MSREP @PLACE(24, -14) => @ORIENT("R0");
+//   #MSINK @PLACE(58, -14) => @ORIENT("R0");
+//   #MCRH @PLACE(38, -13) => @ORIENT("R0");
+//   #MCRL @PLACE(38, -23) => @ORIENT("R0");
+//   #MCMH @PLACE(84, -13) => @ORIENT("R0");
+//   #MCML @PLACE(84, -23) => @ORIENT("R0");
+//   #CREF0 @PLACE(68, -12) => @ORIENT("R0");
+//   #CREF1 @PLACE(74, -12) => @ORIENT("R0");
+//   #CCM @PLACE(94, -22) => @ORIENT("R0");
+//   #CGATE @PLACE(44, 0) => @ORIENT("R0");
+//   %pin = $IO_PORT @ATTACH &VREF_IN => @PLACE(-20, 2) => @ORIENT("R0");
+//   %jin = (-12, 2); %jib = (-12, -32); %jbr = (19, -32); %jbm = (53, -32);
+//   &VREF_IN @WIRE {%pin:p %jin #XSERVO:INP};
+//   &VREF_IN @WIRE {%jin %jib %jbr %jbm (53, -14) #MSINK:g};
+//   &VREF_IN @WIRE {%jbr (19, -14) #MSREP:g};
+//   &VREF_IN @WIRE {%jib (0, -32) #XSERVO:BIAS};
+//   &VREF_IN @WIRE {%jib (-12, -43) #XSTART:REF};
+//   %jg = (14, 0); %jgup = (14, 4); %jgc = (44, 4);
+//   &VG @WIRE {#XSERVO:OUT %jg #MREP:g};
+//   &VG @WIRE {%jg %jgup %jgc (50, 4) (50, 0) #MDRV:g};
+//   &VG @WIRE {%jgc #CGATE:p};
+//   &VG @WIRE {%jg (14, -44) #XSTART:OUT};
+//   %jr = (24, -6); %jrh = (38, -10);
+//   &VREP @WIRE {#MREP:s %jr #MSREP:d};
+//   &VREP @WIRE {%jr (38, -6) %jrh #MCRH:s};
+//   &VREP @WIRE {%jrh (42, -10) (42, -13) #MCRH:b};
+//   &VREP @WIRE {%jr (12, -6) (12, -8) (-10, -8) (-10, -2) #XSERVO:INN};
+//   %jcmr = (38, -18); %jcmrg = (34, -18);
+//   &CMR @WIRE {#MCRH:d %jcmr #MCRL:s};
+//   &CMR @WIRE {%jcmr %jcmrg (34, -13) #MCRH:g};
+//   &CMR @WIRE {%jcmr (42, -18) (42, -23) #MCRL:b};
+//   %jo = (58, -6); %jc0 = (68, -6); %jc1 = (74, -6); %jph = (84, -6); %jch = (84, -10);
+//   %pout = $IO_PORT @ATTACH &VREFP => @PLACE(103, -6) => @ORIENT("MY");
+//   &VREFP @WIRE {#MDRV:s %jo #MSINK:d};
+//   &VREFP @WIRE {%jo %jc0 %jc1 %jph %pout:p};
+//   &VREFP @WIRE {%jc0 #CREF0:p};
+//   &VREFP @WIRE {%jc1 #CREF1:p};
+//   &VREFP @WIRE {%jph %jch #MCMH:s};
+//   &VREFP @WIRE {%jch (88, -10) (88, -13) #MCMH:b};
+//   %jcm = (84, -18); %jcmg = (80, -18); %jccm = (94, -18);
+//   %pcm = $IO_PORT @ATTACH &VCM => @PLACE(103, -18) => @ORIENT("MY");
+//   &VCM @WIRE {#MCMH:d %jcm #MCML:s};
+//   &VCM @WIRE {%jcm %jcmg (80, -13) #MCMH:g};
+//   &VCM @WIRE {%jcm (88, -18) (88, -23) #MCML:b};
+//   &VCM @WIRE {%jcm %jccm %pcm:p};
+//   &VCM @WIRE {%jccm #CCM:p};
+//   %vh0 = $SUPPLY @ATTACH &AVDD18 => @PLACE(0, 9) => @ORIENT("R0");
+//   %vh1 = $SUPPLY @ATTACH &AVDD18 => @PLACE(24, 8) => @ORIENT("R0");
+//   %vh2 = $SUPPLY @ATTACH &AVDD18 => @PLACE(58, 8) => @ORIENT("R0");
+//   %vunused = $SUPPLY @ATTACH &AVDD => @PLACE(-20, 9) => @ORIENT("R0");
+//   &AVDD18 @WIRE {%vh0:p #XSERVO:AVDD18};
+//   &AVDD18 @WIRE {%vh1:p #MREP:d};
+//   &AVDD18 @WIRE {%vh2:p #MDRV:d};
+//   %gservo = $GROUND @ATTACH &VSS => @PLACE(3, -10) => @ORIENT("R0");
+//   &VSS @WIRE {#XSERVO:VSS %gservo:p};
+//   %gb0 = $GROUND @ATTACH &VSS => @PLACE(29, -3) => @ORIENT("R0");
+//   %gb1 = $GROUND @ATTACH &VSS => @PLACE(63, -3) => @ORIENT("R0");
+//   &VSS @WIRE {#MREP:b (29, 0) %gb0:p};
+//   &VSS @WIRE {#MDRV:b (63, 0) %gb1:p};
+//   %gs0 = $GROUND @ATTACH &VSS => @PLACE(24, -20) => @ORIENT("R0");
+//   %gs1 = $GROUND @ATTACH &VSS => @PLACE(58, -20) => @ORIENT("R0");
+//   %js0 = (24, -18); %js1 = (58, -18);
+//   &VSS @WIRE {#MSREP:s %js0 %gs0:p};
+//   &VSS @WIRE {#MSREP:b (28, -14) (28, -18) %js0};
+//   &VSS @WIRE {#MSINK:s %js1 %gs1:p};
+//   &VSS @WIRE {#MSINK:b (62, -14) (62, -18) %js1};
+//   %gd0 = $GROUND @ATTACH &VSS => @PLACE(38, -29) => @ORIENT("R0");
+//   %gd1 = $GROUND @ATTACH &VSS => @PLACE(84, -29) => @ORIENT("R0");
+//   %jd0 = (38, -27); %jd1 = (84, -27);
+//   &VSS @WIRE {#MCRL:d %jd0 %gd0:p};
+//   &VSS @WIRE {#MCRL:g (34, -23) (34, -27) %jd0};
+//   &VSS @WIRE {#MCML:d %jd1 %gd1:p};
+//   &VSS @WIRE {#MCML:g (80, -23) (80, -27) %jd1};
+//   %gc0 = $GROUND @ATTACH &VSS => @PLACE(68, -18) => @ORIENT("R0");
+//   %gc1 = $GROUND @ATTACH &VSS => @PLACE(74, -18) => @ORIENT("R0");
+//   %gcm = $GROUND @ATTACH &VSS => @PLACE(94, -28) => @ORIENT("R0");
+//   &VSS @WIRE {#CREF0:n %gc0:p};
+//   &VSS @WIRE {#CREF1:n %gc1:p};
+//   &VSS @WIRE {#CCM:n %gcm:p};
+//   %ggate = $GROUND @ATTACH &VSS => @PLACE(44, -4) => @ORIENT("R0");
+//   &VSS @WIRE {#CGATE:n %ggate:p};
+//   %vstart = $SUPPLY @ATTACH &AVDD18 => @PLACE(0, -36) => @ORIENT("R0");
+//   &AVDD18 @WIRE {%vstart:p #XSTART:AVDD18};
+//   %gstart = $GROUND @ATTACH &VSS => @PLACE(0, -52) => @ORIENT("R0");
+//   &VSS @WIRE {#XSTART:VSS %gstart:p};
+//   $JUNCTION @ATTACH {%jin %jib %jbr %jg %jgc %jr %jrh %jcmr %jo %jc0 %jc1 %jph %jch %jcm %jccm %js0 %js1 %jd0 %jd1};
+//   #MDRV @TEXT("64u/800n; nf=32; x16", key="size", dx=3, dy=2, size=0.6, halign="start");
+//   #MREP @TEXT("64u/800n; nf=32", key="size", dx=3, dy=2, size=0.6, halign="start");
+//   #MSINK @TEXT("64u/500n; nf=32; x4", key="size", dx=3, dy=-5, size=0.6, halign="start");
+//   #MSREP @TEXT("16u/500n; nf=8", key="size", dx=-2, dy=-9, size=0.6, halign="end");
+//   (-22, 18) @TEXT("adc_ref: replica servo, native source follower and matched VCM divider", halign="start") => @SET-STYLE $title_style;
+//   (-22, 15.5) @TEXT("Main / replica scale = 16. W is total width per multiplier. Bias is derived from VREF_IN gates.", halign="start") => @SET-STYLE $note_style;
+//   (-22, 13.5) @TEXT("VCM uses two equal source-body-tied PMOS diodes; AVDD is unused.", halign="start") => @SET-STYLE $note_style;
+//   (-22, -58) @TEXT("Divider PMOS: main 8u/120n, nf=4, x8; replica 4u/120n, nf=2.", halign="start", size=0.75);
+//   (-22, -60) @TEXT("MOM geometry: 80 fingers, 40u length, 50n width/space, layers 1..5; CGATE has x8 multiplier.", halign="start", size=0.75)
+// }
+ends adc_ref
+
+// Two-stage replica error amplifier. Positive input raises OUT.
+subckt adc_ref_servo (INP INN OUT BIAS AVDD18 VSS)
+MN1 (NB INP TAIL VSS) nch_18_mac w=8u l=1u nf=4
+MN2 (NA INN TAIL VSS) nch_18_mac w=8u l=1u nf=4
+MP1 (NB NA AVDD18 AVDD18) pch_18_mac w=8u l=1u nf=4 multi=4
+MP2 (NA NA AVDD18 AVDD18) pch_18_mac w=8u l=1u nf=4 multi=4
+MTAIL (TAIL BIAS VSS VSS) nch_18_mac w=8u l=1u nf=4
+MPOUT (OUT NB AVDD18 AVDD18) pch_18_mac w=8u l=1u nf=4 multi=16
+MNOUT (OUT BIAS VSS VSS) nch_18_mac w=8u l=1u nf=4
+MZERO (NB VSS NZ AVDD18) pch_18_mac w=8u l=1u nf=4 multi=8
+CC0 (NZ OUT) cfmom_2t w=50n s=50n nr=80 lr=40u stm=1 spm=5 multi=4
+CC1 (NZ OUT) cfmom_2t w=50n s=50n nr=80 lr=40u stm=1 spm=5
+CC2 (NZ OUT) cfmom_2t w=50n s=50n nr=80 lr=40u stm=1 spm=5
+// @RNL {
+//   &AVDD18 @ADD-TO $SUPPLY_NET_SET;
+//   &VSS @ADD-TO $GROUND_NET_SET;
+//   %dp = #MN1(in_p) #MN2(in_n) {#MTAIL}(tail) @AS $DIFFERENTIAL_PAIR;
+//   %mirror = {#MP2}(ref) {#MP1}(out) @AS $CURRENT_MIRROR;
+//   {#MN1 #MN2} @AS $MATCHED;
+//   {#MP1 #MP2} @AS $MATCHED;
+//   {#MTAIL #MNOUT} @AS $MATCHED;
+//   {#MN1 #MN2 #MP1 #MP2 #MTAIL} @GROUP;
+//   {#MPOUT #MNOUT #MZERO #CC0 #CC1 #CC2} @GROUP;
+//   #MN1 @PLACE(-10, 0) => @ORIENT("R0");
+//   #MN2 @PLACE(10, 0) => @ORIENT("MY");
+//   #MP1 @PLACE(-10, 12) => @ORIENT("R0");
+//   #MP2 @PLACE(10, 12) => @ORIENT("MY");
+//   #MTAIL @PLACE(0, -10) => @ORIENT("R0");
+//   #MPOUT @PLACE(34, 12) => @ORIENT("R0");
+//   #MNOUT @PLACE(34, -10) => @ORIENT("R0");
+//   #CC0 @PLACE(24, 28) => @ORIENT("R90");
+//   #CC1 @PLACE(24, 34) => @ORIENT("R90");
+//   #CC2 @PLACE(24, 40) => @ORIENT("R90");
+//   #MZERO @PLACE(-20, 22) => @ORIENT("R0");
+//   %pip = $IO_PORT @ATTACH &INP => @PLACE(-18, 0) => @ORIENT("R0");
+//   %pin = $IO_PORT @ATTACH &INN => @PLACE(18, 0) => @ORIENT("MY");
+//   %pout = $IO_PORT @ATTACH &OUT => @PLACE(46, 6) => @ORIENT("MY");
+//   %pb = $IO_PORT @ATTACH &BIAS => @PLACE(-16, -10) => @ORIENT("R0");
+//   &INP @WIRE {%pip:p #MN1:g};
+//   &INN @WIRE {%pin:p #MN2:g};
+//   %jnb = (-10, 6); %jna = (10, 6); %jmg = (16, 12);
+//   &NB @WIRE {#MP1:d %jnb #MN1:d};
+//   &NA @WIRE {#MP2:d %jna #MN2:d};
+//   &NA @WIRE {%jna (16, 6) %jmg #MP2:g};
+//   &NA @WIRE {%jmg (16, 18) (-16, 18) (-16, 12) #MP1:g};
+//   &NB @WIRE {%jnb (-4, 6) (-4, 16) (28, 16) (28, 12) #MPOUT:g};
+//   %jtail = (0, -6);
+//   &TAIL @WIRE {#MN1:s (-10, -6) %jtail (10, -6) #MN2:s};
+//   &TAIL @WIRE {%jtail #MTAIL:d};
+//   %jbias = (-6, -10);
+//   &BIAS @WIRE {%pb:p %jbias #MTAIL:g};
+//   &BIAS @WIRE {%jbias (-6, -20) (28, -20) (28, -10) #MNOUT:g};
+//   %jo = (34, 6); %joc = (40, 6);
+//   &OUT @WIRE {#MPOUT:d %jo #MNOUT:d};
+//   &OUT @WIRE {%jo %joc %pout:p};
+//   %jcl = (18, 28); %jcr = (30, 28); %jcl1 = (18, 34); %jcr1 = (30, 34);
+//   &NB @WIRE {%jnb (-20, 6) #MZERO:d};
+//   &NZ @WIRE {#MZERO:s (-20, 28) %jcl #CC0:p};
+//   &NZ @WIRE {%jcl %jcl1 (18, 40) #CC2:p};
+//   &NZ @WIRE {%jcl1 #CC1:p};
+//   &OUT @WIRE {%joc (40, 28) %jcr #CC0:n};
+//   &OUT @WIRE {%jcr %jcr1 (30, 40) #CC2:n};
+//   &OUT @WIRE {%jcr1 #CC1:n};
+//   %vzero = $SUPPLY @ATTACH &AVDD18 => @PLACE(-14, 24) => @ORIENT("R0");
+//   &AVDD18 @WIRE {#MZERO:b (-14, 22) %vzero:p};
+//   %gzero = $GROUND @ATTACH &VSS => @PLACE(-26, 18) => @ORIENT("R0");
+//   &VSS @WIRE {#MZERO:g (-26, 22) %gzero:p};
+//   %vh = $SUPPLY @ATTACH &AVDD18 => @PLACE(0, 23) => @ORIENT("R0");
+//   %jvh = (0, 20); %jvhl = (-10, 20); %jvhr = (10, 20); %jvho = (34, 20);
+//   &AVDD18 @WIRE {%vh:p %jvh};
+//   &AVDD18 @WIRE {%jvhl %jvh %jvhr %jvho #MPOUT:s};
+//   &AVDD18 @WIRE {%jvhl #MP1:s};
+//   &AVDD18 @WIRE {%jvhr #MP2:s};
+//   &AVDD18 @WIRE {#MP1:b (-6, 12) (-6, 20) %jvhl};
+//   &AVDD18 @WIRE {#MP2:b (6, 12) (6, 20) %jvhr};
+//   &AVDD18 @WIRE {#MPOUT:b (38, 12) (38, 20) %jvho};
+//   %gb1 = $GROUND @ATTACH &VSS => @PLACE(-6, -3) => @ORIENT("R0");
+//   %gb2 = $GROUND @ATTACH &VSS => @PLACE(6, -3) => @ORIENT("R0");
+//   &VSS @WIRE {#MN1:b (-6, 0) %gb1:p};
+//   &VSS @WIRE {#MN2:b (6, 0) %gb2:p};
+//   %gt = $GROUND @ATTACH &VSS => @PLACE(0, -17) => @ORIENT("R0");
+//   %go = $GROUND @ATTACH &VSS => @PLACE(34, -17) => @ORIENT("R0");
+//   %jgt = (0, -14); %jgo = (34, -14);
+//   &VSS @WIRE {#MTAIL:s %jgt %gt:p};
+//   &VSS @WIRE {#MTAIL:b (4, -10) (4, -14) %jgt};
+//   &VSS @WIRE {#MNOUT:s %jgo %go:p};
+//   &VSS @WIRE {#MNOUT:b (38, -10) (38, -14) %jgo};
+//   $JUNCTION @ATTACH {%jnb %jna %jmg %jtail %jbias %jo %joc %jcl %jcr %jcl1 %jcr1 %jvh %jvhl %jvhr %jvho %jgt %jgo};
+//   (-28, -25) @TEXT("MOS: 8u/1u, nf=4; PMOS mirror x4, MPOUT x16, MZERO x8. The input pair is ordinary thick oxide.", halign="start", size=0.75);
+//   (-28, -27) @TEXT("MOM: 80 fingers, 40u length, 50n width/space, layers 1..5; CC0 x4, CC1/CC2 x1.", halign="start", size=0.75);
+//   (-28, 49) @TEXT("Replica servo: thick-oxide input pair, PMOS mirror and compensated second stage", halign="start") => @SET-STYLE $title_style;
+//   (-28, 46.5) @TEXT("INP rises -> NB falls -> OUT rises. MZERO provides series damping in the compensation path.", halign="start") => @SET-STYLE $note_style;
+//   %servo_symbol = @DEFINE-SYMBOL(box=[-6, -5, 7, 5]) {
+//     @LINE {(-4, 4) (-4, -4) (5, 0) (-4, 4)};
+//     (-6, 2) @PIN(terminal="INP", direction="left");
+//     (-6, -2) @PIN(terminal="INN", direction="left");
+//     (7, 0) @PIN(terminal="OUT", direction="right");
+//     (0, -5) @PIN(terminal="BIAS", direction="down");
+//     (0, 5) @PIN(terminal="AVDD18", direction="up");
+//     (3, -5) @PIN(terminal="VSS", direction="down");
+//     @LINE {(-6, 2) (-4, 2)};
+//     @LINE {(-6, -2) (-4, -2)};
+//     @LINE {(5, 0) (7, 0)};
+//     @LINE {(0, 5) (0, 2.2)};
+//     @LINE {(0, -5) (0, -2.2)};
+//     @LINE {(3, -5) (3, -0.9)};
+//     (-3, 2) @TEXT("+", size=0.8);
+//     (-3, -2) @TEXT("-", size=0.8);
+//     ? @TEXT("${name}", key="name", size=0.8) => @PLACE(0, 7);
+//     ? @TEXT("replica servo", key="model", size=0.6) => @PLACE(-1, 0)
+//   };
+//   # @SET-SYMBOL %servo_symbol
+// }
+ends adc_ref_servo
+
+// Reference-presence clamp. MNBL sinks current from the control node.
+subckt adc_ref_startup (REF OUT AVDD18 VSS)
+MPUV (NST REF AVDD18 AVDD18) pch_18_mac w=8u l=1u nf=4 multi=2
+MNUV (NST REF VSS VSS) nch_18_mac w=64u l=1u nf=32
+MNBL (NST AVDD18 VSS VSS) nch_18_mac w=1u l=1u nf=1
+MCLAMP (OUT NST VSS VSS) nch_18_mac w=64u l=500n nf=32
+// @RNL {
+//   &AVDD18 @ADD-TO $SUPPLY_NET_SET;
+//   &VSS @ADD-TO $GROUND_NET_SET;
+//   {#MPUV #MNUV #MNBL} @GROUP;
+//   #MPUV @PLACE(0, 10) => @ORIENT("R0");
+//   #MNUV @PLACE(0, -4) => @ORIENT("R0");
+//   #MNBL @PLACE(14, -4) => @ORIENT("R0");
+//   #MCLAMP @PLACE(30, -4) => @ORIENT("R0");
+//   %pref = $IO_PORT @ATTACH &REF => @PLACE(-14, 3) => @ORIENT("R0");
+//   %jref = (-6, 3);
+//   &REF @WIRE {%pref:p %jref (-6, 10) #MPUV:g};
+//   &REF @WIRE {%jref (-6, -4) #MNUV:g};
+//   %jst = (0, 3); %jbl = (14, 3);
+//   &NST @WIRE {#MPUV:d %jst #MNUV:d};
+//   &NST @WIRE {%jst %jbl (24, 3) (24, -4) #MCLAMP:g};
+//   &NST @WIRE {%jbl #MNBL:d};
+//   %pout = $IO_PORT @ATTACH &OUT => @PLACE(40, 8) => @ORIENT("MY");
+//   &OUT @WIRE {#MCLAMP:d (30, 8) %pout:p};
+//   %vp = $SUPPLY @ATTACH &AVDD18 => @PLACE(0, 18) => @ORIENT("R0");
+//   %jvp = (0, 14);
+//   &AVDD18 @WIRE {#MPUV:s %jvp %vp:p};
+//   &AVDD18 @WIRE {#MPUV:b (4, 10) (4, 14) %jvp};
+//   %vbl = $SUPPLY @ATTACH &AVDD18 => @PLACE(8, -2) => @ORIENT("R0");
+//   &AVDD18 @WIRE {%vbl:p (8, -4) #MNBL:g};
+//   %gn = $GROUND @ATTACH &VSS => @PLACE(0, -11) => @ORIENT("R0");
+//   %gbl = $GROUND @ATTACH &VSS => @PLACE(14, -11) => @ORIENT("R0");
+//   %gcl = $GROUND @ATTACH &VSS => @PLACE(30, -11) => @ORIENT("R0");
+//   %jn = (0, -8); %jb = (14, -8); %jc = (30, -8);
+//   &VSS @WIRE {#MNUV:s %jn %gn:p};
+//   &VSS @WIRE {#MNUV:b (4, -4) (4, -8) %jn};
+//   &VSS @WIRE {#MNBL:s %jb %gbl:p};
+//   &VSS @WIRE {#MNBL:b (18, -4) (18, -8) %jb};
+//   &VSS @WIRE {#MCLAMP:s %jc %gcl:p};
+//   &VSS @WIRE {#MCLAMP:b (34, -4) (34, -8) %jc};
+//   $JUNCTION @ATTACH {%jref %jst %jbl %jvp %jn %jb %jc};
+//   (-16, 25) @TEXT("Reference-presence startup clamp", halign="start") => @SET-STYLE $title_style;
+//   (-16, 22) @TEXT("REF rises -> NST falls -> the gate clamp releases. MNBL sinks control-node current.", halign="start") => @SET-STYLE $note_style;
+//   (-16, -16) @TEXT("Inverter: P 8u/1u, nf=4, x2; N 64u/1u, nf=32. Bleed: N 1u/1u, nf=1.", halign="start", size=0.75);
+//   (-16, -18) @TEXT("Clamp: N 64u/500n, nf=32. All devices are thick oxide; no external startup control is used.", halign="start", size=0.75);
+//   %startup_symbol = @DEFINE-SYMBOL(box=[-6, -4, 7, 4]) {
+//     @LINE {(-5, 3) (-5, -3) (6, -3) (6, 3) (-5, 3)};
+//     (-6, 1) @PIN(terminal="REF", direction="left");
+//     (7, 0) @PIN(terminal="OUT", direction="right");
+//     (0, 4) @PIN(terminal="AVDD18", direction="up");
+//     (0, -4) @PIN(terminal="VSS", direction="down");
+//     @LINE {(-6, 1) (-5, 1)};
+//     @LINE {(6, 0) (7, 0)};
+//     @LINE {(0, 4) (0, 3)};
+//     @LINE {(0, -4) (0, -3)};
+//     ? @TEXT("${name}", key="name", size=0.8, halign="start") => @PLACE(-6, 6);
+//     ? @TEXT("startup clamp", key="model", size=0.6) => @PLACE(0, 0)
+//   };
+//   # @SET-SYMBOL %startup_symbol
+// }
+ends adc_ref_startup

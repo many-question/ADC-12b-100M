@@ -2,7 +2,7 @@ block: adc_ref
 title: Reference driver (VREFP = 0.9 V) and top-plate common-mode (VCM = 0.45 V)
 version: 0.6.0
 owner: many-question
-status: xtor-wip
+status: behavioral
 views:
   behav: design/behav/adc_ref.scs
   xtor: design/xtor/adc_ref/adc_ref.scs
