@@ -91,8 +91,13 @@ A later variant combines NMOS sharing with PMOS-to-VIN assistance and stronger
 nonsampled outputs. It has zero project stress violations over both the
 125 ns sine stimulus (maximum 0.98568 V) and the original 70 ns control sequence
 (0.97887 V). RL12 = 35.3 ps and Qref = 1.1072 pC also meet their limits, but
-PHI_SB capacitance = 45.13 fF fails the 40 fF limit. Its tracking acceptance
-remains outstanding. This experimental circuit has not replaced the candidate.
+PHI_SB capacitance = 45.13 fF fails the 40 fF limit. Its matched 32-sample
+diagnostic gives h3 = -72.56 dBc, worse than PMOS assistance alone. Reducing
+only the top-plate N/P switches from 32 to 16 um each lowers PHI_SB capacitance
+to 37.04 fF while retaining RL12 = 35.3 ps, Qref = 1.1039 pC, and zero stress
+violations in the 70 ns control sequence. That size change still needs its
+own tracking and sine-stress evidence. Neither experimental circuit has
+replaced the candidate.
 Convergence comparisons, representative PVT,
 complete corner coverage, long-hold behavior, device stress, and joint bootstrap
 validation remain outstanding. No selection or signoff is claimed.
