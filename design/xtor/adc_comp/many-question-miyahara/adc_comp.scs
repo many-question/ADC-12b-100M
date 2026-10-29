@@ -10,28 +10,26 @@ subckt adc_comp (INP INN CLKC OUTP OUTN AVDD VSS)
 MINP (DP INP TAIL VSS) nch_ulvt_mac l=3e-08 w=4.8e-05 nf=48 m=1 ad=2.4e-12 as=2.45e-12 pd=5.28e-05 ps=5.49e-05 nrd=0.010636 nrs=0.010636 sa=1.20441e-06 sb=1.20441e-06 sd=1e-07
 MINN (DN INN TAIL VSS) nch_ulvt_mac l=3e-08 w=4.8e-05 nf=48 m=1 ad=2.4e-12 as=2.45e-12 pd=5.28e-05 ps=5.49e-05 nrd=0.010636 nrs=0.010636 sa=1.20441e-06 sb=1.20441e-06 sd=1e-07
 MTAIL (TAIL CLKC VSS VSS) nch_ulvt_mac l=3e-08 w=3e-06 nf=3 m=1 ad=1.75e-13 as=1.75e-13 pd=4.35e-06 ps=4.35e-06 nrd=0.136842 nrs=0.136842 sa=1.47042e-07 sb=1.47042e-07 sd=1e-07
-MRDP (DP CLKC AVDD AVDD) pch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-13 pd=4.4e-06 ps=6.5e-06 nrd=0.048530 nrs=0.048530 sa=1.79203e-07 sb=1.79203e-07 sd=1e-07
-MRDN (DN CLKC AVDD AVDD) pch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-13 pd=4.4e-06 ps=6.5e-06 nrd=0.048530 nrs=0.048530 sa=1.79203e-07 sb=1.79203e-07 sd=1e-07
+MRDP (DP CKR AVDD AVDD) pch_ulvt_mac l=3e-08 w=6e-06 nf=6 m=1 ad=3e-13 as=3.5e-13 pd=6.6e-06 ps=8.7e-06 nrd=0.032979 nrs=0.032979 sa=2.39369e-07 sb=2.39369e-07 sd=1e-07
+MRDN (DN CKR AVDD AVDD) pch_ulvt_mac l=3e-08 w=6e-06 nf=6 m=1 ad=3e-13 as=3.5e-13 pd=6.6e-06 ps=8.7e-06 nrd=0.032979 nrs=0.032979 sa=2.39369e-07 sb=2.39369e-07 sd=1e-07
 M14 (XP DP AVDD AVDD) pch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-13 pd=4.4e-06 ps=6.5e-06 nrd=0.048530 nrs=0.048530 sa=1.79203e-07 sb=1.79203e-07 sd=1e-07
 M15 (XN DN AVDD AVDD) pch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-13 pd=4.4e-06 ps=6.5e-06 nrd=0.048530 nrs=0.048530 sa=1.79203e-07 sb=1.79203e-07 sd=1e-07
 M12 (XP DP VSS VSS) nch_ulvt_mac l=3e-08 w=1e-06 nf=2 m=1 ad=5e-14 as=7.5e-14 pd=1.2e-06 ps=2.3e-06 nrd=0.425847 nrs=0.425847 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
 M13 (XN DN VSS VSS) nch_ulvt_mac l=3e-08 w=1e-06 nf=2 m=1 ad=5e-14 as=7.5e-14 pd=1.2e-06 ps=2.3e-06 nrd=0.425847 nrs=0.425847 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
-M10 (QP QN XP AVDD) pch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-13 pd=4.4e-06 ps=6.5e-06 nrd=0.048530 nrs=0.048530 sa=1.79203e-07 sb=1.79203e-07 sd=1e-07
-M11 (QN QP XN AVDD) pch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-13 pd=4.4e-06 ps=6.5e-06 nrd=0.048530 nrs=0.048530 sa=1.79203e-07 sb=1.79203e-07 sd=1e-07
-M6 (QP QN VSS VSS) nch_ulvt_mac l=3e-08 w=2e-06 nf=2 m=1 ad=1e-13 as=1.5e-13 pd=2.2e-06 ps=4.3e-06 nrd=0.185844 nrs=0.185844 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
-M7 (QN QP VSS VSS) nch_ulvt_mac l=3e-08 w=2e-06 nf=2 m=1 ad=1e-13 as=1.5e-13 pd=2.2e-06 ps=4.3e-06 nrd=0.185844 nrs=0.185844 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
-M8 (QP DP VSS VSS) nch_ulvt_mac l=3e-08 w=1e-06 nf=2 m=1 ad=5e-14 as=7.5e-14 pd=1.2e-06 ps=2.3e-06 nrd=0.425847 nrs=0.425847 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
-M9 (QN DN VSS VSS) nch_ulvt_mac l=3e-08 w=1e-06 nf=2 m=1 ad=5e-14 as=7.5e-14 pd=1.2e-06 ps=2.3e-06 nrd=0.425847 nrs=0.425847 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
-MBPN (BP QP VSS VSS) nch_ulvt_mac l=3e-08 w=1e-06 nf=2 m=1 ad=5e-14 as=7.5e-14 pd=1.2e-06 ps=2.3e-06 nrd=0.425847 nrs=0.425847 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
-MBPP (BP QP AVDD AVDD) pch_ulvt_mac l=3e-08 w=2e-06 nf=2 m=1 ad=1e-13 as=1.5e-13 pd=2.2e-06 ps=4.3e-06 nrd=0.091833 nrs=0.091833 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
-MBNN (BN QN VSS VSS) nch_ulvt_mac l=3e-08 w=1e-06 nf=2 m=1 ad=5e-14 as=7.5e-14 pd=1.2e-06 ps=2.3e-06 nrd=0.425847 nrs=0.425847 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
-MBNP (BN QN AVDD AVDD) pch_ulvt_mac l=3e-08 w=2e-06 nf=2 m=1 ad=1e-13 as=1.5e-13 pd=2.2e-06 ps=4.3e-06 nrd=0.091833 nrs=0.091833 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
-MOPN (OUTP BP VSS VSS) nch_ulvt_mac l=3e-08 w=2e-06 nf=2 m=1 ad=1e-13 as=1.5e-13 pd=2.2e-06 ps=4.3e-06 nrd=0.185844 nrs=0.185844 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
-MOPP (OUTP BP AVDD AVDD) pch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-13 pd=4.4e-06 ps=6.5e-06 nrd=0.048530 nrs=0.048530 sa=1.79203e-07 sb=1.79203e-07 sd=1e-07
-MONN (OUTN BN VSS VSS) nch_ulvt_mac l=3e-08 w=2e-06 nf=2 m=1 ad=1e-13 as=1.5e-13 pd=2.2e-06 ps=4.3e-06 nrd=0.185844 nrs=0.185844 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
-MONP (OUTN BN AVDD AVDD) pch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-13 pd=4.4e-06 ps=6.5e-06 nrd=0.048530 nrs=0.048530 sa=1.79203e-07 sb=1.79203e-07 sd=1e-07
-CDP (DP VSS) cfmom_2t nr=48 lr=2e-06 w=5e-08 s=5e-08 stm=1 spm=3 multi=1
-CDN (DN VSS) cfmom_2t nr=48 lr=2e-06 w=5e-08 s=5e-08 stm=1 spm=3 multi=1
+M10 (OUTP OUTN XP AVDD) pch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-13 pd=4.4e-06 ps=6.5e-06 nrd=0.048530 nrs=0.048530 sa=1.79203e-07 sb=1.79203e-07 sd=1e-07
+M11 (OUTN OUTP XN AVDD) pch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-13 pd=4.4e-06 ps=6.5e-06 nrd=0.048530 nrs=0.048530 sa=1.79203e-07 sb=1.79203e-07 sd=1e-07
+M6 (OUTP OUTN VSS VSS) nch_ulvt_mac l=3e-08 w=2e-06 nf=2 m=1 ad=1e-13 as=1.5e-13 pd=2.2e-06 ps=4.3e-06 nrd=0.185844 nrs=0.185844 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
+M7 (OUTN OUTP VSS VSS) nch_ulvt_mac l=3e-08 w=2e-06 nf=2 m=1 ad=1e-13 as=1.5e-13 pd=2.2e-06 ps=4.3e-06 nrd=0.185844 nrs=0.185844 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
+M8 (OUTP DP VSS VSS) nch_ulvt_mac l=3e-08 w=2e-06 nf=2 m=1 ad=1e-13 as=1.5e-13 pd=2.2e-06 ps=4.3e-06 nrd=0.185844 nrs=0.185844 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
+M9 (OUTN DN VSS VSS) nch_ulvt_mac l=3e-08 w=2e-06 nf=2 m=1 ad=1e-13 as=1.5e-13 pd=2.2e-06 ps=4.3e-06 nrd=0.185844 nrs=0.185844 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
+CDP (DP VSS) cfmom_2t nr=48 lr=1e-06 w=5e-08 s=5e-08 stm=1 spm=3 multi=1
+CDN (DN VSS) cfmom_2t nr=48 lr=1e-06 w=5e-08 s=5e-08 stm=1 spm=3 multi=1
+MCKN (CKB CLKC VSS VSS) nch_ulvt_mac l=3e-08 w=1e-06 nf=2 m=1 ad=5e-14 as=7.5e-14 pd=1.2e-06 ps=2.3e-06 nrd=0.425847 nrs=0.425847 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
+MCKP (CKB CLKC AVDD AVDD) pch_ulvt_mac l=3e-08 w=8e-06 nf=8 m=1 ad=4e-13 as=4.5e-13 pd=8.8e-06 ps=1.09e-05 nrd=0.024976 nrs=0.024976 sa=2.95835e-07 sb=2.95835e-07 sd=1e-07
+MCK2N (CKR CKB VSS VSS) nch_ulvt_mac l=3e-08 w=8e-06 nf=8 m=1 ad=4e-13 as=4.5e-13 pd=8.8e-06 ps=1.09e-05 nrd=0.059025 nrs=0.059025 sa=2.95835e-07 sb=2.95835e-07 sd=1e-07
+MCK2P (CKR CKB AVDD AVDD) pch_ulvt_mac l=3e-08 w=8e-06 nf=8 m=1 ad=4e-13 as=4.5e-13 pd=8.8e-06 ps=1.09e-05 nrd=0.024976 nrs=0.024976 sa=2.95835e-07 sb=2.95835e-07 sd=1e-07
+MRQP (OUTP CKB VSS VSS) nch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-13 pd=4.4e-06 ps=6.5e-06 nrd=0.108289 nrs=0.108289 sa=1.79203e-07 sb=1.79203e-07 sd=1e-07
+MRQN (OUTN CKB VSS VSS) nch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-13 pd=4.4e-06 ps=6.5e-06 nrd=0.108289 nrs=0.108289 sa=1.79203e-07 sb=1.79203e-07 sd=1e-07
 // @RNL(author="schematic-review") {
 //  &VSS @ADD-TO $GROUND_NET_SET;
 //  &AVDD @ADD-TO $SUPPLY_NET_SET;
@@ -44,15 +42,11 @@ CDN (DN VSS) cfmom_2t nr=48 lr=2e-06 w=5e-08 s=5e-08 stm=1 spm=3 multi=1
 //  $power_wire = @DEFINE-STYLE(linecolor="#697887", fillcolor="#697887", textcolor="#697887") {};
 //  $signal_wire = @DEFINE-STYLE(linecolor="#263442", fillcolor="#263442", textcolor="#263442") {};
 //  @LINE(linecolor="#d3dbe4", linewidth=0.08, linestyle="dashed") {(-62, -64) (62, -64) (62, 94) (-62, 94) (-62, -64)};
-//  @LINE(linecolor="#d3dbe4", linewidth=0.08, linestyle="dashed") {(-132, 22) (-72, 22) (-72, 70) (-132, 70) (-132, 22)};
-//  @LINE(linecolor="#d3dbe4", linewidth=0.08, linestyle="dashed") {(72, 22) (132, 22) (132, 70) (72, 70) (72, 22)};
 //  (0, 104) @TEXT("Miyahara two-stage comparator", size=2, bold=true, halign="middle", textcolor="#273747");
 //  (0, 97) @TEXT("28 nm HPC+ | ULVT MOS | device labels: W/L and nf", size=0.9, bold=false, halign="middle", textcolor="#526171");
 //  (0, 91.5) @TEXT("Regenerative second stage", size=1.35, bold=true, halign="middle", textcolor="#273747");
 //  (0, 7) @TEXT("Dynamic input stage", size=1.35, bold=true, halign="middle", textcolor="#273747");
-//  @LINE(linecolor="#d3dbe4", linewidth=0.08, linestyle="dashed") {(-62, 12) (62, 12)};
-//  (-102, 67) @TEXT("OUTP buffer", size=1.35, bold=true, halign="middle", textcolor="#273747");
-//  (102, 67) @TEXT("OUTN buffer", size=1.35, bold=true, halign="middle", textcolor="#273747");
+//  @LINE(linecolor="#d3dbe4", linewidth=0.08, linestyle="dashed") {(-62, 10) (62, 10)};
 //  #M14 @PLACE(-18, 72) => @ORIENT("R0");
 //  #M14 @TEXT("M14", key="name", size=1.15, bold=true, halign="start", textcolor="#273747") => @PLACE(-15.2, 73.2);
 //  #M14 @TEXT("4\mu{}m/30nm  nf4", key="dims", size=1, halign="start", textcolor="#526171") => @PLACE(-15.2, 70.5);
@@ -79,16 +73,16 @@ CDN (DN VSS) cfmom_2t nr=48 lr=2e-06 w=5e-08 s=5e-08 stm=1 spm=3 multi=1
 //  #M13 @TEXT("1\mu{}m/30nm  nf2", key="dims", size=1, halign="end", textcolor="#526171") => @PLACE(39.2, 58.5);
 //  #M8 @PLACE(-42, 30) => @ORIENT("R0");
 //  #M8 @TEXT("M8", key="name", size=1.15, bold=true, halign="start", textcolor="#273747") => @PLACE(-39.2, 31.2);
-//  #M8 @TEXT("1\mu{}m/30nm  nf2", key="dims", size=1, halign="start", textcolor="#526171") => @PLACE(-39.2, 28.5);
+//  #M8 @TEXT("2\mu{}m/30nm  nf2", key="dims", size=1, halign="start", textcolor="#526171") => @PLACE(-39.2, 28.5);
 //  #M9 @PLACE(42, 30) => @ORIENT("MY");
 //  #M9 @TEXT("M9", key="name", size=1.15, bold=true, halign="end", textcolor="#273747") => @PLACE(39.2, 31.2);
-//  #M9 @TEXT("1\mu{}m/30nm  nf2", key="dims", size=1, halign="end", textcolor="#526171") => @PLACE(39.2, 28.5);
+//  #M9 @TEXT("2\mu{}m/30nm  nf2", key="dims", size=1, halign="end", textcolor="#526171") => @PLACE(39.2, 28.5);
 //  #MRDP @PLACE(-18, -8) => @ORIENT("MY");
 //  #MRDP @TEXT("MRDP", key="name", size=1.15, bold=true, halign="end", textcolor="#273747") => @PLACE(-20.8, -6.8);
-//  #MRDP @TEXT("4\mu{}m/30nm  nf4", key="dims", size=1, halign="end", textcolor="#526171") => @PLACE(-20.8, -9.5);
+//  #MRDP @TEXT("6\mu{}m/30nm  nf6", key="dims", size=1, halign="end", textcolor="#526171") => @PLACE(-20.8, -9.5);
 //  #MRDN @PLACE(18, -8) => @ORIENT("R0");
 //  #MRDN @TEXT("MRDN", key="name", size=1.15, bold=true, halign="start", textcolor="#273747") => @PLACE(20.8, -6.8);
-//  #MRDN @TEXT("4\mu{}m/30nm  nf4", key="dims", size=1, halign="start", textcolor="#526171") => @PLACE(20.8, -9.5);
+//  #MRDN @TEXT("6\mu{}m/30nm  nf6", key="dims", size=1, halign="start", textcolor="#526171") => @PLACE(20.8, -9.5);
 //  #MINP @PLACE(-18, -30) => @ORIENT("R0");
 //  #MINP @TEXT("MINP", key="name", size=1.15, bold=true, halign="start", textcolor="#273747") => @PLACE(-15.2, -28.8);
 //  #MINP @TEXT("48\mu{}m/30nm  nf48", key="dims", size=1, halign="start", textcolor="#526171") => @PLACE(-15.2, -31.5);
@@ -120,18 +114,18 @@ CDN (DN VSS) cfmom_2t nr=48 lr=2e-06 w=5e-08 s=5e-08 stm=1 spm=3 multi=1
 //  %latch_vdd_tag = $SUPPLY @ATTACH &AVDD => @PLACE(0.0, 86.5);
 //  %latch_vdd_tag => @SET-STYLE $power_wire;
 //  &AVDD @WIRE(mode="straight", linecolor="#697887", linewidth=0.11) {%latch_vdd_2 %latch_vdd_tag:p};
-//  %latch_vss_0 = (-48, 18);
-//  %latch_vss_1 = (-42, 18);
+//  %latch_vss_0 = (-48, 20);
+//  %latch_vss_1 = (-42, 20);
 //  $JUNCTION @ATTACH %latch_vss_1 => @SET-STYLE $power_wire;
-//  %latch_vss_2 = (-18, 18);
+//  %latch_vss_2 = (-18, 20);
 //  $JUNCTION @ATTACH %latch_vss_2 => @SET-STYLE $power_wire;
-//  %latch_vss_3 = (0.0, 18);
+//  %latch_vss_3 = (0.0, 20);
 //  $JUNCTION @ATTACH %latch_vss_3 => @SET-STYLE $power_wire;
-//  %latch_vss_4 = (18, 18);
+//  %latch_vss_4 = (18, 20);
 //  $JUNCTION @ATTACH %latch_vss_4 => @SET-STYLE $power_wire;
-//  %latch_vss_5 = (42, 18);
+//  %latch_vss_5 = (42, 20);
 //  $JUNCTION @ATTACH %latch_vss_5 => @SET-STYLE $power_wire;
-//  %latch_vss_6 = (48, 18);
+//  %latch_vss_6 = (48, 20);
 //  &VSS @WIRE(mode="straight", linecolor="#697887", linewidth=0.11) {%latch_vss_0 %latch_vss_1 %latch_vss_2 %latch_vss_3 %latch_vss_4 %latch_vss_5 %latch_vss_6};
 //  %s_M8 = (-42, 27);
 //  $JUNCTION @ATTACH %s_M8 => @SET-STYLE $power_wire;
@@ -153,7 +147,7 @@ CDN (DN VSS) cfmom_2t nr=48 lr=2e-06 w=5e-08 s=5e-08 stm=1 spm=3 multi=1
 //  &VSS @WIRE(mode="straight", linecolor="#697887", linewidth=0.11) {#M9:s %s_M9};
 //  &VSS @WIRE(mode="straight", linecolor="#697887", linewidth=0.11) {#M9:b (40, 30) (40, 27) %s_M9};
 //  &VSS @WIRE(mode="straight", linecolor="#697887", linewidth=0.11) {%s_M9 %latch_vss_5};
-//  %latch_vss_tag = $GROUND @ATTACH &VSS => @PLACE(0.0, 16.5);
+//  %latch_vss_tag = $GROUND @ATTACH &VSS => @PLACE(0.0, 18.5);
 //  %latch_vss_tag => @SET-STYLE $power_wire;
 //  &VSS @WIRE(mode="straight", linecolor="#697887", linewidth=0.11) {%latch_vss_3 %latch_vss_tag:p};
 //  %b_M10 = $SUPPLY @ATTACH &AVDD => @PLACE(-29, 56);
@@ -221,26 +215,26 @@ CDN (DN VSS) cfmom_2t nr=48 lr=2e-06 w=5e-08 s=5e-08 stm=1 spm=3 multi=1
 //  &XP @WIRE(mode="straight", linecolor="#286e97", linewidth=0.16) {#M12:d (-42, 64) %xp};
 //  &XN @WIRE(mode="straight", linecolor="#286e97", linewidth=0.16) {#M15:d %xn #M11:s};
 //  &XN @WIRE(mode="straight", linecolor="#286e97", linewidth=0.16) {#M13:d (42, 64) %xn};
-//  %qp = (-18, 42);
-//  $JUNCTION @ATTACH %qp => @SET-STYLE $p_wire;
-//  %qn = (18, 37);
-//  $JUNCTION @ATTACH %qn => @SET-STYLE $n_wire;
-//  %qp_reset = (-42, 42);
-//  $JUNCTION @ATTACH %qp_reset => @SET-STYLE $p_wire;
-//  %qn_reset = (42, 37);
-//  $JUNCTION @ATTACH %qn_reset => @SET-STYLE $n_wire;
-//  &QP @WIRE(mode="straight", linecolor="#3f5597", linewidth=0.16) {#M10:d %qp #M6:d};
-//  &QP @WIRE(mode="straight", linecolor="#3f5597", linewidth=0.16) {%qp %qp_reset #M8:d};
-//  &QN @WIRE(mode="straight", linecolor="#16817a", linewidth=0.16) {#M11:d %qn #M7:d};
-//  &QN @WIRE(mode="straight", linecolor="#16817a", linewidth=0.16) {%qn %qn_reset #M9:d};
-//  %feedback_qp = (8, 42);
-//  $JUNCTION @ATTACH %feedback_qp => @SET-STYLE $p_wire;
-//  %feedback_qn = (-8, 37);
-//  $JUNCTION @ATTACH %feedback_qn => @SET-STYLE $n_wire;
-//  &QP @WIRE(mode="straight", linecolor="#3f5597", linewidth=0.16) {%qp %feedback_qp};
-//  &QP @WIRE(mode="straight", linecolor="#3f5597", linewidth=0.16) {#M11:g (8, 52) %feedback_qp (8, 30) #M7:g};
-//  &QN @WIRE(mode="straight", linecolor="#16817a", linewidth=0.16) {%qn %feedback_qn};
-//  &QN @WIRE(mode="straight", linecolor="#16817a", linewidth=0.16) {#M10:g (-8, 52) %feedback_qn (-8, 30) #M6:g};
+//  %outp = (-18, 42);
+//  $JUNCTION @ATTACH %outp => @SET-STYLE $p_wire;
+//  %outn = (18, 37);
+//  $JUNCTION @ATTACH %outn => @SET-STYLE $n_wire;
+//  %outp_reset = (-42, 42);
+//  $JUNCTION @ATTACH %outp_reset => @SET-STYLE $p_wire;
+//  %outn_reset = (42, 37);
+//  $JUNCTION @ATTACH %outn_reset => @SET-STYLE $n_wire;
+//  &OUTP @WIRE(mode="straight", linecolor="#3f5597", linewidth=0.16) {#M10:d %outp #M6:d};
+//  &OUTP @WIRE(mode="straight", linecolor="#3f5597", linewidth=0.16) {%outp %outp_reset #M8:d};
+//  &OUTN @WIRE(mode="straight", linecolor="#16817a", linewidth=0.16) {#M11:d %outn #M7:d};
+//  &OUTN @WIRE(mode="straight", linecolor="#16817a", linewidth=0.16) {%outn %outn_reset #M9:d};
+//  %feedback_outp = (8, 42);
+//  $JUNCTION @ATTACH %feedback_outp => @SET-STYLE $p_wire;
+//  %feedback_outn = (-8, 37);
+//  $JUNCTION @ATTACH %feedback_outn => @SET-STYLE $n_wire;
+//  &OUTP @WIRE(mode="straight", linecolor="#3f5597", linewidth=0.16) {%outp %feedback_outp};
+//  &OUTP @WIRE(mode="straight", linecolor="#3f5597", linewidth=0.16) {#M11:g (8, 52) %feedback_outp (8, 30) #M7:g};
+//  &OUTN @WIRE(mode="straight", linecolor="#16817a", linewidth=0.16) {%outn %feedback_outn};
+//  &OUTN @WIRE(mode="straight", linecolor="#16817a", linewidth=0.16) {#M10:g (-8, 52) %feedback_outn (-8, 30) #M6:g};
 //  %dp = (-18, -18);
 //  $JUNCTION @ATTACH %dp => @SET-STYLE $dynamic_wire;
 //  %dn = (18, -18);
@@ -277,167 +271,149 @@ CDN (DN VSS) cfmom_2t nr=48 lr=2e-06 w=5e-08 s=5e-08 stm=1 spm=3 multi=1
 //  %port_INN @TEXT("INN", key="name", size=1, bold=true);
 //  &INP @WIRE(mode="straight", linecolor="#263442", linewidth=0.16) {%port_INP:p #MINP:g};
 //  &INN @WIRE(mode="straight", linecolor="#263442", linewidth=0.16) {%port_INN:p #MINN:g};
-//  %clkc_input = (0, -8);
-//  $JUNCTION @ATTACH %clkc_input => @SET-STYLE $clock_wire;
-//  &CLKC @WIRE(mode="straight", linecolor="#ab6c15", linewidth=0.16) {#MRDP:g %clkc_input #MRDN:g};
-//  %port_CLKC = $IO_PORT @ATTACH &CLKC => @PLACE(-80, -24) => @ORIENT("R0");
-//  %port_CLKC @TEXT("CLKC", key="name", size=1, bold=true);
-//  %clkc_spine = (-66, -24);
-//  $JUNCTION @ATTACH %clkc_spine => @SET-STYLE $clock_wire;
-//  &CLKC @WIRE(mode="straight", linecolor="#ab6c15", linewidth=0.16) {%port_CLKC:p %clkc_spine (-66, -4) (0, -4) %clkc_input};
-//  &CLKC @WIRE(mode="straight", linecolor="#ab6c15", linewidth=0.16) {%clkc_spine (-66, -54) (-6, -54) (-6, -50) #MTAIL:g};
-//  #MBPP @PLACE(-84, 49) => @ORIENT("MY");
-//  #MBPP @TEXT("MBPP", key="name", size=1.15, bold=true, halign="end", textcolor="#273747") => @PLACE(-86.8, 50.2);
-//  #MBPP @TEXT("2\mu{}m/30nm  nf2", key="dims", size=1, halign="end", textcolor="#526171") => @PLACE(-86.8, 47.5);
-//  #MBPN @PLACE(-84, 35) => @ORIENT("MY");
-//  #MBPN @TEXT("MBPN", key="name", size=1.15, bold=true, halign="end", textcolor="#273747") => @PLACE(-86.8, 36.2);
-//  #MBPN @TEXT("1\mu{}m/30nm  nf2", key="dims", size=1, halign="end", textcolor="#526171") => @PLACE(-86.8, 33.5);
-//  %outp_buf1_in = (-78, 42);
-//  $JUNCTION @ATTACH %outp_buf1_in => @SET-STYLE $p_wire;
-//  %outp_buf1_out = (-84, 42);
-//  $JUNCTION @ATTACH %outp_buf1_out => @SET-STYLE $p_wire;
-//  &QP @WIRE(mode="straight", linecolor="#3f5597", linewidth=0.16) {#MBPP:g (-78, 49) %outp_buf1_in (-78, 35) #MBPN:g};
-//  &BP @WIRE(mode="straight", linecolor="#3f5597", linewidth=0.16) {#MBPP:d %outp_buf1_out #MBPN:d};
-//  #MOPP @PLACE(-110, 49) => @ORIENT("MY");
-//  #MOPP @TEXT("MOPP", key="name", size=1.15, bold=true, halign="end", textcolor="#273747") => @PLACE(-112.8, 50.2);
-//  #MOPP @TEXT("4\mu{}m/30nm  nf4", key="dims", size=1, halign="end", textcolor="#526171") => @PLACE(-112.8, 47.5);
-//  #MOPN @PLACE(-110, 35) => @ORIENT("MY");
-//  #MOPN @TEXT("MOPN", key="name", size=1.15, bold=true, halign="end", textcolor="#273747") => @PLACE(-112.8, 36.2);
-//  #MOPN @TEXT("2\mu{}m/30nm  nf2", key="dims", size=1, halign="end", textcolor="#526171") => @PLACE(-112.8, 33.5);
-//  %outp_buf2_in = (-104, 42);
-//  $JUNCTION @ATTACH %outp_buf2_in => @SET-STYLE $p_wire;
-//  %outp_buf2_out = (-110, 42);
-//  $JUNCTION @ATTACH %outp_buf2_out => @SET-STYLE $p_wire;
-//  &BP @WIRE(mode="straight", linecolor="#3f5597", linewidth=0.16) {#MOPP:g (-104, 49) %outp_buf2_in (-104, 35) #MOPN:g};
-//  &OUTP @WIRE(mode="straight", linecolor="#3f5597", linewidth=0.16) {#MOPP:d %outp_buf2_out #MOPN:d};
-//  &QP @WIRE(mode="straight", linecolor="#3f5597", linewidth=0.16) {%qp_reset %outp_buf1_in};
-//  &BP @WIRE(mode="straight", linecolor="#3f5597", linewidth=0.16) {%outp_buf1_out %outp_buf2_in};
-//  %port_OUTP = $IO_PORT @ATTACH &OUTP => @PLACE(-130, 42) => @ORIENT("R0");
-//  %port_OUTP @TEXT("OUTP", key="name", size=1, bold=true);
-//  &OUTP @WIRE(mode="straight", linecolor="#3f5597", linewidth=0.16) {%outp_buf2_out %port_OUTP:p};
-//  %outp_vdd_0 = (-110, 58);
-//  $JUNCTION @ATTACH %outp_vdd_0 => @SET-STYLE $power_wire;
-//  %outp_vdd_1 = (-97.0, 58);
-//  $JUNCTION @ATTACH %outp_vdd_1 => @SET-STYLE $power_wire;
-//  %outp_vdd_2 = (-84, 58);
-//  $JUNCTION @ATTACH %outp_vdd_2 => @SET-STYLE $power_wire;
-//  &AVDD @WIRE(mode="straight", linecolor="#697887", linewidth=0.11) {%outp_vdd_0 %outp_vdd_1 %outp_vdd_2};
-//  %s_MBPP = (-84, 52);
-//  $JUNCTION @ATTACH %s_MBPP => @SET-STYLE $power_wire;
-//  &AVDD @WIRE(mode="straight", linecolor="#697887", linewidth=0.11) {#MBPP:s %s_MBPP};
-//  &AVDD @WIRE(mode="straight", linecolor="#697887", linewidth=0.11) {#MBPP:b (-86, 49) (-86, 52) %s_MBPP};
-//  &AVDD @WIRE(mode="straight", linecolor="#697887", linewidth=0.11) {%s_MBPP %outp_vdd_2};
-//  %s_MOPP = (-110, 52);
-//  $JUNCTION @ATTACH %s_MOPP => @SET-STYLE $power_wire;
-//  &AVDD @WIRE(mode="straight", linecolor="#697887", linewidth=0.11) {#MOPP:s %s_MOPP};
-//  &AVDD @WIRE(mode="straight", linecolor="#697887", linewidth=0.11) {#MOPP:b (-112, 49) (-112, 52) %s_MOPP};
-//  &AVDD @WIRE(mode="straight", linecolor="#697887", linewidth=0.11) {%s_MOPP %outp_vdd_0};
-//  %outp_vdd_tag = $SUPPLY @ATTACH &AVDD => @PLACE(-97.0, 60.5);
-//  %outp_vdd_tag => @SET-STYLE $power_wire;
-//  &AVDD @WIRE(mode="straight", linecolor="#697887", linewidth=0.11) {%outp_vdd_1 %outp_vdd_tag:p};
-//  %outp_vss_0 = (-110, 26);
-//  $JUNCTION @ATTACH %outp_vss_0 => @SET-STYLE $power_wire;
-//  %outp_vss_1 = (-97.0, 26);
-//  $JUNCTION @ATTACH %outp_vss_1 => @SET-STYLE $power_wire;
-//  %outp_vss_2 = (-84, 26);
-//  $JUNCTION @ATTACH %outp_vss_2 => @SET-STYLE $power_wire;
-//  &VSS @WIRE(mode="straight", linecolor="#697887", linewidth=0.11) {%outp_vss_0 %outp_vss_1 %outp_vss_2};
-//  %s_MBPN = (-84, 32);
-//  $JUNCTION @ATTACH %s_MBPN => @SET-STYLE $power_wire;
-//  &VSS @WIRE(mode="straight", linecolor="#697887", linewidth=0.11) {#MBPN:s %s_MBPN};
-//  &VSS @WIRE(mode="straight", linecolor="#697887", linewidth=0.11) {#MBPN:b (-86, 35) (-86, 32) %s_MBPN};
-//  &VSS @WIRE(mode="straight", linecolor="#697887", linewidth=0.11) {%s_MBPN %outp_vss_2};
-//  %s_MOPN = (-110, 32);
-//  $JUNCTION @ATTACH %s_MOPN => @SET-STYLE $power_wire;
-//  &VSS @WIRE(mode="straight", linecolor="#697887", linewidth=0.11) {#MOPN:s %s_MOPN};
-//  &VSS @WIRE(mode="straight", linecolor="#697887", linewidth=0.11) {#MOPN:b (-112, 35) (-112, 32) %s_MOPN};
-//  &VSS @WIRE(mode="straight", linecolor="#697887", linewidth=0.11) {%s_MOPN %outp_vss_0};
-//  %outp_vss_tag = $GROUND @ATTACH &VSS => @PLACE(-97.0, 24.5);
-//  %outp_vss_tag => @SET-STYLE $power_wire;
-//  &VSS @WIRE(mode="straight", linecolor="#697887", linewidth=0.11) {%outp_vss_1 %outp_vss_tag:p};
-//  {#MBPP #MBPN #MOPP #MOPN} @GROUP;
-//  #MBNP @PLACE(84, 49) => @ORIENT("R0");
-//  #MBNP @TEXT("MBNP", key="name", size=1.15, bold=true, halign="start", textcolor="#273747") => @PLACE(86.8, 50.2);
-//  #MBNP @TEXT("2\mu{}m/30nm  nf2", key="dims", size=1, halign="start", textcolor="#526171") => @PLACE(86.8, 47.5);
-//  #MBNN @PLACE(84, 35) => @ORIENT("R0");
-//  #MBNN @TEXT("MBNN", key="name", size=1.15, bold=true, halign="start", textcolor="#273747") => @PLACE(86.8, 36.2);
-//  #MBNN @TEXT("1\mu{}m/30nm  nf2", key="dims", size=1, halign="start", textcolor="#526171") => @PLACE(86.8, 33.5);
-//  %outn_buf1_in = (78, 42);
-//  $JUNCTION @ATTACH %outn_buf1_in => @SET-STYLE $n_wire;
-//  %outn_buf1_out = (84, 42);
-//  $JUNCTION @ATTACH %outn_buf1_out => @SET-STYLE $n_wire;
-//  &QN @WIRE(mode="straight", linecolor="#16817a", linewidth=0.16) {#MBNP:g (78, 49) %outn_buf1_in (78, 35) #MBNN:g};
-//  &BN @WIRE(mode="straight", linecolor="#16817a", linewidth=0.16) {#MBNP:d %outn_buf1_out #MBNN:d};
-//  #MONP @PLACE(110, 49) => @ORIENT("R0");
-//  #MONP @TEXT("MONP", key="name", size=1.15, bold=true, halign="start", textcolor="#273747") => @PLACE(112.8, 50.2);
-//  #MONP @TEXT("4\mu{}m/30nm  nf4", key="dims", size=1, halign="start", textcolor="#526171") => @PLACE(112.8, 47.5);
-//  #MONN @PLACE(110, 35) => @ORIENT("R0");
-//  #MONN @TEXT("MONN", key="name", size=1.15, bold=true, halign="start", textcolor="#273747") => @PLACE(112.8, 36.2);
-//  #MONN @TEXT("2\mu{}m/30nm  nf2", key="dims", size=1, halign="start", textcolor="#526171") => @PLACE(112.8, 33.5);
-//  %outn_buf2_in = (104, 42);
-//  $JUNCTION @ATTACH %outn_buf2_in => @SET-STYLE $n_wire;
-//  %outn_buf2_out = (110, 42);
-//  $JUNCTION @ATTACH %outn_buf2_out => @SET-STYLE $n_wire;
-//  &BN @WIRE(mode="straight", linecolor="#16817a", linewidth=0.16) {#MONP:g (104, 49) %outn_buf2_in (104, 35) #MONN:g};
-//  &OUTN @WIRE(mode="straight", linecolor="#16817a", linewidth=0.16) {#MONP:d %outn_buf2_out #MONN:d};
-//  &QN @WIRE(mode="straight", linecolor="#16817a", linewidth=0.16) {%qn_reset (68, 37) (68, 42) %outn_buf1_in};
-//  &BN @WIRE(mode="straight", linecolor="#16817a", linewidth=0.16) {%outn_buf1_out %outn_buf2_in};
-//  %port_OUTN = $IO_PORT @ATTACH &OUTN => @PLACE(130, 42) => @ORIENT("MY");
-//  %port_OUTN @TEXT("OUTN", key="name", size=1, bold=true);
-//  &OUTN @WIRE(mode="straight", linecolor="#16817a", linewidth=0.16) {%outn_buf2_out %port_OUTN:p};
-//  %outn_vdd_0 = (84, 58);
-//  $JUNCTION @ATTACH %outn_vdd_0 => @SET-STYLE $power_wire;
-//  %outn_vdd_1 = (97.0, 58);
-//  $JUNCTION @ATTACH %outn_vdd_1 => @SET-STYLE $power_wire;
-//  %outn_vdd_2 = (110, 58);
-//  $JUNCTION @ATTACH %outn_vdd_2 => @SET-STYLE $power_wire;
-//  &AVDD @WIRE(mode="straight", linecolor="#697887", linewidth=0.11) {%outn_vdd_0 %outn_vdd_1 %outn_vdd_2};
-//  %s_MBNP = (84, 52);
-//  $JUNCTION @ATTACH %s_MBNP => @SET-STYLE $power_wire;
-//  &AVDD @WIRE(mode="straight", linecolor="#697887", linewidth=0.11) {#MBNP:s %s_MBNP};
-//  &AVDD @WIRE(mode="straight", linecolor="#697887", linewidth=0.11) {#MBNP:b (86, 49) (86, 52) %s_MBNP};
-//  &AVDD @WIRE(mode="straight", linecolor="#697887", linewidth=0.11) {%s_MBNP %outn_vdd_0};
-//  %s_MONP = (110, 52);
-//  $JUNCTION @ATTACH %s_MONP => @SET-STYLE $power_wire;
-//  &AVDD @WIRE(mode="straight", linecolor="#697887", linewidth=0.11) {#MONP:s %s_MONP};
-//  &AVDD @WIRE(mode="straight", linecolor="#697887", linewidth=0.11) {#MONP:b (112, 49) (112, 52) %s_MONP};
-//  &AVDD @WIRE(mode="straight", linecolor="#697887", linewidth=0.11) {%s_MONP %outn_vdd_2};
-//  %outn_vdd_tag = $SUPPLY @ATTACH &AVDD => @PLACE(97.0, 60.5);
-//  %outn_vdd_tag => @SET-STYLE $power_wire;
-//  &AVDD @WIRE(mode="straight", linecolor="#697887", linewidth=0.11) {%outn_vdd_1 %outn_vdd_tag:p};
-//  %outn_vss_0 = (84, 26);
-//  $JUNCTION @ATTACH %outn_vss_0 => @SET-STYLE $power_wire;
-//  %outn_vss_1 = (97.0, 26);
-//  $JUNCTION @ATTACH %outn_vss_1 => @SET-STYLE $power_wire;
-//  %outn_vss_2 = (110, 26);
-//  $JUNCTION @ATTACH %outn_vss_2 => @SET-STYLE $power_wire;
-//  &VSS @WIRE(mode="straight", linecolor="#697887", linewidth=0.11) {%outn_vss_0 %outn_vss_1 %outn_vss_2};
-//  %s_MBNN = (84, 32);
-//  $JUNCTION @ATTACH %s_MBNN => @SET-STYLE $power_wire;
-//  &VSS @WIRE(mode="straight", linecolor="#697887", linewidth=0.11) {#MBNN:s %s_MBNN};
-//  &VSS @WIRE(mode="straight", linecolor="#697887", linewidth=0.11) {#MBNN:b (86, 35) (86, 32) %s_MBNN};
-//  &VSS @WIRE(mode="straight", linecolor="#697887", linewidth=0.11) {%s_MBNN %outn_vss_0};
-//  %s_MONN = (110, 32);
-//  $JUNCTION @ATTACH %s_MONN => @SET-STYLE $power_wire;
-//  &VSS @WIRE(mode="straight", linecolor="#697887", linewidth=0.11) {#MONN:s %s_MONN};
-//  &VSS @WIRE(mode="straight", linecolor="#697887", linewidth=0.11) {#MONN:b (112, 35) (112, 32) %s_MONN};
-//  &VSS @WIRE(mode="straight", linecolor="#697887", linewidth=0.11) {%s_MONN %outn_vss_2};
-//  %outn_vss_tag = $GROUND @ATTACH &VSS => @PLACE(97.0, 24.5);
-//  %outn_vss_tag => @SET-STYLE $power_wire;
-//  &VSS @WIRE(mode="straight", linecolor="#697887", linewidth=0.11) {%outn_vss_1 %outn_vss_tag:p};
-//  {#MBNP #MBNN #MONP #MONN} @GROUP;
+//  @LINE(linecolor="#d3dbe4", linewidth=0.08, linestyle="dashed") {(-134, -52) (-66, -52) (-66, 0) (-134, 0) (-134, -52)};
+//  (-128, -6) @TEXT("Clock / reset drive", size=1.35, halign="start", bold=true, textcolor="#273747");
+//  #MCKP @PLACE(-110, -23) => @ORIENT("R0");
+//  #MCKP @TEXT("MCKP", key="name", size=1.15, bold=true, halign="start", textcolor="#273747") => @PLACE(-107.2, -21.8);
+//  #MCKP @TEXT("8\mu{}m/30nm  nf8", key="dims", size=1, halign="start", textcolor="#526171") => @PLACE(-107.2, -24.5);
+//  #MCKN @PLACE(-110, -37) => @ORIENT("R0");
+//  #MCKN @TEXT("MCKN", key="name", size=1.15, bold=true, halign="start", textcolor="#273747") => @PLACE(-107.2, -35.8);
+//  #MCKN @TEXT("1\mu{}m/30nm  nf2", key="dims", size=1, halign="start", textcolor="#526171") => @PLACE(-107.2, -38.5);
+//  #MCK2P @PLACE(-82, -23) => @ORIENT("R0");
+//  #MCK2P @TEXT("MCK2P", key="name", size=1.15, bold=true, halign="start", textcolor="#273747") => @PLACE(-79.2, -21.8);
+//  #MCK2P @TEXT("8\mu{}m/30nm  nf8", key="dims", size=1, halign="start", textcolor="#526171") => @PLACE(-79.2, -24.5);
+//  #MCK2N @PLACE(-82, -37) => @ORIENT("R0");
+//  #MCK2N @TEXT("MCK2N", key="name", size=1.15, bold=true, halign="start", textcolor="#273747") => @PLACE(-79.2, -35.8);
+//  #MCK2N @TEXT("8\mu{}m/30nm  nf8", key="dims", size=1, halign="start", textcolor="#526171") => @PLACE(-79.2, -38.5);
+//  %clk_input = (-116, -30);
+//  $JUNCTION @ATTACH %clk_input => @SET-STYLE $clock_wire;
+//  %ckb_out = (-110, -30);
+//  $JUNCTION @ATTACH %ckb_out => @SET-STYLE $clock_wire;
+//  %ckb_fanout = (-96, -30);
+//  $JUNCTION @ATTACH %ckb_fanout => @SET-STYLE $clock_wire;
+//  %ckb_second = (-88, -30);
+//  $JUNCTION @ATTACH %ckb_second => @SET-STYLE $clock_wire;
+//  %ckr_out = (-82, -30);
+//  $JUNCTION @ATTACH %ckr_out => @SET-STYLE $clock_wire;
+//  &CLKC @WIRE(mode="straight", linecolor="#ab6c15", linewidth=0.16) {#MCKP:g (-116, -23) %clk_input (-116, -37) #MCKN:g};
+//  &CKB @WIRE(mode="straight", linecolor="#ab6c15", linewidth=0.16) {#MCKP:d %ckb_out #MCKN:d};
+//  &CKB @WIRE(mode="straight", linecolor="#ab6c15", linewidth=0.16) {%ckb_out %ckb_fanout %ckb_second};
+//  &CKB @WIRE(mode="straight", linecolor="#ab6c15", linewidth=0.16) {#MCK2P:g (-88, -23) %ckb_second (-88, -37) #MCK2N:g};
+//  &CKR @WIRE(mode="straight", linecolor="#ab6c15", linewidth=0.16) {#MCK2P:d %ckr_out #MCK2N:d};
+//  %clock_vdd_0 = (-110, -14);
+//  $JUNCTION @ATTACH %clock_vdd_0 => @SET-STYLE $power_wire;
+//  %clock_vdd_1 = (-96.0, -14);
+//  %clock_vdd_2 = (-82, -14);
+//  $JUNCTION @ATTACH %clock_vdd_2 => @SET-STYLE $power_wire;
+//  &AVDD @WIRE(mode="straight", linecolor="#697887", linewidth=0.11) {%clock_vdd_0 %clock_vdd_1 %clock_vdd_2};
+//  %s_MCKP = (-110, -20);
+//  $JUNCTION @ATTACH %s_MCKP => @SET-STYLE $power_wire;
+//  &AVDD @WIRE(mode="straight", linecolor="#697887", linewidth=0.11) {#MCKP:s %s_MCKP};
+//  &AVDD @WIRE(mode="straight", linecolor="#697887", linewidth=0.11) {#MCKP:b (-108, -23) (-108, -20) %s_MCKP};
+//  &AVDD @WIRE(mode="straight", linecolor="#697887", linewidth=0.11) {%s_MCKP %clock_vdd_0};
+//  %s_MCK2P = (-82, -20);
+//  $JUNCTION @ATTACH %s_MCK2P => @SET-STYLE $power_wire;
+//  &AVDD @WIRE(mode="straight", linecolor="#697887", linewidth=0.11) {#MCK2P:s %s_MCK2P};
+//  &AVDD @WIRE(mode="straight", linecolor="#697887", linewidth=0.11) {#MCK2P:b (-80, -23) (-80, -20) %s_MCK2P};
+//  &AVDD @WIRE(mode="straight", linecolor="#697887", linewidth=0.11) {%s_MCK2P %clock_vdd_2};
+//  %clock_vdd_tag = $SUPPLY @ATTACH &AVDD => @PLACE(-116, -11.5);
+//  %clock_vdd_tag => @SET-STYLE $power_wire;
+//  &AVDD @WIRE(mode="straight", linecolor="#697887", linewidth=0.11) {%clock_vdd_0 (-116, -14) %clock_vdd_tag:p};
+//  %clock_vss_0 = (-110, -46);
+//  $JUNCTION @ATTACH %clock_vss_0 => @SET-STYLE $power_wire;
+//  %clock_vss_1 = (-96.0, -46);
+//  $JUNCTION @ATTACH %clock_vss_1 => @SET-STYLE $power_wire;
+//  %clock_vss_2 = (-82, -46);
+//  $JUNCTION @ATTACH %clock_vss_2 => @SET-STYLE $power_wire;
+//  &VSS @WIRE(mode="straight", linecolor="#697887", linewidth=0.11) {%clock_vss_0 %clock_vss_1 %clock_vss_2};
+//  %s_MCKN = (-110, -40);
+//  $JUNCTION @ATTACH %s_MCKN => @SET-STYLE $power_wire;
+//  &VSS @WIRE(mode="straight", linecolor="#697887", linewidth=0.11) {#MCKN:s %s_MCKN};
+//  &VSS @WIRE(mode="straight", linecolor="#697887", linewidth=0.11) {#MCKN:b (-108, -37) (-108, -40) %s_MCKN};
+//  &VSS @WIRE(mode="straight", linecolor="#697887", linewidth=0.11) {%s_MCKN %clock_vss_0};
+//  %s_MCK2N = (-82, -40);
+//  $JUNCTION @ATTACH %s_MCK2N => @SET-STYLE $power_wire;
+//  &VSS @WIRE(mode="straight", linecolor="#697887", linewidth=0.11) {#MCK2N:s %s_MCK2N};
+//  &VSS @WIRE(mode="straight", linecolor="#697887", linewidth=0.11) {#MCK2N:b (-80, -37) (-80, -40) %s_MCK2N};
+//  &VSS @WIRE(mode="straight", linecolor="#697887", linewidth=0.11) {%s_MCK2N %clock_vss_2};
+//  %clock_vss_tag = $GROUND @ATTACH &VSS => @PLACE(-96.0, -47.5);
+//  %clock_vss_tag => @SET-STYLE $power_wire;
+//  &VSS @WIRE(mode="straight", linecolor="#697887", linewidth=0.11) {%clock_vss_1 %clock_vss_tag:p};
+//  %port_CLKC = $IO_PORT @ATTACH &CLKC => @PLACE(-146, -30) => @ORIENT("R0");
+//  %port_CLKC @TEXT("CLKC", key="name", size=1.15, bold=true);
+//  %clk_direct = (-128, -30);
+//  $JUNCTION @ATTACH %clk_direct => @SET-STYLE $clock_wire;
+//  &CLKC @WIRE(mode="straight", linecolor="#ab6c15", linewidth=0.16) {%port_CLKC:p %clk_direct %clk_input};
+//  &CLKC @WIRE(mode="straight", linecolor="#ab6c15", linewidth=0.16) {%clk_direct (-128, -60) (-6, -60) (-6, -50) #MTAIL:g};
+//  %ckr_core = (0, -8);
+//  $JUNCTION @ATTACH %ckr_core => @SET-STYLE $clock_wire;
+//  &CKR @WIRE(mode="straight", linecolor="#ab6c15", linewidth=0.16) {%ckr_out (-66, -30) (-66, -4) (0, -4) %ckr_core};
+//  &CKR @WIRE(mode="straight", linecolor="#ab6c15", linewidth=0.16) {#MRDP:g %ckr_core #MRDN:g};
+//  (-104, -27.5) @TEXT("CKB", size=0.95, halign="end", bold=true, textcolor="#ab6c15");
+//  (-75, -27.5) @TEXT("CKR", size=0.95, halign="middle", bold=true, textcolor="#ab6c15");
+//  (-35, -2) @TEXT("CKR", size=0.95, halign="middle", bold=true, textcolor="#ab6c15");
+//  (-124, -57) @TEXT("CLKC", size=0.95, halign="start", bold=true, textcolor="#ab6c15");
+//  {#MCKP #MCKN #MCK2P #MCK2N} @GROUP;
+//  @LINE(linecolor="#d3dbe4", linewidth=0.08, linestyle="dashed") {(-112, 16) (-70, 16) (-70, 54) (-112, 54) (-112, 16)};
+//  @LINE(linecolor="#d3dbe4", linewidth=0.08, linestyle="dashed") {(70, 16) (112, 16) (112, 54) (70, 54) (70, 16)};
+//  (-91, 50.5) @TEXT("Output reset assist", size=1.25, halign="middle", bold=true, textcolor="#273747");
+//  (91, 50.5) @TEXT("Output reset assist", size=1.25, halign="middle", bold=true, textcolor="#273747");
+//  #MRQP @PLACE(-86, 30) => @ORIENT("MY");
+//  #MRQP @TEXT("MRQP", key="name", size=1.15, bold=true, halign="end", textcolor="#273747") => @PLACE(-88.8, 31.2);
+//  #MRQP @TEXT("4\mu{}m/30nm  nf4", key="dims", size=1, halign="end", textcolor="#526171") => @PLACE(-88.8, 28.5);
+//  #MRQN @PLACE(86, 30) => @ORIENT("R0");
+//  #MRQN @TEXT("MRQN", key="name", size=1.15, bold=true, halign="start", textcolor="#273747") => @PLACE(88.8, 31.2);
+//  #MRQN @TEXT("4\mu{}m/30nm  nf4", key="dims", size=1, halign="start", textcolor="#526171") => @PLACE(88.8, 28.5);
+//  %outp_assist = (-86, 42);
+//  $JUNCTION @ATTACH %outp_assist => @SET-STYLE $p_wire;
+//  %outn_assist = (86, 37);
+//  $JUNCTION @ATTACH %outn_assist => @SET-STYLE $n_wire;
+//  &OUTP @WIRE(mode="straight", linecolor="#3f5597", linewidth=0.16) {%outp_reset %outp_assist #MRQP:d};
+//  &OUTN @WIRE(mode="straight", linecolor="#16817a", linewidth=0.16) {%outn_reset %outn_assist #MRQN:d};
+//  %port_OUTP = $IO_PORT @ATTACH &OUTP => @PLACE(-126, 42) => @ORIENT("R0");
+//  %port_OUTP @TEXT("OUTP", key="name", size=1.15, bold=true);
+//  &OUTP @WIRE(mode="straight", linecolor="#3f5597", linewidth=0.16) {%outp_assist %port_OUTP:p};
+//  %port_OUTN = $IO_PORT @ATTACH &OUTN => @PLACE(126, 42) => @ORIENT("MY");
+//  %port_OUTN @TEXT("OUTN", key="name", size=1.15, bold=true);
+//  &OUTN @WIRE(mode="straight", linecolor="#16817a", linewidth=0.16) {%outn_assist (114, 37) (114, 42) %port_OUTN:p};
+//  %assist_vss_p = (-86, 20);
+//  $JUNCTION @ATTACH %assist_vss_p => @SET-STYLE $power_wire;
+//  %assist_vss_n = (86, 20);
+//  $JUNCTION @ATTACH %assist_vss_n => @SET-STYLE $power_wire;
+//  %s_MRQP = (-86, 27);
+//  $JUNCTION @ATTACH %s_MRQP => @SET-STYLE $power_wire;
+//  &VSS @WIRE(mode="straight", linecolor="#697887", linewidth=0.11) {#MRQP:s %s_MRQP};
+//  &VSS @WIRE(mode="straight", linecolor="#697887", linewidth=0.11) {#MRQP:b (-88, 30) (-88, 27) %s_MRQP};
+//  &VSS @WIRE(mode="straight", linecolor="#697887", linewidth=0.11) {%s_MRQP %assist_vss_p %latch_vss_0};
+//  %s_MRQN = (86, 27);
+//  $JUNCTION @ATTACH %s_MRQN => @SET-STYLE $power_wire;
+//  &VSS @WIRE(mode="straight", linecolor="#697887", linewidth=0.11) {#MRQN:s %s_MRQN};
+//  &VSS @WIRE(mode="straight", linecolor="#697887", linewidth=0.11) {#MRQN:b (88, 30) (88, 27) %s_MRQN};
+//  &VSS @WIRE(mode="straight", linecolor="#697887", linewidth=0.11) {%s_MRQN %assist_vss_n %latch_vss_6};
+//  %ckb_reset_p = (-76, 12);
+//  $JUNCTION @ATTACH %ckb_reset_p => @SET-STYLE $clock_wire;
+//  %ckb_reset_n = (76, 12);
+//  $JUNCTION @ATTACH %ckb_reset_n => @SET-STYLE $clock_wire;
+//  &CKB @WIRE(mode="straight", linecolor="#ab6c15", linewidth=0.16) {%ckb_fanout (-96, 12) %ckb_reset_p %ckb_reset_n};
+//  &CKB @WIRE(mode="straight", linecolor="#ab6c15", linewidth=0.16) {%ckb_reset_p (-76, 30) #MRQP:g};
+//  &CKB @WIRE(mode="straight", linecolor="#ab6c15", linewidth=0.16) {%ckb_reset_n (76, 30) #MRQN:g};
+//  (-30, 14.5) @TEXT("CKB", size=0.95, halign="middle", bold=true, textcolor="#ab6c15");
+//  (78, 15) @TEXT("CKB", size=0.95, halign="start", bold=true, textcolor="#ab6c15");
+//  {#MRQP #MRQN} @AS $MATCHED;
+//  #MRQP(a) #MRQN(b) %core_axis(axis) @AS $MIRRORED;
+//  {#MRQP #MRQN} @GROUP;
 //  (-23, 65.5) @TEXT("XP", size=0.85, bold=true, halign="middle", textcolor="#286e97");
 //  (23, 65.5) @TEXT("XN", size=0.85, bold=true, halign="middle", textcolor="#286e97");
-//  (-27, 44) @TEXT("QP", size=0.9, bold=true, halign="middle", textcolor="#3f5597");
-//  (27, 39) @TEXT("QN", size=0.9, bold=true, halign="middle", textcolor="#16817a");
+//  (-27, 44) @TEXT("OUTP", size=0.9, bold=true, halign="middle", textcolor="#3f5597");
+//  (27, 39) @TEXT("OUTN", size=0.9, bold=true, halign="middle", textcolor="#16817a");
 //  (4, -41) @TEXT("TAIL", size=0.8, bold=false, halign="start", textcolor="#526171");
 //  (0, -70) @TEXT("Dots mark connections. Crossings without dots are separate nets.", size=0.85, bold=false, halign="middle", textcolor="#526171");
 //  %dp_cap_branch = (-42, -18);
 //  $JUNCTION @ATTACH %dp_cap_branch => @SET-STYLE $dynamic_wire;
 //  #CDP @PLACE(-42, -32) => @ORIENT("R0");
 //  #CDP @TEXT("CDP", key="name", size=1.15, bold=true, halign="end", textcolor="#273747") => @PLACE(-45, -30.5);
-//  #CDP @TEXT("27.42 fF nominal", key="value", size=1, halign="end", textcolor="#526171") => @PLACE(-45, -33.3);
-//  #CDP @TEXT("nr=48, lr=2\mu{}m", key="geometry", size=0.9, halign="end", textcolor="#526171") => @PLACE(-45, -36.1);
+//  #CDP @TEXT("14.06 fF nominal", key="value", size=1, halign="end", textcolor="#526171") => @PLACE(-45, -33.3);
+//  #CDP @TEXT("nr=48, lr=1\mu{}m", key="geometry", size=0.9, halign="end", textcolor="#526171") => @PLACE(-45, -36.1);
 //  &DP @WIRE(mode="straight", linecolor="#286e97", linewidth=0.16) {%dp_cap_branch #CDP:p};
 //  %g_CDP = $GROUND @ATTACH &VSS => @PLACE(-42, -40);
 //  %g_CDP => @SET-STYLE $power_wire;
@@ -446,8 +422,8 @@ CDN (DN VSS) cfmom_2t nr=48 lr=2e-06 w=5e-08 s=5e-08 stm=1 spm=3 multi=1
 //  $JUNCTION @ATTACH %dn_cap_branch => @SET-STYLE $dynamic_wire;
 //  #CDN @PLACE(42, -32) => @ORIENT("MY");
 //  #CDN @TEXT("CDN", key="name", size=1.15, bold=true, halign="start", textcolor="#273747") => @PLACE(45, -30.5);
-//  #CDN @TEXT("27.42 fF nominal", key="value", size=1, halign="start", textcolor="#526171") => @PLACE(45, -33.3);
-//  #CDN @TEXT("nr=48, lr=2\mu{}m", key="geometry", size=0.9, halign="start", textcolor="#526171") => @PLACE(45, -36.1);
+//  #CDN @TEXT("14.06 fF nominal", key="value", size=1, halign="start", textcolor="#526171") => @PLACE(45, -33.3);
+//  #CDN @TEXT("nr=48, lr=1\mu{}m", key="geometry", size=0.9, halign="start", textcolor="#526171") => @PLACE(45, -36.1);
 //  &DN @WIRE(mode="straight", linecolor="#286e97", linewidth=0.16) {%dn_cap_branch #CDN:p};
 //  %g_CDN = $GROUND @ATTACH &VSS => @PLACE(42, -40);
 //  %g_CDN => @SET-STYLE $power_wire;

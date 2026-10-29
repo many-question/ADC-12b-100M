@@ -1,5 +1,5 @@
 name: many-question-miyahara
-description: Miyahara self-triggered two-stage comparator core with reset Xi nodes and RTZ buffers.
+description: Miyahara self-triggered 15-MOS core with native RTZ outputs, drain MOM capacitors and clocked reset assistance.
 status: wip
 acknowledged: [40, 63, 69]
 authors:
