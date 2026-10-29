@@ -1,6 +1,6 @@
 # Miyahara comparator
 
-WIP transistor candidate in 28 nm HPC+. The current source is exploratory revision `q0t3c1`; it is not yet qualified.
+WIP transistor candidate in 28 nm HPC+. The current source is exploratory revision `q0t3c1`; it fails the TT noise/energy targets in the pilot and cold fast-corner SOA.
 
 The 15-MOS comparator core follows [Miyahara, A-SSCC 2008, Fig. 2(b)](https://www.ssc.p.isct.ac.jp/private/publications/2008/ASSCC/miyahara.pdf). DP and DN control separate M14/M15 second-stage supply devices and M12/M13 Xi reset devices. There is no shared clock-controlled second-stage supply. The calibration peripheral is omitted; the interface has no CAL or bias port.
 
@@ -10,7 +10,9 @@ The input pair is 48 um / 30 nm per side with 48 fingers, the tail is 3 um, inpu
 
 The larger 27.42 fF capacitors improve the pilot noise but fail the TT energy limit with the reset-assist circuit. Removing output buffers improves the earlier candidate's noise and energy, but the unassisted 15-MOS version fails fast-corner SOA and slow-corner reset. Weakening input precharge fixes the former at the cost of worse reset. All completed experiments, including failures and their frozen netlist hashes, are retained in [CHARACTERIZATION.md](CHARACTERIZATION.md).
 
-The immediately preceding `r0t3c1` experiment measured 181.4 uV rms in a 17-level x 64-decision TT pilot, 185.2 fJ from AVDD, 47.8/38.9 ps at 1/30 mV, and 18.0 ps reset at ss/low/125. Its ff/high/125 maximum device voltage was 0.99994 V, so the current revision changes the clock-device sizes before further voltage and cold-corner checks. These numbers are not evidence for the current source or formal acceptance.
+The immediately preceding `r0t3c1` experiment measured 181.4 uV rms in a 17-level x 64-decision TT pilot, 185.2 fJ from AVDD, 47.8/38.9 ps at 1/30 mV, and 18.0 ps reset at ss/low/125. Although its ff/high/125 maximum device voltage was 0.99994 V, ff/high/-40 reaches 1.01211 V. The current clock-sizing experiment `q0t3c1` also fails: TT pilot noise is 206.6 uV, AVDD energy is 202.1 fJ, and ff/high/-40 reaches 1.00960 V. Its TT delay is 54.5/45.6 ps at 1/30 mV and slow-corner reset is 17.1 ps. These are supplemental pilots, not formal acceptance.
+
+![Complete transistor schematic](schematic.png)
 
 The comparison uses the same input stimulus, 10 fF loads, noise bandwidth and seed for both topologies. Reported AVDD energy includes each candidate's complete local clock and output circuitry. An additional external clock-driver charge-energy estimate is `C_CLKC * VDD^2`; it is identified separately and is not an exact system energy measurement. A lower-energy failing circuit is not a qualified winner.
 

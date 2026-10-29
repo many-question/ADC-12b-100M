@@ -54,6 +54,14 @@ These are private exploration runs using frozen netlist copies and the standard 
 | r0t3c2 / tt_nom_27 | delay (fine) | 1 mV 55.57 ps; 30 mV 45.54 ps; reset 14.51 ps; energy 211.03 fJ; wrong 0; SOA violations 0 / 63; max 0.9254 V; simultaneous high points 0 |
 | r0t3c2 / tt_nom_27 | kickback (fine) | Cin 16.523 fF; CLKC 10.687 fF; kickback 0.000 uV |
 | r0t3c2 / tt_nom_27 | noise | noise 170.37 uV (95% CI 150.29–193.65); offset -0.0229 mV; weak decisions 0 |
+| q0t3c1 / ff_high_125 | delay (fine) | 1 mV 48.22 ps; 30 mV 38.74 ps; reset 11.21 ps; energy 410.84 fJ; wrong 0; SOA violations 6 / 63; max 1.0004 V; simultaneous high points 0 |
+| q0t3c1 / ff_high_27 | delay (fine) | 1 mV 43.43 ps; 30 mV 36.44 ps; reset 10.64 ps; energy 284.52 fJ; wrong 0; SOA violations 11 / 63; max 1.0028 V; simultaneous high points 0 |
+| q0t3c1 / ff_high_m40 | delay (fine) | 1 mV 42.29 ps; 30 mV 35.90 ps; reset 10.16 ps; energy 243.80 fJ; wrong 0; SOA violations 13 / 63; max 1.0096 V; simultaneous high points 0 |
+| q0t3c1 / ss_low_125 | delay (fine) | 1 mV 73.35 ps; 30 mV 59.32 ps; reset 17.11 ps; energy 182.79 fJ; wrong 0; SOA violations 0 / 63; max 0.8320 V; simultaneous high points 0 |
+| q0t3c1 / tt_nom_27 | delay (fine) | 1 mV 54.51 ps; 30 mV 45.58 ps; reset 13.15 ps; energy 202.11 fJ; wrong 0; SOA violations 0 / 63; max 0.9235 V; simultaneous high points 0 |
+| q0t3c1 / tt_nom_27 | kickback (fine) | Cin 16.523 fF; CLKC 9.875 fF; kickback 0.000 uV |
+| q0t3c1 / tt_nom_27 | noise | noise 206.63 uV (95% CI 184.71–231.71); offset -0.0105 mV; weak decisions 0 |
+| r0t3c1 / ff_high_m40 | delay (fine) | 1 mV 36.55 ps; 30 mV 30.18 ps; reset 10.74 ps; energy 219.89 fJ; wrong 0; SOA violations 29 / 63; max 1.0121 V; simultaneous high points 0 |
 
 Variant notation: `b0` uses 48 um / 30 nm input devices; `b1` uses 48 um / 60 nm. Prefix `d` instead of `b` removes the four-MOS local clock buffer and drives the core directly from CLKC. The default tail width is 4 um; `t3`, `t2` and `t1` use 3 um, 2 um and 1 um. Prefix `g` uses clock-precharged output sensing nodes (a failed experiment with invalid fast-corner outputs). Prefix `u` removes the output buffers, directly loads the core with 10 fF per output and uses 2 um M8/M9. Prefix `v` additionally enlarges M8/M9 to 4 um and reduces input-drain precharge PMOS to 2 um; this fails slow-corner reset. Prefix `r` instead keeps 2 um M8/M9, uses 6 um input-drain precharge PMOS controlled by a two-inverter delayed clock, and adds two 4 um output-reset NMOS controlled by the inverted clock. Its tail remains driven directly by CLKC. Prefix `q` further changes the first clock inverter NMOS to 1 um and the second inverter NMOS to 8 um. StrongARM prefixes `s4` and `s12` set the regenerative NMOS pair to 4 um or 12 um; the corresponding PMOS widths are 4 um and 8 um. StrongARM `svtn`, `svtnp` and `hvtn` use, respectively, SVT NMOS, SVT NMOS/PMOS, and HVT NMOS in the regenerative pair, with 4 um regenerative devices and a 3 um tail. Their `c14` suffix is 14.06 fF per input drain and `c0` adds no capacitor. StrongARM `s56` uses 56 um input NMOS, a 12 um / 8 um regenerative pair and direct clocking; `k56` adds a two-inverter delay on the input-drain precharge PMOS gates and enlarges the directly clocked output-node precharge PMOS to 4 um. Suffixes `c1`, `c2`, `c4`, `c6` add a PDK MOM device from each input drain to ground, with nominal callback values 14.06, 27.42, 54.12 and 80.83 fF per side. The modeled device geometry, rather than an ideal capacitance, is simulated.
 
@@ -72,5 +80,6 @@ Variant notation: `b0` uses 48 um / 30 nm input devices; `b1` uses 48 um / 60 nm
 | v0t3c2 | `a76b1a162893b75a8e624f6020e6e6481c012a0d44aada2bbfa135db384ce96c` |
 | r0t3c1 | `96ac36380266059b7b02a3b3ccf7e5844e2d6c74ca10229d60cb7ee5cf313511` |
 | r0t3c2 | `e66124eeee9f5b6a3de50a1190e6249a00626b22ceb61ff28c9df8ce84975d9f` |
+| q0t3c1 | `b735733d50d4d759f106599436883c750c565b28525987dbb9e04fd81821489c` |
 
 A lower energy number is not a qualified comparison unless the same noise, timing, reset, input-load, kickback and SOA requirements are met. The table is exploratory evidence only; see the candidate README and repository results for the separately frozen formal run status.
