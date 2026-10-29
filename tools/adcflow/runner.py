@@ -13,7 +13,13 @@ Deck layout (all paths absolute on the server):
     save <device terminal nodes>           (tests with `soa:` in their spec, see soa.py)
 
 Global parameters are declared by the deck only; testbenches and views use
-them (`vdd`, `vdd18`, `tempc`, `noise_en`, `beh_speed`, `vref_in`, `cdac_behav`).
+them (`vdd`, `vdd18`, `tempc`, `noise_en`, `beh_speed`, `vref_in`, `cdac_behav`, `comp_behav`).
+
+A test with `montecarlo:` in its spec (tb_comp_offset_mc) is one Spectre montecarlo analysis in its
+testbench: the runner passes the number of samples and the seed as the testbench parameters
+`mc_runs` and `mc_seed`, includes the statistical model sections of the site configuration
+(corners.model_includes), records the settings as meta.mc and always measures the job, so that a
+failed sample is recorded as failed (Spec.judge) and not lost with the run.
 
 A result records only what its circuit depends on (deps.py): the files the testbench reaches
 through the deck, and the arch.yaml values that its jobs' `prepare` and its measure read.
@@ -44,7 +50,8 @@ from .specs import Block, blocks, find_test
 
 STAGE_DIRS, STAGE_EXT = deps.STAGE_DIRS, deps.STAGE_EXT
 VA_YAML = REPO_ROOT / "specs" / "va_modules.yaml"
-GLOBAL_PARAMS = ("vdd", "vdd18", "tempc", "noise_en", "devnoise", "beh_speed", "vref_in", "cdac_behav")
+GLOBAL_PARAMS = ("vdd", "vdd18", "tempc", "noise_en", "devnoise", "beh_speed", "vref_in", "cdac_behav",
+                 "comp_behav")
 
 
 @dataclass
@@ -157,7 +164,10 @@ def build_jobs(block: Block, test_id: str, test: dict, corners: list[Corner], vi
                  "beh_speed": 1.0, "vref_in": vref_in(),
                  # 1 while adc_cdac is behavioral: its kT/C source counts the sampled noise of the
                  # whole sampling network, so the testbench source resistors must be noiseless
-                 "cdac_behav": 0 if views.get("adc_cdac", "behav") != "behav" else 1}
+                 "cdac_behav": 0 if views.get("adc_cdac", "behav") != "behav" else 1,
+                 # 1 while adc_comp is behavioral: tb_comp_offset_mc then gives every Monte Carlo
+                 # sample a stand-in offset (the behavioral comparator has no device statistics)
+                 "comp_behav": 0 if views.get("adc_comp", "behav") != "behav" else 1}
             for k in list(params):
                 if k in GLOBAL_PARAMS:
                     g[k] = params.pop(k)
@@ -172,9 +182,37 @@ def build_jobs(block: Block, test_id: str, test: dict, corners: list[Corner], vi
     return jobs
 
 
+def mc_settings(block: Block, test_id: str, test: dict, corners: list[Corner], over: dict | None = None,
+                params: dict | None = None) -> dict | None:
+    """The Monte Carlo settings of a run (meta.mc): the test's `montecarlo:` {runs, seed, variations,
+    models} with `over` (sim --mc-runs / --mc-seed) and `--param mc_runs=` / `mc_seed=` applied, plus
+    firstrun 1; None for a test without `montecarlo:`. A Monte Carlo test runs only at corners
+    where one of its Monte Carlo specs applies (its statistical models belong to that corner)."""
+    mc = test.get("montecarlo")
+    if not mc:
+        if over:
+            raise ValueError(f"{test_id}: not a Monte Carlo test (no `montecarlo:` in its spec)")
+        return None
+    out = {**mc, **{k: v for k, v in (over or {}).items() if v is not None}}
+    for key, name in (("runs", "mc_runs"), ("seed", "mc_seed")):
+        if name in (params or {}):
+            out[key] = (params or {})[name]
+    out = {"runs": int(out["runs"]), "seed": int(out["seed"]), "firstrun": 1,
+           "variations": out["variations"], "models": out["models"]}
+    if out["runs"] < 1:
+        raise ValueError(f"{test_id}: mc runs must be >= 1")
+    specs = [s for s in block.specs if s.test == test_id and s.mc]
+    bad = [c.name for c in corners if not any(s.applies(c, out) for s in specs)]
+    if bad:
+        raise ValueError(f"{test_id} is a Monte Carlo test for the corners of {', '.join(s.id for s in specs)} "
+                         f"({', '.join(sorted({s.corners for s in specs}))}); not {', '.join(bad)}")
+    return out
+
+
 def make_deck(job: Job, rroot: str, views: dict, needs_pdk: bool, mc: str | None,
               extra: list[str] | None = None) -> tuple[str, list[Path]]:
-    """The run deck of a job; `extra` lines (the saves of the SOA check) come after the testbench."""
+    """The run deck of a job; `extra` lines (the saves of the SOA check) come after the testbench;
+    `mc` names the statistical model sections of a Monte Carlo run (pdk.mc_sections)."""
     vfiles = view_files(views)
     va = needed_va(vfiles, job.tb_text)
     L = [f"// adcflow deck: job={job.name} views={views or 'all behav'}",
@@ -258,15 +296,20 @@ def record(block: Block, test_id: str, viewsig: str, job: Job, metrics: dict, me
 def run_test(test_id: str, block_name: str | None = None, corners: str = "typ",
              views: dict | None = None, params: dict | None = None, mode: str = "ax",
              parallel: int = 6, keep: bool = False, do_record: bool = True, dry: bool = False,
-             mc: str | None = None, timeout: float | None = None, crosscheck: bool = False) -> list[dict]:
+             mc: dict | None = None, timeout: float | None = None, crosscheck: bool = False) -> list[dict]:
     """Run a test at the corners of `corners`; with `crosscheck` every job runs a second time
     with the test's `crosscheck:` settings (numerics.py) and only the first is recorded, with the
-    differences in its meta.crosscheck."""
+    differences in its meta.crosscheck. A test with `montecarlo:` runs its samples (mc_settings;
+    `mc` overrides its runs and seed)."""
     views = views or {}
     block, test = find_test(test_id, block_name)
     cl = corner_set(corners)
     needs_pdk = bool(test.get("needs_pdk")) or any(v != "behav" for v in views.values())
-    jobs = build_jobs(block, test_id, test, cl, views, params or {}, needs_pdk)
+    mcset = mc_settings(block, test_id, test, cl, mc, params)
+    params = dict(params or {})
+    if mcset:
+        params.update(mc_runs=mcset["runs"], mc_seed=mcset["seed"])
+    jobs = build_jobs(block, test_id, test, cl, views, params, needs_pdk)
     xc = dict(test.get("crosscheck") or {})
     if crosscheck and not xc:
         raise ValueError(f"{test_id}: no `crosscheck:` settings in its spec")
@@ -285,10 +328,13 @@ def run_test(test_id: str, block_name: str | None = None, corners: str = "typ",
         if test.get("soa"):                    # per-device SOA check: save the device terminal nodes
             soa_plans[j.name] = soa.plan(block.name, test, j.tb_text, view_files(views), views)
             save = soa.deck_lines(soa_plans[j.name], j.tb_text)
-        decks[j.name], _ = make_deck(j, rroot, views, needs_pdk, mc, save)
+        decks[j.name], _ = make_deck(j, rroot, views, needs_pdk, mcset and mcset["models"], save)
     stage(run_dir, jobs, decks)
     print(f"[adcflow] {test_id} ({block.name}): {len(jobs)} job(s), views={views or 'behav'}, "
-          f"pdk={'yes' if needs_pdk else 'no'}, staged in {run_dir.relative_to(REPO_ROOT)}")
+          f"pdk={'yes' if needs_pdk else 'no'}"
+          + (f", Monte Carlo {mcset['runs']} samples (seed {mcset['seed']}, {mcset['variations']}"
+             f"{', models ' + mcset['models'] if needs_pdk else ', testbench stand-in'})" if mcset else "")
+          + f", staged in {run_dir.relative_to(REPO_ROOT)}")
     if dry:
         return []
     mode_args = remote.cfg()["modes"][mode]
@@ -309,7 +355,7 @@ def run_test(test_id: str, block_name: str | None = None, corners: str = "typ",
         "date": _dt.datetime.now().isoformat(timespec="seconds"),
         "git": _git("rev-parse", "--short", "HEAD"),
         **git_state(),
-        "mode": mode, "pdk": needs_pdk, "mc": mc, "wall_s": round(wall, 1),
+        "mode": mode, "pdk": needs_pdk, "mc": mcset, "wall_s": round(wall, 1),
     }
     summary = []
     viewsig = _viewsig(block, views)
@@ -327,12 +373,15 @@ def run_test(test_id: str, block_name: str | None = None, corners: str = "typ",
                           j.name, header=f"{test_id} | {viewsig} | {j.name}")
         figs.clear()
         ctx = {"corner": j.corner, "params": j.params, "globals": j.globals_, "test": test_id,
-               "block": block.name, "view": viewsig, "figs": figs, "soa": soa_plans.get(j.name)}
+               "block": block.name, "view": viewsig, "figs": figs, "soa": soa_plans.get(j.name),
+               "mc": mcset}
         try:
             with archmod.track() as measure_keys:
-                metrics = measure(test, jd, ctx) if rc[0] == "0" else {}
+                # a Monte Carlo job is always measured: the samples before an abort are kept and
+                # the others count as failed (the run's error is recorded as well)
+                metrics = measure(test, jd, ctx) if rc[0] == "0" or mcset else {}
             if rc[0] != "0":
-                metrics = {"error": "; ".join(errs) or f"spectre rc={rc[0]}"}
+                metrics["error"] = "; ".join(errs) or f"spectre rc={rc[0]}"
             if "error" in metrics:                 # never record server paths
                 metrics["error"] = str(metrics["error"]).replace(rroot, "<run>")
         except Exception as e:  # keep going, record the failure
@@ -355,7 +404,7 @@ def run_test(test_id: str, block_name: str | None = None, corners: str = "typ",
         if name in twins:
             t, tm, tmeta, _ = done[name + XCHECK]
             summary.append({"job": t.name, "corner": t.corner.name, "rc": tmeta["rc"], "metrics": tm, "out": None})
-    _print_summary(block, test_id, summary, mc)
+    _print_summary(block, test_id, summary, mcset)
     for name in twins:
         _print_crosscheck(name, done[name][2]["crosscheck"])
     return summary
@@ -393,7 +442,7 @@ def _print_crosscheck(name: str, xc: dict) -> None:
     print(f"  crosscheck {name} ({', '.join(f'{k}={v}' for k, v in xc['settings'].items())}): " + "  ".join(parts))
 
 
-def _print_summary(block: Block, test_id: str, summary: list[dict], mc: str | None = None) -> None:
+def _print_summary(block: Block, test_id: str, summary: list[dict], mc: dict | None = None) -> None:
     def fmt(v) -> str:
         return "-" if v is None else (f"{v:.4g}" if isinstance(v, (int, float)) else str(v))
 
@@ -404,6 +453,8 @@ def _print_summary(block: Block, test_id: str, summary: list[dict], mc: str | No
             continue
         judged, na = block.verdicts(test_id, row["corner"], mc, m)
         parts = [f"{sid}={fmt(v['value'])}{'' if v['pass'] else '(FAIL ' + v['limit'] + ')'}"
+                 + (f"[{v['samples']['ok']}/{v['samples']['need']} samples, {v['samples']['failed']} failed]"
+                    if v.get("samples") else "")
                  for sid, v in judged.items()]
         parts += [f"{sid}={fmt(v['value'])}(n/a: {v['corners']} only)" for sid, v in na.items()]
         print(f"  {row['job']:28s} " + "  ".join(parts))
@@ -451,7 +502,7 @@ def remeasure(test_id: str, run_dir: Path, block_name: str | None = None, views:
         figs.clear()
         tb_text = (run_dir / "stage" / "jobs" / jd.name / "tb.scs").read_text(encoding="utf-8")
         ctx = {"corner": job.corner, "params": job.params, "globals": job.globals_, "test": test_id,
-               "block": block.name, "view": viewsig, "figs": figs,
+               "block": block.name, "view": viewsig, "figs": figs, "mc": old["meta"].get("mc"),
                "soa": soa.plan(block.name, test, tb_text, view_files(views), views) if test.get("soa") else None}
         with archmod.track() as measure_keys:
             metrics = measure(test, jd, ctx)
@@ -493,7 +544,8 @@ def run_test_cli(a) -> int:
     for p in a.param:
         k, v = p.split("=", 1)
         params[k] = v
+    mc = {"runs": a.mc_runs, "seed": a.mc_seed} if a.mc_runs is not None or a.mc_seed is not None else None
     summary = run_test(a.test, a.block, a.corners, views, params, a.mode, a.jobs, a.keep,
-                       not a.no_record, a.dry_run, crosscheck=a.crosscheck)
+                       not a.no_record, a.dry_run, mc=mc, crosscheck=a.crosscheck)
     bad = [r for r in summary if "error" in r["metrics"]]
     return 1 if bad else 0

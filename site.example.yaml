@@ -14,3 +14,8 @@ pdk:
   model_dir: <directory of the Spectre model files on the server>
   core_file: <core-device model file with the library sections of specs/corners.yaml>
   hv_file: <high-voltage-device model file>
+  mc_sections:                            # statistical library sections of core_file / hv_file for Monte Carlo
+    local_tt:                             # tests (`montecarlo: models`): TT global corner with local mismatch
+      mos: <section>
+      res: <section>
+      mom: <section>

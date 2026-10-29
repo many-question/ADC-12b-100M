@@ -305,10 +305,32 @@ def _results(block: str, view: str) -> list[dict]:
     return out
 
 
+def mc_coverage(b, docs: list[tuple[dict, dict]]) -> list[dict]:
+    """Sample coverage of the block's Monte Carlo specs over judged results: per spec {spec, ok,
+    need, failed} from the verdicts' `samples` (Spec.samples); with several results the fewest valid
+    and the most failed samples count. No result: ok 0, failed None."""
+    out = []
+    for s in b.specs:
+        if not s.mc:
+            continue
+        got = [j["specs"][s.id]["samples"] for d, j in docs
+               if d["test"] == s.test and j["specs"].get(s.id, {}).get("samples")]
+        fails = [g["failed"] for g in got]
+        out.append({"spec": s.id, "need": s.mc, "ok": min((g["ok"] for g in got), default=0),
+                    "failed": None if not got or None in fails else max(fails)})
+    return out
+
+
+def mc_text(mc: list[dict]) -> str:
+    """'CMP-03 50/50', 'CMP-03 48/50 2 failed', 'CMP-03 0/50' (no result); '-' without Monte Carlo specs."""
+    return ", ".join(f"{m['spec']} {m['ok']}/{m['need']}" + (f" {m['failed']} failed" if m["failed"] else "")
+                     for m in mc) or "-"
+
+
 def score(c: Candidate) -> dict:
-    """The leaderboard row of a candidate (§3): spec pass count, corner coverage, flags, worst
-    margin, power, area proxy and the top-level ENOB margin; results without meta.verified_by
-    are self-reported."""
+    """The leaderboard row of a candidate (§3): spec pass count, corner coverage, Monte Carlo sample
+    coverage, flags, worst margin, power, area proxy and the top-level ENOB margin; results without
+    meta.verified_by are self-reported."""
     from .checks import judge
     from .corners import corner_names
     from .specs import blocks
@@ -345,7 +367,8 @@ def score(c: Candidate) -> dict:
             "author_text": c.author_text(), "description": c.meta.get("description", ""),
             "problems": list(c.problems), "selected": b.selected == c.name,
             "specs_passed": passed, "specs_failed": failed, "specs_incomplete": incomplete, "specs_total": len(b.specs),
-            "coverage": [got, need], "results": len(docs), "self_reported": self_reported, "flags": flags,
+            "coverage": [got, need], "mc": mc_coverage(b, docs), "results": len(docs),
+            "self_reported": self_reported, "flags": flags,
             "worst_margin": None if worst is None else {"margin": worst[0], "spec": worst[1]},
             "power_uW": power_uW(c.block, docs),
             "area": area_proxy(c.netlist) if c.netlist.exists() else None,
@@ -409,8 +432,8 @@ def table(rows: list[dict]) -> str:
     def f(v, fmt="{:.4g}"):
         return "-" if v is None else fmt.format(v)
 
-    L = [f"{'block':14s} {'candidate':24s} {'status':9s} {'pass':>7s} {'corners':>9s} {'worst margin':>18s} "
-         f"{'power uW':>9s} {'MOS':>5s} {'W*L um2':>9s} {'top ENOB':>8s}  flags / authors"]
+    L = [f"{'block':14s} {'candidate':24s} {'status':9s} {'pass':>7s} {'corners':>9s} {'MC samples':>22s} "
+         f"{'worst margin':>18s} {'power uW':>9s} {'MOS':>5s} {'W*L um2':>9s} {'top ENOB':>8s}  flags / authors"]
     for r in rows:
         wm = r["worst_margin"]
         flags = [k if k != "unverified" else "self-reported" for k, v in r["flags"].items() if v]
@@ -419,11 +442,13 @@ def table(rows: list[dict]) -> str:
         a = r["area"] or {}
         L.append(f"{r['block']:14s} {r['candidate'] + (' *' if r['selected'] else ''):24s} {r['status']:9s} "
                  f"{r['specs_passed']:>3d}/{r['specs_total']:<3d} {r['coverage'][0]:>4d}/{r['coverage'][1]:<4d} "
+                 f"{mc_text(r.get('mc') or []):>22s} "
                  f"{(f(wm['margin'], '{:+.3f}') + ' ' + wm['spec']) if wm else '-':>18s} {f(r['power_uW']):>9s} "
                  f"{a.get('mos', '-'):>5} {f(a.get('wl_um2')):>9s} {f(r['top_enob_margin'], '{:+.3f}'):>8s}  "
                  f"{', '.join(flags) or 'ok'} / {r['author_text']}")
     L.append("(* = selected; pass = specs passing at every required corner; corners = (spec, corner) results / "
-             "required; self-reported = results without meta.verified_by)")
+             "required; MC samples = valid / required Monte Carlo samples of a spec with mc:, any failed one fails "
+             "it; self-reported = results without meta.verified_by)")
     return "\n".join(L)
 
 

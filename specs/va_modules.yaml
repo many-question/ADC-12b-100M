@@ -34,6 +34,11 @@ modules:
     file: tb/common/veriloga/tb_sampler_va.va
     title: "sampler"
     ports: [{name: P, side: left}, {name: N, side: left}, {name: TRIG, side: bottom}, {name: VSS, side: bottom}]
+  tb_offset_search_va:
+    file: tb/common/veriloga/tb_offset_search_va.va
+    title: "offset search"
+    ports: [{name: P, side: right}, {name: N, side: right}, {name: CLKC, side: left}, {name: OUTP, side: left},
+            {name: OUTN, side: left}, {name: VSS, side: bottom}]
   tb_cmp_emu_va:
     file: tb/common/veriloga/tb_cmp_emu_va.va
     title: "comparator emulator"

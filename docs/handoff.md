@@ -58,7 +58,11 @@ CONV 的分配：CDAC 的 CONV 使能 22 个采样半电容的三态驱动器（
 * 输入共模约 0.49 V（0.40–0.56 V），首次比较差分输入可达 0.75 V；NMOS 输入、ulvt。
 * 建议双尾（double-tail）或带预放大的 StrongARM：预放大级隔离回踢；输出带反相器满足 RTZ。
 * 噪声主要由输入对 gm 与积分电容决定；TT ≤ 200 µV，在 125 °C、ff/ss 等全部角 ≤ 240 µV（v0.3，见 `docs/noise-budget.md` §4）。
-* 失调不影响线性（冗余），但 σ ≤ 5 mV（蒙特卡洛 50 次）以免吃掉量程。
+* 失调不影响线性（冗余），但 σ ≤ 5 mV（CMP-03）以免吃掉量程。它由 `tb_comp_offset_mc` 判定：TT 下只加局部器件失配，
+  一次 Spectre `montecarlo` 跑 50 个样本（固定 seed），每个样本关掉瞬态噪声、在 ±25 mV 内逐次逼近搜出翻转点（约 6 µV 分辨率，
+  再在 ±50 µV 复查），σ 取样本标准差（n − 1）。运行 `python -m adcflow sim tb_comp_offset_mc --view adc_comp=xtor:<name>`。
+  任一样本失调超出 ±25 mV、判决缺失、复查不一致或仿真失败，CMP-03 即不通过，不剔除样本（`docs/verification.md` §2）。
+  需要私有站点配置里的统计模型段落 `pdk.mc_sections.local_tt`（见 `site.example.yaml`）。
 * CLKC 输入 ≤ 16 fF（CMP-14，每个上升沿的电荷 / VDD）：SAR 逻辑的 CLKC 负载 20 fF 减 4 fF 走线。尾管与复位管若超出，
   可在比较器内加一级缓冲（其延时计入 CMP-04/05/06）。输出负载 10 fF = SAR 逻辑输入（LOG-15 ≤ 7 fF）+ 3 fF 走线。
 

@@ -115,6 +115,22 @@ def rank(cands: list[Cand]) -> list[Cand]:
     return sorted(cands, key=functools.cmp_to_key(compare))
 
 
+def mc_chips(row: dict) -> list[tuple[str, str, str]]:
+    """(chip kind, label, title) of the Monte Carlo sample coverage of a leaderboard row (candidates.mc_coverage):
+    pass with every sample valid, fail with a failed sample or too few, none without a Monte Carlo result."""
+    out = []
+    for m in row.get("mc") or []:
+        label = f"{m['spec']} MC {m['ok']}/{m['need']}"
+        if m["failed"] is None and m["ok"] == 0:
+            out.append(("none", label, f"{m['spec']}：还没有 Monte Carlo 结果（需要 {m['need']} 个有效样本）"))
+        elif m["failed"] == 0 and m["ok"] >= m["need"]:
+            out.append(("pass", label, f"{m['spec']}：{m['ok']} 个 Monte Carlo 样本全部有效，0 个失败"))
+        else:
+            out.append(("fail", label + (f" · {m['failed']} 失败" if m["failed"] else ""),
+                        f"{m['spec']}：{m['ok']} / {m['need']} 个有效样本，{m['failed']} 个失败或缺失；任一样本失败，该指标即不通过"))
+    return out
+
+
 def count(cands: list[Cand]) -> int:
     """Candidates of a block for "候选：N": not withdrawn (merged ones, and open PRs whose head passed CI)."""
     return sum(c.row["status"] != "withdrawn" for c in cands)

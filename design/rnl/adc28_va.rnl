@@ -17,6 +17,7 @@
   @DEVICE(name="*", model="tb_rsrc_va", terminals=["P", "N"]);
   @DEVICE(name="*", model="tb_qmeter_va", terminals=["P", "N", "Q", "VSS"]);
   @DEVICE(name="*", model="tb_sampler_va", terminals=["P", "N", "TRIG", "VSS"]);
+  @DEVICE(name="*", model="tb_offset_search_va", terminals=["P", "N", "CLKC", "OUTP", "OUTN", "VSS"]);
   @DEVICE(name="*", model="tb_cmp_emu_va", terminals=["CONV", "CLKC", "UP12", "UP11", "UP10", "UP9", "UP8", "UP7", "UP6", "UP5", "UP4", "UP3", "UP2", "UP1", "UP0", "DN12", "DN11", "DN10", "DN9", "DN8", "DN7", "DN6", "DN5", "DN4", "DN3", "DN2", "DN1", "DN0", "OUTP", "OUTN", "VDD", "VSS"]);
   @DEVICE(name="*", model="tb_refload_va", terminals=["CLK", "P", "N"]);
   @DEVICE(name="*", model="tb_cdac_seq_va", terminals=["CONV", "DH12", "DH11", "DH10", "DH9", "DH8", "DH7", "DH6", "DH5", "DH4", "DH3", "DH2", "DH1", "DH0", "RL12", "RL11", "RL10", "RL9", "RL8", "RL7", "RL6", "RL5", "RL4", "RL3", "RL2", "RL1", "RL0", "VDD", "VSS"]);
@@ -138,6 +139,30 @@
     (2.6, 0.6) @TEXT("S/H", size=0.8, bold=true, halign="middle", valign="middle");
     ? @TEXT("${name}", key="name", size=0.8, valign="bottom") => @PLACE(-4, 3.5);
     ? @TEXT("${model}", key="model", size=0.5, halign="end", valign="top") => @PLACE(3.7, 2.7)
+  };
+
+  $TB_OFFSET_SEARCH_VA_SYM = @DEFINE-SYMBOL(box=[-5, -5, 5, 4]) {
+    @LINE(linewidth=0.24) {(-4, -4) (4, -4) (4, 4) (-4, 4) (-4, -4)};
+    (-5, 2) @PIN(terminal=3, direction="left");
+    @LINE {(-5, 2) (-4, 2)};
+    (-3.65, 2) @TEXT("CLKC", size=0.55, halign="start", valign="middle");
+    (-5, 0) @PIN(terminal=4, direction="left");
+    @LINE {(-5, 0) (-4, 0)};
+    (-3.65, 0) @TEXT("OUTP", size=0.55, halign="start", valign="middle");
+    (-5, -2) @PIN(terminal=5, direction="left");
+    @LINE {(-5, -2) (-4, -2)};
+    (-3.65, -2) @TEXT("OUTN", size=0.55, halign="start", valign="middle");
+    (5, 1) @PIN(terminal=1, direction="right");
+    @LINE {(5, 1) (4, 1)};
+    (3.65, 1) @TEXT("P", size=0.55, halign="end", valign="middle");
+    (5, -1) @PIN(terminal=2, direction="right");
+    @LINE {(5, -1) (4, -1)};
+    (3.65, -1) @TEXT("N", size=0.55, halign="end", valign="middle");
+    (0, -5) @PIN(terminal=6, direction="down");
+    @LINE {(0, -5) (0, -4)};
+    (0, 0.3) @TEXT("offset search", size=0.7, bold=true, halign="middle", valign="bottom");
+    ? @TEXT("${name}", key="name", size=0.8, valign="bottom") => @PLACE(-4, 4.5);
+    ? @TEXT("${model}", key="model", size=0.5, halign="middle", valign="top") => @PLACE(0, -0.3)
   };
 
   /* tb_cmp_emu_va: comparator emulator */
@@ -787,6 +812,7 @@
   # @SELECT-INSTANCE(model="tb_rsrc_va") => @SET-SYMBOL $TB_RSRC_VA_SYM;
   # @SELECT-INSTANCE(model="tb_qmeter_va") => @SET-SYMBOL $TB_QMETER_VA_SYM;
   # @SELECT-INSTANCE(model="tb_sampler_va") => @SET-SYMBOL $TB_SAMPLER_VA_SYM;
+  # @SELECT-INSTANCE(model="tb_offset_search_va") => @SET-SYMBOL $TB_OFFSET_SEARCH_VA_SYM;
   # @SELECT-INSTANCE(model="tb_cmp_emu_va") => @SET-SYMBOL $TB_CMP_EMU_VA_SYM;
   # @SELECT-INSTANCE(model="tb_refload_va") => @SET-SYMBOL $TB_REFLOAD_VA_SYM;
   # @SELECT-INSTANCE(model="tb_cdac_seq_va") => @SET-SYMBOL $TB_CDAC_SEQ_VA_SYM;

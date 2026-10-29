@@ -10,7 +10,7 @@ git config core.hooksPath tools/hooks     # 提交前检查（hygiene / ports / 
 * **RNL 命令行**：安装与 CI 相同的版本 `core-v0.5.2`（见 rnl 项目的 Release 页，下载后核对 SHA256），
   放到 `PATH` 中，`rnl --version` 应显示 0.5.2。
 * **站点配置**：复制 `site.example.yaml` 为 `site.local.yaml`（已被 git 忽略）或 `~/.adcflow/site.yaml`，
-  填写仿真服务器的 ssh 别名、服务器本地盘上的临时目录、Spectre 环境脚本、PDK 模型目录与文件名。
+  填写仿真服务器的 ssh 别名、服务器本地盘上的临时目录、Spectre 环境脚本、PDK 模型目录与文件名，以及蒙特卡洛用例的统计模型段落（`pdk.mc_sections`）。
   这些信息**绝不提交**。ssh 需要免密（`ssh -o BatchMode=yes <alias> true` 能通过）。
 * MATLAB 版 ADCToolbox 可选，用于 `analysis/` 中的交互分析；CI 与验收只用 Python 版。
 
@@ -94,7 +94,8 @@ python -m adcflow clean-remote --older-than-h 12   # 清理服务器上本项目
 ## 5. 晶体管级设计的签核
 
 1. `design/xtor/<block>/<name>/<block>.scs`（候选目录，另有 `candidate.yaml`）：子电路名、端口与规格一致，完整 RNL 原理图与语义，不含 `include`。
-2. 本模块全部用例：`--view <block>=xtor:<name> --corners all`（规格要求 `mc` 的用例另跑蒙特卡洛）；结果在 `results/<block>/<test>/xtor-<name>/`。
+2. 本模块全部用例：`--view <block>=xtor:<name> --corners all`；规格要求 `mc` 的蒙特卡洛用例（`tb_comp_offset_mc`）只在其工艺角
+   （`typ`）上跑，`sim` 按规格自动跑全部样本（`docs/verification.md` §2）；结果在 `results/<block>/<test>/xtor-<name>/`。
 3. 提交网表与 `results/`，PR 标题 `[<block>] candidate <name> …`，一个 PR 一个候选；贡献者发 PR，项目负责人（`many-question`）合并、
    对排在前面的候选在同一网表哈希上复跑（“已复核”），换进顶层做混合回归，选定一个候选（`selected:`），45 角顶层回归通过后把块状态改为 `signoff`。
 4. 规格变更通知发在 `[<block>]` issue；每个活跃候选确认并重跑（`candidate.yaml` 的 `acknowledged`）。

@@ -77,6 +77,8 @@ RLS = [f"RL{j}" for j in JS]
 
 TWO = {"vsource": "$VOLTAGE_SOURCE", "isource": "$CURRENT_SOURCE", "resistor": "$RESISTOR",
        "capacitor": "$CAPACITOR"}
+# two-terminal subcircuits a testbench defines itself (TBDef.extra), drawn with a standard symbol
+LOCAL = {"tb_mm_vos": "$VOLTAGE_SOURCE"}
 
 
 @dataclass
@@ -105,8 +107,8 @@ def _pins_and_sides(master: str):
     if master.startswith(("nch", "pch")):
         sym = "$NMOS_4TERM" if master.startswith("nch") else "$PMOS_4TERM"
         return STD_PINS[sym], {1: "top", 2: "left", 3: "bottom", 4: "right"}, [1, 2, 3, 4]
-    if master in TWO:
-        return STD_PINS[TWO[master]], {1: "top", 2: "bottom"}, [1, 2]
+    if master in TWO or master in LOCAL:
+        return STD_PINS[TWO.get(master) or LOCAL[master]], {1: "top", 2: "bottom"}, [1, 2]
     if master == "relay":
         pins = dict(zip((1, 2, 3, 4), STD_PINS["$VOLTAGE_CONTROLLED_SWITCH"].values()))
         return pins, {1: "left", 2: "right", 3: "left", 4: "right"}, [1, 2, 3, 4]
@@ -150,6 +152,9 @@ def draw(tb: TBDef) -> list[str]:
         pins, _, _ = _pins_and_sides(e.master)
         col, row = divmod(i, 6)
         placed[e.name] = s.place(e.name, pins, dut_box[0] - 16 - 12 * col, dut_box[3] - 9 * row)
+    for e in tb.elements:
+        if e.master in LOCAL:
+            s.emit(f"#{e.name} @SET-SYMBOL {LOCAL[e.master]};")
     # monitors: column right of the DUT
     ymon = dut_box[3]
     for e in groups["mon"]:
@@ -265,7 +270,8 @@ def _steps(values: list[float], period: float, edge: float = 10e-12, t0: float =
 
 
 def tb_comp() -> list[TBDef]:
-    from .measure.comp import DELAY_LEVELS, NOISE_LEVELS, NOISE_REPEAT, TCYC
+    from .measure.comp import (DELAY_LEVELS, MC_BITS, MC_CHECK, MC_RANGE, MC_TCYC, MC_VOS_BEH, NOISE_LEVELS,
+                               NOISE_REPEAT, TCYC)
 
     comp_ports = ["INP", "INN", "CLKC", "OUTP", "OUTN", "AVDD", "0"]
     cload = _ff(_op("adc_comp")["load_per_output"])
@@ -307,6 +313,56 @@ def tb_comp() -> list[TBDef]:
               "tbopts options save=none"],
         notes=[f"{len(NOISE_LEVELS)} levels of vd from {NOISE_LEVELS[0] * 1e6:g} to {NOISE_LEVELS[-1] * 1e6:g} uV, "
                f"{NOISE_REPEAT} decisions each", "Gaussian CDF fit gives sigma (noise) and mean (offset)"]))
+    # offset under device mismatch (Monte Carlo)
+    mc = blocks()["adc_comp"].tests["tb_comp_offset_mc"]["montecarlo"]
+    els = [El("XDUT", "adc_comp", comp_ports, where="dut"),
+           El("ISRCH", "tb_offset_search_va", ["INPS", "INN", "CLKC", "OUTP", "OUTN", "0"],
+              'vcm=vcm vth=vdd/2 vrange=vrange nbits=nbits vchk=vchk fname="offset.txt"',
+              note="successive-approximation search of the offset, one decision per CLKC cycle; appends every "
+                   "sample to offset.txt"),
+           El("XVOS", "tb_mm_vos", ["INP", "INPS"],
+              note="series offset source: comp_behav*vos_beh*N(0, 1) per sample (only while adc_comp is behavioral)"),
+           El("VCK", "vsource", ["CLKC", "0"],
+              "type=pulse val0=0 val1=vdd period=tcyc delay=100p width=tcyc/2-10p rise=10p fall=10p"),
+           El("COP", "capacitor", ["OUTP", "0"], "c=cload", "load"),
+           El("CON", "capacitor", ["OUTN", "0"], "c=cload", "load"),
+           El("VAVDD", "vsource", ["AVDD", "0"], "dc=vdd", "top")]
+    vos_src = ["// The behavioral comparator has no device statistics. While adc_comp is behavioral (deck global",
+               "// comp_behav = 1) this source in series with INP stands in for them: mm_beh is drawn for every",
+               "// subcircuit instance in every Monte Carlo sample (mismatch statistics below), so the offset found",
+               "// in each sample is -vos_beh*N(0, 1). With a transistor-level comparator it is 0 V.",
+               "subckt tb_mm_vos (P N)",
+               "V0 (P N) vsource dc=comp_behav*vos_beh*mm_beh",
+               "// @RNL {",
+               "//   #V0 @PLACE(0, 0);",
+               '//   %p = $IO_PORT @ATTACH &P => @PLACE(0, 5) => @ORIENT("R270");',
+               "//   &P @WIRE {#V0:1 %p:p};",
+               '//   %n = $IO_PORT @ATTACH &N => @PLACE(0, -5) => @ORIENT("R90");',
+               "//   &N @WIRE {#V0:2 %n:p}",
+               "// }",
+               "ends tb_mm_vos",
+               "// (continuation lines: the drawing tools read the statistics block as one statement)",
+               "statistics { \\",
+               "  mismatch { \\",
+               "    vary mm_beh dist=gauss std=1",
+               "  }",
+               "}"]
+    out.append(TBDef(
+        "tb/comp/tb_comp_offset_mc.scs", "tb_comp_offset_mc: input offset under device mismatch (Monte Carlo)",
+        [f"parameters vcm=0.49 cload={cload} tcyc={MC_TCYC:g} vrange={MC_RANGE:g} nbits={MC_BITS} "
+         f"vchk={MC_CHECK:g} vos_beh={MC_VOS_BEH:g} mc_runs={mc['runs']} mc_seed={mc['seed']}",
+         "parameters tstop=100p+(nbits+4)*tcyc mm_beh=0"],
+        els, [f"mc1 montecarlo numruns=mc_runs seed=mc_seed firstrun=1 donominal=no variations={mc['variations']} "
+              "annotate=status {",
+              "tran1 tran stop=tstop",
+              "}",
+              "tbopts options save=none"],
+        extra=vos_src,
+        notes=[f"one montecarlo analysis: mc_runs samples ({mc['runs']}, seed {mc['seed']}, {mc['variations']} "
+               "only, no nominal run), transient noise off",
+               f"each sample: vd = +/-{MC_RANGE * 1e3:g} mV must give OUTP / OUTN, {MC_BITS} halvings "
+               f"({2 * MC_RANGE / 2 ** MC_BITS * 1e6:.1f} uV), then offset +/- {MC_CHECK * 1e6:g} uV re-checked",
+               "XVOS: stand-in offset of the behavioral comparator (0 V with a transistor-level view)"]))
     # kickback + input capacitance
     els = [El("XDUT", "adc_comp", ["INP", "INN", "CLKCX", "OUTP", "OUTN", "AVDD", "0"], where="dut"),
            El("CSP", "capacitor", ["INP", "0"], "c=cs", "load"),
