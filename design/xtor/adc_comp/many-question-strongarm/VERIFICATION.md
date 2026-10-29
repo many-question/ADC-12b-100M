@@ -1,4 +1,4 @@
-# Formal verification evidence
+# Official test evidence
 
 The recorded source was clean before each official test. All jobs used APS with one Spectre job at a time. The source remained electrically frozen across the tests. These are self-reported results; the candidate remains WIP and is not selected.
 
@@ -26,7 +26,7 @@ Runner content hash of adc_comp.scs: `150dd81755a64d66`. The result JSON files p
 | Estimated external clock-driver charge energy | 12.277 fJ |
 | AVDD plus that clock-driver estimate | 199.575 fJ |
 
-The official energy_fJ is average AVDD power over the complete 14.5 ns mixed-amplitude delay test, multiplied by 400 ps. The window includes the initial 100 ps and spans 36.25 clock periods, so this is neither a dedicated 1 mV measurement nor exactly total energy divided by 36 decisions. See [issue #75](https://github.com/many-question/ADC-12b-100M/issues/75). Existing records are preserved under the unchanged official definition. The clock-driver estimate is C_CLKC * VDD^2, reported separately from measured AVDD energy; it does not replace a system energy measurement. The noise test uses the standard 17 levels x 512 decisions, seed 1 and 50 GHz bandwidth. Mismatch uses all 50 local TT samples with seed 6303; no samples are discarded. The reported noise interval is conditional on the probit model. The largest probability residual in the tabulated fit is +0.0862 at 0 uV; the official residual plot is retained.
+The official energy_fJ is average AVDD power over the complete 14.5 ns mixed-amplitude delay test, multiplied by 400 ps. The window includes the initial 100 ps and spans 36.25 clock periods, so this is neither a dedicated 1 mV measurement nor exactly total energy divided by 36 decisions. See [issue #75](https://github.com/many-question/ADC-12b-100M/issues/75). These records use spec v0.5.0. The lead has decided to change the official meter to exactly 36 cycles and make energy reported-only; implementation is pending at the time of this evidence. The old records are preserved and will not be reinterpreted as the new definition. The clock-driver estimate is C_CLKC * VDD^2, reported separately from measured AVDD energy; it does not replace a system energy measurement. The noise test uses the standard 17 levels x 512 decisions, seed 1 and 50 GHz bandwidth. Mismatch uses all 50 local TT samples with seed 6303; no samples are discarded. The reported noise interval is conditional on the probit model. The largest probability residual in the tabulated fit is +0.0862 at 0 uV; the official residual plot is retained.
 
 | Formal test | Failed specifications in recorded jobs |
 |---|---|
@@ -47,6 +47,12 @@ The official energy_fJ is average AVDD power over the complete 14.5 ns mixed-amp
 
 CMP-12 and CMP-14 impose their capacitance limits at TT only. Non-TT capacitance extrema above are reported for visibility and are not treated as additional formal failures.
 
+## Saved-waveform interface audit
+
+Read-back of the 45 official delay waveforms finds 36 rising and 36 falling clock edges per corner, 1620 reset responses in total, and 0 invalid/wrong late decisions among 1260 samples with |vd| >= 100 uV. The late sample is 150 ps after the rising 50% clock crossing; a valid output has one side above 80% VDD and the other below 20%. Reset plateaus at 100–170 ps after the falling 50% clock crossing stay below 10% VDD. These checks supplement the official metric extraction.
+
+No simultaneous-high saved points are present in this audit. This statement concerns the saved standard-setting waveforms, not a continuous-time guarantee.
+
 ## Separate 1 mV energy diagnostic
 
 This is supplemental evidence, not official acceptance JSON. Both candidates use VCM = 0.49 V, alternating +/-1 mV, 400 ps clocks, 10 fF per output, TT at 0.9 V / 27 C, and noise off. The DC operating point starts with CLKC low; the initial 0–100 ps remains in reset. The actual AVDD current-meter integral runs from 100 ps to 14.5 ns: exactly 36 complete decision/reset cycles. The first evaluation is included and no warmup decisions are discarded. Energy is measured directly from this new run, not inferred from the mixed-sequence result. Fine settings are maxstep = 0.5 ps, traponly, reltol = 1e-6 and vabstol = 1e-8. The existing mixed-sequence control below uses the same frozen diagnostic source and fine numerical settings. Comparison with the official number also changes numerical settings; it must not be attributed solely to the stimulus or integration window.
@@ -61,6 +67,16 @@ This is supplemental evidence, not official acceptance JSON. Both candidates use
 | `1b6c812a2dbdcdaef57b727194822dc179fbd934b519d932a3586225ebc74ff5` | 188.069 fJ | 0 / 36 |
 
 The diagnostic audit verifies both PWL levels, the saved testbench hash and the 14.4 ns meter window. Every one of the 36 decisions is checked at 100 ps after the clock 50% crossing, including the cycles omitted by the mixed-sequence small-input error mask. Measured fixed-1mV AVDD energy plus the separately estimated clock-driver charge energy is 200.346 fJ; this sum is not an official acceptance metric.
+
+## Supplemental device-voltage failures
+
+These fine checks cover |Vgs|, |Vgd| and |Vds| for all 23 MOS devices (69 terminal pairs). The failing corner repeats use the same frozen circuit and mixed-amplitude excitation.
+
+| Corner | Maximum step | Violating pairs / 69 | Maximum absolute voltage | Reported worst device / pair |
+|---|---:|---:|---:|---|
+| ff_high_125 | 0.5ps | 8 / 69 | 1.02083 V | MRQP / gd |
+| ff_high_m40 | 0.5ps | 21 / 69 | 1.05376 V | MRDP / ds |
+| ff_high_m40 | 0.25ps | 21 / 69 | 1.05376 V | MRDP / ds |
 
 ## Remaining limits
 
