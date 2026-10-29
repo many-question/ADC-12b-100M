@@ -37,6 +37,7 @@ python -m adcflow candidates [--block adc_comp] [--json]   # 晶体管级候选�
 python -m adcflow migrate-candidate <block> <name> --author <login>[=<显示名>] --description "…"   # 旧的单一 xtor 视图迁成候选（项目负责人）
 python -m adcflow remeasure <test> --run build/runs/<run_id> [--dry-run]   # 不重仿真，用现行度量重算并重记该次运行的结果（只允许 SFDR 变化，#36）
 python -m adcflow remeasure <test> --run build/runs/<run_id> --redraw     # 只重画证据图：任何指标变化即中止，结果中写 meta.redrawn（#47）
+python -m adcflow rehash [--block <block>] [--test <test>] [--view xtor-<name>] [--dry-run] [-v]   # 不重仿真，把结果的记录换成其电路实际依赖的文件与 arch 取值（见下）
 python -m adcflow corners all                   # 45 个工艺角名称
 python -m adcflow clean-remote --older-than-h 12   # 清理服务器上本项目的遗留目录
 ```
@@ -47,12 +48,28 @@ python -m adcflow clean-remote --older-than-h 12   # 清理服务器上本项目
 2. 打包上传到服务器本地盘的 `<remote_root>/<run_id>/`，并行运行 Spectre（共享 Verilog-A 编译缓存）；
 3. 只取回小文件（监视器输出、日志、需要的波形，单文件默认 ≤ 50 MB），**随后删除服务器目录**；
 4. 调用度量函数，把指标与判定写入 `results/<block>/<test>/<view>/<corner>.json`，
-   其中 `meta.files` 记录所用网表、Verilog-A、规格文件的哈希，`meta.git` 记录当时的提交，
+   其中 `meta.files` 记录电路实际依赖的文件（测试台、它可达的网表与 Verilog-A 及其 include、做 SOA 检查时的 `specs/soa.yaml`）的哈希，
+   `meta.arch` 记录建作业与度量时读到的 `specs/arch.yaml` 键及其取值的哈希，`meta.views` 记录视图
+   （何时过期见 [`verification.md`](verification.md) §2「结果过期」），`meta.git` 记录当时的提交，
    `meta.git_clean` 记录仿真时工作区是否干净（`git status --porcelain` 在 `results/` 之外没有任何改动、暂存或未跟踪的文件；
    被忽略的文件如 `site.local.yaml` 不算；`results/` 不算，因为成套重跑时结果本身在变），不干净时
    `meta.git_dirty_paths` 列出这些路径（最多 20 个）。要提交的结果应先提交代码再仿真，使其为 `true`；度量函数同时用已读入的数据画证据图，
    写在 JSON 旁（`<corner>.<tag>.png`），清单记在 JSON 的 `figures`（见 [`verification.md`](verification.md) §4）。
    重跑同一结果会先删除它旧的图。
+
+**旧结果迁到依赖集（`rehash`）。** 这次改动之前记录的结果列出了整个 deck 与整个 `arch.yaml`，任何一个模块或架构文件的改动
+都使它们过期。`python -m adcflow rehash` 不重仿真地逐个检查，只有同时满足下列三条的结果才改记为其依赖集，其余保持过期、需要重跑：
+
+1. 电路现在可达的每个文件，内容与仿真时相同：比对记录的哈希；旧记录没有计哈希的文件（`adc_arch*.vams` 这类 `` `include ``）
+   取 `meta.git` 那次提交中的文件，只在 `meta.git_clean` 为 `true` 且本地有该提交时可行；
+2. 内容变了（或只在新旧两个 deck 之一中）的文件，无论仿真时还是现在，都不定义电路现在可达的任何名称
+   （仿真时的内容取自该提交，并须与记录的哈希一致）；
+3. 它读到的 arch 取值不变：重建该作业（须得到记录的参数）时 `prepare` 读到的键，以及度量函数可能读 `arch.yaml` 时
+   （静态检查 `deps.may_read_arch`）的整个文件，与仿真所用的 `arch.yaml`（按记录的哈希认定，取自当前文件或该提交）比较。
+
+改记的结果保留仿真的 `meta.git`、`meta.date` 等，换上缩减后的 `meta.files`、`meta.arch`、`meta.views`，并在 `meta.rehashed`
+写入改记的日期、提交与原来记录的文件数。已在依赖集上且未过期的结果不动。候选作者在自己的候选 PR 里运行
+`python -m adcflow rehash --block <block> --view xtor-<name>`（只改动本候选的结果文件；候选名可能在别的模块也有，所以要带 `--block`），提交改记后的结果。
 
 视图选择：默认全部行为级；`--view adc_comp=xtor` 使用 `design/xtor/adc_comp/adc_comp.scs`，
 此时自动包含所选工艺角的 PDK 模型段并打开器件噪声（`devnoise=1`）。

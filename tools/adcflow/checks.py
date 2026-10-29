@@ -10,8 +10,11 @@ rnl      `rnl check` on every netlist and package (candidates included, design/
          is walked recursively): no errors, no warnings; netlists under design/
          and tb/ must be completely drawn (no hints).
 results  recorded results (results/**.json) are re-judged with the current
-         limits; results whose files changed since the simulation are stale;
-         blocks in status `signoff` need passing, fresh results for every spec
+         limits; a result is stale when something its simulated circuit depends
+         on changed since the simulation (deps.py: a file the testbench reaches,
+         a file it now reaches that was not recorded, an arch.yaml value its
+         prepare or measure read; a result recorded with the whole deck: any of
+         its files); blocks in status `signoff` need passing, fresh results for every spec
          in its required corner set. Evidence figures (`figures` of a result):
          listed files must exist next to the JSON and stay below 200 kB; with
          --strict every result needs figures. They are not hashed: a figure is
@@ -44,7 +47,7 @@ from pathlib import Path
 
 import yaml
 
-from . import REPO_ROOT
+from . import REPO_ROOT, deps
 from .corners import corner_set
 from .netlist import parse
 from .specs import blocks
@@ -212,16 +215,27 @@ def judge(doc: dict) -> dict:
 
     'specs': pass/fail of the specs that apply at the result's corner (Spec.applies); 'na': the
     specs of its test that do not apply there, with their raw values and no verdict; 'stale' and
-    'error' are reported for every result, whatever applies."""
+    'error' are reported for every result, whatever applies. 'stale' lists the recorded files that
+    changed and, for a result recorded with what its circuit depends on (meta.arch, deps.py), the
+    files it reaches now without having recorded them and specs/arch.yaml when a value it read
+    changed."""
     b = blocks().get(doc["block"])
     verdict, na = {}, {}
+    meta = doc.get("meta", {})
     if b is not None:
-        verdict, na = b.verdicts(doc["test"], doc["corner"], doc.get("meta", {}).get("mc"), doc["metrics"])
+        verdict, na = b.verdicts(doc["test"], doc["corner"], meta.get("mc"), doc["metrics"])
     stale = []
-    for rel, h in (doc.get("meta", {}).get("files") or {}).items():
+    for rel, h in (meta.get("files") or {}).items():
         p = REPO_ROOT / rel
         if not p.exists() or _sha(p) != h:
             stale.append(rel)
+    if "arch" in meta:
+        try:
+            stale += deps.unrecorded(doc)
+        except Exception as e:                    # a test or view that no longer resolves
+            stale.append(f"(dependencies: {e})")
+        if deps.arch_changed(meta["arch"]):
+            stale.append(deps.ARCH)
     return {"specs": verdict, "na": na, "stale": stale, "error": doc["metrics"].get("error")}
 
 

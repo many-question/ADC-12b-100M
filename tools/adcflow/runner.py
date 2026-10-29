@@ -14,12 +14,14 @@ Deck layout (all paths absolute on the server):
 
 Global parameters are declared by the deck only; testbenches and views use
 them (`vdd`, `vdd18`, `tempc`, `noise_en`, `beh_speed`, `vref_in`, `cdac_behav`).
+
+A result records only what its circuit depends on (deps.py): the files the testbench reaches
+through the deck, and the arch.yaml values that its jobs' `prepare` and its measure read.
 """
 
 from __future__ import annotations
 
 import datetime as _dt
-import hashlib
 import importlib
 import json
 import shutil
@@ -33,14 +35,14 @@ from pathlib import Path
 import yaml
 
 from . import REPO_ROOT
-from . import candidates, numerics, remote, soa
+from . import arch as archmod
+from . import candidates, deps, numerics, remote, soa
 from .corners import Corner, by_name, corner_set, model_includes, vref_in
 from .figures import FigureSink
-from .netlist import content_hash, parse, substitute_parameters
+from .netlist import parse, substitute_parameters
 from .specs import Block, blocks, find_test
 
-STAGE_DIRS = ("design", "tb")
-STAGE_EXT = {".scs", ".va", ".vams"}
+STAGE_DIRS, STAGE_EXT = deps.STAGE_DIRS, deps.STAGE_EXT
 VA_YAML = REPO_ROOT / "specs" / "va_modules.yaml"
 GLOBAL_PARAMS = ("vdd", "vdd18", "tempc", "noise_en", "devnoise", "beh_speed", "vref_in", "cdac_behav")
 
@@ -54,15 +56,12 @@ class Job:
     tb_text: str = ""
     files: list[str] = field(default_factory=list)   # repo-relative files used (for hashes)
     extra: dict[str, str] = field(default_factory=dict)  # job-local input files written by `prepare`
+    arch_keys: set[str] = field(default_factory=set)     # arch.yaml keys its `prepare` read
 
 
 def _va_modules() -> dict:
     with open(VA_YAML, encoding="utf-8") as f:
         return yaml.safe_load(f)["modules"]
-
-
-def _sha(path: Path) -> str:
-    return content_hash(path)
 
 
 def _git(*args: str) -> str:
@@ -115,7 +114,8 @@ def view_files(views: dict[str, str]) -> list[Path]:
     return out
 
 
-def _needed_va(netlists: list[Path], tb_text: str) -> list[Path]:
+def needed_va(netlists: list[Path], tb_text: str) -> list[Path]:
+    """Verilog-A files of the modules that the netlists and the testbench instantiate (the deck's ahdl_include)."""
     mods = _va_modules()
     masters: set[str] = set()
     for p in netlists:
@@ -147,9 +147,10 @@ def build_jobs(block: Block, test_id: str, test: dict, corners: list[Corner], vi
     for c in corners:
         for var in variants:
             params = {**(test.get("params") or {}), **var, **cli_params}
-            if test.get("prepare"):
-                mod, fn = test["prepare"].split(":")
-                params = getattr(importlib.import_module(mod), fn)(dict(params))
+            with archmod.track() as arch_keys:              # what the generated parameters and files read
+                if test.get("prepare"):
+                    mod, fn = test["prepare"].split(":")
+                    params = getattr(importlib.import_module(mod), fn)(dict(params))
             extra = params.pop("_files", {})
             g = {"vdd": c.vdd, "vdd18": c.vdd18, "tempc": c.temp,
                  "noise_en": 1 if test.get("tran_noise") else 0, "devnoise": 1 if needs_pdk else 0,
@@ -166,7 +167,8 @@ def build_jobs(block: Block, test_id: str, test: dict, corners: list[Corner], vi
                 raise ValueError(f"{test['netlist']}: parameters not declared in the testbench: {sorted(missing)}")
             vname = "_".join(f"{k}{v}" for k, v in var.items())
             name = c.name + (f"__{vname}" if vname else "")
-            jobs.append(Job(name=name, corner=c, params=params, globals_=g, tb_text=text, extra=extra))
+            jobs.append(Job(name=name, corner=c, params=params, globals_=g, tb_text=text, extra=extra,
+                            arch_keys=set(arch_keys)))
     return jobs
 
 
@@ -174,7 +176,7 @@ def make_deck(job: Job, rroot: str, views: dict, needs_pdk: bool, mc: str | None
               extra: list[str] | None = None) -> tuple[str, list[Path]]:
     """The run deck of a job; `extra` lines (the saves of the SOA check) come after the testbench."""
     vfiles = view_files(views)
-    va = _needed_va(vfiles, job.tb_text)
+    va = needed_va(vfiles, job.tb_text)
     L = [f"// adcflow deck: job={job.name} views={views or 'all behav'}",
          "simulator lang=spectre",
          "global 0",
@@ -202,9 +204,9 @@ def stage(run_dir: Path, jobs: list[Job], decks: dict[str, str]) -> None:
                 dest = st / p.relative_to(REPO_ROOT)
                 dest.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copyfile(p, dest)
-    # testbench Verilog-A includes the architecture constants
-    for vams in (REPO_ROOT / "design" / "behav" / "veriloga").glob("adc_arch*.vams"):
-        shutil.copyfile(vams, st / "tb" / "common" / "veriloga" / vams.name)
+    for pattern, dest in deps.STAGE_COPIES:      # testbench Verilog-A includes the architecture constants
+        for src in REPO_ROOT.glob(pattern):
+            shutil.copyfile(src, st / dest / src.name)
     for j in jobs:
         jd = st / "jobs" / j.name
         jd.mkdir(parents=True, exist_ok=True)
@@ -277,14 +279,13 @@ def run_test(test_id: str, block_name: str | None = None, corners: str = "typ",
     run_id = _dt.datetime.now().strftime("%Y%m%d-%H%M%S") + f"-{uuid.uuid4().hex[:4]}-{test_id}"
     run_dir = REPO_ROOT / "build" / "runs" / run_id
     rroot = "<R>" if dry else f"{remote.remote_root()}/{run_id}"
-    decks, used, soa_plans = {}, {}, {}
+    decks, soa_plans = {}, {}
     for j in jobs:
         save = []
         if test.get("soa"):                    # per-device SOA check: save the device terminal nodes
             soa_plans[j.name] = soa.plan(block.name, test, j.tb_text, view_files(views), views)
             save = soa.deck_lines(soa_plans[j.name], j.tb_text)
-        decks[j.name], files = make_deck(j, rroot, views, needs_pdk, mc, save)
-        used[j.name] = files + ([soa.SOA_YAML] if test.get("soa") else [])
+        decks[j.name], _ = make_deck(j, rroot, views, needs_pdk, mc, save)
     stage(run_dir, jobs, decks)
     print(f"[adcflow] {test_id} ({block.name}): {len(jobs)} job(s), views={views or 'behav'}, "
           f"pdk={'yes' if needs_pdk else 'no'}, staged in {run_dir.relative_to(REPO_ROOT)}")
@@ -317,13 +318,8 @@ def run_test(test_id: str, block_name: str | None = None, corners: str = "typ",
         jd = run_dir / "jobs" / j.name
         rc = (jd / "rc.txt").read_text().split() if (jd / "rc.txt").exists() else ["?", "?"]
         errs = _spectre_errors(jd / "spectre.log")
-        # what the simulation depends on: views, Verilog-A, testbench, architecture.
-        # The block spec is not hashed: limits are re-judged at check time and the
-        # test parameters are recorded with the result.
-        files = [p for p in used[j.name]] + [REPO_ROOT / test["netlist"], REPO_ROOT / "specs" / "arch.yaml"]
         meta = {**meta_base, "rc": rc[0], "sim_s": rc[1] if len(rc) > 1 else None,
-                "numerics": numerics.effective(jd),
-                "files": {p.relative_to(REPO_ROOT).as_posix(): _sha(p) for p in files}}
+                "numerics": numerics.effective(jd)}
         # evidence figures go next to the result JSON (or into the run directory without --record
         # and for a cross-check twin, which is never recorded)
         twin = j.name.endswith(XCHECK)
@@ -333,7 +329,8 @@ def run_test(test_id: str, block_name: str | None = None, corners: str = "typ",
         ctx = {"corner": j.corner, "params": j.params, "globals": j.globals_, "test": test_id,
                "block": block.name, "view": viewsig, "figs": figs, "soa": soa_plans.get(j.name)}
         try:
-            metrics = measure(test, jd, ctx) if rc[0] == "0" else {}
+            with archmod.track() as measure_keys:
+                metrics = measure(test, jd, ctx) if rc[0] == "0" else {}
             if rc[0] != "0":
                 metrics = {"error": "; ".join(errs) or f"spectre rc={rc[0]}"}
             if "error" in metrics:                 # never record server paths
@@ -341,6 +338,10 @@ def run_test(test_id: str, block_name: str | None = None, corners: str = "typ",
         except Exception as e:  # keep going, record the failure
             traceback.print_exc()
             metrics = {"error": f"measure failed: {e}"}
+        # what the simulated circuit depends on (deps.py): the files the testbench reaches and the
+        # arch values read by `prepare` and the measure. The block spec is not hashed: limits are
+        # re-judged at check time and the test parameters are recorded with the result.
+        meta.update(deps.record_meta(test, views, j.arch_keys | measure_keys))
         if ctx.get("provenance"):                  # estimators the measure used (e.g. adcflow.spectrum)
             meta["provenance"] = ctx["provenance"]
         done[j.name] = (j, metrics, meta, figs.entries)
@@ -425,7 +426,9 @@ def remeasure(test_id: str, run_dir: Path, block_name: str | None = None, views:
     and every metric whose name contains none of `allow` must come out exactly as recorded, else
     nothing of that job is written. The simulation meta (date, git, files, rc ...) is kept;
     meta.remeasured gives the date, commit and run of the new measurement and old -> new of
-    every metric that changed; meta.provenance names the estimators used now.
+    every metric that changed; meta.provenance names the estimators used now. When the arch
+    values the result read (meta.arch) are those of now, the keys the new measurement reads are
+    added to them.
 
     With `redraw` only the figures may change (issue #47: the spectrum plot window): every metric
     must come out as recorded, and meta.redrawn gives the date, commit and run of the redraw."""
@@ -450,7 +453,8 @@ def remeasure(test_id: str, run_dir: Path, block_name: str | None = None, views:
         ctx = {"corner": job.corner, "params": job.params, "globals": job.globals_, "test": test_id,
                "block": block.name, "view": viewsig, "figs": figs,
                "soa": soa.plan(block.name, test, tb_text, view_files(views), views) if test.get("soa") else None}
-        metrics = measure(test, jd, ctx)
+        with archmod.track() as measure_keys:
+            metrics = measure(test, jd, ctx)
         changed = {k: [old["metrics"].get(k), v] for k, v in metrics.items() if not _same(old["metrics"].get(k), v)}
         changed.update({k: [v, None] for k, v in old["metrics"].items() if k not in metrics})
         bad = sorted(k for k in changed if not any(a in k for a in allow))
@@ -464,6 +468,10 @@ def remeasure(test_id: str, run_dir: Path, block_name: str | None = None, views:
             meta["redrawn"] = stamp                  # figures only; metrics checked unchanged above
         else:
             meta["remeasured"] = {**stamp, "changed": changed}
+        if "arch" in meta and not deps.arch_changed(meta["arch"]):
+            # the values it read are those of now: add what the new measurement read
+            keys = archmod.minimal(set(meta["arch"]["keys"]) | measure_keys)
+            meta["arch"] = {"keys": keys, "sha": archmod.values_sha(archmod.load_data(), keys)}
         if ctx.get("provenance"):
             meta["provenance"] = ctx["provenance"]
         out.append({"job": jd.name, "changed": changed})

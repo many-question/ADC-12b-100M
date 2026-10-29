@@ -486,6 +486,8 @@ def migrate(block: str, name: str, authors: list[dict], description: str, dry: b
             doc["view"] = view
             m = doc.setdefault("meta", {})
             m["files"] = {keymap.get(k, k): v for k, v in (m.get("files") or {}).items()}
+            if "views" in m:                       # recorded with its dependencies (deps.py)
+                m["views"] = {k: f"xtor:{name}" if k == block and v == "xtor" else v for k, v in m["views"].items()}
             m["migrated"] = dict(stamp)
             f.write_text(json.dumps(doc, indent=1, default=float) + "\n", encoding="utf-8", newline="\n")
     return log + [f"wrote {rel(dst / 'candidate.yaml')}"]

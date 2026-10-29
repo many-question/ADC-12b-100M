@@ -83,8 +83,20 @@
   瞬态长度 3.5 µs（原来的 4 倍）；晶体管级按比例增加。
 * **可校准性**：校准只能纠正没有缺口的传递函数。CDAC 的 DAC-03 要求实测权重的系统误差加 4σ 失配
   落在每次判决的冗余之内，DAC-14 要求按上述方法校准后的 ENOB 损失 ≤ 0.02 bit（`docs/noise-budget.md` §5.2）。
-* **结果过期**：结果 JSON 中的文件哈希与当前文件不一致即为过期，签核模块的过期结果 CI 报错。证据图（§4）不单独计哈希：
-  图与 JSON 来自同一次仿真，JSON 过期则其图一并过期。
+* **结果过期**：结果只记录被仿真电路实际依赖的输入（`tools/adcflow/deps.py`），只有这些输入变了才过期：
+  * `meta.files`：测试台；从测试台的实例按主名称（master）逐层可达的网表——在 deck 的全部文件里查找，同一名称有多处定义时
+    全部记录，有 `simulator lang=spectre` 以外顶层语句的网表也记录；被用到的 Verilog-A 模块及其 `` `include `` 的文件
+    （按 stage 后的位置解析：测试台 Verilog-A 用到的 `adc_arch*.vams` 是 `design/behav/veriloga/` 里的那份）；
+    做 SOA 检查的用例再加 `specs/soa.yaml`。读不懂的情况（网表里的 include、解析错误、找不到的 `` `include ``）记录整个 deck。
+  * `meta.arch`：该次运行建作业时（用例的 `prepare`：生成的参数与作业文件）和度量时实际读到的 `specs/arch.yaml` 键
+    （如 `timing.t_dac_add`，`*` 为整个文件）及其取值的哈希；格式与注释不计。`meta.views` 记录所用视图。
+
+  过期的情形：已记录的文件内容变了；电路现在可达、结果却没有记录的文件（例如另一个文件新定义了它用到的子电路名，或视图变了）；
+  已记录的 arch 取值变了。测试台用不到的模块视图与 Verilog-A、`arch.yaml` 中没读到的值，改动都不会使结果过期。
+  度量代码与规格限值照旧不计入（限值在检查时重新判定，改了度量用 `remeasure`）；测试参数与全局参数随结果记录。
+  旧格式的结果（没有 `meta.arch`，记录了整个 deck 与整个 `arch.yaml`）仍按“任一记录文件变化即过期”判定，
+  可用 `python -m adcflow rehash` 不重仿真地迁到上述依赖集（规则见 [`workflow.md`](workflow.md) §3）。
+  签核模块的过期结果 CI 报错。证据图（§4）不单独计哈希：图与 JSON 来自同一次仿真，JSON 过期则其图一并过期。
 
 ## 3. 行为级基线（架构 v0.3，TT，`aps`，`results/*/behav/`）
 
@@ -216,7 +228,7 @@ tests:
 
 **器件分类**：`specs/soa.yaml` 给出限值 `limit_V: 1.0` 与器件模型的分类。薄栅 MOS（端口 d g s b）检查 gs、gd、ds 三对，
 薄栅 MOS 电容（p n）检查 pn；厚栅（1.8 V）器件不检查，列在结果的 `soa_skipped`。名称像 MOS 器件（`mos_pattern`）
-却没有列出的模型使检查无法验证。该文件记入结果的 `meta.files`，改动会使相关结果过期。端电压取 PDK 宏模型
+却没有列出的模型使检查无法验证。该文件记入运行了 SOA 检查的结果的 `meta.files`，改动会使这些结果过期。端电压取 PDK 宏模型
 （`*_mac`）实例的端口，即网表中写出的节点。
 
 **机制**：建 deck 时（`runner.make_deck`）从 `dut` 实例往下展开所选视图的网表（包括子电路层次），列出每个器件及其
