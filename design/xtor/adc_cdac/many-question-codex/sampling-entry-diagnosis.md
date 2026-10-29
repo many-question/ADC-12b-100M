@@ -204,5 +204,62 @@ turn-off show large, opposing VIN and TOP harmonic terms. The top-plate switch
 is already opening during the PHI_S crossing, so the observed VIN harmonic
 cannot be assigned directly to final sampled error. A static-gain charge
 reconstruction is only approximate: finite tracking lag, nonlinear parasitics,
-and switch injection remain mixed. Full sine-input device stress and the
-remaining physical sampling changes require separate evidence.
+and switch injection remain mixed. The separate sine-input stress result below
+finds additional failures; the remaining physical sampling changes require
+new evidence.
+
+A matched 32-sample comparison removes only the 12 MID-switch MOS devices
+while retaining all 5% capacitances and the rest of the circuit. It gives
+h3 = -75.1170 dBc and a 7.748 uV fit residual, versus -75.1339 dBc and 7.757 uV
+with the switches. This small change does not support the MID switches as
+the dominant source of the observed third harmonic. The comparison removes
+their parasitics and initialization together, so it does not isolate either
+effect individually. Its missing physical initialization path excludes it
+from adoption.
+
+## Sine-input stress of the midpoint-switch variant
+
+The same unselected variant was checked over 125 ns with the original sine
+sources and ideal VG generators. Both CDAC halves save every MOS terminal
+from time zero: 1,008 devices, 3,024 gs/gd/ds pairs, and 282,412 accepted time
+points with a 0.5 ps maximum step. The stimulus uses 48.828125 MHz, -1 dBFS,
+50 ohm per side, traponly, reltol 1e-7, and voltage tolerance 1e-8.
+
+| Device group, both halves | MOS | Failing pairs | Maximum absolute terminal difference (V) |
+|---|---:|---:|---:|
+| Sampling NMOS | 44 | 10 | 1.00487 |
+| Output N/P | 104 | 60 | 1.14792 |
+| Shared-node NMOS | 44 | 0 | 0.99899 |
+| Top-plate TG | 4 | 0 | 0.89808 |
+| MID TG | 24 | 0 | 0.94974 |
+| Other logic | 788 | 0 | 0.96837 |
+| Total | 1,008 | **70** | **1.14792** |
+
+![Sine-input stress by device group and the worst sampling-entry overshoot](sine-entry-stress.png)
+
+The exact maximum occurs at 10.111177551 ns on the P-side j12H output NMOS:
+D = 1.147915514 V, G = 4.719 uV, and S = B = 0 V. At that instant CONV is
+low, PHI_S is high, TOP is 0.414483 V, VIN is 0.481908 V, and VG is 0.558330 V.
+The high bottom plate overshoots while TOP returns from its prior held level
+to VCM. Thus the earlier fixed-VIN pass does not cover sampling entry after
+the larger sine-driven top-plate excursions.
+
+A second failure occurs when entering conversion: on the N side, the
+nonsampled j9H output NMOS reaches Vds = 1.106712376 V at 5.161260550 ns;
+j6H reaches 1.103907729 V. These halves remain connected to their reference
+rails, but their finite drive strength permits bottom-plate overshoot as TOP
+moves. This is distinct from the sampled-half entry event in the figure.
+
+The sampling-switch maximum is positive Vgd = 1.004872340 V on P-side j10L
+at 70.148704136 ns: G = 1.626193151 V, D = 0.621320811 V, and VIN = 0.740160753 V.
+The loaded VIN nodes also have brief negative excursions, down to -40.64 mV,
+despite the nominal in-range sine sources. These excursions remain part of
+the retained evidence.
+
+The run completed successfully and all retrieved raw files were hash-verified.
+A private postprocessing error on a pair of grounded terminals was fixed and
+the saved waveforms reanalyzed; the simulation was not repeated. The checks
+cover the project's gs/gd/ds limit for this stimulus, including its initial
+condition and subsequent cycles. They do not establish a supply-ramp startup,
+PVT, real-bootstrap, or model-warning pass. The candidate remains WIP and the
+frozen official results remain unchanged.
