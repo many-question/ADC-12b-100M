@@ -12,11 +12,19 @@ or signed off; the archived mixed-top SS-hot ENOB result remains a failure.
 
 ## Module evidence
 
-The candidate retains 136 original result JSONs and 136 original figures:
-45 DC, 45 startup, 45 reference replay, and one TT noise result. All applicable
-module limits pass with full required corner coverage against current main
-`17205ec66d7265da5bf1e4a603ea514f34e99c09` (adc_ref spec 0.6.0).
-These are self-reported results, not project-lead verification.
+The candidate contains 136 result JSONs and 136 figures: 45 DC, 45 startup,
+45 reference replay, and one TT noise result. On main
+`3f1f7ce4d36cd2053dd0663856a52d58844c727a` (adc_ref spec 0.8.0), the official
+`adcflow rehash` command preserves **91 fresh, passing DC/startup/noise records**.
+Their measured values, original simulation provenance and figures are unchanged.
+The **45 old replay records remain stale** and require new simulations for the
+changed DAC-drive timing and REF-21. The [current retest record](REF21-retest.md)
+tracks that work. All candidate evidence is self-reported, not lead verification.
+
+The following table describes the historical v8 measurements on main
+`17205ec66d7265da5bf1e4a603ea514f34e99c09` (spec 0.6.0), where all 14 required
+specifications and 586 spec/corner pairs passed. Its replay values do not certify
+the current timing or REF-21.
 
 | Measurement | Recorded result |
 |---|---:|
@@ -41,8 +49,9 @@ largest ready-error difference is 0.00797382 mV.
 Replay uses N=1024 after 32 warmup conversions, 100 MS/s and
 49.70703125 MHz (k=509), with no extra DC load. The 15,840 decision samples per
 corner are contiguous. The recorded worst envelope ratio is 1.45532317 and
-worst droop is 49.18182677 mV; envelope ratio is diagnostic under this main,
-not a newly imposed REF-21 acceptance limit. Metrics retain ADCToolbox 0.6.4.
+worst droop is 49.18182677 mV. That historical envelope used all 14 decisions
+and a 0.25-LSB floor; it is not the current REF-21 definition. Metrics retain
+ADCToolbox 0.6.4.
 
 ## Archived mixed-top failure
 
@@ -93,22 +102,21 @@ Ports, devices, parameters and simulator logical input are identical.
 | Electrical content hash | `380f10b05b0af622` | `380f10b05b0af622` |
 | File SHA-256 | `0abeb03f4214bc1943ccf0378888487e6d1d025dd7a0f8f26c6c452431e8be21` | `1ca5f3143f4845e043416e8262d622e0556d4c060df175e21b448ed7991c6913` |
 
-The migration audit finds zero stale module results against the stated main.
+The migration audit found zero stale module results against main `17205ec`.
 The earlier v7 results, including its four FF replay failures, remain reachable
 at commit `5cafd1afb17b883f2b2b29556b24e8687f290848` through the archive tag.
 
-## Pending shared changes
+## REF-21 retest
 
-[PR #48](https://github.com/many-question/ADC-12b-100M/pull/48) is unmerged at
-reviewed head `88b7624e1e1bf4c66aeb024d7fcc5c03087ca588`. The
-[impact audit and retest plan](PR48-impact.md) distinguishes recorded input-hash
-changes from changes to replay stimulus, REF-21 measurement, and top-level
-noise accounting. All 136 records remain fresh and passing on the stated
-current main; they do not validate the pending version.
+[PR #48](https://github.com/many-question/ADC-12b-100M/pull/48), #57 and #62 are
+merged into the current base. Notice [#60](https://github.com/many-question/ADC-12b-100M/issues/60)
+is acknowledged in `candidate.yaml`. The [earlier impact audit](PR48-impact.md)
+is preserved as historical context; [REF21-retest.md](REF21-retest.md) records
+the actual merged inputs, official rehash audit and replay coverage.
 
-The pending architecture adds per-step waits, and REF-21 changes the definition
+The architecture adds per-step waits, and REF-21 changes the definition
 and acceptance of `env_ratio`. The behavioral reference's 8 mA / 6 pF is a
 reference-model starting point, not a transistor bias or capacitance requirement.
-No pending code or specification is applied, and no new simulation is run for
-this review. The candidate and archived top failure retain their original inputs
-and provenance.
+The candidate circuit is unchanged. Four replay pilots precede expansion to
+all 45 corners. Updated mixed-top regression, including TOP-10, is coordinated
+separately. The archived top failure retains its original inputs and provenance.
