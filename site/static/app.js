@@ -43,6 +43,14 @@
   });
 
   /* ---------- viewers */
+  var activeViewers = [];
+  document.addEventListener("pointerdown", function (e) {                    // a click or tap outside a viewer ends its operation
+    activeViewers.forEach(function (v) { if (v.el.classList.contains("active") && !v.el.contains(e.target)) v.deactivate(); });
+  }, true);
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") activeViewers.forEach(function (v) { v.deactivate(); });
+  });
+  document.addEventListener("adc-tab-shown", function () { activeViewers.forEach(function (v) { v.deactivate(); }); });
   function initViewer(el) {
     var files = JSON.parse(el.dataset.files);
     var frame = el.querySelector("iframe");
@@ -52,6 +60,8 @@
     var src = el.querySelector('[data-act="src"]');
     var lvlBox = el.querySelector(".lvl");
     var lvlSel = lvlBox.querySelector("select");
+    var activate = el.querySelector(".viewer-activate");
+    var exitBtn = el.querySelector('[data-act="exit"]');
     var ready = false, started = false, cur = 0, reqId = 0, timer = null, wantLevel = null;
 
     function say(msg, cls) {
@@ -95,6 +105,26 @@
         if (!ready) say("查看器没有响应：请检查网络，或点击右上角“完整查看器”在新标签页打开。", "err");
       }, 25000);
     }
+
+    /* click to activate: an inactive viewer (iframe pointer-events: none, a button over it) lets the page scroll with wheel,
+       touch and keys; a click, tap or Enter on the button activates it. It ends on a click outside this viewer, Esc on the page
+       or the "结束操作" button (keys typed inside the cross-origin frame never reach the page, hence the button). */
+    function setActive(on, fromKeyboard) {
+      if (el.classList.contains("active") === on) return;
+      el.classList.toggle("active", on);
+      if (exitBtn) exitBtn.hidden = !on;
+      if (on) {
+        activeViewers.forEach(function (o) { if (o !== api) o.deactivate(); });
+        start();
+        if (fromKeyboard) try { frame.focus(); } catch (e) {}          // keyboard users: keys go to the viewer; a mouse click keeps Esc on the page
+      } else if (activate && el.contains(document.activeElement) && document.activeElement === frame) {
+        activate.focus();
+      }
+    }
+    var api = { el: el, deactivate: function () { setActive(false); } };
+    activeViewers.push(api);
+    if (activate) activate.addEventListener("click", function (e) { setActive(true, e.detail === 0); });
+    if (exitBtn) exitBtn.addEventListener("click", function () { setActive(false); });
 
     tabs.forEach(function (b) { b.addEventListener("click", function () { start(); select(+b.dataset.i); }); });
     el.querySelector('[data-act="grow"]').addEventListener("click", function (e) {

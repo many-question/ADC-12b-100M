@@ -310,14 +310,16 @@ def viewer(site: Site, files: list[dict], vid: str, height: int = 460, note: str
   <div class="vtools">
     <label class="lvl" hidden>层次 <select aria-label="层次"></select></label>
     <button type="button" class="btn small ghost" data-act="grow" aria-pressed="false">放大</button>
+    <button type="button" class="btn small" data-act="exit" hidden title="结束操作，页面滚动恢复（点击查看器以外的地方、或在页面上按 Esc 也可以）">结束操作</button>
     <a class="btn small" data-act="full" href="{esc(first['full'])}" target="_blank" rel="noopener">完整查看器 ↗</a>
   </div>
 </div>
 <div class="viewer-frame">
   <iframe title="RNL 原理图" loading="lazy" allow="fullscreen" referrerpolicy="no-referrer"></iframe>
+  <button type="button" class="viewer-activate" aria-label="点击以操作原理图（Enter）"><span>点击以操作原理图</span></button>
   <div class="viewer-status" role="status" aria-live="polite">正在加载原理图查看器…</div>
 </div>
-<div class="viewer-foot"><span class="muted">{esc(note) or '拖动平移、滚轮缩放、双击子电路进入下一层（Backspace 返回）。'}</span>
+<div class="viewer-foot"><span class="muted">{esc(note) or '点击原理图后可操作：拖动平移、滚轮缩放、双击子电路进入下一层（Backspace 返回）；点击外部结束操作。'}</span>
   <a data-act="src" href="{esc(first['src'])}" target="_blank" rel="noopener">查看网表源码 ↗</a></div>
 <noscript><p class="empty">原理图需要 JavaScript；也可以在 <a href="{esc(first['full'])}">RNL 查看器</a> 中打开。</p></noscript>
 </section>"""
@@ -858,7 +860,7 @@ def live_overview(site: Site, data: dict[str, BlockData]) -> str:
     note = (livepanel.unavailable_note(live) if not live.ok else "")
     return f"""<section id="live"><h2>实时进展 {livepanel.stamp_html(live)}</h2>
 <p class="muted legend">状态是主分支上的（来自 <code>specs/blocks/*.yaml</code>）；晶体管级工作在各模块的 PR 里，下表显示每个模块最近更新的进行中 PR
-（草稿 / 待评审、CI 状态）和未关闭的通知数。只显示标题和状态，不显示正文；站点每小时重建一次。</p>{note}
+（草稿 / 待评审、CI 状态）和未关闭的通知数。只显示标题和状态，不显示正文；站点在 push、PR / issue 事件和 CI 完成时重建（每小时的定时重建只是兜底）。</p>{note}
 <div class="table-wrap"><table class="live"><thead><tr><th>模块<th>候选<th>主分支状态<th>最新进行中 PR<th>最近更新 (UTC)<th title="取自该 PR 的提交，未评审，不计入主分支">草稿预览（未评审）<th>通知</tr></thead>
 <tbody>{''.join(rows)}</tbody></table></div></section>"""
 
