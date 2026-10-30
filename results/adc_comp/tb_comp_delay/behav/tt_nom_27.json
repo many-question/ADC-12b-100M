@@ -21,6 +21,60 @@
   "tdelay_30mV_ps": 49.00250000555621,
   "tau_reg_ps": 7.99999999999872,
   "treset_ps": 33.00250000556709,
+  "validity_violations": 0,
+  "loser_peak_pct": 0.0,
+  "validity": {
+   "rule": "each CLKC rise .. fall: exactly one output >= 0.5 VDD, the other < 0.3 VDD",
+   "dt_max_ps": 52.5878,
+   "cycles": 36,
+   "decided": 36,
+   "worst": {
+    "cycle": 1,
+    "vd_uV": 100000.0,
+    "output": "OUTN",
+    "t_ps": 0.0
+   },
+   "violations": [],
+   "undecided": [],
+   "loser_peaks_pct": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
   "energy_fJ": 112.500001872
  },
  "specs": {
@@ -65,24 +119,40 @@
    "value": 112.500001872,
    "limit": "reported",
    "pass": null
+  },
+  "CMP-15": {
+   "metric": "validity_violations",
+   "value": 0,
+   "limit": "<= 0",
+   "pass": true
+  },
+  "CMP-16": {
+   "metric": "loser_peak_pct",
+   "value": 0.0,
+   "limit": "reported",
+   "pass": null
   }
  },
  "figures": [
   {
    "file": "tt_nom_27.delay.png",
    "caption": "Comparator delay versus input difference with the log fit and limits, the +1 mV decision with its delay marked, and the reset to 10 % VDD."
+  },
+  {
+   "file": "tt_nom_27.validity.png",
+   "caption": "Output validity (CMP-15): the peak of the losing output from each CLKC rise to the CLKC fall against the 30 % VDD limit, with violations and undecided cycles marked, and the transient of the cycle with the largest losing peak."
   }
  ],
  "meta": {
-  "date": "2026-10-30T01:48:58",
-  "git": "831004e",
+  "date": "2026-10-30T12:10:00",
+  "git": "5109005",
   "git_clean": true,
   "mode": "aps",
   "pdk": false,
   "mc": null,
-  "wall_s": 125.6,
+  "wall_s": 144.2,
   "rc": "0",
-  "sim_s": "18",
+  "sim_s": "33",
   "numerics": {
    "source": "spectre.log",
    "reltol": 0.001,
