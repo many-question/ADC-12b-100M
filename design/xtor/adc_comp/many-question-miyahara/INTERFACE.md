@@ -1,8 +1,8 @@
 # Output overlap and SAR interface
 
-The frozen Miyahara source has an output-overlap concern in the SF corners. This is separate from its known device-voltage failure. Existing formal metric records are retained unchanged; they do not establish the complete comparator interface. [Issue #77](https://github.com/many-question/ADC-12b-100M/issues/77) records the independently reviewed contract and measurement gap.
+The frozen Miyahara source has an output-validity failure, separate from its known device-voltage failure. Current spec v0.7.0 measurements are in [VALIDITY.md](VALIDITY.md). The fine-step waveform evidence below retains its original source, settings and historical receiver audit.
 
-The [lead decision on #77](https://github.com/many-question/ADC-12b-100M/issues/77#issuecomment-6514624643) now requires a single 50% crossing and losing-output peak below 30% VDD through each evaluation interval. Its measurement implementation is pending in the main audited here (`33337c6`). The preserved overlap evidence below remains a known failure; it is not a new formal validity measurement. All 45 v0.5.0 delay records are also stale after #78. [REFRESH.md](REFRESH.md) records the combined refresh plan.
+[PR #82](https://github.com/many-question/ADC-12b-100M/pull/82) implemented #77 and [notice #84](https://github.com/many-question/ADC-12b-100M/issues/84) announced it. All 45 corners have now been refreshed under the merged 50% decision / 30% losing-peak rule, together with the #78 energy meter. The historical fine-step repeat below remains supplemental evidence; it is not relabeled as a current official run.
 
 ## Frozen-source repeat
 
@@ -36,7 +36,7 @@ The structural top connects the comparator outputs directly to SAR ([top](https:
 
 ## Measurement scope and risk
 
-The official delay extractor chooses whichever 50% output crossing occurs first and checks that polarity for |vd| >= 100 uV ([lines 43–54](https://github.com/many-question/ADC-12b-100M/blob/c8910f98d242f32d5b23afbc6bedf9de26115c22/tools/adcflow/measure/comp.py#L43-L54)). It does not fail merely because the other output also crosses. The noise test instead samples OUTP minus OUTN when CLKC falls ([noise bench](https://github.com/many-question/ADC-12b-100M/blob/c8910f98d242f32d5b23afbc6bedf9de26115c22/tb/comp/tb_comp_noise.scs#L17-L18)); its reported fit does not independently validate the first-event receiver protocol.
+The historical delay extractor at the linked audit revision checked first-crossing polarity without a separate validity failure. Current spec v0.7.0 adds CMP-15 across every evaluation interval and CMP-16 losing-peak reporting, while preserving CMP-09 first-event polarity. The noise test still samples OUTP minus OUTN when CLKC falls; its fit does not independently validate first-event noise or mismatch behavior.
 
 The comparator contract says exactly one output rises during evaluation ([contract](https://github.com/many-question/ADC-12b-100M/blob/c8910f98d242f32d5b23afbc6bedf9de26115c22/specs/blocks/adc_comp.yaml#L9-L12)). Under the 50% threshold used by the current model and metric, the observed overlap does not meet that one-rise description. The nominal noise-off first events in this module repeat have the correct polarity, and the ideal receiver ignores later rises; no incorrect closed-loop conversion is demonstrated here. Noise, mismatch or unequal receiver thresholds could change first-event ordering, and actual SAR/CDAC feedback changes both the clock and the input before the independent module trace ends. Those effects are not established by this read-only audit. The candidate stays WIP and is not interface-qualified.
 

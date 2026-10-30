@@ -1,64 +1,41 @@
-# Recorded evidence and current validity
+# Official test evidence — spec v0.7.0
 
-After merging main `33337c6` (spec v0.6.0, [notice #78](https://github.com/many-question/ADC-12b-100M/issues/78)), current official checks mark **45 delay records stale and 47 other records fresh**: kickback 45, TT noise 1 and TT mismatch 1. All original result JSONs, figures and source commits are preserved. The delay/reset/energy values below are historical v0.5.0 evidence, not fresh v0.6.0 results. No new simulation was run. [REFRESH.md](REFRESH.md) gives the dependency audit and deferred combined refresh plan.
+The complete 45-corner delay/energy/validity refresh is recorded from clean source `a2e3509597563d607d2a873ed9cc5e9d667ccfff`. All 92 candidate records pass the current dependency freshness check; the other 47 records and their 139 JSON/PNG files are byte-identical to their pre-refresh versions. No circuit changed. All simulations used APS with one Spectre process at a time. The candidate remains WIP, self-reported and unselected.
 
-The recorded source was clean before each official test. All jobs used APS with one Spectre job at a time. The source remained electrically frozen across the tests. These are self-reported results; the candidate remains WIP and is not selected.
-
-| Test | Corner coverage | Source commit |
+| Test | Recorded corners | Source commit(s) |
 |---|---:|---|
-| tb_comp_delay | 45/45 | `cd9863b` |
+| tb_comp_delay | 45/45 | `a2e3509` |
 | tb_comp_kickback | 45/45 | `c41a097` |
-| tb_comp_offset_mc | 1/1 | `128b899` |
 | tb_comp_noise | 1/45 | `fcf5c09` |
+| tb_comp_offset_mc | 1/1 | `128b899` |
 
-Runner content hash of adc_comp.scs: `e8a0e3d3dc1366cd`. The result JSON files preserve the full reached-file hashes, settings and estimator provenance.
+Frozen electrical SHA-256: `e8a0e3d3dc1366cd20f72c291397b352c8b9a6eeb87df618e41c49199372597a`. The JSONs retain actual source, reached-file hashes, effective numerics and measurement provenance. [REFRESH.md](REFRESH.md) describes execution and archival; [VALIDITY.md](VALIDITY.md) lists all 45 corners and all violating cycles.
 
-| Recorded TT metric (delay-derived rows are stale) | Value |
+| TT metric | Value |
 |---|---:|
-| Noise rms | 193.758 uV |
+| Noise rms | 193.758465 uV |
 | Noise 95% profile-likelihood interval | [185.84, 202.07] uV |
 | Systematic offset magnitude | 0.000199071 mV |
-| Mismatch sigma (sample standard deviation) | 1.947 mV |
+| Mismatch sigma (sample standard deviation) | 1.947055 mV |
 | Valid / failed mismatch samples | 50 / 0 |
-| Delay at 1 / 30 mV | 47.513 / 38.755 ps |
-| Reset | 17.787 ps |
-| Historical v0.5.0 AVDD window-average energy normalized to 400 ps | 186.363 fJ |
-| Input / CLKC capacitance | 19.310 / 14.924 fF |
+| Delay at 1 / 30 mV | 47.512933 / 38.754848 ps |
+| Reset | 17.786952 ps |
+| CMP-15 violating cycles | 24 / 36 |
+| CMP-16 losing-output peak | 48.521649% VDD |
+| CMP-10 AVDD energy, exact 36 mixed cycles | 187.647444 fJ/cycle |
+| Input / CLKC capacitance | 19.310269 / 14.924420 fF |
 | Differential kickback | 0.000485769 uV |
-| Estimated external clock-driver charge energy | 12.089 fJ |
-| AVDD plus that clock-driver estimate | 198.452 fJ |
+| Separate external clock-driver charge-energy estimate | 12.088780 fJ |
 
-The preserved v0.5.0 energy_fJ is average AVDD power over the complete 14.5 ns mixed-amplitude delay test, multiplied by 400 ps. The window includes the initial 100 ps and spans 36.25 clock periods, so this is neither a dedicated 1 mV measurement nor exactly total energy divided by 36 decisions. See [issue #75](https://github.com/many-question/ADC-12b-100M/issues/75). These records use spec v0.5.0. PR #76 is merged as `33337c6`; spec v0.6.0 now measures AVDD charge x VDD / 36 over 100 ps–14.5 ns with the unchanged mixed-amplitude sequence. CMP-10 is reported-only, with no 200 fJ acceptance limit. The 45 old delay records are stale because the reached testbench changed. No v0.6.0 energy measurement is recorded for this candidate. Old values and verdicts remain unchanged in their original JSONs; neither rehashing nor relabeling makes them new-definition evidence. The clock-driver estimate is C_CLKC * VDD^2, reported separately from measured AVDD energy; it does not replace a system energy measurement. The noise test uses the standard 17 levels x 512 decisions, seed 1 and 50 GHz bandwidth. Mismatch uses all 50 local TT samples with seed 6303; no samples are discarded. The reported noise interval is conditional on the probit model. The largest probability residual in the tabulated fit is +0.0356 at 0 uV; the official residual plot is retained.
+CMP-10 integrates AVDD charge over 100 ps–14.5 ns and multiplies by VDD / 36. The stimulus is the unchanged mixed sequence from +/-100 mV down to +/-10 uV, repeated twice, with 400 ps periods, VCM 0.49 V and 10 fF per output. It is reported-only and excludes the external CLKC source. The separate clock estimate is C_CLKC x VDD^2, not a measured system energy.
 
-| Formal test | Failed specifications in recorded jobs |
-|---|---|
-| delay | None in recorded jobs |
-| kickback | None in recorded jobs |
-| offset_mc | None in recorded jobs |
-| noise | None in recorded jobs |
+The unchanged TT noise result uses 17 levels x 512 decisions, seed 1 and 50 GHz bandwidth; its confidence interval is conditional on the probit model. Mismatch retains all 50 local TT samples, seed 6303, with no samples discarded. Neither falling-edge-sampled test independently validates first-event receiver noise or mismatch.
 
-| All-corner functional extreme | Value | Corner |
-|---|---:|---|
-| tdelay_1mV_ps | 76.793 | ss_low_m40 |
-| treset_ps | 24.721 | ss_low_125 |
-| tau_reg_ps | 7.395 | ss_low_m40 |
-| wrong_decisions | 0.000 | ff_high_125 |
-| kickback_uV | 0.049 | sf_nom_m40 |
-| cin_fF | 20.677 | ff_low_m40 |
-| cin_clkc_fF | 16.203 | ff_high_125 |
+Across the refreshed delay sweep: 45/45 corners and 1084/1620 cycles fail CMP-15; 0/45 corners fail CMP-08; CMP-09 records 0 wrong decisions. The worst 1 mV delay is 76.793410 ps at `ss_low_m40`. The worst reset is 24.721438 ps at `ss_low_125`. All 45 simulator return codes are zero; known specification failures did not stop the baseline.
 
-CMP-12 and CMP-14 impose their capacitance limits at TT only. Non-TT capacitance extrema above are reported for visibility and are not treated as additional formal failures.
+## Historical supplemental evidence
 
-## Saved-waveform interface audit
-
-Read-back of the 45 preserved v0.5.0 delay waveforms finds 36 rising and 36 falling clock edges per corner, 1620 reset responses in total, and 0 invalid/wrong late decisions among 1260 samples with |vd| >= 100 uV. The late sample is 150 ps after the rising 50% clock crossing; a valid output has one side above 80% VDD and the other below 20%. Reset plateaus at 100–170 ps after the falling 50% clock crossing stay below 10% VDD. These checks supplement the official metric extraction.
-
-There are 454 saved points with both outputs above 50% VDD in 9 SF corners: `sf_high_125`, `sf_high_27`, `sf_high_m40`, `sf_low_125`, `sf_low_27`, `sf_low_m40`, `sf_nom_125`, `sf_nom_27`, `sf_nom_m40`. This overlap is an additional interface concern even though the official first-crossing decision metric, supplemental late-decision check and reset metrics pass; the official delay test does not separately judge one-hot output behavior. [Issue #77](https://github.com/many-question/ADC-12b-100M/issues/77) tracks this gap. [INTERFACE.md](INTERFACE.md) preserves the source, derived figure, crossing brackets and receiver-scope limits.
-
-The frozen source repeat at `sf_low_m40` with maxstep 0.25 ps, traponly, reltol 1e-6 and vabstol 1e-8 finds 12 overlap intervals. The largest min(OUTP,OUTN) is 0.424097 V (0.523576 VDD); the longest linearly interpolated overlap is 26.091 ps. This supplemental result uses the same circuit and standard mixed-amplitude excitation.
-
-
-The [new #77 decision](https://github.com/many-question/ADC-12b-100M/issues/77#issuecomment-6514624643) requires one output crossing 50% VDD and the losing output staying below 30% VDD during each of the 36 evaluation windows. The implementation is not present in this audited main. The existing audit does not report the new losing-output peak metric. Miyahara's observed dual-high intervals remain direct failure evidence. The combined refresh remains deferred as described in [REFRESH.md](REFRESH.md).
+The old v0.5.0 official TT energy was 186.363293 fJ, measured as average AVDD power over 0–14.5 ns multiplied by 400 ps; the 100 ps reset lead-in was included. It is preserved in Git history and is not a fresh current-definition value. The following fine-step diagnostics retain their original stimulus, integration window, source and numerical settings. They are not the fresh v0.7.0 mixed-sequence energy or output-validity measurements. The unchanged circuit still has the stated SOA failures.
 
 ## Separate 1 mV energy diagnostic
 
@@ -87,13 +64,10 @@ These fine checks cover |Vgs|, |Vgd| and |Vds| for all 23 MOS devices (69 termin
 
 ## Remaining limits
 
-Fine supplemental checks in [CHARACTERIZATION.md](CHARACTERIZATION.md) fail the 1.0 V device-voltage requirement. The 0.25 ps maximum-step repeat preserves the cold-corner violation. Passing a formal metric or the repository checks does not remove this failure. Transient-noise corner coverage is 1/45; all-corner noise, wider input common-mode/differential coverage and full-corner SOA are not established. No qualified-energy winner is claimed.
+Known fine-step device-voltage failures exceed 1.0 V. The official score can show soa=0 because private SOA findings are absent from its metric records; that is not a SOA pass. Transient-noise coverage remains 1/45 corners; full common-mode/differential range, full-corner SOA and mixed-top qualification are not established. No qualified-energy winner is claimed.
 
-Historical commands (each result set was archived, hash-verified and committed before the next test; these commands were not rerun during this audit):
+The only new simulation command for this refresh was:
 
 ```text
 python -m adcflow sim tb_comp_delay --view adc_comp=xtor:many-question-miyahara --corners all --mode aps --jobs 1 --keep
-python -m adcflow sim tb_comp_kickback --view adc_comp=xtor:many-question-miyahara --corners all --mode aps --jobs 1 --keep
-python -m adcflow sim tb_comp_offset_mc --view adc_comp=xtor:many-question-miyahara --corners typ --mode aps --jobs 1 --keep
-python -m adcflow sim tb_comp_noise --view adc_comp=xtor:many-question-miyahara --corners typ --mode aps --jobs 1 --keep
 ```
