@@ -1,5 +1,12 @@
 # Sampling-entry diagnosis
 
+The final N4 variant below has now been promoted to the current WIP source
+with unchanged physical connectivity and geometry. Earlier references to
+an unselected or unchanged committed circuit describe the state when each
+experiment was recorded. Current status is in the [candidate README](README.md).
+The original failed source and formal evidence remain available through
+[the pre-N4 history tag](https://github.com/many-question/ADC-12b-100M/tree/adc-cdac-many-question-pre-n4-20261030).
+
 These are private exploratory simulations of the circuit frozen at `2ecc285`,
 reported on 2026-10-30. They do not replace the official test results or validate
 an actual bootstrap circuit. All cases retain the user-specified 5% ground
@@ -1189,11 +1196,10 @@ supply startup, longer holds, or PVT.
 
 The limited same-source batch now passes its five weights/calibration
 metrics, ten fixed-input metrics, and full applicable project stress
-checks in both stimuli. The next stage will promote this exact frozen
-dummy design to a committed WIP source after reading current project rules
-and checking RNL equivalence and drawings. The previous failed source and
-all formal failure evidence will remain available through a historical
-reference. Its old result fingerprints become stale when the source changes;
+checks in both stimuli. This exact frozen dummy design is now the WIP
+source after review of current project rules, RNL equivalence, and drawings.
+The previous failed source and all formal failure evidence remain available
+through the history tag linked above. Its old result fingerprints are stale;
 they must not be rewritten to claim validation of the new circuit.
 
 | Longer-record choice | Purpose | Estimated main simulation time |
