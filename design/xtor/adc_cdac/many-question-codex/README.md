@@ -53,6 +53,14 @@ failure. Its conditional TT run was not launched. Design iteration continues
 through separately frozen experiments, with SS settling/all-device stress
 before TT charge/load/settling, then spectra and further corners.
 
+A complete matched SS comparison of lower-threshold reference outputs
+also fails RL12/start (42.7/100.6 ps), despite improved tau (11.204798 ps)
+and lower TOP overshoot. Full 540-MOS pressure checks pass, but Qref rises
+50.0247% and quiet-window off currents increase. The trial's TT expansion
+is stopped. Its [matched waveform comparison](matched-output-family-screen.png)
+and the ledger retain the independent source and evidence. The next case
+returns to nominal-threshold outputs and coordinates output/enable sizing.
+
 The complete earlier report and every historical diagnostic figure remain
 in the [immutable history snapshot](https://github.com/many-question/ADC-12b-100M/tree/6a4bf94977db967dbd27ef47669d5d3d25735477/design/xtor/adc_cdac/many-question-codex),
 also retained by tag `adc-cdac-many-question-history-20261031`.

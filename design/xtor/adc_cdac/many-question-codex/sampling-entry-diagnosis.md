@@ -142,19 +142,93 @@ The private full-pair table, signed waveform/charge/coupling audits,
 scripts and inspected figure remain retained. No TT, tracking, noise,
 second variant or other corner followed that failed gate.
 
+## Matched full-window reference-output family experiment
+
+Two independent 70 ns `ss_low_125` runs share the complete original
+stimulus, saves and strict numerical settings: 0.5 ps maximum step,
+reltol 1e-7, voltage tolerance 1e-8, traponly. Both started from clean
+commit `8a8e88a0ba4e2b5bdfb88bd7710726d36d675c7d`. The unchanged-N4
+reference fills the missing held-plate and late-window observations.
+The private `v1-refout-ulvt` case changes only the model family of all
+52 flattened reference-output MOS; W/L/fingers, logic and capacitors
+remain unchanged. Eighteen unique device geometries and pinned RNL
+validation pass without warnings. Its source SHA256 is
+`25ba0e52d44f0f6db08d0fa8891c6be0f5d6874bc42f3e04ce559169e78cbf7e`.
+
+| Quantity | Matched N4 reference | Private lower-threshold outputs | Requirement at SS |
+|---|---:|---:|---|
+| RL5 settling | 69.3 ps | 58.7 ps | both pass, <=75 ps |
+| RL12 settling | 47.4 ps | 42.7 ps | both fail, <=40 ps |
+| Equivalent tau | 14.809442 ps | 11.204798 ps | both pass, <=15 ps |
+| Conversion-start settling | 117.7 ps | 100.6 ps | both fail, <=100 ps |
+| Hold droop | 0.008769519 LSB | 0.004251046 LSB | both pass, <=0.1 LSB |
+| VREFP charge / conversion | 1.746078108 pC | 2.619548392 pC | n/a, typ-only |
+| DH5 input capacitance | 0.807291 fF | 0.807291 fF | n/a, typ-only |
+| PHI_S input capacitance | 5.966224 fF | 5.966242 fF | n/a, typ-only |
+| PHI_SB input capacitance | 12.093625 fF | 12.059253 fF | n/a, typ-only |
+| CONV input capacitance | 9.561519 fF | 9.561489 fF | n/a, typ-only |
+
+The strict reference retains both original timing failures. Its RL5 result
+is 0.1 ps later than the coarse official reference; it remains passing.
+The changed circuit still fails both deadline checks, including both raw
+samples bracketing each deadline. At 100 ps, start error is 1.666544 mV
+versus a 1.586790 mV allowance. At 40 ps, RL12 error is 18.839163 mV
+versus 9.596509 mV. No TT or tracking run follows this failed case.
+
+![Matched complete SS reference and output-family trial](matched-output-family-screen.png)
+
+RL12's last 10%/1% crossings change from 44.1/78.2 ps to 39.9/65.7 ps.
+TOP overshoot falls from 3.319162 to 2.812952 mV. The switched BL reaches
+50% at 34.527 ps instead of 37.503 ps, while its PMOS gate reaches 50%
+at 20.553 ps instead of 20.459 ps. The bit-11 held BL/BH last leave a
+1 mV band at 107.1/74.9 ps instead of 127.2/84.1 ps. These matching
+observations support improved output and held-bank recovery, with almost
+unchanged command delay; they do not identify a unique pole or branch.
+
+The charge increase is 0.873470284 pC, or 50.0247%. Quiet-window currents
+show a substantial static cost. At VIN=0.65 V during 3..4 ns, with gate
+and plate voltages constant to numerical precision, bit-12 low-side
+disabled NMOS/PMOS native drain currents change from +0.999487/-0.505634
+uA to +14.525968/-4.222254 uA. The sampled BL is 0.649982710 V in N4
+and 0.649639693 V in the trial. During neutral hold at 7..8 ns, the
+disabled high-side NMOS carries 1.520908 versus 23.818919 uA, and the
+disabled low-side PMOS magnitude is 2.500204 versus 20.715273 uA.
+Native currents include displacement; the quiet-window audit retains
+voltage/current variation. These fixed-input observations support an
+off-current contribution, but do not decompose all of Qref or establish
+sampling linearity across input voltage and frequency.
+
+Both actual testbenches contain one XDUT and no external MOS devices.
+Each checks all 540 MOS / 1,620 gs/gd/ds pairs over its full saved record,
+with zero project-limit violations. N4's exact maximum is
+0.968951801189 V at XB2.XDL.MNOUT ds (60.075866186 ns); the changed
+circuit's maximum is 0.967432353689 V at XB9.XDL.MPOUT ds
+(5.165299322 ns). There are 199,924/199,744 time points and 354 saved
+signals (277 voltages, 77 native currents), respectively. Job times are
+348/343 s; the two-job peak is within the six-job session limit.
+
+For each case, nine raw files and all 50 frozen inputs were recovered and
+SHA256-verified before exact run cleanup. Full waveform caches, all-pair
+tables, measurement scripts, comparisons and quiet-window audit are retained.
+Archive SHA256 values:
+
+- N4 reference: `608fb2e6b10a19cbf25aa29b13e6a75d2c54ff60573a5844cc95c658958a20ce`
+- Changed outputs: `6c3732ae6999c971ce596f292746ede69d56fd1e0aee9f11d46567f2ee039cbb`
+
 ## Continuing experiments
 
-A brief separately controlled reference-drive assist is only a hypothesis:
-it would require pulse generation and alignment, extra control load and
-voltage-stress analysis. It is not implemented or credited as a solution.
-The next study instead keeps output geometry and logic unchanged while
-testing a supported lower-threshold output family across switched and held
-reference banks. Leakage, overlap current, charge, overshoot and tail
-recovery must be measured. A matching strict full-window N4 baseline will
-fill the missing held-plate comparison; neither is an official new result.
+The next independent case starts from formal N4, retaining its nominal-
+threshold output devices. It coordinates an approximately 35% output-width
+increase across switched and held banks, and doubles the existing shared
+ENB pull-down while retaining its finger width. The measured held-bank
+recovery and enable delay motivate these changes. External DH/RL input
+devices remain at their original sizes. Device geometry, RNL, gate load,
+reference charge, overshoot and pressure require the new case's own evidence;
+neither prior circuit's verification transfers.
 
-Each experiment freezes its source, inputs and geometry provenance, screens
-SS settling plus all MOS pairs in its actual TB, and proceeds to TT only
-after passing. A failed variant stops that variant's costly expansion;
-its measured failure informs the next independent change. Subsequent
-spectra/corners require their own evidence. Formal N4 remains unchanged.
+A brief separately controlled reference-drive assist remains an unimplemented
+hypothesis, with additional pulse alignment and loading questions.
+Each case screens SS settling plus all MOS pairs in its actual TB before
+TT charge/load/settling, then spectra and further corners. A failed case
+stops its costly expansion and informs the next independent change.
+Formal N4 and all official results remain unchanged.
