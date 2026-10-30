@@ -37,3 +37,5 @@ Continuous physical-output repair experiments remain independent of this canonic
 [B5](BUFFER-V5.md) reduces the cold-FF peak to 1.00833 V while retaining three-corner timing and validity. [B6](BUFFER-V6.md) targets the remaining clock, raw-node and buffer slew with slower physical clock drive and more intermediate/buffer MOM damping.
 
 [B6](BUFFER-V6.md) passes clock and intermediate-node stress while small raw/buffer/output excursions remain. [B7](BUFFER-V7.md) adds physical weak rail-offset loads at those measured nodes and retains the original output-validity thresholds.
+
+[B7](BUFFER-V7.md) passes three-corner stress and validity but fails SF low/cold reset at 36.559095 ps. [B8](BUFFER-V8.md) halves its six physical PMOS pull-ups while retaining both output diode loads per side.
