@@ -1,0 +1,134 @@
+{
+ "block": "adc_ref",
+ "test": "tb_ref_replay",
+ "view": "xtor-many-question",
+ "corner": "tt_low_125",
+ "params": {
+  "npts": 1024,
+  "nwarm": 32,
+  "fin": "4.970703125e+07"
+ },
+ "globals": {
+  "vdd": 0.81,
+  "vdd18": 1.62,
+  "tempc": 125.0,
+  "noise_en": 0,
+  "devnoise": 1,
+  "beh_speed": 1.0,
+  "vref_in": 0.9,
+  "cdac_behav": 1,
+  "comp_behav": 1
+ },
+ "metrics": {
+  "n_samples": 15840,
+  "enob_ideal_ref": 10.913433133790065,
+  "enob_ref": 10.919003444844096,
+  "sfdr_ref_dBc": 84.86497409587909,
+  "enob_loss_bit": -0.005570311054031052,
+  "tail_dev_uV": 109.5135167999972,
+  "env_ratio": 0.8631906170644089,
+  "env_ratio_per_decision": [
+   0.1702,
+   0.5012,
+   0.8632,
+   0.8562,
+   0.6571,
+   0.6814,
+   0.7206,
+   0.6477,
+   0.5997,
+   0.6042,
+   0.5487
+  ],
+  "env_ratio_decision": 3,
+  "start_pp_uV": 42.026074799972335,
+  "droop_max_mV": 33.73554583462146,
+  "vrefp_V": 0.9009049147408215
+ },
+ "specs": {
+  "REF-12": {
+   "metric": "enob_loss_bit",
+   "value": -0.005570311054031052,
+   "limit": "<= 0.1",
+   "pass": true
+  },
+  "REF-13": {
+   "metric": "tail_dev_uV",
+   "value": 109.5135167999972,
+   "limit": "<= 200",
+   "pass": true
+  },
+  "REF-14": {
+   "metric": "start_pp_uV",
+   "value": 42.026074799972335,
+   "limit": "<= 100",
+   "pass": true
+  },
+  "REF-21": {
+   "metric": "env_ratio",
+   "value": 0.8631906170644089,
+   "limit": "<= 1",
+   "pass": true
+  }
+ },
+ "figures": [
+  {
+   "file": "tt_low_125.replay.png",
+   "caption": "VREFP deviation at each decision against the redundancy tolerance envelope, the per-decision ratio to the tolerance against its limit (REF-21), the memory of VREFP before each conversion, the droop during a conversion, and the ENOB cost."
+  }
+ ],
+ "meta": {
+  "date": "2026-10-30T02:35:57",
+  "git": "eafab21",
+  "git_clean": true,
+  "mode": "aps",
+  "pdk": true,
+  "mc": null,
+  "wall_s": 395.4,
+  "rc": "0",
+  "sim_s": "27",
+  "numerics": {
+   "source": "spectre.log",
+   "reltol": 0.001,
+   "maxstep_ps": 211600.0,
+   "method": "traponly",
+   "errpreset": "moderate",
+   "lteratio": 3.5,
+   "abstol_V": 1e-06,
+   "steps_accepted": 565622,
+   "step_mean_ps": 18.7051,
+   "step_max_ps": null
+  },
+  "files": {
+   "tb/ref/tb_ref_replay.scs": "2ea234d4ebabeece",
+   "tb/common/veriloga/tb_sampler_va.va": "4092bc16170c588d",
+   "design/xtor/adc_ref/many-question/adc_ref.scs": "2b1163f0eb481376"
+  },
+  "arch": {
+   "keys": [
+    "cdac.cap_sampled",
+    "cdac.cap_weights",
+    "cdac.cp_top_ratio",
+    "cdac.cu",
+    "conversion.n_decisions",
+    "conversion.out_weights",
+    "reference.vin_cm",
+    "reference.vref",
+    "timing.fs",
+    "timing.t_dac_add"
+   ],
+   "sha": "978c7ff34d3af1b1"
+  },
+  "views": {
+   "adc_ref": "xtor:many-question"
+  },
+  "provenance": {
+   "spectrum": {
+    "estimator": "adcflow.spectrum v1",
+    "adctoolbox": "0.6.4",
+    "sfdr": "plotspec definition: peak bin of the fundamental / largest other single bin (DC and signal bins excluded, Nyquist included)",
+    "enob_sndr_snr_thd": "adctoolbox 0.6.4 compute_spectrum"
+   }
+  }
+ }
+}

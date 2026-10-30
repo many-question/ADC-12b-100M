@@ -1,0 +1,82 @@
+{
+ "block": "adc_ref",
+ "test": "tb_ref_dc",
+ "view": "xtor-many-question",
+ "corner": "tt_nom_m40",
+ "params": {},
+ "globals": {
+  "vdd": 0.9,
+  "vdd18": 1.8,
+  "tempc": -40.0,
+  "noise_en": 0,
+  "devnoise": 1,
+  "beh_speed": 1.0,
+  "vref_in": 0.9,
+  "cdac_behav": 1,
+  "comp_behav": 1
+ },
+ "metrics": {
+  "vrefp_err_mV": -0.42139301022980913,
+  "vcm_V": 0.4497892429218836,
+  "i18_uA": 26180.62013059437,
+  "i09_uA": -0.0,
+  "iin_uA": 0.0,
+  "loadreg_mV": 0.8180334566513237,
+  "line_mV_per_V": 0.0488346617596771
+ },
+ "specs": {
+  "REF-01": {
+   "metric": "vrefp_err_mV",
+   "value": -0.42139301022980913,
+   "limit": "-5 .. 5",
+   "pass": true
+  },
+  "REF-02": {
+   "metric": "vcm_V",
+   "value": 0.4497892429218836,
+   "limit": "0.44 .. 0.46",
+   "pass": true
+  },
+  "REF-04": {
+   "metric": "line_mV_per_V",
+   "value": 0.0488346617596771,
+   "limit": "<= 5",
+   "pass": true
+  },
+  "REF-11": {
+   "metric": "iin_uA",
+   "value": 0.0,
+   "limit": "<= 1",
+   "pass": true
+  }
+ },
+ "figures": [
+  {
+   "file": "tt_nom_m40.dc.png",
+   "caption": "VREFP against load current and against the 1.8 V supply, VCM against load, and the operating-point values against their limits."
+  }
+ ],
+ "meta": {
+  "date": "2026-10-30T00:46:08",
+  "git": "4c61b98",
+  "git_clean": true,
+  "mode": "aps",
+  "pdk": true,
+  "mc": null,
+  "wall_s": 285.9,
+  "rc": "0",
+  "sim_s": "13",
+  "numerics": {},
+  "files": {
+   "tb/ref/tb_ref_dc.scs": "6c0b4787bdd7e2bb",
+   "design/xtor/adc_ref/many-question/adc_ref.scs": "2b1163f0eb481376"
+  },
+  "arch": {
+   "keys": [],
+   "sha": "44136fa355b3678a"
+  },
+  "views": {
+   "adc_ref": "xtor:many-question"
+  }
+ }
+}

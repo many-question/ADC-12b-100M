@@ -1,0 +1,63 @@
+{
+ "block": "adc_ref",
+ "test": "tb_ref_noise",
+ "view": "xtor-many-question",
+ "corner": "tt_nom_27",
+ "params": {},
+ "globals": {
+  "vdd": 0.9,
+  "vdd18": 1.8,
+  "tempc": 27.0,
+  "noise_en": 0,
+  "devnoise": 1,
+  "beh_speed": 1.0,
+  "vref_in": 0.9,
+  "cdac_behav": 1,
+  "comp_behav": 1
+ },
+ "metrics": {
+  "noise_uV": 72.9171273004218,
+  "noise_lf_uV": 21.504739310628736,
+  "noise_total_uV": 76.02211037957325,
+  "vcm_noise_uV": 52.82967114993179,
+  "vcm_noise_lf_uV": 10.994488448108886,
+  "vcm_noise_total_uV": 53.961587541931486
+ },
+ "specs": {
+  "REF-08": {
+   "metric": "noise_uV",
+   "value": 72.9171273004218,
+   "limit": "<= 120",
+   "pass": true
+  }
+ },
+ "figures": [
+  {
+   "file": "tt_nom_27.psd.png",
+   "caption": "Noise spectral density of VREFP and VCM with the 10 kHz start of the integration band, and the integrated rms noise against the limit."
+  }
+ ],
+ "meta": {
+  "date": "2026-10-30T01:02:41",
+  "git": "cae34bd",
+  "git_clean": true,
+  "mode": "aps",
+  "pdk": true,
+  "mc": null,
+  "wall_s": 170.6,
+  "rc": "0",
+  "sim_s": "20",
+  "numerics": {},
+  "files": {
+   "tb/ref/tb_ref_noise.scs": "edce75b69c56ee11",
+   "design/xtor/adc_ref/many-question/adc_ref.scs": "2b1163f0eb481376"
+  },
+  "arch": {
+   "keys": [],
+   "sha": "44136fa355b3678a"
+  },
+  "views": {
+   "adc_ref": "xtor:many-question"
+  }
+ }
+}
