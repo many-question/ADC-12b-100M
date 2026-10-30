@@ -175,6 +175,12 @@
    "keys": [],
    "sha": "44136fa355b3678a"
   },
-  "views": {}
+  "views": {},
+  "redrawn": {
+   "date": "2026-10-30T12:11:17",
+   "git": "2225273",
+   "git_clean": true,
+   "run": "20261030-120714-dcf9-tb_comp_delay"
+  }
  }
 }
