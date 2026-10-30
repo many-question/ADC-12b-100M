@@ -978,6 +978,13 @@ h7 from 11.6057 to 13.1207 uV. Full-record fit residual RMS is
 8.5488 -> 8.5223 uV with h7 and 0.7360 -> 0.7342 uV with h21. These
 residuals depend on the included harmonics and are not noise measurements.
 
+Removing only DC and the fixed-frequency fundamental on the same frozen
+48-point grid leaves 37.3746 -> 31.7322 uV RMS residual, a 1.4215 dB
+reduction; maximum absolute residual is 93.3532 -> 86.9570 uV. This includes
+higher harmonics and other unfitted content. It confirms that their growth
+does not erase the aggregate improvement in this record, but does not
+convert the noncoherent time-domain fit into an official SNDR or THD test.
+
 ![Matched dummy harmonic, stage, gain, and gate-charge comparison](dummy-stage-comparison.png)
 
 With the same h21 phase reference, the TOP-opening increment from -20 to
@@ -1033,11 +1040,184 @@ integrals have no finer-step convergence bound.
 
 The h21 h3 diagnostic margin to -85 dBc is only about 1.42 dB, and higher
 harmonics and gain have changed. No official SFDR/SNDR pass follows from
-this result. Before considering longer spectral verification, the same
-frozen dummy version needs its own original weights/Cs/calibration and
-complete 70 ns fixed-input settling, reference-charge, total clock-port
-load, hold, and full-device project-stress checks. Only if those required
-checks pass should its own 125 ns sine-input all-device stress check
-follow. No older variant's pass is inherited, and no size sweep, formal
-source replacement, 128/256-point run, PVT expansion, or numerical
-cross-check has been launched for this dummy version.
+this result. The following limited checks use the same frozen dummy source;
+no older variant's pass is inherited. No size sweep, formal source
+replacement, 128/256-point run, PVT expansion, or numerical cross-check
+has been launched for this dummy version.
+
+## N4 dummy: original weights and complete 70 ns fixed-input checks
+
+The original weights/calibration stimulus completed in 34.9 seconds.
+All five required metrics pass for the frozen dummy version.
+
+| Required weight metric | Measured | Limit |
+|---|---:|---:|
+| Sampling capacitance C_S | 2.065012 pF | 1.98-2.12 pF |
+| Full scale | 0.993034 V | >= 0.97 V |
+| Calibration margin | 0.369061 LSB | >= 0 LSB |
+| Calibrated ENOB loss | 0.000364 bit | <= 0.02 bit |
+| TOP gain | 0.893800 | >= 0.78 |
+
+Additional recorded quantities are maximum normalized weight error
+9.61418%, H/L asymmetry 0.515161%, and nominal-weight ENOB loss
+0.241835 bit. The five required passes above use the original calibration
+definitions; they do not mean the nominal weights are exact.
+
+The measured C_S divided by TOP gain is 2.310373 pF under the original
+charge-transfer definition. It is not a direct small-signal measurement
+of total held-node capacitance or an isolated dummy capacitance increment.
+
+The unchanged original 70 ns control sequence, at fixed VIN = 0.65 V,
+completed in 1,023.6 seconds with zero errors and 18 reported warnings.
+All ten required metrics pass. Added terminal-current saves support the
+branch audit below without changing the excitation or numerical settings.
+
+| Required fixed-input metric | Measured | Maximum |
+|---|---:|---:|
+| RL5 settling | 47.3 ps | 75 ps |
+| RL12 settling | 35.3 ps | 40 ps |
+| Time constant | 9.16361 ps | 15 ps |
+| Start-of-conversion settling | 83.4 ps | 100 ps |
+| Hold droop | 0.00443904 LSB | 0.1 LSB |
+| Reference charge | 1.124578 pC | 1.2 pC |
+| DH5 control capacitance | 0.830865 fF | 6 fF |
+| PHI_S total port capacitance | 6.433830 fF | 40 fF |
+| PHI_SB total port capacitance | 12.242328 fF | 40 fF |
+| CONV total port capacitance | 9.849301 fF | 80 fF |
+
+Reference-charge headroom is 0.075422 pC, about 6.29% of the limit.
+RL12 headroom is 4.7 ps. The capacitance values use the original port
+charge meters and rising-edge integration windows. PHI_S spans
+6.16802-7.26798 fF across six edges; PHI_SB spans
+12.2423265-12.2423282 fF across seven edges. These total-port values
+include the existing circuitry as well as the new dummy.
+
+Over the same original 10 ns charge interval, internal DVDD prelogic
+draws 1.119779 pC signed charge. Reference plus that logic charge is
+2.244357 pC. This excludes direct TOP-switch bulk current and ideal
+external clock/bootstrap sources, and combines supplies at different
+voltages; it is not total energy or a power-ranking result.
+
+On those same PHI_SB windows, the dummy gate contributes approximately
+2.37629 fF and the remaining current-version branches contribute
+9.86604 fF. Subtraction describes this version's branch composition;
+the remainder is not a separately simulated no-dummy baseline. The
+earlier two-half, narrow-window gate-charge result has a different
+stimulus and integration scope and cannot replace this port measurement.
+
+For the held-node load audit, the dummy gate stays at 0.9 V and bulk at
+0 V while the original RL12/RL5/RL0 steps move TOP. Integrating D+S
+current from 50 ps before each step through 1.5 ns after it gives the
+following charge/voltage ratios. The two corrected columns subtract
+the respective steady current measured before or after the step.
+
+| Existing held-TOP step | TOP change | Raw D+S charge | Raw ratio | Before-current correction | After-current correction |
+|---|---:|---:|---:|---:|---:|
+| RL12 | 191.6225 mV | 1.030167 fC | 5.37602 fF | 5.37636 fF | 5.37607 fF |
+| RL5 | 3.51845 mV | 0.0196888 fC | 5.59588 fF | 5.61404 fF | 5.61318 fF |
+| RL0 | 0.175998 mV | 0.00092923 fC | 5.27976 fF | 5.64265 fF | 5.63469 fF |
+
+The smallest step is visibly more sensitive to leakage subtraction.
+These values characterize the dummy branch along the stated trajectories;
+they are not a constant AC capacitance, the complete held-node capacitance,
+or a circuit-power measurement. Gate and bulk charge are retained with
+D+S charge. Their integrated sum has magnitude below 1.2e-13 fC for
+each step, providing a terminal-current consistency check rather than
+a physical accuracy bound. In the original hold window, from CONV
++0.5 ns to +4.5 ns, the full saved-point range equals the endpoint
+droop of 0.00443904 LSB. No longer hold interval is inferred.
+
+Complete terminal-voltage coverage includes all 540 MOS in this
+single-half test, or 1,620 project gs/gd/ds pairs. All 231,022 accepted
+points over 0-70 ns are checked with a 0.5 ps maximum step. No pair
+exceeds 1.0 V. The unrounded maximum is 0.977333326 V on bit-2 L-output
+NMOS Vds at 60.071987637 ns. The new dummy reaches 0.634463612 V on
+gs/gd and has zero ds voltage. These are project terminal-pair checks;
+model warnings and gate-to-bulk reliability remain separate questions.
+The numerical integrity audit also confirms strictly increasing times,
+equal trace lengths, and finite values throughout all 391 saved scalar
+traces, including time. This does not establish numerical convergence.
+
+For both runs, the physical source, supporting inputs, and original
+45-file TB dependency snapshot were frozen and checked before and after
+execution. All 69 weights raw files and 68 fixed-input raw files were
+hash-verified. Their complete recovered archives and analysis are retained.
+The exact owned run directories were removed only after full archive
+recovery verification; shared TB dependencies remain available.
+
+## N4 dummy: complete 125 ns sine-input project-stress check
+
+The same frozen version also passes its own original 125 ns sine-input
+stress sequence. The run completed in 1,116.6 seconds with zero errors,
+26 reported warnings, and five notices. It retains the original
+48.828125 MHz, -1 dBFS input, 50 ohm source, ideal bootstrap, 20 fF TOP
+load, four skipped cycles, and eight retained sampling events. No
+spectral result is calculated from those eight events.
+
+All 1,080 MOS in both halves have complete terminal coverage: 587 unique
+terminal nodes, 3,240 gs/gd/ds pairs, and every one of 343,433 accepted
+times from zero through 125 ns. Maximum step is 0.5 ps, with traponly,
+reltol 1e-7, and voltage tolerance 1e-8. Independent exact peak extraction
+and the project checker agree that no pair exceeds 1.0 V.
+
+| Pair | Largest absolute value | Device | Time |
+|---|---:|---|---:|
+| gs | 0.950431516 V | N-side pulse-restoring PMOS | 30.086317680 ns |
+| gd | 0.990224783 V | N-side bit-0 PMOS assistance | 5.156438273 ns |
+| ds | 0.990166247 V | N-side bit-0 H-output PMOS | 5.156372947 ns |
+
+At the global Vgd maximum, D = -0.090142250 V, G = 0.900082534 V,
+S = 0.007490631 V, and B = 0.9 V. Headroom to the project limit is
+only 9.775217 mV. The new P/N dummy gs/gd maxima are
+0.841475333/0.837213316 V; both ds values are zero. The lower maxima
+than in the longer 48-point stage record come from a record with a
+different duration and finer maximum step. The physical source is the
+same, but these two records are not a numerical-convergence pair.
+
+All 595 saved scalar traces, including time, have equal lengths and
+finite values; time is strictly increasing. All 52 raw files and the
+27-file supporting TB snapshot were hash-verified, with frozen source
+and external model hashes checked before and after execution. Complete
+raw data, frozen inputs, per-pair peak times/terminal voltages, analysis,
+and the recovered archive are retained. Repeated model warnings remain
+in the evidence, including gate-to-bulk and 0.99 V checks. The project
+gs/gd/ds pass does not establish model reliability or actual-bootstrap
+acceptance, and this finite stimulus does not cover all input phases,
+supply startup, longer holds, or PVT.
+
+## Next TT verification stage
+
+The limited same-source batch now passes its five weights/calibration
+metrics, ten fixed-input metrics, and full applicable project stress
+checks in both stimuli. The next stage will promote this exact frozen
+dummy design to a committed WIP source after reading current project rules
+and checking RNL equivalence and drawings. The previous failed source and
+all formal failure evidence will remain available through a historical
+reference. Its old result fingerprints become stale when the source changes;
+they must not be rewritten to claim validation of the new circuit.
+
+| Longer-record choice | Purpose | Estimated main simulation time |
+|---|---|---:|
+| Additional 128-point diagnostic, not selected | Audit harmonic-fit stability without official spectral acceptance | About 62 minutes |
+| Official coherent 256-point tracking, selected next | Measure official-definition SFDR/SNDR and the complete spectrum of this dummy version | About 122 minutes |
+
+The new committed source must first pass the current official TT weights
+and settling tests. Only then will the current project tracking flow run
+its complete 256-point coherent record and official analysis. At the
+current frequency, Fs = 100 MHz and Fin = 125/256 Fs, that record covers
+125 input cycles. The original warmup, amplitude, sampling, and numerical
+configuration must be recorded without selective truncation. A failed
+main result requires an audit before spending a separate cross-check run.
+If the main result passes, the required numerical cross-check and waveform,
+sampling, harmonic, and precision audit remain necessary. The current
+0.5 ps, gear2only cross-check has no measured runtime estimate for this
+version. No additional 128-point diagnostic is planned.
+
+These rough durations scale the measured preceding 128-point runtime
+by the matched dummy/baseline 48-point runtime ratio; the 256 estimate
+then scales by total simulated duration. They exclude setup, retrieval,
+analysis, and any cross-check. The 1.42 dB h3 diagnostic margin and
+growth of h5/h7 require longer phase coverage before claiming TT linearity.
+The limited batch reported above has not prepared or launched those
+official jobs. PVT, actual-bootstrap integration, and full-system runs
+remain outside the next TT-only stage.

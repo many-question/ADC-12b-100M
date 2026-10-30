@@ -152,14 +152,27 @@ bases, using each circuit's own fundamental. Baseline-normalized phasors,
 both halves, and interpolation sensitivity are retained separately. The
 fundamental decreases 0.2111%, while h5 and h7 increase. The TOP-opening
 increment falls only slightly, so final improvement is not attributed
-solely to charge cancellation. Added gate-branch charge is observed, but
-total clock-port load and held capacitance remain unmeasured for this
-version. Only 82 of 1,080 MOS have complete saved-terminal coverage in
-this diagnostic; the two new devices peak below 0.844 V in project gs/gd/ds
-checks. This is not full-device SOA or an official SFDR/SNDR pass. Its own
-weights, complete fixed-input checks, and sine stress must be verified
-before any longer spectral run; no prior pass is inherited. The formal
-candidate source remains unchanged.
+solely to charge cancellation. Removing only DC and the fundamental leaves
+37.3746 -> 31.7322 uV RMS residual on the same 48-point grid; this is not
+an official SNDR measurement. That stage diagnostic saves complete terminals
+for only 82 of 1,080 MOS. Subsequent checks on this exact dummy version pass
+all five original weight/calibration limits and all ten original 70 ns
+fixed-input limits: C_S = 2.06501 pF, gain = 0.893800, RL12 = 35.3 ps,
+Qref = 1.12458 pC, total PHI_SB capacitance = 12.2423 fF, and droop =
+0.004439 LSB. The full 70 ns record covers all 540 MOS in one half and
+1,620 gs/gd/ds pairs, with zero project violations and a 0.977333 V maximum.
+The new dummy's held-node charge/voltage ratio is approximately 5.38-5.64 fF
+over the tested steps; this is a trajectory-dependent branch load, not a
+constant or complete held-node capacitance. Its separate 125 ns sine-input
+check covers all 1,080 MOS and 3,240 gs/gd/ds pairs across both halves,
+with zero project violations and a 0.990225 V maximum. The voltage margin
+is only 9.775 mV. These limited checks do not establish official SFDR/SNDR
+or complete acceptance. No prior pass is inherited, and the formal
+candidate source remains unchanged in this evidence commit. The next
+verification stage will promote the exact checked source as WIP, retain
+the old failed circuit and results in history, and run the current official
+TT tests including coherent 256-point tracking. Its main tracking run is
+estimated at about 122 minutes before any separate convergence check.
 Convergence comparisons, representative PVT,
 complete corner coverage, long-hold behavior, device stress, and joint bootstrap
 validation remain outstanding. No selection or signoff is claimed.
