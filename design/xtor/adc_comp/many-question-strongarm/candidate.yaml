@@ -1,5 +1,5 @@
 name: many-question-strongarm
-description: Single-stage StrongARM comparator with phased input/output precharge, drain MOM capacitors and inverting RTZ outputs.
+description: StrongARM comparator with direct precharge, clocked Q shunts, physical clock rail loads and RTZ output inverters.
 status: wip
 acknowledged: [40, 63, 69, 75, 77, 78, 84]
 authors:
