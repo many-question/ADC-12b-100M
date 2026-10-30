@@ -425,10 +425,12 @@ def test_reported_only_specs_have_a_value_and_no_verdict_in_the_site_data():
     assert (cmp10.status, cmp10.limit, cmp10.worst) == ("reported", "仅报告", 100.0)
     assert next(r for r in rows if r.id == "CMP-04").status == "fail"
     main = BlockData(b, [doc], {"behav": rows}, [], [])             # the counts look at main's views
-    assert len(judged_rows(main)) == len(b.specs) - 1               # the reported one is not counted
+    n_rep = sum(s.reported for s in b.specs)                        # CMP-10, CMP-16
+    assert len(judged_rows(main)) == len(b.specs) - n_rep           # the reported ones are not counted
     c = verdict_counts({BLOCK: main})
-    # CMP-04 / CMP-05 (500 ps) and CMP-09 (not measured) fail, CMP-06 / 07 / 08 pass, CMP-10 counts nowhere
-    assert (c["total"], c["fail"], c["pass_"], c["none"]) == (len(b.specs) - 1, 3, 3, len(b.specs) - 7)
+    # CMP-04 / CMP-05 (500 ps), CMP-09 and CMP-15 (not measured) fail, CMP-06 / 07 / 08 pass, CMP-10 counts nowhere
+    total = len(b.specs) - n_rep
+    assert (c["total"], c["fail"], c["pass_"], c["none"]) == (total, 4, 3, total - 7)
 
 
 def test_reported_only_specs_render_without_a_verdict():

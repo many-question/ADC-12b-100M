@@ -1,0 +1,378 @@
+// adc_bootstrap: protected control with a local clock buffer and reset-gate limiter.
+// @RNL(type="header") {
+//   @VERSION("0.3");
+//   @USE-PACKAGE(name="adc28", version="0.1", path="../../../rnl/adc28.rnl")
+// }
+simulator lang=spectre
+
+subckt adc_bootstrap (VIN PHI_B PHI_BB VG AVDD VSS)
+// Precharge the MOM capacitor bank, then reference it to VIN while tracking.
+MPRE (CBP VG AVDD CBP) pch_ulvt_mac w=8u l=100n nf=4
+CB (CBP CBN) cfmom_2t w=50n s=50n nr=200 lr=40u stm=1 spm=6
+MRST (CBN PHI_R VSS VSS) nch_ulvt_mac w=24u l=100n nf=12
+MTRK (CBN VG VIN VSS) nch_ulvt_mac w=48u l=30n nf=24
+MXFER (VG GCTL CBP CBP) pch_ulvt_mac w=4u l=30n nf=2
+// Protect the boosted pull-up control and its startup path.
+MCP (PCP PHI_B AVDD AVDD) pch_ulvt_mac w=1.5u l=30n nf=1
+MCSTART (GCTL PHI_N CBN VSS) nch_ulvt_mac w=500n l=30n nf=1
+MCF (GCTL VG CBN VSS) nch_ulvt_mac w=8u l=30n nf=4
+MDHI (VG AVDD DU VSS) nch_ulvt_mac w=24u l=30n nf=12
+MDUP (VG VG DU VSS) nch_ulvt_mac w=24u l=30n nf=12
+MDMID (DU AVDD DN VSS) nch_mac w=48u l=30n nf=24
+MDLO (DN PHI_BBF VSS VSS) nch_mac w=32u l=30n nf=16
+
+// Local buffer output drives discharge and the separate MRST gate limiter.
+MNFB (PHI_BBF PHI_BBI VSS VSS) nch_ulvt_mac w=2u l=30n nf=1
+MPFB (PHI_BBF PHI_BBI AVDD AVDD) pch_ulvt_mac w=8u l=30n nf=4
+MPCAS (GCTL VSS PCP AVDD) pch_ulvt_mac w=2u l=30n nf=1
+MNCL (PHI_B AVDD PHI_N VSS) nch_lvt_mac w=8u l=30n nf=4
+CB2 (CBP CBN) cfmom_2t w=50n s=50n nr=200 lr=40u stm=1 spm=6
+// The small first stage isolates PHI_BB from internal reset/discharge load.
+MBN (PHI_BBI PHI_BB VSS VSS) nch_ulvt_mac w=4u l=30n nf=2
+MBP (PHI_BBI PHI_BB AVDD AVDD) pch_ulvt_mac w=4u l=30n nf=2
+CBG (PHI_BBI VSS) cfmom_2t w=50n s=50n nr=12 lr=5u stm=1 spm=6
+MNRC (PHI_BBF AVDD PHI_R VSS) nch_ulvt_mac w=8u l=30n nf=4
+// Keep the startup gate loaded so its limiter can settle below the rail.
+MBLEED (PHI_N AVDD VSS VSS) nch_mac w=120n l=1u nf=1
+// Share the fast discharge-stack transient while limiting the lower-node excursion.
+CMD (DU DN) cfmom_2t w=50n s=50n nr=12 lr=5u stm=1 spm=6
+CDN (DN VSS) cfmom_2t w=50n s=50n nr=20 lr=5u stm=1 spm=6
+// The limited startup control connects CBN to VIN before the boosted switch fully turns on.
+MAUX (CBN PHI_N VIN VSS) nch_ulvt_mac w=800n l=30n nf=1
+// Couple the same-polarity external clock edge to counter buffer-output feedthrough.
+CFF (PHI_BBF PHI_BB) cfmom_2t w=50n s=50n nr=6 lr=1u stm=1 spm=6
+// Couple the complementary clock edge to the internal pull-up control.
+CCONT (PCP PHI_BB) cfmom_2t w=50n s=50n nr=6 lr=1u stm=1 spm=3
+// Counter first-stage Miller feedthrough with the complementary input edge.
+CBI (PHI_BBI PHI_B) cfmom_2t w=50n s=50n nr=6 lr=1u stm=1 spm=3
+// @RNL {
+//   &AVDD @ADD-TO $SUPPLY_NET_SET; &VSS @ADD-TO $GROUND_NET_SET;
+//   {#MBP #MBN #CBI #CBG #MPFB #MNFB #CFF} @GROUP;
+//   {#MNCL #MBLEED #MNRC} @GROUP;
+//   {#MCP #MPCAS #MCSTART #MCF #CCONT} @GROUP;
+//   {#MCP #MPCAS #MCSTART} @AS $BRANCH;
+//   {#MPRE #CB #CB2 #MRST #MTRK #MAUX #MXFER} @GROUP;
+//   {#MDHI #MDUP #MDMID #MDLO #CMD #CDN} @GROUP;
+//   {#MDHI #MDMID #MDLO} @AS $BRANCH;
+//   {#CB #CB2} @AS $MATCHED;
+//   #MBP @SET-SYMBOL $PMOS;
+//   #MBP @PLACE(9, 45) => @ORIENT("R0");
+//   #MBP @TEXT("${name}", key="name", size=1, textcolor="#202020", halign="start") => @PLACE(11.5, 46.4);
+//   #MBP @TEXT("${model}", key="model", size=0.65, textcolor="#404040", halign="start") => @PLACE(11.5, 44.7);
+//   #MBP @TEXT("W=${w} L=${l} nf=${nf}", key="dims", size=0.65, textcolor="#404040", halign="start") => @PLACE(11.5, 43.3);
+//   #MBN @SET-SYMBOL $NMOS;
+//   #MBN @PLACE(9, 25) => @ORIENT("R0");
+//   #MBN @TEXT("${name}", key="name", size=1, textcolor="#202020", halign="start") => @PLACE(11.5, 26.4);
+//   #MBN @TEXT("${model}", key="model", size=0.65, textcolor="#404040", halign="start") => @PLACE(11.5, 24.7);
+//   #MBN @TEXT("W=${w} L=${l} nf=${nf}", key="dims", size=0.65, textcolor="#404040", halign="start") => @PLACE(11.5, 23.3);
+//   #CBI @PLACE(21, 45) => @ORIENT("MX");
+//   #CBI @TEXT("${name}", key="name", size=1, textcolor="#202020", halign="start") => @PLACE(23.5, 46.4);
+//   #CBI @TEXT("nr=${nr} lr=${lr}", key="value", size=0.65, textcolor="#404040", halign="start") => @PLACE(23.5, 44.7);
+//   #CBI @TEXT("spm=${spm}", key="layers", size=0.65, textcolor="#404040", halign="start") => @PLACE(23.5, 43.3);
+//   #CBG @PLACE(21, 25) => @ORIENT("R0");
+//   #CBG @TEXT("${name}", key="name", size=1, textcolor="#202020", halign="start") => @PLACE(23.5, 26.4);
+//   #CBG @TEXT("nr=${nr} lr=${lr}", key="value", size=0.65, textcolor="#404040", halign="start") => @PLACE(23.5, 24.7);
+//   #CBG @TEXT("spm=${spm}", key="layers", size=0.65, textcolor="#404040", halign="start") => @PLACE(23.5, 23.3);
+//   #MPFB @SET-SYMBOL $PMOS;
+//   #MPFB @PLACE(36, 45) => @ORIENT("R0");
+//   #MPFB @TEXT("${name}", key="name", size=1, textcolor="#202020", halign="start") => @PLACE(38.5, 46.4);
+//   #MPFB @TEXT("${model}", key="model", size=0.65, textcolor="#404040", halign="start") => @PLACE(38.5, 44.7);
+//   #MPFB @TEXT("W=${w} L=${l} nf=${nf}", key="dims", size=0.65, textcolor="#404040", halign="start") => @PLACE(38.5, 43.3);
+//   #MNFB @SET-SYMBOL $NMOS;
+//   #MNFB @PLACE(36, 25) => @ORIENT("R0");
+//   #MNFB @TEXT("${name}", key="name", size=1, textcolor="#202020", halign="start") => @PLACE(38.5, 26.4);
+//   #MNFB @TEXT("${model}", key="model", size=0.65, textcolor="#404040", halign="start") => @PLACE(38.5, 24.7);
+//   #MNFB @TEXT("W=${w} L=${l} nf=${nf}", key="dims", size=0.65, textcolor="#404040", halign="start") => @PLACE(38.5, 23.3);
+//   #CFF @PLACE(49.5, 25) => @ORIENT("R0");
+//   #CFF @TEXT("${name}", key="name", size=1, textcolor="#202020", halign="start") => @PLACE(52, 26.4);
+//   #CFF @TEXT("nr=${nr} lr=${lr}", key="value", size=0.65, textcolor="#404040", halign="start") => @PLACE(52, 24.7);
+//   #CFF @TEXT("spm=${spm}", key="layers", size=0.65, textcolor="#404040", halign="start") => @PLACE(52, 23.3);
+//   %bb = (1.5, 35);
+//   %bi = (9, 35);
+//   %bic = (21, 35);
+//   %big = (28.5, 35);
+//   %bf = (36, 35);
+//   %phi_bb = $IO_PORT @ATTACH &PHI_BB => @PLACE(-3.75, 35) => @ORIENT("R0");
+//   &PHI_BB @WIRE(mode="straight") {%phi_bb:p %bb};
+//   &PHI_BB @WIRE(mode="straight") {%bb (1.5, 45) #MBP:g};
+//   &PHI_BB @WIRE(mode="straight") {%bb (1.5, 25) #MBN:g};
+//   &PHI_BBI @WIRE(mode="straight") {#MBP:d %bi #MBN:d};
+//   &PHI_BBI @WIRE(mode="straight") {%bi %bic %big};
+//   &PHI_BBI @WIRE(mode="straight") {%bic #CBI:p};
+//   &PHI_BBI @WIRE(mode="straight") {%bic #CBG:p};
+//   &PHI_BBI @WIRE(mode="straight") {%big (28.5, 45) #MPFB:g};
+//   &PHI_BBI @WIRE(mode="straight") {%big (28.5, 25) #MNFB:g};
+//   &PHI_BBF @WIRE(mode="straight") {#MPFB:d %bf #MNFB:d};
+//   %bff = (49.5, 35);
+//   %bbf_out = $IO_PORT @ATTACH &PHI_BBF => @PLACE(54.75, 35) => @ORIENT("MY");
+//   &PHI_BBF @WIRE(mode="straight") {%bf %bff %bbf_out:p};
+//   &PHI_BBF @WIRE(mode="straight") {%bff #CFF:p};
+//   %bb_ff = $IO_PORT @ATTACH &PHI_BB => @PLACE(42.75, 17) => @ORIENT("R0");
+//   &PHI_BB @WIRE(mode="straight") {#CFF:n (49.5, 17) %bb_ff:p};
+//   %phi_b_comp = $IO_PORT @ATTACH &PHI_B => @PLACE(15, 55) => @ORIENT("R0");
+//   &PHI_B @WIRE(mode="straight") {#CBI:n (21, 55) %phi_b_comp:p};
+//   %av_bp = $SUPPLY @ATTACH &AVDD => @PLACE(9, 55) => @ORIENT("R0");
+//   &AVDD @WIRE(mode="straight") {#MBP:s %av_bp:p};
+//   %av_fb = $SUPPLY @ATTACH &AVDD => @PLACE(36, 55) => @ORIENT("R0");
+//   &AVDD @WIRE(mode="straight") {#MPFB:s %av_fb:p};
+//   %g_bn = $GROUND @ATTACH &VSS => @PLACE(9, 17) => @ORIENT("R0");
+//   &VSS @WIRE(mode="straight") {#MBN:s %g_bn:p};
+//   %g_cbg = $GROUND @ATTACH &VSS => @PLACE(21, 17) => @ORIENT("R0");
+//   &VSS @WIRE(mode="straight") {#CBG:n %g_cbg:p};
+//   %g_fb = $GROUND @ATTACH &VSS => @PLACE(36, 17) => @ORIENT("R0");
+//   &VSS @WIRE(mode="straight") {#MNFB:s %g_fb:p};
+//   (10.5, 36.5) @TEXT("PHI_BBI", halign="start", size=0.65, textcolor="#4a5568", bold=false);
+//   (0, 63) @TEXT("Clock drive", halign="start", size=0.95, textcolor="#1a365d", bold=true);
+//   #MNCL @SET-SYMBOL $NMOS;
+//   #MNCL @PLACE(15, -3) => @ORIENT("R0");
+//   #MNCL @TEXT("${name}", key="name", size=1, textcolor="#202020", halign="start") => @PLACE(17.5, -1.6);
+//   #MNCL @TEXT("${model}", key="model", size=0.65, textcolor="#404040", halign="start") => @PLACE(17.5, -3.3);
+//   #MNCL @TEXT("W=${w} L=${l} nf=${nf}", key="dims", size=0.65, textcolor="#404040", halign="start") => @PLACE(17.5, -4.7);
+//   #MBLEED @SET-SYMBOL $NMOS;
+//   #MBLEED @PLACE(15, -19) => @ORIENT("R0");
+//   #MBLEED @TEXT("${name}", key="name", size=1, textcolor="#202020", halign="start") => @PLACE(17.5, -17.6);
+//   #MBLEED @TEXT("${model}", key="model", size=0.65, textcolor="#404040", halign="start") => @PLACE(17.5, -19.3);
+//   #MBLEED @TEXT("W=${w} L=${l} nf=${nf}", key="dims", size=0.65, textcolor="#404040", halign="start") => @PLACE(17.5, -20.7);
+//   #MNRC @SET-SYMBOL $NMOS;
+//   #MNRC @PLACE(40.5, -3) => @ORIENT("R0");
+//   #MNRC @TEXT("${name}", key="name", size=1, textcolor="#202020", halign="start") => @PLACE(43, -1.6);
+//   #MNRC @TEXT("${model}", key="model", size=0.65, textcolor="#404040", halign="start") => @PLACE(43, -3.3);
+//   #MNRC @TEXT("W=${w} L=${l} nf=${nf}", key="dims", size=0.65, textcolor="#404040", halign="start") => @PLACE(43, -4.7);
+//   %phin = (15, -11);
+//   %phi_b_lim = $IO_PORT @ATTACH &PHI_B => @PLACE(9, 6) => @ORIENT("R0");
+//   &PHI_B @WIRE(mode="straight") {#MNCL:d (15, 6) %phi_b_lim:p};
+//   &PHI_N @WIRE(mode="straight") {#MNCL:s %phin #MBLEED:d};
+//   %phin_out = $IO_PORT @ATTACH &PHI_N => @PLACE(27, -11) => @ORIENT("MY");
+//   &PHI_N @WIRE(mode="straight") {%phin %phin_out:p};
+//   %avlim = (5.25, -3);
+//   %av_lim = $SUPPLY @ATTACH &AVDD => @PLACE(5.25, 1) => @ORIENT("R0");
+//   &AVDD @WIRE(mode="straight") {%av_lim:p %avlim (5.25, -19) #MBLEED:g};
+//   &AVDD @WIRE(mode="straight") {%avlim #MNCL:g};
+//   %g_bleed = $GROUND @ATTACH &VSS => @PLACE(15, -25) => @ORIENT("R0");
+//   &VSS @WIRE(mode="straight") {#MBLEED:s %g_bleed:p};
+//   %bbf_lim = $IO_PORT @ATTACH &PHI_BBF => @PLACE(34.5, 6) => @ORIENT("R0");
+//   &PHI_BBF @WIRE(mode="straight") {#MNRC:d (40.5, 6) %bbf_lim:p};
+//   %phir_out = $IO_PORT @ATTACH &PHI_R => @PLACE(51.75, -11) => @ORIENT("MY");
+//   &PHI_R @WIRE(mode="straight") {#MNRC:s (40.5, -11) %phir_out:p};
+//   %av_rc = $SUPPLY @ATTACH &AVDD => @PLACE(31.5, 1) => @ORIENT("R0");
+//   &AVDD @WIRE(mode="straight") {%av_rc:p (31.5, -3) #MNRC:g};
+//   (0, 9) @TEXT("Startup / reset limiters", halign="start", size=0.95, textcolor="#1a365d", bold=true);
+//   #MCP @SET-SYMBOL $PMOS;
+//   #MCP @PLACE(68.25, 45) => @ORIENT("R0");
+//   #MCP @TEXT("${name}", key="name", size=1, textcolor="#202020", halign="start") => @PLACE(70.75, 46.4);
+//   #MCP @TEXT("${model}", key="model", size=0.65, textcolor="#404040", halign="start") => @PLACE(70.75, 44.7);
+//   #MCP @TEXT("W=${w} L=${l} nf=${nf}", key="dims", size=0.65, textcolor="#404040", halign="start") => @PLACE(70.75, 43.3);
+//   #MPCAS @SET-SYMBOL $PMOS;
+//   #MPCAS @PLACE(68.25, 29) => @ORIENT("R0");
+//   #MPCAS @TEXT("${name}", key="name", size=1, textcolor="#202020", halign="start") => @PLACE(70.75, 30.4);
+//   #MPCAS @TEXT("${model}", key="model", size=0.65, textcolor="#404040", halign="start") => @PLACE(70.75, 28.7);
+//   #MPCAS @TEXT("W=${w} L=${l} nf=${nf}", key="dims", size=0.65, textcolor="#404040", halign="start") => @PLACE(70.75, 27.3);
+//   #MCSTART @SET-SYMBOL $NMOS;
+//   #MCSTART @PLACE(68.25, 9) => @ORIENT("R0");
+//   #MCSTART @TEXT("${name}", key="name", size=1, textcolor="#202020", halign="start") => @PLACE(70.75, 10.4);
+//   #MCSTART @TEXT("${model}", key="model", size=0.65, textcolor="#404040", halign="start") => @PLACE(70.75, 8.7);
+//   #MCSTART @TEXT("W=${w} L=${l} nf=${nf}", key="dims", size=0.65, textcolor="#404040", halign="start") => @PLACE(70.75, 7.3);
+//   #MCF @SET-SYMBOL $NMOS;
+//   #MCF @PLACE(84.75, 9) => @ORIENT("R0");
+//   #MCF @TEXT("${name}", key="name", size=1, textcolor="#202020", halign="start") => @PLACE(87.25, 10.4);
+//   #MCF @TEXT("${model}", key="model", size=0.65, textcolor="#404040", halign="start") => @PLACE(87.25, 8.7);
+//   #MCF @TEXT("W=${w} L=${l} nf=${nf}", key="dims", size=0.65, textcolor="#404040", halign="start") => @PLACE(87.25, 7.3);
+//   #CCONT @PLACE(84.75, 37) => @ORIENT("R0");
+//   #CCONT @TEXT("${name}", key="name", size=1, textcolor="#202020", halign="start") => @PLACE(87.25, 38.4);
+//   #CCONT @TEXT("nr=${nr} lr=${lr}", key="value", size=0.65, textcolor="#404040", halign="start") => @PLACE(87.25, 36.7);
+//   #CCONT @TEXT("spm=${spm}", key="layers", size=0.65, textcolor="#404040", halign="start") => @PLACE(87.25, 35.3);
+//   %pcp = (68.25, 37);
+//   %ctl = (68.25, 19);
+//   %ctlf = (84.75, 19);
+//   %cn_ctrl = (68.25, -1);
+//   %av_cp = $SUPPLY @ATTACH &AVDD => @PLACE(68.25, 55) => @ORIENT("R0");
+//   &AVDD @WIRE(mode="straight") {#MCP:s %av_cp:p};
+//   %phi_b_cp = $IO_PORT @ATTACH &PHI_B => @PLACE(61.5, 45) => @ORIENT("R0");
+//   &PHI_B @WIRE(mode="straight") {%phi_b_cp:p #MCP:g};
+//   &PCP @WIRE(mode="straight") {#MCP:d %pcp #MPCAS:s};
+//   &PCP @WIRE(mode="straight") {%pcp (78.75, 37) (78.75, 43) (84.75, 43) #CCONT:p};
+//   %bb_cont = $IO_PORT @ATTACH &PHI_BB => @PLACE(79.5, 31) => @ORIENT("R0");
+//   &PHI_BB @WIRE(mode="straight") {#CCONT:n (84.75, 31) %bb_cont:p};
+//   &GCTL @WIRE(mode="straight") {#MPCAS:d %ctl #MCSTART:d};
+//   %ctl_out = $IO_PORT @ATTACH &GCTL => @PLACE(92.25, 19) => @ORIENT("MY");
+//   &GCTL @WIRE(mode="straight") {%ctl %ctlf %ctl_out:p};
+//   &GCTL @WIRE(mode="straight") {%ctlf #MCF:d};
+//   %g_pcas = $GROUND @ATTACH &VSS => @PLACE(62.25, 25) => @ORIENT("R0");
+//   &VSS @WIRE(mode="straight") {#MPCAS:g (62.25, 29) %g_pcas:p};
+//   %phin_start = $IO_PORT @ATTACH &PHI_N => @PLACE(61.5, 9) => @ORIENT("R0");
+//   &PHI_N @WIRE(mode="straight") {%phin_start:p #MCSTART:g};
+//   %vg_cf = $IO_PORT @ATTACH &VG => @PLACE(78, 9) => @ORIENT("R0");
+//   &VG @WIRE(mode="straight") {%vg_cf:p #MCF:g};
+//   &CBN @WIRE(mode="straight") {#MCSTART:s %cn_ctrl (84.75, -1) #MCF:s};
+//   %cn_ctrl_port = $IO_PORT @ATTACH &CBN => @PLACE(60, -1) => @ORIENT("R0");
+//   &CBN @WIRE(mode="straight") {%cn_ctrl %cn_ctrl_port:p};
+//   (69.75, 38.5) @TEXT("PCP", halign="start", size=0.65, textcolor="#4a5568", bold=false);
+//   (60, 63) @TEXT("Protected pull-up control", halign="start", size=0.95, textcolor="#1a365d", bold=true);
+//   #MPRE @SET-SYMBOL $PMOS_4TERM;
+//   #MPRE @PLACE(111, 53) => @ORIENT("R0");
+//   #MPRE @TEXT("${name}", key="name", size=1, textcolor="#202020", halign="start") => @PLACE(117, 57);
+//   #MPRE @TEXT("${model}", key="model", size=0.65, textcolor="#404040", halign="start") => @PLACE(117, 55.3);
+//   #MPRE @TEXT("W=${w} L=${l} nf=${nf}", key="dims", size=0.65, textcolor="#404040", halign="start") => @PLACE(117, 53.9);
+//   #CB @PLACE(111, 35) => @ORIENT("R0");
+//   #CB @TEXT("${name}", key="name", size=1, textcolor="#202020", halign="start") => @PLACE(113.5, 36.4);
+//   #CB @TEXT("nr=${nr} lr=${lr}", key="value", size=0.65, textcolor="#404040", halign="start") => @PLACE(113.5, 34.7);
+//   #CB @TEXT("spm=${spm}", key="layers", size=0.65, textcolor="#404040", halign="start") => @PLACE(113.5, 33.3);
+//   #CB2 @PLACE(124.5, 35) => @ORIENT("R0");
+//   #CB2 @TEXT("${name}", key="name", size=1, textcolor="#202020", halign="start") => @PLACE(127, 36.4);
+//   #CB2 @TEXT("nr=${nr} lr=${lr}", key="value", size=0.65, textcolor="#404040", halign="start") => @PLACE(127, 34.7);
+//   #CB2 @TEXT("spm=${spm}", key="layers", size=0.65, textcolor="#404040", halign="start") => @PLACE(127, 33.3);
+//   #MRST @SET-SYMBOL $NMOS;
+//   #MRST @PLACE(111, 5) => @ORIENT("R0");
+//   #MRST @TEXT("${name}", key="name", size=1, textcolor="#202020", halign="start") => @PLACE(113.5, 6.4);
+//   #MRST @TEXT("${model}", key="model", size=0.65, textcolor="#404040", halign="start") => @PLACE(113.5, 4.7);
+//   #MRST @TEXT("W=${w} L=${l} nf=${nf}", key="dims", size=0.65, textcolor="#404040", halign="start") => @PLACE(113.5, 3.3);
+//   #MTRK @SET-SYMBOL $NMOS;
+//   #MTRK @PLACE(124.5, 5) => @ORIENT("R0");
+//   #MTRK @TEXT("${name}", key="name", size=1, textcolor="#202020", halign="start") => @PLACE(127, 6.4);
+//   #MTRK @TEXT("${model}", key="model", size=0.65, textcolor="#404040", halign="start") => @PLACE(127, 4.7);
+//   #MTRK @TEXT("W=${w} L=${l} nf=${nf}", key="dims", size=0.65, textcolor="#404040", halign="start") => @PLACE(127, 3.3);
+//   #MAUX @SET-SYMBOL $NMOS;
+//   #MAUX @PLACE(141, 5) => @ORIENT("R0");
+//   #MAUX @TEXT("${name}", key="name", size=1, textcolor="#202020", halign="start") => @PLACE(143.5, 6.4);
+//   #MAUX @TEXT("${model}", key="model", size=0.65, textcolor="#404040", halign="start") => @PLACE(143.5, 4.7);
+//   #MAUX @TEXT("W=${w} L=${l} nf=${nf}", key="dims", size=0.65, textcolor="#404040", halign="start") => @PLACE(143.5, 3.3);
+//   #MXFER @SET-SYMBOL $PMOS_4TERM;
+//   #MXFER @PLACE(141, 33) => @ORIENT("R0");
+//   #MXFER @TEXT("${name}", key="name", size=1, textcolor="#202020", halign="start") => @PLACE(132.75, 40);
+//   #MXFER @TEXT("${model}", key="model", size=0.65, textcolor="#404040", halign="start") => @PLACE(132.75, 38.3);
+//   #MXFER @TEXT("W=${w} L=${l} nf=${nf}", key="dims", size=0.65, textcolor="#404040", halign="start") => @PLACE(132.75, 36.9);
+//   %cp = (111, 45);
+//   %cpbody = (115.5, 45);
+//   %cp2 = (124.5, 45);
+//   %cpx = (141, 45);
+//   %cn0 = (111, 25);
+//   %cn1 = (124.5, 25);
+//   %av_pre = $SUPPLY @ATTACH &AVDD => @PLACE(111, 61) => @ORIENT("R0");
+//   &AVDD @WIRE(mode="straight") {#MPRE:s %av_pre:p};
+//   &CBP @WIRE(mode="straight") {#MPRE:d %cp #CB:p};
+//   &CBP @WIRE(mode="straight") {%cp %cpbody %cp2 %cpx #MXFER:s};
+//   &CBP @WIRE(mode="straight") {#CB2:p %cp2};
+//   &CBP @WIRE(mode="straight") {#MPRE:b (115.5, 53) %cpbody};
+//   &CBP @WIRE(mode="straight") {#MXFER:b (145.5, 33) (145.5, 45) %cpx};
+//   &CBN @WIRE(mode="straight") {#CB:n %cn0 #MRST:d};
+//   &CBN @WIRE(mode="straight") {%cn0 %cn1 (141, 25) #MAUX:d};
+//   &CBN @WIRE(mode="straight") {#CB2:n %cn1 #MTRK:d};
+//   %ctl_xfer = $IO_PORT @ATTACH &GCTL => @PLACE(134.25, 33) => @ORIENT("R0");
+//   &GCTL @WIRE(mode="straight") {%ctl_xfer:p #MXFER:g};
+//   %phir_rst = $IO_PORT @ATTACH &PHI_R => @PLACE(104.25, 5) => @ORIENT("R0");
+//   &PHI_R @WIRE(mode="straight") {%phir_rst:p #MRST:g};
+//   %phin_aux = $IO_PORT @ATTACH &PHI_N => @PLACE(136.5, 5) => @ORIENT("R0");
+//   &PHI_N @WIRE(mode="straight") {%phin_aux:p #MAUX:g};
+//   %vg_main = (150, 31);
+//   %vg_fb = (119.25, 13);
+//   &VG @WIRE(mode="straight") {#MXFER:d %vg_main};
+//   &VG @WIRE(mode="straight") {%vg_main (150, 13) %vg_fb (100.5, 13) (100.5, 53) #MPRE:g};
+//   &VG @WIRE(mode="straight") {%vg_fb (119.25, 5) #MTRK:g};
+//   %vin = (124.5, -5);
+//   %vin_in = $IO_PORT @ATTACH &VIN => @PLACE(117.75, -5) => @ORIENT("R0");
+//   &VIN @WIRE(mode="straight") {%vin_in:p %vin (141, -5) #MAUX:s};
+//   &VIN @WIRE(mode="straight") {%vin #MTRK:s};
+//   %g_rst = $GROUND @ATTACH &VSS => @PLACE(111, -1) => @ORIENT("R0");
+//   &VSS @WIRE(mode="straight") {#MRST:s %g_rst:p};
+//   (112.5, 46.5) @TEXT("CBP", halign="start", size=0.65, textcolor="#4a5568", bold=false);
+//   (112.5, 26.5) @TEXT("CBN", halign="start", size=0.65, textcolor="#4a5568", bold=false);
+//   %cn_main = $IO_PORT @ATTACH &CBN => @PLACE(105, 25) => @ORIENT("R0");
+//   &CBN @WIRE(mode="straight") {%cn0 %cn_main:p};
+//   (100.5, 63) @TEXT("Charge / boost", halign="start", size=0.95, textcolor="#1a365d", bold=true);
+//   (101.25, 14.5) @TEXT("VG feedback", halign="start", size=0.65, textcolor="#2c5282", bold=false);
+//   #MDHI @SET-SYMBOL $NMOS;
+//   #MDHI @PLACE(163.5, 37) => @ORIENT("R0");
+//   #MDHI @TEXT("${name}", key="name", size=1, textcolor="#202020", halign="start") => @PLACE(166, 38.4);
+//   #MDHI @TEXT("${model}", key="model", size=0.65, textcolor="#404040", halign="start") => @PLACE(166, 36.7);
+//   #MDHI @TEXT("W=${w} L=${l} nf=${nf}", key="dims", size=0.65, textcolor="#404040", halign="start") => @PLACE(166, 35.3);
+//   #MDUP @SET-SYMBOL $NMOS;
+//   #MDUP @PLACE(180, 37) => @ORIENT("R0");
+//   #MDUP @TEXT("${name}", key="name", size=1, textcolor="#202020", halign="start") => @PLACE(182.5, 38.4);
+//   #MDUP @TEXT("${model}", key="model", size=0.65, textcolor="#404040", halign="start") => @PLACE(182.5, 36.7);
+//   #MDUP @TEXT("W=${w} L=${l} nf=${nf}", key="dims", size=0.65, textcolor="#404040", halign="start") => @PLACE(182.5, 35.3);
+//   #MDMID @SET-SYMBOL $NMOS;
+//   #MDMID @PLACE(163.5, 17) => @ORIENT("R0");
+//   #MDMID @TEXT("${name}", key="name", size=1, textcolor="#202020", halign="start") => @PLACE(166, 18.4);
+//   #MDMID @TEXT("${model}", key="model", size=0.65, textcolor="#404040", halign="start") => @PLACE(166, 16.7);
+//   #MDMID @TEXT("W=${w} L=${l} nf=${nf}", key="dims", size=0.65, textcolor="#404040", halign="start") => @PLACE(166, 15.3);
+//   #MDLO @SET-SYMBOL $NMOS;
+//   #MDLO @PLACE(163.5, -3) => @ORIENT("R0");
+//   #MDLO @TEXT("${name}", key="name", size=1, textcolor="#202020", halign="start") => @PLACE(166, -1.6);
+//   #MDLO @TEXT("${model}", key="model", size=0.65, textcolor="#404040", halign="start") => @PLACE(166, -3.3);
+//   #MDLO @TEXT("W=${w} L=${l} nf=${nf}", key="dims", size=0.65, textcolor="#404040", halign="start") => @PLACE(166, -4.7);
+//   #CMD @PLACE(195, 17) => @ORIENT("R0");
+//   #CMD @TEXT("${name}", key="name", size=1, textcolor="#202020", halign="start") => @PLACE(197.5, 18.4);
+//   #CMD @TEXT("nr=${nr} lr=${lr}", key="value", size=0.65, textcolor="#404040", halign="start") => @PLACE(197.5, 16.7);
+//   #CMD @TEXT("spm=${spm}", key="layers", size=0.65, textcolor="#404040", halign="start") => @PLACE(197.5, 15.3);
+//   #CDN @PLACE(195, -3) => @ORIENT("R0");
+//   #CDN @TEXT("${name}", key="name", size=1, textcolor="#202020", halign="start") => @PLACE(197.5, -1.6);
+//   #CDN @TEXT("nr=${nr} lr=${lr}", key="value", size=0.65, textcolor="#404040", halign="start") => @PLACE(197.5, -3.3);
+//   #CDN @TEXT("spm=${spm}", key="layers", size=0.65, textcolor="#404040", halign="start") => @PLACE(197.5, -4.7);
+//   %vg_hi = (163.5, 49);
+//   %vg_up = (180, 49);
+//   %vg_diode = (180, 43);
+//   %vg_out = $IO_PORT @ATTACH &VG => @PLACE(202.5, 49) => @ORIENT("MY");
+//   &VG @WIRE(mode="straight") {%vg_main (150, 49) %vg_hi %vg_up %vg_out:p};
+//   &VG @WIRE(mode="straight") {%vg_hi #MDHI:d};
+//   &VG @WIRE(mode="straight") {%vg_up %vg_diode #MDUP:d};
+//   &VG @WIRE(mode="straight") {%vg_diode (174.75, 43) (174.75, 37) #MDUP:g};
+//   %du = (163.5, 27);
+//   %du2 = (180, 27);
+//   &DU @WIRE(mode="straight") {#MDHI:s %du #MDMID:d};
+//   &DU @WIRE(mode="straight") {%du %du2 (195, 27) #CMD:p};
+//   &DU @WIRE(mode="straight") {%du2 #MDUP:s};
+//   %dn = (163.5, 7);
+//   %dn2 = (195, 7);
+//   &DN @WIRE(mode="straight") {#MDMID:s %dn #MDLO:d};
+//   &DN @WIRE(mode="straight") {%dn %dn2};
+//   &DN @WIRE(mode="straight") {#CMD:n %dn2 #CDN:p};
+//   %av_dis = (156.75, 37);
+//   %av_dis_supply = $SUPPLY @ATTACH &AVDD => @PLACE(156.75, 43) => @ORIENT("R0");
+//   &AVDD @WIRE(mode="straight") {%av_dis_supply:p %av_dis (156.75, 17) #MDMID:g};
+//   &AVDD @WIRE(mode="straight") {%av_dis #MDHI:g};
+//   %bbf_dis = $IO_PORT @ATTACH &PHI_BBF => @PLACE(156.75, -3) => @ORIENT("R0");
+//   &PHI_BBF @WIRE(mode="straight") {%bbf_dis:p #MDLO:g};
+//   %g_dis = $GROUND @ATTACH &VSS => @PLACE(163.5, -11) => @ORIENT("R0");
+//   &VSS @WIRE(mode="straight") {#MDLO:s %g_dis:p};
+//   %g_cdn = $GROUND @ATTACH &VSS => @PLACE(195, -11) => @ORIENT("R0");
+//   &VSS @WIRE(mode="straight") {#CDN:n %g_cdn:p};
+//   (165, 28.5) @TEXT("DU", halign="start", size=0.65, textcolor="#4a5568", bold=false);
+//   (165, 8.5) @TEXT("DN", halign="start", size=0.65, textcolor="#4a5568", bold=false);
+//   (155.25, 63) @TEXT("VG output / discharge / voltage sharing", halign="start", size=0.95, textcolor="#1a365d", bold=true);
+//   $JUNCTION @ATTACH %bb;
+//   $JUNCTION @ATTACH %bi;
+//   $JUNCTION @ATTACH %bic;
+//   $JUNCTION @ATTACH %big;
+//   $JUNCTION @ATTACH %bf;
+//   $JUNCTION @ATTACH %bff;
+//   $JUNCTION @ATTACH %phin;
+//   $JUNCTION @ATTACH %avlim;
+//   $JUNCTION @ATTACH %pcp;
+//   $JUNCTION @ATTACH %ctl;
+//   $JUNCTION @ATTACH %ctlf;
+//   $JUNCTION @ATTACH %cn_ctrl;
+//   $JUNCTION @ATTACH %cp;
+//   $JUNCTION @ATTACH %cpbody;
+//   $JUNCTION @ATTACH %cp2;
+//   $JUNCTION @ATTACH %cpx;
+//   $JUNCTION @ATTACH %cn0;
+//   $JUNCTION @ATTACH %cn1;
+//   $JUNCTION @ATTACH %vg_main;
+//   $JUNCTION @ATTACH %vg_fb;
+//   $JUNCTION @ATTACH %vin;
+//   $JUNCTION @ATTACH %vg_hi;
+//   $JUNCTION @ATTACH %vg_up;
+//   $JUNCTION @ATTACH %vg_diode;
+//   $JUNCTION @ATTACH %du;
+//   $JUNCTION @ATTACH %du2;
+//   $JUNCTION @ATTACH %dn;
+//   $JUNCTION @ATTACH %dn2;
+//   $JUNCTION @ATTACH %av_dis;
+//   (-3.75, 73) @TEXT("adc_bootstrap | 20 MOS + 8 MOM", halign="start", size=1.4, textcolor="#1a365d", bold=true);
+//   (-3.75, 69) @TEXT("Three-terminal display: NMOS implicit body = VSS; PMOS implicit body = AVDD (including floating sources).", halign="start", size=0.8, textcolor="#4a5568", bold=false);
+//   (-3.75, 66) @TEXT("MPRE and MXFER: explicit fourth terminal wired to CBP. The electrical netlist retains all four MOS terminals.", halign="start", size=0.8, textcolor="#4a5568", bold=false);
+//   (60, -17) @TEXT("Supply: AVDD. Ground: VSS. Repeated net names are electrically identical.", halign="start", size=0.75, textcolor="#4a5568", bold=false);
+//   (60, -21) @TEXT("MOM common geometry: w=50n, s=50n, stm=1. Individual nr / lr / spm are shown beside each capacitor.", halign="start", size=0.75, textcolor="#4a5568", bold=false);
+//   (60, -25) @TEXT("Dots mark true T / cross junctions only. Undotted wire crossings have no connection.", halign="start", size=0.75, textcolor="#4a5568", bold=false);
+// }
+ends adc_bootstrap

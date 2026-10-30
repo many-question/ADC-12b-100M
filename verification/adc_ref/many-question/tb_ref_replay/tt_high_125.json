@@ -1,0 +1,249 @@
+{
+ "block": "adc_ref",
+ "candidate": "many-question",
+ "test": "tb_ref_replay",
+ "view": "xtor-many-question",
+ "corner": "tt_high_125",
+ "job": "tt_high_125",
+ "status": "match",
+ "verifies": {
+  "result": "results/adc_ref/tb_ref_replay/xtor-many-question/tt_high_125.json",
+  "netlist": "design/xtor/adc_ref/many-question/adc_ref.scs",
+  "netlist_hash": "2b1163f0eb481376",
+  "date": "2026-10-30T02:35:57",
+  "git": "eafab21",
+  "mode": "aps"
+ },
+ "params": {
+  "npts": 1024,
+  "nwarm": 32,
+  "fin": "4.970703125e+07"
+ },
+ "globals": {
+  "vdd": 0.99,
+  "vdd18": 1.98,
+  "tempc": 125.0,
+  "noise_en": 0,
+  "devnoise": 1,
+  "beh_speed": 1.0,
+  "vref_in": 0.9,
+  "cdac_behav": 1,
+  "comp_behav": 1
+ },
+ "metrics": {
+  "n_samples": 15840,
+  "enob_ideal_ref": 10.913433133790065,
+  "enob_ref": 10.925733189177294,
+  "sfdr_ref_dBc": 84.87127949732631,
+  "enob_loss_bit": -0.012300055387228781,
+  "tail_dev_uV": 108.2919488999412,
+  "env_ratio": 0.8582825641863324,
+  "env_ratio_per_decision": [
+   0.1662,
+   0.4984,
+   0.8583,
+   0.8499,
+   0.6498,
+   0.6722,
+   0.7107,
+   0.637,
+   0.5915,
+   0.5925,
+   0.5423
+  ],
+  "env_ratio_decision": 3,
+  "start_pp_uV": 37.8639043000506,
+  "droop_max_mV": 33.5479931595416,
+  "vrefp_V": 0.9008321629932416
+ },
+ "specs": {
+  "REF-12": {
+   "metric": "enob_loss_bit",
+   "value": -0.012300055387228781,
+   "limit": "<= 0.1",
+   "pass": true
+  },
+  "REF-13": {
+   "metric": "tail_dev_uV",
+   "value": 108.2919488999412,
+   "limit": "<= 200",
+   "pass": true
+  },
+  "REF-14": {
+   "metric": "start_pp_uV",
+   "value": 37.8639043000506,
+   "limit": "<= 100",
+   "pass": true
+  },
+  "REF-21": {
+   "metric": "env_ratio",
+   "value": 0.8582825641863324,
+   "limit": "<= 1",
+   "pass": true
+  }
+ },
+ "comparison": {
+  "ok": true,
+  "tolerances": "docs/verification.md \u00a77",
+  "problems": [],
+  "verdicts": {
+   "REF-12": {
+    "self": true,
+    "rerun": true,
+    "ok": true
+   },
+   "REF-13": {
+    "self": true,
+    "rerun": true,
+    "ok": true
+   },
+   "REF-14": {
+    "self": true,
+    "rerun": true,
+    "ok": true
+   },
+   "REF-21": {
+    "self": true,
+    "rerun": true,
+    "ok": true
+   }
+  },
+  "metrics": {
+   "droop_max_mV": {
+    "self": 33.5479931595416,
+    "rerun": 33.5479931595416,
+    "diff": 0.0,
+    "tol": 0.670959863190832,
+    "ok": true
+   },
+   "enob_ideal_ref": {
+    "self": 10.913433133790065,
+    "rerun": 10.913433133790065,
+    "diff": 0.0,
+    "tol": 0.05,
+    "ok": true
+   },
+   "enob_loss_bit": {
+    "self": -0.012300055387228781,
+    "rerun": -0.012300055387228781,
+    "diff": 0.0,
+    "tol": 0.05,
+    "ok": true
+   },
+   "enob_ref": {
+    "self": 10.925733189177294,
+    "rerun": 10.925733189177294,
+    "diff": 0.0,
+    "tol": 0.05,
+    "ok": true
+   },
+   "env_ratio": {
+    "self": 0.8582825641863324,
+    "rerun": 0.8582825641863324,
+    "diff": 0.0,
+    "tol": 0.01716565128372665,
+    "ok": true
+   },
+   "env_ratio_decision": {
+    "self": 3,
+    "rerun": 3,
+    "ok": true
+   },
+   "env_ratio_per_decision": {
+    "n": 11,
+    "bad": [],
+    "ok": true,
+    "worst_diff_per_tol": 0.0
+   },
+   "n_samples": {
+    "self": 15840,
+    "rerun": 15840,
+    "ok": true
+   },
+   "sfdr_ref_dBc": {
+    "self": 84.87127949732631,
+    "rerun": 84.87127949732631,
+    "diff": 0.0,
+    "tol": 0.5,
+    "ok": true
+   },
+   "start_pp_uV": {
+    "self": 37.8639043000506,
+    "rerun": 37.8639043000506,
+    "diff": 0.0,
+    "tol": 5.0,
+    "ok": true
+   },
+   "tail_dev_uV": {
+    "self": 108.2919488999412,
+    "rerun": 108.2919488999412,
+    "diff": 0.0,
+    "tol": 5.41459744499706,
+    "ok": true
+   },
+   "vrefp_V": {
+    "self": 0.9008321629932416,
+    "rerun": 0.9008321629932416,
+    "diff": 0.0,
+    "tol": 0.009008321629932417,
+    "ok": true
+   }
+  },
+  "not_compared": [],
+  "notes": []
+ },
+ "meta": {
+  "date": "2026-10-30T14:55:14",
+  "git": "98497ac",
+  "git_clean": true,
+  "mode": "aps",
+  "pdk": true,
+  "mc": null,
+  "wall_s": 421.8,
+  "rc": "0",
+  "sim_s": "28",
+  "numerics": {
+   "source": "spectre.log",
+   "reltol": 0.001,
+   "maxstep_ps": 211600.0,
+   "method": "traponly",
+   "errpreset": "moderate",
+   "lteratio": 3.5,
+   "abstol_V": 1e-06,
+   "steps_accepted": 565614,
+   "step_mean_ps": 18.7053,
+   "step_max_ps": null
+  },
+  "files": {
+   "tb/ref/tb_ref_replay.scs": "2ea234d4ebabeece",
+   "tb/common/veriloga/tb_sampler_va.va": "4092bc16170c588d",
+   "design/xtor/adc_ref/many-question/adc_ref.scs": "2b1163f0eb481376"
+  },
+  "arch": {
+   "keys": [
+    "cdac.cap_sampled",
+    "cdac.cap_weights",
+    "cdac.cp_top_ratio",
+    "cdac.cu",
+    "conversion.n_decisions",
+    "conversion.out_weights",
+    "reference.vin_cm",
+    "reference.vref",
+    "timing.fs",
+    "timing.t_dac_add"
+   ],
+   "sha": "978c7ff34d3af1b1"
+  },
+  "views": {
+   "adc_ref": "xtor:many-question"
+  },
+  "provenance": {
+   "spectrum": {
+    "estimator": "adcflow.spectrum v1",
+    "adctoolbox": "0.6.4",
+    "sfdr": "plotspec definition: peak bin of the fundamental / largest other single bin (DC and signal bins excluded, Nyquist included)",
+    "enob_sndr_snr_thd": "adctoolbox 0.6.4 compute_spectrum"
+   }
+  }
+ }
+}

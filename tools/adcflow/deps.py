@@ -48,6 +48,9 @@ STAGE_EXT = {".scs", ".va", ".vams"}
 STAGE_COPIES = [("design/behav/veriloga/adc_arch*.vams", "tb/common/veriloga")]
 SYSTEM_HEADERS = {"disciplines.vams", "constants.vams"}       # the simulator's own Verilog-A headers
 ARCH = "specs/arch.yaml"
+# Errors that mean a result's test, view or input files no longer resolve: its dependencies are
+# then unknown and the result counts as stale. Anything else (a missing package, a bug) is raised.
+UNRESOLVED = (KeyError, ValueError, OSError)
 SOA = "specs/soa.yaml"
 
 MODEL_RE = re.compile(r"^\s*model\s+([A-Za-z_]\w*)\s+([A-Za-z_]\w*)")
