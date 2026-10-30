@@ -4,6 +4,9 @@ The final N4 variant below has now been promoted to the current WIP source
 with unchanged physical connectivity and geometry. Earlier references to
 an unselected or unchanged committed circuit describe the state when each
 experiment was recorded. Current status is in the [candidate README](README.md).
+The latest limited PVT screen stopped after two applicable settling failures
+at `ss_low_125`; the final section audits those failures using existing
+waveforms only. The N4 circuit and completed TT records remain unchanged.
 The original failed source and formal evidence remain available through
 [the pre-N4 history tag](https://github.com/many-question/ADC-12b-100M/tree/adc-cdac-many-question-pre-n4-20261030).
 
@@ -1418,3 +1421,164 @@ against its measured margins. Candidate and PR remain WIP/draft. PVT,
 all-phase and supply-startup stress, long-hold behavior, actual-bootstrap
 integration, full-system regression, and project-lead verification are
 still outside this result.
+
+## Unchanged N4: limited PVT screen stopped at ss_low_125
+
+The limited screen began with official weights and settling at
+`ss_low_125`, using slow process, vdd = 0.81 V, vdd18 = 1.62 V,
+temperature = 125 C, and the specified vref_in = 0.9 V. The physical
+source SHA256 remains
+`3d62b80300fc5d85e3fc4e498cd22cedfa92ed006c502922526f1641e0a2ae61`.
+Weights ran on clean commit `aeff71c`; settling ran on clean `035c468`.
+The unchanged official flow ran serially, with no numerical overrides,
+and stopped immediately after the settling failures. The seven TT JSON and
+figure files, formal circuit, MOM parasitics, and candidate status are
+unchanged by this screen.
+
+| Applicable requirement | TT | ss_low_125 | Limit | Slow-corner verdict |
+|---|---:|---:|---:|---|
+| DAC-02 full scale (V) | 0.993034 | 0.993093 | >= 0.97 | PASS |
+| DAC-05 RL5 settling (ps) | 47.3 | 69.2 | <= 75 | PASS |
+| DAC-06 RL12 settling (ps) | 35.3 | 47.4 | <= 40 | **FAIL** |
+| DAC-07 time constant (ps) | 9.120184 | 14.809442 | <= 15 | PASS |
+| DAC-08 conversion-start settling (ps) | 83.4 | 117.7 | <= 100 | **FAIL** |
+| DAC-11 hold droop (LSB) | 0.00438078 | 0.00884455 | <= 0.1 | PASS |
+
+The time-constant margin is only 0.190558 ps and the RL5 margin is 5.8 ps.
+The other nine measured requirements apply only at typ and have no
+pass/fail verdict here: Cs = 2.595661 pF, calibration margin = 0.384917 LSB,
+TOP gain = 0.895848, calibrated ENOB loss = -0.0117865 bit,
+Qref = 1.745559443 pC, and DH5/PHI_S/PHI_SB/CONV capacitances =
+0.807291/5.964114/12.086117/9.562094 fF. They remain in `specs_na`.
+In particular, the typ-only Qref limit is not counted as a third failure
+at this corner. Standard figures retain their original annotations;
+corner applicability is taken from the official result JSON.
+
+Weights took 37 seconds and settling 32 seconds of simulator runtime.
+Both use actual reltol 0.001, voltage tolerance 1e-6, and traponly.
+Weights has the official 5,820 ps maximum step; settling has 2 ps.
+The complete 0-to-70 ns settling record contains 35,864 saved times and
+35,863 accepted steps, mean spacing 1.95187 ps and maximum spacing 2 ps.
+Its log retains zero errors, 16 warnings, eight notices, and separately
+reported suppressed warning occurrences. A successful simulator return
+code does not change the two measured requirement failures.
+
+### Events and deadline errors from the existing complete records
+
+The audit reopens the recovered official TT and slow-corner raw files,
+checks their hashes, finite values, increasing times, and complete spans,
+and reruns the unchanged official measurement function. All metrics
+reproduce exactly. It does not launch another physical simulation.
+Each record contains TOP, CONV, PHI_S, PHI_SB, the three clock-charge
+signals, and the DH5 current, in addition to time.
+
+Start is referenced to the first measured CONV half-supply rising
+crossing, 5.126 ns. Its initial TOP is 0.429474769 V at -20 ps and its
+final reference is 0.270925512 V at +0.9 ns. RL12 uses the official
+scheduled midpoint, the third measured CONV crossing plus 1.005 ns,
+giving 26.131005 ns. RL12 itself is not a saved voltage. Its initial TOP
+is 0.270922138 V at -15 ps and its final reference is 0.462980450 V
+at +1.5 ns.
+
+| Slow-corner event | TOP step | Error allowance | Deadline | TOP at deadline | Absolute error | Error / allowance |
+|---|---:|---:|---:|---:|---:|---:|
+| Start | -158.549257 mV | 1% = 1.585493 mV | 5.226 ns | 0.276072570 V | 5.147058 mV | 3.246 |
+| RL12 | +192.058313 mV | 5% = 9.602916 mV | 26.171005 ns | 0.426518156 V | 36.462295 mV | 3.797 |
+
+These errors are well outside their bands. The original start samples
+at +99.5599/+101.5599 ps have errors 5.292994/4.629763 mV; the original
+RL12 samples at +38.1298/+40.1298 ps have errors 45.694196/35.821353 mV.
+Both samples bracketing each deadline fail, so interpolation at the
+deadline does not create either failure. Moving the final-reference
+evaluation by +/-10 ps varies it by at most 0.470304 uV for start and
+0.000319 uV for RL12, far below the observed errors. The official last
+out-of-band times are 117.7 and 47.4 ps. Their 0.1 ps reporting grid is
+an interpolation grid, not the integration resolution of this 2 ps run.
+No finer-step convergence claim is made for this corner.
+
+### What became slower, and what the saved signals cannot resolve
+
+All seven CONV rising crossings, seven PHI_S falling crossings, and
+seven PHI_SB rising crossings agree between TT and the slow corner
+within the printed waveform precision after normalization to each
+actual supply. The supply amplitudes do change. Thus the prescribed
+external phase timing does not explain the response-time difference.
+The start and RL12 step magnitudes change by only 0.6472% and 0.2274%.
+
+| Last time outside normalized TOP residual band (ps) | TT start | Slow start | TT RL12 | Slow RL12 |
+|---|---:|---:|---:|---:|
+| 90% | 14.7 | 34.3 | 17.1 | 22.9 |
+| 50% | 46.3 | 59.4 | 22.5 | 30.0 |
+| 10% | 61.4 | 83.3 | 33.0 | 44.1 |
+| 5% | 67.9 | 93.5 | 35.3 | 47.4 |
+| 1% | 83.4 | 117.7 | 54.0 | 78.2 |
+
+For start, the 50%-to-1% interval expands from 37.1 to 58.3 ps.
+This accounts for 21.2 ps, about 62% of the added 34.3 ps, while
+13.1 ps accumulates before the last 50% crossing. The 10%-to-1% tail
+expands from 22.0 to 34.4 ps. The waveform also has an initial notch
+and rebound, so a single pure propagation delay does not describe it.
+The slower later recovery is the largest measured contributor to the
+start degradation; it does not by itself identify an internal device.
+
+For RL12, reaching 10% of the final response (90% residual) takes an
+extra 5.8 ps, and proceeding from there to 95% response takes another
+6.3 ps. Together these make the added 12.1 ps at the 5% band. Both the
+early response and transition width therefore matter. There is a small
+later overshoot, below the 5% band. The 10%-to-1% interval expands from
+21.0 to 34.1 ps, giving the reported time constant 14.809442 ps versus
+9.120184 ps. This response-equivalent time constant is not a proof of
+a single-pole waveform or a measured internal gate delay.
+
+Topology makes the RL12 path the first place to inspect:
+`RL12 -> XLCTL/LHIB -> XDL.PCOND/NOFF -> XDL.GP/GN -> BL -> array/TOP`
+inside bit 12. The final reference output devices have P/N widths
+30/15 um and drive the large physical array. RL12 switches about 1 ns
+after CONV, while the prescribed phase signals are steady. The existing
+TOP waveform cannot separate control-inverter delay, predriver delay,
+output-gate slew, and loaded bottom-plate settling.
+
+Start additionally exercises `CONV -> XEN.EN/ENB`, release of the
+ENB-controlled sharing switches, and reference enable across the array.
+The notch and longer tail are consistent with several branches changing
+state and redistributing charge. Internal EN/ENB, LHIB, PCOND/NOFF,
+GP/GN, BL/BH, EQBUS, APGATE, and external VG were not saved. Therefore
+neither enable delay, sharing release, reference-output drive, nor
+sampling-switch turnoff can be singled out as the dominant device-level
+cause. These data also cannot split process, voltage, and temperature
+contributions or establish transistor terminal stress at this corner.
+
+### Smallest useful follow-up, proposed only
+
+A future single private 0-to-28 ns diagnostic at this same corner and
+unchanged N4 circuit would include the original startup history, first
+start event, RL12 event, and its +1.5 ns final-reference point. Preserve
+the original stimulus and measure TOP alongside RL12, VG, supply and
+reference voltages; EN/ENB, EQBUS and APGATE; bit-12 LHIB/BL/BH; and its
+low-branch PCOND/NOFF/GP/GN, with corresponding high-branch gates and
+selected native output, sampling, and sharing terminal currents. A
+0.5 ps maximum step with reltol 1e-7 and voltage tolerance 1e-8 would
+also test the event timings at finer numerical settings. This is a
+proposal for mechanism diagnosis, not a completed run or formal new
+acceptance record. It would distinguish enable/control propagation,
+gate drive, and capacitive redistribution before selecting a resize.
+
+The authorized stop condition remains active. The planned
+`ff_high_m40` 125 ns sine stress was never launched; `ss_low_m40` and
+`ff_high_125` were not run. No new variant, TT rerun, tracking run,
+tracking comparison, or 45-corner expansion followed the failures.
+There is no new PVT terminal-stress evidence; the earlier 9.775 mV
+headroom remains limited to its TT sine experiment.
+
+Both completed official jobs are recoverable: weights retains ten raw
+files and 50 staged inputs, settling nine raw files and 50 staged inputs.
+The archives contain 11 and ten files respectively, including their hash
+manifests. Archive SHA256 digests are
+`58af3e111025421cc9e016499660995ef12b25a1e05964c0c94b2be1c5b0687d`
+and `2b96ebb91bf2aafe272a328d4cc6cb0326bbed802c9fd08daeb59386905a31f7`.
+All raw and staged file hashes, archive recovery, and exact analysis
+scripts were checked before cleaning only each owned completed run.
+The audit JSON, inspected comparison figure, and script are retained
+with their own SHA256 receipt. Shared testbench inputs were preserved.
+The candidate remains WIP and the PR remains draft with both actual
+slow-corner failures recorded.

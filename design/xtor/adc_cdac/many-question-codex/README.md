@@ -7,6 +7,12 @@ reference drivers, physical midpoint initialization, NMOS charge sharing,
 and pulsed PMOS assistance during sampling entry. The differential test
 uses two copies, totaling 1,080 MOS. Candidate status remains `wip`.
 
+All 17 required TT metrics pass, but the first limited PVT corner,
+`ss_low_125`, fails RL12 settling (47.4 ps against 40 ps) and
+conversion-start settling (117.7 ps against 100 ps). Further simulation
+stopped at that result. The circuit and completed TT evidence are unchanged;
+the slow-corner failure audit is summarized below.
+
 The complete RNL matches the frozen physical circuit after collapsing only
 zero-volt measurement probes. Every functional device, geometry, port,
 control connection, and capacitance is unchanged from that checked variant.
@@ -154,7 +160,45 @@ successful completion and was collected without launching another run.
 All 17 required TT metrics and the prescribed tracking comparison are now
 complete for this batch; full project acceptance remains outstanding.
 
-The candidate acknowledges notices #17 and #37. PVT, actual-bootstrap
-integration, supply startup, long-hold behavior, full corner coverage,
-and project-lead verification remain outstanding. No ready or selection
-status is claimed.
+## Limited PVT screen: stopped at slow-corner settling failures
+
+The unchanged N4 source completed official weights and settling at
+`ss_low_125`: slow process, vdd 0.81 V, vdd18 1.62 V, temperature 125 C,
+and the specified reference input 0.9 V. Weights ran on clean `aeff71c`
+and settling on clean `035c468`. Only corner-applicable requirements are
+judged; the nine typ-only values remain in `specs_na`.
+
+| Applicable requirement | Slow-corner value | Limit | Verdict |
+|---|---:|---:|---|
+| DAC-02 full scale | 0.993093 V | >= 0.97 V | PASS |
+| DAC-05 RL5 settling | 69.2 ps | <= 75 ps | PASS |
+| DAC-06 RL12 settling | 47.4 ps | <= 40 ps | **FAIL** |
+| DAC-07 time constant | 14.80944 ps | <= 15 ps | PASS |
+| DAC-08 conversion-start settling | 117.7 ps | <= 100 ps | **FAIL** |
+| DAC-11 hold droop | 0.00884455 LSB | <= 0.1 LSB | PASS |
+
+At the RL12 deadline, TOP remains 36.462 mV from its final value against
+a 9.603 mV allowance. At the start deadline, the error is 5.147 mV against
+1.585 mV. Both original samples bracketing each deadline also fail.
+The complete 70 ns record uses the official reltol 0.001, voltage
+tolerance 1e-6, maximum step 2 ps, and traponly. Recomputing the official
+metrics from the recovered raw data gives the same results.
+
+Comparing existing TT and slow-corner waveforms shows unchanged prescribed
+external phase timing. Start has a longer recovery tail; RL12 has both a
+later response and a wider transition. The saved signals do not include
+internal enable, predriver, output-gate, or bottom-plate nodes, so this
+does not identify a single dominant transistor. The
+[failure audit and proposed next diagnostic](sampling-entry-diagnosis.md#unchanged-n4-limited-pvt-screen-stopped-at-ss_low_125)
+separate measured behavior from topology-based hypotheses.
+
+Both jobs, staged inputs, raw data, and exact analysis scripts are archived
+and hash-verified. The planned `ff_high_m40` sine stress was never launched;
+`ss_low_m40` and `ff_high_125` were not run either. No additional TT run,
+tracking run, numerical twin, circuit variant, or wider corner sweep was
+started. The earlier 9.775 mV stress headroom remains TT-only evidence.
+
+The candidate acknowledges notices #17 and #37. These PVT failures,
+remaining corner coverage, actual-bootstrap integration, supply startup,
+long-hold behavior, and project-lead verification remain outstanding.
+No ready or selection status is claimed.
