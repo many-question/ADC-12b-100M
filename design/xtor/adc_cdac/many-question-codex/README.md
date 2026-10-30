@@ -64,8 +64,12 @@ nominal-threshold case with coordinated output/enable sizing passes start
 at 43.6 ps. Its Qref increase is 6.8171%; TT expansion is stopped. The next
 gate-driver family trial improves RL12 to 40.6 ps, still failing; start,
 tau and all-MOS pressure pass, while Qref rises to 2.006878206 pC at SS
-(n/a). Its TT expansion is also stopped. The next case targets the
-preceding enable-controlled PMOS charging path without changing RL input size.
+(n/a). Its TT expansion is also stopped. The subsequent upper-PMOS predrive
+case passes all five SS settling requirements and all 540-MOS pressure
+checks: RL12 39.2 ps, start 91.3 ps, tau 11.248227 ps. Its independent TT
+charge/load/settling check is now running; N4's TT evidence does not transfer.
+The [first passing private SS comparison](balanced-predrive-ss-screen.png)
+and complete source/evidence identifiers are in the ledger.
 
 The complete earlier report and every historical diagnostic figure remain
 in the [immutable history snapshot](https://github.com/many-question/ADC-12b-100M/tree/6a4bf94977db967dbd27ef47669d5d3d25735477/design/xtor/adc_cdac/many-question-codex),

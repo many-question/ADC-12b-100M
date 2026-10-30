@@ -310,15 +310,62 @@ and hash-verified before exact cleanup; full waveform, all-pair and
 gate/terminal-charge records are retained. Archive SHA256:
 `f447e35cbdd85c544fa9d664a8f78c9db71f7224f182d5c2bb4f0031126ed779`.
 
-## Continuing experiments
+## Upper-PMOS predrive: first complete private SS gate pass
 
-The next case retains the preceding circuit and doubles only MPA0, the
-ENB-controlled upper PMOS in each bit-12 NOR stack, at unchanged finger
-width. The RL-controlled PMOS and external DH/RL input sizes remain
-unchanged. This targets the measured PCOND charging interval while
-placing the extra gate load on the shared enable path. Enable delay,
-GP/GN alignment, native current, Qref, ringing and full MOS pressure
-need fresh validation; passing results are not inherited.
+The `v4-bit12-upper-pfast` case retains the preceding circuit and changes
+only MPA0, the ENB-controlled upper PMOS in each bit-12 NOR stack,
+from 8 to 16 um with 2 um finger width retained (four to eight fingers).
+The RL-controlled PMOS and external DH/RL input sizes remain unchanged.
+Fresh geometry validation and pinned RNL pass. Source SHA256:
+`b704b05ae675c6903ccad09ab2a2707e2eeb98fbdeba5650e0863b83491ee2ae`.
+
+The clean launch commit is `276a47eebd891bcc06d038e290ea44836abefdf4`.
+The same complete original 70 ns SS stimulus, saves and strict numerical
+settings are used. All five applicable settling-test requirements pass:
+
+| Requirement | Value | Limit |
+|---|---:|---:|
+| RL5 settling | 58.6 ps | <=75 ps |
+| RL12 settling | 39.2 ps | <=40 ps |
+| Equivalent tau | 11.248227 ps | <=15 ps |
+| Conversion-start settling | 91.3 ps | <=100 ps |
+| Hold droop | 0.010413878 LSB | <=0.1 LSB |
+
+At 40 ps, RL12 error is 7.357053 mV versus a 9.604082 mV allowance;
+at 100 ps, start error is 0.770332 mV versus 1.602973 mV allowed.
+Both raw points bracketing each deadline pass. The RL12 timing margin
+is 0.8 ps; this is this case's SS settling result, not a complete-corner
+or full-CDAC qualification.
+
+![Matched N4 and first passing private SS settling case](balanced-predrive-ss-screen.png)
+
+PCOND/GP/GN midpoint times are 13.146/17.962/18.149 ps, compared with
+14.043/19.207/17.929 ps in the preceding case. BL reaches 50% at
+31.457 ps and its 1% band at 67.2 ps; TOP overshoot is 3.210798 mV.
+The added ENB load moves the start ENB/EN midpoint times to
+10.677/14.623 ps. The start requirement remains passing.
+
+Qref is 2.068876736 pC, 18.4871% above the matched N4 reference;
+DH5/PHI_S/PHI_SB/CONV capacitances are
+0.807291/5.966054/12.305049/12.789485 fF. These are all n/a at SS.
+The isolated RL12 low/high output-PMOS source charges over
+-120..+300 ps remain +524.148245/-113.976963 fC, so this window alone
+does not explain the whole-conversion charge increase. The full waveform
+and separate gate/terminal-charge audit retain the numerical definitions.
+
+All 540 MOS / 1,620 pairs pass at all 200,529 saved times. The exact
+maximum is 0.969976161936 V at XB2.XDL.MNOUT ds (60.076352652 ns).
+The job took 348 s. All nine raw files and 50 frozen inputs were recovered
+and hash-verified before exact cleanup. Archive SHA256:
+`b01d69cef793d97fe24252c5aaea94a48a5eec8f2d9500bcaf893a0572083c1d`.
+
+## Continuing verification
+
+The same frozen V4 source has now entered the conditional full 70 ns TT
+settling/charge/load and all-MOS check, with the same strict numerical
+settings. TT results are pending; in particular, the 1.2 pC reference-charge
+limit must be measured. No N4 TT result transfers to this circuit, and no
+tracking or additional corner expansion precedes that gate.
 
 A brief separately controlled reference-drive assist remains an unimplemented
 hypothesis, with additional pulse alignment and loading questions.
