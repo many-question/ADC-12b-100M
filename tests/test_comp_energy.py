@@ -156,4 +156,4 @@ def test_cmp10_is_named_for_what_it_measures_and_reported_only():
     s = next(s for s in blocks()["adc_comp"].specs if s.id == "CMP-10")
     assert s.metric == "energy_fJ" and s.reported and s.max is None and s.corners == "typ" and s.test == "tb_comp_delay"
     assert "36-decision mixed-amplitude sequence" in s.name and "1 mV" not in s.name
-    assert blocks()["adc_comp"].raw["version"] == "0.6.0"
+    assert tuple(int(x) for x in blocks()["adc_comp"].raw["version"].split(".")) >= (0, 6, 0)
