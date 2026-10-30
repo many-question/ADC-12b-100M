@@ -19,6 +19,10 @@ DELAY_LEVELS = [100e-3, -100e-3, 30e-3, -30e-3, 10e-3, -10e-3, 3e-3, -3e-3, 1e-3
 # there, [T0, T0 + N_DELAY * TCYC], and energy_fJ = AVDD charge x VDD / N_DELAY.
 N_DELAY = 2 * len(DELAY_LEVELS)       # 36
 T0 = 100e-12
+# CMP-15 output validity (#77): in each evaluate interval (CLKC rise .. CLKC fall, 50 % crossings) exactly one output
+# crosses DECIDE x VDD and the other stays below LOSER_MAX x VDD
+DECIDE = 0.5
+LOSER_MAX = 0.3
 NOISE_LEVELS = [round(-800e-6 + 100e-6 * i, 9) for i in range(17)]   # +/-3.3 sigma at the 240 uV limit
 NOISE_REPEAT = 512                    # 1-sigma error of sigma <= 2.7 % for 120..300 uV (binomial ML)
 # tb_comp_offset_mc: offset search per Monte Carlo sample (tb_offset_search_va)
@@ -78,12 +82,95 @@ def delay(job_dir: Path, ctx: dict) -> dict:
             resets.append(t[idx[0]] - tf)
     if resets:
         m["treset_ps"] = float(np.max(resets) * 1e12)
+    cycles = validity_cycles(t, op, on, vdd, vds, t_rise, t_fall)
+    m.update(validity_metrics(cycles))
     meters = read_meter_windows(Path(job_dir) / "power.txt")
     if "AVDD" in meters:
         m["energy_fJ"] = comparison_energy(*meters["AVDD"], vdd, t_rise)
     fg = sink_of(ctx)
     if fg:
         _fig_delay(fg, ctx, w, vdd, vds, t_rise, t_fall, pts, m)
+        _fig_validity(fg, w, vdd, cycles, m)
+    return m
+
+
+def _peak(t: np.ndarray, v: np.ndarray, a: float, b: float) -> tuple[float, float, float]:
+    """(largest value, its time, largest saved time step) of a saved waveform on [a, b].
+
+    Every saved point inside [a, b] counts, and the values at a and b (linear between the two saved points
+    around them): the waveform between saved points is the straight line, so its maximum on [a, b] is one of
+    these and no saved point, however narrow the glitch, is skipped. The time step is the largest spacing of
+    the saved points that cover [a, b] (those around a and b included)."""
+    i0 = max(int(np.searchsorted(t, a, side="right")) - 1, 0)
+    i1 = min(int(np.searchsorted(t, b, side="left")), len(t) - 1)
+    inside = np.arange(i0, i1 + 1)
+    inside = inside[(t[inside] > a) & (t[inside] < b)]
+    tt = np.concatenate([[a], t[inside], [b]])
+    vv = np.concatenate([np.interp([a], t, v), v[inside], np.interp([b], t, v)])
+    j = int(np.argmax(vv))
+    dt = float(np.max(np.diff(t[i0:i1 + 1]))) if i1 > i0 else 0.0
+    return float(vv[j]), float(tt[j]), dt
+
+
+def validity_cycles(t, op, on, vdd: float, vds: list[float], t_rise, t_fall) -> list[dict]:
+    """The evaluate intervals of tb_comp_delay checked for output validity (CMP-15, #77), one dict per cycle.
+
+    Interval k runs from the k-th CLKC rise to the next CLKC fall (50 % crossings). An output has decided when
+    it is at or above DECIDE x VDD in the interval (its first 50 % crossing, or the interval start when it is
+    already high there); the first one to decide wins, the other is the loser. A decided cycle is a violation
+    when both outputs decide or when the loser's peak over the whole interval (`_peak`, every saved point) is
+    at or above LOSER_MAX x VDD. A cycle in which neither output decides is not judged here: CMP-09 counts it
+    for |vd| >= 100 uV, below that it is the metastable case of the SAR timeout (LOG-11)."""
+    t, op, on = (np.asarray(x, dtype=float) for x in (t, op, on))
+    t_rise, t_fall = np.asarray(t_rise, dtype=float), np.asarray(t_fall, dtype=float)
+    outs = {"OUTP": op, "OUTN": on}
+    ups = {name: psf.crossings(t, v, DECIDE * vdd, +1) for name, v in outs.items()}
+    out = []
+    for k, a in enumerate(t_rise[: len(vds)]):
+        later = t_fall[t_fall > a]
+        b = float(later[0]) if len(later) else float(t[-1])
+        first = {}
+        for name, v in outs.items():
+            if np.interp(a, t, v) >= DECIDE * vdd:
+                first[name] = float(a)
+            else:
+                c = ups[name][(ups[name] > a) & (ups[name] <= b)]
+                if len(c):
+                    first[name] = float(c[0])
+        cyc = {"cycle": k + 1, "vd": vds[k], "t0": float(a), "t1": b, "decided": bool(first)}
+        if first:
+            win = min(first, key=first.get)
+            lose = "OUTN" if win == "OUTP" else "OUTP"
+            pk, t_pk, dt = _peak(t, outs[lose], float(a), b)
+            cyc.update(winner=win, loser=lose, both=len(first) == 2, peak=pk / vdd, t_peak=t_pk, dt=dt,
+                       violation=len(first) == 2 or pk >= LOSER_MAX * vdd)
+        else:
+            cyc.update(dt=_peak(t, op, float(a), b)[2])
+        out.append(cyc)
+    return out
+
+
+def validity_metrics(cycles: list[dict]) -> dict:
+    """CMP-15 `validity_violations` (count), CMP-16 `loser_peak_pct` (the worst losing-output peak of the decided
+    cycles, % VDD; reported only) and `validity`: where the worst peak is (cycle, vd, output, time from the CLKC
+    rise), the largest saved time step over the evaluate intervals, the violations, the undecided cycles and the
+    loser peak of every cycle (a dict: details, not compared by adcflow verify)."""
+    dec = [c for c in cycles if c["decided"]]
+    bad = [c for c in dec if c["violation"]]
+    m: dict = {"validity_violations": len(bad)}
+    detail: dict = {"rule": f"each CLKC rise .. fall: exactly one output >= {DECIDE:g} VDD, the other < {LOSER_MAX:g} VDD",
+                    "dt_max_ps": round(max((c["dt"] for c in cycles), default=0.0) * 1e12, 4),
+                    "cycles": len(cycles), "decided": len(dec)}
+    if dec:
+        w = max(dec, key=lambda c: c["peak"])
+        m["loser_peak_pct"] = float(w["peak"] * 100)
+        detail["worst"] = {"cycle": w["cycle"], "vd_uV": round(w["vd"] * 1e6, 3), "output": w["loser"],
+                           "t_ps": round((w["t_peak"] - w["t0"]) * 1e12, 3)}
+    detail["violations"] = [{"cycle": c["cycle"], "vd_uV": round(c["vd"] * 1e6, 3), "winner": c["winner"],
+                             "loser_peak_pct": round(c["peak"] * 100, 3), "both_decided": c["both"]} for c in bad]
+    detail["undecided"] = [{"cycle": c["cycle"], "vd_uV": round(c["vd"] * 1e6, 3)} for c in cycles if not c["decided"]]
+    detail["loser_peaks_pct"] = [round(c["peak"] * 100, 3) if c["decided"] else None for c in cycles]
+    m["validity"] = detail
     return m
 
 
@@ -326,6 +413,56 @@ def _fig_delay(fg, ctx, w, vdd, vds, t_rise, t_fall, pts, m) -> None:
         ax.legend(loc="center right")
     fg.save(fig, "delay", "Comparator delay versus input difference with the log fit and limits, the +1 mV "
             "decision with its delay marked, and the reset to 10 % VDD.")
+
+
+def _vd_text(vd: float) -> str:
+    """+100 mV, -10 uV: a stimulus level for a label."""
+    return f"{vd * 1e3:+g} mV" if abs(vd) >= 1e-3 else f"{vd * 1e6:+g} uV"
+
+
+def _fig_validity(fg, w, vdd, cycles, m) -> None:
+    t, clk, op, on = w["time"], w["CLKC"], w["OUTP"], w["OUTN"]
+    fig, axs = fg.new(1, 2, size=(11.2, 3.9))
+    ax = axs[0, 0]
+    dec = [c for c in cycles if c["decided"]]
+    for sign, col, name in ((1, C1, "vd > 0"), (-1, C2, "vd < 0")):
+        sel = [c for c in dec if np.sign(c["vd"]) == sign]
+        ax.plot([c["cycle"] for c in sel], [c["peak"] * 100 for c in sel], "o", ms=5, mfc="none", color=col, label=name)
+    bad = [c for c in dec if c["violation"]]
+    if bad:
+        ax.plot([c["cycle"] for c in bad], [c["peak"] * 100 for c in bad], "x", ms=8, color=LIMIT, label="violation")
+    und = [c for c in cycles if not c["decided"]]
+    if und:
+        ax.plot([c["cycle"] for c in und], [0] * len(und), "s", ms=5, color=MUTED, label="no decision (not judged)")
+    hline(ax, LOSER_MAX * 100, f"loser limit {LOSER_MAX * 100:g} % VDD")
+    ax.axhline(DECIDE * 100, color=GRIDLINE, lw=0.8)
+    ax.set(xlabel="cycle (36 decisions: the |vd| sequence twice)", ylabel="losing-output peak (% VDD)",
+           title="Losing output, CLKC rise .. fall", ylim=(-3, 105), xlim=(0, len(cycles) + 1))
+    ax.legend(loc="upper right", fontsize=7.5)
+    v = m.get("validity") or {}
+    worst = v.get("worst") or {}
+    note(ax, f"{m['validity_violations']} violation(s) in {v.get('decided', 0)} decided cycles"
+             + (f"\nworst {m['loser_peak_pct']:.3g} % VDD at cycle {worst['cycle']} ({_vd_text(worst['vd_uV'] * 1e-6)})"
+                if worst else "")
+             + f"\nlargest saved time step {v.get('dt_max_ps', float('nan')):.3g} ps", loc="center right")
+    ax = axs[0, 1]
+    pick = max(dec, key=lambda c: c["peak"]) if dec else (cycles[0] if cycles else None)
+    if pick is not None:
+        a, b = pick["t0"], pick["t1"]
+        sel = (t > a - 30e-12) & (t < b + 30e-12)
+        ax.axvspan(0, (b - a) * 1e12, color=GRIDLINE, alpha=0.5, lw=0, label="evaluate interval")
+        for sig, c_, name in ((clk, C1, "CLKC"), (op, C3, "OUTP"), (on, C2, "OUTN")):
+            ax.plot((t[sel] - a) * 1e12, sig[sel] / vdd * 100, color=c_, label=name)
+        hline(ax, LOSER_MAX * 100, None)
+        ax.axhline(DECIDE * 100, color=GRIDLINE, lw=0.8)
+        if pick["decided"]:
+            ax.plot([(pick["t_peak"] - a) * 1e12], [pick["peak"] * 100], "o", color=INK2, ms=4)
+        ax.set(xlabel="time from CLKC rise (ps)", ylabel="% VDD",
+               title=f"Cycle {pick['cycle']}, vd = {_vd_text(pick['vd'])} (the largest losing peak)")
+        ax.legend(loc="center right", fontsize=7.5)
+    fg.save(fig, "validity", "Output validity (CMP-15): the peak of the losing output from each CLKC rise to the CLKC "
+            "fall against the 30 % VDD limit, with violations and undecided cycles marked, and the transient of the "
+            "cycle with the largest losing peak.")
 
 
 def _fig_noise(fg, ctx, vd, p1, mu, sig, n, ci) -> None:
