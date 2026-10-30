@@ -35,3 +35,5 @@ Continuous physical-output repair experiments remain independent of this canonic
 [B4](BUFFER-V4.md) removes input-drain overvoltage and passes timing/validity at three key corners, but fast reset and clock release still produce raw, buffer and output excursions. [B5](BUFFER-V5.md) applies physical capacitance and weaker reset/clock drive at those measured events.
 
 [B5](BUFFER-V5.md) reduces the cold-FF peak to 1.00833 V while retaining three-corner timing and validity. [B6](BUFFER-V6.md) targets the remaining clock, raw-node and buffer slew with slower physical clock drive and more intermediate/buffer MOM damping.
+
+[B6](BUFFER-V6.md) passes clock and intermediate-node stress while small raw/buffer/output excursions remain. [B7](BUFFER-V7.md) adds physical weak rail-offset loads at those measured nodes and retains the original output-validity thresholds.
