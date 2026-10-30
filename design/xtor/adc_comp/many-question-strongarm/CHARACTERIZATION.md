@@ -1,5 +1,7 @@
 # Supplemental characterization
 
+The following historical private experiments keep their original energy definitions. Merged spec v0.6.0 changed the official mixed-sequence meter and removed its energy acceptance limit; these private results are not relabeled as new CMP-10 evidence. See [REFRESH.md](REFRESH.md).
+
 These are private exploration runs using frozen netlist copies and the standard excitation and 10 fF loads. They are not official acceptance records. Every completed variant, including failures, is retained here. Each noise pilot uses 17 levels, 64 decisions per level, seed 1 and a 50 GHz bandwidth. Fine transient checks use 0.5 ps maximum step (unless a smaller step is listed), traponly, reltol = 1e-6 and vabstol = 1e-8. Noise pilots retain the standard numerical settings. Unless explicitly labeled as a fixed-1mV probe, energy uses the mixed-amplitude delay sequence and the 14.5 ns window-average power multiplied by 400 ps; see [issue #75](https://github.com/many-question/ADC-12b-100M/issues/75).
 
 | Variant / corner | Test | Result |
