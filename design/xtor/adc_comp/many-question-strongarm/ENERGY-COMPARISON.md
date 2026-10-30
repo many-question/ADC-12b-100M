@@ -64,3 +64,24 @@ All ten measured key corners pass screening, with targeted voltage convergence a
 | 580.512581 | 106.486586 | 474.025995 | 2077.522376 | 1.869770139 | 2092.666284 |
 
 The original meter is 580.511994 fJ/cycle; waveform integration differs by 0.00010101%. All probes are present and the AVDD terminal-sum residual is numerical zero. Against the matched fine-step canonical control (190.686419 fJ), this complete implementation uses about 204.43% more AVDD energy. The existing persistent Q-reset contention remains. No power limit or bare-topology efficiency conclusion is introduced.
+
+
+## V18 measured TT supply phases
+
+The exact same 100 ps–14.5 ns, 36-cycle full-AVDD boundary gives:
+
+| Total (fJ/cycle) | Evaluation | Reset | Initial reset current (uA) | Initial reset power (mW) |
+|---:|---:|---:|---:|---:|
+| 405.326281445 | 89.061121796 | 316.265159648 | 1175.655018883 | 1.058089517 |
+
+The original meter is 405.325820880 fJ/cycle. All probes are present; the terminal-sum residual is numerical zero. The mixed-sequence clock diagnostic is 16.037833 fF and formal noise remains unmeasured for V18. This is a partial-screen implementation measurement, not a qualified power ranking. Persistent reset current remains substantial.
+
+| Net supply delivery group | Whole cycle (fJ) | Evaluation (fJ) | Reset (fJ) |
+|---|---:|---:|---:|
+| input precharge | 106.585001964 | 1.705606176 | 104.879395788 |
+| regenerative core | 24.856916691 | 28.664393293 | -3.807476602 |
+| Q precharge/reset | 196.545479108 | 1.292470254 | 195.253008854 |
+| external output inverters | 28.037938141 | 26.478225661 | 1.559712480 |
+| physical clock | 49.300945541 | 30.920426412 | 18.380519129 |
+
+These are net supply-delivery allocations, including returned charge and circuit interactions, not isolated device heat. Power is reported only.
