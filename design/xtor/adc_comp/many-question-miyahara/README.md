@@ -11,3 +11,5 @@ The old canonical netlist and all 92 official records are preserved at commit `e
 ![Current complete transistor schematic](schematic.png)
 
 Issues #40, #63, #69, #75, #77, #78 and #84 remain acknowledged. Every older experiment and failed screen is retained separately.
+
+[BUFFER-V13](BUFFER-V13.md) is the next independent experiment. It changes only CDP/CDN from 48 to 56 fingers to test additional front-end integration and noise margin, with all transistor dimensions retained. Timing, reset, stress and noise remain to measure for that source; canonical B12 and its failed formal noise record stay preserved.
