@@ -723,7 +723,97 @@ or weight acceptance is inherited by this geometry.
 Under the same first-32 basis, the previously measured pulse-assisted
 N12/P4 circuit gives -81.6220 dBc, compared with -77.2363 dBc here. This is
 a lead for further diagnosis, rather than a comparison of complete spectra.
-The next run freezes that existing pulse circuit and extends its record to
-128 points, with unchanged frequency, skipped cycles, and strict numerical
-settings. It will compare common bases over the first 32, first 48, two
-64-point windows, and all 128 samples before any further geometry decision.
+The following run freezes that existing pulse circuit and extends its record
+to 128 points, with unchanged frequency, skipped cycles, and strict numerical
+settings.
+
+## Frozen pulse-assisted 128-point audit
+
+The N12/P4 pulse circuit retains 539 MOS per half, all physical MOM units,
+all 36 parasitic branches, and the MID initialization paths. Only the sample
+count changes from its earlier 32-point run. Exact source, deck, and supporting
+TB files were frozen before launch; all 27 TB dependency hashes still match
+afterward. The 52 retrieved files were individually hash-verified. The run
+completed in 61.35 minutes with zero simulator errors; warnings and notices
+remain in the archive and are not interpreted as voltage-stress bounds.
+
+Fs = 100 MHz, Fin = 48.828125 MHz, skip = 4, and the strict numerical and noise
+settings remain unchanged. The simulation ends at 1325 ns. Actual sample
+times are 45.426 + 10k ns for k = 0..127, with maximum interval deviation
+of approximately 1 fs from 10 ns. The first 32 saved times exactly match the
+earlier same-source run, and their saved voltages agree within 6e-13 V.
+This duration-only reproduction is not the required numerical cross-check.
+The 128 points span 62.5 input cycles, so this remains a noncoherent
+known-frequency regression rather than an official FFT spectrum.
+
+With the fixed h1/h3/h5/h7 basis and an intercept, all matrices have rank 9:
+
+| Window | Actual interval (ns) | Condition number | h3 (dBc) | Residual RMS (uV) |
+|---|---|---:|---:|---:|
+| First 32 | 45.426-355.426 | 9.843 | -81.6220 | 6.968 |
+| First 48 | 45.426-515.426 | 1.503 | -83.9867 | 8.549 |
+| First 64 | 45.426-675.426 | 1.733 | -83.9883 | 7.694 |
+| Last 64 | 685.426-1315.426 | 1.733 | -83.9126 | 9.784 |
+| All 128 | 45.426-1315.426 | 1.415 | -83.9397 | 8.951 |
+
+The first-32 fit predicts the remaining 96 points with 31.585 uV RMS error
+and 81.331 uV maximum absolute error. The full record gives fundamental
+peak = 0.789850 V, h5 = -94.4571 dBc, and h7 = -96.6587 dBc. A linear
+trend added to the same full-record basis changes h3 by less than 1e-7 dB;
+this sensitivity check does not establish startup independence.
+
+![Pulse-assisted record, basis, and window audit](pulse-tracking-record-audit.png)
+
+Expanding the odd-harmonic basis on the complete record gives:
+
+| Highest odd harmonic | Rank / columns | Condition number | h3 (dBc) | Residual RMS (uV) |
+|---|---:|---:|---:|---:|
+| h7 | 9 / 9 | 1.4153 | -83.939715 | 8.951 |
+| h9 | 11 / 11 | 1.4156 | -83.939689 | 5.717 |
+| h11 | 13 / 13 | 1.4159 | -83.939789 | 4.066 |
+| h13 | 15 / 15 | 1.4162 | -83.939709 | 2.545 |
+| h21 | 23 / 23 | 1.4179 | -83.939736 | 0.771 |
+
+The folded frequencies are the same as in the 48-point audit above. The
+full-record h3 spread across these bases is approximately 0.00010 dB.
+With h21 included, h9/h11/h13 are -98.1803/-102.8578/-104.9167 dBc;
+the remaining fitted odd terms through h21 are below -110 dBc. The poorly
+conditioned first-32 h21 fit remains shown in the figure as a warning about
+that short window, rather than being selected as a result.
+
+All 65 contiguous 64-point windows are also retained. With the fixed h7
+basis, h3 ranges from -84.1312 to -83.7599 dBc, a 0.3713 dB span. With
+the fixed h21 basis, it ranges from -83.9470 to -83.9313 dBc, a 0.01564 dB
+span. These overlapping estimates are not independent confidence intervals.
+The disjoint first and last 64 points give h3 = -83.9381 and -83.9427 dBc
+with h21, rank 23/23, and condition approximately 1.735. Fitting the first
+half and predicting the second gives 0.881 uV RMS error; the reverse gives
+0.719 uV. Both predictions use the same coefficients and actual saved times
+without fitting the withheld half.
+
+A supplementary fit includes every harmonic from h1 through h21, including
+even terms. It has rank 43/43 and condition 1.667 on all 128 samples,
+giving h3 = -83.939588 dBc and residual = 0.574 uV. The fitted even terms
+are all below -124 dBc in this model. The first/last 64-point versions have
+condition approximately 1.829 and h3 = -83.9401/-83.9416 dBc; their cross-
+prediction errors are 1.198/0.902 uV RMS. Thus including even terms does not
+materially change this record's h3 estimate. These are additional model
+sensitivity checks, not measurements of broadband noise or official SNDR.
+
+The stable h3 estimate is about 1.06 dB above -85 dBc, leaving no margin
+against the required largest-spur level in this diagnostic. The circuit
+remains unselected. Its official coherent-256 spectrum, numerical
+cross-check, own fixed-input and sine-input stress, weights, startup,
+long-hold behavior, actual-bootstrap integration, and PVT remain unverified.
+None of the 8/8 um circuit's passes is inherited. At this run's measured
+speed, a corresponding 256-point main run would take roughly 121 minutes;
+the numerical cross-check would add a separate run.
+
+The next diagnostic keeps this physical circuit and collects approximately
+48 points of selected tracking and switching waveforms. It will compare
+complex harmonics on a common input-phase reference before and after TOP
+and VG turn-off, including representative BP/MID nodes. This is intended
+to locate when errors appear before selecting one structural experiment;
+stage correlations and cancellation alone will not be presented as a
+unique physical cause. Further size sweeps and formal acceptance runs are
+deferred pending that diagnosis.
