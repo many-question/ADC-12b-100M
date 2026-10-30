@@ -1,5 +1,5 @@
 name: many-question-miyahara
-description: Miyahara self-triggered 15-MOS core with native RTZ outputs, drain MOM capacitors and clocked reset assistance.
+description: Miyahara comparator with physical output buffers, direct input precharge, node damping and weak rail loads.
 status: wip
 acknowledged: [40, 63, 69, 75, 77, 78, 84]
 authors:
