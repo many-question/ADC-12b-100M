@@ -208,19 +208,22 @@ def test_rnl_check_walks_candidate_directories(root, monkeypatch):
 def test_score(root):
     _make(root)
     good = {"tdelay_1mV_ps": 60.0, "tdelay_30mV_ps": 30.0, "tau_reg_ps": 10.0, "treset_ps": 20.0,
-            "wrong_decisions": 0, "energy_fJ": 100.0}
+            "wrong_decisions": 0, "energy_fJ": 100.0, "validity_violations": 0, "loser_peak_pct": 1.0}
     _result(root, "tb_comp_delay", "xtor-alice", **good)
     _result(root, "tb_comp_delay", "xtor-alice", "ss_low_125", verified=True, **dict(good, tdelay_1mV_ps=130.0))
     _result(root, "tb_top_sine", "xtor-comp@alice", block="adc_top", enob=10.9)
     (row,) = cand.leaderboard(BLOCK)
     specs = [s for s in blocks()[BLOCK].specs]
-    assert row["specs_total"] == len(specs) - 1 and row["reported_total"] == 1      # CMP-10: reported only, no verdict
+    n_rep = sum(s.reported for s in specs)                  # CMP-10, CMP-16: reported only, no verdict
+    assert row["specs_total"] == len(specs) - n_rep and row["reported_total"] == n_rep
     assert row["specs_failed"] == 1 and row["specs_failing"] == ["CMP-05"]   # CMP-05 at ss_low_125: 130 > 120
     assert row["specs_passed"] == 2                         # CMP-04, CMP-06 (typ only, recorded)
     assert row["specs_reported"] == 1 and "CMP-10" not in row["specs_missing"]      # energy_fJ recorded at TT
+    assert "CMP-16" in row["specs_missing"]                 # reported at all corners: 2 of 45 recorded
     assert row["specs_incomplete"] == len(row["specs_missing"]) == len(specs) - 4
     assert row["worst_margin"]["spec"] == "CMP-05" and row["worst_margin"]["margin"] == pytest.approx(-10 / 120)
-    assert row["coverage"][0] == 3 + 4 * 2                  # typ specs 1 corner each, all-corner specs 2 of 45
+    n_all = sum(s.test == "tb_comp_delay" and s.corners == "all" for s in specs)    # CMP-05/07/08/09/15/16
+    assert row["coverage"][0] == 3 + n_all * 2              # typ specs 1 corner each, all-corner specs 2 of 45
     # meta.verified_by in a result is not trusted: only a verification record verifies (tests/test_verify.py)
     assert row["results"] == 2 and row["self_reported"] == 2 and row["flags"]["unverified"] == 2
     assert row["verified"] == 0 and row["mismatch"] == 0 and row["flags"]["mismatch"] == 0
@@ -291,7 +294,7 @@ def test_eligibility_of_a_scored_candidate(root, monkeypatch):
 
     _make(root)
     good = {"tdelay_1mV_ps": 60.0, "tdelay_30mV_ps": 30.0, "tau_reg_ps": 10.0, "treset_ps": 20.0, "wrong_decisions": 0,
-            "energy_fJ": 100.0, "noise_uV": 150.0, "offset_abs_mV": 0.5, "kickback_uV": 10.0, "cin_fF": 10.0,
+            "energy_fJ": 100.0, "validity_violations": 0, "loser_peak_pct": 1.0, "noise_uV": 150.0, "offset_abs_mV": 0.5, "kickback_uV": 10.0, "cin_fF": 10.0,
             "cin_clkc_fF": 10.0, "offset_sigma_mV": 2.0, "mc_ok": 50, "mc_failed": 0}
     mc = {"runs": 50, "seed": 6303, "firstrun": 1, "variations": "mismatch", "models": "local_tt"}
     for test in ("tb_comp_delay", "tb_comp_noise", "tb_comp_kickback"):
@@ -305,7 +308,7 @@ def test_eligibility_of_a_scored_candidate(root, monkeypatch):
     monkeypatch.setattr(verify, "state", lambda d: {"state": "verified", "why": ""})     # verification: tests/test_verify.py
     (row,) = cand.leaderboard(BLOCK)
     assert row["eligible"] and row["missing"] == [] and row["specs_passed"] == row["specs_total"]
-    assert row["specs_reported"] == row["reported_total"] == 1
+    assert row["specs_reported"] == row["reported_total"] == sum(s.reported for s in blocks()[BLOCK].specs)
     assert "adc_comp -- eligible" in cand.table([row])
     # the reported metric missing at TT: incomplete, not eligible (power is the ranking key)
     p = root / "results" / BLOCK / "tb_comp_delay" / "xtor-alice" / "tt_nom_27.json"
