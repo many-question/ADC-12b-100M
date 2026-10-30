@@ -1,0 +1,442 @@
+// adc_sarlogic, candidate arcadia-1: asynchronous SAR controller, transistor view
+//
+// WORK IN PROGRESS: the RNL schematic record is not written yet.
+//
+// Contract: specs/blocks/adc_sarlogic.yaml (0.5.0) and the behavioural reference
+// design/behav/veriloga/adc_sarlogic_va.va.
+//
+// Sequencing without a shift register. The UP/DN latches of a step are its token:
+// a step may be set only while its enable is high and it is not yet decided, and
+// the enable of the next step is a latch set by "decided" once the comparator has
+// reset and CLKC is low. The enables therefore cannot move while CLKC is high, so a
+// CLKC pulse can decide exactly one step.
+//
+// The DAC wait after decision k is chosen from the decided flags, which are stable
+// from the decision on: fast after 1-2, fast + 10 ps after 3, fast + 30 ps after
+// 4-6, slow after 7-8 and 10-13, slow + 25 ps after 9 (specs/arch.yaml t_dac_add).
+//
+// Delays are gate delays only, no capacitor devices. Every delay is a chain of
+// resettable pairs (ulvt NAND2 then NOR2 at L = 60 nm, whose loads are the next gate,
+// i.e. oxide capacitance, so the corner spread stays near 0.75 .. 1.40 of typical).
+// A chain times one edge of its start signal and clears within one gate when the
+// start signal drops, so a short CLKC phase never carries one wait into the next.
+
+simulator lang=spectre
+
+// ---------------------------------------------------------------- primitives (lvt)
+subckt inv (a y vdd vss)
+  mp (y a vdd vdd) pch_lvt_mac w=0.4u l=30n nf=2
+  mn (y a vss vss) nch_lvt_mac w=0.2u l=30n nf=1
+ends inv
+
+subckt invx4 (a y vdd vss)
+  mp (y a vdd vdd) pch_lvt_mac w=1.6u l=30n nf=8
+  mn (y a vss vss) nch_lvt_mac w=0.8u l=30n nf=4
+ends invx4
+
+subckt nand2 (a b y vdd vss)
+  mp1 (y a vdd vdd) pch_lvt_mac w=0.4u l=30n nf=2
+  mp2 (y b vdd vdd) pch_lvt_mac w=0.4u l=30n nf=2
+  mn1 (y a m1 vss) nch_lvt_mac w=0.4u l=30n nf=2
+  mn2 (m1 b vss vss) nch_lvt_mac w=0.4u l=30n nf=2
+ends nand2
+
+// half-width NAND2: a fine step of a few ps on one select path
+subckt nand2h (a b y vdd vss)
+  mp1 (y a vdd vdd) pch_lvt_mac w=0.2u l=30n nf=1
+  mp2 (y b vdd vdd) pch_lvt_mac w=0.2u l=30n nf=1
+  mn1 (y a m1 vss) nch_lvt_mac w=0.2u l=30n nf=1
+  mn2 (m1 b vss vss) nch_lvt_mac w=0.2u l=30n nf=1
+ends nand2h
+
+subckt nand3 (a b c y vdd vss)
+  mp1 (y a vdd vdd) pch_lvt_mac w=0.4u l=30n nf=2
+  mp2 (y b vdd vdd) pch_lvt_mac w=0.4u l=30n nf=2
+  mp3 (y c vdd vdd) pch_lvt_mac w=0.4u l=30n nf=2
+  mn1 (y a m1 vss) nch_lvt_mac w=0.6u l=30n nf=2
+  mn2 (m1 b m2 vss) nch_lvt_mac w=0.6u l=30n nf=2
+  mn3 (m2 c vss vss) nch_lvt_mac w=0.6u l=30n nf=2
+ends nand3
+
+subckt nor2 (a b y vdd vss)
+  mp1 (y a m1 vdd) pch_lvt_mac w=0.8u l=30n nf=4
+  mp2 (m1 b vdd vdd) pch_lvt_mac w=0.8u l=30n nf=4
+  mn1 (y a vss vss) nch_lvt_mac w=0.2u l=30n nf=1
+  mn2 (y b vss vss) nch_lvt_mac w=0.2u l=30n nf=1
+ends nor2
+
+subckt nor2x4 (a b y vdd vss)
+  mp1 (y a m1 vdd) pch_lvt_mac w=3.2u l=30n nf=16
+  mp2 (m1 b vdd vdd) pch_lvt_mac w=3.2u l=30n nf=16
+  mn1 (y a vss vss) nch_lvt_mac w=0.8u l=30n nf=4
+  mn2 (y b vss vss) nch_lvt_mac w=0.8u l=30n nf=4
+ends nor2x4
+
+subckt nor3 (a b c y vdd vss)
+  mp1 (y a m1 vdd) pch_lvt_mac w=1.2u l=30n nf=6
+  mp2 (m1 b m2 vdd) pch_lvt_mac w=1.2u l=30n nf=6
+  mp3 (m2 c vdd vdd) pch_lvt_mac w=1.2u l=30n nf=6
+  mn1 (y a vss vss) nch_lvt_mac w=0.2u l=30n nf=1
+  mn2 (y b vss vss) nch_lvt_mac w=0.2u l=30n nf=1
+  mn3 (y c vss vss) nch_lvt_mac w=0.2u l=30n nf=1
+ends nor3
+
+subckt nand2x4 (a b y vdd vss)
+  mp1 (y a vdd vdd) pch_lvt_mac w=1.2u l=30n nf=6
+  mp2 (y b vdd vdd) pch_lvt_mac w=1.2u l=30n nf=6
+  mn1 (y a m1 vss) nch_lvt_mac w=1.2u l=30n nf=6
+  mn2 (m1 b vss vss) nch_lvt_mac w=1.2u l=30n nf=6
+ends nand2x4
+
+subckt nand3x4 (a b c y vdd vss)
+  mp1 (y a vdd vdd) pch_lvt_mac w=2.4u l=30n nf=12
+  mp2 (y b vdd vdd) pch_lvt_mac w=2.4u l=30n nf=12
+  mp3 (y c vdd vdd) pch_lvt_mac w=2.4u l=30n nf=12
+  mn1 (y a m1 vss) nch_lvt_mac w=2.4u l=30n nf=12
+  mn2 (m1 b m2 vss) nch_lvt_mac w=2.4u l=30n nf=12
+  mn3 (m2 c vss vss) nch_lvt_mac w=2.4u l=30n nf=12
+ends nand3x4
+
+subckt nand3x8 (a b c y vdd vss)
+  mp1 (y a vdd vdd) pch_lvt_mac w=4.8u l=30n nf=24
+  mp2 (y b vdd vdd) pch_lvt_mac w=4.8u l=30n nf=24
+  mp3 (y c vdd vdd) pch_lvt_mac w=4.8u l=30n nf=24
+  mn1 (y a m1 vss) nch_lvt_mac w=4.8u l=30n nf=24
+  mn2 (m1 b m2 vss) nch_lvt_mac w=4.8u l=30n nf=24
+  mn3 (m2 c vss vss) nch_lvt_mac w=4.8u l=30n nf=24
+ends nand3x8
+
+subckt nand2x8 (a b y vdd vss)
+  mp1 (y a vdd vdd) pch_lvt_mac w=2.4u l=30n nf=12
+  mp2 (y b vdd vdd) pch_lvt_mac w=2.4u l=30n nf=12
+  mn1 (y a m1 vss) nch_lvt_mac w=2.4u l=30n nf=12
+  mn2 (m1 b vss vss) nch_lvt_mac w=2.4u l=30n nf=12
+ends nand2x8
+
+// stronger versions for the CLKC control paths
+subckt nor2b (a b y vdd vss)
+  mp1 (y a m1 vdd) pch_lvt_mac w=1.8u l=30n nf=9
+  mp2 (m1 b vdd vdd) pch_lvt_mac w=1.8u l=30n nf=9
+  mn1 (y a vss vss) nch_lvt_mac w=0.6u l=30n nf=3
+  mn2 (y b vss vss) nch_lvt_mac w=0.6u l=30n nf=3
+ends nor2b
+
+subckt nand3x (a b c y vdd vss)
+  mp1 (y a vdd vdd) pch_lvt_mac w=0.8u l=30n nf=4
+  mp2 (y b vdd vdd) pch_lvt_mac w=0.8u l=30n nf=4
+  mp3 (y c vdd vdd) pch_lvt_mac w=0.8u l=30n nf=4
+  mn1 (y a m1 vss) nch_lvt_mac w=2.4u l=30n nf=12
+  mn2 (m1 b m2 vss) nch_lvt_mac w=2.4u l=30n nf=12
+  mn3 (m2 c vss vss) nch_lvt_mac w=2.4u l=30n nf=12
+ends nand3x
+
+subckt nor4s (a b c d y vdd vss)
+  mp1 (y a m1 vdd) pch_lvt_mac w=1.6u l=30n nf=8
+  mp2 (m1 b m2 vdd) pch_lvt_mac w=1.6u l=30n nf=8
+  mp3 (m2 c m3 vdd) pch_lvt_mac w=1.6u l=30n nf=8
+  mp4 (m3 d vdd vdd) pch_lvt_mac w=1.6u l=30n nf=8
+  mn1 (y a vss vss) nch_lvt_mac w=1.0u l=30n nf=5
+  mn2 (y b vss vss) nch_lvt_mac w=1.0u l=30n nf=5
+  mn3 (y c vss vss) nch_lvt_mac w=1.0u l=30n nf=5
+  mn4 (y d vss vss) nch_lvt_mac w=1.0u l=30n nf=5
+ends nor4s
+
+subckt nor4 (a b c d y vdd vss)
+  mp1 (y a m1 vdd) pch_lvt_mac w=1.6u l=30n nf=8
+  mp2 (m1 b m2 vdd) pch_lvt_mac w=1.6u l=30n nf=8
+  mp3 (m2 c m3 vdd) pch_lvt_mac w=1.6u l=30n nf=8
+  mp4 (m3 d vdd vdd) pch_lvt_mac w=1.6u l=30n nf=8
+  mn1 (y a vss vss) nch_lvt_mac w=0.4u l=30n nf=2
+  mn2 (y b vss vss) nch_lvt_mac w=0.4u l=30n nf=2
+  mn3 (y c vss vss) nch_lvt_mac w=0.4u l=30n nf=2
+  mn4 (y d vss vss) nch_lvt_mac w=0.4u l=30n nf=2
+ends nor4
+
+// gates facing OUTP / OUTN: stronger pull-down or pull-up, still small inputs (LOG-15)
+subckt nor2s (a b y vdd vss)
+  mp1 (y a m1 vdd) pch_lvt_mac w=1.2u l=30n nf=6
+  mp2 (m1 b vdd vdd) pch_lvt_mac w=1.2u l=30n nf=6
+  mn1 (y a vss vss) nch_lvt_mac w=0.6u l=30n nf=3
+  mn2 (y b vss vss) nch_lvt_mac w=0.6u l=30n nf=3
+ends nor2s
+
+subckt nand2s (a b y vdd vss)
+  mp1 (y a vdd vdd) pch_lvt_mac w=0.6u l=30n nf=3
+  mp2 (y b vdd vdd) pch_lvt_mac w=0.6u l=30n nf=3
+  mn1 (y a m1 vss) nch_lvt_mac w=1.2u l=30n nf=6
+  mn2 (m1 b vss vss) nch_lvt_mac w=1.2u l=30n nf=6
+ends nand2s
+
+subckt nor2x8 (a b y vdd vss)
+  mp1 (y a m1 vdd) pch_lvt_mac w=6.4u l=30n nf=32
+  mp2 (m1 b vdd vdd) pch_lvt_mac w=6.4u l=30n nf=32
+  mn1 (y a vss vss) nch_lvt_mac w=1.2u l=30n nf=6
+  mn2 (y b vss vss) nch_lvt_mac w=1.2u l=30n nf=6
+ends nor2x8
+
+subckt nand3s (a b c y vdd vss)
+  mp1 (y a vdd vdd) pch_lvt_mac w=0.4u l=30n nf=2
+  mp2 (y b vdd vdd) pch_lvt_mac w=0.4u l=30n nf=2
+  mp3 (y c vdd vdd) pch_lvt_mac w=0.4u l=30n nf=2
+  mn1 (y a m1 vss) nch_lvt_mac w=1.2u l=30n nf=6
+  mn2 (m1 b m2 vss) nch_lvt_mac w=1.2u l=30n nf=6
+  mn3 (m2 c vss vss) nch_lvt_mac w=1.2u l=30n nf=6
+ends nand3s
+
+// latch gate that is also the UP / DN output: strong pull-up into 15 fF
+subckt nand2up (a b y vdd vss)
+  mp1 (y a vdd vdd) pch_lvt_mac w=2.0u l=30n nf=10
+  mp2 (y b vdd vdd) pch_lvt_mac w=2.0u l=30n nf=10
+  mn1 (y a m1 vss) nch_lvt_mac w=1.6u l=30n nf=8
+  mn2 (m1 b vss vss) nch_lvt_mac w=1.6u l=30n nf=8
+ends nand2up
+
+// NOR set/reset latch, active-high inputs, reset dominant
+subckt srl (s r q qb vdd vss)
+  g1 (r qb q vdd vss) nor2
+  g2 (s q qb vdd vss) nor2
+ends srl
+
+// ------------------------------------------------------------ gate-delay chains
+subckt dnand2 (a b y vdd vss)
+  mp1 (y a vdd vdd) pch_ulvt_mac w=0.4u l=60n nf=1
+  mp2 (y b vdd vdd) pch_ulvt_mac w=0.4u l=60n nf=1
+  mn1 (y a m1 vss) nch_ulvt_mac w=0.4u l=60n nf=1
+  mn2 (m1 b vss vss) nch_ulvt_mac w=0.4u l=60n nf=1
+ends dnand2
+
+subckt dnor2 (a b y vdd vss)
+  mp1 (y a m1 vdd) pch_ulvt_mac w=0.8u l=60n nf=1
+  mp2 (m1 b vdd vdd) pch_ulvt_mac w=0.8u l=60n nf=1
+  mn1 (y a vss vss) nch_ulvt_mac w=0.2u l=60n nf=1
+  mn2 (y b vss vss) nch_ulvt_mac w=0.2u l=60n nf=1
+ends dnor2
+
+// One resettable pair: while s is high y follows a, two gate delays later; when s
+// falls, y goes low within one gate whatever a is doing.
+subckt rpair (a s sb y vdd vss)
+  g1 (a s m vdd vss) dnand2
+  g2 (m sb y vdd vss) dnor2
+ends rpair
+
+subckt fnand2 (a b y vdd vss)
+  mp1 (y a vdd vdd) pch_ulvt_mac w=0.4u l=30n nf=1
+  mp2 (y b vdd vdd) pch_ulvt_mac w=0.4u l=30n nf=1
+  mn1 (y a m1 vss) nch_ulvt_mac w=0.4u l=30n nf=1
+  mn2 (m1 b vss vss) nch_ulvt_mac w=0.4u l=30n nf=1
+ends fnand2
+
+subckt fnor2 (a b y vdd vss)
+  mp1 (y a m1 vdd) pch_ulvt_mac w=0.8u l=30n nf=1
+  mp2 (m1 b vdd vdd) pch_ulvt_mac w=0.8u l=30n nf=1
+  mn1 (y a vss vss) nch_ulvt_mac w=0.2u l=30n nf=1
+  mn2 (y b vss vss) nch_ulvt_mac w=0.2u l=30n nf=1
+ends fnor2
+
+// as rpair at L = 30 nm: about half the delay, for fine steps
+subckt fpair (a s sb y vdd vss)
+  g1 (a s m vdd vss) fnand2
+  g2 (m sb y vdd vss) fnor2
+ends fpair
+
+// between rpair and fpair: the NAND at L = 60 nm, the NOR at L = 30 nm
+subckt mpair (a s sb y vdd vss)
+  g1 (a s m vdd vss) dnand2
+  g2 (m sb y vdd vss) fnor2
+ends mpair
+
+subckt rch2 (a s sb y vdd vss)
+  p1 (a  s sb y1 vdd vss) rpair
+  p2 (y1 s sb y  vdd vss) rpair
+ends rch2
+
+subckt rch4 (a s sb y vdd vss)
+  p1 (a  s sb y1 vdd vss) rch2
+  p2 (y1 s sb y  vdd vss) rch2
+ends rch4
+
+// Negative pulse on a rising edge of a, one gate after the edge, about four pairs wide.
+subckt pulsen (a pn vdd vss)
+  ib (a ab vdd vss) inv
+  ch (a a ab y vdd vss) rch4
+  iy (y yb vdd vss) inv
+  g  (a yb pn vdd vss) nand2         // pn = NOT(a . NOT y)
+ends pulsen
+
+// Positive pulse on a rising edge of a, four pairs wide.
+subckt pulse (a p vdd vss)
+  ib (a ab vdd vss) inv
+  ch (a a ab y vdd vss) rch4
+  g  (ab y p vdd vss) nor2           // p = a . NOT y
+ends pulse
+
+// ------------------------------------------------------------------ one SAR step
+// Set only while enabled and not yet decided, so the set closes itself once the
+// latch has flipped and a later decision cannot reach this step again.
+subckt step (en gu gd clrb blc up dn upb dec eno vdd vss)
+  gdc (upb qbd dec vdd vss) nand2      // dec = up + dn
+  idc (dec decb vdd vss) inv
+  gsu (en gu decb sun vdd vss) nand3s
+  lu1 (sun upb up vdd vss) nand2up      // up is the latch node, driving 15 fF
+  lu2 (clrb up upb vdd vss) nand2       // upb = NOT up, read by the output register
+  gsd (en gd decb sdn vdd vss) nand3s
+  ld1 (sdn qbd dn vdd vss) nand2up
+  ld2 (clrb dn qbd vdd vss) nand2
+  gse (dec blc sen vdd vss) nand2      // enable the next step once reset with CLKC low
+  le1 (sen enb eno vdd vss) nand2
+  le2 (clrb eno enb vdd vss) nand2
+ends step
+
+// ------------------------------------------------------ output register bit (50 fF)
+// db is the complement of the bit (the step latch's upb), so the stored node int is
+// NOT bit and the output is a single inverting driver.
+subckt regbit (db ld ldb q vdd vss)
+  tn (int ld  db vss) nch_lvt_mac w=0.4u l=30n nf=2
+  tp (int ldb db vdd) pch_lvt_mac w=0.8u l=30n nf=4
+  k1 (int intb vdd vss) inv
+  kp (int intb vdd vdd) pch_mac w=0.1u l=150n nf=1    // weak keeper, int = NOT intb
+  kn (int intb vss vss) nch_mac w=0.1u l=150n nf=1
+  ob (int q vdd vss) invx4                           // q = NOT int = bit
+ends regbit
+
+// ==================================================================== top level
+subckt adc_sarlogic (CONV OUTP OUTN CLKC UP12 UP11 UP10 UP9 UP8 UP7 UP6 UP5 UP4 UP3 UP2 \
+        UP1 UP0 DN12 DN11 DN10 DN9 DN8 DN7 DN6 DN5 DN4 DN3 DN2 DN1 DN0 D13 D12 D11 D10 D9 \
+        D8 D7 D6 D5 D4 D3 D2 D1 D0 RDY DVDD VSS)
+
+  // ---- conversion window; the steps are cleared after CONV falls (late, after the
+  //      reload pulse) and released quickly when CONV rises
+  i_cb  (CONV convb DVDD VSS) invx4             // the only gate on the CONV pin
+  i_cv  (convb cv DVDD VSS) invx4               // buffered CONV for the inside
+  c_cl1 (convb convb cv cl_a DVDD VSS) rch4
+  c_cl2 (cl_a  convb cv clrn DVDD VSS) rch2     // rises 6 pairs after CONV falls
+  b_cl  (clrn clrb DVDD VSS) invx4
+
+  // ---- comparator outputs
+  g_bl  (OUTP OUTN bothlow DVDD VSS) nor2b
+  i_bl  (bothlow bln DVDD VSS) inv
+  // CLKC itself only drives the comparator, the latch feedback and i_c1; everything
+  // else hangs on c2, a buffered copy two inverters later.
+  i_c1  (CLKC c1 DVDD VSS) inv
+  i_c2  (c1 c2 DVDD VSS) invx4
+  i_c3  (c2 clkcb_d DVDD VSS) inv              // NOT CLKC, late: the strobes stay open until
+                                               // the step latch has flipped and holds itself
+  // The next step may be enabled only once the comparator has reset, CLKC is low
+  // and both strobes are closed. Without the strobe terms a stuck comparator (bothlow
+  // never falls) lets the enable move before gu closes, and the forced decision is
+  // also written into the next step.
+  g_blc (bln c2 gu gd blcn DVDD VSS) nor4
+  i_bl1 (blcn blcb DVDD VSS) inv
+  i_bl2 (blcb blc DVDD VSS) invx4
+
+  // ---- timeout: CLKC high for longer than t_timeout forces a decision of 1
+  i_tb (c2 tsb DVDD VSS) invx4                  // own copies of CLKC for the chain
+  i_ta (tsb ts DVDD VSS) invx4
+  c_t1 (ts  ts tsb t_a DVDD VSS) rch4
+  c_t2 (t_a ts tsb t_b DVDD VSS) rch4
+  c_t3 (t_b ts tsb t_c DVDD VSS) rch4
+  c_t4 (t_c ts tsb tod DVDD VSS) rpair           // 13 pairs, about 260 ps to TO at TT
+  g_to (c2 tod TOB DVDD VSS) nand2
+  i_to (TOB TO DVDD VSS) inv
+
+  // ---- decision strobes: gu = (OUTP + TO) . CLKC, gd = OUTN . NOT TO . CLKC
+  g_up (OUTP TO upvn DVDD VSS) nor2s
+  g_gu (upvn clkcb_d gu DVDD VSS) nor2x8
+  g_dn (OUTN TOB gdn DVDD VSS) nand2s
+  g_gd (gdn clkcb_d gd DVDD VSS) nor2x8
+
+  // ---- the fourteen steps; decision k drives index j = 13 - k
+  s1 (cv gu gd clrb blc UP12 DN12 UP12b dec1 en2 DVDD VSS) step
+  s2 (en2 gu gd clrb blc UP11 DN11 UP11b dec2 en3 DVDD VSS) step
+  s3 (en3 gu gd clrb blc UP10 DN10 UP10b dec3 en4 DVDD VSS) step
+  s4 (en4 gu gd clrb blc UP9 DN9 UP9b dec4 en5 DVDD VSS) step
+  s5 (en5 gu gd clrb blc UP8 DN8 UP8b dec5 en6 DVDD VSS) step
+  s6 (en6 gu gd clrb blc UP7 DN7 UP7b dec6 en7 DVDD VSS) step
+  s7 (en7 gu gd clrb blc UP6 DN6 UP6b dec7 en8 DVDD VSS) step
+  s8 (en8 gu gd clrb blc UP5 DN5 UP5b dec8 en9 DVDD VSS) step
+  s9 (en9 gu gd clrb blc UP4 DN4 UP4b dec9 en10 DVDD VSS) step
+  s10 (en10 gu gd clrb blc UP3 DN3 UP3b dec10 en11 DVDD VSS) step
+  s11 (en11 gu gd clrb blc UP2 DN2 UP2b dec11 en12 DVDD VSS) step
+  s12 (en12 gu gd clrb blc UP1 DN1 UP1b dec12 en13 DVDD VSS) step
+  s13 (en13 gu gd clrb blc UP0 DN0 UP0b dec13 en14 DVDD VSS) step
+  s14 (en14 gu gd clrb blc b14u b14d b14ub dec14 en15 DVDD VSS) step   // no DAC step, EOC
+
+  // ---- DAC-wait timers: one chain started by CLKC falling, tapped. After decisions
+  //      1 and 2 there is no timer: the next CLKC follows the comparator reset (the
+  //      handshake floor), and the extra waits of 3..6 are timed against that floor.
+  i_tm  (c2 tms DVDD VSS) invx4                  // tms high while CLKC is low
+  i_tn  (tms tmsb DVDD VSS) invx4
+  w1  (tms  tms tmsb w_3   DVDD VSS) mpair       // fast + 10
+  w2  (w_3  tms tmsb wx2   DVDD VSS) rpair
+  w3  (wx2  tms tmsb w_456 DVDD VSS) mpair       // fast + 30
+  w4  (w_456 tms tmsb wx4  DVDD VSS) fpair
+  w5  (wx4  tms tmsb wx5   DVDD VSS) fpair
+  w5b (wx5  tms tmsb w_s   DVDD VSS) fpair       // slow
+  w6  (w_s  tms tmsb wx6   DVDD VSS) rpair
+  w7  (wx6  tms tmsb w_9   DVDD VSS) rpair       // slow + 25
+
+  // ---- which step was decided last (one-hot, stable through the wait)
+  i_d3  (dec3 dec3b DVDD VSS) inv
+  i_d4  (dec4 dec4b DVDD VSS) inv
+  i_d7  (dec7 dec7b DVDD VSS) inv
+  i_d9  (dec9 dec9b DVDD VSS) inv
+  g_s3   (dec3b dec4  sel3   DVDD VSS) nor2      // 3 only
+  g_s456 (dec4b dec7  sel456 DVDD VSS) nor2      // 4, 5, 6
+  g_s9   (dec9b dec10 sel9   DVDD VSS) nor2      // 9 only
+  g_ss   (dec7b sel9  sels   DVDD VSS) nor2      // 7, 8, 10 .. 13
+  n_3   (w_3   sel3   wn_3   DVDD VSS) nand2h      // half width: fine step for decision 3
+  n_456 (w_456 sel456 wn_456 DVDD VSS) nand2
+  n_s   (w_s   sels   wn_s   DVDD VSS) nand2
+  n_9   (w_9   sel9   wn_9   DVDD VSS) nand2
+  g_wa  (dec3 wn_3 wn_456 w_a DVDD VSS) nand3    // the wait has elapsed (fast side)
+  g_wb  (wn_s wn_9 w_b DVDD VSS) nand2           // the wait has elapsed (slow side)
+
+  // ---- comparator clock. CLKC is the node of a NAND latch, so it rises three
+  //      gates after the comparator resets and falls three gates after it decides.
+  c_s1 (cv cv convb s_a DVDD VSS) rch2          // t_start
+  c_s2 (s_a cv convb s_b DVDD VSS) rpair
+  c_s3 (s_b cv convb s_c DVDD VSS) fpair
+  c_s4 (s_c cv convb sd DVDD VSS) fpair
+  i_eb (dec14 eocb DVDD VSS) inv
+  g_en (sd cv eocb en_gon DVDD VSS) nand3
+  i_en (en_gon en_go DVDD VSS) inv               // started . CONV . not EOC
+  g_sa (bothlow en_go w_a setn_a DVDD VSS) nand3x
+  g_sb (bothlow en_go w_b setn_b DVDD VSS) nand3x
+  g_r  (OUTP OUTN TO convb rstn DVDD VSS) nor4s   // low on a decision, a timeout or CONV low
+  l_q  (setn_a setn_b ckqb CLKC DVDD VSS) nand3x8
+  l_qb (rstn CLKC ckqb DVDD VSS) nand2x8
+
+  // ---- output register: a pulse at EOC, and one when CONV falls (bits decided so
+  //      far, undecided = 0); both close before the steps are cleared
+  p_e  (dec14 pen DVDD VSS) pulsen
+  p_c  (convb pcn DVDD VSS) pulsen
+  g_ld (pen pcn ld DVDD VSS) nand2x4             // ld = either pulse
+  b_lb (ld ldb DVDD VSS) invx4
+  r13 (UP12b ld ldb D13 DVDD VSS) regbit
+  r12 (UP11b ld ldb D12 DVDD VSS) regbit
+  r11 (UP10b ld ldb D11 DVDD VSS) regbit
+  r10 (UP9b ld ldb D10 DVDD VSS) regbit
+  r9  (UP8b ld ldb D9  DVDD VSS) regbit
+  r8  (UP7b ld ldb D8  DVDD VSS) regbit
+  r7  (UP6b ld ldb D7  DVDD VSS) regbit
+  r6  (UP5b ld ldb D6  DVDD VSS) regbit
+  r5  (UP4b ld ldb D5  DVDD VSS) regbit
+  r4  (UP3b ld ldb D4  DVDD VSS) regbit
+  r3  (UP2b ld ldb D3  DVDD VSS) regbit
+  r2  (UP1b ld ldb D2  DVDD VSS) regbit
+  r1  (UP0b ld ldb D1  DVDD VSS) regbit
+  r0  (b14ub ld ldb D0  DVDD VSS) regbit
+
+  // ---- RDY: set >= 100 ps after D, falls quickly at the next CONV rising
+  p_r  (cv crise DVDD VSS) pulse
+  l_dn (ld crise dn_q dn_qb DVDD VSS) srl
+  c_r1 (dn_q dn_q dn_qb r_a DVDD VSS) rch4      // falls at once with DONE
+  c_r2 (r_a  dn_q dn_qb r_c2 DVDD VSS) rch2
+  c_r3 (r_c2 dn_q dn_qb r_c3 DVDD VSS) rpair
+  c_r4 (r_c3 dn_q dn_qb r_c4 DVDD VSS) fpair
+  c_r5 (r_c4 dn_q dn_qb r_c5 DVDD VSS) fpair
+  c_r6 (r_c5 dn_q dn_qb r_b DVDD VSS) fpair
+  i_r  (r_b  r_c DVDD VSS) inv
+  b_r  (r_c  RDY DVDD VSS) invx4
+
+ends adc_sarlogic
