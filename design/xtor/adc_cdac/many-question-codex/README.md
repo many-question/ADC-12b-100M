@@ -67,7 +67,11 @@ tau and all-MOS pressure pass, while Qref rises to 2.006878206 pC at SS
 (n/a). Its TT expansion is also stopped. The subsequent upper-PMOS predrive
 case passes all five SS settling requirements and all 540-MOS pressure
 checks: RL12 39.2 ps, start 91.3 ps, tau 11.248227 ps. Its independent TT
-charge/load/settling check is now running; N4's TT evidence does not transfer.
+check passes timing, loads and all-MOS pressure, but Qref is 1.281322764 pC
+against the 1.2 pC limit. Its spectrum/corner expansion is stopped. A matched
+phase audit identifies increased sampling-entry charge in one bit-12 branch
+and slower shared disable; the next independent case tests a faster enable
+pull-up. N4's TT evidence does not transfer to any changed case.
 The [first passing private SS comparison](balanced-predrive-ss-screen.png)
 and complete source/evidence identifiers are in the ledger.
 

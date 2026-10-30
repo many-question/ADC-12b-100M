@@ -359,13 +359,54 @@ The job took 348 s. All nine raw files and 50 frozen inputs were recovered
 and hash-verified before exact cleanup. Archive SHA256:
 `b01d69cef793d97fe24252c5aaea94a48a5eec8f2d9500bcaf893a0572083c1d`.
 
+## Upper-PMOS predrive: TT reference-charge failure
+
+The same frozen V4 source completed its conditional full 70 ns TT test
+from clean commit `276a47eebd891bcc06d038e290ea44836abefdf4`. All nine
+timing, droop and load requirements pass; reference charge fails:
+
+| Quantity | TT value | Limit | Result |
+|---|---:|---:|---|
+| RL5 settling | 40.2 ps | <=75 ps | PASS |
+| RL12 settling | 29.8 ps | <=40 ps | PASS |
+| Equivalent tau | 6.861853 ps | <=15 ps | PASS |
+| Conversion-start settling | 65.0 ps | <=100 ps | PASS |
+| Hold droop | 0.002995030 LSB | <=0.1 LSB | PASS |
+| Reference charge | 1.281322764 pC | <=1.2 pC | FAIL |
+| DH5 input capacitance | 0.830865 fF | <=6 fF | PASS |
+| PHI_S / PHI_SB capacitance | 6.432470 / 12.247828 fF | <=40 fF each | PASS |
+| CONV capacitance | 13.170575 fF | <=80 fF | PASS |
+
+All 540 MOS / 1,620 pairs pass at 231,226 saved times. The exact maximum
+is 0.983052778673 V at XB12.XDL.MPA1 ds, 20.101423579 ns. The actual
+settings remain 0.5 ps / 1e-7 / 1e-8 / traponly; runtime is 437 s.
+Nine raw files and 50 frozen inputs, plus analysis and geometry provenance,
+were recovered and hash-verified before exact run cleanup. Archive SHA256:
+`4f5128b55a9e6cbecbfedc11b3289f02c656b0f9eb62d5c736a139e2f2501fa9`.
+This case stops before weights, tracking or other-corner expansion. Its SS
+pass and TT failure are both retained; formal N4 evidence remains unchanged.
+
+A separate matched SS V3/V4 audit uses the actual reference-meter interval
+54.8..64.8 ns and -120..+300 ps around its conversion-start and sampling-entry
+edges. Native source-plus-body charge of the bit-12 high output PMOS at
+sampling entry rises from 12.767975 to 43.996840 fC; over the full interval
+it rises from 93.762504 to 124.994990 fC. Its conversion-start charge is
+almost unchanged (309.494587 -> 309.502572 fC). The low output branch's
+full-interval charge is also nearly unchanged (392.505794 -> 392.499525 fC).
+Shared ENB/EN sampling-entry midpoints move from 17.550/22.538 ps to
+19.101/24.279 ps. This locates part of the SS charge increase at entry and
+supports testing a faster shared disable path. It does not decompose every
+branch, establish the TT charge breakdown, or isolate channel-only overlap:
+native terminal currents include displacement.
+
 ## Continuing verification
 
-The same frozen V4 source has now entered the conditional full 70 ns TT
-settling/charge/load and all-MOS check, with the same strict numerical
-settings. TT results are pending; in particular, the 1.2 pC reference-charge
-limit must be measured. No N4 TT result transfers to this circuit, and no
-tracking or additional corner expansion precedes that gate.
+The next independent case doubles only the shared enable pull-up M0P from
+8 to 16 um, retaining its nominal-threshold family and 2 um finger width.
+The intended change is earlier ENB rise at sampling entry; extra drain
+capacitance can also affect conversion start. Both effects and the full SS
+gate must be measured before a conditional TT rerun. No circuit pass is
+inherited from V4 or formal N4.
 
 A brief separately controlled reference-drive assist remains an unimplemented
 hypothesis, with additional pulse alignment and loading questions.
