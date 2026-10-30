@@ -1,0 +1,151 @@
+{
+ "block": "adc_top",
+ "test": "tb_top_duty",
+ "view": "xtor-bootstrap@many-question+clkgen@many-question",
+ "corner": "sf_nom_27",
+ "params": {
+  "amp_dbfs": -1.0,
+  "npts": 1024,
+  "ncal": 1024,
+  "duty": 0.45,
+  "fin": "4.970703125e+07"
+ },
+ "globals": {
+  "vdd": 0.9,
+  "vdd18": 1.8,
+  "tempc": 27.0,
+  "noise_en": 1,
+  "devnoise": 1,
+  "beh_speed": 1.0,
+  "vref_in": 0.9,
+  "cdac_behav": 1,
+  "comp_behav": 1
+ },
+ "metrics": {
+  "n_samples": 2048,
+  "missing_rdy": 0,
+  "t_conv_max_ns": 2.8153319999999997,
+  "t_conv_mean_ns": 2.7391619550781248,
+  "cal_independent": true,
+  "weights_cal": [
+   1960.469,
+   1120.287,
+   636.194,
+   360.087,
+   204.026,
+   113.939,
+   63.988,
+   35.947,
+   19.959,
+   11.874,
+   5.929,
+   3.601,
+   1.748,
+   0.952
+  ],
+  "enob": 11.011550838673827,
+  "sndr_dBc": 68.04953604881644,
+  "sfdr_dBc": 85.54215451497213,
+  "snr_dBc": 68.18372439361187,
+  "thd_dBc": -83.86904590990954,
+  "enob_nom": 10.94360890770502,
+  "sndr_nom_dBc": 67.64052562438422,
+  "sfdr_nom_dBc": 84.90701645374605,
+  "snr_nom_dBc": 67.7931973657729,
+  "thd_nom_dBc": -82.6081578209822,
+  "amp_codes": 2020.8009727184835,
+  "fs_peak_V": 0.9939053987715771,
+  "code_min": 248,
+  "code_max": 4290,
+  "spike_count": 0,
+  "spike_max_lsb": 2.339939911272154,
+  "spike_index": [],
+  "p_avdd_mW": 0.30034352745,
+  "p_dvdd_mW": 0.21054405942,
+  "p_avdd18_mW": 14.7144420648,
+  "power_mW": 15.22532965167
+ },
+ "specs": {
+  "TOP-09": {
+   "metric": "enob",
+   "value": 11.011550838673827,
+   "limit": ">= 10.5",
+   "pass": true
+  }
+ },
+ "figures": [
+  {
+   "file": "sf_nom_27__duty0.45.spectrum.png",
+   "caption": "Output spectrum of the judged record (fin 49.71 MHz, 1024 points, -1 dBFS) with ENOB, SNDR and SFDR against their limits, decoded with calibrated weights (weights from the preceding 1024 conversions) and, for information, with the nominal weights."
+  },
+  {
+   "file": "sf_nom_27__duty0.45.codes.png",
+   "caption": "Calibrated output codes of the judged record folded on the phase of the input sine with the fit, the error against the fit for every sample with the spikes beyond 3 LSB marked (TOP-10), and the conversion-time histogram (calibration and judged records) against its limit."
+  }
+ ],
+ "meta": {
+  "date": "2026-10-30T16:23:53",
+  "git": "98497ac",
+  "git_clean": true,
+  "mode": "aps",
+  "pdk": true,
+  "mc": null,
+  "wall_s": 8276.7,
+  "rc": "0",
+  "sim_s": "2239",
+  "numerics": {
+   "source": "spectre.log",
+   "reltol": 0.001,
+   "maxstep_ps": 410520.0,
+   "method": "traponly",
+   "errpreset": "moderate",
+   "lteratio": 3.5,
+   "abstol_V": 1e-06,
+   "steps_accepted": 3735625,
+   "step_mean_ps": 5.49466,
+   "step_max_ps": null
+  },
+  "files": {
+   "tb/top/tb_top_sine.scs": "d131f9666cdb9650",
+   "tb/common/veriloga/tb_imeter_va.va": "d4be49aca417ad61",
+   "tb/common/veriloga/tb_capture_va.va": "1a05df990a1ef806",
+   "tb/common/veriloga/tb_rsrc_va.va": "66b85ead5a038eb0",
+   "design/top/adc_top.scs": "362a964ffe162797",
+   "design/behav/adc_sarlogic.scs": "7982e36f6743bf80",
+   "design/behav/veriloga/adc_sarlogic_va.va": "5cd9dbd22bf395eb",
+   "design/behav/adc_comp.scs": "c0da9398b6e09fc2",
+   "design/behav/veriloga/adc_comp_va.va": "ab8a6bf210351e31",
+   "design/behav/adc_cdac.scs": "5b8837cc5d2a76bc",
+   "design/behav/veriloga/adc_ktc_va.va": "a1cf98faf5bf9b33",
+   "design/behav/veriloga/adc_cdac_sw_va.va": "25fa7719fc730a3a",
+   "design/xtor/adc_bootstrap/many-question/adc_bootstrap.scs": "f9330137569bdf81",
+   "design/xtor/adc_clkgen/many-question/adc_clkgen.scs": "878752080031c251",
+   "design/behav/adc_ref.scs": "bc2eec0046129145",
+   "design/behav/veriloga/adc_ref_va.va": "746d2530d4ff6d5c",
+   "design/behav/veriloga/adc_arch_func.vams": "8eac5dace781bffc",
+   "design/behav/veriloga/adc_arch.vams": "32d904828c5dbf67"
+  },
+  "arch": {
+   "keys": [
+    "cdac.cap_sampled",
+    "cdac.cap_weights",
+    "cdac.cu",
+    "conversion.out_weights",
+    "reference.vref"
+   ],
+   "sha": "1e3a4bd6f61d85bb"
+  },
+  "views": {
+   "adc_bootstrap": "xtor:many-question",
+   "adc_clkgen": "xtor"
+  },
+  "provenance": {
+   "spectrum": {
+    "estimator": "adcflow.spectrum v1",
+    "adctoolbox": "0.6.4",
+    "sfdr": "plotspec definition: peak bin of the fundamental / largest other single bin (DC and signal bins excluded, Nyquist included)",
+    "enob_sndr_snr_thd": "adctoolbox 0.6.4 compute_spectrum"
+   }
+  }
+ }
+}

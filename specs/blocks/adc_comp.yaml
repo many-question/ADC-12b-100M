@@ -1,13 +1,14 @@
 block: adc_comp
 title: Dynamic latched comparator
-version: 0.6.0
+version: 0.7.0
 selected: none          # the selected candidate (design/xtor/<block>/<name>/); none yet
 status: behavioral
 views:
   behav: design/behav/adc_comp.scs
 summary: >
   Single fully-dynamic comparator of the asynchronous SAR loop. CLKC low resets
-  (OUTP = OUTN = 0); CLKC rising evaluates; exactly one of OUTP / OUTN rises.
+  (OUTP = OUTN = 0); CLKC rising evaluates; exactly one of OUTP / OUTN rises
+  and the other stays below 30 % VDD until CLKC falls (CMP-15).
   OUTP = 1 means V(INP) > V(INN). At the top level INP is driven by the top
   plate of the CDAC that samples VINN (bottom-plate sampling inverts), so
   OUTP = 1 means "input above the DAC level".
@@ -40,6 +41,9 @@ specs:
   - {id: CMP-11, name: "differential kickback per cycle on 2.5 pF",  metric: kickback_uV,    unit: uV,    max: 40,  corners: all, test: tb_comp_kickback}
   - {id: CMP-12, name: "input capacitance per input",                metric: cin_fF,         unit: fF,    max: 20,  corners: typ, test: tb_comp_kickback}
   - {id: CMP-14, name: "CLKC input capacitance (charge per rising edge / VDD)", metric: cin_clkc_fF, unit: fF, max: 16, corners: typ, test: tb_comp_kickback}
+  # output validity (#77): what the asynchronous SAR receiver relies on, judged over every decided cycle (|vd| down to 10 uV)
+  - {id: CMP-15, name: "output validity violations: both outputs >= 50 % VDD, or the losing output >= 30 % VDD, CLKC rise .. fall", metric: validity_violations, unit: count, max: 0, corners: all, test: tb_comp_delay}
+  - {id: CMP-16, name: "worst losing-output peak, CLKC rise .. fall (decided cycles)", metric: loser_peak_pct, unit: "% VDD", reported: true, corners: all, test: tb_comp_delay}
 tests:
   tb_comp_delay:
     netlist: tb/comp/tb_comp_delay.scs
@@ -54,7 +58,16 @@ tests:
       CLKC cycles from the first rising edge (100 ps .. 14.5 ns, no lead-in, no
       partial cycle) and energy_fJ = AVDD charge x VDD / 36. It is not a
       dedicated 1 mV measurement; the energy of the CLKC source is outside the
-      meter.
+      meter. CMP-15 (output validity, #77): in every evaluate interval, from the
+      CLKC rise to the CLKC fall (50 % crossings), exactly one output crosses
+      50 % VDD and the other output's peak over the whole interval, taken over
+      every saved point, stays below 30 % VDD; a cycle where both cross 50 % or
+      the losing peak is >= 30 % is a violation. A cycle without any crossing
+      is not counted here (CMP-09 for |vd| >= 100 uV; below that the SAR
+      timeout, LOG-11). CMP-16 reports the worst losing peak (% VDD, no limit);
+      the result's `validity` gives its cycle, vd and output and the largest
+      saved time step over the intervals. CMP-09 keeps judging the polarity of
+      the first output to rise.
   tb_comp_noise:
     netlist: tb/comp/tb_comp_noise.scs
     measure: adcflow.measure.comp:noise

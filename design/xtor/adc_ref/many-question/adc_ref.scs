@@ -1,0 +1,343 @@
+// adc_ref: native thick-oxide follower with a scaled replica servo
+// @RNL(type="header") {
+//   @VERSION("0.3");
+//   @USE-PACKAGE(name="adc28", version="0.1", path="../../../rnl/adc28.rnl")
+// }
+simulator lang=spectre
+
+// The replica includes the VCM divider load at one twenty-eighth of the main scale.
+// All bias gates draw from VREF_IN; AVDD is reserved and unused in this view.
+// The startup clamp inhibits drive while the reference is absent.
+subckt adc_ref (VREF_IN VREFP VCM AVDD18 AVDD VSS)
+XSERVO (VREF_IN VREP VG VREF_IN AVDD18 VSS) adc_ref_servo
+XSTART (VREF_IN VG AVDD18 VSS) adc_ref_startup
+MREP (AVDD18 VG VREP VSS) nch_na18_mac w=64u l=800n nf=32
+MDRV (AVDD18 VG VREFP VSS) nch_na18_mac w=64u l=800n nf=32 multi=28
+MSREP (VREP VREF_IN VSS VSS) nch_18_mac w=16u l=500n nf=8
+MSINK (VREFP VREF_IN VSS VSS) nch_18_mac w=64u l=500n nf=32 multi=7
+MCRH (CMR CMR VREP VREP) pch_lvt_mac w=4u l=120n nf=2
+MCRL (VSS VSS CMR CMR) pch_lvt_mac w=4u l=120n nf=2
+MCMH (VCM VCM VREFP VREFP) pch_lvt_mac w=8u l=120n nf=4 multi=14
+MCML (VSS VSS VCM VCM) pch_lvt_mac w=8u l=120n nf=4 multi=14
+CREF0 (VREFP VSS) cfmom_2t w=50n s=50n nr=80 lr=40u stm=1 spm=5
+CREF1 (VREFP VSS) cfmom_2t w=50n s=50n nr=80 lr=40u stm=1 spm=5
+CCM (VCM VSS) cfmom_2t w=50n s=50n nr=80 lr=40u stm=1 spm=5
+CGATE (VG VSS) cfmom_2t w=50n s=50n nr=80 lr=40u stm=1 spm=5 multi=16
+// @RNL {
+//   {&AVDD18 &AVDD} @ADD-TO $SUPPLY_NET_SET;
+//   &VSS @ADD-TO $GROUND_NET_SET;
+//   {#MREP #MDRV} @AS $MATCHED;
+//   {#MSREP #MSINK} @AS $MATCHED;
+//   {#MCRH #MCRL} @AS $MATCHED;
+//   {#MCMH #MCML} @AS $MATCHED;
+//   {#MREP #MSREP #MCRH #MCRL} @GROUP;
+//   {#MDRV #MSINK #MCMH #MCML #CREF0 #CREF1 #CCM} @GROUP;
+//   {#MREP #MDRV #MSREP #MSINK} @SET-SYMBOL $NMOS;
+//   {#MCRH #MCRL #MCMH #MCML} @SET-SYMBOL $PMOS_4TERM;
+//   {#MREP #MDRV #MSREP #MSINK #MCRH #MCRL #MCMH #MCML #CREF0 #CREF1 #CCM #CGATE} @TEXT("", key="model");
+//   #XSERVO @PLACE(0, 8) => @ORIENT("R0");
+//   #XSTART @PLACE(-14, -20) => @ORIENT("R0");
+//   #MREP @PLACE(22, 8) => @ORIENT("R0");
+//   #MDRV @PLACE(48, 8) => @ORIENT("R0");
+//   #MSREP @PLACE(22, -8) => @ORIENT("R0");
+//   #MSINK @PLACE(48, -8) => @ORIENT("R0");
+//   #MCRH @PLACE(34, -6) => @ORIENT("R0");
+//   #MCRL @PLACE(34, -18) => @ORIENT("R0");
+//   #MCMH @PLACE(72, -6) => @ORIENT("R0");
+//   #MCML @PLACE(72, -18) => @ORIENT("R0");
+//   #CREF0 @PLACE(58, -7) => @ORIENT("R0");
+//   #CREF1 @PLACE(64, -7) => @ORIENT("R0");
+//   #CCM @PLACE(84, -18) => @ORIENT("R0");
+//   #CGATE @PLACE(40, 8) => @ORIENT("R0");
+//   %pin = $IO_PORT @ATTACH &VREF_IN => @PLACE(-30, 9) => @ORIENT("R0");
+//   %jin = (-24, 9); %jbias = (-12, 9); %jstart = (-24, -20); %jbr = (18, -34);
+//   &VREF_IN @WIRE {%pin:p %jin %jbias #XSERVO:INP};
+//   &VREF_IN @WIRE {%jbias (-12, 2) (-1, 2) #XSERVO:BIAS};
+//   &VREF_IN @WIRE {%jin %jstart (-24, -34) %jbr (43, -34) (43, -8) #MSINK:g};
+//   &VREF_IN @WIRE {%jstart #XSTART:REF};
+//   &VREF_IN @WIRE {%jbr (18, -8) #MSREP:g};
+//   %jg = (12, 8); %jgc = (40, 12);
+//   &VG @WIRE {#XSERVO:OUT %jg #MREP:g};
+//   &VG @WIRE {%jg (12, 12) %jgc (44, 12) (44, 8) #MDRV:g};
+//   &VG @WIRE {%jg #XSTART:OUT};
+//   &VG @WIRE {%jgc #CGATE:p};
+//   %jr = (22, 0); %jrh = (34, -3);
+//   &VREP @WIRE {#MREP:s %jr #MSREP:d};
+//   &VREP @WIRE {%jr (34, 0) %jrh #MCRH:s};
+//   &VREP @WIRE {%jrh (38, -3) (38, -6) #MCRH:b};
+//   &VREP @WIRE {%jr (-8, 0) (-8, 7) #XSERVO:INN};
+//   %jcmr = (34, -12); %jcmrb = (34, -15);
+//   &CMR @WIRE {#MCRH:d %jcmr %jcmrb #MCRL:s};
+//   &CMR @WIRE {%jcmr (29, -12) (29, -6) #MCRH:g};
+//   &CMR @WIRE {%jcmrb (38, -15) (38, -18) #MCRL:b};
+//   %jo = (48, 0); %jc0 = (58, 0); %jc1 = (64, 0); %jph = (72, 0); %jch = (72, -3);
+//   %pout = $IO_PORT @ATTACH &VREFP => @PLACE(93, 0) => @ORIENT("MY");
+//   &VREFP @WIRE {#MDRV:s %jo #MSINK:d};
+//   &VREFP @WIRE {%jo %jc0 %jc1 %jph %pout:p};
+//   &VREFP @WIRE {%jc0 #CREF0:p};
+//   &VREFP @WIRE {%jc1 #CREF1:p};
+//   &VREFP @WIRE {%jph %jch #MCMH:s};
+//   &VREFP @WIRE {%jch (76, -3) (76, -6) #MCMH:b};
+//   %jcm = (72, -12); %jcmb = (72, -15); %jccm = (84, -12);
+//   %pcm = $IO_PORT @ATTACH &VCM => @PLACE(93, -12) => @ORIENT("MY");
+//   &VCM @WIRE {#MCMH:d %jcm %jcmb #MCML:s};
+//   &VCM @WIRE {%jcm (68, -12) (68, -6) #MCMH:g};
+//   &VCM @WIRE {%jcmb (76, -15) (76, -18) #MCML:b};
+//   &VCM @WIRE {%jcm %jccm %pcm:p};
+//   &VCM @WIRE {%jccm #CCM:p};
+//   %vh0 = $SUPPLY @ATTACH &AVDD18 => @PLACE(-1, 17) => @ORIENT("R0");
+//   %vh1 = $SUPPLY @ATTACH &AVDD18 => @PLACE(22, 17) => @ORIENT("R0");
+//   %vh2 = $SUPPLY @ATTACH &AVDD18 => @PLACE(48, 17) => @ORIENT("R0");
+//   &AVDD18 @WIRE {%vh0:p #XSERVO:AVDD18};
+//   &AVDD18 @WIRE {%vh1:p #MREP:d};
+//   &AVDD18 @WIRE {%vh2:p #MDRV:d};
+//   %gservo = $GROUND @ATTACH &VSS => @PLACE(5, 4) => @ORIENT("R0");
+//   &VSS @WIRE {#XSERVO:VSS %gservo:p};
+//   %gs0 = $GROUND @ATTACH &VSS => @PLACE(22, -13) => @ORIENT("R0");
+//   %gs1 = $GROUND @ATTACH &VSS => @PLACE(48, -13) => @ORIENT("R0");
+//   &VSS @WIRE {#MSREP:s %gs0:p};
+//   &VSS @WIRE {#MSINK:s %gs1:p};
+//   %gd0 = $GROUND @ATTACH &VSS => @PLACE(34, -25) => @ORIENT("R0");
+//   %gd1 = $GROUND @ATTACH &VSS => @PLACE(72, -25) => @ORIENT("R0");
+//   %jd0 = (34, -23); %jd1 = (72, -23);
+//   &VSS @WIRE {#MCRL:d %jd0 %gd0:p};
+//   &VSS @WIRE {#MCRL:g (29, -18) (29, -23) %jd0};
+//   &VSS @WIRE {#MCML:d %jd1 %gd1:p};
+//   &VSS @WIRE {#MCML:g (67, -18) (67, -23) %jd1};
+//   %gc0 = $GROUND @ATTACH &VSS => @PLACE(58, -13) => @ORIENT("R0");
+//   %gc1 = $GROUND @ATTACH &VSS => @PLACE(64, -13) => @ORIENT("R0");
+//   %gcm = $GROUND @ATTACH &VSS => @PLACE(84, -25) => @ORIENT("R0");
+//   &VSS @WIRE {#CREF0:n %gc0:p};
+//   &VSS @WIRE {#CREF1:n %gc1:p};
+//   &VSS @WIRE {#CCM:n %gcm:p};
+//   %ggate = $GROUND @ATTACH &VSS => @PLACE(40, 4) => @ORIENT("R0");
+//   &VSS @WIRE {#CGATE:n %ggate:p};
+//   %vstart = $SUPPLY @ATTACH &AVDD18 => @PLACE(-14, -3) => @ORIENT("R0");
+//   &AVDD18 @WIRE {%vstart:p #XSTART:AVDD18};
+//   %gstart = $GROUND @ATTACH &VSS => @PLACE(-2, -36) => @ORIENT("R0");
+//   &VSS @WIRE {#XSTART:VSS %gstart:p};
+//   $JUNCTION @ATTACH {%jin %jbias %jstart %jbr %jg %jgc %jr %jrh %jcmr %jcmrb %jo %jc0 %jc1 %jph %jch %jcm %jcmb %jccm %jd0 %jd1};
+//   #MREP @TEXT("64u/800n; nf32", key="size", dx=1, dy=-1.7, size=0.6, halign="start");
+//   #MDRV @TEXT("64u/800n; nf32; x28", key="size", dx=1, dy=-1.7, size=0.6, halign="start");
+//   #MSREP @TEXT("16u/500n; nf8", key="size", dx=1, dy=-1.7, size=0.6, halign="start");
+//   #MSINK @TEXT("64u/500n; nf32; x7", key="size", dx=1, dy=-1.7, size=0.6, halign="start");
+//   #CGATE @TEXT("x16", key="size", dx=1.6, dy=-1.4, size=0.6, halign="start");
+//   #CGATE @TEXT("CGATE", key="name", dx=-1.8, dy=0, size=0.7, halign="end");
+//   #CREF0 @TEXT("CREF0", key="name", dx=1.5, dy=0, size=0.6, halign="start");
+//   #CREF1 @TEXT("CREF1", key="name", dx=1.5, dy=0, size=0.6, halign="start");
+//   (22, 21) @TEXT("Replica / 1x", size=0.9, bold=true);
+//   (48, 21) @TEXT("Main / 28x", size=0.9, bold=true);
+//   (14, 1) @TEXT("VREP", size=0.75);
+//   (13, 13) @TEXT("VG", size=0.75, halign="start");
+//   (35, -13) @TEXT("CMR", size=0.65, halign="start");
+//   (-22, -10) @TEXT("XSTART", size=0.8, halign="start");
+//   (-22, -12) @TEXT("Reference-presence clamp", size=0.65, halign="start");
+//   (-22, 28) @TEXT("adc_ref | Replica servo, native follower and VCM divider", halign="start") => @SET-STYLE $title_style;
+//   (-22, 25) @TEXT("Implicit bodies: NMOS -> VSS; startup PMOS -> AVDD18. Divider PMOS bodies remain explicit.", halign="start") => @SET-STYLE $note_style;
+//   (68, 19) @TEXT("AVDD: reserved, unused", halign="start", size=0.75);
+//   (-22, -42) @TEXT("W/L in metres; W is total width per multiplier. Main divider: 8u/120n, nf4, x14; replica: 4u/120n, nf2.", halign="start", size=0.75);
+//   (-22, -44) @TEXT("MOM: 80 fingers, 40u length, 50n width/space, layers 1..5. CGATE x16; other main-level capacitors x1.", halign="start", size=0.75)
+// }
+ends adc_ref
+
+// Two-stage replica error amplifier. Positive input raises OUT.
+subckt adc_ref_servo (INP INN OUT BIAS AVDD18 VSS)
+MN1 (NB INP TAIL VSS) nch_18_mac w=8u l=1u nf=4
+MN2 (NA INN TAIL VSS) nch_18_mac w=8u l=1u nf=4
+MP1 (NB NA AVDD18 AVDD18) pch_18_mac w=8u l=1u nf=4 multi=4
+MP2 (NA NA AVDD18 AVDD18) pch_18_mac w=8u l=1u nf=4 multi=4
+MTAIL (TAIL BIAS VSS VSS) nch_18_mac w=8u l=1u nf=4
+MPOUT (OUT NB AVDD18 AVDD18) pch_18_mac w=8u l=1u nf=4 multi=16
+MNOUT (OUT BIAS VSS VSS) nch_18_mac w=8u l=1u nf=4
+MZERO (NB VSS NZ AVDD18) pch_18_mac w=8u l=1u nf=4 multi=8
+CC0 (NZ OUT) cfmom_2t w=50n s=50n nr=80 lr=40u stm=1 spm=5 multi=4
+CC1 (NZ OUT) cfmom_2t w=50n s=50n nr=80 lr=40u stm=1 spm=5
+CC2 (NZ OUT) cfmom_2t w=50n s=50n nr=80 lr=40u stm=1 spm=5
+// @RNL {
+//   &AVDD18 @ADD-TO $SUPPLY_NET_SET;
+//   &VSS @ADD-TO $GROUND_NET_SET;
+//   %dp = #MN1(in_p) #MN2(in_n) {#MTAIL}(tail) @AS $DIFFERENTIAL_PAIR;
+//   %mirror = {#MP2}(ref) {#MP1}(out) @AS $CURRENT_MIRROR;
+//   {#MN1 #MN2} @AS $MATCHED;
+//   {#MP1 #MP2} @AS $MATCHED;
+//   {#MTAIL #MNOUT} @AS $MATCHED;
+//   {#MN1 #MN2 #MP1 #MP2 #MTAIL} @GROUP;
+//   {#MPOUT #MNOUT #MZERO #CC0 #CC1 #CC2} @GROUP;
+//   {#MN1 #MN2 #MTAIL #MNOUT} @SET-SYMBOL $NMOS;
+//   {#MP1 #MP2 #MPOUT #MZERO} @SET-SYMBOL $PMOS;
+//   {#MN1 #MN2 #MTAIL #MNOUT #MP1 #MP2 #MPOUT #MZERO #CC0 #CC1 #CC2} @TEXT("", key="model");
+//   #MN1 @PLACE(-10, 0) => @ORIENT("R0");
+//   #MN2 @PLACE(10, 0) => @ORIENT("MY");
+//   #MP1 @PLACE(-10, 12) => @ORIENT("MY");
+//   #MP2 @PLACE(10, 12) => @ORIENT("R0");
+//   #MTAIL @PLACE(0, -10) => @ORIENT("R0");
+//   #MPOUT @PLACE(34, 12) => @ORIENT("R0");
+//   #MNOUT @PLACE(34, -10) => @ORIENT("R0");
+//   #CC0 @PLACE(20, 28) => @ORIENT("R90");
+//   #CC1 @PLACE(20, 34) => @ORIENT("R90");
+//   #CC2 @PLACE(20, 40) => @ORIENT("R90");
+//   #MZERO @PLACE(0, 28) => @ORIENT("R270");
+//   %pip = $IO_PORT @ATTACH &INP => @PLACE(-18, 0) => @ORIENT("R0");
+//   %pin = $IO_PORT @ATTACH &INN => @PLACE(18, 0) => @ORIENT("MY");
+//   %pout = $IO_PORT @ATTACH &OUT => @PLACE(44, 6) => @ORIENT("MY");
+//   %pb = $IO_PORT @ATTACH &BIAS => @PLACE(-18, -10) => @ORIENT("R0");
+//   &INP @WIRE {%pip:p #MN1:g};
+//   &INN @WIRE {%pin:p #MN2:g};
+//   %jnb = (-10, 6); %jna = (10, 6); %jmg = (0, 12); %jnb2 = (-16, 22);
+//   &NB @WIRE {#MP1:d %jnb #MN1:d};
+//   &NA @WIRE {#MP2:d %jna #MN2:d};
+//   &NA @WIRE {#MP1:g %jmg #MP2:g};
+//   &NA @WIRE {%jna (0, 6) %jmg};
+//   &NB @WIRE {%jnb (-16, 6) %jnb2 (-16, 28) #MZERO:d};
+//   &NB @WIRE {%jnb2 (26, 22) (26, 12) #MPOUT:g};
+//   %jtail = (0, -5);
+//   &TAIL @WIRE {#MN1:s (-10, -5) %jtail (10, -5) #MN2:s};
+//   &TAIL @WIRE {%jtail #MTAIL:d};
+//   %jbias = (-6, -10);
+//   &BIAS @WIRE {%pb:p %jbias #MTAIL:g};
+//   &BIAS @WIRE {%jbias (-6, -18) (28, -18) (28, -10) #MNOUT:g};
+//   %jo = (34, 6); %joc = (40, 6);
+//   &OUT @WIRE {#MPOUT:d %jo #MNOUT:d};
+//   &OUT @WIRE {%jo %joc %pout:p};
+//   %jcl = (14, 28); %jcr = (28, 28); %jcl1 = (14, 34); %jcr1 = (28, 34);
+//   &NZ @WIRE {#MZERO:s %jcl #CC0:p};
+//   &NZ @WIRE {%jcl %jcl1 (14, 40) #CC2:p};
+//   &NZ @WIRE {%jcl1 #CC1:p};
+//   &OUT @WIRE {%joc (40, 28) %jcr #CC0:n};
+//   &OUT @WIRE {%jcr %jcr1 (28, 40) #CC2:n};
+//   &OUT @WIRE {%jcr1 #CC1:n};
+//   %gzero = $GROUND @ATTACH &VSS => @PLACE(-5, 33) => @ORIENT("R0");
+//   &VSS @WIRE {#MZERO:g (0, 35) (-5, 35) %gzero:p};
+//   %vh = $SUPPLY @ATTACH &AVDD18 => @PLACE(0, 18) => @ORIENT("R0");
+//   %jvh = (0, 17); %jvhr = (10, 17);
+//   &AVDD18 @WIRE {%vh:p %jvh};
+//   &AVDD18 @WIRE {#MP1:s (-10, 17) %jvh %jvhr #MP2:s};
+//   %vho = $SUPPLY @ATTACH &AVDD18 => @PLACE(34, 20) => @ORIENT("R0");
+//   &AVDD18 @WIRE {%vho:p #MPOUT:s};
+//   %gt = $GROUND @ATTACH &VSS => @PLACE(0, -14) => @ORIENT("R0");
+//   %go = $GROUND @ATTACH &VSS => @PLACE(34, -14) => @ORIENT("R0");
+//   &VSS @WIRE {#MTAIL:s %gt:p};
+//   &VSS @WIRE {#MNOUT:s %go:p};
+//   $JUNCTION @ATTACH {%jnb %jna %jmg %jnb2 %jtail %jbias %jo %joc %jcl %jcr %jcl1 %jcr1 %jvh};
+//   #MP1 @TEXT("MP1 / x4", key="name", dx=-1.1, dy=1.1, halign="end");
+//   #MP2 @TEXT("MP2 / x4", key="name");
+//   #MPOUT @TEXT("MPOUT", key="name");
+//   #MPOUT @TEXT("x16", key="size", dx=1, dy=-1.7, size=0.7, halign="start");
+//   #MZERO @TEXT("MZERO / x8", key="name", dx=0, dy=-3, halign="middle", size=0.7);
+//   #CC0 @TEXT("CC0 / x4", key="name", dx=0, dy=1.4, halign="middle", size=0.7);
+//   #CC1 @TEXT("CC1 / x1", key="name", dx=0, dy=1.4, halign="middle", size=0.7);
+//   #CC2 @TEXT("CC2 / x1", key="name", dx=0, dy=1.4, halign="middle", size=0.7);
+//   (-11, 7) @TEXT("NB", halign="end", size=0.7);
+//   (11, 7) @TEXT("NA", halign="start", size=0.7);
+//   (1, -6) @TEXT("TAIL", halign="start", size=0.7);
+//   (10, 32) @TEXT("NZ", size=0.7);
+//   (-21, 49) @TEXT("adc_ref_servo | Differential input, current mirror and compensated gain stage", halign="start") => @SET-STYLE $title_style;
+//   (-21, 46) @TEXT("INP rises -> NB falls -> OUT rises. Implicit bodies: NMOS -> VSS; all PMOS, including MZERO -> AVDD18.", halign="start") => @SET-STYLE $note_style;
+//   (-21, -23) @TEXT("All MOS: W/L = 8u/1u, nf4. Mirror x4; output PMOS x16; damping PMOS x8; other MOS x1.", halign="start", size=0.75);
+//   (-21, -25) @TEXT("MOM: 80 fingers, 40u length, 50n width/space, layers 1..5. CC0 x4; CC1 and CC2 x1.", halign="start", size=0.75);
+//   %servo_symbol = @DEFINE-SYMBOL(box=[-4, -4, 3, 4]) {
+//     $OPAMP;
+//     (-1, -4) @PIN(terminal="BIAS", direction="down");
+//     (-1, 4) @PIN(terminal="AVDD18", direction="up");
+//     (1, -4) @PIN(terminal="VSS", direction="down");
+//     @LINE {(-1, -4) (-1, -1.9)};
+//     @LINE {(-1, 4) (-1, 1.9)};
+//     @LINE {(1, -4) (1, -0.65)};
+//     ? @TEXT("${name}", key="name", size=0.8, halign="end") => @PLACE(-3, 5);
+//     (-2.5, -4) @TEXT("BIAS", size=0.65, halign="end")
+//   };
+//   # @SET-SYMBOL %servo_symbol
+// }
+ends adc_ref_servo
+
+// Reference-presence clamp. MNBL sinks current from the control node.
+subckt adc_ref_startup (REF OUT AVDD18 VSS)
+MPUV (NST REF AVDD18 AVDD18) pch_18_mac w=8u l=1u nf=4 multi=2
+MNUV (NST REF VSS VSS) nch_18_mac w=64u l=1u nf=32
+MNBL (NST AVDD18 VSS VSS) nch_18_mac w=1u l=1u nf=1
+MCLAMP (OUT NST VSS VSS) nch_18_mac w=64u l=500n nf=32
+// @RNL {
+//   &AVDD18 @ADD-TO $SUPPLY_NET_SET;
+//   &VSS @ADD-TO $GROUND_NET_SET;
+//   {#MPUV #MNUV #MNBL} @GROUP;
+//   #MPUV @SET-SYMBOL $PMOS;
+//   {#MNUV #MNBL #MCLAMP} @SET-SYMBOL $NMOS;
+//   {#MPUV #MNUV #MNBL #MCLAMP} @TEXT("", key="model");
+//   #MPUV @PLACE(0, 6) => @ORIENT("R0");
+//   #MNUV @PLACE(0, -6) => @ORIENT("R0");
+//   #MNBL @PLACE(12, -6) => @ORIENT("MY");
+//   #MCLAMP @PLACE(26, -6) => @ORIENT("R0");
+//   %pref = $IO_PORT @ATTACH &REF => @PLACE(-10, 0) => @ORIENT("R0");
+//   %jref = (-5, 0);
+//   &REF @WIRE {%pref:p %jref (-5, 6) #MPUV:g};
+//   &REF @WIRE {%jref (-5, -6) #MNUV:g};
+//   %jst = (0, 0); %jbl = (12, 0);
+//   &NST @WIRE {#MPUV:d %jst #MNUV:d};
+//   &NST @WIRE {%jst %jbl (21, 0) (21, -6) #MCLAMP:g};
+//   &NST @WIRE {%jbl #MNBL:d};
+//   %pout = $IO_PORT @ATTACH &OUT => @PLACE(36, 6) => @ORIENT("MY");
+//   &OUT @WIRE {#MCLAMP:d (26, 6) %pout:p};
+//   %vp = $SUPPLY @ATTACH &AVDD18 => @PLACE(0, 16) => @ORIENT("R0");
+//   %jvp = (0, 12);
+//   &AVDD18 @WIRE {#MPUV:s %jvp %vp:p};
+//   &AVDD18 @WIRE {%jvp (18, 12) (18, -6) #MNBL:g};
+//   %gn = $GROUND @ATTACH &VSS => @PLACE(12, -14) => @ORIENT("R0");
+//   %jg = (12, -10);
+//   &VSS @WIRE {#MNUV:s (0, -10) %jg (26, -10) #MCLAMP:s};
+//   &VSS @WIRE {#MNBL:s %jg %gn:p};
+//   $JUNCTION @ATTACH {%jref %jst %jbl %jvp %jg};
+//   #MPUV @TEXT("8u/1u; nf4; x2", key="size", dx=1, dy=-1.7, size=0.65, halign="start");
+//   #MNUV @TEXT("64u/1u; nf32", key="size", dx=1, dy=-1.7, size=0.65, halign="start");
+//   #MNBL @TEXT("MNBL", key="name", dx=-1, dy=1.1, halign="end");
+//   #MNBL @TEXT("1u/1u; nf1", key="size", dx=-1, dy=-1.7, size=0.65, halign="end");
+//   #MCLAMP @TEXT("64u/500n; nf32", key="size", dx=1, dy=-1.7, size=0.65, halign="start");
+//   (5, 1) @TEXT("NST", size=0.75);
+//   (-12, 25) @TEXT("adc_ref_startup | Reference-presence clamp", halign="start") => @SET-STYLE $title_style;
+//   (-12, 22) @TEXT("REF rises -> NST falls -> MCLAMP releases OUT. MNBL bleeds NST.", halign="start") => @SET-STYLE $note_style;
+//   (-12, 20) @TEXT("1.8 V devices. Implicit bodies: NMOS -> VSS; PMOS -> AVDD18.", halign="start") => @SET-STYLE $note_style;
+//   (-12, -19) @TEXT("W/L in metres; W is total width per multiplier. Three-terminal symbols retain each original body net.", halign="start", size=0.7);
+//   %startup_nmos = @DEFINE-SYMBOL {
+//     $NMOS;
+//     ? @TEXT("", key="name");
+//     ? @TEXT("", key="model")
+//   };
+//   %startup_pmos = @DEFINE-SYMBOL {
+//     $PMOS;
+//     ? @TEXT("", key="name");
+//     ? @TEXT("", key="model")
+//   };
+//   %startup_symbol = @DEFINE-SYMBOL(box=[-8, -12, 26, 14]) {
+//     (-8, 0) @PIN(terminal="REF", direction="left");
+//     (26, 10) @PIN(terminal="OUT", direction="up");
+//     (0, 14) @PIN(terminal="AVDD18", direction="up");
+//     (12, -12) @PIN(terminal="VSS", direction="down");
+//     $FIGURE @ATTACH (0, 6) => @SET-SYMBOL %startup_pmos;
+//     $FIGURE @ATTACH (0, -6) => @SET-SYMBOL %startup_nmos;
+//     $FIGURE @ATTACH (12, -6) => @SET-SYMBOL %startup_nmos => @ORIENT("MY");
+//     $FIGURE @ATTACH (26, -6) => @SET-SYMBOL %startup_nmos;
+//     (1, 7) @TEXT("MPUV", size=0.65, halign="start");
+//     (1, -5) @TEXT("MNUV", size=0.65, halign="start");
+//     (11, -5) @TEXT("MNBL", size=0.65, halign="end");
+//     (27, -5) @TEXT("MCLAMP", size=0.65, halign="start");
+//     @LINE {(-8, 0) (-5, 0)};
+//     @LINE {(-3, 6) (-5, 6) (-5, 0) (-5, -6) (-3, -6)};
+//     @LINE {(0, 4) (0, 0) (0, -4)};
+//     @LINE {(0, 0) (12, 0) (21, 0) (21, -6) (23, -6)};
+//     @LINE {(12, 0) (12, -4)};
+//     @LINE {(26, -4) (26, 10)};
+//     @LINE {(0, 8) (0, 12) (0, 14)};
+//     @LINE {(0, 12) (18, 12) (18, -6) (15, -6)};
+//     @LINE {(0, -8) (0, -10) (12, -10) (26, -10) (26, -8)};
+//     @LINE {(12, -8) (12, -10) (12, -12)};
+//     $JUNCTION @ATTACH (-5, 0) => @SET-SYMBOL $JUNCTION_SYMBOL;
+//     $JUNCTION @ATTACH (0, 0) => @SET-SYMBOL $JUNCTION_SYMBOL;
+//     $JUNCTION @ATTACH (12, 0) => @SET-SYMBOL $JUNCTION_SYMBOL;
+//     $JUNCTION @ATTACH (0, 12) => @SET-SYMBOL $JUNCTION_SYMBOL;
+//     $JUNCTION @ATTACH (12, -10) => @SET-SYMBOL $JUNCTION_SYMBOL;
+//     (7, 1) @TEXT("NST", size=0.6);
+//     ? @TEXT("", key="name");
+//     ? @TEXT("", key="model")
+//   };
+//   # @SET-SYMBOL %startup_symbol
+// }
+ends adc_ref_startup

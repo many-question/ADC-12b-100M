@@ -44,7 +44,6 @@ from . import REPO_ROOT
 from . import arch as archmod
 from . import candidates, deps, numerics, remote, soa
 from .corners import Corner, by_name, corner_set, model_includes, vref_in
-from .figures import FigureSink
 from .netlist import parse, substitute_parameters
 from .specs import Block, blocks, find_test
 
@@ -304,6 +303,7 @@ def run_test(test_id: str, block_name: str | None = None, corners: str = "typ",
     differences in its meta.crosscheck. A test with `montecarlo:` runs its samples (mc_settings;
     `mc` overrides its runs and seed). Returns one row per job: job, corner, rc, metrics, out (the
     recorded file, None without recording), params, globals and meta (as a result records them)."""
+    from .figures import FigureSink          # matplotlib: only where figures are drawn, not for deps / checks
     views = views or {}
     block, test = find_test(test_id, block_name)
     cl = corner_set(corners)
@@ -491,6 +491,7 @@ def remeasure(test_id: str, run_dir: Path, block_name: str | None = None, views:
 
     With `redraw` only the figures may change (issue #47: the spectrum plot window): every metric
     must come out as recorded, and meta.redrawn gives the date, commit and run of the redraw."""
+    from .figures import FigureSink          # matplotlib: only where figures are drawn
     views = views or {}
     if redraw:
         allow = ()

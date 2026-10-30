@@ -1,0 +1,165 @@
+{
+ "block": "adc_ref",
+ "test": "tb_ref_startup",
+ "view": "xtor-many-question",
+ "corner": "ff_low_125",
+ "params": {},
+ "globals": {
+  "vdd": 0.81,
+  "vdd18": 1.62,
+  "tempc": 125.0,
+  "noise_en": 0,
+  "devnoise": 1,
+  "beh_speed": 1.0,
+  "vref_in": 0.9,
+  "cdac_behav": 1,
+  "comp_behav": 1
+ },
+ "metrics": {
+  "vrefp_max_V": 0.9015582700587735,
+  "vrefp_min_V": -4.817137230024058e-44,
+  "vcm_max_V": 0.4507812323377514,
+  "vcm_min_V": -9.95233415628589e-45,
+  "vrefp_max_t_us": 16.13778550054137,
+  "vcm_max_t_us": 16.13778550054137,
+  "vrefp_dwell_max_V": 0.4255552076870674,
+  "vcm_dwell_max_V": 0.212777598764344,
+  "ready_err_mV": 1.0416692077697132,
+  "vcm_ready_V": 0.4505217697280997,
+  "ready_dev_mV": 8.870681966755001e-11,
+  "vrefp_final_err_mV": 1.0416692076810063,
+  "vcm_final_V": 0.4505217697280992,
+  "ramp_lag_mV": 425.4622758817691,
+  "t_settle_us": 0.0
+ },
+ "specs": {
+  "REF-15": {
+   "metric": "vrefp_max_V",
+   "value": 0.9015582700587735,
+   "limit": "<= 1.0",
+   "pass": true
+  },
+  "REF-16": {
+   "metric": "vrefp_min_V",
+   "value": -4.817137230024058e-44,
+   "limit": ">= -0.1",
+   "pass": true
+  },
+  "REF-17": {
+   "metric": "vcm_max_V",
+   "value": 0.4507812323377514,
+   "limit": "<= 1.0",
+   "pass": true
+  },
+  "REF-18": {
+   "metric": "vcm_min_V",
+   "value": -9.95233415628589e-45,
+   "limit": ">= -0.1",
+   "pass": true
+  },
+  "REF-19": {
+   "metric": "ready_err_mV",
+   "value": 1.0416692077697132,
+   "limit": "<= 5",
+   "pass": true
+  },
+  "REF-20": {
+   "metric": "vcm_ready_V",
+   "value": 0.4505217697280997,
+   "limit": "0.44 .. 0.46",
+   "pass": true
+  }
+ },
+ "figures": [
+  {
+   "file": "ff_low_125.startup.png",
+   "caption": "Supplies, VREF_IN, VREFP and VCM over the supported power-up sequence against the -0.1 .. 1.0 V window, the outputs while the supplies are up and VREF_IN is still 0 V, the tracking error during the VREF_IN ramp, VREFP against VREF_IN and VCM against its range after the ramp with the ready instant, and the specification table."
+  }
+ ],
+ "meta": {
+  "date": "2026-10-30T01:18:33",
+  "git": "177831a",
+  "git_clean": true,
+  "mode": "aps",
+  "pdk": true,
+  "mc": null,
+  "wall_s": 301.1,
+  "rc": "0",
+  "sim_s": "14",
+  "numerics": {
+   "source": "spectre.log",
+   "reltol": 0.001,
+   "maxstep_ps": 1000.0,
+   "method": "traponly",
+   "errpreset": "moderate",
+   "lteratio": 3.5,
+   "abstol_V": 1e-06,
+   "steps_accepted": 25112,
+   "step_mean_ps": 999.522,
+   "step_max_ps": 1000.0
+  },
+  "files": {
+   "tb/ref/tb_ref_startup.scs": "d0842a4224af4dfb",
+   "design/xtor/adc_ref/many-question/adc_ref.scs": "2b1163f0eb481376"
+  },
+  "arch": {
+   "keys": [],
+   "sha": "44136fa355b3678a"
+  },
+  "views": {
+   "adc_ref": "xtor:many-question"
+  },
+  "crosscheck": {
+   "settings": {
+    "maxstep": "0.1n",
+    "method": "gear2only"
+   },
+   "numerics": {
+    "source": "spectre.log",
+    "reltol": 0.001,
+    "maxstep_ps": 100.0,
+    "method": "gear2only",
+    "errpreset": "moderate",
+    "lteratio": 3.5,
+    "abstol_V": 1e-06,
+    "steps_accepted": 251008,
+    "step_mean_ps": 99.9968,
+    "step_max_ps": 100.0
+   },
+   "rc": "0",
+   "sim_s": "20",
+   "metrics": {
+    "vrefp_max_V": {
+     "ref": 0.9015582700587735,
+     "xcheck": 0.9015597376978928,
+     "diff": 1.4676391192347538e-06
+    },
+    "vrefp_min_V": {
+     "ref": -4.817137230024058e-44,
+     "xcheck": -2.443011674777895e-17,
+     "diff": -2.443011674777895e-17
+    },
+    "vcm_max_V": {
+     "ref": 0.4507812323377514,
+     "xcheck": 0.4507798517663708,
+     "diff": -1.380571380604767e-06
+    },
+    "vcm_min_V": {
+     "ref": -9.95233415628589e-45,
+     "xcheck": -4.35617444085232e-19,
+     "diff": -4.35617444085232e-19
+    },
+    "ready_err_mV": {
+     "ref": 1.0416692077697132,
+     "xcheck": 1.045268481645989,
+     "diff": 0.003599273876275788
+    },
+    "vcm_ready_V": {
+     "ref": 0.4505217697280997,
+     "xcheck": 0.450522479976549,
+     "diff": 7.102484492760297e-07
+    }
+   }
+  }
+ }
+}

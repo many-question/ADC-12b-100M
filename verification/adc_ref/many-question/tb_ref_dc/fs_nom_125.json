@@ -1,0 +1,167 @@
+{
+ "block": "adc_ref",
+ "candidate": "many-question",
+ "test": "tb_ref_dc",
+ "view": "xtor-many-question",
+ "corner": "fs_nom_125",
+ "job": "fs_nom_125",
+ "status": "match",
+ "verifies": {
+  "result": "results/adc_ref/tb_ref_dc/xtor-many-question/fs_nom_125.json",
+  "netlist": "design/xtor/adc_ref/many-question/adc_ref.scs",
+  "netlist_hash": "2b1163f0eb481376",
+  "date": "2026-10-30T00:58:28",
+  "git": "95a2707",
+  "mode": "aps"
+ },
+ "params": {},
+ "globals": {
+  "vdd": 0.9,
+  "vdd18": 1.8,
+  "tempc": 125.0,
+  "noise_en": 0,
+  "devnoise": 1,
+  "beh_speed": 1.0,
+  "vref_in": 0.9,
+  "cdac_behav": 1,
+  "comp_behav": 1
+ },
+ "metrics": {
+  "vrefp_err_mV": -0.10054199341280601,
+  "vcm_V": 0.4499497290032937,
+  "i18_uA": 32474.12486908101,
+  "i09_uA": -0.0,
+  "iin_uA": 0.0,
+  "loadreg_mV": 1.0180643877129025,
+  "line_mV_per_V": 0.46665587964015204
+ },
+ "specs": {
+  "REF-01": {
+   "metric": "vrefp_err_mV",
+   "value": -0.10054199341280601,
+   "limit": "-5 .. 5",
+   "pass": true
+  },
+  "REF-02": {
+   "metric": "vcm_V",
+   "value": 0.4499497290032937,
+   "limit": "0.44 .. 0.46",
+   "pass": true
+  },
+  "REF-04": {
+   "metric": "line_mV_per_V",
+   "value": 0.46665587964015204,
+   "limit": "<= 5",
+   "pass": true
+  },
+  "REF-11": {
+   "metric": "iin_uA",
+   "value": 0.0,
+   "limit": "<= 1",
+   "pass": true
+  }
+ },
+ "comparison": {
+  "ok": true,
+  "tolerances": "docs/verification.md \u00a77",
+  "problems": [],
+  "verdicts": {
+   "REF-01": {
+    "self": true,
+    "rerun": true,
+    "ok": true
+   },
+   "REF-02": {
+    "self": true,
+    "rerun": true,
+    "ok": true
+   },
+   "REF-04": {
+    "self": true,
+    "rerun": true,
+    "ok": true
+   },
+   "REF-11": {
+    "self": true,
+    "rerun": true,
+    "ok": true
+   }
+  },
+  "metrics": {
+   "i09_uA": {
+    "self": -0.0,
+    "rerun": -0.0,
+    "diff": 0.0,
+    "tol": 0.1,
+    "ok": true
+   },
+   "i18_uA": {
+    "self": 32474.12486908101,
+    "rerun": 32474.12486908101,
+    "diff": 0.0,
+    "tol": 649.4824973816202,
+    "ok": true
+   },
+   "iin_uA": {
+    "self": 0.0,
+    "rerun": 0.0,
+    "diff": 0.0,
+    "tol": 0.1,
+    "ok": true
+   },
+   "line_mV_per_V": {
+    "self": 0.46665587964015204,
+    "rerun": 0.46665587964015204,
+    "diff": 0.0,
+    "tol": 0.004666558796401521,
+    "ok": true
+   },
+   "loadreg_mV": {
+    "self": 1.0180643877129025,
+    "rerun": 1.0180643877129025,
+    "diff": 0.0,
+    "tol": 0.5,
+    "ok": true
+   },
+   "vcm_V": {
+    "self": 0.4499497290032937,
+    "rerun": 0.4499497290032937,
+    "diff": 0.0,
+    "tol": 0.004499497290032938,
+    "ok": true
+   },
+   "vrefp_err_mV": {
+    "self": -0.10054199341280601,
+    "rerun": -0.10054199341280601,
+    "diff": 0.0,
+    "tol": 0.5,
+    "ok": true
+   }
+  },
+  "not_compared": [],
+  "notes": []
+ },
+ "meta": {
+  "date": "2026-10-30T14:41:46",
+  "git": "98497ac",
+  "git_clean": true,
+  "mode": "aps",
+  "pdk": true,
+  "mc": null,
+  "wall_s": 272.1,
+  "rc": "0",
+  "sim_s": "16",
+  "numerics": {},
+  "files": {
+   "tb/ref/tb_ref_dc.scs": "6c0b4787bdd7e2bb",
+   "design/xtor/adc_ref/many-question/adc_ref.scs": "2b1163f0eb481376"
+  },
+  "arch": {
+   "keys": [],
+   "sha": "44136fa355b3678a"
+  },
+  "views": {
+   "adc_ref": "xtor:many-question"
+  }
+ }
+}

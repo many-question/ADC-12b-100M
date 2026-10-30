@@ -202,6 +202,17 @@ table.progress td { vertical-align: middle; }
 .viewer.grown .viewer-frame { height: min(86vh, 1000px); }
 .viewer-frame iframe { width: 100%; height: 100%; border: 0; display: block; background: #fff; }
 :root[data-theme="dark"] .viewer-frame, :root[data-theme="dark"] .viewer-frame iframe { background: #1b1f23; }
+/* click to activate: until a click or tap on the viewer, the frame ignores wheel, touch and keys, so the page scrolls over it */
+.btn[hidden] { display: none; }
+.viewer-activate { display: none; }
+.js .viewer-activate { display: block; position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; padding: 0; border: 0; background: transparent; cursor: pointer; touch-action: pan-y pinch-zoom; z-index: 2; font: inherit; }
+.viewer-activate span { position: absolute; left: 50%; top: 12px; transform: translateX(-50%); padding: 6px 14px; border-radius: 99px; font-size: .88rem; font-weight: 500; white-space: nowrap;
+  background: color-mix(in srgb, var(--surface) 90%, transparent); color: var(--ink-2); border: 1px solid var(--line); box-shadow: var(--shadow); transition: color .15s, border-color .15s; }
+.viewer-activate:hover span, .viewer-activate:focus-visible span { color: var(--accent); border-color: var(--accent); }
+.viewer-activate:focus-visible { outline: 2px solid var(--accent); outline-offset: -3px; }
+.js .viewer:not(.active) .viewer-frame iframe { pointer-events: none; }
+.viewer.active .viewer-activate { display: none; }
+.viewer.active .viewer-frame { outline: 2px solid var(--accent); outline-offset: -2px; }
 .viewer-status { position: absolute; left: 10px; bottom: 10px; max-width: calc(100% - 20px); padding: 4px 10px; border-radius: 8px; font-size: .82rem; background: color-mix(in srgb, var(--surface) 92%, transparent); border: 1px solid var(--line); color: var(--ink-2); pointer-events: none; }
 .viewer-status.ok { opacity: 0; transition: opacity .6s 1.5s; }
 .viewer-status.err { color: var(--bad); border-color: var(--bad); pointer-events: auto; }
@@ -237,6 +248,20 @@ nav a.nav-collab:hover, nav a.nav-collab.on { background: var(--accent); color: 
 .ev-cell { white-space: nowrap; min-width: 9em; }
 .stamp { font-size: .8rem; font-weight: 400; margin-left: 8px; white-space: nowrap; }
 table.live td { vertical-align: top; }
+table.combos td { vertical-align: top; font-size: .9rem; }
+table.combos td > div { margin: 2px 0; }
+table.combos td.nw { white-space: nowrap; }
+table.combos code { white-space: nowrap; overflow-wrap: normal; }
+@media (max-width: 640px) {                       /* the combinations as one card per row on a phone */
+  .table-wrap:has(table.combos) { overflow: visible; border: 0; }
+  table.combos thead { display: none; }
+  table.combos, table.combos tbody, table.combos tr, table.combos td { display: block; width: 100%; }
+  table.combos tr { border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); margin: 12px 0; padding: 6px 12px; }
+  table.combos td { border: 0; padding: 6px 0; }
+  table.combos td.nw { white-space: normal; }
+  table.combos td.num { text-align: left; }
+  table.combos td::before { content: attr(data-label); display: block; font-size: .74rem; color: var(--ink-3); font-weight: 600; }
+}
 section.preview { border: 1px dashed var(--warn); border-radius: var(--radius); padding: 4px 20px 16px; margin: 28px 0; background: color-mix(in srgb, var(--warn-soft) 25%, var(--surface)); }
 .draft-label { font-size: .72rem; vertical-align: middle; }
 /* block page tabs: stacked panels without JavaScript, switchable tabs with it (app.js adds html.js) */
