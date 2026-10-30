@@ -124,8 +124,13 @@ h3 = -81.62 dBc. This geometry has no own fixed-input or sine-stress pass.
 A read-only fit-basis audit also finds that some 32-point harmonic estimates
 change substantially when higher odd harmonics are included. These short
 comparisons need longer phase coverage before a near-limit design choice;
-no alternative fit is used to claim a pass. A continuous-assistance 12/4 um
-comparison now uses 48 samples at unchanged frequency and numerical settings.
+no alternative fit is used to claim a pass. The continuous-assistance 12/4 um
+48-point audit gives h3 = -78.66 to -78.74 dBc across the tested bases,
+with much lower condition numbers. Its first-32 fit predicts the remaining
+16 points with 46.55 uV RMS error, exposing the short-window limitation.
+This source has little apparent linearity margin. The next diagnostic
+freezes the existing pulse-assisted 12/4 um circuit and extends its record
+to 128 points. All remain LS diagnostics rather than official spectra.
 Convergence comparisons, representative PVT,
 complete corner coverage, long-hold behavior, device stress, and joint bootstrap
 validation remain outstanding. No selection or signoff is claimed.
