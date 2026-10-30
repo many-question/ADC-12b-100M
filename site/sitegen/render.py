@@ -8,8 +8,9 @@ import re
 from pathlib import Path
 from urllib.parse import quote, quote_plus
 
-from .data import (CONTRIBUTING_RAW, FALLBACK_REPO, PROCESS, ROOT, STATUS_ORDER, BlockData, Build, SpecRow, arch, best_rows,
-                   docs, evidence_path, figures, fmt, has_doc, last_change, owner_login, verdict_counts)
+from .data import (CONTRIBUTING_RAW, FALLBACK_REPO, PROCESS, REPORTED_TITLE, ROOT, STATUS_ORDER, BlockData, Build, SpecRow,
+                   arch, docs, evidence_path, figures, fmt, has_doc, judged_rows, last_change, limit_label, owner_login,
+                   verdict_counts)
 from . import cands as candmod, livepanel
 from .live import Live, unavailable
 from .manifest import name_of
@@ -185,7 +186,7 @@ def verdict_chip(r: SpecRow | None) -> str:
         return chip("none", f"待 MC {r.mc}")
     if r.status == "none":
         return chip("none", "无结果")
-    out = chip("pass", "通过")
+    out = chip("none", "仅报告", REPORTED_TITLE) if r.status == "reported" else chip("pass", "通过")
     if r.stale:
         out += " " + chip("stale", "过期", "自仿真后这些文件已更改：" + "，".join(r.stale))
     return out
@@ -226,7 +227,8 @@ def figure_strip(site: Site, doc: dict, root: str) -> str:
 
 
 def corner_detail(site: Site, bd: BlockData, view: str, root: str = "") -> str:
-    """Per test, per corner: every metric with a limit, colored by its verdict, the evidence file and the result's figures."""
+    """Per test, per corner: every metric of a spec, colored by its verdict (a reported-only one uncolored), the evidence file
+    and the result's figures."""
     out = []
     for tid, t in bd.b.tests.items():
         specs = [s for s in bd.b.specs if s.test == tid]
@@ -247,6 +249,8 @@ def corner_detail(site: Site, bd: BlockData, view: str, root: str = "") -> str:
                                  f"not judged here'>{fmt(na['value'])} <small>n/a</small></td>")
                 elif v is None:
                     cells.append("<td class='num muted'>–</td>")
+                elif v["pass"] is None:                   # a reported-only spec: the value, no verdict
+                    cells.append(f"<td class='num' title='{esc(REPORTED_TITLE)}'>{fmt(v['value'])}</td>")
                 else:
                     cells.append(f"<td class='num {'ok' if v['pass'] else 'bad'}'>{fmt(v['value'])}</td>")
             st = chip("stale", "过期", "，".join(j["stale"])) if j["stale"] else ""
@@ -519,7 +523,9 @@ def cand_flags(site: Site, c) -> str:
     return " ".join(out)
 
 
-def cand_row(site: Site, c, i: int) -> str:
+def cand_row(site: Site, c, i: int | None) -> str:
+    """One leaderboard row; i is the rank in the eligible tier, None for a candidate that is not eligible (then the row
+    says what it misses)."""
     r = c.row
     wm = r["worst_margin"]
     a = r["area"] or {}
@@ -539,17 +545,31 @@ def cand_row(site: Site, c, i: int) -> str:
              f'<a href="{esc(site.gh(f"design/xtor/{c.block}/{c.name}", True))}" target="_blank" rel="noopener">目录 ↗</a>')
     spec = (f"<b class=ok-t>{r['specs_passed']}</b> / {r['specs_total']}"
             + (f' · <b class="bad-t">{r["specs_failed"]} 不过</b>' if r["specs_failed"] else "")
-            + (f' · <span class="muted">{r["specs_incomplete"]} 不完整</span>' if r["specs_incomplete"] else ""))
+            + (f' · <span class="muted">{r["specs_incomplete"]} 不完整</span>' if r["specs_incomplete"] else "")
+            + (f' · <span class="muted" title="{esc(REPORTED_TITLE)}">{r.get("specs_reported", 0)}/{r["reported_total"]} 仅报告</span>'
+               if r.get("reported_total") else ""))
     who = esc(r["author_text"]) or "–"
     enob = f"{r['top_enob_margin']:+.3f} bit" if r["top_enob_margin"] is not None else "–"
-    return (f'<tr class="{"selected" if c.selected else ""}"><td class=num>{i}</td>'
+    miss = ("" if i is not None else
+            "<td><ul class='plain'>" + "".join(f"<li>{esc(m)}</li>" for m in candmod.missing_items(r)) + "</ul></td>")
+    return (f'<tr class="{"selected" if c.selected else ""}"><td class=num>{i if i is not None else "–"}</td>'
             f'<td><a href="#{esc(c.anchor)}"><code>{esc(c.name)}</code></a>{badges}<br><small class="muted">{who}</small></td>'
+            f'<td class=num>{fmt(r["power_uW"]) + " µW" if r["power_uW"] is not None else "–"}</td>'
+            f'<td class=num>{area}</td>{miss}'
             f'<td>{spec}</td><td class=cov-cell>{cov}</td><td>{cand_flags(site, c)}</td>'
             f'<td class=num>{(_pct(wm["margin"]) + " <small class=muted>" + esc(wm["spec"]) + "</small>") if wm else "–"}</td>'
-            f'<td class=num>{fmt(r["power_uW"]) + " µW" if r["power_uW"] is not None else "–"}</td>'
-            f'<td class=num>{area}</td>'
             f'<td class=num>{enob}</td>'
             f'<td>{where}</td></tr>')
+
+
+def cand_table(site: Site, cs: list, eligible: bool) -> str:
+    head = ('<th>#<th>候选<th title="本模块自己报告的 TT 功耗（各测试台的电源电流 × 电压，或能量 × 判决次数 × 采样率）">TT 功耗'
+            '<th title="器件数、ΣW·L、电容：由网表算出，不依赖版图">面积代理'
+            + ("" if eligible else "<th>未满足")
+            + '<th>规格 通过 / 总数<th>工艺角覆盖<th>标记<th title="各规格 (限值−值)/限值 的最小值及规格号；只作参考，不参与排序">最小裕量（参考）'
+            '<th title="项目负责人把该候选换进顶层后的结果；只作参考，不参与排序">顶层 ENOB 裕量（参考）<th>来源')
+    rows = "".join(cand_row(site, c, i if eligible else None) for i, c in enumerate(cs, 1))
+    return f'<div class="table-wrap"><table class="cands"><thead><tr>{head}</tr></thead><tbody>{rows}</tbody></table></div>'
 
 
 def cand_detail(site: Site, c) -> str:
@@ -585,24 +605,27 @@ def cand_detail(site: Site, c) -> str:
 
 
 def candidates_panel(site: Site, block: str, cs: list, pvs: list) -> str:
-    """The 候选 tab: the leaderboard in the order of the open-candidates rules, then each candidate's netlist and metrics."""
+    """The 候选 tab: the leaderboard in two tiers (adcflow.candidates.compare, #75), then each candidate's netlist and metrics."""
     href = contributing_href(site, "../")
     invite = f'<a href="{esc(href)}">提交候选（协作流程 §4）</a>' if href else "提交候选"
-    intro = (f'<p>任何人都可以为这个模块提交候选，没有人数和候选数上限；{invite}。排行榜按公开的顺序比较：顶层 ENOB 裕量（±0.05 bit）→ 功耗（±5 %）→ '
-             f'面积代理（±5 %）→ 最小规格裕量（±5 % 限值）；容差内相同时看下一项，再相同时已选定的保持。全部通过且未过期的排在前面。'
+    intro = (f'<p>任何人都可以为这个模块提交候选，没有人数和候选数上限；{invite}。排行榜分两层（协作流程 §10）：'
+             f'<b>可选定</b>的候选——规格要求的全部指标在全部工艺角通过、结果未过期且已复核、通过 SOA 检查、换进顶层的混合回归通过——'
+             f'按本模块自己报告的 TT 功耗从低到高排序，相差 5 % 以内算相同，由面积代理（先 ΣW·L 再总电容，各 5 %）决定，仍相同时已选定的保持在前；'
+             f'<b>未满足资格</b>的候选另列一表，写明缺什么。项目不设功耗上限，功耗指标只报告、不判定。超出限值的裕量不加分：'
+             f'最小裕量和顶层 ENOB 裕量只作参考，不参与排序。'
              f'提交的结果是<b>自报</b>的；项目负责人用 <code>adcflow verify</code> 在同一网表哈希上复跑，复核记录（<code>verification/</code>）匹配、未过期时才标“已复核”，只有已复核的结果才能用于选定。</p>')
     head = f'<h2 class="panel-title">候选</h2>'
     panel = f'role="tabpanel" id="candidates" aria-labelledby="tab-candidates"'
     if not cs:
         body = (f"<p class='empty'>这个模块现在没有候选。{invite}。</p>")
     else:
-        rows = "".join(cand_row(site, c, i) for i, c in enumerate(cs, 1))
-        body = ('<div class="table-wrap"><table class="cands"><thead><tr><th>#<th>候选<th>规格 通过 / 总数<th>工艺角覆盖<th>标记'
-                '<th title="各规格 (限值−值)/限值 的最小值及规格号">最小裕量<th>功耗<th title="器件数、ΣW·L、电容：由网表算出，不依赖版图">面积代理'
-                '<th title="项目负责人把该候选换进顶层后的结果">顶层 ENOB 裕量<th>来源</tr></thead>'
-                f'<tbody>{rows}</tbody></table></div>'
-                '<p class="muted legend">★ = 已选定；“未评审”的是开放 PR 里的候选（CI 已通过，内容读自 PR 的提交并过了与主分支相同的检查），不计入主分支的状态；'
-                '“—” = 没有这项数据。</p>'
+        elig = [c for c in cs if candmod.eligible(c.row)]
+        rest = [c for c in cs if not candmod.eligible(c.row)]
+        body = (f'<h3 id="cands-eligible">可选定（{len(elig)}）</h3>'
+                + (cand_table(site, elig, True) if elig else "<p class='empty'>还没有满足全部资格的候选。</p>")
+                + (f'<h3 id="cands-other">未满足资格（{len(rest)}）</h3>' + cand_table(site, rest, False) if rest else "")
+                + '<p class="muted legend">★ = 已选定；“未评审”的是开放 PR 里的候选（CI 已通过，内容读自 PR 的提交并过了与主分支相同的检查），不计入主分支的状态，'
+                '也没有复核记录，所以不会可选定；“—” = 没有这项数据；“仅报告” = 没有限值、不判定的功耗指标。</p>'
                 + "".join(cand_detail(site, c) for c in cs))
     n_draft = len(pvs)
     extra = (f'<p class="muted legend">另有 {n_draft} 个草稿 PR 还不是候选（旧的单一视图、CI 未通过或内容未通过检查），见各自的“草稿 PR”标签。</p>' if n_draft else "")
@@ -650,7 +673,7 @@ def preview_section(site: Site, pv) -> str:
 
 def _spec_limit_table(b) -> str:
     rows = "".join(f"<tr><td><b>{esc(s.id)}</b></td><td>{esc(s.name)}</td>"
-                   f"<td class=num>{esc(s.limit_text().replace('<=', '≤').replace('>=', '≥'))} <span class=muted>{esc(s.unit)}</span></td>"
+                   f"<td class=num>{esc(limit_label(s))} <span class=muted>{esc(s.unit)}</span></td>"
                    f"<td>{esc(s.corners)}{f' · MC {s.mc}' if s.mc else ''}</td><td><code>{esc(s.test)}</code></td></tr>"
                    for s in b.specs)
     return ('<div class="table-wrap"><table class="specs"><thead><tr><th>ID<th>指标<th>限值<th>工艺角<th>用例</tr></thead><tbody>'
@@ -669,7 +692,7 @@ def blocks_index(site: Site, data: dict[str, BlockData]) -> str:
 
 def block_card(site: Site, bd: BlockData, root: str) -> str:
     b = bd.b
-    rows = best_rows(bd)
+    rows = judged_rows(bd)
     ok = sum(1 for r in rows if r and r.status == "pass")
     bad = sum(1 for r in rows if r and r.status == "fail")
     n = len(rows)
@@ -847,7 +870,7 @@ def progress(site: Site, data: dict[str, BlockData]) -> str:
     rows = []
     for bd in data.values():
         b = bd.b
-        rr = best_rows(bd)
+        rr = judged_rows(bd)
         ok = sum(1 for r in rr if r and r.status == "pass")
         bad = sum(1 for r in rr if r and r.status == "fail")
         ntb = len({t["netlist"] for t in b.tests.values()})
@@ -871,7 +894,7 @@ def progress(site: Site, data: dict[str, BlockData]) -> str:
 <section><h2 id="blocks">各模块</h2><p class="muted legend">状态流程：{legend}</p>
 <div class="table-wrap"><table class="progress"><thead><tr><th>模块<th>状态<th>规格版本<th>选定候选 / 负责人<th>视图<th>测试台<th>规格通过<th>最近更新</tr></thead>
 <tbody>{''.join(rows)}</tbody></table></div>
-<p class="muted">“规格通过”按每条规格的最高级视图（xtor 优先于 behav）统计；覆盖的工艺角数见验证页。
+<p class="muted">“规格通过”按每条规格的最高级视图（xtor 优先于 behav）统计，不含仅报告的功耗指标（没有限值，不判定）；覆盖的工艺角数见验证页。
 晶体管级设计的分工与要点见 <a href="docs/handoff.html">分工包</a>。</p></section>
 <section><h2 id="tags">冻结点（git 标签）</h2><ul class="timeline">{tags}</ul></section>"""
     return page(site, title="进展", body=body, active="progress", root="")

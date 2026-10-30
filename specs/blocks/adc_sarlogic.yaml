@@ -1,6 +1,6 @@
 block: adc_sarlogic
 title: Asynchronous SAR controller, bit registers and output register
-version: 0.4.0
+version: 0.5.0
 selected: none          # the selected candidate (design/xtor/<block>/<name>/); none yet
 status: behavioral
 views:
@@ -84,7 +84,8 @@ specs:
   - {id: LOG-10, name: "D setup to RDY rise",                     metric: t_setup_ps,  unit: ps, min: 100, corners: all, test: tb_sarlogic_func}
   - {id: LOG-11, name: "forced-decision recovery (stuck comparator) errors", metric: timeout_errors, unit: count, max: 0, corners: all, test: tb_sarlogic_timeout}
   - {id: LOG-12, name: "timeout value",                           metric: t_timeout_ps, unit: ps, min: 200, max: 350, corners: all, test: tb_sarlogic_timeout}
-  - {id: LOG-13, name: "average DVDD power at 100 MS/s",         metric: power_uW,    unit: uW, max: 300, corners: typ, test: tb_sarlogic_func}
+  # reported only (#75): power has no acceptance limit, lower is better; docs/architecture.md §8 keeps the budget
+  - {id: LOG-13, name: "average DVDD power at 100 MS/s",         metric: power_uW,    unit: uW, reported: true, corners: typ, test: tb_sarlogic_func}
   - {id: LOG-14, name: "CONV input capacitance (charge per rising edge / VDD)", metric: cin_conv_fF, unit: fF, max: 40, corners: typ, test: tb_sarlogic_func}
   - {id: LOG-15, name: "OUTP / OUTN input capacitance (charge per rising edge / VDD, larger of the two)", metric: cin_cmp_fF, unit: fF, max: 7, corners: typ, test: tb_sarlogic_func}
   - {id: LOG-16, name: "extra DAC wait of each step (timing.t_dac_add), worst error against nominal", metric: t_dac_add_err_pct, unit: '%', max: 20, corners: typ, test: tb_sarlogic_func}

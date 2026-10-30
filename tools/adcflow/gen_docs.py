@@ -7,6 +7,8 @@ from .specs import blocks
 
 
 def _limit(s) -> str:
+    if s.reported:
+        return "仅报告（无限值，不判定）"
     return s.limit_text().replace("<=", "≤").replace(">=", "≥")
 
 

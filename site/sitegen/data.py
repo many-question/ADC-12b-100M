@@ -121,7 +121,7 @@ class SpecRow:
     view: str
     corner_set: str
     worst: float | None
-    status: str            # pass | fail | none | mc
+    status: str            # pass | fail | reported (reported-only spec: a value, no verdict) | none | mc
     n: int                 # recorded corners where the spec applies (unique)
     need: int              # corners the spec requires
     stale: list[str]
@@ -163,12 +163,25 @@ def owner_login(raw_owner) -> str | None:
 def _worst(spec, nums: list[float]) -> float | None:
     if not nums:
         return None
+    if spec.reported:                    # the power figures: the largest (lower is better)
+        return max(nums)
     if spec.max is not None and spec.min is None:
         return max(nums)
     if spec.min is not None and spec.max is None:
         return min(nums)
     mid = (spec.min + spec.max) / 2
     return max(nums, key=lambda x: abs(x - mid))
+
+
+def limit_label(spec) -> str:
+    """The limit of a spec as the site shows it: ≤ / ≥ / range, or 仅报告 for a reported-only spec."""
+    if spec.reported:
+        return REPORTED_LABEL
+    return spec.limit_text().replace("<=", "≤").replace(">=", "≥")
+
+
+REPORTED_LABEL = "仅报告"
+REPORTED_TITLE = "仅报告的指标：没有限值，不判定通过或不通过，不计入通过数（功耗，#75）"
 
 
 @dataclass
@@ -209,12 +222,14 @@ def _spec_rows(b, view: str, docs: list[dict]) -> list[SpecRow]:
         nums = [x for x, _ in vals if isinstance(x, (int, float))]
         if not vals:
             status = "mc" if s.mc else "none"
+        elif s.reported:
+            status = "reported"
         else:
             status = "pass" if all(p for _, p in vals) else "fail"
         worst = _worst(s, nums)
         ev_doc = next((d for x, d in pairs if x == worst), None) if worst is not None else None
         ev = evidence_path(ev_doc) if ev_doc else None
-        out.append(SpecRow(s.id, s.name, s.limit_text().replace("<=", "≤").replace(">=", "≥"), s.unit,
+        out.append(SpecRow(s.id, s.name, limit_label(s), s.unit,
                            s.test, view, s.corners, worst, status, len(corners), need, stale, s.mc, ev, ev_doc))
     return out
 
@@ -266,17 +281,22 @@ def best_rows(bd: BlockData) -> list[SpecRow | None]:
     for i, _ in enumerate(bd.b.specs):
         best = None
         for view in ("xtor", "behav"):
-            if view in bd.rows and bd.rows[view][i].status in ("pass", "fail"):
+            if view in bd.rows and bd.rows[view][i].status in ("pass", "fail", "reported"):
                 best = bd.rows[view][i]
                 break
         out.append(best)
     return out
 
 
+def judged_rows(bd: BlockData) -> list[SpecRow | None]:
+    """best_rows of the specs with a limit: a reported-only spec has no verdict and is not counted."""
+    return [r for s, r in zip(bd.b.specs, best_rows(bd)) if not s.reported]
+
+
 def verdict_counts(data: dict[str, BlockData]) -> dict[str, int]:
     c = dict(total=0, pass_=0, fail=0, none=0, stale=0, full=0)
     for bd in data.values():
-        for row in best_rows(bd):
+        for row in judged_rows(bd):
             c["total"] += 1
             if row is None:
                 c["none"] += 1

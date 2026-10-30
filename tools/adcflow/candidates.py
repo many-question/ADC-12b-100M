@@ -26,6 +26,7 @@ view and its ``xtor`` results into a named candidate.
 from __future__ import annotations
 
 import datetime as _dt
+import functools
 import json
 import re
 import shutil
@@ -328,8 +329,15 @@ def mc_text(mc: list[dict]) -> str:
 
 
 def score(c: Candidate) -> dict:
-    """The leaderboard row of a candidate (§3): spec pass count, corner coverage, Monte Carlo sample
-    coverage, flags, worst margin, power, area proxy and the top-level ENOB margin.
+    """The leaderboard row of a candidate (§3, #75): spec pass count, corner coverage, Monte Carlo
+    sample coverage, flags, the block's power at TT, area proxy, the mixed top-level regression and
+    whether the candidate is eligible for selection (`eligible`, and `missing`: what keeps it out).
+    The worst margin and the top-level ENOB margin are information: margin beyond a limit earns
+    nothing, they are not ranking criteria (`compare`).
+
+    A reported-only spec (`reported: true`, the power figures) has no verdict: it counts neither as
+    passed nor as failed (`specs_total` counts the specs with a limit), but its value must be
+    recorded at every corner it names, else it is incomplete (`specs_reported` / `reported_total`).
 
     Each result is verified, self-reported or a mismatch (verify.state: only a matching, fresh
     verification record of the lead in verification/ verifies it; nothing in the result's own meta
@@ -345,7 +353,8 @@ def score(c: Candidate) -> dict:
     docs = [(d, judge(d)) for d in _results(c.block, view)]
     states = [verify.state(d)["state"] for d, _ in docs]
     required = {t: set(verify.required_corners(b, t)) for t in {d["test"] for d, _ in docs}}
-    passed = failed = incomplete = 0
+    passed = failed = incomplete = reported = 0
+    failing, missing = [], []
     need = got = 0
     worst = None
     for s in b.specs:
@@ -355,12 +364,21 @@ def score(c: Candidate) -> dict:
         have = {c_ for c_, _ in vals} & req
         need += len(req)
         got += len(have)
-        if any(not v["pass"] for _, v in vals):
+        if s.reported:                                      # no verdict: recorded at its corners, or incomplete
+            if have == req and all(isinstance(v["value"], (int, float)) for _, v in vals):
+                reported += 1
+            else:
+                incomplete += 1
+                missing.append(s.id)
+            continue
+        if any(v["pass"] is False for _, v in vals):
             failed += 1
+            failing.append(s.id)
         elif have == req:
             passed += 1
         else:
             incomplete += 1
+            missing.append(s.id)
         for _, v in vals:
             mg = _margin(s, v["value"])
             if mg is not None and (worst is None or mg < worst[0]):
@@ -371,16 +389,23 @@ def score(c: Candidate) -> dict:
              "mismatch": states.count("mismatch"),
              "soa": sum(1 for d, _ in docs if (d["metrics"].get("soa_violations") or 0) > 0),
              "error": sum(bool(j["error"]) for _, j in docs)}
-    return {"block": c.block, "candidate": c.name, "status": c.status, "authors": c.authors,
-            "author_text": c.author_text(), "description": c.meta.get("description", ""),
-            "problems": list(c.problems), "selected": b.selected == c.name,
-            "specs_passed": passed, "specs_failed": failed, "specs_incomplete": incomplete, "specs_total": len(b.specs),
-            "coverage": [got, need], "mc": mc_coverage(b, docs), "results": len(docs), "verified": states.count("verified"),
-            "self_reported": states.count("self-reported"), "mismatch": states.count("mismatch"), "flags": flags,
-            "worst_margin": None if worst is None else {"margin": worst[0], "spec": worst[1]},
-            "power_uW": power_uW(c.block, docs),
-            "area": area_proxy(c.netlist) if c.netlist.exists() else None,
-            "top_enob_margin": top_enob_margin(c.block, c.name)}
+    n_rep = sum(s.reported for s in b.specs)
+    row = {"block": c.block, "candidate": c.name, "status": c.status, "authors": c.authors,
+           "author_text": c.author_text(), "description": c.meta.get("description", ""),
+           "problems": list(c.problems), "selected": b.selected == c.name,
+           "specs_passed": passed, "specs_failed": failed, "specs_incomplete": incomplete,
+           "specs_total": len(b.specs) - n_rep, "specs_reported": reported, "reported_total": n_rep,
+           "specs_failing": failing, "specs_missing": missing,
+           "coverage": [got, need], "mc": mc_coverage(b, docs), "results": len(docs), "verified": states.count("verified"),
+           "self_reported": states.count("self-reported"), "mismatch": states.count("mismatch"), "flags": flags,
+           "worst_margin": None if worst is None else {"margin": worst[0], "spec": worst[1]},
+           "power_uW": power_uW(c.block, docs),
+           "area": area_proxy(c.netlist) if c.netlist.exists() else None,
+           "top_enob_margin": top_enob_margin(c.block, c.name),
+           "top_regression": top_regression(c.block, c.name)}
+    row["missing"] = eligibility(row)
+    row["eligible"] = not row["missing"]
+    return row
 
 
 def power_uW(block: str, docs: list[tuple[dict, dict]]) -> float | None:
@@ -409,7 +434,7 @@ def power_uW(block: str, docs: list[tuple[dict, dict]]) -> float | None:
 def top_enob_margin(block: str, name: str) -> float | None:
     """Worst ENOB margin of the top-level sine tests with only this candidate swapped in
     (results/adc_top/<test>/xtor-<blk>@<name>/), against the ENOB limits that apply at each
-    result's corner; None without results."""
+    result's corner; None without results. Information only (#75): not a ranking criterion."""
     from .specs import blocks
 
     top = blocks().get("adc_top")
@@ -430,34 +455,199 @@ def top_enob_margin(block: str, name: str) -> float | None:
     return None if out is None else round(out, 4)
 
 
+# the mixed top-level regression of a candidate (CONTRIBUTING §10): every adc_top test at the corners its
+# specs require within this set, i.e. tb_top_sine and tb_top_duty at quick, tb_top_sine_lf at typ
+TOP_CORNERS = "quick"
+
+
+def top_regression(block: str, name: str) -> dict:
+    """The mixed top-level regression with this candidate: the adc_top runs with only it swapped in
+    (results/adc_top/<test>/xtor-<blk>@<name>/, the lead's runs, the other blocks behavioral).
+
+    Every adc_top test needs a result at each corner its specs require within TOP_CORNERS. It
+    passes when all of them are there and every result is fresh, without error and passes every
+    spec that applies at its corner. Returns {status: pass | fail | stale | incomplete | none,
+    results, missing: ["<test> <corner>"], failing: [spec ids], stale, error}."""
+    from .checks import judge
+    from .corners import corner_names
+    from .specs import blocks
+
+    out = {"status": "none", "results": 0, "missing": [], "failing": [], "stale": 0, "error": 0}
+    top = blocks().get("adc_top")
+    if top is None:
+        return out
+    view = f"xtor-{block.replace('adc_', '')}@{name}"
+    need: dict[str, set[str]] = {}
+    for s in top.specs:
+        need.setdefault(s.test, set()).update(corner_names(s.corners) & corner_names(TOP_CORNERS))
+    failing: set[str] = set()
+    for t in sorted(need):
+        got = set()
+        for f in sorted((ROOT / "results" / "adc_top" / t / view).glob("*.json")):
+            d = json.loads(f.read_text(encoding="utf-8"))
+            d["_path"] = f
+            j = judge(d)
+            out["results"] += 1
+            got.add(d.get("corner"))
+            out["stale"] += bool(j["stale"])
+            out["error"] += bool(j["error"])
+            failing |= {sid for sid, v in j["specs"].items() if v["pass"] is False}
+        out["missing"] += [f"{t} {c}" for c in sorted(need[t] - got)]
+    out["failing"] = sorted(failing)
+    if not out["results"]:
+        out["status"] = "none"
+    elif failing or out["error"]:
+        out["status"] = "fail"
+    elif out["stale"]:
+        out["status"] = "stale"
+    elif out["missing"]:
+        out["status"] = "incomplete"
+    else:
+        out["status"] = "pass"
+    return out
+
+
+# ------------------------------------------------------------------ eligibility and ranking (§4, #75)
+TOL_POWER = 0.05                       # power within 5 % is a tie, decided by area
+TOL_AREA = 0.05                        # area (sum of W*L, then capacitance) within 5 %: the selected one stays first
+
+
+def eligibility(row: dict) -> list[dict]:
+    """What keeps a candidate out of the eligible tier: [{what, text}], empty when it is eligible.
+
+    Eligible (CONTRIBUTING §10): every spec passes at every corner it requires (and every
+    reported-only metric is recorded there), every result is fresh and without error, every result
+    at a required corner is verified by the lead (verification/) and none contradicts it, no SOA
+    violation, and the mixed top-level regression with the candidate passes (top_regression).
+    `what` is one of problems, results, failing, incomplete, stale, error, soa, mismatch,
+    unverified, top."""
+    f, out = row["flags"], []
+
+    def add(what: str, text: str) -> None:
+        out.append({"what": what, "text": text})
+
+    if row["problems"]:
+        add("problems", f"{len(row['problems'])} problem(s) in candidate.yaml or the netlist")
+    if not row["results"]:
+        add("results", "no results")
+    if row["specs_failing"]:
+        add("failing", "fails " + ", ".join(row["specs_failing"]))
+    if row["specs_missing"]:
+        add("incomplete", "no result at every required corner: " + ", ".join(row["specs_missing"]))
+    if f["stale"]:
+        add("stale", f"{f['stale']} stale result(s)")
+    if f["error"]:
+        add("error", f"{f['error']} result(s) with an error")
+    if f["soa"]:
+        add("soa", f"SOA violations in {f['soa']} result(s)")
+    if f["mismatch"]:
+        add("mismatch", f"the lead's rerun contradicts {f['mismatch']} result(s)")
+    if f["unverified"]:
+        add("unverified", f"{f['unverified']} self-reported result(s) at required corners (not verified)")
+    top = row["top_regression"]
+    if top["status"] != "pass":
+        shown = ", ".join(top["missing"][:3]) + (" ..." if len(top["missing"]) > 3 else "")
+        add("top", {"none": "no mixed top-level regression",
+                    "fail": "mixed top-level regression fails" + (f" ({', '.join(top['failing'])})" if top["failing"] else ""),
+                    "stale": f"mixed top-level regression stale ({top['stale']} result(s))",
+                    "incomplete": f"mixed top-level regression incomplete ({len(top['missing'])} missing: {shown})",
+                    }[top["status"]])
+    return out
+
+
+def _lower(a, b, tol: float) -> int:
+    """-1 when a is lower (better), 1 when b is, 0 within the relative tolerance; a missing value is worse than any."""
+    if a is None and b is None:
+        return 0
+    if a is None:
+        return 1
+    if b is None:
+        return -1
+    if abs(a - b) <= tol * max(abs(a), abs(b)):
+        return 0
+    return -1 if a < b else 1
+
+
+def compare(a: dict, b: dict) -> int:
+    """Leaderboard order of two rows of one block (§4, #75): -1 when a ranks first, 1 when b, 0 tied.
+
+    The eligible tier comes first. Inside it the block's own reported power at TT (power_uW) decides,
+    lowest first; within TOL_POWER it is a tie, decided by the area proxy (sum of W*L, then total
+    capacitance, each within TOL_AREA); tied inside every tolerance, the selected candidate stays
+    first. Not-eligible candidates follow, by more specs passed, then more (spec, corner) coverage,
+    then the same power and area order. Margins beyond a limit (worst margin, top-level ENOB margin)
+    earn nothing: they are shown, never ranked."""
+    if a["eligible"] != b["eligible"]:
+        return -1 if a["eligible"] else 1
+    if not a["eligible"]:
+        for x, y in ((b["specs_passed"], a["specs_passed"]), (b["coverage"][0], a["coverage"][0])):
+            if x != y:
+                return -1 if x < y else 1
+    area = lambda r, k: (r["area"] or {}).get(k) or None           # noqa: E731  (0 -> unknown)
+    for c in (_lower(a["power_uW"], b["power_uW"], TOL_POWER),
+              _lower(area(a, "wl_um2"), area(b, "wl_um2"), TOL_AREA),
+              _lower(area(a, "cap_F"), area(b, "cap_F"), TOL_AREA)):
+        if c:
+            return c
+    if bool(a["selected"]) != bool(b["selected"]):                 # tied inside every tolerance: the selected one stays
+        return -1 if a["selected"] else 1
+    return 0
+
+
+def rank(rows: list[dict]) -> list[dict]:
+    """Rows of one block in leaderboard order (compare), ties by candidate name."""
+    def key(a: dict, b: dict) -> int:
+        return compare(a, b) or (a["candidate"] > b["candidate"]) - (a["candidate"] < b["candidate"])
+
+    return sorted(rows, key=functools.cmp_to_key(key))
+
+
 def leaderboard(block: str | None = None, withdrawn: bool = False) -> list[dict]:
+    """Leaderboard rows by block, each block ranked (rank): the eligible tier first."""
     rows = [score(c) for c in candidates(block) if withdrawn or c.status != "withdrawn"]
-    return sorted(rows, key=lambda r: (r["block"], -r["specs_passed"], -r["coverage"][0], r["candidate"]))
+    return [r for b in sorted({r["block"] for r in rows}) for r in rank([r for r in rows if r["block"] == b])]
 
 
 def table(rows: list[dict]) -> str:
-    """The leaderboard as text for the terminal."""
+    """The leaderboard as text for the terminal: per block the eligible tier, ranked, then the
+    candidates that are not eligible with what keeps them out."""
     def f(v, fmt="{:.4g}"):
         return "-" if v is None else fmt.format(v)
 
-    L = [f"{'block':14s} {'candidate':24s} {'status':9s} {'pass':>7s} {'corners':>9s} {'MC samples':>22s} "
-         f"{'worst margin':>18s} {'power uW':>9s} {'MOS':>5s} {'W*L um2':>9s} {'top ENOB':>8s}  flags / authors"]
-    for r in rows:
-        wm = r["worst_margin"]
-        flags = [k if k != "unverified" else "self-reported" for k, v in r["flags"].items() if v]
-        if r["problems"]:
-            flags.append(f"{len(r['problems'])} problem(s)")
-        a = r["area"] or {}
-        L.append(f"{r['block']:14s} {r['candidate'] + (' *' if r['selected'] else ''):24s} {r['status']:9s} "
-                 f"{r['specs_passed']:>3d}/{r['specs_total']:<3d} {r['coverage'][0]:>4d}/{r['coverage'][1]:<4d} "
-                 f"{mc_text(r.get('mc') or []):>22s} "
-                 f"{(f(wm['margin'], '{:+.3f}') + ' ' + wm['spec']) if wm else '-':>18s} {f(r['power_uW']):>9s} "
-                 f"{a.get('mos', '-'):>5} {f(a.get('wl_um2')):>9s} {f(r['top_enob_margin'], '{:+.3f}'):>8s}  "
-                 f"{', '.join(flags) or 'ok'} / {r['author_text']}")
-    L.append("(* = selected; pass = specs passing at every required corner; corners = (spec, corner) results / "
-             "required; MC samples = valid / required Monte Carlo samples of a spec with mc:, any failed one fails "
-             "it; self-reported = results at required corners without a matching, fresh verification record of "
-             "the lead (verification/, adcflow verify); mismatch = the lead's rerun disagrees)")
+    head = (f"  {'#':>2s} {'candidate':24s} {'status':9s} {'power uW':>9s} {'MOS':>5s} {'W*L um2':>9s} {'pass':>8s} "
+            f"{'corners':>9s} {'MC samples':>22s} {'worst margin':>18s} {'top ENOB':>8s}  flags / authors")
+    L = []
+    for blk in dict.fromkeys(r["block"] for r in rows):
+        mine = [r for r in rows if r["block"] == blk]
+        for tier, sel in (("eligible, ranked by power at TT (lowest first; within 5 % by area)", True),
+                          ("not eligible", False)):
+            part = [r for r in mine if bool(r.get("eligible")) == sel]
+            if not part:
+                continue
+            L += [f"{blk} -- {tier}", head]
+            for i, r in enumerate(part, 1):
+                wm = r["worst_margin"]
+                flags = [k if k != "unverified" else "self-reported" for k, v in r["flags"].items() if v]
+                if r["problems"]:
+                    flags.append(f"{len(r['problems'])} problem(s)")
+                a = r["area"] or {}
+                rep = f"+{r['specs_reported']}r" if r.get("reported_total") else ""
+                L.append(f"  {str(i) if sel else '-':>2s} {r['candidate'] + (' *' if r['selected'] else ''):24s} "
+                         f"{r['status']:9s} {f(r['power_uW']):>9s} {a.get('mos', '-'):>5} {f(a.get('wl_um2')):>9s} "
+                         f"{str(r['specs_passed']) + '/' + str(r['specs_total']) + rep:>8s} "
+                         f"{r['coverage'][0]:>4d}/{r['coverage'][1]:<4d} {mc_text(r.get('mc') or []):>22s} "
+                         f"{(f(wm['margin'], '{:+.3f}') + ' ' + wm['spec']) if wm else '-':>18s} "
+                         f"{f(r['top_enob_margin'], '{:+.3f}'):>8s}  {', '.join(flags) or 'ok'} / {r['author_text']}")
+                if not sel:
+                    L.append("       missing: " + "; ".join(m["text"] for m in r.get("missing") or []))
+    L.append("(* = selected. Eligible = every spec passes at every required corner, results fresh and verified, no SOA "
+             "violation, mixed top-level regression passed; ranked by the block's power at TT, ties within 5 % by the "
+             "area proxy (sum of W*L, then capacitance, 5 %), then the selected one stays first. Worst margin and top "
+             "ENOB margin are shown, not ranked. pass = specs with a limit passing at every required corner (+Nr = "
+             "reported-only metrics recorded, no verdict); corners = (spec, corner) results / required; MC samples = "
+             "valid / required Monte Carlo samples of a spec with mc:, any failed one fails it; self-reported = results "
+             "at required corners without a matching, fresh verification record of the lead (verification/, adcflow "
+             "verify); mismatch = the lead's rerun disagrees)")
     return "\n".join(L)
 
 

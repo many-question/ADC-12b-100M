@@ -12,7 +12,8 @@
   "devnoise": 0,
   "beh_speed": 1.0,
   "vref_in": 0.9,
-  "cdac_behav": 1
+  "cdac_behav": 1,
+  "comp_behav": 1
  },
  "metrics": {
   "wrong_decisions": 0,
@@ -20,7 +21,7 @@
   "tdelay_30mV_ps": 49.00250000555621,
   "tau_reg_ps": 7.99999999999872,
   "treset_ps": 33.00250000556709,
-  "energy_fJ": 111.72413980800002
+  "energy_fJ": 112.500001872
  },
  "specs": {
   "CMP-04": {
@@ -61,9 +62,9 @@
   },
   "CMP-10": {
    "metric": "energy_fJ",
-   "value": 111.72413980800002,
-   "limit": "<= 200",
-   "pass": true
+   "value": 112.500001872,
+   "limit": "reported",
+   "pass": null
   }
  },
  "figures": [
@@ -73,15 +74,15 @@
   }
  ],
  "meta": {
-  "date": "2026-10-29T11:05:08",
-  "git": "377842e",
+  "date": "2026-10-30T01:48:58",
+  "git": "831004e",
   "git_clean": true,
   "mode": "aps",
   "pdk": false,
   "mc": null,
-  "wall_s": 127.1,
+  "wall_s": 125.6,
   "rc": "0",
-  "sim_s": "20",
+  "sim_s": "18",
   "numerics": {
    "source": "spectre.log",
    "reltol": 0.001,
@@ -95,7 +96,7 @@
    "step_max_ps": 56.5
   },
   "files": {
-   "tb/comp/tb_comp_delay.scs": "c9bbdac040c91a1f",
+   "tb/comp/tb_comp_delay.scs": "ca754d0b9373b04c",
    "tb/common/veriloga/tb_imeter_va.va": "d4be49aca417ad61",
    "design/behav/adc_comp.scs": "c0da9398b6e09fc2",
    "design/behav/veriloga/adc_comp_va.va": "ab8a6bf210351e31"
@@ -104,11 +105,6 @@
    "keys": [],
    "sha": "44136fa355b3678a"
   },
-  "views": {},
-  "rehashed": {
-   "date": "2026-10-29T20:21:36",
-   "git": "b748f30",
-   "files_before": 17
-  }
+  "views": {}
  }
 }

@@ -459,7 +459,8 @@ def _print_summary(block: Block, test_id: str, summary: list[dict], mc: dict | N
             print(f"  {row['job']:28s} ERROR {m['error'][:200]}")
             continue
         judged, na = block.verdicts(test_id, row["corner"], mc, m)
-        parts = [f"{sid}={fmt(v['value'])}{'' if v['pass'] else '(FAIL ' + v['limit'] + ')'}"
+        parts = [f"{sid}={fmt(v['value'])}"
+                 + ("(reported)" if v["pass"] is None else "" if v["pass"] else f"(FAIL {v['limit']})")
                  + (f"[{v['samples']['ok']}/{v['samples']['need']} samples, {v['samples']['failed']} failed]"
                     if v.get("samples") else "")
                  for sid, v in judged.items()]
