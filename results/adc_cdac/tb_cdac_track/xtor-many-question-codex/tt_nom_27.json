@@ -15,26 +15,27 @@
   "devnoise": 1,
   "beh_speed": 1.0,
   "vref_in": 0.9,
-  "cdac_behav": 0
+  "cdac_behav": 0,
+  "comp_behav": 1
  },
  "metrics": {
-  "sfdr_dBc": 69.61210624327056,
-  "sndr_dB": 69.57352783079199,
-  "thd_dBc": -69.57577797274664,
-  "amp_top_V": 0.78267918608585
+  "sfdr_dBc": 86.41796685878245,
+  "sndr_dB": 84.52354856716035,
+  "thd_dBc": -85.23559475880722,
+  "amp_top_V": 0.7880851320069999
  },
  "specs": {
   "DAC-09": {
    "metric": "sfdr_dBc",
-   "value": 69.61210624327056,
+   "value": 86.41796685878245,
    "limit": ">= 85",
-   "pass": false
+   "pass": true
   },
   "DAC-10": {
    "metric": "sndr_dB",
-   "value": 69.57352783079199,
+   "value": 84.52354856716035,
    "limit": ">= 80",
-   "pass": false
+   "pass": true
   }
  },
  "figures": [
@@ -44,15 +45,15 @@
   }
  ],
  "meta": {
-  "date": "2026-10-29T23:44:18",
-  "git": "92e4715",
+  "date": "2026-10-30T16:07:05",
+  "git": "9a68c59",
   "git_clean": true,
   "mode": "aps",
   "pdk": true,
   "mc": null,
-  "wall_s": 6118.3,
+  "wall_s": 8572.7,
   "rc": "0",
-  "sim_s": "6092",
+  "sim_s": "8567",
   "numerics": {
    "source": "spectre.log",
    "reltol": 1e-07,
@@ -62,8 +63,8 @@
    "lteratio": 3.5,
    "abstol_V": 1e-08,
    "vabstol": 1e-08,
-   "steps_accepted": 3250914,
-   "step_mean_ps": 0.801313,
+   "steps_accepted": 3729396,
+   "step_mean_ps": 0.698505,
    "step_max_ps": null
   },
   "files": {
@@ -71,7 +72,7 @@
    "design/behav/veriloga/adc_clkgen_va.va": "7fff1b9368bc1a20",
    "tb/common/veriloga/tb_sampler_va.va": "4092bc16170c588d",
    "design/behav/veriloga/adc_bootstrap_va.va": "12338aad16f4913b",
-   "design/xtor/adc_cdac/many-question-codex/adc_cdac.scs": "15f43aa1bfaa439c"
+   "design/xtor/adc_cdac/many-question-codex/adc_cdac.scs": "e51ec096bda93b5c"
   },
   "arch": {
    "keys": [],
@@ -87,16 +88,6 @@
     "sfdr": "plotspec definition: peak bin of the fundamental / largest other single bin (DC and signal bins excluded, Nyquist included)",
     "enob_sndr_snr_thd": "adctoolbox 0.6.4 compute_spectrum"
    }
-  },
-  "crosscheck": {
-   "settings": {
-    "maxstep": "0.5p",
-    "method": "gear2only"
-   },
-   "numerics": {},
-   "rc": "125",
-   "sim_s": "0",
-   "error": "no spectre.log"
   }
  }
 }

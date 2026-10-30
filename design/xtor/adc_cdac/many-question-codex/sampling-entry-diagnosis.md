@@ -1260,6 +1260,88 @@ Official figures have been inspected. Complete recovered jobs contain
 10 weights files and nine settling files; each has a 50-file staged-input
 snapshot verified against the remote inputs. Archive recovery and local
 file hashes were verified before removing each exact owned remote run.
-The original shared testbench runs remain available. The next physical
-job is the official 256-point tracking main run; the old tracking failure
-is still present with its genuine stale fingerprint at this stage.
+The original shared testbench runs remain available. At that checkpoint,
+the next job was official 256-point tracking and its previous failure
+still had a genuine stale fingerprint. The newly completed run follows.
+
+## Promoted source: complete official 256-point main record
+
+The current unmodified official tracking flow completed on clean commit
+`9a68c59`, using the promoted N4 source, TT, APS, and one job. It passed
+both required spectral metrics. All 17 required TT main metrics now pass,
+but the prescribed numerical twin and its margin audit remain pending.
+The candidate stays WIP and this is not a convergence or full-corner
+acceptance claim. The previous failed source and actual failed results
+remain in the pre-N4 history tag.
+
+| Requirement | Current official TT main value | Limit | Verdict |
+|---|---:|---:|---|
+| DAC-01 sampled capacitance | 2.065012 pF | 1.98–2.12 pF | Pass |
+| DAC-02 full scale | 0.993034 V | >=0.97 V | Pass |
+| DAC-03 calibration margin | 0.369061 LSB | >=0 LSB | Pass |
+| DAC-04 TOP gain | 0.893800 | >=0.78 | Pass |
+| DAC-05 RL5 settling | 47.3 ps | <=75 ps | Pass |
+| DAC-06 RL12 settling | 35.3 ps | <=40 ps | Pass |
+| DAC-07 time constant | 9.120184 ps | <=15 ps | Pass |
+| DAC-08 conversion-start settling | 83.4 ps | <=100 ps | Pass |
+| DAC-09 tracking SFDR | 86.417967 dBc | >=85 dBc | Pass |
+| DAC-10 tracking SNDR | 84.523549 dB | >=80 dB | Pass |
+| DAC-11 hold droop | 0.004380784 LSB | <=0.1 LSB | Pass |
+| DAC-12 reference charge | 1.124389535 pC | <=1.2 pC | Pass |
+| DAC-13 DH5 input capacitance | 0.830865 fF | <=6 fF | Pass |
+| DAC-14 calibrated ENOB loss | 0.000364369 bit | <=0.02 bit | Pass |
+| DAC-15 PHI_S input capacitance | 6.432310 fF | <=40 fF | Pass |
+| DAC-16 PHI_SB input capacitance | 12.231291 fF | <=40 fF | Pass |
+| DAC-17 CONV input capacitance | 9.850052 fF | <=80 fF | Pass |
+
+The tracking main reports THD -85.235595 dBc and sampled half-range
+0.788085132 V. Its SFDR/SNDR margins are 1.417967/4.523549 dB. It took
+8,567 seconds, compared with the rough earlier 122-minute estimate.
+Actual settings are reltol 1e-7, voltage tolerance 1e-8, maxstep 1 ps,
+traponly, moderate errpreset, and lteratio 3.5. There are 3,729,396
+accepted steps with mean spacing 0.698505 ps.
+
+The complete sampler file has exactly indices 1 through 256, all finite,
+from 45.426 to 2595.426 ns. The largest deviation of the printed sample
+times from their 10 ns grid is 0.001 ps; this is not an independent jitter
+measurement. Preparation selected 48.828125 MHz at 100 MS/s, giving
+125 cycles in 256 samples with coprime bin and record length. The original
+four-cycle warmup, -1 dBFS input, 50 ohm source per half, 20 fF external
+TOP load per half, 300 ps sampling delay after CONV, and 2605 ns stop
+time are unchanged. No sample was dropped or selected for acceptance.
+The official metrics recomputed from all samples agree exactly with the
+recorded values, and the official spectrum figure has been inspected.
+
+The largest spur is bin 119, the aliased third harmonic. Full-record
+fixed-frequency fits give fundamental 0.788182821 V, h3 -86.417725 dBc
+(37.647895 uV peak), h5 -91.465043 dBc (21.055948 uV), and h7
+-95.576838 dBc (13.115506 uV). Removing only DC and the fundamental
+leaves residual RMS 33.106962 uV and maximum 89.324746 uV. Fitting
+h1 through h21 leaves 0.772669 uV RMS; that remainder is not a thermal
+noise measurement. Odd/all bases through h7/h21 change full-record h3
+by only 0.000000252 dB. Across all 129 sliding 128-sample h1-through-h21
+fits, h3 ranges from -86.422389 to -86.412766 dBc, a 0.009622 dB span.
+These are read-only sensitivity checks on the complete record, not new
+128-point simulations or substitute acceptance windows.
+
+The first 48 samples agree with the earlier frozen N4 diagnostic to
+0.00041249 uV RMS and 0.00285570 uV maximum, with maximum printed-time
+difference 0.0007 ps. That diagnostic retained ideal measurement probes
+and analog saves; the agreement is not the prescribed numerical twin.
+
+The official TB uses save=none and outputstart=tstop. Its complete
+sampler record therefore does not provide complete analog waveforms or
+extend the prior 125 ns all-MOS terminal-pair coverage. The log retains
+26 warnings, six notices, and 56,143,339 suppressed warning occurrences,
+with zero errors. Model checks remain distinct from the project's
+gs/gd/ds limit. The earlier 125 ns maximum still has only 9.775 mV
+headroom and does not establish all-phase or actual-bootstrap stress.
+
+All eight raw job files and the 50-file staged-input snapshot have been
+recovered, hashed, and checked against the complete archive. Analysis,
+plots, and their exact script are retained with the recovery record.
+Only the uniquely owned completed run directory was removed; shared
+testbench runs remain intact. The next run is the prescribed 0.5 ps,
+gear2only numerical twin on this same physical source, with the original
+main samples retained for the official comparison. Its result must be
+assessed against the measured margins before claiming TT convergence.
