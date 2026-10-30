@@ -204,3 +204,67 @@ Per-device maximum over all three terminal pairs (V):
 Clock charge from the mixed delay sequence is a supplemental diagnostic, not the official CMP-14 input-capacitance result. No all-corner, noise, Monte Carlo or mixed-top qualification is inferred from this screen.
 
 Across these ten distinct key corners, all 360 decisions (including 10 uV) and 360 resets pass. The actual highest stress is 0.99904 V at sf_high_m40; a targeted 0.125 ps / 1e-7 / 1e-9 convergence run at that corner is the next gate. No new-source formal cap or noise result is available yet.
+
+## Completed screen 20261031-065521-miyahara-buffer-v13-screen
+
+The actual worst stress corner passes the tighter numerical repeat. All 36 polarities including 10 uV and all 36 resets pass independently; no output-validity or MOS stress failure appears.
+
+Actual clean source commit: `d490e9f66a59e0b147a72f3f9175d2305f487bf1`. Electrical SHA-256: `ce5b3787a38ea80eb6775686bbe1df538e8864a2deb3d5f784d67e119b6146e0`. The canonical netlist and 274 official result/figure files are unchanged.
+
+| Corner | 1 mV / 30 mV delay (ps) | Reset (ps) | AVDD (fJ/cycle) | Decided / cycles | Wrong | CMP-15 | Max stress (V) | Failed pairs |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| sf_high_m40 | 56.198939 / 46.106945 | 20.630348 | 788.513102 | 36 / 36 | 0 | 0 | 0.99904 | 0 / 129 |
+
+The entire trace, including clock edges and reset, is checked for every MOS |Vgs|, |Vgd| and |Vds|. Each job uses +aps, no explicit +mt, traponly, maxstep=0.125p, reltol=1e-7 and vabstol=1e-9. The observed batch peak is 1 concurrent jobs; logs report effective single-thread simulation. All raw/deck hashes were verified, and the exact owned remote run was removed with absence confirmed.
+
+Per-device maximum over all three terminal pairs (V):
+
+| Device | sf_high_m40 |
+|---|---:|
+| MINP | 0.76875 |
+| MINN | 0.76894 |
+| MTAIL | 0.99000 |
+| M14 | 0.99201 |
+| M15 | 0.99201 |
+| M12 | 0.99332 |
+| M13 | 0.99332 |
+| M10 | 0.98100 |
+| M11 | 0.98100 |
+| M6 | 0.99588 |
+| M7 | 0.99588 |
+| M8 | 0.99588 |
+| M9 | 0.99588 |
+| MCKN | 0.99151 |
+| MCKP | 0.99000 |
+| MRQP | 0.99588 |
+| MRQN | 0.99588 |
+| MAP | 0.99201 |
+| MAN | 0.99201 |
+| MBPP | 0.98325 |
+| MBPN | 0.99904 |
+| MOPP | 0.97871 |
+| MOPN | 0.99904 |
+| MBNP | 0.98325 |
+| MBNN | 0.99904 |
+| MONP | 0.97871 |
+| MONN | 0.99904 |
+| MDDP | 0.98646 |
+| MDDN | 0.98801 |
+| MUPRP1 | 0.99588 |
+| MUPRN1 | 0.99588 |
+| MUPBP1 | 0.99904 |
+| MUPBN1 | 0.99904 |
+| MUPOUTP1 | 0.99371 |
+| MUPOUTN1 | 0.99371 |
+| MDNOUTP1 | 0.99371 |
+| MDNOUTP2 | 0.99371 |
+| MDNOUTN1 | 0.99371 |
+| MDNOUTN2 | 0.99371 |
+| MCKUP | 0.99151 |
+| MBLEED | 0.99151 |
+| MUPXP | 0.99332 |
+| MUPXN | 0.99332 |
+
+Clock charge from the mixed delay sequence is a supplemental diagnostic, not the official CMP-14 input-capacitance result. No all-corner, noise, Monte Carlo or mixed-top qualification is inferred from this screen.
+
+The maximum absolute change in any of the 129 tabulated terminal-pair peaks is 20.000 uV, at the 10 uV table precision. Global maximum stress stays 0.99904 V. Tight-minus-reference changes are 1 mV delay +0.001481261 ps, 30 mV delay +0.000056892 ps, reset -0.004701680 ps and AVDD energy +0.003328380 fJ/cycle. The source is electrically identical. This supports targeted numerical convergence at the screened worst corner, not all-corner qualification. Normal canonical promotion may now preserve the prior source and all mixed-source records, followed by genuine new-source official TT capacitance/kickback and noise.
