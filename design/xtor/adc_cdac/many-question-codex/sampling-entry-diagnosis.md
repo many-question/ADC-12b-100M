@@ -195,8 +195,8 @@ tolerance 1e-8. A least-squares fit at the known fundamental and odd harmonics
 | Residual RMS after fitting (uV) | 0.46 | 7.76 |
 
 The frozen-circuit reference reuses its completed strict run; that simulation
-was not repeated. The third harmonic improves by about 5.5 dB, but the new
-variant still needs substantial linearity improvement. This short regression
+was not repeated. The fitted third harmonic changes by about 5.5 dB under
+this short-record model; the variant's full linearity remains unresolved. This regression
 is not an FFT, SFDR/SNDR result, or numerical convergence comparison. The
 noncoherent 32-sample fit has condition number 9.84, and its higher residual
 also limits interpretation of individual fitted harmonics.
@@ -213,8 +213,8 @@ new evidence.
 A matched 32-sample comparison removes only the 12 MID-switch MOS devices
 while retaining all 5% capacitances and the rest of the circuit. It gives
 h3 = -75.1170 dBc and a 7.748 uV fit residual, versus -75.1339 dBc and 7.757 uV
-with the switches. This small change does not support the MID switches as
-the dominant source of the observed third harmonic. The comparison removes
+with the switches. These nearly equal short-fit estimates do not identify
+the MID switches' contribution to a fully resolved spectrum. The comparison removes
 their parasitics and initialization together, so it does not isolate either
 effect individually. Its missing physical initialization path excludes it
 from adoption.
@@ -651,6 +651,13 @@ remain exploratory rankings under the stated fit. A longer record with broader
 phase coverage is
 needed before choosing a near-limit circuit on the strength of these
 estimates. No higher-order fit is used to claim a passing result.
+
+A read-only implementation control reuses the already completed frozen
+circuit's 256 samples. With the fixed h1/h3/h5/h7 basis, the first 128,
+last 128, and all 256 give h3 = -69.612106 dBc to the shown precision.
+This checks the analysis implementation on that old record; it does not
+establish that 128 points suffice for every new circuit or constitute a
+new simulation or convergence result.
 
 ## Same-source 48-point stability audit
 
