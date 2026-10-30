@@ -54,3 +54,26 @@ These complete implementations pass the initial six key corners; further corner 
 | Miyahara B10 | 457.451059 | 174.578897 | 282.872453 | 770.966 | 0.693869 |
 
 The initial current is the simulator's saved DC operating-point current with CLKC low, before the first edge, at the specified initial inputs. It is not an extrapolated ADC power estimate. Persistent reset consumption matters when the surrounding SAR holds the comparator in reset for longer than the characterization duty cycle. A complete converter energy estimate would need its actual active/reset timing. Both sources remain provisional; the lower B10 AVDD number is a comparison of these implemented circuits, not a qualified or topology-only efficiency conclusion.
+
+## B12 measured TT supply phases
+
+All ten measured key corners pass screening; numerical convergence and official qualification remain pending. The same TT stimulus, 100 ps–14.5 ns window and full AVDD boundary give:
+
+| Total (fJ/cycle) | Evaluation | Reset | Initial reset current (uA) | Initial reset power (mW) | Late reset current (uA) |
+|---:|---:|---:|---:|---:|---:|
+| 557.022660 | 210.209135 | 346.813524 | 1153.801845 | 1.038421660 | 1169.090469 |
+
+The original meter is 557.022328 fJ/cycle; the waveform integral differs by 0.00005958%. All probes are present, and the AVDD terminal-sum residual is numerical zero. Matched fine-step StrongARM V14 consumes 580.512581 fJ/cycle; B12 is 4.05% lower in this complete-circuit supply measurement. Both contain different physical repair networks and qualification is incomplete; this does not establish a bare-topology or qualified-power winner.
+
+Net AVDD delivery through the measured terminal groups (not device heat):
+
+| Group | Whole cycle (fJ) | Evaluation (fJ) | Reset (fJ) |
+|---|---:|---:|---:|
+| regenerative core | 49.735493 | 33.310074 | 16.425418 |
+| physical clock | 57.651167 | 29.735847 | 27.915320 |
+| input precharge | 121.795258 | 2.037109 | 119.758149 |
+| first output buffer | 19.633094 | 6.366062 | 13.267032 |
+| external output inverters | 30.180868 | 29.047718 | 1.133150 |
+| weak PMOS rail loads | 278.026780 | 109.712324 | 168.314456 |
+
+The eight non-clock weak PMOS pull-ups receive 49.91% of the total net AVDD energy. The separate physical-clock group includes its new P/N rail loads. These allocations include charge return and interactions; they are not independent per-device dissipation estimates.
