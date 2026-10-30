@@ -415,6 +415,11 @@ def _fig_delay(fg, ctx, w, vdd, vds, t_rise, t_fall, pts, m) -> None:
             "decision with its delay marked, and the reset to 10 % VDD.")
 
 
+def _vd_text(vd: float) -> str:
+    """+100 mV, -10 uV: a stimulus level for a label."""
+    return f"{vd * 1e3:+g} mV" if abs(vd) >= 1e-3 else f"{vd * 1e6:+g} uV"
+
+
 def _fig_validity(fg, w, vdd, cycles, m) -> None:
     t, clk, op, on = w["time"], w["CLKC"], w["OUTP"], w["OUTN"]
     fig, axs = fg.new(1, 2, size=(11.2, 3.9))
@@ -437,8 +442,9 @@ def _fig_validity(fg, w, vdd, cycles, m) -> None:
     v = m.get("validity") or {}
     worst = v.get("worst") or {}
     note(ax, f"{m['validity_violations']} violation(s) in {v.get('decided', 0)} decided cycles"
-             + (f"\nworst {m['loser_peak_pct']:.3g} % VDD at cycle {worst['cycle']} ({worst['vd_uV']:g} uV)" if worst else "")
-             + f"\nlargest saved time step {v.get('dt_max_ps', float('nan')):g} ps", loc="center right")
+             + (f"\nworst {m['loser_peak_pct']:.3g} % VDD at cycle {worst['cycle']} ({_vd_text(worst['vd_uV'] * 1e-6)})"
+                if worst else "")
+             + f"\nlargest saved time step {v.get('dt_max_ps', float('nan')):.3g} ps", loc="center right")
     ax = axs[0, 1]
     pick = max(dec, key=lambda c: c["peak"]) if dec else (cycles[0] if cycles else None)
     if pick is not None:
@@ -452,7 +458,7 @@ def _fig_validity(fg, w, vdd, cycles, m) -> None:
         if pick["decided"]:
             ax.plot([(pick["t_peak"] - a) * 1e12], [pick["peak"] * 100], "o", color=INK2, ms=4)
         ax.set(xlabel="time from CLKC rise (ps)", ylabel="% VDD",
-               title=f"Cycle {pick['cycle']}, vd = {pick['vd'] * 1e6:g} uV (the largest losing peak)")
+               title=f"Cycle {pick['cycle']}, vd = {_vd_text(pick['vd'])} (the largest losing peak)")
         ax.legend(loc="center right", fontsize=7.5)
     fg.save(fig, "validity", "Output validity (CMP-15): the peak of the losing output from each CLKC rise to the CLKC "
             "fall against the 30 % VDD limit, with violations and undecided cycles marked, and the transient of the "
