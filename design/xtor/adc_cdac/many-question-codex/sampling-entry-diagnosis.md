@@ -1227,3 +1227,39 @@ growth of h5/h7 require longer phase coverage before claiming TT linearity.
 The limited batch reported above has not prepared or launched those
 official jobs. PVT, actual-bootstrap integration, and full-system runs
 remain outside the next TT-only stage.
+
+## Promoted source: initial official TT results
+
+The current project runner has now rerun original TT weights and settling
+on clean committed source `14881ba`, using `xtor:many-question-codex`,
+`typ`, APS, one job, and retained raw data. All five weight/calibration
+and ten settling/charge/input-capacitance metrics pass. These are new
+official results; the older failures remain in the pre-N4 history tag.
+
+The five weight metrics are identical to the same-source limited table
+above. That official run completed in 35 seconds with reltol 0.001,
+voltage tolerance 1e-6, traponly, and the simulator's reported maximum
+step setting of 5,820 ps; its 9,701 accepted adaptive steps have mean
+spacing 29.9969 ps. The test records the sampler outputs rather than a
+full transient waveform, so no saved-waveform maximum step is inferred.
+
+Official settling completed in 30 seconds with reltol 0.001, voltage
+tolerance 1e-6, traponly, and a 2 ps maximum step. All 36,050 accepted
+points span the original record. RL12/RL5 settling is 35.3/47.3 ps,
+time constant 9.120184 ps, conversion-start settling 83.4 ps, droop
+0.004380784 LSB, and Qref 1.124389535 pC. DH5/PHI_S/PHI_SB/CONV
+capacitance is 0.830865/6.432310/12.231291/9.850052 fF.
+
+The numerical configuration differs from the strict 0.5 ps private
+diagnostic. Both actual settings and values remain recorded; the private
+record is not inserted as an official cross-check. The current CDAC
+weights and settling tests have no prescribed cross-check entry, whereas
+tracking explicitly requires the separate comparison described above.
+
+Official figures have been inspected. Complete recovered jobs contain
+10 weights files and nine settling files; each has a 50-file staged-input
+snapshot verified against the remote inputs. Archive recovery and local
+file hashes were verified before removing each exact owned remote run.
+The original shared testbench runs remain available. The next physical
+job is the official 256-point tracking main run; the old tracking failure
+is still present with its genuine stale fingerprint at this stage.
