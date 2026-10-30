@@ -594,10 +594,89 @@ budget.
 All nine raw files and 50 frozen inputs were recovered and hash-verified
 before exact cleanup. Archive SHA256:
 `6f2c22d1cbbe6e802012932c31ec430b43994088d9271178e114cf08fef4d957`.
-The conditional same-source TT run is in progress, with total reference,
-digital-supply and keeper current saves. Its decisive checks are the
-1.2 pC whole-window reference budget, AP and all other MOS voltages,
-all settling requirements and input loads.
+The conditional same-source TT run follows below, with total reference,
+digital-supply and keeper current saves.
+
+### Same-source TT settling, charge and pressure pass
+
+V6 passes all ten applicable TT specifications and all 1,638 MOS pairs.
+The source and full 70 ns stimulus are unchanged from its SS pass;
+launch commit is `b2756851618b9c49016f20cafebfcba2c0c618f2`.
+
+| TT quantity | V6 | Result |
+|---|---:|---|
+| RL5 / RL12 / start | 40.2 / 29.5 / 65.7 ps | PASS |
+| Tau / droop | 6.905282262 ps / 0.002986435 LSB | PASS |
+| Qref | 1.187183082 pC | PASS, 12.816918 fC margin |
+| DH5 / PHI_S / PHI_SB / CONV | 0.830865 / 6.437863 / 12.251146 / 19.698543 fF | PASS |
+| All 546 MOS / 1638 pairs | max 0.996299049770 V | PASS |
+
+The global maximum is now XB11.XDL.MPA1 drain/source at 60.079361417 ns,
+with only 3.700950 mV margin; representative fast-corner checks follow.
+The previously failing bit-12 low MPA1 maximum falls from 1.014916187
+to 0.945160621 V. Its AP sampling-entry peak falls from 1.017091473
+to 0.962597334 V, and its 62..64 ns mean is 0.899535832 V.
+
+![TT AP voltage, total reference current and keeper branch currents](apkeeper-tt-waveforms.png)
+
+The official meter gives 1,187.183082 fC. Direct integration gives
+1,187.183062198 fC, a difference of -0.000019802 fC. Relative to V5,
+the signed total decrease is 16.017491 fC:
+
+| Phase | V6 minus V5 (fC) |
+|---|---:|
+| Start and neighbouring pre-decision intervals | -2.460128 |
+| Thirteen decisions | -0.254734 |
+| Post-decision hold | -0.000475 |
+| Sampling entry | +0.059986 |
+| Sampling tail | -13.362140 |
+
+The tail's total reference charge falls from 29.086575 to 15.724435 fC.
+The two bit-12 MGPP branches contribute 6.250398 / 6.260085 fC there,
+versus 12.926594 / 12.946106 fC in V5. Their 62..64 ns mean currents
+fall from 2.908252 / 2.912797 uA to 1.406354 / 1.408315 uA; total
+reference current falls from 6.566860 to 3.560434 uA. This supports the
+targeted reduction in sampling-tail current. Terminal currents still
+include displacement; no channel-only leakage measurement is claimed.
+
+V6's digital supply averages 139.143622 uA in that quiet interval.
+Its low/high keeper currents are 1.043243 / 0.003015 uA. V5 lacks the
+digital-supply save, so the audit cannot establish the change in total
+power. Relative to the existing strict N4 diagnostic, V6 still consumes
+62.605073 fC more reference charge over the complete meter window.
+
+![TT cumulative charge and phase audit for V6](apkeeper-tt-charge.png)
+
+The run took 448 s, saving 231,641 time points and 378 signals at the
+same strict numerics. All nine raw files and 50 frozen inputs were
+recovered and hash-verified before exact cleanup. Archive SHA256:
+`e2ba8b561535062dcae75c5d36910c32662a5a891388c495c00eae09e5d47972`.
+
+### Same-source TT weights and calibration pass
+
+After both complete settling/pressure gates passed, the unchanged V6
+source passed all five original TT weight/calibration requirements:
+Cs 2.065012117 pF, full scale 0.993022722 V, calibratability margin
+0.369043499 LSB, calibrated ENOB loss -0.000371007 bit, and top gain
+0.893816038. The small signed ENOB difference is retained as measured
+by the unchanged comparison procedure. The 29 pre/hold samples use the
+original stimulus and numerics (actual reltol 0.001, voltage tolerance
+1e-6, maximum step setting 5820 ps, traponly), with ADCToolbox 0.6.4
+and the unchanged four-chip calibration seeds 300..303. This weights
+test does not claim full transient pressure coverage.
+
+The 36 s run started from clean commit
+`970c57142e56e390545549c5d4053ab89294eb09`. All ten raw files and
+50 frozen inputs were recovered and verified before exact cleanup.
+Archive SHA256:
+`0248285924d988148335fdadc66527d5291bf103ee875794db3d269da357b378`.
+
+The next independent test is a 125 ns differential sine screen at
+ff_high_m40: 48.828125 MHz, -1 dBFS, 50 ohm per side, 20 fF top load,
+0.5 ps / 1e-7 / 1e-8 / traponly. It saves the full waveforms needed for
+all 1,092 actual MOS and 3,276 terminal pairs. Its eight sampled outputs
+are not a spectrum measurement. No V6 tracking result or further-corner
+pass is claimed yet.
 
 ## Continuing verification
 

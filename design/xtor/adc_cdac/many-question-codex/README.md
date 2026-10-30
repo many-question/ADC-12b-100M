@@ -83,9 +83,17 @@ and internal-node voltages guide the next AP-hold/gate-family trial.
 That independent V6 source now passes the full SS gate: RL12/start
 38.7/92.3 ps, tau 11.291657 ps, and all 546 MOS / 1638 pairs below
 1.0 V (maximum 0.978430006 V). Low-branch AP's sampling-entry peak
-falls from 0.884407 to 0.853787 V at SS. Same-source TT is in progress
-to check total reference charge, AP pressure and all applicable metrics;
-SS improvements do not establish those TT results.
+falls from 0.884407 to 0.853787 V at SS. Same-source TT then passes all
+ten settling/charge/load requirements and full MOS pressure: Qref
+1.187183082 pC, RL12/start 29.5/65.7 ps, global stress 0.996299050 V.
+The previously failing bit-12 MPA1 peak falls to 0.945160621 V; the
+global maximum now occurs at bit 11. The [TT waveforms](apkeeper-tt-waveforms.png)
+and [charge audit](apkeeper-tt-charge.png) show the mechanism and retained
+margin. Independent TT weights/calibration also passes all five checks,
+including Cs 2.065012117 pF and calibration margin 0.369043499 LSB.
+A 125 ns ff_high_m40 differential screen is in progress for all 1092
+MOS / 3276 terminal pairs; tracking and further-corner results remain
+unverified for V6.
 Existing V4 TT saves do not permit assigning its total excess to a phase.
 N4's TT evidence does not transfer to any changed case.
 The [first passing private SS comparison](balanced-predrive-ss-screen.png)
