@@ -43,3 +43,7 @@ Continuous physical-output repair experiments remain independent of this canonic
 [B8](BUFFER-V8.md) passes six-key-corner stress and validity but fails SS low/hot reset. [B9](BUFFER-V9.md) speeds the physical clock reset and input-drain recharge at the measured bottleneck. [Energy comparison](ENERGY-COMPARISON.md) includes the substantial cost of the repair circuitry.
 
 [BUFFER-V9](BUFFER-V9.md) retains its completed six-corner results and directly measured supply-current audit. [BUFFER-V10](BUFFER-V10.md) changes only external output pull-down strength to address the remaining reset limit.
+
+## BUFFER-V11 clock-edge experiment
+
+B10 failed SF/high/-40 and FS/high/-40 clock feedthrough, worst terminal stress 1.001143791 V. B11 adds physical CKB rail loads. [New source and screening plan](BUFFER-V11.md). Both known worst cold high-voltage corners are screened first; no qualification is claimed.

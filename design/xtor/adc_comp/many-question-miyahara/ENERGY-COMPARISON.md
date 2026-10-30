@@ -43,3 +43,14 @@ StrongARM spends **81.97%** of its net supply energy during reset. The two Q-pre
 Miyahara's six weak PMOS rail loads receive **212.772185 fJ/cycle**, **46.69%** of its TT AVDD total: **98.390611 fJ** during evaluation and **114.381574 fJ** during reset. The buffers and diode loads change the rest of the circuit's currents as well; subtracting this branch allocation does not recreate an unloaded topology. Both implementations have significant persistent current and must not be described as zero-static-current versions of their original cores.
 
 These sources still fail key-corner requirements: V12 reaches 1.00002 V at SF high/27 and has 35.861626 ps SS reset; B9 has 36.120741 ps SS reset. Their power results are measured implementation tradeoffs, not a qualified topology winner. The source, all six corner phase tables and individual saved-current records are retained with the raw evidence.
+
+## Six-key-corner passing sources V13 and B10
+
+These complete implementations pass the initial six key corners; further corner and convergence checks remain in progress. The output NMOS changes retain the same energy boundary and saved-current protocol.
+
+| TT source | Meter energy (fJ/cycle) | Waveform evaluation (fJ/cycle) | Waveform reset (fJ/cycle) | Initial CLKC-low operating-point AVDD current (uA) | Initial reset power (mW) |
+|---|---:|---:|---:|---:|---:|
+| StrongARM V13 | 577.098910 | 105.670475 | 471.429129 | 2072.416 | 1.865174 |
+| Miyahara B10 | 457.451059 | 174.578897 | 282.872453 | 770.966 | 0.693869 |
+
+The initial current is the simulator's saved DC operating-point current with CLKC low, before the first edge, at the specified initial inputs. It is not an extrapolated ADC power estimate. Persistent reset consumption matters when the surrounding SAR holds the comparator in reset for longer than the characterization duty cycle. A complete converter energy estimate would need its actual active/reset timing. Both sources remain provisional; the lower B10 AVDD number is a comparison of these implemented circuits, not a qualified or topology-only efficiency conclusion.
