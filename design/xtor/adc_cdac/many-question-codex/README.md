@@ -9,9 +9,11 @@ uses two copies, totaling 1,080 MOS. Candidate status remains `wip`.
 
 All 17 required TT metrics pass, but the first limited PVT corner,
 `ss_low_125`, fails RL12 settling (47.4 ps against 40 ps) and
-conversion-start settling (117.7 ps against 100 ps). Further simulation
-stopped at that result. The circuit and completed TT evidence are unchanged;
-the slow-corner failure audit is summarized below.
+conversion-start settling (117.7 ps against 100 ps). Corner expansion
+stopped at that result. A separately authorized single 28 ns private
+diagnostic retains both failures at stricter numerical settings and
+locates the slow response in reference drive and capacitor redistribution.
+The circuit and completed official evidence are unchanged.
 
 The complete RNL matches the frozen physical circuit after collapsing only
 zero-volt measurement probes. Every functional device, geometry, port,
@@ -184,16 +186,31 @@ The complete 70 ns record uses the official reltol 0.001, voltage
 tolerance 1e-6, maximum step 2 ps, and traponly. Recomputing the official
 metrics from the recovered raw data gives the same results.
 
-Comparing existing TT and slow-corner waveforms shows unchanged prescribed
-external phase timing. Start has a longer recovery tail; RL12 has both a
-later response and a wider transition. The saved signals do not include
-internal enable, predriver, output-gate, or bottom-plate nodes, so this
-does not identify a single dominant transistor. The
-[failure audit and proposed next diagnostic](sampling-entry-diagnosis.md#unchanged-n4-limited-pvt-screen-stopped-at-ss_low_125)
-separate measured behavior from topology-based hypotheses.
+Comparing the official TT and slow-corner waveforms shows unchanged
+prescribed external phase timing. Start has a longer recovery tail;
+RL12 has both a later response and a wider transition. Those original
+records do not save the internal drive nodes.
 
-Both jobs, staged inputs, raw data, and exact analysis scripts are archived
-and hash-verified. The planned `ff_high_m40` sine stress was never launched;
+The subsequent single private 0-to-28 ns diagnostic adds those observations
+with maxstep 0.5 ps, reltol 1e-7, and voltage tolerance 1e-8. It still gives
+RL12 47.4 ps and start 117.7 ps; the official results are not replaced.
+Start's bit-12 output gates enter their 1% bands at 44.9/54.1 ps, while
+BL/BH reach theirs at 118.8/121.8 ps. At RL12, the 50% response progresses
+through LHIB, PCOND, GP and BL at 6.93, 13.83, 20.46 and 37.50 ps.
+The observed late response lies in reference output drive and the coupled
+capacitor network. Bit-12 observations do not uniquely identify a single
+dominant transistor or quantify every array branch. See the
+[completed diagnostic and modification risks](sampling-entry-diagnosis.md#unchanged-n4-single-private-28-ns-slow-corner-diagnostic).
+
+![Slow-corner stage timing and numerical comparison](slow-corner-stage-timing.png)
+
+Native-current and voltage records cover 17 selected MOS / 51 gs/gd/ds
+pairs with a maximum of 0.958726 V; this is not full-device PVT stress
+qualification. The separate TT sine headroom remains only 9.775 mV.
+
+The official jobs and single private diagnostic, staged inputs, raw data,
+and exact analysis scripts are archived and hash-verified. The original
+batch stop remains in force. The planned `ff_high_m40` sine stress was never launched;
 `ss_low_m40` and `ff_high_125` were not run either. No additional TT run,
 tracking run, numerical twin, circuit variant, or wider corner sweep was
 started. The earlier 9.775 mV stress headroom remains TT-only evidence.

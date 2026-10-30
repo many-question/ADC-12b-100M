@@ -4,9 +4,10 @@ The final N4 variant below has now been promoted to the current WIP source
 with unchanged physical connectivity and geometry. Earlier references to
 an unselected or unchanged committed circuit describe the state when each
 experiment was recorded. Current status is in the [candidate README](README.md).
-The latest limited PVT screen stopped after two applicable settling failures
-at `ss_low_125`; the final section audits those failures using existing
-waveforms only. The N4 circuit and completed TT records remain unchanged.
+The limited PVT screen stopped after two applicable settling failures at
+`ss_low_125`. A separately authorized single 28 ns private diagnostic,
+recorded in the final section, retains both failures and adds internal
+stage observations. The N4 circuit and all official records are unchanged.
 The original failed source and formal evidence remain available through
 [the pre-N4 history tag](https://github.com/many-question/ADC-12b-100M/tree/adc-cdac-many-question-pre-n4-20261030).
 
@@ -1550,6 +1551,9 @@ contributions or establish transistor terminal stress at this corner.
 
 ### Smallest useful follow-up, proposed only
 
+This was the recommendation when the limited screen stopped. Its subsequent
+execution as a single separately authorized exception is recorded below.
+
 A future single private 0-to-28 ns diagnostic at this same corner and
 unchanged N4 circuit would include the original startup history, first
 start event, RL12 event, and its +1.5 ns final-reference point. Preserve
@@ -1582,3 +1586,193 @@ The audit JSON, inspected comparison figure, and script are retained
 with their own SHA256 receipt. Shared testbench inputs were preserved.
 The candidate remains WIP and the PR remains draft with both actual
 slow-corner failures recorded.
+
+## Unchanged N4: single private 28 ns slow-corner diagnostic
+
+One subsequent diagnostic was explicitly authorized at `ss_low_125`,
+from t = 0 to 28 ns, on the same N4 circuit and original stimulus.
+The original failed batch remains halted: this exception neither unlocks
+its remaining corners nor authorizes another variant or tracking run.
+It ran once on clean source commit `97b555b`, retaining the source SHA256
+and all 12 official result/figure files byte-for-byte. No device, size,
+connection, MOM value, Cp value, or stimulus parameter changed.
+
+The diagnostic starts from the hash-verified official slow-corner input
+snapshot. Of its 50 staged files, only the private deck and job testbench
+copy differ: include locations point to the new isolated run; the deck
+adds tolerances and saved nodes/currents; the transient stops at 28 ns
+with maxstep 0.5 ps and traponly. The original 70 ns `tstop` parameter
+and all source/sequence definitions remain unchanged. Exact before/after
+differences, the prior stop record, and the bounded authorization are
+retained independently. No public testbench or official result is edited.
+
+The single simulator process completed in 142 seconds, returning zero.
+The actual settings are reltol 1e-7, voltage tolerance 1e-8, maxstep 0.5 ps,
+traponly, moderate errpreset, and lteratio 3.5. The record contains all
+72,813 accepted times from 0 through 28 ns, 72,812 accepted steps, mean
+spacing 0.384552 ps, and maximum spacing 0.5 ps. Its 104 signals comprise
+35 voltages and 69 currents: the original saves plus 28 internal/external
+voltages and 68 native terminal currents from 17 MOS. All samples are
+finite and every requested signal is present. The log retains zero
+errors, 16 warnings, eight notices, and 83,983/17 suppressed occurrences
+reported by the transient/AC analyses respectively.
+
+### Numerical comparison: the existing failures remain
+
+Only the start and RL12 windows are evaluated with the unchanged official
+event and settling definitions; 28 ns does not contain the later RL5,
+RL0, or cycle-six reference-charge windows. This is a private comparison,
+not a replacement official acceptance record.
+
+| Metric | Official 2 ps / reltol 0.001 | Private 0.5 ps / reltol 1e-7 | Limit |
+|---|---:|---:|---:|
+| Start settling | 117.7 ps | 117.7 ps | <= 100 ps |
+| RL12 settling | 47.4 ps | 47.4 ps | <= 40 ps |
+| RL12 equivalent tau | 14.809442 ps | 14.809442 ps | <= 15 ps |
+| Start error at 100 ps | 5.147058 mV | 5.146567 mV | 1.585493 / 1.587077 mV |
+| RL12 error at 40 ps | 36.462295 mV | 36.429220 mV | 9.602916 / 9.602917 mV |
+
+The event references are 5.126000 ns for start and 26.131000 ns for RL12.
+The newly saved RL12 half-supply crossing agrees with its scheduled
+reference within printed precision; its 0.005 ps shift from the original
+scheduled reference does not affect the verdict. Both original samples
+bracketing each new deadline remain outside the band. Final TOP values
+change only +0.129286 uV for start and +1.867780 uV for RL12.
+
+This comparison tightens both step and tolerances while adding observations;
+it does not isolate reltol sensitivity or prove the entire waveform is
+identical. The event-aligned local TOP difference reaches 3.246941 mV
+near the start notch at +40.2 ps and 0.703372 mV near RL12 +20.1 ps.
+The deadline errors change by only -0.491006 uV and -33.074398 uV.
+Thus the known failures are stable under this stricter setting, while
+the sharp switching details retain measurable numerical sensitivity.
+
+![Internal stage response and same-corner numerical comparison](slow-corner-stage-timing.png)
+
+The upper panels normalize each observed transition to its own measured
+initial/final values. Lower panels show absolute residual divided by each
+node's own step; tolerance and deadline lines apply to TOP only. The
+bottom-plate curves are diagnostics, not extra acceptance requirements.
+
+### Start: enable propagation followed by loaded plate recovery
+
+Times below are relative to the measured CONV midpoint. They describe
+observed voltage transitions, not MOS threshold-crossing or isolated
+intrinsic delay. Values are interpolated from the saved waveform.
+
+| Observed node | 50% transition time | 10%-to-90% interval | Last outside 1% of its step |
+|---|---:|---:|---:|
+| ENB falling | 17.98 ps | 5.43 to 44.03 ps | 65.8 ps |
+| EN rising | 22.69 ps | 16.27 to 27.73 ps | 37.7 ps |
+| Low-branch NOFF falling | 28.97 ps | 24.70 to 35.90 ps | 45.9 ps |
+| Low-branch GN rising | 34.54 ps | 31.13 to 39.61 ps | 44.9 ps |
+| High-branch PCOND rising | 30.58 ps | 22.10 to 41.15 ps | 52.4 ps |
+| High-branch GP falling | 38.22 ps | 33.73 to 43.77 ps | 54.1 ps |
+| BL falling | 56.85 ps | 36.22 to 84.00 ps | 118.8 ps |
+| BH rising after its initial dip | 55.97 ps | 47.50 to 86.58 ps | 121.8 ps |
+| TOP, official last residual crossing | 59.4 ps at 50% residual | 83.3 ps at 10% residual | 117.7 ps |
+
+The low path is `CONV -> ENB -> EN -> NOFF -> GN -> BL`;
+the high path is `CONV -> ENB -> PCOND -> GP -> BH`. The slow ENB fall
+and different prelogic paths affect their launch timing. The low GN
+midpoint precedes the high GP midpoint by 3.68 ps. The high bottom plate
+initially falls from about 0.650 V to 0.515938 V at +40.319 ps before
+rising toward 0.900 V. This coupled opposite-direction excursion and
+subsequent recovery accompany the TOP notch and rebound.
+
+Once GN and GP have entered their 1% bands at 44.9/54.1 ps, their
+respective bottom plates still take another 73.9/67.7 ps to enter their
+own 1% bands. At +60 ps, BL/BH are 0.278671/0.797050 V; at +100 ps,
+they remain 0.023177/0.889239 V. At +100 ps the low NMOS and high PMOS
+output drain currents are +0.803447/-0.678290 mA. Each saved bit-12
+sampling/sharing/assist drain current then has magnitude <= 0.014949 mA.
+These observations place the late response in driven capacitive recovery
+after the main gate transitions, rather than attributing all 117.7 ps
+to a control-inverter delay.
+
+VG's falling 90% transition is already complete at -15.63 ps. APGATE
+stays near its high level, with a minimum 0.797862 V in the start window.
+ENB continues its low-voltage tail, and the floating EQBUS also moves;
+their nonzero terminal currents cannot be interpreted as channel overlap
+alone. Every native terminal current includes displacement as well as
+channel and junction currents. No single switching transistor is proved
+to dominate all branches by these observations.
+
+### RL12: control, gate drive, then bottom-plate redistribution
+
+The prescribed CONV and phase signals are steady at this event. The
+active low-reference path is
+`RL12 -> XLCTL/LHIB -> XDL.PCOND -> XDL.GP -> BL`, with the parallel
+`NOFF -> GN` path disabling the low NMOS.
+
+| Observed transition | 50% time from RL12 midpoint | Increment from preceding node |
+|---|---:|---:|
+| LHIB falling | 6.93 ps | 6.93 ps |
+| PCOND rising | 13.83 ps | 6.90 ps |
+| GP falling | 20.46 ps | 6.63 ps |
+| BL rising | 37.50 ps | 17.04 ps |
+
+NOFF and GN midpoints occur at 13.85 and 18.94 ps. GN has completed
+90% of its falling transition by 21.24 ps and GP by 25.56 ps. At the
+40 ps TOP deadline, GP/GN are 0.010873/0.003276 V while BL is only
+0.513880 V on its way to 0.899851 V. The low PMOS drain current is
+-13.468412 mA; the low NMOS, sampling, sharing and assist drain currents
+have magnitudes 0.132512, 0.112911, 0.113850 and 0.124990 mA respectively.
+The loaded bottom plate continues moving after the main logic/gate edges.
+
+The high bottom plate, whose final reference is unchanged, rises to
+0.958726 V at +32.939 ps, then relaxes. Its high PMOS drain current is
++3.615006 mA at +40 ps, consistent with charge returning toward the
+reference during that excursion. This coupling helps explain why TOP
+enters its 5% band at 47.4 ps while BL enters its own 5% band only at
+65.9 ps; these times must not be added as independent serial delays.
+The late TOP 1% time is 78.2 ps and BL's is 84.1 ps.
+
+The 17 selected devices provide 51 complete gs/gd/ds traces over this
+28 ns record. Their largest absolute pair voltage is 0.958725752 V,
+the high-branch output NMOS ds voltage at 26.163939 ns; none exceeds
+1.0 V. This subset does not verify all 540 MOS, another stimulus, or
+model-specific reliability checks. It does not enlarge the separate
+TT 125 ns sine result into a full-corner stress claim.
+
+### Smallest modification options and their untested tradeoffs
+
+The shared measured feature of both failures is significant plate motion
+after the main reference gate transitions. The first sizing hypothesis
+to test would therefore be a modest increase in bit-12 reference-output
+drive, keeping the H/L devices paired and preserving the P/N ratio as
+one controlled change. This targets the low PMOS charging path at RL12
+and both reference paths at start. Increasing output gate capacitance
+also burdens GP/GN drivers; the net timing benefit is not established
+without a subsequent measured variant. The existing data do not justify
+simultaneously resizing the entire array or claiming a required scale.
+
+A separate start-specific option is to strengthen the ENB pull-down
+in `XEN.M0N`, since ENB's 10%-to-90% fall takes 38.59 ps and feeds both
+sharing release and high-side prelogic. This could advance the launch,
+but ENB is already steady at RL12 and this option does not target its
+late plate response. It would affect enable timing across all branches
+and both sampling transitions. It is an alternative hypothesis, not a
+demonstrated fix or an additional run in this batch.
+
+Either change can alter reference charge, control load, charge injection,
+relative switching time, and the short-record excursions. TT Qref has
+only 0.075610465 pC margin to its 1.2 pC limit; tracking SFDR has only
+1.417967 dB margin; the earlier all-MOS TT sine check has only 9.775 mV
+terminal-pair headroom. More output drive can speed a plate while raising
+overshoot or changing the previously tuned harmonic cancellation. A
+proposed size change therefore carries TT charge/spectrum/stress risks
+even if the two slow-corner timing metrics improve. No size, circuit
+variant, other corner, or further tracking simulation was executed here.
+
+The complete diagnostic raw archive contains nine job files plus its
+hash manifest; all 50 input files and their two-file difference record
+are preserved. Archive SHA256 is
+`0cc25935891c3b0dfff6c999732547a415736295785ae487add3517858d5a44d`.
+All archive members and recovered file hashes were checked before
+cleaning only the exact owned run; shared testbench data were preserved.
+Analysis JSON, exact parser/analysis/plot scripts, and three inspected
+figures have separate hashes. The original stop record and all official
+evidence remain byte-identical. The candidate remains WIP with the two
+unresolved official failures; these diagnostics do not change coverage
+or project-lead verification status.
