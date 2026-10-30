@@ -62,7 +62,10 @@ and the ledger retain the independent source and evidence. A subsequent
 nominal-threshold case with coordinated output/enable sizing passes start
 (90.6 ps), tau (11.117939 ps) and full MOS pressure, but RL12 still fails
 at 43.6 ps. Its Qref increase is 6.8171%; TT expansion is stopped. The next
-case targets the measured bit-12 gate-drive delay while retaining that bank.
+gate-driver family trial improves RL12 to 40.6 ps, still failing; start,
+tau and all-MOS pressure pass, while Qref rises to 2.006878206 pC at SS
+(n/a). Its TT expansion is also stopped. The next case targets the
+preceding enable-controlled PMOS charging path without changing RL input size.
 
 The complete earlier report and every historical diagnostic figure remain
 in the [immutable history snapshot](https://github.com/many-question/ADC-12b-100M/tree/6a4bf94977db967dbd27ef47669d5d3d25735477/design/xtor/adc_cdac/many-question-codex),

@@ -270,15 +270,55 @@ and quiet-window audit are retained; exact cleanup followed hash verification.
 Archive SHA256:
 `0e3aa9712f6c4587cba7cf9e83a1f88548bb9ce5f0dede1fe1d42bc4e49ada6a`.
 
+## Limited bit-12 gate-driver family change
+
+The `v3-bit12-gate-nulvt` case retains the balanced nominal-threshold output
+bank and faster enable. Only bit-12 MGPN/MGNN change to a supported
+lower-threshold NMOS family: four flattened MOS across H/L, each still
+8 um / 30 nm / four fingers. External DH/RL input devices stay unchanged.
+Fresh geometry validation and pinned RNL pass. Source SHA256:
+`15656257d7053fd526e3bacfecc549784ad9952715835b6b187440591e768186`.
+
+The clean launch commit is `ad0fcaee86948c37238f9c1fd94172102927c79f`.
+Full 70 ns stimulus, saves and strict numerics match the preceding cases.
+RL12 improves from 43.6 to 40.6 ps but still fails; at the 40 ps deadline
+error is 11.728393 mV versus 9.604083 mV allowed, and both adjacent raw
+points remain outside the band. RL5 58.6 ps, tau 11.204798 ps, start
+90.6 ps and droop 0.010550525 LSB pass. No TT expansion follows.
+
+PCOND/GP/GN midpoint times are 14.043/19.207/17.929 ps, versus
+13.824/21.159/19.537 ps in the preceding case. BL's midpoint advances
+35.666 -> 32.882 ps; its 1% recovery is 68.6 ps. TOP overshoot is
+3.209246 mV. These observations show a faster gate/output response,
+while the input-to-PCOND interval remains.
+
+Qref increases to 2.006878206 pC, from 1.865109260 pC (both n/a at SS).
+DH5/PHI_S/PHI_SB/CONV capacitances are
+0.807291/5.966345/11.977018/12.789483 fF, all n/a at SS. The bit-12
+low/high PMOS native source charges over RL12 -120..+300 ps are
++524.173978/-113.975111 fC, almost unchanged from
++524.149438/-113.975859 fC. That limited event window does not decompose
+the whole-conversion Qref change. Native terminal current includes
+displacement, and gate voltage fractions are not inferred channel
+turn-on thresholds. The separate gate/terminal-charge audit retains
+both definitions and their sources.
+
+All 540 MOS / 1,620 pairs pass at 200,267 saved time points, with exact
+maximum 0.971020438390 V at XB2.XDL.MNOUT ds (60.076341436 ns).
+The job took 347 s. All nine raw files and 50 frozen inputs were recovered
+and hash-verified before exact cleanup; full waveform, all-pair and
+gate/terminal-charge records are retained. Archive SHA256:
+`f447e35cbdd85c544fa9d664a8f78c9db71f7224f182d5c2bb4f0031126ed779`.
+
 ## Continuing experiments
 
-The next case retains the balanced nominal-threshold output bank and
-faster enable, and changes only the four existing bit-12 NMOS devices
-that pull GP/GN down to a supported lower-threshold family. Geometry
-and external DH/RL input devices stay unchanged. The measured
-13.824-to-21.159 ps PCOND-to-GP interval motivates this limited gate-drive
-change. Both gate discharge paths change together; overlap current,
-reference charge, ringing, timing and all-MOS pressure need fresh evidence.
+The next case retains the preceding circuit and doubles only MPA0, the
+ENB-controlled upper PMOS in each bit-12 NOR stack, at unchanged finger
+width. The RL-controlled PMOS and external DH/RL input sizes remain
+unchanged. This targets the measured PCOND charging interval while
+placing the extra gate load on the shared enable path. Enable delay,
+GP/GN alignment, native current, Qref, ringing and full MOS pressure
+need fresh validation; passing results are not inherited.
 
 A brief separately controlled reference-drive assist remains an unimplemented
 hypothesis, with additional pulse alignment and loading questions.
