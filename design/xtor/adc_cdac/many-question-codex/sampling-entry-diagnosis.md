@@ -1780,3 +1780,118 @@ figures have separate hashes. The original stop record and all official
 evidence remain byte-identical. The candidate remains WIP with the two
 unresolved official failures; these diagnostics do not change coverage
 or project-lead verification status.
+
+## Private bit-12 output-width +25% screen: stopped at slow corner
+
+One separate experiment tested the reference-output sizing hypothesis.
+Only the bit-12 H/L output NMOS/PMOS total widths changed: 15/30 um to
+18.75/37.5 um, an exact 25% increase. Length remains 30 nm, finger counts
+10/20, and P/N width ratio 2. Geometry validation succeeded without
+warnings. Two edited lines in the shared bit-12 driver affect four
+flattened MOS; all other geometry, connectivity, MOM units, user-specified
+5% Cp estimates including MID, and stimulus parameters remain unchanged.
+Pinned RNL checking reports zero errors, warnings, or hints.
+
+The frozen private source SHA256 is
+`d456da333fcd63c6035af1a4c69b29b156ef8a630e9d5cabad6fba42181c8dbf`.
+Formal N4 remains byte-identical, as do all 12 official result/figure
+files. The experiment used the original full 70 ns `ss_low_125` settling
+stimulus. Its one-job first gate failed; no TT, second variant, retuning,
+tracking, noise, or additional corner was run. This screen contributes
+no official coverage and inherits no N4 weight, spectrum, or stress credit.
+
+### Measured benefit and failures
+
+| Applicable settling metric | Official N4 | Private +25% | Limit | Variant verdict |
+|---|---:|---:|---:|---|
+| RL5 settling | 69.2 ps | 67.5 ps | <= 75 ps | PASS |
+| RL12 settling | 47.4 ps | 42.2 ps | <= 40 ps | FAIL |
+| RL12 equivalent tau | 14.809442 ps | 17.111203 ps | <= 15 ps | new FAIL |
+| Conversion-start settling | 117.7 ps | 113.0 ps | <= 100 ps | FAIL |
+| Hold droop | 0.008844550 LSB | 0.002201507 LSB | <= 0.1 LSB | PASS |
+
+The original two failures improve by 5.2 and 4.7 ps but remain outside
+their limits. At the 40 ps RL12 deadline, TOP error is 19.148518 mV
+against 9.603866 mV allowed; at the 100 ps start deadline it is
+3.881961 mV against 1.590148 mV allowed. Both saved points bracketing
+each deadline fail, so interpolating between them does not cause the
+verdict. The newly failing tau is a further reason to stop this variant.
+
+The official N4 baseline uses maxstep 2 ps, reltol 0.001 and voltage
+tolerance 1e-6; this private screen uses 0.5 ps, 1e-7 and 1e-8, both with
+traponly. The existing unchanged-N4 28 ns diagnostic uses the same strict
+step/tolerances/method as this screen and reproduces N4's 47.4/117.7 ps
+and 14.809442 ps tau. It supports the timing comparison in these early
+windows, but has a shorter stop and fewer saves. This is not an isolated
+reltol experiment, and later charge/load deltas have only the original
+coarser 70 ns N4 baseline for comparison.
+
+At RL12, the low output gate's 50% transition slows from 20.459 to
+20.962 ps, while BL's 50% crossing advances from 37.503 to 35.824 ps.
+BL enters its 1% band at 75.2 rather than 84.1 ps. However, TOP overshoot
+increases from 3.319162 to 6.879206 mV, or 1.728% to 3.581% of its own
+step. The last 10% crossing advances from 44.1 to 39.9 ps, while the last
+1% crossing moves from 78.2 to 79.3 ps. Thus the official
+`(t_1pct - t_10pct) / ln(10)` metric increases: a faster early edge does
+not guarantee a shorter tail in this coupled network. This equivalent
+tau is not an independently extracted single RC pole.
+
+Other plates are still displaced at the variant's TOP peak: bit-11
+BL/BH are +61.71/+24.37 mV from their final values at +54.247 ps.
+The strict N4 record did not save those plates, so their separate
+contributions to the change are not identified. At RL12, low-P absolute
+native gate charge over -120 to +300 ps rises from 22.323 to 27.945 fC;
+this measures gate-terminal current, including displacement.
+
+At start, low GN and high GP enter their 1% bands later (44.9 to 47.1 ps
+and 54.1 to 57.3 ps), consistent with increased output-gate loading.
+BL/BH reach their 1% bands earlier (118.8/121.8 to 103.5/111.2 ps),
+but TOP still needs 113.0 ps. ENB/EN 50% timing is effectively unchanged.
+These measured tradeoffs reject this particular size change as a fix;
+they do not establish a different required size or authorize more tuning.
+
+A next local structural hypothesis is a separately controlled, brief
+bit-12 reference-drive assist with N4's steady drivers retained, to
+adjust early slew independently of the return/hold response. This is
+unproven. It needs matched-setting signed TOP errors, GP/GN charge,
+bit-12 and held-bit BL/BH, branch currents, settling/charge/load and
+full-device stress evidence, then separately authorized TT/tracking.
+No assist topology/timing is selected and no new simulation is run.
+
+The five typ-only charge/load metrics remain n/a at this slow corner.
+Qref is 1.774002032 pC versus 1.745559443 pC, an observed increase of
+0.028442589 pC (1.6294%). DH5/PHI_S/PHI_SB/CONV input capacitances are
+0.807291/5.966357/12.102270/9.561514 fF, versus
+0.807291/5.964114/12.086117/9.562094 fF. No TT charge or control-load
+claim is made, because the SS gate prevented the conditional TT run.
+
+### Full device coverage of this single-sided testbench
+
+The actual settling testbench has one `XDUT` CDAC instance, no local
+subcircuit definitions and no external MOS-like devices. Its complete
+MOS population is therefore 540, with 1,620 gs/gd/ds pairs. Every pair
+was checked over all 199,960 saved times from 0 through 70 ns: zero
+violations of the 1.0 V project limit. The exact maximum is
+0.968497692620 V at `XDUT.XB2.XDL.MNOUT` ds, 60.075866 ns.
+This covers all MOS in this one-sided settling TB. The earlier
+differential sine TB used two CDAC halves (1,080 MOS / 3,240 pairs);
+that different scope and its N4 result are not attributed to this variant.
+Gate-to-bulk/model warnings remain retained separately from the project's
+gs/gd/ds check; this is not full reliability or PVT acceptance.
+
+Actual settings are maxstep 0.5 ps, reltol 1e-7, voltage tolerance 1e-8,
+traponly, moderate errpreset and lteratio 3.5. There are 199,959 accepted
+steps, mean spacing 0.350072 ps, 277 voltage and 69 current traces, all
+finite. One simulation job was launched, peak concurrency one; APS
+enabled four solver threads without an explicit thread-count option.
+The job took 395 seconds; the simulator log reports 393 seconds and
+zero errors, 16 warnings, eight notices, with suppressed warnings retained.
+
+All nine raw job files and 50 frozen inputs were recovered and hash-checked.
+Archive SHA256 is
+`63c14b394df86f5360176f17eea9fad126adc36c069dff6ae2e417b01c395bf9`.
+Exact input differences, geometry validation, full terminal-pair table,
+analysis/plot scripts and the inspected comparison figure are retained
+privately. Only the exact completed run directory was cleaned after
+archive recovery verification; shared data were preserved. Both the
+original batch halt and this experiment's failure stop remain recorded.

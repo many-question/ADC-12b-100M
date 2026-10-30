@@ -15,6 +15,11 @@ diagnostic retains both failures at stricter numerical settings and
 locates the slow response in reference drive and capacitor redistribution.
 The circuit and completed official evidence are unchanged.
 
+A subsequent private bit-12 output-width +25% screen also stopped at
+`ss_low_125`: RL12 42.2 ps and start 113.0 ps still fail, while equivalent
+tau rises to 17.1112 ps and newly fails. No TT follow-up was run and this
+experimental size change is not part of the formal N4 source.
+
 The complete RNL matches the frozen physical circuit after collapsing only
 zero-volt measurement probes. Every functional device, geometry, port,
 control connection, and capacitance is unchanged from that checked variant.
