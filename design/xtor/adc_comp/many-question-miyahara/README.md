@@ -39,3 +39,5 @@ Continuous physical-output repair experiments remain independent of this canonic
 [B6](BUFFER-V6.md) passes clock and intermediate-node stress while small raw/buffer/output excursions remain. [B7](BUFFER-V7.md) adds physical weak rail-offset loads at those measured nodes and retains the original output-validity thresholds.
 
 [B7](BUFFER-V7.md) passes three-corner stress and validity but fails SF low/cold reset at 36.559095 ps. [B8](BUFFER-V8.md) halves its six physical PMOS pull-ups while retaining both output diode loads per side.
+
+[B8](BUFFER-V8.md) passes six-key-corner stress and validity but fails SS low/hot reset. [B9](BUFFER-V9.md) speeds the physical clock reset and input-drain recharge at the measured bottleneck. [Energy comparison](ENERGY-COMPARISON.md) includes the substantial cost of the repair circuitry.
