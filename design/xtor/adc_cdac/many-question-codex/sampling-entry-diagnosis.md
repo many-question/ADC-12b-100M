@@ -810,7 +810,7 @@ speed, a corresponding 256-point main run would take roughly 121 minutes;
 the numerical cross-check would add a separate run.
 
 The following diagnostic keeps this physical circuit and collects
-48 points of selected tracking and switching waveforms. It will compare
+48 points of selected tracking and switching waveforms. It compares
 complex harmonics on a common input-phase reference before and after TOP
 and VG turn-off, including representative BP/MID nodes. This is intended
 to locate when errors appear before selecting one structural experiment;
@@ -922,8 +922,8 @@ together with an improvement in the final sampled harmonic. Reducing only
 an intermediate transient would not meet that expectation. The costs are
 additional voltage-dependent TOP capacitance, PHI_SB load, and switching
 charge; gain/weights, sampling capacitance, clock load, reference charge,
-hold behavior, and device stress would need rechecking. This proposal has
-not been instantiated or simulated, and no geometry sweep is underway.
+hold behavior, and device stress need rechecking. The next section tests
+this one geometry; no geometry sweep is underway.
 
 Finally, the existing saved nodes permit a limited stress audit of 80 of
 the 1,078 MOS, covering 240 gs/gd/ds pairs over all saved points. None exceeds
@@ -931,3 +931,113 @@ the 1,078 MOS, covering 240 gs/gd/ds pairs over all saved points. None exceeds
 PMOS-assistance device's Vgd at 5.156437461 ns. The other 998 MOS are not
 covered, and the 1 ps stage record is not the finer-step full-device stress
 test. No complete SOA or other acceptance is claimed.
+
+## One N4 dummy per half: matched 48-point comparison
+
+This experiment adds one physical NMOS per half, with D/S tied to TOP,
+gate at PHI_SB, and bulk at VSS. Its previously validated geometry is
+W = 4 um, L = 30 nm, with two fingers. Static expansion confirms that all
+1,078 existing MOS remain unchanged and only two dummy instances are added.
+The 2,278 physical MOM units, 36 Cp elements, midpoint paths, ports, and
+existing N12/P4 TOP pair remain unchanged. The private RNL contains all
+31 subcircuits and 540 MOS per half; it passed drawing checks and its
+electrical connectivity matches the physical variant after removal of
+zero-volt measurement probes. The committed candidate source is unchanged.
+
+The run uses exactly the previous 48-point stimulus, numerical settings,
+noise settings, and 61 voltage saves. Two dummy gate-terminal currents
+are additionally saved. It completed in 32.31 minutes, with 764,585 accepted
+waveform points over 0-525 ns. Retrieved raw files and all 27 supporting TB
+dependencies were hash-verified. The original and added-device sources,
+decks, geometry evidence, analysis scripts, and comparison data are retained.
+
+All 20 extraction stages and both regression matrices use the frozen
+baseline time grid. The h7/h21 ranks remain 9/9 and 23/23, with conditions
+1.503/1.509. Each fit uses its corresponding frozen baseline source phase
+and final TOP fundamental. A final sampler timestamp differs by up to
+0.2 fs in its saved numerical representation; interpolation on the frozen
+grid avoids changing the comparison phases. This is neither a physical
+timing precision claim nor a numerical-convergence check.
+
+The table separates normalization to each circuit's own final fundamental
+from normalization to the frozen baseline fundamental. The baseline
+columns have the same value under both definitions.
+
+| Final differential quantity | Baseline, own fundamental | Dummy, own fundamental | Dummy, baseline fundamental |
+|---|---:|---:|---:|
+| h3, odd basis through h7 (dB) | -83.9867 | -86.4998 | -86.5182 |
+| h3, odd basis through h21 (dB) | -83.9393 | -86.4153 | -86.4337 |
+| h5, basis through h21 (dB) | -94.4629 | -91.4680 | -91.4864 |
+| h7, basis through h21 (dB) | -96.6575 | -95.5734 | -95.5917 |
+
+The h21 fundamental decreases from 0.789850075 to 0.788182811 V peak,
+a 0.211086% loss (-0.018354 dB). Thus the h3 improvement is not obtained
+by hiding a changed gain normalization. Its absolute amplitude falls
+from 50.1859 to 37.6583 uV, while h5 rises from 14.9417 to 21.0487 uV and
+h7 from 11.6057 to 13.1207 uV. Full-record fit residual RMS is
+8.5488 -> 8.5223 uV with h7 and 0.7360 -> 0.7342 uV with h21. These
+residuals depend on the included harmonics and are not noise measurements.
+
+![Matched dummy harmonic, stage, gain, and gate-charge comparison](dummy-stage-comparison.png)
+
+With the same h21 phase reference, the TOP-opening increment from -20 to
++10 ps changes from (-1.4808, +49.2449) to (-4.6546, +47.7610) uV.
+Its magnitude declines only from 49.2671 to 47.9873 uV. The final vector
+changes much more, from (49.3020, 9.3776) to (35.2526, 13.2438) uV.
+This supports further verification of the single dummy, but does not
+establish that TOP-opening charge cancellation alone causes the final
+improvement. Later charge redistribution and nonlinear TOP capacitance
+also change. At CONV +20 ps, h3 is still 5.240 mV, versus 5.327 mV before;
+the subsequent decline is not an independent success criterion. The
+CONV +100 ps to final vector increment increases from 1.6491 to 1.9151 uV.
+
+The separate halves remain available rather than assuming perfect
+antisymmetry. These final h3 vectors use the same differential-source
+phase and the fixed h21 odd basis.
+
+| Observable | Baseline (real, imaginary), uV | Dummy (real, imaginary), uV |
+|---|---:|---:|
+| TOPP | (21.6428, 2.4371) | (15.1007, 4.9841) |
+| TOPN | (-27.6592, -6.9405) | (-20.1519, -8.2596) |
+| (TOPP + TOPN)/2 | (-3.0082, -2.2517) | (-2.5256, -1.6378) |
+
+Each single-half odd-basis residual is approximately 260 uV before and
+214 uV after the change, much larger than the differential residual.
+These projections do not constitute a complete single-half spectrum.
+For the new differential final h3, the h7/h21 vector difference is
+0.5813 uV; the maximum over all stages is 12.3701 uV during the large
+switching transient. The largest linear-versus-cubic difference is
+0.7425 uV at CONV +50 ps. These are sensitivity checks, not error bounds.
+
+Both new devices have all terminals saved over the full interval. Their
+maximum absolute gs/gd values are 0.8438432 V on the P half and 0.8431354 V
+on the N half; ds is identically zero. The complete-terminal saved-node
+subset now covers 82 of 1,080 MOS and 246 project gs/gd/ds pairs. None
+exceeds 1.0 V at the saved points; the subset maximum is 0.9902248 V on
+the N-side bit-0 PMOS-assistance Vgd. The other 998 MOS remain outside
+this audit. The log retains model-limit warnings, including sampling
+gate-to-bulk voltage and 0.99 V checks, with repeated warnings suppressed.
+Neither this subset nor the absence of new-dummy project violations
+establishes full-device SOA, model reliability, or finer-step acceptance.
+
+The added gate currents provide direct but limited clock-burden evidence.
+Current is positive into the device gate. Integrating the accepted-point
+current from 20 ps before to 20 ps after each retained PHI_SB rising edge
+gives 1.5467-1.6588 fC for P and 1.5468-1.6590 fC for N. Their simultaneous
+sum is 3.2047-3.2063 fC. Over complete 10 ns windows, the integral of the
+absolute summed gate current is 8.7370-12.1675 fC even though the signed
+net charge is close to zero. These are the two new branches only: they
+do not measure the change in total PHI_SB port current, held capacitance,
+or power. Currents in the existing circuit can change too. The gate-current
+integrals have no finer-step convergence bound.
+
+The h21 h3 diagnostic margin to -85 dBc is only about 1.42 dB, and higher
+harmonics and gain have changed. No official SFDR/SNDR pass follows from
+this result. Before considering longer spectral verification, the same
+frozen dummy version needs its own original weights/Cs/calibration and
+complete 70 ns fixed-input settling, reference-charge, total clock-port
+load, hold, and full-device project-stress checks. Only if those required
+checks pass should its own 125 ns sine-input all-device stress check
+follow. No older variant's pass is inherited, and no size sweep, formal
+source replacement, 128/256-point run, PVT expansion, or numerical
+cross-check has been launched for this dummy version.
