@@ -9,11 +9,16 @@ import numpy as np
 from .. import psf
 from ..figures import C1, C2, C3, INK2, LIMIT, MUTED, hline, limit_label, limits, note, sink_of, vline
 from ..figures import GRID as GRIDLINE
-from .common import fig_cin, pin_cins, read_meters, read_samples, tran
+from .common import fig_cin, pin_cins, read_meter_windows, read_samples, tran
 
 TCYC = 400e-12
 DELAY_LEVELS = [100e-3, -100e-3, 30e-3, -30e-3, 10e-3, -10e-3, 3e-3, -3e-3, 1e-3, -1e-3,
                 300e-6, -300e-6, 100e-6, -100e-6, 30e-6, -30e-6, 10e-6, -10e-6]
+# tb_comp_delay: the sequence twice, one decision per CLKC cycle; the first CLKC rising edge starts at
+# T0 (the pulse delay). CMP-10 (#75): the AVDD meter integrates exactly the N_DELAY full cycles from
+# there, [T0, T0 + N_DELAY * TCYC], and energy_fJ = AVDD charge x VDD / N_DELAY.
+N_DELAY = 2 * len(DELAY_LEVELS)       # 36
+T0 = 100e-12
 NOISE_LEVELS = [round(-800e-6 + 100e-6 * i, 9) for i in range(17)]   # +/-3.3 sigma at the 240 uV limit
 NOISE_REPEAT = 512                    # 1-sigma error of sigma <= 2.7 % for 120..300 uV (binomial ML)
 # tb_comp_offset_mc: offset search per Monte Carlo sample (tb_offset_search_va)
@@ -73,13 +78,34 @@ def delay(job_dir: Path, ctx: dict) -> dict:
             resets.append(t[idx[0]] - tf)
     if resets:
         m["treset_ps"] = float(np.max(resets) * 1e12)
-    meters = read_meters(Path(job_dir) / "power.txt")
+    meters = read_meter_windows(Path(job_dir) / "power.txt")
     if "AVDD" in meters:
-        m["energy_fJ"] = float(meters["AVDD"] * vdd * TCYC * 1e15)
+        m["energy_fJ"] = comparison_energy(*meters["AVDD"], vdd, t_rise)
     fg = sink_of(ctx)
     if fg:
         _fig_delay(fg, ctx, w, vdd, vds, t_rise, t_fall, pts, m)
     return m
+
+
+def comparison_energy(i_avg: float, window: float | None, vdd: float, t_rise) -> float:
+    """CMP-10 in fJ: the AVDD charge over the meter window x VDD / N_DELAY, the average AVDD energy per
+    comparison over the mixed-amplitude sequence.
+
+    The window must be the N_DELAY full CLKC cycles [T0, T0 + N_DELAY * TCYC] of the generated bench:
+    a window of another length (a lead-in before the first edge, a partial or a missing cycle) and a
+    clock whose rising edges (50 % crossings `t_rise`) inside it are not exactly N_DELAY, the first
+    within the edge after T0, raise ValueError: an old bench is never measured as the new definition."""
+    want = N_DELAY * TCYC
+    if window is None or abs(window - want) > 1e-3 * TCYC:
+        raise ValueError(f"AVDD meter window {window!r} s is not the {N_DELAY} CLKC cycles of CMP-10 "
+                         f"({want:.4g} s from the first rising edge): regenerate tb_comp_delay (adcflow gen)")
+    t_rise = np.asarray(t_rise, dtype=float)
+    inside = t_rise[(t_rise >= T0) & (t_rise < T0 + want)]
+    if len(inside) != N_DELAY or not 0 <= inside[0] - T0 < TCYC / 4:
+        raise ValueError(f"{len(inside)} CLKC rising edges in the AVDD meter window, first at "
+                         f"{inside[0] if len(inside) else float('nan'):.4g} s: CMP-10 needs {N_DELAY} cycles "
+                         f"from the first edge at {T0:g} s")
+    return float(i_avg * window * vdd / N_DELAY * 1e15)
 
 
 def probit_fit(vd, k, n) -> dict:

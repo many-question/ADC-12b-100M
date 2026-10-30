@@ -1,6 +1,6 @@
 block: adc_comp
 title: Dynamic latched comparator
-version: 0.5.0
+version: 0.6.0
 selected: none          # the selected candidate (design/xtor/<block>/<name>/); none yet
 status: behavioral
 views:
@@ -35,7 +35,8 @@ specs:
   - {id: CMP-07, name: "regeneration time constant",                 metric: tau_reg_ps,     unit: ps,    max: 15,  corners: all, test: tb_comp_delay}
   - {id: CMP-08, name: "reset time CLKC fall -> both outputs < 10 %", metric: treset_ps,      unit: ps,    max: 35,  corners: all, test: tb_comp_delay}
   - {id: CMP-09, name: "wrong decisions for |vd| >= 100 uV (noise off)", metric: wrong_decisions, unit: count, max: 0, corners: all, test: tb_comp_delay}
-  - {id: CMP-10, name: "energy per comparison at 1 mV",              metric: energy_fJ,      unit: fJ,    max: 200, corners: typ, test: tb_comp_delay}
+  # reported only (#75): power has no acceptance limit, lower is better; docs/architecture.md §8 keeps the budget
+  - {id: CMP-10, name: "average AVDD energy per comparison, 36-decision mixed-amplitude sequence (+/-100 mV .. +/-10 uV, twice)", metric: energy_fJ, unit: fJ, reported: true, corners: typ, test: tb_comp_delay}
   - {id: CMP-11, name: "differential kickback per cycle on 2.5 pF",  metric: kickback_uV,    unit: uV,    max: 40,  corners: all, test: tb_comp_kickback}
   - {id: CMP-12, name: "input capacitance per input",                metric: cin_fF,         unit: fF,    max: 20,  corners: typ, test: tb_comp_kickback}
   - {id: CMP-14, name: "CLKC input capacitance (charge per rising edge / VDD)", metric: cin_clkc_fF, unit: fF, max: 16, corners: typ, test: tb_comp_kickback}
@@ -45,9 +46,15 @@ tests:
     measure: adcflow.measure.comp:delay
     desc: >
       Ideal differential steps around VCM = 0.49 V: vd = +/-{100m, 30m, 10m, 3m,
-      1m, 300u, 100u, 30u, 10u} V, one decision per 400 ps CLKC period, 10 fF
-      loads. Transient noise off. Extracts delay vs |vd|, tau_reg (fit of delay
-      vs ln|vd|), reset time, decision errors and supply energy per cycle.
+      1m, 300u, 100u, 30u, 10u} V, twice (36 decisions), one decision per 400 ps
+      CLKC period, 10 fF loads. Transient noise off. Extracts delay vs |vd|,
+      tau_reg (fit of delay vs ln|vd|), reset time and decision errors. CMP-10
+      (reported, no limit) is the average AVDD energy per comparison over this
+      mixed-amplitude sequence: the AVDD meter integrates exactly the 36 full
+      CLKC cycles from the first rising edge (100 ps .. 14.5 ns, no lead-in, no
+      partial cycle) and energy_fJ = AVDD charge x VDD / 36. It is not a
+      dedicated 1 mV measurement; the energy of the CLKC source is outside the
+      meter.
   tb_comp_noise:
     netlist: tb/comp/tb_comp_noise.scs
     measure: adcflow.measure.comp:noise

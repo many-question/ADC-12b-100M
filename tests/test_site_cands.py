@@ -3,6 +3,7 @@
 Fixture trees and fixture git repositories, no network. The verdicts are main's specs (adcflow.specs of this checkout)."""
 
 import json
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -33,12 +34,20 @@ CAND_YAML = (f"name: {NAME}\ndescription: A dynamic latch, one stage.\nstatus: w
 
 
 def row(passed=1, failed=0, incomplete=0, results=1, **kw):
+    """A leaderboard row (adcflow.candidates.score) of an eligible candidate unless kw says otherwise: its results verified,
+    the mixed top-level regression passed; `eligible` and `missing` follow from the row (candidates.eligibility)."""
     r = {"block": BLOCK, "candidate": "x", "status": "wip", "specs_passed": passed, "specs_failed": failed,
-         "specs_incomplete": incomplete, "specs_total": 3, "coverage": [passed, 3], "results": results, "verified": 0,
-         "self_reported": results, "mismatch": 0, "flags": {"stale": 0, "unverified": results, "mismatch": 0, "soa": 0, "error": 0}, "worst_margin": {"margin": 0.3, "spec": "CMP-01"},
+         "specs_incomplete": incomplete, "specs_total": 3, "specs_reported": 1, "reported_total": 1,
+         "specs_failing": ["CMP-04"] * failed, "specs_missing": ["CMP-05"] * incomplete,
+         "coverage": [passed, 3], "results": results, "verified": results,
+         "self_reported": 0, "mismatch": 0, "flags": {"stale": 0, "unverified": 0, "mismatch": 0, "soa": 0, "error": 0},
+         "worst_margin": {"margin": 0.3, "spec": "CMP-01"},
          "power_uW": 100.0, "area": {"mos": 10, "wl_um2": 5.0, "caps": 0, "cap_F": 0.0, "devices": 10}, "top_enob_margin": 0.5,
+         "top_regression": {"status": "pass", "results": 22, "missing": [], "failing": [], "stale": 0, "error": 0},
          "author_text": "@a", "description": "", "problems": [], "selected": False}
     r.update(kw)
+    r["missing"] = C.eligibility(r)
+    r["eligible"] = not r["missing"]
     return r
 
 
@@ -54,55 +63,99 @@ def names(cs):
     return [c.name for c in cands.rank(cs)]
 
 
-# ------------------------------------------------------------------ ranking (§4)
-def test_fully_passing_candidates_rank_before_the_others():
-    good = cand("good")
-    failing = cand("a-failing", failed=1, passed=2)          # more specs passed, but one fails
-    stale = cand("b-stale", flags={"stale": 1, "unverified": 1, "mismatch": 0, "soa": 0, "error": 0})
-    assert names([failing, stale, good]) == ["good", "a-failing", "b-stale"]
+FLAGS = {"stale": 0, "unverified": 0, "mismatch": 0, "soa": 0, "error": 0}
+NO_TOP = {"status": "none", "results": 0, "missing": [], "failing": [], "stale": 0, "error": 0}
 
 
-def test_ineligible_candidates_rank_by_passed_specs_then_coverage():
+# ------------------------------------------------------------------ ranking: two tiers (#75)
+@pytest.mark.parametrize("what,kw", [
+    ("failing", {"failed": 1, "passed": 2}),
+    ("incomplete", {"incomplete": 1}),
+    ("stale", {"flags": {**FLAGS, "stale": 1}}),
+    ("error", {"flags": {**FLAGS, "error": 1}}),
+    ("soa", {"flags": {**FLAGS, "soa": 1}}),
+    ("mismatch", {"flags": {**FLAGS, "mismatch": 1}}),
+    ("unverified", {"flags": {**FLAGS, "unverified": 1}}),
+    ("top", {"top_regression": NO_TOP}),
+    ("results", {"results": 0, "passed": 0}),
+    ("problems", {"problems": ["candidate.yaml: x"]}),
+])
+def test_one_missing_condition_puts_a_candidate_in_the_second_tier(what, kw):
+    other = cand("a-other", power_uW=10.0, **kw)            # far lower power and listed first by name: still after
+    assert not cands.eligible(other.row) and [m["what"] for m in other.row["missing"]] == [what]
+    assert names([other, cand("good", power_uW=500.0)]) == ["good", "a-other"]
+    assert cands.missing_items(other.row) and all(cands.missing_items(other.row))
+
+
+def test_missing_items_say_what_is_missing():
+    c = cand("c", failed=1, passed=1, flags={**FLAGS, "unverified": 3},
+             top_regression={**NO_TOP, "status": "incomplete", "results": 7, "missing": ["tb_top_duty tt_nom_27"] * 15})
+    assert cands.missing_items(c.row) == ["不通过：CMP-04", "3 个结果未复核（自报）", "顶层混合回归不完整（缺 15 项）"]
+    assert cands.missing_items(cand("d", top_regression=NO_TOP).row) == ["没有顶层混合回归"]
+    assert cands.missing_items(cand("e", top_regression={**NO_TOP, "status": "fail", "results": 22,
+                                                         "failing": ["TOP-01"]}).row) == ["顶层混合回归不通过（TOP-01）"]
+
+
+def test_not_eligible_candidates_rank_by_passed_specs_then_coverage():
     a = cand("a", passed=1, failed=1, coverage=[5, 9])
     b = cand("b", passed=2, failed=1, coverage=[2, 9])
     c = cand("c", passed=2, failed=1, coverage=[4, 9])
     assert names([a, b, c]) == ["c", "b", "a"]
 
 
-def test_top_enob_margin_decides_first_with_a_tolerance_of_005_bit():
-    hi, lo, close = cand("hi", top_enob_margin=0.80), cand("lo", top_enob_margin=0.30), cand("close", top_enob_margin=0.78)
-    assert names([lo, hi]) == ["hi", "lo"]
-    # 0.80 vs 0.78 is inside the tolerance: power decides
-    close.row["power_uW"], hi.row["power_uW"] = 50.0, 100.0
-    assert names([hi, close]) == ["close", "hi"]
+def test_eligible_candidates_rank_by_power_lowest_first():
+    lowp, midp, highp = cand("lowp", power_uW=100.0), cand("midp", power_uW=120.0), cand("highp", power_uW=140.0)
+    assert names([highp, midp, lowp]) == ["lowp", "midp", "highp"]
 
 
-def test_power_then_area_then_robustness_each_with_its_tolerance():
-    lowp, highp = cand("lowp", power_uW=100.0), cand("highp", power_uW=140.0)
-    assert names([highp, lowp]) == ["lowp", "highp"]
-    same_p = cand("same-p", power_uW=103.0)                  # within 5 % of 100: area decides
-    small = cand("small", power_uW=100.0, area={"mos": 5, "wl_um2": 2.0, "caps": 0, "cap_F": 0.0, "devices": 5})
-    assert names([same_p, small]) == ["small", "same-p"]
-    robust = cand("robust", worst_margin={"margin": 0.40, "spec": "CMP-02"})
-    fragile = cand("fragile", worst_margin={"margin": 0.10, "spec": "CMP-03"})
-    assert names([fragile, robust]) == ["robust", "fragile"]
-    near = cand("near", worst_margin={"margin": 0.28, "spec": "CMP-04"})        # 0.28 vs 0.30: inside 5 % of the limit
-    assert names([near, cand("zz")])[0] == "near"            # tied: name order
+def test_power_within_5_percent_is_a_tie_decided_by_area():
+    big = cand("a-big", power_uW=100.0, area={"mos": 20, "wl_um2": 10.0, "caps": 0, "cap_F": 0.0, "devices": 20})
+    small = cand("b-small", power_uW=104.9, area={"mos": 5, "wl_um2": 2.0, "caps": 0, "cap_F": 0.0, "devices": 5})
+    assert names([big, small]) == ["b-small", "a-big"]                        # 104.9 vs 100: within 5 %, area decides
+    beyond = cand("c-beyond", power_uW=105.6, area={"mos": 1, "wl_um2": 0.1, "caps": 0, "cap_F": 0.0, "devices": 1})
+    assert names([beyond, big]) == ["a-big", "c-beyond"]                      # 5.3 % more power: power decides
+    # sum of W*L within 5 %: the total capacitance decides, also within 5 %
+    c1 = cand("d-cap", area={"mos": 5, "wl_um2": 2.0, "caps": 1, "cap_F": 10e-15, "devices": 6})
+    c2 = cand("e-cap", area={"mos": 5, "wl_um2": 2.05, "caps": 1, "cap_F": 5e-15, "devices": 6})
+    assert names([c1, c2]) == ["e-cap", "d-cap"]
+    assert names([cand("g", area={**c2.row["area"], "wl_um2": 2.04}), cand("f", area=c2.row["area"])]) == ["f", "g"]  # tied: name
 
 
-def test_missing_values_are_worse_than_any_value():
-    none_enob = cand("none-enob", top_enob_margin=None)
-    some = cand("some", top_enob_margin=-0.5)
-    assert names([none_enob, some]) == ["some", "none-enob"]
-    assert names([cand("a-none", power_uW=None, top_enob_margin=None), cand("b-p", power_uW=500.0, top_enob_margin=None)]) == ["b-p", "a-none"]
+def test_margins_beyond_a_limit_earn_nothing():
+    """Top-level ENOB margin and the worst robustness margin are shown, never ranked: power decides."""
+    robust = cand("a-robust", power_uW=130.0, top_enob_margin=0.9, worst_margin={"margin": 0.9, "spec": "CMP-02"})
+    lean = cand("b-lean", power_uW=100.0, top_enob_margin=0.01, worst_margin={"margin": 0.001, "spec": "CMP-04"})
+    assert names([robust, lean]) == ["b-lean", "a-robust"]
+    same = [cand("d", top_enob_margin=0.9, worst_margin={"margin": 0.9, "spec": "CMP-02"}),
+            cand("c", top_enob_margin=0.0, worst_margin={"margin": 0.0, "spec": "CMP-04"})]
+    assert names(same) == ["c", "d"]                                          # tied on power and area: name order
 
 
-def test_the_selected_candidate_stays_first_inside_every_tolerance():
+def test_missing_power_is_worse_than_any_power():
+    assert names([cand("a-none", power_uW=None), cand("b-p", power_uW=500.0)]) == ["b-p", "a-none"]
+    # a block without a power figure (adc_cdac): every candidate ties on power and area decides
+    assert names([cand("a", power_uW=None), cand("b", power_uW=None, area={**row()["area"], "wl_um2": 1.0})]) == ["b", "a"]
+
+
+def test_the_selected_candidate_stays_first_inside_the_tolerance():
     sel = cand("zz-selected", selected=True)
-    other = cand("aa-other")
-    assert names([other, sel]) == ["zz-selected", "aa-other"]
-    assert names([other, cand("zz-selected", selected=True, top_enob_margin=0.9)])[0] == "zz-selected"
+    assert names([cand("aa-other"), sel]) == ["zz-selected", "aa-other"]
+    # 4 % less power and 4 % less area: inside every tolerance, the selected one stays first
+    close = cand("aa-close", power_uW=96.0, area={**row()["area"], "wl_um2": 4.8})
+    assert names([close, sel]) == ["zz-selected", "aa-close"]
+    # a challenger beyond the tolerance (CONTRIBUTING §10): more than 5 % less power, or equal power and less area
+    assert names([cand("aa-lower", power_uW=94.0), sel]) == ["aa-lower", "zz-selected"]
+    assert names([cand("aa-smaller", area={**row()["area"], "wl_um2": 4.0}), sel]) == ["aa-smaller", "zz-selected"]
+    # the selected candidate is ranked like any other once it is not eligible
+    gone = cand("zz-selected", selected=True, flags={**FLAGS, "stale": 1})
+    assert names([cand("aa-other", power_uW=200.0), gone]) == ["aa-other", "zz-selected"]
     assert cands.rank([cand("p", source="pr", selected=True)])[0].selected is False      # only a merged candidate is selected
+
+
+def test_the_site_ranks_with_the_flow():
+    """The site's order is adcflow.candidates.rank on the same rows (the CLI leaderboard)."""
+    cs = [cand("a", power_uW=140.0), cand("b", power_uW=100.0), cand("c", failed=1), cand("d", power_uW=101.0, selected=True)]
+    assert names(cs) == [r["candidate"] for r in C.rank([c.row for c in cs])] == ["d", "b", "a", "c"]
 
 
 def test_count_leaves_withdrawn_out():
@@ -264,7 +317,7 @@ def test_a_pr_cannot_change_the_verdict_by_changing_specs(tmp_path):
     # 500 ps fails CMP-04 (<= 80 ps) under main's specs; it would pass under the PR's loosened copy
     got, _, _ = run_pr(tmp_path, extra={spec_rel: loosened}, value=500.0)
     r = got[0].row
-    assert r["specs_total"] == len(blocks()[BLOCK].specs)
+    assert r["specs_total"] == sum(not s.reported for s in blocks()[BLOCK].specs)      # CMP-10 is reported only
     assert r["specs_failed"] >= 1
     assert any(x.status == "fail" for x in got[0].bd.rows[got[0].view])
 
@@ -348,3 +401,49 @@ def test_collect_without_the_api_keeps_the_merged_candidates(tmp_path):
     with cands.tree_root(tmp_path):
         got = cands.collect(site_stub(), main_data(), Live(ok=False, fetched_at="x", error="down"), out)
     assert [c.name for c in got.cands[BLOCK]] == [NAME] and got.previews == {}
+
+
+# ------------------------------------------------------------------ reported-only specs on the site (#75)
+def _reported_rows():
+    """CMP-04 fails at 500 ps, CMP-10 (reported only) records 100 fJ: the spec rows of one result and its block data."""
+    from sitegen.data import _spec_rows
+
+    b = blocks()[BLOCK]
+    doc = result_doc("0" * 16, value=500.0)
+    doc["_path"] = ROOT / RESULT
+    doc["_judged"] = {"specs": b.verdicts(TEST, "tt_nom_27", None, doc["metrics"])[0], "na": {}, "stale": [], "error": None}
+    rows = _spec_rows(b, doc["view"], [doc])
+    return b, doc, rows
+
+
+def test_reported_only_specs_have_a_value_and_no_verdict_in_the_site_data():
+    """CMP-10: its row gives the value and 仅报告, no pass / fail, and is left out of the verdict counts."""
+    from sitegen.data import judged_rows, verdict_counts
+
+    b, doc, rows = _reported_rows()
+    cmp10 = next(r for r in rows if r.id == "CMP-10")
+    assert (cmp10.status, cmp10.limit, cmp10.worst) == ("reported", "仅报告", 100.0)
+    assert next(r for r in rows if r.id == "CMP-04").status == "fail"
+    main = BlockData(b, [doc], {"behav": rows}, [], [])             # the counts look at main's views
+    assert len(judged_rows(main)) == len(b.specs) - 1               # the reported one is not counted
+    c = verdict_counts({BLOCK: main})
+    # CMP-04 / CMP-05 (500 ps) and CMP-09 (not measured) fail, CMP-06 / 07 / 08 pass, CMP-10 counts nowhere
+    assert (c["total"], c["fail"], c["pass_"], c["none"]) == (len(b.specs) - 1, 3, 3, len(b.specs) - 7)
+
+
+def test_reported_only_specs_render_without_a_verdict():
+    pytest.importorskip("markdown_it")                              # the site's own dependency (site/requirements.txt)
+    from sitegen import render
+
+    b, doc, rows = _reported_rows()
+    chip = render.verdict_chip(next(r for r in rows if r.id == "CMP-10"))
+    assert ">仅报告</span>" in chip and "chip pass" not in chip and "chip fail" not in chip
+    html = render.corner_detail(site_stub_with_evidence(), BlockData(b, [doc], {doc["view"]: rows}, [], []), doc["view"])
+    assert re.search(r"<td class='num' title='仅报告的指标[^']*'>100</td>", html), "the CMP-10 cell is neither ok nor bad"
+    assert "仅报告 <span class=muted>fJ</span>" in render._spec_limit_table(b)
+
+
+def site_stub_with_evidence():
+    s = site_stub()
+    s.evidence = lambda rel, label="JSON ↗", doc=None: ""
+    return s

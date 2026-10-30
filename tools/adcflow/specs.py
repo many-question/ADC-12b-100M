@@ -34,6 +34,9 @@ class Port:
     bus: str | None = None
 
 
+REPORTED = "reported"                  # limit_text of a reported-only spec
+
+
 @dataclass
 class Spec:
     id: str
@@ -45,6 +48,9 @@ class Spec:
     min: float | None = None
     max: float | None = None
     mc: int | None = None
+    # reported only (`reported: true`, no min / max): the metric is measured and shown at the
+    # spec's corners, with no limit and no verdict (the block power figures, #75)
+    reported: bool = False
 
     def check(self, value: float | None) -> bool:
         if value is None:
@@ -56,6 +62,8 @@ class Spec:
         return True
 
     def limit_text(self) -> str:
+        if self.reported:
+            return REPORTED
         if self.min is not None and self.max is not None:
             return f"{self.min} .. {self.max}"
         if self.min is not None:
@@ -84,10 +92,12 @@ class Spec:
         return {"ok": ok if isinstance(ok, int) else 0, "failed": bad if isinstance(bad, int) else None,
                 "need": self.mc}
 
-    def judge(self, metrics: dict) -> bool:
+    def judge(self, metrics: dict) -> bool | None:
         """Pass of an applicable spec: the value within the limits and, for a Monte Carlo spec,
         at least `mc` valid samples and no failed or missing one (a failed sample is never
-        dropped to pass: it fails the spec)."""
+        dropped to pass: it fails the spec). None for a reported-only spec: no verdict."""
+        if self.reported:
+            return None
         ok = self.check(metrics.get(self.metric))
         n = self.samples(metrics)
         return ok and (n is None or (n["ok"] >= n["need"] and n["failed"] == 0))
@@ -128,7 +138,8 @@ class Block:
         """The specs of `test` on the metrics of one run at `corner`.
 
         Returns (judged, na): judged = {id: {metric, value, limit, pass}} of the specs that apply
-        (Spec.applies); na = {id: {metric, value, limit, corners}} of the specs that do not apply
+        (Spec.applies), with pass None (no verdict, limit "reported") for a reported-only spec;
+        na = {id: {metric, value, limit, corners}} of the specs that do not apply
         at this corner but whose metric was measured. Their raw values are kept and shown as N/A,
         never judged: they count for no worst value, failure or coverage. A Monte Carlo spec is
         left out of a nominal run altogether; on a Monte Carlo run its verdict also needs every
@@ -204,8 +215,12 @@ def _load_block(path: Path) -> Block:
         if spec.id in ids:
             errs.append(f"duplicate spec id {spec.id}")
         ids.add(spec.id)
-        if spec.min is None and spec.max is None:
-            errs.append(f"spec {spec.id}: needs min or max")
+        if not isinstance(spec.reported, bool):
+            errs.append(f"spec {spec.id}: reported must be true or false")
+        elif spec.reported and (spec.min is not None or spec.max is not None or spec.mc):
+            errs.append(f"spec {spec.id}: a reported-only spec (reported: true) has no min, max or mc")
+        elif not spec.reported and spec.min is None and spec.max is None:
+            errs.append(f"spec {spec.id}: needs min or max (or reported: true for a metric without a limit)")
         try:
             corner_names(str(spec.corners))
         except KeyError as e:

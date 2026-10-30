@@ -25,8 +25,14 @@
   `report`、证据图的规格表和站点共用。同一用例中其它工艺角的结果照常保存全部原始 metrics，结果 JSON 的 `specs_na`
   列出不适用的指标（值与适用集合，无判定），报告与站点标为 n/a；它们不计入该指标的最坏值、失败数和覆盖率。
   覆盖率 = 已记录的适用工艺角（去重，同一角的多个变体只算一次）/ 适用集合。适用角缺失时该指标无结果（签核时报错），
-  适用角不通过即不通过；仿真错误与过期结果在任何工艺角都照常报告。例如 CLK-10（`corners: typ`）只判 `tt_nom_27`，
+  适用角不通过即不通过；仿真错误与过期结果在任何工艺角都照常报告。例如 CLK-10（`corners: typ`）只在 `tt_nom_27` 报告，
   `ff_high_125` 的 AVDD 电流作为实测值保留，供系统评估（#29）。
+* **仅报告的指标**（`reported: true`，#75）：没有 `min` / `max`，只在其工艺角记录并显示数值，**没有判定**——结果与复核记录的
+  `specs` 里写 `"limit": "reported", "pass": null`；`report` 标为 INFO，站点标“仅报告”；不计入通过数、失败数和最小裕量。
+  `check results --strict` 和签核只要求它在适用工艺角有数值。目前是四个模块的功耗：CMP-10（`tb_comp_delay` 36 次判决的混合幅度序列上
+  每次比较的平均 AVDD 能量：AVDD 计量正好积分从第一个 CLKC 上升沿起的 36 个整周期，100 ps~14.5 ns，`energy_fJ` = 电荷 × VDD / 36；
+  度量拒绝别的积分窗口或周期数，旧测试台的结果不会被当成新定义）、LOG-13、CLK-10、BST-07。项目不设功耗上限，
+  `docs/architecture.md` §8 的数字只是估算 FoM 的预算；排行榜按 TT 功耗排序（`CONTRIBUTING.md` §10）。
 * **瞬态数值设置**：每个结果的 `meta.numerics` 记录仿真器实际使用的设置，读自 `spectre.log` 的
   `Important parameter values`：`reltol`、`maxstep_ps`、`method`、`errpreset`、`lteratio`、`abstol_V`，全局 `vabstol`，
   接受的步数 `steps_accepted` 与平均步长 `step_mean_ps`；保存了整段波形（从 t = 0 到结束）的测试另记实际最大步长
@@ -137,11 +143,11 @@
 |---|---|
 | 顶层 `tb_top_sine`（1024 点校准 + 1024 点判定，49.71 MHz，−1 dBFS，噪声开） | ENOB 10.92（校准权重，验收；标称权重 10.88），SNR 67.7 dB，THD −82.2 dBc，SFDR 85.3 dB，FS 0.994 V，t_conv 2.83 ns，无丢失 RDY，15.2 mW（AVDD18 14.7 mW，8 mA 参考，#35） |
 | 顶层低频 / 占空比 45 %、55 % | ENOB 10.96 / 10.90 / 10.95（标称 10.91 / 10.82 / 10.90） |
-| `adc_comp` | 噪声 189.5 µV，95 % 区间 181.7~197.7 µV（行为级 σ = 190 µV；17 × 512 次判决，二项最大似然），1 mV 时延 76 ps，30 mV 49 ps，τ 8 ps，回踢 ≈ 0（行为级比较器无回踢），Cin 15 fF，CLKC 12 fF，能耗 112 fJ；失调 σ（`tb_comp_offset_mc`，50 个样本全部有效）2.05 mV，即测试台的替身失调（2 mV，§2），不是电路的性质 |
+| `adc_comp` | 噪声 189.5 µV，95 % 区间 181.7~197.7 µV（行为级 σ = 190 µV；17 × 512 次判决，二项最大似然），1 mV 时延 76 ps，30 mV 49 ps，τ 8 ps，回踢 ≈ 0（行为级比较器无回踢），Cin 15 fF，CLKC 12 fF，CMP-10 能耗 112.5 fJ（36 个整周期的 AVDD 电荷 × VDD / 36；旧定义 0~14.5 ns 窗口为 111.7 fJ，#75）；失调 σ（`tb_comp_offset_mc`，50 个样本全部有效）2.05 mV，即测试台的替身失调（2 mV，§2），不是电路的性质 |
 | `adc_sarlogic`（UP/DN 负载 15 fF） | 1000 次随机转换 0 错误，转换 2.70 ns（60 次 2.67 ns，LOG-08 ≤ 2.75；比较器 70 ps 时 3.02 ns），超时 285 ps，210 µW；DAC 等待（扣除附加等待）48 / 83 ps，附加等待 10 / 30 / 30 / 30 / 25 ps（判决 3/4/5/6/9，LOG-16 误差 ≈ 0）；输入电容 CONV 30 fF、OUTP/OUTN 5 fF |
 | `adc_cdac` | C_S 2.057 pF，FS 0.993 V，可校准性裕量 0.465 LSB，校准后 ENOB 损失 ≈ 0（标称 0.07 bit，4 颗失配芯片）；RL12 建立 12.7 ps，τ 1.2 ps，起始建立 11.4 ps；VREFP 电荷 0.77 pC；跟踪 SFDR 132.7 dB / SNDR 130.6 dB（显式数值设置，已到数值底噪，> 130 dB；默认设置的 109.3 / 101.8 dB 是数值噪声，见下）；输入电容 DH/RL 4.5 fF、PHI_S/PHI_SB 30 fF、CONV 60 fF |
 | `adc_bootstrap`（参考开关 96 µm + 2.057 pF） | VG−VIN 0.855 V，关断 18 ps，开启 68 ps；跟踪 SFDR 94.6 dB / SNDR 94.6 dB（显式数值设置；默认设置为 92.6 / 85.8，v0.2 为 97.2 / 89.6，均未收敛，见下）；SOA 仅外部节点（参考开关，§5）：最大 \|Vgs\| 0.900 V（VG 为 0、VIN = 0.9 V 时，负向），0 违例；PHI_B/PHI_BB 输入 12 fF |
-| `adc_clkgen`（规格负载共 530 fF） | PHI_S 延时 46 ps，PHI_S→PHI_B 40 ps，抖动 46 fs，占空比 45/55 % 无错误，AVDD 70 µA（行为级占位，含负载，CLK-10 ≤ 80 µA）；SOA（CLK-11，§5）：行为级没有可检查的器件（`external`，0 对，`soa_note` 说明），不是晶体管级证据 |
+| `adc_clkgen`（规格负载共 530 fF） | PHI_S 延时 46 ps，PHI_S→PHI_B 40 ps，抖动 46 fs，占空比 45/55 % 无错误，AVDD 70 µA（行为级占位，含负载，CLK-10 仅报告）；SOA（CLK-11，§5）：行为级没有可检查的器件（`external`，0 对，`soa_note` 说明），不是晶体管级证据 |
 | `adc_ref`（follower 8 mA + 6 pF，#35） | 回放（电荷在 DAC 驱动时刻、含附加等待）ENOB 损失 ≈ 0，`env_ratio` 0.63（判决 3；REF-21 ≤ 1），判决 12~14 变化 73 µV，记忆 ≈ 0，最大跌落 25 mV；噪声 34.5 µV（带 1.2 pF 与 200 µA）；直流 −1.0 mV（200 µA 负载）；上电（支持的顺序，`tb_ref_startup`）VREFP 0~0.900 V、VCM 0~0.450 V，电源已上、VREF_IN 为 0 的 5 µs 内两者都为 0，斜坡期间跟随误差 4 µV，就绪后 |VREFP − VREF_IN| ≈ 0、VCM 450.0 mV（行为级 follower 与电源无关，只体现 VREF_IN 斜坡；交叉检查 maxstep 0.1 ns / gear2only 差 < 0.1 µV） |
 
 **顶层工艺角基线（#35，全行为级，`tb_top_sine`，噪声开，校准 ENOB）**：行为级视图没有工艺时序（`beh_speed` = 1），
@@ -392,7 +398,7 @@ python -m adcflow verify <test> --block <block> --candidate <name> [--corners <�
 |---|---|---|
 | 各指标的判定（`specs`，按现行规格） | 完全相同 | 在容差内但跨过限值的也算不符 |
 | 整数（计数：`soa_violations`、`duty_errors`、`wrong_decisions`、`spike_count`、`missing_rdy`、`n_edges` 等）、字符串、布尔 | 完全相同 | |
-| `enob*` | ±0.05 bit | 与排序的 ENOB 容差相同 |
+| `enob*` | ±0.05 bit | |
 | `*_dB`、`*_dBc` | ±0.5 dB | 晶体管级跟踪测试两种积分方法差 0.05 dB，行为级 0.35 dB（§2、§3） |
 | `jitter_fs` | ±10 % | 瞬态噪声的统计量（200 个沿，1σ 约 5 %） |
 | `*noise*_uV` | ±8 % | 噪声统计量 / 噪声积分（比较器 σ 的 95 % 区间约 ±4 %） |
@@ -420,8 +426,12 @@ python -m adcflow verify <test> --block <block> --candidate <name> [--corners <�
 * **复核不符**：记录是同一网表的、未过期，但比较不符；
 * **自报**：其余情形（没有记录、记录是别的网表的、记录已过期）。
 
-排行榜每行给出三类结果的个数；“自报”标记只数规格要求的工艺角上的结果，“复核不符”数全部。有复核不符的候选与有失败、过期、SOA、错误结果的
-一样排在全部通过的候选之后。开放 PR 里的候选在只含该 PR 文件的临时目录上评分，那里没有复核记录，结果都是自报。
+排行榜每行给出三类结果的个数；“自报”标记只数规格要求的工艺角上的结果，“复核不符”数全部。排行榜分两层（`CONTRIBUTING.md` §10，
+`adcflow.candidates.eligibility` / `compare`，#75）：**可选定**的候选——全部规格在要求的工艺角通过、结果未过期且没有错误、要求的工艺角上的结果
+全部已复核且没有复核不符、没有 SOA 违例、顶层混合回归通过（`adcflow.candidates.top_regression`：项目负责人把该候选换进顶层，
+每个顶层用例在其规格工艺角与 `quick` 的交集上都有未过期、无错误、全部通过的结果）——按本模块的 TT 功耗从低到高排序，5 % 以内由面积代理决定，
+仍相同时已选定的在前；其余候选另列一层并写明缺什么。最小裕量和顶层 ENOB 裕量只作参考。
+开放 PR 里的候选在只含该 PR 文件的临时目录上评分，那里没有复核记录，结果都是自报，所以不会进入可选定的一层。
 
 **CI**（`check candidates`）：候选的结果 JSON 不得含 `meta.verified_by`；候选 PR 不得改 `verification/`（不涉及候选路径的 PR 是项目负责人的 PR，
 由项目负责人审查，记录只在其中提交）；`verification/` 下只有 `<block>/<candidate>/<test>/<job>.json`，记录的 `block`、`candidate`、`test`、`job`、

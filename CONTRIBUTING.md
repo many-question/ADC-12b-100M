@@ -10,7 +10,14 @@ time, with no limit on participants or candidates per block. A candidate is a di
 touch that one candidate. All candidates are scored by the same testbenches and specs and listed on a
 per-block leaderboard on the project site; the project lead (GitHub `many-question`) reviews, re-runs the
 best ones (`adcflow verify`; the records live in `verification/`, never in a candidate's own results) and selects
-one per block (`selected:` in the block spec). Everything below is written in Chinese;
+one per block (`selected:` in the block spec). The leaderboard has two tiers (section 10). **Eligible**
+candidates pass every spec at every required corner, have fresh results verified by the lead, pass the SOA
+check and pass a mixed top-level regression with the candidate swapped in. They are ranked by the block's own
+reported power at TT, lowest first; candidates within 5 % of each other are a tie, decided by the area proxy,
+and inside every tolerance the selected candidate stays first. The other candidates are listed separately
+with what they still miss. Power has no limit: the block power figures (CMP-10, LOG-13, CLK-10, BST-07) are
+reported only, with no pass/fail verdict. Margin beyond a limit earns nothing: the worst margin and the
+top-level ENOB margin are shown but not ranked. Everything below is written in Chinese;
 this file is meant to be read by an AI agent that has been pointed at its raw URL, and by people. Process
 details and PDK access are not in this repository: contact `many-question` (see section 11).
 Spec-change notices for a block are posted as GitHub issues titled `[<block>] …`; before each work session and
@@ -204,18 +211,29 @@ CI 会检查：hygiene（无站点信息、模型卡片、工艺厂商名、大�
 2. 向 `main` 发 PR，标题 `[<block>] candidate <name> <摘要>`，按 PR 模板填写：做了什么、候选状态、证据（`report` / `candidates` 摘要与运行的命令）、检查清单。
 3. CI 全绿后项目负责人合并：端口与规格一致、只改了自己的候选、原理图完整、结果未过期。合并即收录到排行榜，不做设计评审。
 4. **候选状态**（`candidate.yaml` 的 `status`）：`wip`（进行中）→ `ready`（认为完整，可评比）；`withdrawn`（撤回，不再显示）。
-5. **评比。** 排行榜用同一套测试台和规格，列出规格通过数与工艺角覆盖、过期 / 未复核标记、关键裕量、功耗、面积代理和（有则）顶层 ENOB 裕量。
+5. **评比。** 排行榜用同一套测试台和规格，列出规格通过数与工艺角覆盖、过期 / 未复核标记、功耗、面积代理，以及只作参考的最小裕量和（有则）顶层 ENOB 裕量。
+   功耗指标（CMP-10、LOG-13、CLK-10、BST-07）**只报告、不判定**：规格里写 `reported: true`，没有限值，不计入通过数，
+   但必须在其工艺角（TT）记录数值；项目不设功耗上限，`docs/architecture.md` §8 的数字只是估算 FoM 的预算（#75）。
    你自己跑的结果是**自报**的。项目负责人用 `adcflow verify` 在同一网表哈希上复跑，每个结果一条复核记录，放在 `verification/`
    （只有不涉及候选路径的项目负责人 PR 改它）。排行榜只在记录存在、复核的就是网表现在的哈希、记录未过期、并且与你的自报值相符
-   （判定相同、指标在容差内）时把结果算作**已复核**；复跑与自报不符的标为**复核不符**，该候选排在全部通过的候选之后。
+   （判定相同、指标在容差内）时把结果算作**已复核**；复跑与自报不符的标为**复核不符**。
    结果自己的 meta 不作数。**只有已复核的结果才能用于选定**。
-6. **选定。** 资格：规格要求的全部指标在全部工艺角都通过且结果未过期、已复核，通过 SOA 检查，且换进顶层后的混合回归全部通过。
-   排序依次为：顶层 ENOB 裕量（容差 0.05 bit）→ 功耗（5 %）→ 面积代理（5 %）→ 其余鲁棒性裕量（5 % 限值）；容差内相同则已选定的保持。
-   项目负责人做最终决定，并在块规格里写 `selected: <候选名>`，网站显示其作者。**只有选定的候选进入顶层混合运行。**
-7. **挑战。** 任何人可以提交严格更好的候选来替换已选定的候选：满足全部资格，且按上面的排序在容差之外更好；
-   替换由项目负责人改 `selected:`，原候选保留在排行榜上。
-8. 块状态：`behavioral`（未选定）→ `xtor-review`（已选定，待签核）→ `signoff`（45 角顶层回归通过，由项目负责人设置）。
-9. 合并后网站自动更新排行榜、进度、结果和原理图。
+6. **资格与排序**（`adcflow candidates` 与网站用同一个函数 `adcflow.candidates.compare`，#75）。排行榜分两层：
+   * **可选定**：规格要求的全部指标在全部工艺角都通过（仅报告的指标在其工艺角有数值），结果未过期、没有错误，
+     规格要求的工艺角上的结果都**已复核**且没有复核不符，通过 SOA 检查，并且**顶层混合回归**通过：项目负责人把该候选换进顶层
+     （其余模块行为级，`results/adc_top/<test>/xtor-<blk>@<候选名>/`），每个顶层用例在其规格要求的工艺角与 `quick` 的交集上都有结果
+     （`tb_top_sine`、`tb_top_duty` 在 quick 的 7 个角，`tb_top_sine_lf` 在 TT），全部未过期、没有错误、适用的顶层规格全部通过。
+     这一层按本模块自己报告的 **TT 功耗**从低到高排序；相差 5 % 以内算相同，由**面积代理**决定（先 ΣW·L 再总电容，各 5 %）；
+     仍在容差内相同则**已选定的保持在前**。
+   * **未满足资格**：另列一表，写明缺什么（不通过的规格、缺少的工艺角、过期、错误、SOA、复核不符、未复核、没有或未通过顶层混合回归）。
+     这一层先比通过的规格数和工艺角覆盖，再按同样的功耗、面积顺序。
+   超出限值的裕量不加分：为了某个指标多留裕量而多花功耗，不会提高排名。最小裕量和顶层 ENOB 裕量照样显示，只作参考，不参与排序。
+7. **选定。** 项目负责人做最终决定（可以因为排序表达不了的原因不选排名第一的候选，但要在 issue 里写明理由），
+   并在块规格里写 `selected: <候选名>`，网站显示其作者。**只有选定的候选进入顶层混合运行**（`--view <block>=xtor`）。
+8. **挑战。** 任何人可以提交严格更好的候选来替换已选定的候选：满足全部资格，且按上面的排序在容差之外更好——
+   TT 功耗低 5 % 以上，或功耗在 5 % 以内而面积代理小 5 % 以上；替换由项目负责人改 `selected:`，原候选保留在排行榜上。
+9. 块状态：`behavioral`（未选定）→ `xtor-review`（已选定，待签核）→ `signoff`（45 角顶层回归通过，由项目负责人设置）。
+10. 合并后网站自动更新排行榜、进度、结果和原理图。
 
 ## 11. 联系项目负责人
 
