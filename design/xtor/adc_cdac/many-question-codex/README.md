@@ -100,12 +100,17 @@ The complete official coherent 256-point tracking main run has also
 passed on clean commit `9a68c59`: SFDR 86.417967 dBc against 85 dBc,
 SNDR 84.523549 dB against 80 dB, and reported THD -85.235595 dBc.
 It took 8,567 seconds (about 143 minutes). The SFDR/SNDR margins are
-1.417967/4.523549 dB. The prescribed numerical comparison remains
-pending; a passing main result alone does not establish convergence.
-No additional 128-point simulation is planned.
+1.417967/4.523549 dB. The prescribed numerical twin, launched on clean
+commit `21a4546` with the same physical source, also passes: SFDR
+86.418275 dBc and SNDR 84.523764 dB. Differences of 0.000308/0.000216 dB
+are negligible against those margins, supporting numerical convergence
+for this TT condition. No additional 128-point simulation was run.
 
 The current project tracking settings are reltol 1e-7, voltage tolerance
 1e-8, maxstep 1 ps, and traponly; its cross-check uses 0.5 ps and gear2only.
+These are the project's explicit tracking settings, not settings required
+for every test. This comparison checks step/method sensitivity at the
+specified tolerances; it does not establish the loosest adequate reltol.
 Official weights/settling use their own current configuration, which is
 recorded as actually used rather than equated to the stricter private
 stress diagnostics. The five official weight values match the limited
@@ -133,12 +138,21 @@ fixed-frequency h1-through-h21 fits, h3 spans only 0.009622 dB; those
 fits are sensitivity diagnostics, not substitute acceptance windows.
 
 The main run used 3,729,396 accepted steps, with mean spacing 0.698505 ps.
+The twin took 25,028 seconds with 7,478,510 accepted steps and mean
+spacing 0.348331 ps. Both records contain all 256 samples; their difference
+is 0.155934 uV RMS and 0.223638 uV maximum. The maximum printed-time
+difference is 0.001 ps. The twin's sliding-window h3 span is 0.009397 dB.
+Official spectra, sample records, harmonics, and sensitivity plots have
+been inspected without selecting a shorter acceptance record.
+
 The official tracking TB saves sampler outputs rather than the complete
-analog transient, so this record does not extend the separate 125 ns
-all-MOS stress check. Model warnings are retained. The exact raw job and
-input snapshot are archived and recovery-verified. The required
-0.5 ps / gear2only twin is the next physical run; no convergence or
-complete TT acceptance is claimed before its margin comparison.
+analog transient, so these records do not extend the separate 125 ns
+all-MOS stress check. Model warnings are retained. Both complete raw jobs
+and input snapshots are archived and recovery-verified. A local controller
+wait expired during the twin; the original simulation continued to a
+successful completion and was collected without launching another run.
+All 17 required TT metrics and the prescribed tracking comparison are now
+complete for this batch; full project acceptance remains outstanding.
 
 The candidate acknowledges notices #17 and #37. PVT, actual-bootstrap
 integration, supply startup, long-hold behavior, full corner coverage,
