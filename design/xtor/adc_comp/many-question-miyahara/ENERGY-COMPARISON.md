@@ -77,3 +77,25 @@ Net AVDD delivery through the measured terminal groups (not device heat):
 | weak PMOS rail loads | 278.026780 | 109.712324 | 168.314456 |
 
 The eight non-clock weak PMOS pull-ups receive 49.91% of the total net AVDD energy. The separate physical-clock group includes its new P/N rail loads. These allocations include charge return and interactions; they are not independent per-device dissipation estimates.
+
+
+## B13 measured TT supply phases
+
+B13 changes only the two input-drain capacitors from 48 to 56 fingers. The same 100 ps–14.5 ns, 36-cycle stimulus and complete AVDD boundary give:
+
+| Total (fJ/cycle) | Evaluation | Reset | Initial reset current (uA) | Initial reset power (mW) |
+|---:|---:|---:|---:|---:|
+| 562.264332560 | 210.699245256 | 351.565087304 | 1153.801844781 | 1.038421660 |
+
+The original meter is 562.264007760 fJ/cycle; the waveform integral differs by 0.00005777%. All saved current probes are present and the terminal-sum residual is numerical zero. Relative to B12's 557.022659692 fJ/cycle, this source costs 0.941% more AVDD energy in the same window. Extra integration capacitance has not yet established a measured noise benefit.
+
+| Net supply delivery group | Whole cycle (fJ) | Evaluation (fJ) | Reset (fJ) |
+|---|---:|---:|---:|
+| regenerative core | 50.955767930 | 33.454783041 | 17.500984889 |
+| physical clock | 57.651210361 | 29.735869781 | 27.915340580 |
+| input precharge | 125.515454107 | 2.035854677 | 123.479599429 |
+| first output buffer | 19.604829239 | 6.331403482 | 13.273425757 |
+| external output inverters | 30.057730768 | 28.921927320 | 1.135803448 |
+| weak PMOS rail loads | 278.479340155 | 110.219406954 | 168.259933201 |
+
+The eight non-clock weak PMOS loads still draw persistent current. These are net supply-delivery allocations including charge return, not isolated device dissipation. Power remains reported only; no topology or qualification winner follows from this comparison.
