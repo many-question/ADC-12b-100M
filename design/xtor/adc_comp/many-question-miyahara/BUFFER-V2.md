@@ -18,3 +18,16 @@ Actual frozen source: `c4c736318f2d05a1fd3eb59f8d4e739a77ba5ebd` (full commit re
 | sf_low_m40 | 72.605439 | 58.773821 | 25.850392 | 147.619438 | 0.162395 | 0.847300 | 0 |
 
 This is a two-corner diagnostic, not a high-voltage clearance. The next step must repair V1's observed high-voltage clock/reset excursions and recheck the complete circuit. No all-corner, noise or MC expansion has been launched. Both jobs used +aps, no ++aps or explicit +mt, with solver multithreading disabled; actual peak was one job because the first job warmed the shared AHDL library. Concurrent work was explicitly reserved under the session ceiling of six. Raw/source/deck hashes were verified before remote cleanup.
+
+## Remaining four key corners completed
+
+After the first two corners passed, the remaining four key corners were measured without rerunning the completed cases. Actual clean source commit: `ece253cfbba122b68907dd7ee2399a0f11e100b9`; the electrical source and source-file hashes match the first two-corner run. These fresh measurements confirm that all six tested corners pass decisions, external output validity, delay and reset, while high-voltage terminal stress still fails. The B1 voltage results are not inherited.
+
+| Corner | 1 mV ps | 30 mV ps | Reset ps | AVDD fJ | Losing peak % VDD | Max terminal V | Violating pairs / 93 |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| ff_high_m40 | 44.721462 | 36.937768 | 17.323400 | 242.006861 | 0.116221 | 1.017210 | 50 |
+| ff_high_125 | 51.603197 | 40.621728 | 18.226117 | 424.670505 | 0.761046 | 1.008230 | 10 |
+| ss_low_125 | 80.476533 | 64.988479 | 29.678585 | 189.486615 | 0.172515 | 0.833300 | 0 |
+| sf_high_27 | 56.309755 | 46.596302 | 20.899112 | 260.574573 | 0.165078 | 1.018890 | 44 |
+
+The SF low/-40 raw losing node still reaches 0.421485 V (52.035% VDD) before the physical buffer suppresses it. Thus raw common-mode behavior remains important when modifying thresholds or adding feedback. Six-corner external CMP-15 is 0/216 cycles; the largest external losing peak is 0.761047% VDD. No broad corner/noise/MC expansion is performed on this failing source. All 93 terminal pairs per trace were checked, hashes verified, and exact-owned remote cleanup completed. The follow-on batch peaked at three jobs, +aps with effective single-thread solving.
