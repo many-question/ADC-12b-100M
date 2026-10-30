@@ -2,6 +2,8 @@
 
 The frozen Miyahara source has an output-overlap concern in the SF corners. This is separate from its known device-voltage failure. Existing formal metric records are retained unchanged; they do not establish the complete comparator interface. [Issue #77](https://github.com/many-question/ADC-12b-100M/issues/77) records the independently reviewed contract and measurement gap.
 
+The [lead decision on #77](https://github.com/many-question/ADC-12b-100M/issues/77#issuecomment-6514624643) now requires a single 50% crossing and losing-output peak below 30% VDD through each evaluation interval. Its measurement implementation is pending in the main audited here (`33337c6`). The preserved overlap evidence below remains a known failure; it is not a new formal validity measurement. All 45 v0.5.0 delay records are also stale after #78. [REFRESH.md](REFRESH.md) records the combined refresh plan.
+
 ## Frozen-source repeat
 
 The private repeat uses SF / 0.81 V / -40 C, VCM 0.49 V, the standard mixed differential sequence, 400 ps clocks, 10 fF per output and noise off. Maximum step is 0.25 ps, method traponly, reltol 1e-6 and voltage abstol 1e-8. The private run was prepared from clean source commit [85d02214e19cb0b918e2a3f5a95d393fe1821d48](https://github.com/many-question/ADC-12b-100M/commit/85d02214e19cb0b918e2a3f5a95d393fe1821d48). No device, capacitor or connection changed. Electrical SHA-256: `e8a0e3d3dc1366cd20f72c291397b352c8b9a6eeb87df618e41c49199372597a`.

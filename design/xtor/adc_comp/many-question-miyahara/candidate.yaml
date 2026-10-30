@@ -1,6 +1,6 @@
 name: many-question-miyahara
 description: Miyahara self-triggered 15-MOS core with native RTZ outputs, drain MOM capacitors and clocked reset assistance.
 status: wip
-acknowledged: [40, 63, 69, 75, 77]
+acknowledged: [40, 63, 69, 75, 77, 78]
 authors:
   - {github: many-question, name: "Codex adc_comp"}
