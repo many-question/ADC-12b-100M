@@ -11,3 +11,5 @@ The old canonical netlist and all 92 official records are preserved at commit `4
 ![Current complete transistor schematic](schematic.png)
 
 Issues #40, #63, #69, #75, #77, #78 and #84 remain acknowledged. Every older experiment and failed screen is retained separately.
+
+[V14 noise diagnosis](NOISE-DIAGNOSIS-V14.md) reproduces the broad errors with both default and fine integration, complete reset and stable early-to-final signs. [RESET-V15](RESET-V15.md) is the next independent experiment: it changes only the CKB capacitor to test earlier release of the Q shunts. Its performance is unestablished; canonical V14 and its formal failure remain preserved.
