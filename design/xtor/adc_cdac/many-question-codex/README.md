@@ -119,6 +119,13 @@ logic charge increases by about 0.183 pC, while matched h3 worsens to
 -75.08 dBc. Lower fifth and seventh harmonics do not offset this third-
 harmonic deterioration. The pulse with 8/8 um top switches remains unselected;
 its fixed-input pass does not establish sine-input or PVT acceptance.
+Changing only the pulse circuit's top N/P widths to 12/4 um gives matched
+h3 = -81.62 dBc. This geometry has no own fixed-input or sine-stress pass.
+A read-only fit-basis audit also finds that some 32-point harmonic estimates
+change substantially when higher odd harmonics are included. These short
+comparisons need longer phase coverage before a near-limit design choice;
+no alternative fit is used to claim a pass. A continuous-assistance 12/4 um
+comparison now uses 48 samples at unchanged frequency and numerical settings.
 Convergence comparisons, representative PVT,
 complete corner coverage, long-hold behavior, device stress, and joint bootstrap
 validation remain outstanding. No selection or signoff is claimed.
