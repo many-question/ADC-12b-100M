@@ -31,6 +31,7 @@ class Site:
     def __init__(self, build: Build, netlist_base: str, base_url: str, manifests: bool = False):
         self.build, self.netlist_base, self.base_url, self.manifests = build, netlist_base, base_url, manifests
         self.live: Live = unavailable("本次构建没有获取")      # per-block PRs and notices (build.py sets the real data)
+        self.combos: list = []                                 # verification combinations of the top level (combos.py)
         self.cands: dict[str, list] = {}                       # block -> ranked candidates (merged + open PRs), see cands.py
         self.previews: dict = {}                               # block -> [preview.Preview] of its open PRs (draft content, never main's)
         self.prov_scope = "本次构建"                            # what recorded inputs are compared with ("该 PR 的提交" in a preview)
@@ -769,6 +770,80 @@ def draft_cell(site: Site, b) -> str:
     return '<span class="muted">–</span>'
 
 
+def combo_blocks_cell(site: Site, c) -> str:
+    """The transistor-level blocks of a combination with their candidate, display name and state; the rest is behavioral."""
+    if not c.xtor:
+        return "<b>全部行为级</b>"
+    if c.legacy:
+        return "<b>全部晶体管级</b> <small class=muted>（旧的单一 xtor 视图）</small>"
+    lines = []
+    for b in c.xtor:
+        text = f"<code>{esc(b.block.replace('adc_', ''))}</code> " + (f"<code>{esc(b.candidate)}</code>" if b.candidate else "")
+        who = f" <small class=muted>{esc(b.author_text)}</small>" if b.author_text else ""
+        chips = ""
+        if b.selected:
+            chips += " " + chip("pass", "★ 选定", "块规格的 selected: 是这个候选")
+        if not b.merged:
+            chips += " " + chip("stale", f"未合并{f' · PR #{b.pr}' if b.pr else ''}", "只在开放的 PR 里，未评审")
+        elif b.verification == "verified":
+            chips += " " + chip("pass", "已复核", f"{b.verified} / {b.results} 个结果经项目负责人复跑核对")
+        elif b.verification == "self-reported":
+            chips += " " + chip("none", "自报", f"{b.results} 个结果都没有项目负责人的复核记录")
+        elif b.verification == "mixed":
+            chips += " " + chip("stale", f"部分复核 {b.verified}/{b.results}", "有的结果已复核，有的是自报")
+        lines.append(f"<div>{text}{who}{chips}</div>")
+    n_other = len(site_blocks_without_top()) - len(c.xtor)
+    return "".join(lines) + (f"<small class=muted>其余 {n_other} 个模块行为级</small>" if n_other > 0 else "")
+
+
+def site_blocks_without_top() -> list[str]:
+    from adcflow.specs import blocks as spec_blocks
+    return [b for b in spec_blocks() if b != "adc_top"]
+
+
+def combo_row(site: Site, c) -> str:
+    cov = "".join(f'<div><code>{esc(t.test)}</code> <b>{t.corners}/{t.required}</b>'
+                  + (f' <small class=muted>（{t.results} 个结果）</small>' if t.results != t.corners else "") + "</div>" for t in c.tests)
+    spec_title = (f"共 {c.specs_total} 项有限值的规格；这里只数在已覆盖的角上适用并有结果的" + (f"；不通过：{', '.join(c.failing)}" if c.failing else ""))
+    specs = (f'<span title="{esc(spec_title)}"><b class="{"bad-t" if c.failing else "ok-t"}">{c.specs_pass}</b> / {c.specs_applicable}</span>'
+             + (f'<br><small class="bad-t">{esc(", ".join(c.failing))}</small>' if c.failing else ""))
+    metrics = []
+    for m in c.metrics:
+        bad = m.margin is not None and m.margin < 0
+        marg = f" <small class=\"{'bad-t' if bad else 'muted'}\">（{m.margin:+.3g}）</small>" if m.margin is not None else ""
+        metrics.append(f'<div title="{esc(m.name)}；限值 {esc(m.limit)}"><b>{esc(m.spec)}</b> {fmt(m.value)} {esc(m.unit)}{marg} '
+                       f'<small class=muted>@ {esc(m.corner)}</small></div>')
+    power = ("<br>".join(f"{esc(k.upper())} {fmt(v)}" for k, v in c.power.items()) + f" mW <small class=muted>@ {esc(c.power_corner)}</small>") if c.power else "–"
+    state = (chip("pass", "新鲜") if not c.stale else chip("stale", f"过期 {c.stale}/{c.results}", "这些结果的输入文件自仿真后已变化"))
+    if c.errors:
+        state += " " + chip("fail", f"错误 {c.errors}")
+    kind = (chip("none", "全行为级") if not c.xtor else chip("st-xtor-wip", f"混合 · {c.n_xtor} 个晶体管级") if not c.legacy
+            else chip("st-xtor-review", "全部晶体管级"))
+    subset = ("" if c.full else " " + chip("stale", "回归子集", "只覆盖部分工艺角（quick = 7 个角），不是 45 角签核"))
+    links = " ".join(f'<a href="{esc(site.gh(p, True))}" target="_blank" rel="noopener" title="{esc(p)}">{esc(t.replace("tb_top_", ""))} ↗</a>' for t, p in c.dirs.items())
+    return (f'<tr><td data-label="组合"><code>{esc(c.signature)}</code><br>{kind}{subset}</td>'
+            f'<td data-label="晶体管级模块">{combo_blocks_cell(site, c)}</td>'
+            f'<td data-label="工艺角覆盖（每个顶层测试）" class="nw">{cov}</td><td data-label="顶层规格 通过 / 适用" class=num>{specs}</td>'
+            f'<td data-label="关键指标（最差值 @ 工艺角）" class="nw">{"".join(metrics) or "–"}</td><td data-label="功耗" class="nw">{power}</td>'
+            f'<td data-label="状态">{state}</td><td data-label="结果">{links}</td></tr>')
+
+
+def combos_section(site: Site) -> str:
+    """Home page: the verification combinations of the top level, from results/adc_top/<test>/<view signature>/."""
+    from adcflow.corners import corner_set
+    cs = site.combos
+    quick, allc = len(corner_set("quick")), len(corner_set("all"))
+    head = ('<thead><tr><th>组合<th>晶体管级模块<th>工艺角覆盖<th title="顶层规格：在已覆盖的角上适用并有结果的规格里通过的">规格<th>关键指标<th>功耗<th>状态<th>结果</tr></thead>')
+    body = "".join(combo_row(site, c) for c in cs) if cs else '<tr><td colspan=8 class=muted>还没有顶层结果。</td></tr>'
+    return f"""<section id="combos"><h2>验证组合</h2>
+<p class="muted legend">顶层（<code>adc_top</code>）的仿真按<b>哪些模块是晶体管级</b>分组：全行为级是基线；换进某个候选的混合运行记录在
+<code>results/adc_top/&lt;测试&gt;/&lt;视图签名&gt;/</code>，每个签名一行（<code>xtor-clkgen@候选</code> = 只有 clkgen 换成该候选，其余行为级）。
+上面“关键数字”里的通过率只统计行为级基线，<b>不包含</b>晶体管级候选和混合运行。
+标“回归子集”的行只跑了部分工艺角：<code>quick</code> = {quick} 个角的回归子集，不是 {allc} 个角的签核；覆盖列是已有结果的角 / 规格要求的角。
+判定和新鲜度与验证页是同一套（<code>adcflow</code> 的 <code>judge</code>）；“已复核”指该候选的结果经项目负责人复跑核对，否则是自报。</p>
+<div class="table-wrap"><table class="combos">{head}<tbody>{body}</tbody></table></div></section>"""
+
+
 def live_overview(site: Site, data: dict[str, BlockData]) -> str:
     """One table across the blocks: owner, status on main, newest open PR (draft / CI), its last update, open notices."""
     live = site.live
@@ -824,9 +899,9 @@ def overview(site: Site, data: dict[str, BlockData]) -> str:
     pct = round(100 * cnt["pass_"] / max(cnt["total"], 1))
     health = f"""<div class="health"><div class="meter" role="img" aria-label="{cnt['pass_']} 项通过，共 {cnt['total']} 项">
 <i class="pass" style="width:{100 * cnt['pass_'] / max(cnt['total'], 1):.1f}%"></i><i class="fail" style="width:{100 * cnt['fail'] / max(cnt['total'], 1):.1f}%"></i></div>
-<p><b>{cnt['pass_']}</b> / {cnt['total']} 项规格通过（{pct}%），<b class="{'bad-t' if cnt['fail'] else ''}">{cnt['fail']}</b> 项不通过，
+<p><b>行为级基线</b>（模块级行为模型 + 全行为级顶层，不含晶体管级候选和混合运行）：<b>{cnt['pass_']}</b> / {cnt['total']} 项有限值的规格通过（{pct}%），<b class="{'bad-t' if cnt['fail'] else ''}">{cnt['fail']}</b> 项不通过，
 <b>{cnt['none']}</b> 项尚无结果；只在 TT 一个角验证过：{cnt['pass_'] - cnt['full']} 项，全部要求的角：{cnt['full']} 项{f'，过期：{cnt["stale"]}' if cnt['stale'] else ''}。
-<a href="verification.html">详细结果 →</a></p></div>"""
+<a href="verification.html">详细结果 →</a> · <a href="#combos">晶体管级 / 混合顶层的验证组合 ↓</a></p></div>"""
     arch_rows = [
         ("架构", f"底板采样 · 分裂电容冗余 CDAC（{len(a.w)} 个权重）· {raw['conversion']['n_decisions']} 次异步判决"),
         ("原始码", "权重 " + " ".join(f"{int(w)}" for w in a.out_weights) + f"；重构 <code>code = Σ W·D</code>，共 {s['levels']} 个码"),
@@ -851,6 +926,7 @@ def overview(site: Site, data: dict[str, BlockData]) -> str:
 </section>
 <section><h2 id="numbers">关键数字</h2><div class="stats">{stats}</div>{enob_figs}{health}</section>
 {live_overview(site, data)}
+{combos_section(site)}
 <section><h2 id="top">顶层原理图</h2>
 {viewer(site, [f for f in data['adc_top'].files if f['kind'] in ('struct', 'behav')] or data['adc_top'].files, 'v-top', 520,
         '顶层结构网表 adc_top.scs（同一个文件适用于任意视图组合）。双击模块进入下一层；也可以到各模块页面看它的行为级 / 晶体管级网表。')}
@@ -903,7 +979,7 @@ def progress(site: Site, data: dict[str, BlockData]) -> str:
 def verification(site: Site, data: dict[str, BlockData]) -> str:
     cnt = verdict_counts(data)
     tiles = "".join([
-        stat("规格总数", str(cnt["total"])), stat("通过", f"<span class=ok-t>{cnt['pass_']}</span>"),
+        stat("规格总数", str(cnt["total"]), "行为级基线，不含候选"), stat("通过", f"<span class=ok-t>{cnt['pass_']}</span>"),
         stat("不通过", f"<span class='{'bad-t' if cnt['fail'] else ''}'>{cnt['fail']}</span>"),
         stat("无结果", str(cnt["none"])), stat("过期", f"<span class='{'warn-t' if cnt['stale'] else ''}'>{cnt['stale']}</span>", "自仿真后文件已变"),
     ])
