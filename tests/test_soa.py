@@ -10,6 +10,16 @@ from adcflow.corners import by_name
 from adcflow.runner import Job, make_deck, view_files
 from adcflow.specs import blocks, find_test
 
+
+@pytest.fixture(autouse=True)
+def _no_selection(monkeypatch):
+    """The transistor-level cases here swap in their own netlist as the legacy plain `xtor` view,
+    which only applies while a block has no selected candidate: clear main's selections."""
+    for b in blocks().values():
+        if b.raw.get("selected") not in (None, "none"):
+            monkeypatch.setitem(b.raw, "selected", "none")
+
+
 DUT = """simulator lang=spectre
 subckt inv (A Y VDD VSS)
 MP (Y A VDD VDD) pch_ulvt_mac w=1u l=30n
@@ -263,7 +273,6 @@ def test_clkgen_transistor_view_is_a_device_check(tmp_path, monkeypatch):
                  "MS (PHI_S clkb VSS VSS) nch_ulvt_mac w=1u l=30n\n"
                  "ends adc_clkgen\n")
     monkeypatch.setitem(blocks()["adc_clkgen"].raw["views"], "xtor", str(f))
-    monkeypatch.setitem(blocks()["adc_clkgen"].raw, "selected", "none")   # plain xtor = the view above
     b, t = find_test("tb_clkgen_timing")
     text = (REPO_ROOT / t["netlist"]).read_text(encoding="utf-8")
     views = {"adc_clkgen": "xtor"}
