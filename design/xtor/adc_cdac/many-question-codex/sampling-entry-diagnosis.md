@@ -215,16 +215,70 @@ Archive SHA256 values:
 - N4 reference: `608fb2e6b10a19cbf25aa29b13e6a75d2c54ff60573a5844cc95c658958a20ce`
 - Changed outputs: `6c3732ae6999c971ce596f292746ede69d56fd1e0aee9f11d46567f2ee039cbb`
 
+## Balanced nominal-threshold outputs and faster enable
+
+The independent `v2-balanced-nvt-enfast` case starts from formal N4,
+retaining nominal-threshold reference outputs. All 52 output MOS widths
+increase by approximately 35%; legal geometry rounding gives factors
+1.3333..1.3556. The existing shared ENB pull-down changes from 4 to 8 um,
+with 2 um finger width retained. External DH/RL input devices are unchanged.
+Nineteen geometries pass validation without warnings, and pinned RNL passes.
+This case changes 53 flattened MOS. Source SHA256:
+`123e6fd827f3c2f3e2f7355e5b2c249f03894de98eb828a64e7958d1bfc85fe5`.
+
+The clean launch commit is `29db69357ab22019b76420eeb3832bd4522f22d4`.
+The complete original 70 ns SS stimulus, full save coverage and strict
+0.5 ps / 1e-7 / 1e-8 / traponly settings match the N4 reference above.
+
+| Quantity | Matched N4 | Balanced outputs / enable | SS result |
+|---|---:|---:|---|
+| RL5 settling | 69.3 ps | 58.6 ps | pass |
+| RL12 settling | 47.4 ps | 43.6 ps | fail, <=40 ps |
+| Equivalent tau | 14.809442 ps | 11.117939 ps | pass |
+| Conversion-start settling | 117.7 ps | 90.6 ps | pass, <=100 ps |
+| Hold droop | 0.008769519 LSB | 0.010570126 LSB | pass |
+| Qref | 1.746078108 pC | 1.865109260 pC | n/a, typ-only |
+| DH5 capacitance | 0.807291 fF | 0.807291 fF | n/a, typ-only |
+| PHI_S capacitance | 5.966224 fF | 5.965898 fF | n/a, typ-only |
+| PHI_SB capacitance | 12.093625 fF | 11.785402 fF | n/a, typ-only |
+| CONV capacitance | 9.561519 fF | 12.789483 fF | n/a, typ-only |
+
+Start error at 100 ps is 0.721680 mV versus a 1.602966 mV allowance;
+both bracketing raw points pass. RL12 error at 40 ps remains 24.207592 mV
+versus 9.604096 mV; both bracketing points fail. The case stops before TT.
+
+At conversion start, ENB/EN midpoint times advance from 17.980/22.688 ps
+to 10.005/13.808 ps. BL/BH reach their 1% bands at 91.8/93.7 ps instead
+of 118.8/121.8 ps. At RL12, PCOND stays at 13.824 ps, but GP's midpoint
+moves from 20.459 to 21.159 ps with the larger output gate. BL reaches
+50% at 35.666 ps and its 1% band at 71.6 ps, compared with 37.503/84.1 ps.
+TOP overshoot is 3.098258 mV, and held bit-11 BL/BH reach a 1 mV band
+at 104.8/71.8 ps. Thus start and recovery improve, while the remaining
+RL12 delay includes the command-to-gate interval before the output moves.
+
+Qref rises 6.8171% against the matched N4 reference, compared with the
+50.0247% increase from the rejected output-family swap. At VIN=0.65 V
+in the stationary 3..4 ns window, disabled low-side bit-12 N/P native
+drain currents are +1.312900/-0.677505 uA and BL is 0.649977759 V.
+The same quiet-window/displacement limitations stated above apply.
+
+All 540 MOS / 1,620 terminal pairs pass over 200,198 saved time points;
+the exact maximum is 0.971212536572 V at XB2.XDL.MNOUT ds,
+60.076354993 ns. The job completed in 353 s. Nine raw files, 50 frozen
+inputs, the full waveform cache, pair table, inspected comparison plot
+and quiet-window audit are retained; exact cleanup followed hash verification.
+Archive SHA256:
+`0e3aa9712f6c4587cba7cf9e83a1f88548bb9ce5f0dede1fe1d42bc4e49ada6a`.
+
 ## Continuing experiments
 
-The next independent case starts from formal N4, retaining its nominal-
-threshold output devices. It coordinates an approximately 35% output-width
-increase across switched and held banks, and doubles the existing shared
-ENB pull-down while retaining its finger width. The measured held-bank
-recovery and enable delay motivate these changes. External DH/RL input
-devices remain at their original sizes. Device geometry, RNL, gate load,
-reference charge, overshoot and pressure require the new case's own evidence;
-neither prior circuit's verification transfers.
+The next case retains the balanced nominal-threshold output bank and
+faster enable, and changes only the four existing bit-12 NMOS devices
+that pull GP/GN down to a supported lower-threshold family. Geometry
+and external DH/RL input devices stay unchanged. The measured
+13.824-to-21.159 ps PCOND-to-GP interval motivates this limited gate-drive
+change. Both gate discharge paths change together; overlap current,
+reference charge, ringing, timing and all-MOS pressure need fresh evidence.
 
 A brief separately controlled reference-drive assist remains an unimplemented
 hypothesis, with additional pulse alignment and loading questions.

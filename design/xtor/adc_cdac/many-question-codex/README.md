@@ -58,8 +58,11 @@ also fails RL12/start (42.7/100.6 ps), despite improved tau (11.204798 ps)
 and lower TOP overshoot. Full 540-MOS pressure checks pass, but Qref rises
 50.0247% and quiet-window off currents increase. The trial's TT expansion
 is stopped. Its [matched waveform comparison](matched-output-family-screen.png)
-and the ledger retain the independent source and evidence. The next case
-returns to nominal-threshold outputs and coordinates output/enable sizing.
+and the ledger retain the independent source and evidence. A subsequent
+nominal-threshold case with coordinated output/enable sizing passes start
+(90.6 ps), tau (11.117939 ps) and full MOS pressure, but RL12 still fails
+at 43.6 ps. Its Qref increase is 6.8171%; TT expansion is stopped. The next
+case targets the measured bit-12 gate-drive delay while retaining that bank.
 
 The complete earlier report and every historical diagnostic figure remain
 in the [immutable history snapshot](https://github.com/many-question/ADC-12b-100M/tree/6a4bf94977db967dbd27ef47669d5d3d25735477/design/xtor/adc_cdac/many-question-codex),
