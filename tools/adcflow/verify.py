@@ -31,6 +31,7 @@ import re
 from pathlib import Path
 
 from . import candidates as cand
+from .deps import UNRESOLVED
 
 TOL_DOC = "docs/verification.md §7"
 
@@ -229,13 +230,13 @@ def state(doc: dict) -> dict:
         return {"state": "self-reported", "why": "the verification record is of another netlist"}
     try:
         stale = judge(rec)["stale"]
-    except Exception as e:                                  # a record that no longer resolves
+    except UNRESOLVED as e:                                 # a record that no longer resolves
         stale = [f"({e})"]
     if stale:
         return {"state": "self-reported", "why": f"the verification is stale ({', '.join(stale[:3])})"}
     try:
         c = compare(doc, rec)
-    except Exception as e:
+    except UNRESOLVED as e:
         return {"state": "mismatch", "why": f"cannot compare: {e}"}
     if not c["ok"]:
         return {"state": "mismatch", "why": "; ".join(c["problems"][:3])}
