@@ -234,7 +234,7 @@ def judge(doc: dict) -> dict:
     if "arch" in meta:
         try:
             stale += deps.unrecorded(doc)
-        except Exception as e:                    # a test or view that no longer resolves
+        except deps.UNRESOLVED as e:              # a test or view that no longer resolves
             stale.append(f"(dependencies: {e})")
         if deps.arch_changed(meta["arch"]):
             stale.append(deps.ARCH)

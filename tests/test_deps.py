@@ -444,3 +444,50 @@ def test_prepare_and_measure_code_reads_arch_per_use():
         if hits:
             bad[m] = hits
     assert not bad, f"arch.yaml read at import time (outside arch.track): {bad}"
+
+
+# ------------------------------------------------------------------ the site build has no matplotlib
+_NO_MPL = """
+import json, sys
+sys.modules["matplotlib"] = None          # the site build installs the core package only
+from adcflow import candidates, checks
+stale = {str(d["_path"]): checks.judge(d)["stale"] for d in checks.load_results()}
+rows = [[r["block"], r["candidate"], r["eligible"], r["missing"]] for r in candidates.leaderboard()]
+print(json.dumps({"stale": stale, "rows": rows}))
+"""
+
+
+def test_freshness_and_leaderboard_need_no_matplotlib():
+    """Staleness, verification and the leaderboard must not import the figure code (matplotlib):
+    the site build has only the core package, and an import error on that path once made every
+    result look stale on the site. The answer must equal the one computed with matplotlib."""
+    from adcflow import candidates, checks
+
+    env = {**os.environ, "PYTHONPATH": str(REPO_ROOT / "tools")}
+    out = subprocess.run([sys.executable, "-c", _NO_MPL], capture_output=True, text=True, env=env,
+                         cwd=REPO_ROOT, encoding="utf-8")
+    assert out.returncode == 0, out.stderr[-2000:]
+    got = json.loads(out.stdout.strip().splitlines()[-1])
+    want_stale = {str(d["_path"]): checks.judge(d)["stale"] for d in checks.load_results()}
+    want_rows = [[r["block"], r["candidate"], r["eligible"], r["missing"]] for r in candidates.leaderboard()]
+    assert got["stale"] == want_stale and got["rows"] == want_rows
+
+
+def test_judge_raises_unexpected_errors_and_marks_unresolved_ones_stale(monkeypatch):
+    """Only a test / view / file that no longer resolves makes a result stale; anything else (a
+    missing package, a bug) is raised instead of being shown as "stale"."""
+    from adcflow import checks
+
+    doc = next(d for d in checks.load_results() if "arch" in (d.get("meta") or {}))
+
+    def unresolved(_):
+        raise ValueError("adc_comp: no candidate 'gone'")
+
+    def broken(_):
+        raise ModuleNotFoundError("No module named 'matplotlib'")
+
+    monkeypatch.setattr(deps, "unrecorded", unresolved)
+    assert checks.judge(doc)["stale"] == ["(dependencies: adc_comp: no candidate 'gone')"]
+    monkeypatch.setattr(deps, "unrecorded", broken)
+    with pytest.raises(ModuleNotFoundError):
+        checks.judge(doc)
