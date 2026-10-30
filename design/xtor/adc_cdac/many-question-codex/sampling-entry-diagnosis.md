@@ -679,6 +679,14 @@ fit gives fundamental = 0.789925 V, h5 = -86.1022 dBc, and h7 = -92.4754 dBc.
 Adding a linear trend to that same fixed basis changes h3 by less than
 0.0001 dB. That sensitivity check does not rule out other transient errors.
 
+An exhaustive check of all 17 contiguous 32-point windows keeps the same
+h1/h3/h5/h7 basis throughout. Their h3 estimates range from -82.7938 dBc
+for the window starting at 125.426 ns to -76.2668 dBc for the window starting
+at 165.426 ns. This 6.53 dB spread occurs within one circuit and one record,
+without changing the harmonic order. It is window sensitivity, not a
+physical performance spread or an independent statistical confidence range.
+The complete set of windows is shown below; none is selected as the result.
+
 ![Same-source record length and fit-basis audit](tracking-record-audit.png)
 
 Extending the basis on the full 48 points gives:
