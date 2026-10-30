@@ -21,7 +21,230 @@
   "tdelay_30mV_ps": 40.492388772678574,
   "tau_reg_ps": 3.1556615434350372,
   "treset_ps": 17.052638790081918,
-  "energy_fJ": 169.086154752
+  "validity_violations": 24,
+  "loser_peak_pct": 48.33516195198561,
+  "validity": {
+   "rule": "each CLKC rise .. fall: exactly one output >= 0.5 VDD, the other < 0.3 VDD",
+   "dt_max_ps": 31.1141,
+   "cycles": 36,
+   "decided": 36,
+   "worst": {
+    "cycle": 17,
+    "vd_uV": 10.0,
+    "output": "OUTN",
+    "t_ps": 57.689
+   },
+   "violations": [
+    {
+     "cycle": 7,
+     "vd_uV": 3000.0,
+     "winner": "OUTP",
+     "loser_peak_pct": 34.309,
+     "both_decided": false
+    },
+    {
+     "cycle": 8,
+     "vd_uV": -3000.0,
+     "winner": "OUTN",
+     "loser_peak_pct": 34.338,
+     "both_decided": false
+    },
+    {
+     "cycle": 9,
+     "vd_uV": 1000.0,
+     "winner": "OUTP",
+     "loser_peak_pct": 41.456,
+     "both_decided": false
+    },
+    {
+     "cycle": 10,
+     "vd_uV": -1000.0,
+     "winner": "OUTN",
+     "loser_peak_pct": 41.437,
+     "both_decided": false
+    },
+    {
+     "cycle": 11,
+     "vd_uV": 300.0,
+     "winner": "OUTP",
+     "loser_peak_pct": 45.293,
+     "both_decided": false
+    },
+    {
+     "cycle": 12,
+     "vd_uV": -300.0,
+     "winner": "OUTN",
+     "loser_peak_pct": 45.216,
+     "both_decided": false
+    },
+    {
+     "cycle": 13,
+     "vd_uV": 100.0,
+     "winner": "OUTP",
+     "loser_peak_pct": 46.938,
+     "both_decided": false
+    },
+    {
+     "cycle": 14,
+     "vd_uV": -100.0,
+     "winner": "OUTN",
+     "loser_peak_pct": 46.986,
+     "both_decided": false
+    },
+    {
+     "cycle": 15,
+     "vd_uV": 30.0,
+     "winner": "OUTP",
+     "loser_peak_pct": 47.908,
+     "both_decided": false
+    },
+    {
+     "cycle": 16,
+     "vd_uV": -30.0,
+     "winner": "OUTN",
+     "loser_peak_pct": 47.848,
+     "both_decided": false
+    },
+    {
+     "cycle": 17,
+     "vd_uV": 10.0,
+     "winner": "OUTP",
+     "loser_peak_pct": 48.335,
+     "both_decided": false
+    },
+    {
+     "cycle": 18,
+     "vd_uV": -10.0,
+     "winner": "OUTN",
+     "loser_peak_pct": 48.331,
+     "both_decided": false
+    },
+    {
+     "cycle": 25,
+     "vd_uV": 3000.0,
+     "winner": "OUTP",
+     "loser_peak_pct": 34.337,
+     "both_decided": false
+    },
+    {
+     "cycle": 26,
+     "vd_uV": -3000.0,
+     "winner": "OUTN",
+     "loser_peak_pct": 34.301,
+     "both_decided": false
+    },
+    {
+     "cycle": 27,
+     "vd_uV": 1000.0,
+     "winner": "OUTP",
+     "loser_peak_pct": 41.46,
+     "both_decided": false
+    },
+    {
+     "cycle": 28,
+     "vd_uV": -1000.0,
+     "winner": "OUTN",
+     "loser_peak_pct": 41.438,
+     "both_decided": false
+    },
+    {
+     "cycle": 29,
+     "vd_uV": 300.0,
+     "winner": "OUTP",
+     "loser_peak_pct": 45.187,
+     "both_decided": false
+    },
+    {
+     "cycle": 30,
+     "vd_uV": -300.0,
+     "winner": "OUTN",
+     "loser_peak_pct": 45.223,
+     "both_decided": false
+    },
+    {
+     "cycle": 31,
+     "vd_uV": 100.0,
+     "winner": "OUTP",
+     "loser_peak_pct": 46.981,
+     "both_decided": false
+    },
+    {
+     "cycle": 32,
+     "vd_uV": -100.0,
+     "winner": "OUTN",
+     "loser_peak_pct": 46.947,
+     "both_decided": false
+    },
+    {
+     "cycle": 33,
+     "vd_uV": 30.0,
+     "winner": "OUTP",
+     "loser_peak_pct": 47.905,
+     "both_decided": false
+    },
+    {
+     "cycle": 34,
+     "vd_uV": -30.0,
+     "winner": "OUTN",
+     "loser_peak_pct": 47.899,
+     "both_decided": false
+    },
+    {
+     "cycle": 35,
+     "vd_uV": 10.0,
+     "winner": "OUTP",
+     "loser_peak_pct": 48.334,
+     "both_decided": false
+    },
+    {
+     "cycle": 36,
+     "vd_uV": -10.0,
+     "winner": "OUTN",
+     "loser_peak_pct": 48.329,
+     "both_decided": false
+    }
+   ],
+   "undecided": [],
+   "loser_peaks_pct": [
+    3.036,
+    3.037,
+    5.766,
+    5.74,
+    18.701,
+    18.69,
+    34.309,
+    34.338,
+    41.456,
+    41.437,
+    45.293,
+    45.216,
+    46.938,
+    46.986,
+    47.908,
+    47.848,
+    48.335,
+    48.331,
+    3.082,
+    3.039,
+    5.691,
+    5.767,
+    18.366,
+    18.702,
+    34.337,
+    34.301,
+    41.46,
+    41.438,
+    45.187,
+    45.223,
+    46.981,
+    46.947,
+    47.905,
+    47.899,
+    48.334,
+    48.329
+   ]
+  },
+  "energy_fJ": 170.259835392
  },
  "specs": {
   "CMP-05": {
@@ -47,6 +270,18 @@
    "value": 0,
    "limit": "<= 0",
    "pass": true
+  },
+  "CMP-15": {
+   "metric": "validity_violations",
+   "value": 24,
+   "limit": "<= 0",
+   "pass": false
+  },
+  "CMP-16": {
+   "metric": "loser_peak_pct",
+   "value": 48.33516195198561,
+   "limit": "reported",
+   "pass": null
   }
  },
  "specs_na": {
@@ -64,8 +299,8 @@
   },
   "CMP-10": {
    "metric": "energy_fJ",
-   "value": 169.086154752,
-   "limit": "<= 200",
+   "value": 170.259835392,
+   "limit": "reported",
    "corners": "typ"
   }
  },
@@ -73,18 +308,22 @@
   {
    "file": "tt_nom_m40.delay.png",
    "caption": "Comparator delay versus input difference with the log fit and limits, the +1 mV decision with its delay marked, and the reset to 10 % VDD."
+  },
+  {
+   "file": "tt_nom_m40.validity.png",
+   "caption": "Output validity (CMP-15): the peak of the losing output from each CLKC rise to the CLKC fall against the 30 % VDD limit, with violations and undecided cycles marked, and the transient of the cycle with the largest losing peak."
   }
  ],
  "meta": {
-  "date": "2026-10-30T01:37:09",
-  "git": "cd9863b",
+  "date": "2026-10-30T19:12:40",
+  "git": "a2e3509",
   "git_clean": true,
   "mode": "aps",
   "pdk": true,
   "mc": null,
-  "wall_s": 776.6,
+  "wall_s": 1602.7,
   "rc": "0",
-  "sim_s": "15",
+  "sim_s": "14",
   "numerics": {
    "source": "spectre.log",
    "reltol": 0.001,
@@ -98,7 +337,7 @@
    "step_max_ps": 56.5
   },
   "files": {
-   "tb/comp/tb_comp_delay.scs": "c9bbdac040c91a1f",
+   "tb/comp/tb_comp_delay.scs": "ca754d0b9373b04c",
    "tb/common/veriloga/tb_imeter_va.va": "d4be49aca417ad61",
    "design/xtor/adc_comp/many-question-miyahara/adc_comp.scs": "e8a0e3d3dc1366cd"
   },
@@ -108,6 +347,16 @@
   },
   "views": {
    "adc_comp": "xtor:many-question-miyahara"
+  },
+  "execution": {
+   "run": "20261030-184558-6b10-tb_comp_delay",
+   "job": "tt_nom_m40",
+   "source_git": "a2e3509597563d607d2a873ed9cc5e9d667ccfff",
+   "segment": "original_serial_dispatch",
+   "deck_sha256": "2597dd19ba470129e30d7c043efa53efcdfcf4089ce28bba3b0cbd8908391994",
+   "waveform_sha256": "970407496bc1b4d337b191b9ca5bef3321abc34e703eea3a67ab4e3dd995f0e2",
+   "rc_sha256": "3268e7162f782da62b632757c920371a00fd5841c4f00636e61f7d7e118b70dc",
+   "continuation_note": "Same originally staged source/deck; only uncompleted corners dispatched; no completed corner rerun."
   }
  }
 }
