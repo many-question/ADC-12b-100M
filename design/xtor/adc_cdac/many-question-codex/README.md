@@ -128,6 +128,8 @@ no alternative fit is used to claim a pass. The continuous-assistance 12/4 um
 48-point audit gives h3 = -78.66 to -78.74 dBc across the tested bases,
 with much lower condition numbers. Its first-32 fit predicts the remaining
 16 points with 46.55 uV RMS error, exposing the short-window limitation.
+All 17 contiguous 32-point windows, with the same basis, span 6.53 dB in
+estimated h3 without any circuit change.
 This source has little apparent linearity margin. The next diagnostic
 freezes the existing pulse-assisted 12/4 um circuit and extends its record
 to 128 points. All remain LS diagnostics rather than official spectra.
