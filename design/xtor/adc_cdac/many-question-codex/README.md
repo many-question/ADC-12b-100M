@@ -1,178 +1,116 @@
 # CDAC candidate
 
-This candidate is work in progress. It uses the specified 26 half weights,
-with weights 180 and 32 excluded from sampling. Identical MOM units form the
-integer portions of each half weight. Two units in series form each remaining
-half unit. The functional array capacitors and switches are PDK devices.
+This work-in-progress 28 nm HPC+ candidate now uses the exact N4 dummy
+variant that completed the limited same-source checks below. It has
+540 MOS per half, 31 subcircuits, physical MOM arrays, split-supply
+reference drivers, physical midpoint initialization, NMOS charge sharing,
+and pulsed PMOS assistance during sampling entry. The differential test
+uses two copies, totaling 1,080 MOS. Candidate status remains `wip`.
 
-Every physical MOM unit also has an ideal bottom-plate-to-VSS capacitance of
-5% of its nominal unit capacitance. This is a user-specified pre-layout estimate,
-not a PDK parameter or an extracted layout value. The two-terminal MOM model
-does not already include this ground capacitance. Parallel banks aggregate
-their unit contributions at their common bottom plate. In each TOP--MID--B
-series tail, the first unit adds its parasitic at MID and the second at B.
-Each is 0.0501145 fF, based on the 1.00229 fF physical unit; the half-unit
-equivalent is not used to calculate this parasitic. There are 2,278 physical
-units and 114.160831 fF of added ground capacitance in total. Six series
-midpoints account for 0.300687 fF; the bottom-plate nodes account for the rest.
+The complete RNL matches the frozen physical circuit after collapsing only
+zero-volt measurement probes. Every functional device, geometry, port,
+control connection, and capacitance is unchanged from that checked variant.
+The emitted formal RNL differs from its frozen private RNL only in the
+package-reference location. Pinned drawing checks report zero errors,
+warnings, or hints; all 31 subcircuits are rendered and representative
+TOP, bit, driver, and pulse sheets have been inspected.
 
-The input NMOS switches scale with sampled weight, subject to minimum device
-size; their total width is 48.69 um. This is a starting point for characterization,
-not an assertion of compatibility with a particular bootstrap candidate.
-The top-plate transmission gate receives PHI_S and PHI_SB directly. The input
-load, sampling distortion, gate charge, and terminal-voltage limits must all
-be measured with the actual circuit.
+## Circuit and parasitic assumptions
 
-Command buffers and tristate drivers use the reference supply so that the
-output PMOS gate reaches VREFP even when DVDD is lower. A driver computes
-GP = NAND(EN, HI, NOT(GN)) and GN = NOR(ENB, HI, NOT(GP)). The feedback delays
-turn-on until the opposite gate turns off. Actual overlap charge and settling
-remain measurements, rather than consequences assumed from Boolean logic.
+The 26 half weights use identical physical MOM units for integer portions
+and two units in series for each remaining half unit. Weights 180 and 32
+are excluded from sampling. There are 2,278 physical MOM units per half.
+Each has a user-specified bottom-plate-to-VSS estimate of 5% of its
+1.00229 fF nominal capacitance. This is an ideal pre-layout estimate,
+not an extracted value or a parameter already included in the two-terminal
+MOM model. Both units in every series tail contribute separately: one at
+MID and one at the bottom plate. Each contribution is 0.0501145 fF.
+The 36 aggregated Cp elements total 114.160831 fF, including 0.300687 fF
+at the six series midpoints. The equivalent half-unit capacitance is not
+used to calculate these parasitics.
 
-The two-terminal MOM model does not represent midpoint-to-substrate parasitics
-or an explicit physical DC path. Spectre reports automatic Gmin insertion at
-the floating series midpoints. The small-structure study uses no prescribed
-node initial conditions or added leakage device. Its repeated pulses, alternate
-initial source levels, and Gmin checks do not establish long-term physical
-midpoint stability. Earlier artificial midpoint capacitance sweeps were
-sensitivity studies. The current 5% values above are an explicit pre-layout
-assumption and have not been extracted from layout.
+Input NMOS switches scale with sampled weight, with total width 48.69 um.
+Physical transmission gates initialize the six MID nodes to VIN while
+sampling. Non-sampled pairs remain reference-driven. DVDD prelogic controls
+reference-rail final inverters; the full reference swing reaches the
+output gates. Internal ENB controls NMOS charge sharing, while a physical
+MOS pulse circuit limits PMOS-to-VIN assistance to sampling entry.
 
-Two equal series units have one-quarter capacitance sensitivity to each unit.
-Independent unit errors therefore give half-unit relative mismatch equal to
-the unit relative mismatch divided by sqrt(2), before midpoint parasitics and
-correlation. This calculation does not validate the process mismatch model or
-replace the official weight and calibration tests.
+The directly clocked TOP transmission gate has N/P total widths 12/4 um.
+One additional NMOS per half has D/S tied to TOP, gate at PHI_SB, bulk at
+VSS, W=4 um, L=30 nm, and two fingers. Its purpose is to alter switching
+charge and redistribution. The observed final-harmonic improvement is not
+uniquely attributable to TOP-opening charge cancellation. Added TOP load,
+clock charge, gain changes, and higher harmonics are retained in the audit.
 
-The candidate is based on the current module specification and acknowledges
-notifications #17 and #37. The initial official TT run before the 5% estimate
-passed the five weight/calibration metrics but failed RL12 settling
-(49.3 ps against 40 ps) and reference charge (2.562 pC against 1.2 pC).
-That evidence remains in commit history and does not validate the current
-parasitic model. With the 5% estimate, official TT weights/calibration pass:
-C_S = 2.061 pF, full scale = 0.9931 V, calibration margin = 0.4409 LSB,
-calibrated ENOB loss = -0.01008 bit, and top gain = 0.8886. Settling still
-fails RL12 (50.1 ps) and reference charge (2.629 pC); the other eight settling,
-droop, and input-capacitance metrics pass. These are preliminary TT results
-on the frozen circuit. The strict TT tracking baseline also fails:
-SFDR = 69.6121 dBc (limit 85 dBc), SNDR = 69.5735 dB (limit 80 dB).
-It completed with the specified 1 ps maximum step, traponly, reltol 1e-7,
-and voltage tolerance 1e-8. The numerical cross-check was deliberately deferred
-after auditing this failure, so the recorded cross-check status is incomplete
-(scheduling return code 125; no simulator was launched for it). It has not
-passed a convergence comparison. Short causal diagnostics take priority.
-An exploratory run with the official settling stimulus and ideal bootstrap,
-adding only zero-volt current probes, found a 1.06433 V peak absolute Vgd on
-one sampling switch. This exceeds 1.0 V and remains unresolved. That diagnostic
-covers the sampling switches, not complete device stress or a joint bootstrap
-implementation. Additional checks of the 52 output devices found a worst
-absolute Vds of 1.15899 V on an H-side output NMOS during sampling entry.
-That check uses recorded bottom-plate and gate voltages and the exact ideal
-reference rails. On the frozen `2ecc285` circuit, the exact maximum is at
-20.127200335 ns on j12H: D = 1.1589942 V, G = 0.0004423 V, S = B = 0 V.
-This is positive H-bottom-plate overshoot with ideal VG generation and the
-5% parasitic estimate. The 22 sampling and 52 output devices checked so far
-do not cover all 626 MOS instances. Bottom-plate overshoot is another unresolved
-stress failure; improving the sampling switches alone is not sufficient.
-The [sampling-entry and driver diagnosis](sampling-entry-diagnosis.md)
-confirms both failures with a finer step and compares isolated timing, VG,
-top-plate, and sampling-width changes. Later unselected variants pass the
-full 70 ns TT stress check at VIN=0.65 V together with the listed settling
-and charge limits; one also passes the five weight/calibration limits with
-physical midpoint-initialization switches. These limited experiments do not
-validate the frozen circuit or establish complete acceptance.
-A 32-sample diagnostic on that variant estimates the third harmonic at
--75.13 dBc, improved from the frozen circuit but still requiring further work;
-it is not an official SFDR/SNDR or convergence result.
-A subsequent 125 ns sine-input check of all 1,008 MOS in both halves finds
-70 failing terminal pairs, with 1.14792 V output stress and 1.00487 V sampling
-stress. The fixed-input experimental passes do not extend to this stimulus.
-A later variant combines NMOS sharing with PMOS-to-VIN assistance and stronger
-nonsampled outputs. It has zero project stress violations over both the
-125 ns sine stimulus (maximum 0.98568 V) and the original 70 ns control sequence
-(0.97887 V). RL12 = 35.3 ps and Qref = 1.1072 pC also meet their limits, but
-PHI_SB capacitance = 45.13 fF fails the 40 fF limit. Its matched 32-sample
-diagnostic gives h3 = -72.56 dBc, worse than PMOS assistance alone. Reducing
-only the top-plate N/P switches from 32 to 16 um each lowers PHI_SB capacitance
-to 37.04 fF while retaining RL12 = 35.3 ps, Qref = 1.1039 pC, and zero stress
-violations in the 70 ns control sequence. Its matched 32-sample diagnostic
-gives h3 = -75.11 dBc, an improvement of about 2.55 dB that still leaves
-linearity unresolved. It has no sine-stress or official tracking acceptance
-yet. Driving the NMOS sharing gates from internal ENB instead of PHI_S also
-passes the 70 ns checks, but its matched h3 = -75.71 dBc gives only another
-0.61 dB improvement. Moving PMOS assistance to EN gives h3 = -76.13 dBc but
-increases Qref to 1.1855 pC, leaving little charge margin. These short-record
-results do not justify adopting that higher-charge variant. Returning PMOS assistance to PHI_SB and reducing only
-the top N/P switches from 16 to 8 um each gives h3 = -79.90 dBc in the matched
-32-sample diagnostic, approximately 4.18 dB better than the ENB-sharing 16 um
-case. Its own 70 ns fixed-input check gives RL12 = 35.2 ps,
-Qref = 1.12394 pC, PHI_SB capacitance = 32.99 fF, and zero violations across
-1,578 terminal pairs (maximum 0.97734 V). Sine-input stress and official
-linearity acceptance remain unverified for this geometry. Further reducing
-only the top N/P switches to 4 um worsens the matched third harmonic to
--61.99 dBc; that geometry is not pursued. These experiments have not
-replaced the candidate. A subsequent physical pulse circuit limits PMOS
-assistance to sampling entry while retaining the 8 um top switches. Its
-70 ns fixed-input check covers all 539 MOS, with zero stress violations
-(maximum 0.97736 V), RL12 = 35.2 ps, and Qref = 1.12350 pC. Internal DVDD
-logic charge increases by about 0.183 pC, while matched h3 worsens to
--75.08 dBc. Lower fifth and seventh harmonics do not offset this third-
-harmonic deterioration. The pulse with 8/8 um top switches remains unselected;
-its fixed-input pass does not establish sine-input or PVT acceptance.
-Changing only the pulse circuit's top N/P widths to 12/4 um gives matched
-h3 = -81.62 dBc. This geometry has no own fixed-input or sine-stress pass.
-A read-only fit-basis audit also finds that some 32-point harmonic estimates
-change substantially when higher odd harmonics are included. These short
-comparisons need longer phase coverage before a near-limit design choice;
-no alternative fit is used to claim a pass. The continuous-assistance 12/4 um
-48-point audit gives h3 = -78.66 to -78.74 dBc across the tested bases,
-with much lower condition numbers. Its first-32 fit predicts the remaining
-16 points with 46.55 uV RMS error, exposing the short-window limitation.
-All 17 contiguous 32-point windows, with the same basis, span 6.53 dB in
-estimated h3 without any circuit change.
-This source has little apparent linearity margin. A frozen-source 128-point
-run of the pulse-assisted 12/4 um circuit gives h3 = -83.9397 dBc, with
-h5 = -94.4571 dBc and h7 = -96.6587 dBc. Its full-record h3 varies by only
-0.00010 dB as the odd-harmonic basis expands through h21; including even
-harmonics gives -83.9396 dBc. All 65 contiguous 64-point windows span
-0.01564 dB with the fixed h21 basis. This diagnostic still has about
-1.06 dB shortfall against the required -85 dBc spur level. The 128-point
-record spans 62.5 input cycles and remains an LS diagnostic, with no
-official SFDR/SNDR or numerical-convergence pass. Its own stress and
-weight checks remain outstanding. A subsequent frozen 48-point waveform
-diagnostic reproduces the earlier final samples and compares 20 stages on
-one input-phase reference. Late enabled TOP h3 remains near 17.4 uV, rises
-to 66.3 uV after TOP opening, and ends at 50.2 uV after larger switching
-transients have mostly settled. The report retains complex vectors,
-phase alignment, and basis/interpolation sensitivities. These observations
-favor a switching-stage structural experiment; they do not uniquely assign
-the error to one mechanism. A single physical N4 dummy per half then improves
-matched final h3 from -83.987/-83.939 to -86.500/-86.415 dBc for the h7/h21
-bases, using each circuit's own fundamental. Baseline-normalized phasors,
-both halves, and interpolation sensitivity are retained separately. The
-fundamental decreases 0.2111%, while h5 and h7 increase. The TOP-opening
-increment falls only slightly, so final improvement is not attributed
-solely to charge cancellation. Removing only DC and the fundamental leaves
-37.3746 -> 31.7322 uV RMS residual on the same 48-point grid; this is not
-an official SNDR measurement. That stage diagnostic saves complete terminals
-for only 82 of 1,080 MOS. Subsequent checks on this exact dummy version pass
-all five original weight/calibration limits and all ten original 70 ns
-fixed-input limits: C_S = 2.06501 pF, gain = 0.893800, RL12 = 35.3 ps,
-Qref = 1.12458 pC, total PHI_SB capacitance = 12.2423 fF, and droop =
-0.004439 LSB. The full 70 ns record covers all 540 MOS in one half and
-1,620 gs/gd/ds pairs, with zero project violations and a 0.977333 V maximum.
-The new dummy's held-node charge/voltage ratio is approximately 5.38-5.64 fF
-over the tested steps; this is a trajectory-dependent branch load, not a
-constant or complete held-node capacitance. Its separate 125 ns sine-input
-check covers all 1,080 MOS and 3,240 gs/gd/ds pairs across both halves,
-with zero project violations and a 0.990225 V maximum. The voltage margin
-is only 9.775 mV. These limited checks do not establish official SFDR/SNDR
-or complete acceptance. No prior pass is inherited, and the formal
-candidate source remains unchanged in this evidence commit. The next
-verification stage will promote the exact checked source as WIP, retain
-the old failed circuit and results in history, and run the current official
-TT tests including coherent 256-point tracking. Its main tracking run is
-estimated at about 122 minutes before any separate convergence check.
-Convergence comparisons, representative PVT,
-complete corner coverage, long-hold behavior, device stress, and joint bootstrap
-validation remain outstanding. No selection or signoff is claimed.
+## Limited evidence on this exact physical version
+
+These are independent frozen-source experiments before formal-source
+promotion. They are not relabeled as clean official runs on the newly
+committed source.
+
+| Check | Result and scope |
+|---|---|
+| Original weights/calibration | All five required metrics pass: Cs 2.065012 pF, full scale 0.993034 V, calibration margin 0.369061 LSB, calibrated ENOB loss 0.000364 bit, TOP gain 0.893800 |
+| Original 70 ns fixed-input sequence | All ten required metrics pass: RL12 35.3 ps, RL5 47.3 ps, time constant 9.16361 ps, conversion-start settling 83.4 ps, droop 0.00443904 LSB, Qref 1.124578 pC |
+| Total clock/control port capacitance | DH5/PHI_S/PHI_SB/CONV = 0.830865/6.433830/12.242328/9.849301 fF, all within limits |
+| Full 70 ns project stress | 540 MOS / 1,620 gs/gd/ds pairs, all 231,022 saved times: no violations; maximum 0.977333326 V |
+| Full 125 ns sine project stress | Both halves, 1,080 MOS / 3,240 pairs, all 343,433 saved times: no violations; maximum 0.990224783 V |
+
+The two stress records include time zero and use a 0.5 ps maximum step.
+The sine record leaves only 9.775 mV to the project 1.0 V terminal-pair
+limit. Model warnings, including gate-to-bulk and 0.99 V checks, remain
+retained separately. These records use ideal bootstrap and do not prove
+all-phase, startup, long-hold, PVT, or model-reliability acceptance.
+
+The held dummy D+S charge/voltage ratio is approximately 5.38-5.64 fF
+along the tested RL steps after leakage correction. It is a trajectory-
+dependent branch load, not a constant or complete held-node capacitance.
+PHI_SB is measured at the total port; the dummy's same-window gate branch
+accounts for about 2.37629 fF of the 12.24233 fF total. Reference plus
+internal DVDD prelogic charge excludes other supply branches and ideal
+clock/bootstrap sources, so it is not total power or a ranking result.
+
+The matched 48-point differential h3 improves from -83.9867/-83.9393 to
+-86.4998/-86.4153 dBc for the h7/h21 bases using each circuit's own
+fundamental. With the frozen baseline fundamental, the new values are
+-86.5182/-86.4337 dB. The fundamental decreases 0.2111%; h5 and h7 increase.
+Removing only DC and the fixed-frequency fundamental leaves residual RMS
+37.3746 -> 31.7322 uV. This noncoherent fit is not official SFDR/SNDR or
+THD. The h3 diagnostic margin is only about 1.42 dB.
+
+The [detailed diagnosis](sampling-entry-diagnosis.md) retains the full
+sequence of failures, complex phasors, both halves, and measurement
+limitations. Raw files, frozen inputs, analysis, and recoverable archives
+are hash-verified and retained outside the public repository.
+
+## Formal TT verification and retained failures
+
+The former formal circuit at `2ecc285`, with all its formal results,
+remains available through
+[the pre-N4 history tag](https://github.com/many-question/ADC-12b-100M/tree/adc-cdac-many-question-pre-n4-20261030).
+It failed RL12 settling (50.1 ps), Qref (2.629 pC), tracking SFDR
+(69.6121 dBc), SNDR (69.5735 dB), and separately checked sampling/output
+stress. Those failures have not been erased or marked as passes.
+
+Promoting the new source makes those old result fingerprints stale.
+The current official TT weights and settling tests must be rerun on a
+clean committed source before 256-point tracking. The selected next
+spectral check is the project's complete coherent 256-point record,
+with official preparation, analysis, and figures; no additional 128-point
+diagnostic is planned. Main tracking runtime is roughly 122 minutes,
+excluding retrieval/analysis and a separate required convergence check.
+A failing main result requires an audit before a cross-check run; a
+passing main result still requires the specified numerical comparison.
+
+The current project tracking settings are reltol 1e-7, voltage tolerance
+1e-8, maxstep 1 ps, and traponly; its cross-check uses 0.5 ps and gear2only.
+Official weights/settling use their own current configuration, which is
+recorded as actually used rather than equated to the stricter private
+stress diagnostics. No clean official TT result for the promoted source
+is claimed at this source-only stage.
+
+The candidate acknowledges notices #17 and #37. PVT, actual-bootstrap
+integration, supply startup, long-hold behavior, full corner coverage,
+and project-lead verification remain outstanding. No ready or selection
+status is claimed.

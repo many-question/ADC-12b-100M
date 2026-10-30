@@ -1,5 +1,5 @@
 name: many-question-codex
-description: Unit MOM banks with series half units, scaled bootstrapped input switches, and reference-domain tristate nonoverlap drivers.
+description: Physical MOM banks with series half units, midpoint initialization, split-supply drivers, charge sharing, pulsed VIN assistance, and one TOP dummy per half.
 status: wip
 acknowledged: [17, 37]
 authors:
