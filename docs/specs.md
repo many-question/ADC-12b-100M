@@ -8,7 +8,7 @@
 | [`adc_cdac`](#adc-cdac) | behavioral | none | 17 | `tb_cdac_weights`, `tb_cdac_settle`, `tb_cdac_track` |
 | [`adc_clkgen`](#adc-clkgen) | xtor-review | `many-question` | 11 | `tb_clkgen_timing`, `tb_clkgen_jitter` |
 | [`adc_comp`](#adc-comp) | behavioral | none | 16 | `tb_comp_delay`, `tb_comp_noise`, `tb_comp_offset_mc`, `tb_comp_kickback` |
-| [`adc_ref`](#adc-ref) | behavioral | none | 15 | `tb_ref_dc`, `tb_ref_replay`, `tb_ref_noise`, `tb_ref_startup` |
+| [`adc_ref`](#adc-ref) | xtor-review | `many-question` | 15 | `tb_ref_dc`, `tb_ref_replay`, `tb_ref_noise`, `tb_ref_startup` |
 | [`adc_sarlogic`](#adc-sarlogic) | behavioral | none | 16 | `tb_sarlogic_func`, `tb_sarlogic_rand`, `tb_sarlogic_func_slow`, `tb_sarlogic_timeout` |
 | [`adc_top`](#adc-top) | behavioral | 负责人 many-question | 9 | `tb_top_sine`, `tb_top_sine_lf`, `tb_top_duty` |
 
@@ -219,11 +219,11 @@ Single fully-dynamic comparator of the asynchronous SAR loop. CLKC low resets (O
 
 ## adc_ref
 
-**Reference driver (VREFP = 0.9 V) and top-plate common-mode (VCM = 0.45 V)** — 规格版本 0.8.0，状态 `behavioral`。
+**Reference driver (VREFP = 0.9 V) and top-plate common-mode (VCM = 0.45 V)** — 规格版本 0.8.1，状态 `xtor-review`。
 
 Buffers the high-impedance 0.9 V reference input VREF_IN into VREFP, which supplies the CDAC drivers (arch v0.3, cu = 1 fF): per conversion 0.93 pC at the start (the sampled H halves go from VIN to VREFP) and 13 switch charges of w_j * 0.45 fC (0.44 pC for the MSB, <= 14 fC from decision 7 on), first-order independent of the code, plus a signal-dependent part (-cu * LSB * gain * L^2 / 4, up to 0.36 pC). Everything is on-chip: decoupling in the nF range would have to be off-chip and its bond wires are not modelled, so it is not an option. The topology, bias current and decap are the designer's choice; the specs only constrain VREFP at the instants the comparator uses it (tb_ref_replay) and its noise. The behavioral view is an open-loop NMOS follower from AVDD18 (8 mA, 6 pF decap since #35; v0.3 had 4 mA and 3 pF, which leaves VREFP too far from its final value at decisions 4..7 and 10 once the charge is drawn at the DAC drive) - a starting point, not a requirement. Runs from AVDD18 because a 0.9 V output cannot be regulated from the 0.9 V rail. VCM (0.45 V) resets the top plates during tracking and only sees small common-mode charge.
 
-视图：behav: `design/behav/adc_ref.scs`；选定的候选：`none`
+视图：behav: `design/behav/adc_ref.scs`；选定的候选：`many-question`
 
 ### 端口（子电路端口顺序）
 
