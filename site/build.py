@@ -31,7 +31,7 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 
-from sitegen import cands, guard, linkcheck, live as livedata, manifest, render      # noqa: E402
+from sitegen import cands, combos, guard, linkcheck, live as livedata, manifest, render      # noqa: E402
 from sitegen.data import ROOT, build_info, collect_blocks, docs, figures   # noqa: E402
 from sitegen.md import Links, render as md_render, split_title   # noqa: E402
 
@@ -102,6 +102,11 @@ def build(out: Path, netlist_base: str, base_url: str, use_live: bool = True) ->
     # (sitegen/cands.py, preview.py); PRs that are not candidates keep their draft tab
     got = cands.collect(site, data, site.live, out)
     site.cands, site.previews = got.cands, got.previews
+    # verification combinations of the top level, from results/adc_top/<test>/<view signature>/ (sitegen/combos.py)
+    from adcflow.specs import blocks as spec_blocks
+    if "adc_top" in data:
+        site.combos = combos.build(data["adc_top"].docs, spec_blocks()["adc_top"], [b for b in spec_blocks() if b != "adc_top"],
+                                   lambda b: spec_blocks()[b].selected, site.cands)
     for line in got.logs:
         print(f"candidates: {line}")
     for pvs in site.previews.values():

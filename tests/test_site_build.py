@@ -32,6 +32,10 @@ def test_site_builds_offline(tmp_path):
     assert r.returncode == 0, r.stdout + r.stderr
     html = (tmp_path / "site" / "index.html").read_text(encoding="utf-8")
     assert "附加 DAC 等待 +10/+30/+30/+30/+25 ps（判决 3/4/5/6/9 之后）" in html
+    # the home page labels its pass rate as the behavioral baseline and lists the verification combinations of the top level
+    assert "行为级基线" in html and 'id="combos"' in html
+    body = html[html.index('id="combos"'):].split("<tbody>")[1].split("</tbody>")[0]
+    assert body.index("<code>behav</code>") < (body.index("<code>xtor-") if "<code>xtor-" in body else 10**9)         # all-behavioral first
 
 
 def test_overview_accepts_any_list_valued_timing_field(tmp_path, monkeypatch):

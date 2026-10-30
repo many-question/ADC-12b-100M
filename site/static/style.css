@@ -237,6 +237,20 @@ nav a.nav-collab:hover, nav a.nav-collab.on { background: var(--accent); color: 
 .ev-cell { white-space: nowrap; min-width: 9em; }
 .stamp { font-size: .8rem; font-weight: 400; margin-left: 8px; white-space: nowrap; }
 table.live td { vertical-align: top; }
+table.combos td { vertical-align: top; font-size: .9rem; }
+table.combos td > div { margin: 2px 0; }
+table.combos td.nw { white-space: nowrap; }
+table.combos code { white-space: nowrap; overflow-wrap: normal; }
+@media (max-width: 640px) {                       /* the combinations as one card per row on a phone */
+  .table-wrap:has(table.combos) { overflow: visible; border: 0; }
+  table.combos thead { display: none; }
+  table.combos, table.combos tbody, table.combos tr, table.combos td { display: block; width: 100%; }
+  table.combos tr { border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); margin: 12px 0; padding: 6px 12px; }
+  table.combos td { border: 0; padding: 6px 0; }
+  table.combos td.nw { white-space: normal; }
+  table.combos td.num { text-align: left; }
+  table.combos td::before { content: attr(data-label); display: block; font-size: .74rem; color: var(--ink-3); font-weight: 600; }
+}
 section.preview { border: 1px dashed var(--warn); border-radius: var(--radius); padding: 4px 20px 16px; margin: 28px 0; background: color-mix(in srgb, var(--warn-soft) 25%, var(--surface)); }
 .draft-label { font-size: .72rem; vertical-align: middle; }
 /* block page tabs: stacked panels without JavaScript, switchable tabs with it (app.js adds html.js) */
