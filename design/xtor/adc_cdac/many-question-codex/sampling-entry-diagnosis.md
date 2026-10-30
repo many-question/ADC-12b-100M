@@ -399,13 +399,92 @@ supports testing a faster shared disable path. It does not decompose every
 branch, establish the TT charge breakdown, or isolate channel-only overlap:
 native terminal currents include displacement.
 
+## Existing TT reference-current coverage and comparison
+
+The official charge definition integrates signed IMREF current over
+54.8..64.8 ns and takes the absolute value only after the whole 10 ns
+interval. The V4 meter is 1,281.322764 fC, 81.322764 fC above its budget.
+Its saved native currents cover selected devices, but do not include the
+total reference-source current. Consequently its cumulative total and the
+time distribution of that budget excess cannot be reconstructed from this
+record. The SS phase audit above does not fill this TT coverage gap.
+
+The original official N4 TT run used 2 ps / 1e-3 / 1e-6 / traponly and
+saved eight signals plus time, with no reference current. An existing
+private N4 70 ns pressure diagnostic provides the total and all output
+reference-branch currents at 0.5 ps / 1e-7 / 1e-8 / traponly. Its retained
+RNL circuit code matches formal N4, while its measurement deck includes
+zero-volt probes. Selected traces were reread from hash-verified raw data;
+no new simulation was needed. Integrating -VREFP:p gives 1,124.577988746 fC,
+within 0.000028254 fC of that run's original meter (1,124.578017 fC).
+
+| N4 strict TT phase | Signed total reference charge (fC) |
+|---|---:|
+| Before conversion start | 0.163256 |
+| Start edge, -120..+300 ps | 586.399190 |
+| Before decisions | 1.099446 |
+| Decisions and hold | 358.483426 |
+| Sampling entry, -120..+300 ps | 174.999402 |
+| Sampling tail | 3.433270 |
+
+These consecutive partitions cover the complete meter interval without
+overlap. V4 is 156.744747 fC above this strict N4 record (156.933229 fC
+above original official N4). Its two bit-12 output-PMOS source-plus-body
+branches account for only 28.307356 fC of that difference: 8.373400 fC at
+start, 10.620084 fC during decisions/hold, 9.212194 fC at sampling entry,
+and 0.101679 fC across the remaining quiet intervals. The measured local
+increase does not explain the total TT increase or assign the 81.322764 fC
+budget excess to any phase. The existing private N4 instrumentation and
+the official run's settings/save coverage are kept distinct.
+
+The next already-required conditional TT test adds thirteen current saves:
+the total reference source, source/body terminals of the two bit-11 output
+PMOS, and source/body terminals of the four bit-12 final PMOS predrivers.
+The circuit, stimulus and official meter definition are unchanged. This
+will allow total-current integration to close against its own meter and
+guide the next choice using the whole reference-charge budget. Native
+terminal currents include displacement; a residual is not pure logic
+power or channel-only overlap. All audit sources, selected traces, scripts
+and hashes are retained privately.
+
+## Faster shared enable pull-up: SS pass
+
+The `v5-enable-pfast` case doubles only the shared enable pull-up M0P from
+8 to 16 um, retaining its nominal-threshold family and 2 um finger width
+(four to eight fingers). Fresh geometry validation and pinned RNL pass.
+Its independent source SHA256 is
+`d7db4b46de5cdb7bc026d66a72182e57ffc388d57d5fa225b4499ef99d49c3b7`.
+
+The full 70 ns SS test from clean commit
+`d2e07f3016b37abc8fc5db3af4a616541cc2f7ad` uses the same strict numerics
+and saves as V4. All five applicable requirements pass: RL5 58.6 ps,
+RL12 39.2 ps, tau 11.248227 ps, start 91.9 ps and droop 0.010623373 LSB.
+Both raw points bracketing the RL12/start deadlines pass; errors at the
+deadlines are 7.357185/0.807929 mV against 9.604083/1.603094 mV allowed.
+The RL12 margin remains 0.8 ps; start slows by 0.6 ps relative to V4.
+
+SS Qref falls from 2.068876736 to 1.916043704 pC. The matched phase audit
+shows ENB/EN entry midpoints advance from 19.101/24.279 to 11.061/15.061 ps.
+Bit-12 high-output PMOS source-plus-body entry charge changes from
++43.996840 to -18.895307 fC, while its start charge is nearly unchanged
+(309.502572 -> 309.494357 fC). The low branch's full-window charge changes
+by only +0.042848 fC. Native current includes displacement and signed
+return charge. These are SS observations; the TT budget needs its own test.
+
+DH5/PHI_S/PHI_SB/CONV capacitances are
+0.807291/5.969808/12.286130/19.121914 fF, all n/a at SS. All 540 MOS /
+1,620 pairs pass at 200,395 saved times; maximum stress is 0.979957590297 V
+at XB2.XDL.MNOUT ds, 60.082217773 ns. Runtime is 345 s. All nine raw files
+and 50 frozen inputs were recovered and hash-verified before exact cleanup.
+Archive SHA256:
+`62b4b36d23db40e17a9b7eafe765510056a0c9e56043203b1cb2effcc5b87830`.
+
 ## Continuing verification
 
-The next independent case doubles only the shared enable pull-up M0P from
-8 to 16 um, retaining its nominal-threshold family and 2 um finger width.
-The intended change is earlier ENB rise at sampling entry; extra drain
-capacitance can also affect conversion start. Both effects and the full SS
-gate must be measured before a conditional TT rerun. No circuit pass is
+The same frozen V5 source is now in its conditional TT settling/charge/load
+and all-MOS test. The original stimulus and strict numerics are retained,
+with thirteen additional current saves for total-reference and selected
+branch charge accounting. TT results are pending. No circuit pass is
 inherited from V4 or formal N4.
 
 A brief separately controlled reference-drive assist remains an unimplemented

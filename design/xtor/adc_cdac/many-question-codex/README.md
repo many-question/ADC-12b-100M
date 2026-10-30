@@ -70,8 +70,12 @@ checks: RL12 39.2 ps, start 91.3 ps, tau 11.248227 ps. Its independent TT
 check passes timing, loads and all-MOS pressure, but Qref is 1.281322764 pC
 against the 1.2 pC limit. Its spectrum/corner expansion is stopped. A matched
 phase audit identifies increased sampling-entry charge in one bit-12 branch
-and slower shared disable; the next independent case tests a faster enable
-pull-up. N4's TT evidence does not transfer to any changed case.
+and slower shared disable. The next case doubles only the enable pull-up
+and passes its independent SS gate (RL12/start 39.2/91.9 ps, all-MOS
+maximum 0.979957590 V); SS Qref falls to 1.916043704 pC (n/a).
+Its conditional TT run includes total reference-current saves to close the
+charge audit. Existing V4 TT saves do not permit assigning its total excess
+to a phase. N4's TT evidence does not transfer to any changed case.
 The [first passing private SS comparison](balanced-predrive-ss-screen.png)
 and complete source/evidence identifiers are in the ledger.
 
