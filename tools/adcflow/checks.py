@@ -286,7 +286,7 @@ def check_results(strict: bool = False) -> Report:
         if j["error"]:
             r.warn(f"{rel}: simulation/measurement error: {j['error']}")
         for sid, v in j["specs"].items():
-            if not v["pass"]:
+            if v["pass"] is False:                # None: a reported-only spec, no verdict
                 r.warn(f"{rel}: {sid} = {v['value']} violates {v['limit']}")
         if j["stale"]:
             r.warn(f"{rel}: stale (changed since simulated: {', '.join(j['stale'][:4])})")
@@ -309,8 +309,12 @@ def check_results(strict: bool = False) -> Report:
                 for d, j in hit:
                     if j["stale"]:
                         r.err(f"{b.name} {s.id} {c}: result is stale")
-                    if not j["specs"].get(s.id, {}).get("pass"):
-                        r.err(f"{b.name} {s.id} {c}: fails ({j['specs'].get(s.id)})")
+                    v = j["specs"].get(s.id, {})
+                    if s.reported:                # no verdict, but the value must be there
+                        if v.get("value") is None:
+                            r.err(f"{b.name} {s.id} {c}: reported metric {s.metric} not measured")
+                    elif not v.get("pass"):
+                        r.err(f"{b.name} {s.id} {c}: fails ({v or None})")
     return r
 
 

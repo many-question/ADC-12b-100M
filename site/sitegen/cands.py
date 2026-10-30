@@ -7,11 +7,12 @@
   PR is ever run (`git cat-file` after `git fetch origin +refs/pull/<N>/head`), the verdict is main's specs (a PR cannot
   change them), PNG figures up to 200 kB. They carry the "未评审" label and never reach main's status or counts.
 
-The ranking is the public order of §4: top-level ENOB margin (±0.05 bit), power (±5 %), area proxy (±5 %), the smallest
-robustness margin (±5 % of the limit); inside a tolerance the next criterion decides, and then the selected candidate stays first.
-Candidates that are not fully passing (a failed, incomplete, stale, SOA or error result, or one the lead's rerun contradicts) come
-after the eligible ones. Verification (docs/verification.md §7) is the lead's record in verification/ on main; an open PR's candidate
-is scored on a temporary tree of its own files, which holds no records: its results are self-reported.
+The ranking is `adcflow.candidates.compare` (CONTRIBUTING §10, the lead's decision on #75), in two tiers. Eligible: every spec passes
+at every required corner, results fresh and verified, no SOA violation, the mixed top-level regression with the candidate passes; ranked
+by the block's own reported power at TT, lowest first, within 5 % a tie decided by the area proxy (5 %), and inside every tolerance the
+selected candidate stays first. Not eligible: listed separately with what they miss. Margins beyond a limit (worst margin, top-level
+ENOB margin) are shown, never ranked. Verification (docs/verification.md §7) is the lead's record in verification/ on main; an open PR's
+candidate is scored on a temporary tree of its own files, which holds no records: its results are self-reported, so it is not eligible.
 """
 
 from __future__ import annotations
@@ -29,7 +30,6 @@ from . import manifest as mf, preview as pv
 from .data import ROOT, BlockData, _spec_rows
 from .live import PR, Live
 
-TOL_ENOB, TOL_POWER, TOL_AREA, TOL_MARGIN = 0.05, 0.05, 0.05, 0.05     # §4 (bit, relative, relative, of the limit)
 CAND_TEXT = {".scs", ".yaml", ".yml", ".json"}
 NAME_RE = re.compile(r"^[a-z0-9-]{2,24}$")                              # candidates.NAME_RE
 
@@ -68,54 +68,47 @@ class Collected:
     logs: list[str] = field(default_factory=list)
 
 
-# ------------------------------------------------------------------ ranking (§4)
+# ------------------------------------------------------------------ ranking (§4, #75)
 def eligible(row: dict) -> bool:
-    """No failed, incomplete, stale, SOA-violating or erroring result, and none that the lead's rerun contradicts (a mismatch);
-    not yet verified is shown, not excluded (the lead verifies the leading candidates)."""
-    f = row["flags"]
-    return (row["results"] > 0 and row["specs_failed"] == 0 and row["specs_incomplete"] == 0
-            and not (f["stale"] or f["soa"] or f["error"] or f.get("mismatch")))
-
-
-def _better(a, b, *, higher: bool, tol: float, relative: bool) -> int:
-    """-1 when a is better, 1 when b is better, 0 within the tolerance; a missing value is worse than any value."""
-    if a is None and b is None:
-        return 0
-    if a is None:
-        return 1
-    if b is None:
-        return -1
-    scale = max(abs(a), abs(b)) if relative else 1.0
-    if abs(a - b) <= tol * scale:
-        return 0
-    return -1 if (a > b) == higher else 1
+    """In the eligible tier (adcflow.candidates.eligibility): every spec passes at every required corner, results fresh and
+    verified by the lead, no SOA violation, and the mixed top-level regression with the candidate passes."""
+    return bool(row.get("eligible"))
 
 
 def compare(a: Cand, b: Cand) -> int:
-    ra, rb = a.row, b.row
-    ea, eb = eligible(ra), eligible(rb)
-    if ea != eb:
-        return -1 if ea else 1
-    if not ea:                                                    # neither is fully passing: more passed specs, more coverage
-        for x, y in ((rb["specs_passed"], ra["specs_passed"]), (rb["coverage"][0], ra["coverage"][0])):
-            if x != y:
-                return -1 if x < y else 1
-    wm = lambda r: (r["worst_margin"] or {}).get("margin")        # noqa: E731
-    area = lambda r, k: (r["area"] or {}).get(k) or None           # noqa: E731  (0 -> unknown)
-    for c in (_better(ra["top_enob_margin"], rb["top_enob_margin"], higher=True, tol=TOL_ENOB, relative=False),
-              _better(ra["power_uW"], rb["power_uW"], higher=False, tol=TOL_POWER, relative=True),
-              _better(area(ra, "wl_um2"), area(rb, "wl_um2"), higher=False, tol=TOL_AREA, relative=True),
-              _better(area(ra, "cap_F"), area(rb, "cap_F"), higher=False, tol=TOL_AREA, relative=True),
-              _better(wm(ra), wm(rb), higher=True, tol=TOL_MARGIN, relative=False)):
-        if c:
-            return c
-    if a.selected != b.selected:                                  # tied inside every tolerance: the selected one stays
-        return -1 if a.selected else 1
+    """adcflow.candidates.compare on the rows (the eligible tier first, by power at TT, ties within 5 % by area, then the
+    selected one stays first; only a merged candidate is selected), then by name, a merged candidate before an open PR's."""
+    from adcflow import candidates as C
+
+    c = C.compare({**a.row, "selected": a.selected}, {**b.row, "selected": b.selected})
+    if c:
+        return c
     return -1 if (a.name, a.source) < (b.name, b.source) else 1
 
 
 def rank(cands: list[Cand]) -> list[Cand]:
     return sorted(cands, key=functools.cmp_to_key(compare))
+
+
+def missing_items(row: dict) -> list[str]:
+    """What keeps a candidate out of the eligible tier, in the site's words (row["missing"], adcflow.candidates.eligibility)."""
+    f, top = row["flags"], row.get("top_regression") or {}
+    words = {
+        "problems": lambda: f"candidate.yaml 或网表有 {len(row['problems'])} 个问题",
+        "results": lambda: "没有结果",
+        "failing": lambda: "不通过：" + "、".join(row.get("specs_failing") or []),
+        "incomplete": lambda: "缺少要求的工艺角：" + "、".join(row.get("specs_missing") or []),
+        "stale": lambda: f"{f['stale']} 个结果过期",
+        "error": lambda: f"{f['error']} 个结果出错",
+        "soa": lambda: f"{f['soa']} 个结果有 SOA 违例",
+        "mismatch": lambda: f"{f['mismatch']} 个结果复核不符",
+        "unverified": lambda: f"{f['unverified']} 个结果未复核（自报）",
+        "top": lambda: {"fail": "顶层混合回归不通过" + (f"（{'、'.join(top['failing'])}）" if top.get("failing") else ""),
+                        "stale": "顶层混合回归的结果过期",
+                        "incomplete": f"顶层混合回归不完整（缺 {len(top.get('missing') or [])} 项）"}.get(
+                            top.get("status"), "没有顶层混合回归"),
+    }
+    return [words[m["what"]]() if m["what"] in words else str(m.get("text", "")) for m in row.get("missing") or []]
 
 
 def mc_chips(row: dict) -> list[tuple[str, str, str]]:

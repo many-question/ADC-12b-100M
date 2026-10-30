@@ -270,13 +270,14 @@ def _steps(values: list[float], period: float, edge: float = 10e-12, t0: float =
 
 
 def tb_comp() -> list[TBDef]:
-    from .measure.comp import (DELAY_LEVELS, MC_BITS, MC_CHECK, MC_RANGE, MC_TCYC, MC_VOS_BEH, NOISE_LEVELS,
-                               NOISE_REPEAT, TCYC)
+    from .measure.comp import (DELAY_LEVELS, MC_BITS, MC_CHECK, MC_RANGE, MC_TCYC, MC_VOS_BEH, N_DELAY,
+                               NOISE_LEVELS, NOISE_REPEAT, T0, TCYC)
 
     comp_ports = ["INP", "INN", "CLKC", "OUTP", "OUTN", "AVDD", "0"]
     cload = _ff(_op("adc_comp")["load_per_output"])
-    vd = DELAY_LEVELS * 2
-    clk = f"VCK (CLKC 0) vsource type=pulse val0=0 val1=vdd period={TCYC:g} delay=100p width={TCYC / 2 - 10e-12:g} rise=10p fall=10p"
+    vd = DELAY_LEVELS * 2                     # N_DELAY decisions
+    clk = (f"VCK (CLKC 0) vsource type=pulse val0=0 val1=vdd period={TCYC:g} delay={T0 * 1e12:g}p "
+           f"width={TCYC / 2 - 10e-12:g} rise=10p fall=10p")
     out = []
     # delay
     els = [El("XDUT", "adc_comp", comp_ports, where="dut"),
@@ -286,12 +287,14 @@ def tb_comp() -> list[TBDef]:
            El("COP", "capacitor", ["OUTP", "0"], "c=cload", "load"),
            El("CON", "capacitor", ["OUTN", "0"], "c=cload", "load")]
     els += _sup("AVDD", "vdd", True)
+    # CMP-10: the AVDD meter integrates exactly the N_DELAY full CLKC cycles from the first rising edge (T0)
     out.append(TBDef(
         "tb/comp/tb_comp_delay.scs", "tb_comp_delay: comparator delay, regeneration, reset and energy",
-        [f"parameters cload={cload}", f"parameters tstart=0 tstop={len(vd) * TCYC + 100e-12:g}"],
+        [f"parameters cload={cload}", f"parameters tstart={T0:g} tstop={T0 + N_DELAY * TCYC:g}"],
         els, ["tran1 tran stop=tstop", "save INP INN CLKC OUTP OUTN"],
         notes=[f"vd steps through +/-{', '.join(f'{v:g}' for v in DELAY_LEVELS[::2])} V (twice), CM 0.49 V, "
-               f"one decision per {TCYC * 1e12:g} ps", "transient noise off; power.txt gives the AVDD energy"]))
+               f"one decision per {TCYC * 1e12:g} ps", f"transient noise off; power.txt: AVDD over the {N_DELAY} "
+               f"CLKC cycles from the first rising edge ({T0 * 1e12:g} ps .. tstop)"]))
     # noise
     seq = [v for v in NOISE_LEVELS for _ in range(NOISE_REPEAT)]
     els = [El("XDUT", "adc_comp", comp_ports, where="dut"),

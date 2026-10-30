@@ -214,7 +214,8 @@ def plot_spectrum(ax, x, fs: float, fs_pk: float | None, metrics: dict, sfdr_min
 
 def spec_rows(ctx: dict, m: dict, metrics: list[str]) -> list[tuple[str, str, str, bool | None]]:
     """(spec id and name, value text, limit text, pass) for the specs of this test on `metrics`;
-    pass is None for a spec that does not apply at ctx["corner"] (shown as n/a, not judged). A
+    pass is None for a spec that does not apply at ctx["corner"] (shown as n/a, not judged) and for
+    a reported-only spec (limit text "reported", shown as info: no verdict). A
     Monte Carlo spec is listed on a Monte Carlo run only (ctx["mc"]), judged with its samples."""
     from .specs import blocks
 
@@ -234,6 +235,8 @@ def spec_rows(ctx: dict, m: dict, metrics: list[str]) -> list[tuple[str, str, st
 
 def spec_table(ax, ctx: dict, m: dict, metrics: list[str], title: str = "Specifications (this corner)") -> None:
     """Text table of values against limits (a panel without axes)."""
+    from .specs import REPORTED
+
     ax.set_axis_off()
     ax.set_title(title, loc="left")
     rows = spec_rows(ctx, m, metrics)
@@ -243,7 +246,8 @@ def spec_table(ax, ctx: dict, m: dict, metrics: list[str], title: str = "Specifi
         ax.text(0.0, y, name, transform=ax.transAxes, fontsize=8, color=INK, va="top")
         ax.text(0.62, y, val, transform=ax.transAxes, fontsize=8, color=INK, va="top", ha="right")
         ax.text(0.65, y, lim, transform=ax.transAxes, fontsize=8, color=INK2, va="top")
-        ax.text(1.0, y, "n/a" if ok is None else "pass" if ok else "FAIL", transform=ax.transAxes, fontsize=8,
+        verdict = ("info" if lim == REPORTED else "n/a") if ok is None else "pass" if ok else "FAIL"
+        ax.text(1.0, y, verdict, transform=ax.transAxes, fontsize=8,
                 va="top", ha="right", color=INK2 if ok is None else C3 if ok else LIMIT, fontweight="bold")
         y -= step
 

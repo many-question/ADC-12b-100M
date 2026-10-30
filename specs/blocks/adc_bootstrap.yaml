@@ -1,6 +1,6 @@
 block: adc_bootstrap
 title: Bootstrapped gate generator for the bottom-plate input switches (one per side)
-version: 0.7.0
+version: 0.8.0
 selected: none          # the selected candidate (design/xtor/<block>/<name>/); none yet
 status: behavioral
 views:
@@ -35,7 +35,8 @@ specs:
   - {id: BST-04, name: "VG rise PHI_B -> VG - VIN > 95 %",         metric: t_on_ps,    unit: ps, max: 300, corners: all, test: tb_bootstrap_dc}
   - {id: BST-05, name: "tracking SFDR with reference switch (diff, 49.9 MHz, -1 dBFS, 50 ohm)", metric: sfdr_dBc, unit: dBc, min: 82, corners: all, test: tb_bootstrap_track}
   - {id: BST-06, name: "tracking SNDR excl. kT/C (same)",          metric: sndr_dB,    unit: dB, min: 78, corners: all, test: tb_bootstrap_track}
-  - {id: BST-07, name: "average AVDD current at 100 MHz (one instance)", metric: iavg_uA, unit: uA, max: 50, corners: typ, test: tb_bootstrap_dc}
+  # reported only (#75): power has no acceptance limit, lower is better; docs/architecture.md §8 keeps the budget
+  - {id: BST-07, name: "average AVDD current at 100 MHz (one instance)", metric: iavg_uA, unit: uA, reported: true, corners: typ, test: tb_bootstrap_dc}
   - {id: BST-09, name: "PHI_B input capacitance (charge per rising edge / VDD)", metric: cin_phb_fF, unit: fF, max: 16, corners: typ, test: tb_bootstrap_dc}
   - {id: BST-10, name: "PHI_BB input capacitance (charge per rising edge / VDD)", metric: cin_phbb_fF, unit: fF, max: 16, corners: typ, test: tb_bootstrap_dc}
   - {id: BST-08, name: "SOA violations: thin-oxide device / terminal pairs over 1.0 V (Vgs, Vgd, Vds; absolute, whole transient)", metric: soa_violations, unit: count, max: 0, corners: all, test: tb_bootstrap_dc}

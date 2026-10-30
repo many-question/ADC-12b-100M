@@ -214,9 +214,11 @@ def test_score(root):
     _result(root, "tb_top_sine", "xtor-comp@alice", block="adc_top", enob=10.9)
     (row,) = cand.leaderboard(BLOCK)
     specs = [s for s in blocks()[BLOCK].specs]
-    assert row["specs_total"] == len(specs)
-    assert row["specs_failed"] == 1                         # CMP-05 at ss_low_125: 130 > 120
-    assert row["specs_passed"] == 3                         # CMP-04, CMP-06, CMP-10 (typ only, recorded)
+    assert row["specs_total"] == len(specs) - 1 and row["reported_total"] == 1      # CMP-10: reported only, no verdict
+    assert row["specs_failed"] == 1 and row["specs_failing"] == ["CMP-05"]   # CMP-05 at ss_low_125: 130 > 120
+    assert row["specs_passed"] == 2                         # CMP-04, CMP-06 (typ only, recorded)
+    assert row["specs_reported"] == 1 and "CMP-10" not in row["specs_missing"]      # energy_fJ recorded at TT
+    assert row["specs_incomplete"] == len(row["specs_missing"]) == len(specs) - 4
     assert row["worst_margin"]["spec"] == "CMP-05" and row["worst_margin"]["margin"] == pytest.approx(-10 / 120)
     assert row["coverage"][0] == 3 + 4 * 2                  # typ specs 1 corner each, all-corner specs 2 of 45
     # meta.verified_by in a result is not trusted: only a verification record verifies (tests/test_verify.py)
@@ -227,8 +229,96 @@ def test_score(root):
                            "cap_F": pytest.approx(5e-15)}
     assert row["top_enob_margin"] == pytest.approx(10.9 - 10.75)  # TOP-02 is the tightest ENOB limit
     assert "self-reported" in cand.table([row])
+    # not eligible: a failing and incomplete specs, self-reported results, no complete mixed top-level regression
+    assert not row["eligible"] and [m["what"] for m in row["missing"]] == ["failing", "incomplete", "unverified", "top"]
+    assert row["top_regression"]["status"] == "fail" and row["top_regression"]["results"] == 1     # only enob recorded
+    text = cand.table([row])
+    assert "adc_comp -- not eligible" in text and "missing: fails CMP-05;" in text and "eligible, ranked" not in text
     _result(root, "tb_top_sine", "xtor-comp@alice", "ss_low_125", block="adc_top", enob=10.6)
     assert cand.top_enob_margin(BLOCK, "alice") == pytest.approx(10.6 - 10.5)  # TOP-01 there, not TT-only TOP-02
+
+
+TOP_GOOD = {"enob": 10.9, "sfdr_dBc": 85.0, "fs_peak_V": 0.99, "missing_rdy": 0, "t_conv_max_ns": 2.9, "spike_count": 0}
+
+
+def _top(root, test, job, view="xtor-comp@alice", **metrics):
+    """A top-level result of the mixed regression (results/adc_top/<test>/<view>/<job>.json)."""
+    d = root / "results" / "adc_top" / test / view
+    d.mkdir(parents=True, exist_ok=True)
+    doc = {"block": "adc_top", "test": test, "view": view, "corner": job.split("__")[0], "metrics": {**TOP_GOOD, **metrics},
+           "globals": {"vdd": 0.9, "vdd18": 1.8}, "meta": {"files": {}, "mc": None}}
+    (d / f"{job}.json").write_text(json.dumps(doc))
+    return d / f"{job}.json"
+
+
+def _full_top(root, **kw):
+    from adcflow.corners import corner_names
+
+    quick = sorted(corner_names("quick"))
+    out = [_top(root, "tb_top_sine", c, **kw) for c in quick]
+    out += [_top(root, "tb_top_duty", f"{c}__duty{d}", **kw) for c in quick for d in ("0.45", "0.55")]
+    return out + [_top(root, "tb_top_sine_lf", "tt_nom_27", **kw)]
+
+
+def test_mixed_top_level_regression(root):
+    """tb_top_sine and tb_top_duty at the quick corners, tb_top_sine_lf at TT, with only this candidate swapped in."""
+    r = cand.top_regression(BLOCK, "alice")
+    assert r["status"] == "none" and r["results"] == 0 and len(r["missing"]) == 7 + 7 + 1    # corners, not jobs
+    _top(root, "tb_top_sine", "tt_nom_27")
+    r = cand.top_regression(BLOCK, "alice")
+    assert r["status"] == "incomplete" and len(r["missing"]) == 6 + 7 + 1
+    assert "tb_top_sine ss_low_125" in r["missing"] and "tb_top_sine_lf tt_nom_27" in r["missing"]
+    assert not any(m.startswith("tb_top_sine tt_nom_27") for m in r["missing"])
+    paths = _full_top(root)
+    assert cand.top_regression(BLOCK, "alice")["status"] == "pass" and cand.top_regression(BLOCK, "alice")["results"] == 22
+    assert cand.top_regression(BLOCK, "bob")["status"] == "none"                 # another candidate's runs are its own
+    _top(root, "tb_top_sine", "ss_low_125", enob=10.2)                             # TOP-01 >= 10.5 fails there
+    r = cand.top_regression(BLOCK, "alice")
+    assert r["status"] == "fail" and r["failing"] == ["TOP-01"]
+    _top(root, "tb_top_sine", "ss_low_125")
+    doc = json.loads(paths[-1].read_text())
+    doc["meta"]["files"] = {"specs/arch.yaml": "0" * 16}                          # an input changed since the run
+    paths[-1].write_text(json.dumps(doc))
+    assert cand.top_regression(BLOCK, "alice")["status"] == "stale"
+    _top(root, "tb_top_sine_lf", "tt_nom_27", error="spectre rc=1")
+    assert cand.top_regression(BLOCK, "alice")["status"] == "fail"
+
+
+def test_eligibility_of_a_scored_candidate(root, monkeypatch):
+    """Every spec passes at every required corner (the reported CMP-10 recorded), verified, top-level regression passed."""
+    from adcflow import verify
+    from adcflow.corners import corner_names
+
+    _make(root)
+    good = {"tdelay_1mV_ps": 60.0, "tdelay_30mV_ps": 30.0, "tau_reg_ps": 10.0, "treset_ps": 20.0, "wrong_decisions": 0,
+            "energy_fJ": 100.0, "noise_uV": 150.0, "offset_abs_mV": 0.5, "kickback_uV": 10.0, "cin_fF": 10.0,
+            "cin_clkc_fF": 10.0, "offset_sigma_mV": 2.0, "mc_ok": 50, "mc_failed": 0}
+    mc = {"runs": 50, "seed": 6303, "firstrun": 1, "variations": "mismatch", "models": "local_tt"}
+    for test in ("tb_comp_delay", "tb_comp_noise", "tb_comp_kickback"):
+        for c in sorted(corner_names("all")):
+            _result(root, test, "xtor-alice", c, **good)
+    p = _result(root, "tb_comp_offset_mc", "xtor-alice", **good)
+    doc = json.loads(p.read_text())
+    doc["meta"]["mc"] = mc
+    p.write_text(json.dumps(doc))
+    _full_top(root)
+    monkeypatch.setattr(verify, "state", lambda d: {"state": "verified", "why": ""})     # verification: tests/test_verify.py
+    (row,) = cand.leaderboard(BLOCK)
+    assert row["eligible"] and row["missing"] == [] and row["specs_passed"] == row["specs_total"]
+    assert row["specs_reported"] == row["reported_total"] == 1
+    assert "adc_comp -- eligible" in cand.table([row])
+    # the reported metric missing at TT: incomplete, not eligible (power is the ranking key)
+    p = root / "results" / BLOCK / "tb_comp_delay" / "xtor-alice" / "tt_nom_27.json"
+    doc = json.loads(p.read_text())
+    del doc["metrics"]["energy_fJ"]
+    p.write_text(json.dumps(doc))
+    (row,) = cand.leaderboard(BLOCK)
+    assert not row["eligible"] and row["specs_missing"] == ["CMP-10"] and row["power_uW"] is None
+    # a value far above the old 200 fJ limit has no verdict: eligible again
+    doc["metrics"]["energy_fJ"] = 5000.0
+    p.write_text(json.dumps(doc))
+    (row,) = cand.leaderboard(BLOCK)
+    assert row["eligible"] and row["specs_failed"] == 0
 
 
 def test_withdrawn_candidates_leave_the_leaderboard(root):
