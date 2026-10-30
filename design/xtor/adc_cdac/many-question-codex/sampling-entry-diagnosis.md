@@ -1268,11 +1268,11 @@ still had a genuine stale fingerprint. The newly completed run follows.
 
 The current unmodified official tracking flow completed on clean commit
 `9a68c59`, using the promoted N4 source, TT, APS, and one job. It passed
-both required spectral metrics. All 17 required TT main metrics now pass,
-but the prescribed numerical twin and its margin audit remain pending.
-The candidate stays WIP and this is not a convergence or full-corner
-acceptance claim. The previous failed source and actual failed results
-remain in the pre-N4 history tag.
+both required spectral metrics. All 17 required TT main metrics pass.
+The prescribed numerical twin and its margin audit, pending at the main
+checkpoint, are completed in the following section. The candidate stays
+WIP; full-corner acceptance is not claimed. The previous failed source
+and actual failed results remain in the pre-N4 history tag.
 
 | Requirement | Current official TT main value | Limit | Verdict |
 |---|---:|---:|---|
@@ -1341,7 +1341,80 @@ All eight raw job files and the 50-file staged-input snapshot have been
 recovered, hashed, and checked against the complete archive. Analysis,
 plots, and their exact script are retained with the recovery record.
 Only the uniquely owned completed run directory was removed; shared
-testbench runs remain intact. The next run is the prescribed 0.5 ps,
-gear2only numerical twin on this same physical source, with the original
-main samples retained for the official comparison. Its result must be
-assessed against the measured margins before claiming TT convergence.
+testbench runs remain intact. The prescribed 0.5 ps, gear2only numerical
+twin on this same physical source follows, with the original main
+samples retained for the official comparison.
+
+## Promoted source: prescribed TT numerical comparison
+
+The one prescribed twin was launched on clean commit `21a4546`, using
+the same promoted physical source, models, staged dependencies, original
+stimulus, four-cycle warmup, and complete 256-sample record. The only
+testbench changes are maxstep 1 to 0.5 ps and traponly to gear2only.
+The unchanged official measurement and comparison functions give:
+
+| Metric | Main | Numerical twin | Twin minus main | Minimum margin |
+|---|---:|---:|---:|---:|
+| SFDR (dBc) | 86.417966859 | 86.418274708 | +0.000307850 dB | 1.417966859 dB |
+| SNDR (dB) | 84.523548567 | 84.523764369 | +0.000215801 dB | 4.523548567 dB |
+| Reported THD (dBc) | -85.235594759 | -85.235830278 | -0.000235519 dB | No separate limit |
+| Sampled half-range (V) | 0.788085132 | 0.788085177 | +0.044714 uV | No separate limit |
+
+Both required twin metrics pass. The SFDR/SNDR changes are respectively
+0.021711% and 0.004771% of the smaller margin to the applicable limit.
+These differences are negligible compared with the available margins,
+supporting numerical convergence for this tested TT condition. The ratios
+report the comparison; they do not introduce a new acceptance threshold.
+The public main JSON retains its original metrics and adds the actual
+standard comparison in `meta.crosscheck`.
+
+Both sampler files have exactly 256 finite samples with indices 1–256,
+from 45.426 to 2595.426 ns, at the same coherent frequency. Their raw
+pointwise difference is 0.155934342 uV RMS and 0.223638200 uV maximum.
+Maximum printed-time difference is 0.001 ps, not a measured clock-jitter
+specification. The twin's official metrics recompute exactly from the
+complete record. Its official spectrum and complete-record audit plots
+have been inspected; the largest spur remains bin 119 (aliased h3).
+
+Fixed-frequency full-record fits give twin fundamental 0.788182863 V,
+h3 -86.418336 dBc (37.645250 uV peak), h5 -91.463665 dBc
+(21.059291 uV), and h7 -95.575139 dBc (13.118072 uV). Relative to the
+main fit, fundamental amplitude changes by +0.042247 uV and h3/h5/h7
+amplitudes by -0.002645/+0.003343/+0.002566 uV. Removing only DC and
+the fundamental leaves 33.107314 uV RMS; fitting h1 through h21 leaves
+0.768897 uV RMS. Neither remainder is a thermal-noise measurement.
+The raw main-to-twin difference after an h1-through-h21 fit has residual
+0.003301 uV RMS. The odd/all h7/h21 full-record h3 basis spread is below
+0.000000001 dB. All 129 sliding 128-sample h1-through-h21 windows span
+-86.422642 to -86.413245 dBc, or 0.009397 dB. These remain diagnostic
+fits on all data, without another 128-point simulation or a selected
+acceptance window.
+
+The actual twin settings are reltol 1e-7, voltage tolerance 1e-8,
+maxstep 0.5 ps, gear2only, moderate errpreset, and lteratio 3.5.
+It took 25,028 seconds (6 hours 57 minutes 8 seconds), with 7,478,510
+accepted steps and mean spacing 0.348331 ps. The original local
+controller's bounded wait expired after 23,217.5 seconds. The original
+simulation was directly confirmed still running, then finished with
+return code zero; only that completed run was collected. No replacement
+simulation or changed numerical setting was used. The wait failure,
+launch intent, unchanged controller, collection procedure, and recovery
+evidence are retained separately. The numerical settings come from the
+project tracking specification; this step/method comparison does not
+determine whether a looser reltol would also be adequate.
+
+The twin log retains zero errors, 26 warnings, six notices, and
+103,213,781 suppressed warning occurrences. These model warnings are
+not cleared by the project gs/gd/ds result. The eight original raw job
+files, complete archive, and 50 staged input files passed recovery and
+hash verification. Analysis and exact scripts are retained with the
+archive. Only this uniquely owned completed run was cleaned, preserving
+shared testbench runs. The official sampler-only output does not extend
+the separate 125 ns all-MOS stress coverage or its 9.775 mV headroom.
+
+This completes the authorized TT-only batch: all 17 required metrics
+pass and the prescribed tracking precision comparison is negligible
+against its measured margins. Candidate and PR remain WIP/draft. PVT,
+all-phase and supply-startup stress, long-hold behavior, actual-bootstrap
+integration, full-system regression, and project-lead verification are
+still outside this result.

@@ -88,6 +88,48 @@
     "sfdr": "plotspec definition: peak bin of the fundamental / largest other single bin (DC and signal bins excluded, Nyquist included)",
     "enob_sndr_snr_thd": "adctoolbox 0.6.4 compute_spectrum"
    }
+  },
+  "crosscheck": {
+   "settings": {
+    "maxstep": "0.5p",
+    "method": "gear2only"
+   },
+   "numerics": {
+    "source": "spectre.log",
+    "reltol": 1e-07,
+    "maxstep_ps": 0.5,
+    "method": "gear2only",
+    "errpreset": "moderate",
+    "lteratio": 3.5,
+    "abstol_V": 1e-08,
+    "vabstol": 1e-08,
+    "steps_accepted": 7478510,
+    "step_mean_ps": 0.348331,
+    "step_max_ps": null
+   },
+   "rc": "0",
+   "sim_s": "25028",
+   "metrics": {
+    "sfdr_dBc": {
+     "ref": 86.41796685878245,
+     "xcheck": 86.41827470834761,
+     "diff": 0.0003078495651607227
+    },
+    "sndr_dB": {
+     "ref": 84.52354856716035,
+     "xcheck": 84.52376436865399,
+     "diff": 0.00021580149363842338
+    }
+   },
+   "samples": {
+    "file": "samples.txt",
+    "n": 256,
+    "n_ref": 256,
+    "n_xcheck": 256,
+    "time_diff_max_ps": 0.0010000001095066121,
+    "diff_rms_uV": 0.15593434239511425,
+    "diff_max_uV": 0.22363820001425339
+   }
   }
  }
 }
