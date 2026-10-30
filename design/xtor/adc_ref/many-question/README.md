@@ -1,6 +1,6 @@
 # adc_ref candidate: many-question
 
-Status: **wip**. Author: **Codex adc_ref (@many-question)**.
+Status: **ready** for candidate review. Author: **Codex adc_ref (@many-question)**.
 
 This candidate uses a native thick-oxide source follower with a 1:28 scaled
 replica servo, a reference-absent startup clamp, and a MOS divider for VCM.
@@ -12,20 +12,24 @@ or signed off; the archived mixed-top SS-hot ENOB result remains a failure.
 
 ## Current module validation
 
-The main28/gate16 source is promoted to the formal **WIP** candidate at electrical
-hash `2b1163f0eb481376`, after rebasing onto main
-`fac0194179a4ae593438b022a0713d6e5b59663f` (adc_ref spec 0.8.0).
+The main28/gate16 source has completed formal module validation at electrical
+hash `2b1163f0eb481376`. The branch is synchronized with main
+`33337c605ff670e04eee814c2178ed26eca7346d` (adc_ref spec 0.8.0), with the
+source and all 272 result/figure files unchanged by the rebase.
 The [formal validation record](REF21-validation.md) tracks fresh committed-source
-runs. Current committed-source evidence: **95 fresh passes / 0 fresh failures / 41 stale**.
-The detailed record reports per-test coverage, source provenance, power per
-supply and remaining work. Mixed-top validation is coordinated separately.
+runs. Current committed-source evidence: **136 fresh passes / 0 fresh failures / 0 stale**.
+All 15 required specifications pass at all 631 required spec/corner pairs:
+45 DC, one TT noise, 45 startup and 45 replay records, plus four official
+startup cross-checks. Lead verification, updated mixed-top regression and
+dynamic VCM integration remain pending. Ready is the candidate-review status;
+it does not establish project selection or signoff.
 
 The [numerical and sizing diagnosis](REF21-diagnosis.md) documents the unchanged
 baseline's converged failure and the exact main28/gate16 proposal. Its four
 private replay pilots pass (worst REF-21 0.948428 including SS refinement),
 with limited DC/noise/startup checks and loop characterization. These diagnostic
-runs are separate from the new formal evidence. **Private TT power is 47.04061 mW
-and the checked fast/cold maximum is 79.81969 mW, about 67% above the baseline**;
+runs are separate from the new formal evidence. **Formal TT power is 47.04061 mW
+and the 45-corner maximum is 79.81969 mW, about 67% above the baseline**;
 the gate MOM is doubled. This is an optimization cost, with no power limit in
 the current reference specification.
 
@@ -133,7 +137,8 @@ The architecture adds per-step waits, and REF-21 changes the definition
 and acceptance of `env_ratio`. The behavioral reference's 8 mA / 6 pF is a
 reference-model starting point, not a transistor bias or capacitance requirement.
 The archived baseline circuit failed the four new replay pilots. The current
-main28/gate16 source is undergoing fresh formal validation; see
+main28/gate16 source passes all required module corners; see
 [REF21-validation.md](REF21-validation.md) for current coverage.
-Updated mixed-top regression, including TOP-10, is coordinated
-separately. The archived top failure retains its original inputs and provenance.
+Updated mixed-top regression, including TOP-10, and dynamic VCM integration
+are coordinated separately. The archived top failure retains its original
+inputs and provenance and is not cleared by the module results.

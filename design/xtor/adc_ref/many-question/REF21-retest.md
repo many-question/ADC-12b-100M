@@ -1,7 +1,7 @@
 # REF-21 retest record
 
 > Historical record before source promotion. The main28/gate16 source is now
-> the formal WIP candidate; current coverage is tracked in
+> ready for candidate review; current coverage and remaining integration work are tracked in
 > [REF21-validation.md](REF21-validation.md). The baseline and this report are
 > preserved at tag `archive/adc-ref-ref21-baseline-604a61a`.
 

@@ -1,8 +1,9 @@
 name: many-question
 description: Native thick-oxide follower with a 1:28 replica servo, startup clamp,
   and doubled gate MOM compensation. Main28/gate16 trades higher power for
-  REF-21 recovery; fresh formal validation is in progress.
-status: wip
+  REF-21 recovery; all required module corners pass. Lead verification and
+  updated mixed-top validation remain pending.
+status: ready
 acknowledged: [30, 34, 46, 60]
 authors:
 - github: many-question
