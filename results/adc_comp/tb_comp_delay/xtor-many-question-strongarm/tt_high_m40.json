@@ -21,7 +21,61 @@
   "tdelay_30mV_ps": 44.47836321020436,
   "tau_reg_ps": 2.0613150438445436,
   "treset_ps": 24.003667045572687,
-  "energy_fJ": 208.21961195640003
+  "validity_violations": 0,
+  "loser_peak_pct": 11.26189976632307,
+  "validity": {
+   "rule": "each CLKC rise .. fall: exactly one output >= 0.5 VDD, the other < 0.3 VDD",
+   "dt_max_ps": 27.9678,
+   "cycles": 36,
+   "decided": 36,
+   "worst": {
+    "cycle": 36,
+    "vd_uV": -10.0,
+    "output": "OUTP",
+    "t_ps": 58.392
+   },
+   "violations": [],
+   "undecided": [],
+   "loser_peaks_pct": [
+    0.449,
+    0.425,
+    0.378,
+    0.375,
+    0.519,
+    0.519,
+    1.064,
+    1.064,
+    2.938,
+    2.867,
+    5.553,
+    5.568,
+    8.26,
+    8.26,
+    11.078,
+    10.447,
+    11.261,
+    11.262,
+    0.428,
+    0.425,
+    0.378,
+    0.375,
+    0.519,
+    0.519,
+    1.064,
+    1.064,
+    2.938,
+    2.867,
+    5.553,
+    5.568,
+    8.26,
+    8.26,
+    11.078,
+    10.447,
+    11.261,
+    11.262
+   ]
+  },
+  "energy_fJ": 209.66482282680002
  },
  "specs": {
   "CMP-05": {
@@ -47,6 +101,18 @@
    "value": 0,
    "limit": "<= 0",
    "pass": true
+  },
+  "CMP-15": {
+   "metric": "validity_violations",
+   "value": 0,
+   "limit": "<= 0",
+   "pass": true
+  },
+  "CMP-16": {
+   "metric": "loser_peak_pct",
+   "value": 11.26189976632307,
+   "limit": "reported",
+   "pass": null
   }
  },
  "specs_na": {
@@ -64,8 +130,8 @@
   },
   "CMP-10": {
    "metric": "energy_fJ",
-   "value": 208.21961195640003,
-   "limit": "<= 200",
+   "value": 209.66482282680002,
+   "limit": "reported",
    "corners": "typ"
   }
  },
@@ -73,16 +139,20 @@
   {
    "file": "tt_high_m40.delay.png",
    "caption": "Comparator delay versus input difference with the log fit and limits, the +1 mV decision with its delay marked, and the reset to 10 % VDD."
+  },
+  {
+   "file": "tt_high_m40.validity.png",
+   "caption": "Output validity (CMP-15): the peak of the losing output from each CLKC rise to the CLKC fall against the 30 % VDD limit, with violations and undecided cycles marked, and the transient of the cycle with the largest losing peak."
   }
  ],
  "meta": {
-  "date": "2026-10-30T00:51:32",
-  "git": "36cdfb3",
+  "date": "2026-10-30T19:28:47",
+  "git": "424d10a",
   "git_clean": true,
   "mode": "aps",
   "pdk": true,
   "mc": null,
-  "wall_s": 772.6,
+  "wall_s": 777.5,
   "rc": "0",
   "sim_s": "14",
   "numerics": {
@@ -98,7 +168,7 @@
    "step_max_ps": 56.5
   },
   "files": {
-   "tb/comp/tb_comp_delay.scs": "c9bbdac040c91a1f",
+   "tb/comp/tb_comp_delay.scs": "ca754d0b9373b04c",
    "tb/common/veriloga/tb_imeter_va.va": "d4be49aca417ad61",
    "design/xtor/adc_comp/many-question-strongarm/adc_comp.scs": "150dd81755a64d66"
   },

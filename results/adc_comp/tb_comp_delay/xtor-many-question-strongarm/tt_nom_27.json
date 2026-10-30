@@ -21,7 +21,61 @@
   "tdelay_30mV_ps": 44.92117435144679,
   "tau_reg_ps": 2.5505294063045714,
   "treset_ps": 28.90013175259268,
-  "energy_fJ": 187.298573112
+  "validity_violations": 0,
+  "loser_peak_pct": 13.818930546828856,
+  "validity": {
+   "rule": "each CLKC rise .. fall: exactly one output >= 0.5 VDD, the other < 0.3 VDD",
+   "dt_max_ps": 25.7623,
+   "cycles": 36,
+   "decided": 36,
+   "worst": {
+    "cycle": 36,
+    "vd_uV": -10.0,
+    "output": "OUTP",
+    "t_ps": 60.401
+   },
+   "violations": [],
+   "undecided": [],
+   "loser_peaks_pct": [
+    0.475,
+    0.445,
+    0.429,
+    0.426,
+    0.792,
+    0.791,
+    2.428,
+    2.435,
+    4.907,
+    4.888,
+    7.917,
+    7.921,
+    10.531,
+    10.531,
+    12.894,
+    12.894,
+    13.819,
+    13.819,
+    0.436,
+    0.445,
+    0.429,
+    0.426,
+    0.792,
+    0.791,
+    2.428,
+    2.435,
+    4.907,
+    4.888,
+    7.917,
+    7.921,
+    10.531,
+    10.531,
+    12.894,
+    12.894,
+    13.819,
+    13.819
+   ]
+  },
+  "energy_fJ": 188.59026970800002
  },
  "specs": {
   "CMP-04": {
@@ -62,25 +116,41 @@
   },
   "CMP-10": {
    "metric": "energy_fJ",
-   "value": 187.298573112,
-   "limit": "<= 200",
+   "value": 188.59026970800002,
+   "limit": "reported",
+   "pass": null
+  },
+  "CMP-15": {
+   "metric": "validity_violations",
+   "value": 0,
+   "limit": "<= 0",
    "pass": true
+  },
+  "CMP-16": {
+   "metric": "loser_peak_pct",
+   "value": 13.818930546828856,
+   "limit": "reported",
+   "pass": null
   }
  },
  "figures": [
   {
    "file": "tt_nom_27.delay.png",
    "caption": "Comparator delay versus input difference with the log fit and limits, the +1 mV decision with its delay marked, and the reset to 10 % VDD."
+  },
+  {
+   "file": "tt_nom_27.validity.png",
+   "caption": "Output validity (CMP-15): the peak of the losing output from each CLKC rise to the CLKC fall against the 30 % VDD limit, with violations and undecided cycles marked, and the transient of the cycle with the largest losing peak."
   }
  ],
  "meta": {
-  "date": "2026-10-30T00:51:32",
-  "git": "36cdfb3",
+  "date": "2026-10-30T19:28:47",
+  "git": "424d10a",
   "git_clean": true,
   "mode": "aps",
   "pdk": true,
   "mc": null,
-  "wall_s": 772.6,
+  "wall_s": 777.5,
   "rc": "0",
   "sim_s": "14",
   "numerics": {
@@ -96,7 +166,7 @@
    "step_max_ps": 56.5
   },
   "files": {
-   "tb/comp/tb_comp_delay.scs": "c9bbdac040c91a1f",
+   "tb/comp/tb_comp_delay.scs": "ca754d0b9373b04c",
    "tb/common/veriloga/tb_imeter_va.va": "d4be49aca417ad61",
    "design/xtor/adc_comp/many-question-strongarm/adc_comp.scs": "150dd81755a64d66"
   },
