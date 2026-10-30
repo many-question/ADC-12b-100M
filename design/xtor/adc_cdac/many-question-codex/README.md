@@ -1,226 +1,63 @@
 # CDAC candidate
 
-This work-in-progress 28 nm HPC+ candidate now uses the exact N4 dummy
-variant that completed the limited same-source checks below. It has
-540 MOS per half, 31 subcircuits, physical MOM arrays, split-supply
-reference drivers, physical midpoint initialization, NMOS charge sharing,
-and pulsed PMOS assistance during sampling entry. The differential test
-uses two copies, totaling 1,080 MOS. Candidate status remains `wip`.
+This WIP 28 nm HPC+ candidate retains the formal N4 source and its complete
+TT evidence. All 17 required TT metrics pass; the first slow-corner screen
+fails RL12 and conversion-start settling. Successor experiments remain
+independent until they earn their own validation; no old result is relabeled.
 
-All 17 required TT metrics pass, but the first limited PVT corner,
-`ss_low_125`, fails RL12 settling (47.4 ps against 40 ps) and
-conversion-start settling (117.7 ps against 100 ps). Corner expansion
-stopped at that result. A separately authorized single 28 ns private
-diagnostic retains both failures at stricter numerical settings and
-locates the slow response in reference drive and capacitor redistribution.
-The circuit and completed official evidence are unchanged.
+## Circuit and fixed assumptions
 
-A subsequent private bit-12 output-width +25% screen also stopped at
-`ss_low_125`: RL12 42.2 ps and start 113.0 ps still fail, while equivalent
-tau rises to 17.1112 ps and newly fails. No TT follow-up was run and this
-experimental size change is not part of the formal N4 source.
+The single-sided CDAC has 540 MOS, 31 subcircuits and 2,278 physical MOM
+units. The differential test instantiates two copies. It uses physical
+midpoint initialization, split-supply reference drivers, NMOS sharing,
+pulsed PMOS sampling assistance and an N4 TOP dummy. Complete RNL is
+included in [adc_cdac.scs](adc_cdac.scs).
 
-The complete RNL matches the frozen physical circuit after collapsing only
-zero-volt measurement probes. Every functional device, geometry, port,
-control connection, and capacitance is unchanged from that checked variant.
-The emitted formal RNL differs from its frozen private RNL only in the
-package-reference location. Pinned drawing checks report zero errors,
-warnings, or hints; all 31 subcircuits are rendered and representative
-TOP, bit, driver, and pulse sheets have been inspected.
+Every physical MOM unit has the user-specified 5% bottom-plate-to-VSS
+estimate, including both series-tail units and MID. One 1.00229 fF unit
+contributes 0.0501145 fF; 36 aggregated Cp elements total 114.160831 fF,
+including 0.300687 fF at six MID nodes. This is a pre-layout estimate,
+not an extracted value or a parameter already present in the MOM model.
+Weights 180 and 32 are excluded from sampling. No assumption changes in
+the private output-driver studies.
 
-## Circuit and parasitic assumptions
+## Formal evidence on N4
 
-The 26 half weights use identical physical MOM units for integer portions
-and two units in series for each remaining half unit. Weights 180 and 32
-are excluded from sampling. There are 2,278 physical MOM units per half.
-Each has a user-specified bottom-plate-to-VSS estimate of 5% of its
-1.00229 fF nominal capacitance. This is an ideal pre-layout estimate,
-not an extracted value or a parameter already included in the two-terminal
-MOM model. Both units in every series tail contribute separately: one at
-MID and one at the bottom plate. Each contribution is 0.0501145 fF.
-The 36 aggregated Cp elements total 114.160831 fF, including 0.300687 fF
-at the six series midpoints. The equivalent half-unit capacitance is not
-used to calculate these parasitics.
-
-Input NMOS switches scale with sampled weight, with total width 48.69 um.
-Physical transmission gates initialize the six MID nodes to VIN while
-sampling. Non-sampled pairs remain reference-driven. DVDD prelogic controls
-reference-rail final inverters; the full reference swing reaches the
-output gates. Internal ENB controls NMOS charge sharing, while a physical
-MOS pulse circuit limits PMOS-to-VIN assistance to sampling entry.
-
-The directly clocked TOP transmission gate has N/P total widths 12/4 um.
-One additional NMOS per half has D/S tied to TOP, gate at PHI_SB, bulk at
-VSS, W=4 um, L=30 nm, and two fingers. Its purpose is to alter switching
-charge and redistribution. The observed final-harmonic improvement is not
-uniquely attributable to TOP-opening charge cancellation. Added TOP load,
-clock charge, gain changes, and higher harmonics are retained in the audit.
-
-## Limited evidence on this exact physical version
-
-These are independent frozen-source experiments before formal-source
-promotion. They are not relabeled as clean official runs on the newly
-committed source.
-
-| Check | Result and scope |
+| Check | Result |
 |---|---|
-| Original weights/calibration | All five required metrics pass: Cs 2.065012 pF, full scale 0.993034 V, calibration margin 0.369061 LSB, calibrated ENOB loss 0.000364 bit, TOP gain 0.893800 |
-| Original 70 ns fixed-input sequence | All ten required metrics pass: RL12 35.3 ps, RL5 47.3 ps, time constant 9.16361 ps, conversion-start settling 83.4 ps, droop 0.00443904 LSB, Qref 1.124578 pC |
-| Total clock/control port capacitance | DH5/PHI_S/PHI_SB/CONV = 0.830865/6.433830/12.242328/9.849301 fF, all within limits |
-| Full 70 ns project stress | 540 MOS / 1,620 gs/gd/ds pairs, all 231,022 saved times: no violations; maximum 0.977333326 V |
-| Full 125 ns sine project stress | Both halves, 1,080 MOS / 3,240 pairs, all 343,433 saved times: no violations; maximum 0.990224783 V |
+| TT weights/calibration | 5/5 pass; Cs 2.065012 pF, full scale 0.993034 V, calibration margin 0.369061 LSB, calibrated ENOB loss 0.000364369 bit |
+| TT settling/charge/load | 10/10 pass; RL12/start 35.3/83.4 ps, tau 9.120184 ps, Qref 1.124389535 pC |
+| TT tracking | SFDR 86.417966859 dBc and SNDR 84.523548567 dB pass; prescribed numerical comparison differs by 0.000307850/0.000215801 dB |
+| Official ss_low_125 | Full scale, RL5, tau and droop pass; RL12 47.4 ps >40 ps and start 117.7 ps >100 ps fail |
 
-The two stress records include time zero and use a 0.5 ps maximum step.
-The sine record leaves only 9.775 mV to the project 1.0 V terminal-pair
-limit. Model warnings, including gate-to-bulk and 0.99 V checks, remain
-retained separately. These records use ideal bootstrap and do not prove
-all-phase, startup, long-hold, PVT, or model-reliability acceptance.
+All 12 official result/figure files remain unchanged. Required coverage is
+9/17 requirements complete across their corner sets, 23/369 specification-
+corner results, with five self-reported records. Other corners, project-lead
+verification and mixed top-level regression remain incomplete. Status stays
+`wip`; ideal bootstrap/clock stimuli do not establish full integration or
+reliability acceptance.
 
-The held dummy D+S charge/voltage ratio is approximately 5.38-5.64 fF
-along the tested RL steps after leakage correction. It is a trajectory-
-dependent branch load, not a constant or complete held-node capacitance.
-PHI_SB is measured at the total port; the dummy's same-window gate branch
-accounts for about 2.37629 fF of the 12.24233 fF total. Reference plus
-internal DVDD prelogic charge excludes other supply branches and ideal
-clock/bootstrap sources, so it is not total power or a ranking result.
+The separate same-source private TT stress checks cover 540 MOS for 70 ns
+and 1,080 MOS for 125 ns of sine input. Maxima are 0.977333326 and
+0.990224783 V, respectively, with no project gs/gd/ds violation. Model
+warnings remain retained. These are limited records, not full PVT/startup
+or long-hold qualification, and do not transfer to a changed circuit.
 
-The matched 48-point differential h3 improves from -83.9867/-83.9393 to
--86.4998/-86.4153 dBc for the h7/h21 bases using each circuit's own
-fundamental. With the frozen baseline fundamental, the new values are
--86.5182/-86.4337 dB. The fundamental decreases 0.2111%; h5 and h7 increase.
-Removing only DC and the fixed-frequency fundamental leaves residual RMS
-37.3746 -> 31.7322 uV. This noncoherent fit is not official SFDR/SNDR or
-THD. The h3 diagnostic margin is only about 1.42 dB.
+## Current design studies and retained history
 
-The [detailed diagnosis](sampling-entry-diagnosis.md) retains the full
-sequence of failures, complex phasors, both halves, and measurement
-limitations. Raw files, frozen inputs, analysis, and recoverable archives
-are hash-verified and retained outside the public repository.
+The [current diagnosis and trial ledger](sampling-entry-diagnosis.md)
+separates formal results, unchanged-source diagnostics and rejected variants.
+The first private +25% bit-12 output-width trial was rejected: RL12/start
+42.2/113.0 ps still fail and equivalent tau rises to 17.111203 ps, a new
+failure. Its conditional TT run was not launched. Design iteration continues
+through separately frozen experiments, with SS settling/all-device stress
+before TT charge/load/settling, then spectra and further corners.
 
-## Formal TT verification and retained failures
-
-The former formal circuit at `2ecc285`, with all its formal results,
-remains available through
-[the pre-N4 history tag](https://github.com/many-question/ADC-12b-100M/tree/adc-cdac-many-question-pre-n4-20261030).
-It failed RL12 settling (50.1 ps), Qref (2.629 pC), tracking SFDR
-(69.6121 dBc), SNDR (69.5735 dB), and separately checked sampling/output
-stress. Those failures have not been erased or marked as passes.
-
-Promoting the new source makes those old result fingerprints stale.
-The current official TT weights and settling tests have now been rerun
-on clean source commit `14881ba`, passing all 5 + 10 required metrics.
-The complete official coherent 256-point tracking main run has also
-passed on clean commit `9a68c59`: SFDR 86.417967 dBc against 85 dBc,
-SNDR 84.523549 dB against 80 dB, and reported THD -85.235595 dBc.
-It took 8,567 seconds (about 143 minutes). The SFDR/SNDR margins are
-1.417967/4.523549 dB. The prescribed numerical twin, launched on clean
-commit `21a4546` with the same physical source, also passes: SFDR
-86.418275 dBc and SNDR 84.523764 dB. Differences of 0.000308/0.000216 dB
-are negligible against those margins, supporting numerical convergence
-for this TT condition. No additional 128-point simulation was run.
-
-The current project tracking settings are reltol 1e-7, voltage tolerance
-1e-8, maxstep 1 ps, and traponly; its cross-check uses 0.5 ps and gear2only.
-These are the project's explicit tracking settings, not settings required
-for every test. This comparison checks step/method sensitivity at the
-specified tolerances; it does not establish the loosest adequate reltol.
-Official weights/settling use their own current configuration, which is
-recorded as actually used rather than equated to the stricter private
-stress diagnostics. The five official weight values match the limited
-table above. Official settling uses reltol 0.001, voltage tolerance
-1e-6, maxstep 2 ps, and traponly; its measured values are:
-
-| Official TT settling metric | Value |
-|---|---:|
-| RL12 / RL5 settling | 35.3 / 47.3 ps |
-| Time constant / conversion-start settling | 9.12018 / 83.4 ps |
-| Hold droop | 0.00438078 LSB |
-| Qref | 1.124389535 pC |
-| DH5 / PHI_S / PHI_SB / CONV capacitance | 0.830865 / 6.432310 / 12.231291 / 9.850052 fF |
-
-All three formal results and their inspected evidence figures are fresh
-for the promoted source; all 17 required TT main metrics now pass. The
-older failed records remain in the linked history tag.
-
-The tracking record contains all 256 sample indices, from 45.426 to
-2595.426 ns, after the original four-cycle warmup. At 100 MS/s and
-48.828125 MHz it covers exactly 125 input cycles. Official metrics
-recomputed from the complete record agree exactly. The largest spur is
-bin 119, the aliased third harmonic. Across all 129 sliding 128-sample
-fixed-frequency h1-through-h21 fits, h3 spans only 0.009622 dB; those
-fits are sensitivity diagnostics, not substitute acceptance windows.
-
-The main run used 3,729,396 accepted steps, with mean spacing 0.698505 ps.
-The twin took 25,028 seconds with 7,478,510 accepted steps and mean
-spacing 0.348331 ps. Both records contain all 256 samples; their difference
-is 0.155934 uV RMS and 0.223638 uV maximum. The maximum printed-time
-difference is 0.001 ps. The twin's sliding-window h3 span is 0.009397 dB.
-Official spectra, sample records, harmonics, and sensitivity plots have
-been inspected without selecting a shorter acceptance record.
-
-The official tracking TB saves sampler outputs rather than the complete
-analog transient, so these records do not extend the separate 125 ns
-all-MOS stress check. Model warnings are retained. Both complete raw jobs
-and input snapshots are archived and recovery-verified. A local controller
-wait expired during the twin; the original simulation continued to a
-successful completion and was collected without launching another run.
-All 17 required TT metrics and the prescribed tracking comparison are now
-complete for this batch; full project acceptance remains outstanding.
-
-## Limited PVT screen: stopped at slow-corner settling failures
-
-The unchanged N4 source completed official weights and settling at
-`ss_low_125`: slow process, vdd 0.81 V, vdd18 1.62 V, temperature 125 C,
-and the specified reference input 0.9 V. Weights ran on clean `aeff71c`
-and settling on clean `035c468`. Only corner-applicable requirements are
-judged; the nine typ-only values remain in `specs_na`.
-
-| Applicable requirement | Slow-corner value | Limit | Verdict |
-|---|---:|---:|---|
-| DAC-02 full scale | 0.993093 V | >= 0.97 V | PASS |
-| DAC-05 RL5 settling | 69.2 ps | <= 75 ps | PASS |
-| DAC-06 RL12 settling | 47.4 ps | <= 40 ps | **FAIL** |
-| DAC-07 time constant | 14.80944 ps | <= 15 ps | PASS |
-| DAC-08 conversion-start settling | 117.7 ps | <= 100 ps | **FAIL** |
-| DAC-11 hold droop | 0.00884455 LSB | <= 0.1 LSB | PASS |
-
-At the RL12 deadline, TOP remains 36.462 mV from its final value against
-a 9.603 mV allowance. At the start deadline, the error is 5.147 mV against
-1.585 mV. Both original samples bracketing each deadline also fail.
-The complete 70 ns record uses the official reltol 0.001, voltage
-tolerance 1e-6, maximum step 2 ps, and traponly. Recomputing the official
-metrics from the recovered raw data gives the same results.
-
-Comparing the official TT and slow-corner waveforms shows unchanged
-prescribed external phase timing. Start has a longer recovery tail;
-RL12 has both a later response and a wider transition. Those original
-records do not save the internal drive nodes.
-
-The subsequent single private 0-to-28 ns diagnostic adds those observations
-with maxstep 0.5 ps, reltol 1e-7, and voltage tolerance 1e-8. It still gives
-RL12 47.4 ps and start 117.7 ps; the official results are not replaced.
-Start's bit-12 output gates enter their 1% bands at 44.9/54.1 ps, while
-BL/BH reach theirs at 118.8/121.8 ps. At RL12, the 50% response progresses
-through LHIB, PCOND, GP and BL at 6.93, 13.83, 20.46 and 37.50 ps.
-The observed late response lies in reference output drive and the coupled
-capacitor network. Bit-12 observations do not uniquely identify a single
-dominant transistor or quantify every array branch. See the
-[completed diagnostic and modification risks](sampling-entry-diagnosis.md#unchanged-n4-single-private-28-ns-slow-corner-diagnostic).
-
-![Slow-corner stage timing and numerical comparison](slow-corner-stage-timing.png)
-
-Native-current and voltage records cover 17 selected MOS / 51 gs/gd/ds
-pairs with a maximum of 0.958726 V; this is not full-device PVT stress
-qualification. The separate TT sine headroom remains only 9.775 mV.
-
-The official jobs and single private diagnostic, staged inputs, raw data,
-and exact analysis scripts are archived and hash-verified. The original
-batch stop remains in force. The planned `ff_high_m40` sine stress was never launched;
-`ss_low_m40` and `ff_high_125` were not run either. No additional TT run,
-tracking run, numerical twin, circuit variant, or wider corner sweep was
-started. The earlier 9.775 mV stress headroom remains TT-only evidence.
-
-The candidate acknowledges notices #17 and #37. These PVT failures,
-remaining corner coverage, actual-bootstrap integration, supply startup,
-long-hold behavior, and project-lead verification remain outstanding.
-No ready or selection status is claimed.
+The complete earlier report and every historical diagnostic figure remain
+in the [immutable history snapshot](https://github.com/many-question/ADC-12b-100M/tree/6a4bf94977db967dbd27ef47669d5d3d25735477/design/xtor/adc_cdac/many-question-codex),
+also retained by tag `adc-cdac-many-question-history-20261031`.
+The [N4 TT evidence tag](https://github.com/many-question/ADC-12b-100M/tree/adc-cdac-many-question-n4-tt-20261030)
+and [pre-N4 history tag](https://github.com/many-question/ADC-12b-100M/tree/adc-cdac-many-question-pre-n4-20261030)
+preserve the actual clean simulation commits and prior failures. Raw data,
+frozen inputs, scripts, geometry validation and recovery/hash manifests are
+retained privately. This compaction changes no circuit or official evidence.
