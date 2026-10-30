@@ -37,3 +37,5 @@ Continuous repair experiments remain separate from the canonical baseline: [V2](
 [V8](RESET-V8.md) restores four-corner timing and output validity, with only cold-FF Q stress still failing at 1.00737 V. [V9](RESET-V9.md) changes only the conductance of the reset-gated Q shunts to address that measured event.
 
 [V9](RESET-V9.md) still fails cold-FF stress and now misses slow reset; [V10](RESET-V10.md) returns to lighter Q shunts and changes the physical clock turn-on timing while bounding its low-level excursion.
+
+[V10](RESET-V10.md) passes four-corner stress and validity, but SS low/hot reset is 35.044926 ps and therefore fails. [V11](RESET-V11.md) increases only direct input precharge from P2 to P2.2 to recover reset margin.
