@@ -809,7 +809,7 @@ None of the 8/8 um circuit's passes is inherited. At this run's measured
 speed, a corresponding 256-point main run would take roughly 121 minutes;
 the numerical cross-check would add a separate run.
 
-The next diagnostic keeps this physical circuit and collects approximately
+The following diagnostic keeps this physical circuit and collects
 48 points of selected tracking and switching waveforms. It will compare
 complex harmonics on a common input-phase reference before and after TOP
 and VG turn-off, including representative BP/MID nodes. This is intended
@@ -817,3 +817,117 @@ to locate when errors appear before selecting one structural experiment;
 stage correlations and cancellation alone will not be presented as a
 unique physical cause. Further size sweeps and formal acceptance runs are
 deferred pending that diagnosis.
+
+## Frozen 48-point sampling-stage diagnosis
+
+This run keeps the same pulse-assisted N12/P4 source, frequency, skipped
+cycles, numerical settings, noise settings, and existing samplers. The only
+deck changes from the 128-point reference are npts = 48, waveform output
+from time zero, and explicit saving of 61 existing voltage nodes. No analog
+observer or timing event is added. Both halves still expand to 1,078 MOS.
+The saves include the ideal and loaded input, TOP, VG, clocks, actual TOP
+gate nets, pulse/sharing controls, representative sampled and nonsampled
+bottom plates, and all three kinds of series-tail midpoint.
+
+The run completed in 32.00 minutes. All 52 retrieved files were hash-verified,
+including 765,209 waveform points over 0-525 ns; the 27 supporting TB files
+still match their frozen hashes. Final sample times exactly reproduce the
+first 48 points of the 128-point run, and their saved voltages differ by at
+most 5.79e-13 V. This is reproduction after changing record length and output
+saves, not a numerical-convergence result.
+
+Twenty stages are extracted from the accepted waveforms. The primary
+interpolation is linear, with at most 1 ps between bracketing points; local
+shape-preserving cubic interpolation is a sensitivity check. Clock crossing
+times agree with the original sampler references within 0.001 fs in the
+saved numerical representation, and the final interpolated voltage agrees
+within 7.5e-14 V. These alignment figures are not physical timing or solver
+error bounds. The four existing marker files also reproduce their previous
+first-48 h3 vectors within 0.000073 uV.
+
+All stages use the same actual PHI_S aperture times and ideal-source phase
+reference. With C_h = cosine coefficient - j*sine coefficient, one common
+phase rotation makes the ideal source fundamental real and positive.
+Absolute complex harmonics and adjacent-stage differences are retained;
+normalization, where shown, uses the same final TOP fundamental. The h7
+and h21 matrices have ranks 9/9 and 23/23 and conditions 1.503 and 1.509.
+Natural input phase advance is separately removed when comparing the
+fully enabled tracking stages. Adjacent-stage differences also include
+ordinary charge redistribution and are not isolated physical error sources.
+
+The following TOP h3 vectors use the fixed h21 basis throughout. Time is
+relative to PHI_S's falling 50% crossing; PHI_B falls at +40 ps and CONV
+rises at +70 ps.
+
+| Stage | Relative time (ps) | Real h3 (uV) | Imaginary h3 (uV) | Magnitude (uV) |
+|---|---:|---:|---:|---:|
+| Fully enabled, before TOP off | -20 | 3.471 | 17.027 | 17.377 |
+| After TOP off | 10 | 1.991 | 66.272 | 66.302 |
+| PHI_B midpoint | 40 | -6.431 | 60.015 | 60.358 |
+| PHI_B +10 ps | 50 | -520.678 | 71.886 | 525.617 |
+| CONV +20 ps | 90 | -5326.776 | 37.090 | 5326.905 |
+| CONV +50 ps | 120 | 2082.184 | 30.664 | 2082.409 |
+| CONV +100 ps | 170 | 50.593 | 8.351 | 51.277 |
+| Final sample | 370 | 49.302 | 9.378 | 50.186 |
+
+![Sampling-stage complex harmonic and sensitivity audit](sampling-stage-phasors.png)
+
+During the late enabled interval, TOP h3 magnitudes at -1000/-500/-100/-20 ps
+are 17.341/17.363/17.369/17.377 uV. After removing natural source-phase
+advance, the vector moves only from (3.021, 17.076) to (3.157, 17.088) uV.
+The earlier -4000 ps value, 249.93 uV, decreases toward this level rather
+than continuing to grow. This describes settling within the observed
+sampling cycles; it does not establish supply-ramp or long-run startup
+acceptance.
+
+Between -20 and +10 ps, the common-phase TOP h3 increment is
+(-1.481, +49.245) uV, with magnitude 49.267 uV. VG-VIN remains approximately
+0.900 V at +10 ps, while the actual TOP gates have completed their transition.
+The loaded-input error and representative BP/MID observables change too.
+The VG-VIN = 0.45 V falling marker occurs 5.628-9.555 ps after PHI_B; this
+is a timing reference rather than a device threshold or proof of channel
+turn-off. Later switching produces much larger transient harmonics, but the
+vector changes by only 1.649 uV between CONV +100 ps and the final sample.
+The 5.33 mV transient must not be described as a 5.33 mV final distortion.
+Similarly, millivolt-scale midpoint harmonics do not establish dominant
+output-error contributions without their coupling weights.
+
+Across all stages, the TOP h3 vector difference between h7 and h21 reaches
+12.48 uV during the large reference-switching transient. It is 0.217 uV
+at TOP +10 ps and 0.593 uV at the final sample. The corresponding largest
+linear-versus-cubic difference is 0.327 uV, and only 0.00389 uV at TOP +10 ps.
+These sensitivities are retained rather than selecting a favorable fit.
+The final h21 result is -83.9393 dBc, consistent with the longer record and
+still above the -85 dBc target; no official spectrum is inferred.
+
+The observations favor investigating switching-stage errors before further
+conducting-width sweeps: late enabled tracking is nearly stable, and a
+substantial vector change appears during TOP opening. They do not uniquely
+separate channel charge, feedthrough, midpoint coupling, or later nonlinear
+charge redistribution.
+
+One proposed structural experiment is a physical dummy NMOS in each half,
+with drain and source tied to TOP, gate driven by PHI_SB, and bulk at VSS,
+while retaining the existing N12/P4 pair and all MOM, Cp, and MID elements.
+The already validated 4 um NMOS geometry is a possible single starting
+point, not an optimum. Opposite-clock dummy compensation is a general
+sampling-switch technique, but its effectiveness depends on charge
+partition; the usual simple sizing assumption is not guaranteed.
+[Charge injection cancellation, section 12.2.4](https://www.ee.ucla.edu/~brweb/teaching/AIC_Ch12.pdf)
+describes that limitation. This reference is not evidence that the proposed
+change succeeds in this circuit.
+
+The testable expectation is a smaller TOP-opening h3 vector increment
+together with an improvement in the final sampled harmonic. Reducing only
+an intermediate transient would not meet that expectation. The costs are
+additional voltage-dependent TOP capacitance, PHI_SB load, and switching
+charge; gain/weights, sampling capacitance, clock load, reference charge,
+hold behavior, and device stress would need rechecking. This proposal has
+not been instantiated or simulated, and no geometry sweep is underway.
+
+Finally, the existing saved nodes permit a limited stress audit of 80 of
+the 1,078 MOS, covering 240 gs/gd/ds pairs over all saved points. None exceeds
+1.0 V in this record. The maximum is 0.991223884 V on the N-side bit-0
+PMOS-assistance device's Vgd at 5.156437461 ns. The other 998 MOS are not
+covered, and the 1 ps stage record is not the finer-step full-device stress
+test. No complete SOA or other acceptance is claimed.

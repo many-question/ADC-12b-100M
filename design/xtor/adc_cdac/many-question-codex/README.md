@@ -139,10 +139,18 @@ harmonics gives -83.9396 dBc. All 65 contiguous 64-point windows span
 1.06 dB shortfall against the required -85 dBc spur level. The 128-point
 record spans 62.5 input cycles and remains an LS diagnostic, with no
 official SFDR/SNDR or numerical-convergence pass. Its own stress and
-weight checks remain outstanding. The next diagnostic freezes this circuit
-and saves selected waveforms over approximately 48 points to compare
-tracking and turn-off stages on a common phase reference before choosing
-one structural experiment.
+weight checks remain outstanding. A subsequent frozen 48-point waveform
+diagnostic reproduces the earlier final samples and compares 20 stages on
+one input-phase reference. Late enabled TOP h3 remains near 17.4 uV, rises
+to 66.3 uV after TOP opening, and ends at 50.2 uV after larger switching
+transients have mostly settled. The report retains complex vectors,
+phase alignment, and basis/interpolation sensitivities. These observations
+favor a switching-stage structural experiment; they do not uniquely assign
+the error to one mechanism. A TOP dummy-NMOS charge-compensation experiment
+is proposed but has not been instantiated or simulated. Added TOP
+capacitance, clock load, charge, and stress would require verification.
+An audit of the saved nodes covers only 80 of 1,078 MOS and cannot establish
+complete device-stress acceptance.
 Convergence comparisons, representative PVT,
 complete corner coverage, long-hold behavior, device stress, and joint bootstrap
 validation remain outstanding. No selection or signoff is claimed.
