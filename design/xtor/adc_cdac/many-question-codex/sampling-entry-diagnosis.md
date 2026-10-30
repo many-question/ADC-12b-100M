@@ -617,7 +617,35 @@ increasing internal logic charge. It remains unselected.
 
 A subsequent diagnostic keeps the pulse and changes only the top N/P
 widths to 12/4 um at the same total width, using validated geometries.
-This tests the remaining top-switch contribution and its interaction with
-the auxiliary timing; it is not an acceptance claim or a decision to adopt
-the pulse. Sine-input stress, weights/calibration, startup, long hold, PVT,
-and actual bootstrap integration have not been established for this version.
+It gives matched 32-point h3 = -81.6220 dBc, h5 = -88.9667 dBc,
+h7 = -92.8922 dBc, fundamental = 0.789828 V, and residual = 6.968 uV.
+This is a 6.55 dB h3 improvement within the common regression model.
+However, extending that fit through h9, h11, or h13 changes h3 to
+-88.85, -86.41, or -82.33 dBc, respectively. The short-record limitation
+described below also applies to this geometry.
+
+The 12/4 um pulse circuit has not been adopted and has no own fixed-input,
+sine-stress, weight/calibration, startup, long-hold, PVT, or actual-bootstrap
+acceptance. A continuous-assistance 12/4 um comparison is being run with
+48 samples. Only record duration changes from its matched 32-point deck;
+the frequency, initial skipped cycles, circuit, and strict numerical
+settings are unchanged. This allows comparison of the first 32 samples
+while providing broader phase coverage for the complete fit.
+
+## Sensitivity of short-record harmonic estimates
+
+The matched 32-point results above consistently fit the fundamental and odd
+harmonics through h7. A read-only audit extends the basis through h9, h11,
+and h13 using the same saved samples. For continuous assistance with 8/8 um top switches,
+the h3 estimates change from -79.90 to -85.97, -91.85, and -80.92 dBc.
+The corresponding regression condition numbers rise from 9.84 to 21.08,
+47.46, and 112.02. These larger fits are not established as more accurate;
+the variation exposes sensitivity to the limited phase coverage and model
+basis. The pulse-assisted 8/8 um estimates range from -76.23 to -74.64 dBc
+over these fits, while the 4/4 um estimates stay near -62 dBc.
+
+The canonical h1/h3/h5/h7 figures remain unchanged for matched comparisons.
+Their differences are diagnostic, and must not be treated as demonstrated
+changes in official SFDR. A longer record with broader phase coverage is
+needed before choosing a near-limit circuit on the strength of these
+estimates. No higher-order fit is used to claim a passing result.
