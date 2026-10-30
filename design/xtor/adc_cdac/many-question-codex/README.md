@@ -130,9 +130,19 @@ with much lower condition numbers. Its first-32 fit predicts the remaining
 16 points with 46.55 uV RMS error, exposing the short-window limitation.
 All 17 contiguous 32-point windows, with the same basis, span 6.53 dB in
 estimated h3 without any circuit change.
-This source has little apparent linearity margin. The next diagnostic
-freezes the existing pulse-assisted 12/4 um circuit and extends its record
-to 128 points. All remain LS diagnostics rather than official spectra.
+This source has little apparent linearity margin. A frozen-source 128-point
+run of the pulse-assisted 12/4 um circuit gives h3 = -83.9397 dBc, with
+h5 = -94.4571 dBc and h7 = -96.6587 dBc. Its full-record h3 varies by only
+0.00010 dB as the odd-harmonic basis expands through h21; including even
+harmonics gives -83.9396 dBc. All 65 contiguous 64-point windows span
+0.01564 dB with the fixed h21 basis. This diagnostic still has about
+1.06 dB shortfall against the required -85 dBc spur level. The 128-point
+record spans 62.5 input cycles and remains an LS diagnostic, with no
+official SFDR/SNDR or numerical-convergence pass. Its own stress and
+weight checks remain outstanding. The next diagnostic freezes this circuit
+and saves selected waveforms over approximately 48 points to compare
+tracking and turn-off stages on a common phase reference before choosing
+one structural experiment.
 Convergence comparisons, representative PVT,
 complete corner coverage, long-hold behavior, device stress, and joint bootstrap
 validation remain outstanding. No selection or signoff is claimed.
