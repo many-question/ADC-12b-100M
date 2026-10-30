@@ -43,3 +43,7 @@ Continuous repair experiments remain separate from the canonical baseline: [V2](
 [V11](RESET-V11.md) fails the added SF low/cold output-validity and SF high/27 terminal-stress checks. [V12](RESET-V12.md) changes output pull-down strength and Q-reset slew at those measured events. [Energy comparison](ENERGY-COMPARISON.md) includes the substantial cost of the repair circuitry.
 
 [RESET-V12](RESET-V12.md) retains its completed six-corner results and directly measured supply-current audit. [RESET-V13](RESET-V13.md) changes only external output pull-down strength to address the remaining reset limit.
+
+## RESET-V14 clock-edge experiment
+
+V13 failed SF/high/-40 terminal stress at 1.001890426 V. V14 strengthens the clock pull-up to enable reset shunts earlier. [New source and screening plan](RESET-V14.md). Both known worst cold high-voltage corners are screened first; no qualification is claimed.
