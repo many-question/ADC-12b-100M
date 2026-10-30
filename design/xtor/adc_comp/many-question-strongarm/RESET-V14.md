@@ -103,3 +103,45 @@ Per-device maximum over all three terminal pairs (V):
 | MUP | 0.99095 | 0.99341 | 0.81195 | 0.99447 | 0.99515 | 0.81863 | 0.81573 | 0.90518 |
 
 Clock charge from the mixed delay sequence is a supplemental diagnostic, not the official CMP-14 input-capacitance result. No all-corner, noise, Monte Carlo or mixed-top qualification is inferred from this screen.
+
+## Completed screen 20261031-052832-strongarm-reset-v14-screen
+
+The actual worst key corner SF/high/-40 passes the targeted tighter numerical run: maxstep 0.125 ps, reltol 1e-7, vabstol 1e-9. Effective simulator settings are confirmed in the log. All 69 terminal pairs pass; maximum stress remains 0.99962 V, with at most 0.010 mV difference in any tabulated pair peak (10 uV reporting precision). Relative to the 0.5 ps run on the same electrical source, 1 mV delay changes +0.009429 ps, 30 mV delay +0.002262 ps, reset -0.098389 ps and energy +0.017411 fJ/cycle. All 36 actual polarities including 10 uV and all 36 resets pass. This supports canonical promotion for official new-source TT capacitance/kickback and noise tests; all remaining qualification remains open.
+
+Actual clean source commit: `b4e50b179f47bd9d4856013bd908fe6f3ed49649`. Electrical SHA-256: `dd44da2a98a529e3f4dced4b72a1728101738d03a1bdc63d4042371206fa6455`. The canonical netlist and 274 official result/figure files are unchanged.
+
+| Corner | 1 mV / 30 mV delay (ps) | Reset (ps) | AVDD (fJ/cycle) | Decided / cycles | Wrong | CMP-15 | Max stress (V) | Failed pairs |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| sf_high_m40 | 66.089011 / 53.662539 | 19.812544 | 747.449257 | 36 / 36 | 0 | 0 | 0.99962 | 0 / 69 |
+
+The entire trace, including clock edges and reset, is checked for every MOS |Vgs|, |Vgd| and |Vds|. Each job uses +aps, no explicit +mt, traponly, maxstep=0.125p, reltol=1e-7 and vabstol=1e-9. The observed batch peak is 1 concurrent jobs; logs report effective single-thread simulation. All raw/deck hashes were verified, and the exact owned remote run was removed with absence confirmed.
+
+Per-device maximum over all three terminal pairs (V):
+
+| Device | sf_high_m40 |
+|---|---:|
+| MINP | 0.75586 |
+| MINN | 0.75601 |
+| MTAIL | 0.99000 |
+| MRDP | 0.99210 |
+| MRDN | 0.99210 |
+| MLNP | 0.99012 |
+| MLNN | 0.99012 |
+| MLPP | 0.99237 |
+| MLPN | 0.99237 |
+| MRQP | 0.99647 |
+| MRQN | 0.99647 |
+| MOPN | 0.99962 |
+| MOPP | 0.99938 |
+| MONN | 0.99962 |
+| MONP | 0.99938 |
+| MDQP | 0.99962 |
+| MDQN | 0.99962 |
+| MDDP | 0.98519 |
+| MDDN | 0.98767 |
+| MCKN | 0.99506 |
+| MCKP | 0.99000 |
+| MBLEED | 0.99506 |
+| MUP | 0.99506 |
+
+Clock charge from the mixed delay sequence is a supplemental diagnostic, not the official CMP-14 input-capacitance result. No all-corner, noise, Monte Carlo or mixed-top qualification is inferred from this screen.
