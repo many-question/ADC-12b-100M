@@ -54,3 +54,13 @@ These complete implementations pass the initial six key corners; further corner 
 | Miyahara B10 | 457.451059 | 174.578897 | 282.872453 | 770.966 | 0.693869 |
 
 The initial current is the simulator's saved DC operating-point current with CLKC low, before the first edge, at the specified initial inputs. It is not an extrapolated ADC power estimate. Persistent reset consumption matters when the surrounding SAR holds the comparator in reset for longer than the characterization duty cycle. A complete converter energy estimate would need its actual active/reset timing. Both sources remain provisional; the lower B10 AVDD number is a comparison of these implemented circuits, not a qualified or topology-only efficiency conclusion.
+
+## V14 measured TT supply phases
+
+All ten measured key corners pass screening, with targeted voltage convergence and formal qualification still pending. The same TT stimulus, 100 ps–14.5 ns meter and complete AVDD boundary give the following saved-current integrals.
+
+| Total (fJ/cycle) | Evaluation | Reset | Initial reset current (uA) | Initial reset power (mW) | Late reset current (uA) |
+|---:|---:|---:|---:|---:|---:|
+| 580.512581 | 106.486586 | 474.025995 | 2077.522376 | 1.869770139 | 2092.666284 |
+
+The original meter is 580.511994 fJ/cycle; waveform integration differs by 0.00010101%. All probes are present and the AVDD terminal-sum residual is numerical zero. Against the matched fine-step canonical control (190.686419 fJ), this complete implementation uses about 204.43% more AVDD energy. The existing persistent Q-reset contention remains. No power limit or bare-topology efficiency conclusion is introduced.
