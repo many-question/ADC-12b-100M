@@ -626,7 +626,7 @@ described below also applies to this geometry.
 
 The 12/4 um pulse circuit has not been adopted and has no own fixed-input,
 sine-stress, weight/calibration, startup, long-hold, PVT, or actual-bootstrap
-acceptance. A continuous-assistance 12/4 um comparison is being run with
+acceptance. A continuous-assistance 12/4 um comparison uses
 48 samples. Only record duration changes from its matched 32-point deck;
 the frequency, initial skipped cycles, circuit, and strict numerical
 settings are unchanged. This allows comparison of the first 32 samples
@@ -646,6 +646,69 @@ over these fits, while the 4/4 um estimates stay near -62 dBc.
 
 The canonical h1/h3/h5/h7 figures remain unchanged for matched comparisons.
 Their differences are diagnostic, and must not be treated as demonstrated
-changes in official SFDR. A longer record with broader phase coverage is
+changes in official SFDR. Apparent improvements and deteriorations alike
+remain exploratory rankings under the stated fit. A longer record with broader
+phase coverage is
 needed before choosing a near-limit circuit on the strength of these
 estimates. No higher-order fit is used to claim a passing result.
+
+## Same-source 48-point stability audit
+
+The continuous-assistance N12/P4 circuit retains PHI_SB-controlled PMOS
+assistance, ENB-controlled sharing, and 526 MOS per half. Its 48-point run
+changes only the record length from the prepared 32-point deck. Fs is
+100 MHz and Fin is 48.828125 MHz, exactly 125/256 of Fs. Four cycles are
+skipped. The run covers 0 to 525 ns; the actual saved sample times are
+45.426 + 10k ns for k = 0..47. The sampler records TOP 300 ps after CONV
+crosses its threshold, with a 10 fs event tolerance. Fits use the saved
+times directly. The archive and every retrieved file were hash-verified.
+
+The following comparison uses this one record and a fixed h1/h3/h5/h7
+basis, including an intercept. Each matrix has rank 9 of 9.
+
+| Window | Actual interval (ns) | Condition number | h3 (dBc) | Residual RMS (uV) |
+|---|---|---:|---:|---:|
+| First 32 | 45.426-355.426 | 9.843 | -77.2363 | 7.306 |
+| All 48 | 45.426-515.426 | 1.503 | -78.6602 | 9.615 |
+| Last 32 | 205.426-515.426 | 9.843 | -78.1656 | 8.732 |
+
+The first-32 fit predicts the withheld 16 samples, at 365.426-515.426 ns,
+with 46.552 uV RMS error and 87.110 uV maximum absolute error. This is
+substantially larger than its training residual. The complete 48-point
+fit gives fundamental = 0.789925 V, h5 = -86.1022 dBc, and h7 = -92.4754 dBc.
+Adding a linear trend to that same fixed basis changes h3 by less than
+0.0001 dB. That sensitivity check does not rule out other transient errors.
+
+![Same-source record length and fit-basis audit](tracking-record-audit.png)
+
+Extending the basis on the full 48 points gives:
+
+| Highest odd harmonic | Rank / columns | Condition number | h3 (dBc) | Residual RMS (uV) |
+|---|---:|---:|---:|---:|
+| h9 | 11 / 11 | 1.503 | -78.7396 | 4.738 |
+| h11 | 13 / 13 | 1.503 | -78.7194 | 3.580 |
+| h13 | 15 / 15 | 1.503 | -78.7264 | 2.527 |
+| h21 | 23 / 23 | 1.509 | -78.7267 | 0.744 |
+
+At Fs = 100 MHz, h1/h3/h5/h7 fold to
+48.828125/46.484375/44.140625/41.796875 MHz. The additional
+h9/h11/h13/h15/h17/h19/h21 terms fold to
+39.453125/37.109375/34.765625/32.421875/30.078125/27.734375/25.390625 MHz.
+All fits retain their specified harmonic sets; a fit is not selected because
+it gives a preferred h3 value.
+
+For this circuit, the full-record h3 span is less than 0.080 dB across the
+tested bases. It shows little prospect of meeting the required linearity.
+This is still a noncoherent known-frequency LS diagnosis, with no official
+SFDR/SNDR, convergence, or startup pass. The early and late 32-point windows
+overlap and cover different input phases, so their differences cannot
+uniquely separate startup from omitted harmonics. No fixed-input, sine-stress,
+or weight acceptance is inherited by this geometry.
+
+Under the same first-32 basis, the previously measured pulse-assisted
+N12/P4 circuit gives -81.6220 dBc, compared with -77.2363 dBc here. This is
+a lead for further diagnosis, rather than a comparison of complete spectra.
+The next run freezes that existing pulse circuit and extends its record to
+128 points, with unchanged frequency, skipped cycles, and strict numerical
+settings. It will compare common bases over the first 32, first 48, two
+64-point windows, and all 128 samples before any further geometry decision.
