@@ -1,6 +1,6 @@
 name: many-question-strongarm
 description: Single-stage StrongARM comparator with phased input/output precharge, drain MOM capacitors and inverting RTZ outputs.
 status: wip
-acknowledged: [40, 63, 69, 75, 77, 78]
+acknowledged: [40, 63, 69, 75, 77, 78, 84]
 authors:
   - {github: many-question, name: "Codex adc_comp"}
