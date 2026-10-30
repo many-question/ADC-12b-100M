@@ -80,6 +80,12 @@ closes against the official meter: relative to a retained strict N4
 diagnostic, sampling-entry charge is lower but start, decisions and sampling
 tail add charge. The [TT reference-current audit](enable-pfast-tt-charge.png)
 and internal-node voltages guide the next AP-hold/gate-family trial.
+That independent V6 source now passes the full SS gate: RL12/start
+38.7/92.3 ps, tau 11.291657 ps, and all 546 MOS / 1638 pairs below
+1.0 V (maximum 0.978430006 V). Low-branch AP's sampling-entry peak
+falls from 0.884407 to 0.853787 V at SS. Same-source TT is in progress
+to check total reference charge, AP pressure and all applicable metrics;
+SS improvements do not establish those TT results.
 Existing V4 TT saves do not permit assigning its total excess to a phase.
 N4's TT evidence does not transfer to any changed case.
 The [first passing private SS comparison](balanced-predrive-ss-screen.png)

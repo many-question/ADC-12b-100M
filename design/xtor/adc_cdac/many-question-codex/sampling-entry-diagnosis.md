@@ -537,16 +537,69 @@ N4 retains its zero-volt measurement probes; V5 uses native saves.
 The official N4 numerical/save differences and V4 total-current gap remain
 as described above. No historical simulation was repeated for the audit.
 
-## Continuing verification
+## Controlled AP keeper and gate-family SS result
 
-The next independent hypothesis holds AP toward DVDD through a PMOS only
-when HIB is high and the lower series PMOS is off; a small local inverter
-generates that keeper control. It also tests an intermediate-threshold
-GP pull-down with drive/loading compensation, targeting the measured
-sampling-tail current. Added command loading, transition contention,
-settling, total reference charge and all added MOS must be checked.
-The shared enable is not accelerated further. No circuit pass is inherited
-from V5, V4 or formal N4.
+The independent V6 source adds a HIB inverter and a PMOS between AP and
+DVDD in each bit-12 driver. When HIB is high, the lower series PMOS is
+off and the keeper holds AP toward DVDD. When HIB is low, the keeper is
+off. The inverter uses a 0.4 um ULVT NMOS and 0.8 um nominal-threshold
+PMOS; the keeper is a 0.8 um nominal-threshold PMOS. All have 30 nm length
+and one finger. MGPN changes from ULVT 8 um / four fingers to LVT
+10 um / five fingers. Upper MPA0 changes from 16 to 20 um / ten fingers
+to compensate loading. The shared enable remains unchanged from V5.
+Fresh geometry callbacks have no warnings, and pinned RNL check and
+render pass. The circuit contains 546 MOS per half; all added devices
+are included in its pressure plan.
+
+Source SHA256:
+`743450313c4c14225a9a28dceb4ec7b61f075e7ba5926abb793abee5787bc5b6`.
+This is an independent private source; no V5, V4 or formal N4 evidence
+is inherited. The full 70 ns SS run used clean launch commit
+`b2756851618b9c49016f20cafebfcba2c0c618f2` and the same strict numerical
+settings and original stimulus.
+
+| SS quantity | V6 | Result |
+|---|---:|---|
+| RL5 / RL12 / start | 58.6 / 38.7 / 92.3 ps | PASS |
+| Tau | 11.291656529 ps | PASS |
+| Droop | 0.010551466 LSB | PASS |
+| All 546 MOS / 1638 terminal pairs | max 0.978430006497 V | PASS |
+| Qref | 1.871702918 pC | n/a at SS |
+| DH5 / PHI_S / PHI_SB / CONV | 0.807291 / 5.969836 / 12.395270 / 19.121915 fF | n/a at SS |
+
+RL12 improves by 0.5 ps from V5, leaving 1.3 ps margin. At the 40 ps
+deadline, TOP error is 6.217460 mV against 9.604085 mV allowed; both
+bracketing raw samples pass. At the 100 ps start deadline the error is
+0.832997 mV against 1.603094 mV allowed, also with both raw brackets
+passing. The global stress maximum is XB2.XDL.MNOUT drain/source at
+60.080165087 ns. The run took 415 s and contains 200,487 time points
+(200,486 accepted steps), 279 voltage traces and 99 current traces.
+
+The matched SS event audit finds low-branch AP's sampling-entry maximum
+falls from 0.884406717 to 0.853786769 V. Its 62..64 ns mean changes from
+0.734012127 to 0.807332142 V, close to the 0.81 V digital supply.
+The largest low-branch MPA1
+drain/source voltage over the full run falls from 0.881696149 to
+0.843589717 V. These are SS observations, not a TT pressure verdict.
+
+In the same quiet window V6's two MGPP source-plus-body currents average
+8.257379 and 8.326296 uA; V5 SS lacks those saves. V6's low/high keeper
+currents are 4.059493 / 0.034709 uA and digital-supply current is
+251.108130 uA. These include terminal displacement and are diagnostic;
+the absence of a V5 digital-supply trace prevents a total supply-cost
+comparison. V6's reference-current integral closes to its meter within
+0.000023536 fC. No SS phase reduction is substituted for the TT charge
+budget.
+
+All nine raw files and 50 frozen inputs were recovered and hash-verified
+before exact cleanup. Archive SHA256:
+`6f2c22d1cbbe6e802012932c31ec430b43994088d9271178e114cf08fef4d957`.
+The conditional same-source TT run is in progress, with total reference,
+digital-supply and keeper current saves. Its decisive checks are the
+1.2 pC whole-window reference budget, AP and all other MOS voltages,
+all settling requirements and input loads.
+
+## Continuing verification
 
 A brief separately controlled reference-drive assist remains an unimplemented
 hypothesis, with additional pulse alignment and loading questions.
