@@ -1639,9 +1639,13 @@ scheduled reference does not affect the verdict. Both original samples
 bracketing each new deadline remain outside the band. Final TOP values
 change only +0.129286 uV for start and +1.867780 uV for RL12.
 
-This comparison tightens both step and tolerances while adding observations;
-it does not isolate reltol sensitivity or prove the entire waveform is
-identical. The event-aligned local TOP difference reaches 3.246941 mV
+Both actual commands use `+aps` with no explicit `+mt` argument. The
+diagnostic log reports four threads enabled; the original official
+slow-corner log reports multithreading disabled because of circuit size.
+This comparison tightens both step and tolerances, adds observations,
+and has different automatic thread selection. It does not isolate
+reltol sensitivity or prove the entire waveform is identical.
+The event-aligned local TOP difference reaches 3.246941 mV
 near the start notch at +40.2 ps and 0.703372 mV near RL12 +20.1 ps.
 The deadline errors change by only -0.491006 uV and -33.074398 uV.
 Thus the known failures are stable under this stricter setting, while
