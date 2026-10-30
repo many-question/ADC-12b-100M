@@ -19,47 +19,47 @@
   "p1": [
    0.0,
    0.0,
-   0.0,
-   0.002,
-   0.0215,
-   0.0586,
-   0.1484,
-   0.293,
-   0.5352,
-   0.6992,
-   0.8223,
-   0.959,
-   0.9766,
-   0.9961,
-   0.9941,
+   0.0039,
+   0.0059,
+   0.0332,
+   0.0547,
+   0.1562,
+   0.2578,
+   0.5273,
+   0.6582,
+   0.8574,
+   0.9258,
+   0.9727,
+   0.9922,
+   0.998,
    1.0,
    1.0
   ],
   "n_per_level": 512,
-  "noise_uV": 193.75846454733392,
+  "noise_uV": 201.87991903950217,
   "noise_ci95_uV": [
-   185.84,
-   202.07
+   193.82,
+   210.34
   ],
-  "offset_abs_mV": 0.000199070866299509,
-  "offset_mV": 0.000199070866299509
+  "offset_abs_mV": 0.005300095109237884,
+  "offset_mV": 0.005300095109237884
  },
  "specs": {
   "CMP-01": {
    "metric": "noise_uV",
-   "value": 193.75846454733392,
+   "value": 201.87991903950217,
    "limit": "<= 200",
-   "pass": true
+   "pass": false
   },
   "CMP-13": {
    "metric": "noise_uV",
-   "value": 193.75846454733392,
+   "value": 201.87991903950217,
    "limit": "<= 240",
    "pass": true
   },
   "CMP-02": {
    "metric": "offset_abs_mV",
-   "value": 0.000199070866299509,
+   "value": 0.005300095109237884,
    "limit": "<= 2",
    "pass": true
   }
@@ -71,15 +71,15 @@
   }
  ],
  "meta": {
-  "date": "2026-10-30T02:05:32",
-  "git": "fcf5c09",
+  "date": "2026-10-31T06:10:54",
+  "git": "701c79c",
   "git_clean": true,
   "mode": "aps",
   "pdk": true,
   "mc": null,
-  "wall_s": 394.1,
+  "wall_s": 518.7,
   "rc": "0",
-  "sim_s": "308",
+  "sim_s": "411",
   "numerics": {
    "source": "spectre.log",
    "reltol": 0.001,
@@ -88,14 +88,14 @@
    "errpreset": "moderate",
    "lteratio": 3.5,
    "abstol_V": 1e-06,
-   "steps_accepted": 1123604,
-   "step_mean_ps": 3.09869,
+   "steps_accepted": 1065958,
+   "step_mean_ps": 3.26626,
    "step_max_ps": null
   },
   "files": {
    "tb/comp/tb_comp_noise.scs": "72a48171fe4d3c2f",
    "tb/common/veriloga/tb_sampler_va.va": "4092bc16170c588d",
-   "design/xtor/adc_comp/many-question-miyahara/adc_comp.scs": "e8a0e3d3dc1366cd"
+   "design/xtor/adc_comp/many-question-miyahara/adc_comp.scs": "e64f215d6bd941a8"
   },
   "arch": {
    "keys": [],
