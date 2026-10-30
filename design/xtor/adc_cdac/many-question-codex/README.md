@@ -73,9 +73,15 @@ phase audit identifies increased sampling-entry charge in one bit-12 branch
 and slower shared disable. The next case doubles only the enable pull-up
 and passes its independent SS gate (RL12/start 39.2/91.9 ps, all-MOS
 maximum 0.979957590 V); SS Qref falls to 1.916043704 pC (n/a).
-Its conditional TT run includes total reference-current saves to close the
-charge audit. Existing V4 TT saves do not permit assigning its total excess
-to a phase. N4's TT evidence does not transfer to any changed case.
+Its conditional TT run reduces Qref to 1.203200599 pC, still failing by
+3.200599 fC, and finds a new internal-PMOS stress peak of 1.014916187 V.
+That case stops before weights/spectra/corners. Its total-current integral
+closes against the official meter: relative to a retained strict N4
+diagnostic, sampling-entry charge is lower but start, decisions and sampling
+tail add charge. The [TT reference-current audit](enable-pfast-tt-charge.png)
+and internal-node voltages guide the next AP-hold/gate-family trial.
+Existing V4 TT saves do not permit assigning its total excess to a phase.
+N4's TT evidence does not transfer to any changed case.
 The [first passing private SS comparison](balanced-predrive-ss-screen.png)
 and complete source/evidence identifiers are in the ledger.
 

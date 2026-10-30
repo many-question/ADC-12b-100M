@@ -479,13 +479,74 @@ and 50 frozen inputs were recovered and hash-verified before exact cleanup.
 Archive SHA256:
 `62b4b36d23db40e17a9b7eafe765510056a0c9e56043203b1cb2effcc5b87830`.
 
+## Faster shared enable pull-up: TT charge and internal-node stress failure
+
+The same V5 source completed the original 70 ns TT stimulus with strict
+0.5 ps / 1e-7 / 1e-8 / traponly settings and thirteen extra current saves,
+from clean launch commit `d2e07f3016b37abc8fc5db3af4a616541cc2f7ad`.
+Nine applicable requirements pass, but Qref is 1.203200599 pC, above the
+1.2 pC budget by 3.200599 fC. This is a failure despite the 78.122165 fC
+reduction from V4. RL5/RL12/start are 40.2/29.8/65.4 ps, tau is
+6.861853 ps, droop is 0.002983484 LSB, and DH5/PHI_S/PHI_SB/CONV
+capacitances are 0.830865/6.437933/12.250828/19.698541 fF.
+
+The complete 540-MOS / 1,620-pair scan at 231,501 times finds one new
+violation: XB12.XDL.MPA1 |Vds| peaks at 1.014916187066 V at
+60.079919053 ns, against 1.0 V. At that point AP is 1.016445918 V and
+PCOND is 0.001529731 V; ENB and LHIB are 0.890564036/0.899250830 V.
+The series-PMOS intermediate node is raised during sampling entry, while
+the output-side node is low. V4's ENB/LHIB 50% crossings occurred
+15.364/9.664 ps after the entry edge; V5 advances ENB to 9.071 ps while
+LHIB is 9.725 ps. This is consistent with the faster disable leaving AP
+floating while the command changes. It does not justify further enable
+acceleration without treating that node.
+
+The job took 433 s and saved 367 signals. All nine raw files and 50 frozen
+inputs were recovered and hash-verified before exact cleanup. Archive SHA256:
+`a663443de367c6626b68f6b4e5425c6494464030edc2e2ea7ec386d018f1ee64`.
+Both the reference-charge failure and the stress violation stop this case
+before weights, tracking and other-corner expansion.
+
+### Closed TT reference-charge audit
+
+Integrating the newly saved -VREFP:p over the original 54.8..64.8 ns window
+gives 1,203.200553413 fC, only -0.000045587 fC from its official meter.
+The signed cumulative trace and consecutive partitions therefore account
+for the complete reference charge. Relative to the retained strict N4
+diagnostic, the total difference is +78.622565 fC:
+
+| Phase | V5 minus strict N4 (fC) |
+|---|---:|
+| Start and its neighbouring pre-decision intervals | +36.751077 |
+| Thirteen decisions | +31.511703 |
+| Post-decision hold | +0.454055 |
+| Sampling entry | -15.747576 |
+| Sampling tail | +25.653305 |
+
+![TT cumulative reference charge and signed phase differences](enable-pfast-tt-charge.png)
+
+The sampling-entry charge is already below N4. During the remaining
+4.444 ns sampling tail, the two bit-12 MGPP source-plus-body branches
+draw 12.926594/12.946106 fC, totalling 25.872700 fC. The paired MGNP
+branches total 0.220307 fC and the output-PMOS branches are only
+0.095713/0.095714 fC. This localizes a substantial tail contribution to
+the reference-powered GP inverters and motivates examining their NMOS
+off state. Native terminal currents include displacement; neither a
+residual nor these charges alone are labelled pure channel leakage.
+N4 retains its zero-volt measurement probes; V5 uses native saves.
+The official N4 numerical/save differences and V4 total-current gap remain
+as described above. No historical simulation was repeated for the audit.
+
 ## Continuing verification
 
-The same frozen V5 source is now in its conditional TT settling/charge/load
-and all-MOS test. The original stimulus and strict numerics are retained,
-with thirteen additional current saves for total-reference and selected
-branch charge accounting. TT results are pending. No circuit pass is
-inherited from V4 or formal N4.
+The next independent hypothesis holds AP toward DVDD through a PMOS only
+when HIB is high and the lower series PMOS is off; a small local inverter
+generates that keeper control. It also tests an intermediate-threshold
+GP pull-down with drive/loading compensation, targeting the measured
+sampling-tail current. Added command loading, transition contention,
+settling, total reference charge and all added MOS must be checked.
+The shared enable is not accelerated further. No circuit pass is inherited
+from V5, V4 or formal N4.
 
 A brief separately controlled reference-drive assist remains an unimplemented
 hypothesis, with additional pulse alignment and loading questions.
