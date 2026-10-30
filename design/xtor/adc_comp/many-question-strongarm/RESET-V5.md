@@ -9,3 +9,18 @@ All MOS geometries reuse successful callback results. The new MOM geometry was s
 The independent [RESET-V5.txt](RESET-V5.txt) has 17 MOS and five MOM capacitors, with complete RNL and a separate preview. The first screen uses the same four key corners, full terminal-voltage scope, physical outputs and 0.5 ps settings as preceding experiments. This source-freeze commit claims no performance result. Canonical baseline evidence remains unchanged.
 
 ![Capacitive compensation experiment](reset-v5.png)
+
+## Completed screen: narrowed voltage failures
+
+Actual source commit `baaaad4c37e9299be6fadf1d17a1292999bf271a`; electrical SHA-256 `333bac5ee06a9f9d042c3f980c3e4f09778d49a8bace08dc557e4035406d2488`. Every corner decides 36/36 cycles with correct first-event polarity and CMP-15 = 0. Delay and reset pass, but high-voltage terminal stress remains, so this source is not expanded.
+
+| Corner | 1 mV ps | 30 mV ps | Reset ps | AVDD fJ | Losing peak % VDD | Max terminal V | Violating pairs / 51 |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| tt_nom_27 | 57.457825 | 44.390487 | 21.075293 | 159.028253 | 18.471300 | 0.921270 | 0 |
+| ff_high_m40 | 43.202887 | 33.719571 | 16.134214 | 179.649178 | 19.593476 | 1.012780 | 12 |
+| ff_high_125 | 42.886118 | 32.239274 | 18.535685 | 289.170133 | 20.212343 | 1.003860 | 3 |
+| ss_low_125 | 75.823523 | 57.636063 | 28.967544 | 148.213686 | 17.226347 | 0.833080 | 0 |
+
+Cold FF QP/QN reset peaks are 1.012775 V, while early evaluation peaks are about 1.002261 V. At a QP reset maximum, CKB is still rising through 0.733925 V and the opposite QN is 0.462348 V. Cold CKB itself spans -0.010533 to 1.003013 V. Hot Q peaks of 1.002708 V occur before the rising CLKC 50% threshold, and are still included in full-trace stress checks. Separately, DN reaches 1.005346 V cold and 1.003861 V hot at the 400 ps input transition while CLKC is low. These observations motivate shaping CKB and strengthening input precharge independently; a single global peak cannot distinguish them.
+
+TT mixed-cycle clock Ceff is 15.364611 fF, supplemental to the official fixed-pattern CMP-14 test. All 51 device terminal pairs were checked. Actual batch peak was three jobs; +aps, no ++aps or explicit +mt, effective single-thread solving. Evidence retrieval, per-file SHA verification and exact-owned remote cleanup completed. Canonical records remain unchanged.
