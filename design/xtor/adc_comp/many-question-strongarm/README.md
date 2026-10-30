@@ -31,3 +31,5 @@ Priority structural direction: Rework the series input-drain precharge network t
 The separate [RESET-V1 four-corner experiment](RESET-V1.md) is complete and rejected as a replacement: reset improves, but stress shifts to the new logic, TT 30 mV delay fails, and energy/clock charge increase. Its frozen source and private-diagnostic evidence do not replace this canonical baseline.
 
 Continuous repair experiments remain separate from the canonical baseline: [V2](RESET-V2.md), [V3](RESET-V3.md), [V4](RESET-V4.md), [V5](RESET-V5.md) and [V6](RESET-V6.md) retain failed screens and actual source hashes. [V7](RESET-V7.md) tests physical diode-connected loads after clock compensation failed to bound reset peaks. A failed version stops its own expansion; design iteration continues.
+
+[V7](RESET-V7.md) passes four-corner terminal stress but fails CMP-15 because its Q loads remain on during evaluation. [V8](RESET-V8.md) gates those loads with a physical reset clock and checks the resulting phase overlap and capacitance.
