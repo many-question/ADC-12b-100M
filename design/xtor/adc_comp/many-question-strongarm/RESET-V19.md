@@ -92,3 +92,37 @@ Per-device maximum over all three terminal pairs (V):
 | MUP | 0.90609 |
 
 Clock charge from the mixed delay sequence is a supplemental diagnostic, not the official CMP-14 input-capacitance result. No all-corner, noise, Monte Carlo or mixed-top qualification is inferred from this screen.
+
+## Matched short physical noise diagnosis
+
+Run `20261031-074942-strongarm-reset-v19-noise-numerics-diagnostic-screen` uses actual clean source `70e17c44051c89446c32d2ba22235a8884181ac5` with the same physical V19 source, fine 0.5 ps integration, reltol=1e-6, vabstol=1e-8, 50 GHz bandwidth and seed 1. It records OUTP counts 1/128 at -800 uV and 128/128 at +800 uV: one wrong polarity in 256 decisions. That error is retained. V18 had zero in the matched short sample; these small two-level counts do not establish either a formal sigma or a statistically isolated clock-device effect.
+
+All 256 resets complete, maximum 22.618032995 ps. There are zero early (+80 ps) or middle (+150 ps) to final sign changes, late-reset violations and physical output-validity violations. All 69 MOS terminal pairs pass over the full trace, maximum 0.90821 V. At rise +30 ps QP-QN means are +1.758495/-1.754884 mV, with standard deviations 0.983277/0.929692 mV; at +40 ps the means are +8.649103/-8.818842 mV and standard deviations 2.767018/2.527898 mV. This retains useful signal transfer but does not establish the 200 uV requirement.
+
+The 102.5 ns duration raises noisefmin to 9.7561 MHz, compared with 287.216 kHz in the original full test, and the read-only samplers add time points. All original formal files remain unchanged. Raw/deck hashes and the private archive are verified; the exact owned remote directory is absent. The other known deterministic corners and actual-worst convergence are next prerequisites before canonical promotion and the unchanged original formal capacitance/noise tests.
+
+| Device | Maximum terminal stress (V) |
+|---|---:|
+| MINP | 0.59064 |
+| MINN | 0.59092 |
+| MTAIL | 0.90000 |
+| MRDP | 0.90134 |
+| MRDN | 0.90137 |
+| MLNP | 0.89915 |
+| MLNN | 0.89909 |
+| MLPP | 0.90163 |
+| MLPN | 0.90163 |
+| MRQP | 0.90786 |
+| MRQN | 0.90800 |
+| MOPN | 0.90821 |
+| MOPP | 0.90821 |
+| MONN | 0.90816 |
+| MONP | 0.90816 |
+| MDQP | 0.90786 |
+| MDQN | 0.90800 |
+| MDDP | 0.89535 |
+| MDDN | 0.89599 |
+| MCKN | 0.90667 |
+| MCKP | 0.90133 |
+| MBLEED | 0.90667 |
+| MUP | 0.90667 |
