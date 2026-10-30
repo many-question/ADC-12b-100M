@@ -96,13 +96,13 @@ stress. Those failures have not been erased or marked as passes.
 Promoting the new source makes those old result fingerprints stale.
 The current official TT weights and settling tests have now been rerun
 on clean source commit `14881ba`, passing all 5 + 10 required metrics.
-The selected next
-spectral check is the project's complete coherent 256-point record,
-with official preparation, analysis, and figures; no additional 128-point
-diagnostic is planned. Main tracking runtime is roughly 122 minutes,
-excluding retrieval/analysis and a separate required convergence check.
-A failing main result requires an audit before a cross-check run; a
-passing main result still requires the specified numerical comparison.
+The complete official coherent 256-point tracking main run has also
+passed on clean commit `9a68c59`: SFDR 86.417967 dBc against 85 dBc,
+SNDR 84.523549 dB against 80 dB, and reported THD -85.235595 dBc.
+It took 8,567 seconds (about 143 minutes). The SFDR/SNDR margins are
+1.417967/4.523549 dB. The prescribed numerical comparison remains
+pending; a passing main result alone does not establish convergence.
+No additional 128-point simulation is planned.
 
 The current project tracking settings are reltol 1e-7, voltage tolerance
 1e-8, maxstep 1 ps, and traponly; its cross-check uses 0.5 ps and gear2only.
@@ -120,10 +120,25 @@ table above. Official settling uses reltol 0.001, voltage tolerance
 | Qref | 1.124389535 pC |
 | DH5 / PHI_S / PHI_SB / CONV capacitance | 0.830865 / 6.432310 / 12.231291 / 9.850052 fF |
 
-Both formal results and their inspected evidence figures are fresh for
-the promoted source. The original failed tracking record is still stale
-and retained until the new official tracking run produces its result.
-No full TT linearity or convergence pass is claimed yet.
+All three formal results and their inspected evidence figures are fresh
+for the promoted source; all 17 required TT main metrics now pass. The
+older failed records remain in the linked history tag.
+
+The tracking record contains all 256 sample indices, from 45.426 to
+2595.426 ns, after the original four-cycle warmup. At 100 MS/s and
+48.828125 MHz it covers exactly 125 input cycles. Official metrics
+recomputed from the complete record agree exactly. The largest spur is
+bin 119, the aliased third harmonic. Across all 129 sliding 128-sample
+fixed-frequency h1-through-h21 fits, h3 spans only 0.009622 dB; those
+fits are sensitivity diagnostics, not substitute acceptance windows.
+
+The main run used 3,729,396 accepted steps, with mean spacing 0.698505 ps.
+The official tracking TB saves sampler outputs rather than the complete
+analog transient, so this record does not extend the separate 125 ns
+all-MOS stress check. Model warnings are retained. The exact raw job and
+input snapshot are archived and recovery-verified. The required
+0.5 ps / gear2only twin is the next physical run; no convergence or
+complete TT acceptance is claimed before its margin comparison.
 
 The candidate acknowledges notices #17 and #37. PVT, actual-bootstrap
 integration, supply startup, long-hold behavior, full corner coverage,
