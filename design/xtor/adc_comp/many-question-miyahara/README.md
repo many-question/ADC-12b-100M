@@ -47,3 +47,7 @@ Continuous physical-output repair experiments remain independent of this canonic
 ## BUFFER-V11 clock-edge experiment
 
 B10 failed SF/high/-40 and FS/high/-40 clock feedthrough, worst terminal stress 1.001143791 V. B11 adds physical CKB rail loads. [New source and screening plan](BUFFER-V11.md). Both known worst cold high-voltage corners are screened first; no qualification is claimed.
+
+## BUFFER-V12 input-stage feedthrough experiment
+
+B11 fixes clock-rail stress but retains M14/M15 stress up to 1.00092 V at FS/high/-40. [B12](BUFFER-V12.md) adds physical XP/XN weak pull-ups and starts with the two known worst cold high-voltage corners. No qualification is claimed.
