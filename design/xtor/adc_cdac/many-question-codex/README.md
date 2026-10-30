@@ -146,11 +146,20 @@ to 66.3 uV after TOP opening, and ends at 50.2 uV after larger switching
 transients have mostly settled. The report retains complex vectors,
 phase alignment, and basis/interpolation sensitivities. These observations
 favor a switching-stage structural experiment; they do not uniquely assign
-the error to one mechanism. A TOP dummy-NMOS charge-compensation experiment
-is proposed but has not been instantiated or simulated. Added TOP
-capacitance, clock load, charge, and stress would require verification.
-An audit of the saved nodes covers only 80 of 1,078 MOS and cannot establish
-complete device-stress acceptance.
+the error to one mechanism. A single physical N4 dummy per half then improves
+matched final h3 from -83.987/-83.939 to -86.500/-86.415 dBc for the h7/h21
+bases, using each circuit's own fundamental. Baseline-normalized phasors,
+both halves, and interpolation sensitivity are retained separately. The
+fundamental decreases 0.2111%, while h5 and h7 increase. The TOP-opening
+increment falls only slightly, so final improvement is not attributed
+solely to charge cancellation. Added gate-branch charge is observed, but
+total clock-port load and held capacitance remain unmeasured for this
+version. Only 82 of 1,080 MOS have complete saved-terminal coverage in
+this diagnostic; the two new devices peak below 0.844 V in project gs/gd/ds
+checks. This is not full-device SOA or an official SFDR/SNDR pass. Its own
+weights, complete fixed-input checks, and sine stress must be verified
+before any longer spectral run; no prior pass is inherited. The formal
+candidate source remains unchanged.
 Convergence comparisons, representative PVT,
 complete corner coverage, long-hold behavior, device stress, and joint bootstrap
 validation remain outstanding. No selection or signoff is claimed.
