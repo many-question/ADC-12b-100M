@@ -35,3 +35,5 @@ Continuous repair experiments remain separate from the canonical baseline: [V2](
 [V7](RESET-V7.md) passes four-corner terminal stress but fails CMP-15 because its Q loads remain on during evaluation. [V8](RESET-V8.md) gates those loads with a physical reset clock and checks the resulting phase overlap and capacitance.
 
 [V8](RESET-V8.md) restores four-corner timing and output validity, with only cold-FF Q stress still failing at 1.00737 V. [V9](RESET-V9.md) changes only the conductance of the reset-gated Q shunts to address that measured event.
+
+[V9](RESET-V9.md) still fails cold-FF stress and now misses slow reset; [V10](RESET-V10.md) returns to lighter Q shunts and changes the physical clock turn-on timing while bounding its low-level excursion.
