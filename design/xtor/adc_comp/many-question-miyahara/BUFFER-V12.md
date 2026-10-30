@@ -141,3 +141,65 @@ Per-device maximum over all three terminal pairs (V):
 | MUPXN | 0.99000 | 0.99199 | 0.81010 | 0.99000 | 0.99216 | 0.81398 | 0.81167 | 0.90188 |
 
 Clock charge from the mixed delay sequence is a supplemental diagnostic, not the official CMP-14 input-capacitance result. No all-corner, noise, Monte Carlo or mixed-top qualification is inferred from this screen.
+
+## Completed screen 20261031-054307-miyahara-buffer-v12-screen
+
+The actual worst of the ten screened corners, SF/high/-40, remains below the strict 1 V terminal-pair limit at 0.125 ps / reltol 1e-7 / vabstol 1e-9: maximum stress 0.99933 V. All 36 decisions including 10 uV and all 36 reset cycles pass. Compared with 0.5 ps, the largest tabulated terminal-pair peak change is 20 uV (10 uV reporting precision); delay changes are +0.001458616 ps at 1 mV and +0.000063354 ps at 30 mV, reset changes -0.065925590 ps, and AVDD energy changes +0.003250368 fJ/cycle. The convergence comparison, full-cycle audit and saved-current phase audit are retained with this private evidence. This supports source promotion for new official tests; it does not establish formal qualification.
+
+Actual clean source commit: `d9a026defa6c7c3cdaa948e8a82abbe1afcefe72`. Electrical SHA-256: `e64f215d6bd941a8c48d56a5cf4582d6459c4a31981ff85973a2e4915d96bc65`. The canonical netlist and 274 official result/figure files are unchanged.
+
+| Corner | 1 mV / 30 mV delay (ps) | Reset (ps) | AVDD (fJ/cycle) | Decided / cycles | Wrong | CMP-15 | Max stress (V) | Failed pairs |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| sf_high_m40 | 54.809115 / 44.913968 | 20.589866 | 781.833658 | 36 / 36 | 0 | 0 | 0.99933 | 0 / 129 |
+
+The entire trace, including clock edges and reset, is checked for every MOS |Vgs|, |Vgd| and |Vds|. Each job uses +aps, no explicit +mt, traponly, maxstep=0.125p, reltol=1e-7 and vabstol=1e-9. The observed batch peak is 1 concurrent jobs; logs report effective single-thread simulation. All raw/deck hashes were verified, and the exact owned remote run was removed with absence confirmed.
+
+Per-device maximum over all three terminal pairs (V):
+
+| Device | sf_high_m40 |
+|---|---:|
+| MINP | 0.76806 |
+| MINN | 0.76826 |
+| MTAIL | 0.99000 |
+| M14 | 0.99209 |
+| M15 | 0.99209 |
+| M12 | 0.99337 |
+| M13 | 0.99337 |
+| M10 | 0.98119 |
+| M11 | 0.98119 |
+| M6 | 0.99598 |
+| M7 | 0.99598 |
+| M8 | 0.99598 |
+| M9 | 0.99597 |
+| MCKN | 0.99151 |
+| MCKP | 0.99000 |
+| MRQP | 0.99598 |
+| MRQN | 0.99597 |
+| MAP | 0.99209 |
+| MAN | 0.99209 |
+| MBPP | 0.98327 |
+| MBPN | 0.99933 |
+| MOPP | 0.97884 |
+| MOPN | 0.99933 |
+| MBNP | 0.98327 |
+| MBNN | 0.99933 |
+| MONP | 0.97884 |
+| MONN | 0.99933 |
+| MDDP | 0.98665 |
+| MDDN | 0.98811 |
+| MUPRP1 | 0.99598 |
+| MUPRN1 | 0.99597 |
+| MUPBP1 | 0.99933 |
+| MUPBN1 | 0.99933 |
+| MUPOUTP1 | 0.99392 |
+| MUPOUTN1 | 0.99392 |
+| MDNOUTP1 | 0.99392 |
+| MDNOUTP2 | 0.99392 |
+| MDNOUTN1 | 0.99392 |
+| MDNOUTN2 | 0.99392 |
+| MCKUP | 0.99151 |
+| MBLEED | 0.99151 |
+| MUPXP | 0.99337 |
+| MUPXN | 0.99337 |
+
+Clock charge from the mixed delay sequence is a supplemental diagnostic, not the official CMP-14 input-capacitance result. No all-corner, noise, Monte Carlo or mixed-top qualification is inferred from this screen.
