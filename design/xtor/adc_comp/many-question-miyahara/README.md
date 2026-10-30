@@ -31,3 +31,5 @@ Active iteration: [BUFFER-V1](BUFFER-V1.md) adds a physical CMOS output interfac
 [BUFFER-V2](BUFFER-V2.md) recovers TT 30 mV delay to 48.296 ps by strengthening only the first buffer pull-down. TT and the targeted SF low/-40 C trace retain output validity and pass full terminal stress locally. High-voltage reset/feedthrough still requires a separate repair and fresh screening; two corners do not establish qualification.
 
 Continuous physical-output repair experiments remain independent of this canonical baseline: [B1](BUFFER-V1.md), [B2](BUFFER-V2.md) and [B3](BUFFER-V3.md) preserve their sources and measured failures. B2 passes validity and timing at six key corners but fails high-voltage stress. [B4](BUFFER-V4.md) simplifies input precharge and strengthens clocked raw reset after B3 cross-output feedback failed to bound all excursions.
+
+[B4](BUFFER-V4.md) removes input-drain overvoltage and passes timing/validity at three key corners, but fast reset and clock release still produce raw, buffer and output excursions. [B5](BUFFER-V5.md) applies physical capacitance and weaker reset/clock drive at those measured events.
