@@ -94,8 +94,9 @@ It failed RL12 settling (50.1 ps), Qref (2.629 pC), tracking SFDR
 stress. Those failures have not been erased or marked as passes.
 
 Promoting the new source makes those old result fingerprints stale.
-The current official TT weights and settling tests must be rerun on a
-clean committed source before 256-point tracking. The selected next
+The current official TT weights and settling tests have now been rerun
+on clean source commit `14881ba`, passing all 5 + 10 required metrics.
+The selected next
 spectral check is the project's complete coherent 256-point record,
 with official preparation, analysis, and figures; no additional 128-point
 diagnostic is planned. Main tracking runtime is roughly 122 minutes,
@@ -107,8 +108,22 @@ The current project tracking settings are reltol 1e-7, voltage tolerance
 1e-8, maxstep 1 ps, and traponly; its cross-check uses 0.5 ps and gear2only.
 Official weights/settling use their own current configuration, which is
 recorded as actually used rather than equated to the stricter private
-stress diagnostics. No clean official TT result for the promoted source
-is claimed at this source-only stage.
+stress diagnostics. The five official weight values match the limited
+table above. Official settling uses reltol 0.001, voltage tolerance
+1e-6, maxstep 2 ps, and traponly; its measured values are:
+
+| Official TT settling metric | Value |
+|---|---:|
+| RL12 / RL5 settling | 35.3 / 47.3 ps |
+| Time constant / conversion-start settling | 9.12018 / 83.4 ps |
+| Hold droop | 0.00438078 LSB |
+| Qref | 1.124389535 pC |
+| DH5 / PHI_S / PHI_SB / CONV capacitance | 0.830865 / 6.432310 / 12.231291 / 9.850052 fF |
+
+Both formal results and their inspected evidence figures are fresh for
+the promoted source. The original failed tracking record is still stale
+and retained until the new official tracking run produces its result.
+No full TT linearity or convergence pass is claimed yet.
 
 The candidate acknowledges notices #17 and #37. PVT, actual-bootstrap
 integration, supply startup, long-hold behavior, full corner coverage,
