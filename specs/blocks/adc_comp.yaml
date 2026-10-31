@@ -1,6 +1,6 @@
 block: adc_comp
 title: Dynamic latched comparator
-version: 0.8.0
+version: 0.9.0
 selected: none          # the selected candidate (design/xtor/<block>/<name>/); none yet
 status: behavioral
 views:

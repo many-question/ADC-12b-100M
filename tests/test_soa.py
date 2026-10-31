@@ -230,7 +230,7 @@ def test_parsed_psf_sample(tmp_path):
     p = _plan(tmp_path, dut=dut)
     assert "XDUT.n\\<1\\>" in p.signals()
     vals = {"IN": [0.5, 0.5, 0.5], "OUT": [0.4, 0.4, 0.4], "VDD": [0.9, 0.9, 0.9],
-            "XDUT.n\\<1\\>": [0.45, -0.2, 0.45]}
+            "XDUT.n\\<1\\>": [0.45, -0.3, 0.45]}
     lines = ["HEADER", '"PSFversion" "1.00"', "TYPE", "SWEEP", '"time" "sweep"', "TRACE"]
     lines += [f'"{k}" "V"' for k in vals] + ["VALUE"]
     for i, t in enumerate([0.0, 1e-9, 2e-9]):
@@ -240,7 +240,7 @@ def test_parsed_psf_sample(tmp_path):
     f.write_text("\n".join(lines + ["END", ""]))
     m = soa.check(p, psf.read(f))
     bad = {(r["device"], r["pair"]): r["signed_V"] for r in m["soa_table"] if not r["pass"]}
-    assert bad == {("XDUT.X1.MP", "gs"): pytest.approx(-1.1)}
+    assert bad == {("XDUT.X1.MP", "gs"): pytest.approx(-1.2)}
 
 
 # ------------------------------------------------------------------ adc_clkgen (CLK-11, issue #27)

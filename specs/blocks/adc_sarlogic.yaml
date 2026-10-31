@@ -1,6 +1,6 @@
 block: adc_sarlogic
 title: Asynchronous SAR controller, bit registers and output register
-version: 0.6.0
+version: 0.7.0
 selected: none          # the selected candidate (design/xtor/<block>/<name>/); none yet
 status: behavioral
 views:

@@ -326,7 +326,7 @@ def _fig_startup(fg, ctx, w, ts, m, vcm_mid) -> None:
                    f"max |VREFP - VREFP(end)| from ready {m['ready_dev_mV']:.3g} mV", fontsize=8,
                    color=INK2, transform=axs[1, 2].transAxes, va="top")
     fg.save(fig, "startup", "Supplies, VREF_IN, VREFP and VCM over the supported power-up sequence against the "
-            "-0.1 .. 1.0 V window, the outputs while the supplies are up and VREF_IN is still 0 V, the tracking "
+            f"{limits(ctx, 'vrefp_min_V')[0]:g} .. {limits(ctx, 'vrefp_max_V')[1]:g} V window, the outputs while the supplies are up and VREF_IN is still 0 V, the tracking "
             "error during the VREF_IN ramp, VREFP against VREF_IN and VCM against its range after the ramp with the "
             "ready instant, and the specification table.")
 

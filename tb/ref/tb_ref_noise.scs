@@ -15,6 +15,8 @@ IL (VREFP 0) isource dc=iload
 CDB (VREFP 0) capacitor c=ccdac
 noise1 (VREFP 0) noise start=1k stop=100G dec=20
 noise2 (VCM 0) noise start=1k stop=100G dec=20
+save VREFP VCM
+waveopts options save=selected
 // @RNL {
 //   /* pins connected by net name: the net-name label of rnl-std-fill on every unwired pin, placed below by its key netname */
 //   $LABEL_TERMINAL_SET @TEXT("${net}", key="netname", size=0.6);

@@ -47,9 +47,11 @@
     | `tb_bootstrap_track`、`tb_cdac_track` | `reltol: 1e-6, vabstol: 1e-8` | 1e-7 | 10 nV | 见下表：有效 1e-4 不及格，默认 `vabstol` 限制精度 |
     | `tb_bootstrap_dc` | `reltol: 1e-5` | 1e-6 | 默认 | 有效 1e-4 时 ss_low_125 的 `t_off` +1.19 ps，超过 0.48 ps 的余量；1e-6 时 +0.08 ps |
     | `tb_comp_kickback` | `reltol: 1e-5, vabstol: 1e-8` | 1e-6 | 10 nV | 约 1 µV 以下的读数是数值漂移：晶体管级 TT 从 0.39 µV（原设置）到 0.03 µV（只用预设）再到 9.5e-5 µV，仿真时间不增加；限值 40 µV |
-    | `tb_clkgen_timing` | 无 | 1e-4 | 默认 | 最大变化 0.28 ps（余量 3.54 ps），SOA 峰值不变 |
+    | `tb_clkgen_timing` | 无 | 1e-4 | 默认 | 时序最大变化 0.28 ps（余量 3.26 ps）；逐管 SOA 峰值与交叉检查最大差 0.7 mV（`ss_high_m40`），`limit_V` = 1.1 V 下余量约 100 mV |
     | `tb_ref_startup` | `maxstep: 1n` | 1e-4 | 默认 | 长瞬态（25 µs）上的上电过程 |
 
+  * **BST-03 的裁定**：`ss_low_125` 上正式设置与交叉检查的 `t_off` 差 0.08 ps，余量 0.40 ps（占 19.5 %），予以接受，因为正式设置读数比更严的交叉检查高，
+    偏向悲观一侧。这条裁定不适用于读数偏乐观、且差值接近余量的情形。
   * **依据**（晶体管级 `tb_bootstrap_track`，`aps`，gear2only、无 `maxstep`；“杂散”是与原记录结果的样本差去掉直流和基波后最大的单个频点，
     −82 dBc 约对应 66 µV）。四个工艺角为 tt_nom_27 / ss_low_125 / ff_high_125 / ss_low_m40：
 
@@ -280,7 +282,7 @@
 | `tb_cdac_weights` | `weights` | 各位权重与标称、各位权重误差对 0.5 % 限值、上升/下降步长不对称 |
 | `tb_cdac_settle` | `settle`、`cin` | 整个序列的顶板波形；起始与 RL12 / RL5 / RL0 之后的误差（对数坐标），标出容差线、建立时间与限值；规格表；PHI_S、PHI_SB、CONV 各上升沿的输入电容对限值（§6） |
 | `tb_cdac_track` | `spectrum` | 顶板采样谱，SFDR / SNDR 对限值 |
-| `tb_bootstrap_dc` | `switch`、`soa`、`cin` | VG−VIN 随输入、最坏关断 / 开启边沿（时延与限值）、参考开关三对端电压对 ±1.0 V、规格表；逐管 SOA（§5）：各器件各端电压的最大 \|V\| 对限值、最坏一对的全程波形与峰值附近的时间点；PHI_B、PHI_BB 各上升沿的输入电容对限值（§6） |
+| `tb_bootstrap_dc` | `switch`、`soa`、`cin` | VG−VIN 随输入、最坏关断 / 开启边沿（时延与限值）、参考开关三对端电压对 ±`limit_V`、规格表；逐管 SOA（§5）：各器件各端电压的最大 \|V\| 对限值、最坏一对的全程波形与峰值附近的时间点；PHI_B、PHI_BB 各上升沿的输入电容对限值（§6） |
 | `tb_bootstrap_track` | `spectrum` | 经自举开关采样的频谱，SFDR / SNDR 对限值 |
 | `tb_clkgen_timing` | `timing`、`soa` | CLK 下降 / 上升沿处 PHI_S、PHI_B、CONV 时序、PHI_S 下降沿（80 %→20 %）、占空比 50 / 45 / 55 % 各周期的延时与间隔对限值、规格表与 CLK-11 的 SOA 范围；逐管 SOA（§5，有器件时）同 `tb_bootstrap_dc` |
 | `tb_clkgen_jitter` | `jitter` | 采样相位沿的直方图与高斯、各沿残差、限值处曲线 |
@@ -289,7 +291,7 @@
 | `tb_sarlogic_timeout` | `decisions`、`timeout` | 同上；比较器不应答时 CLKC 被超时拉低的波形与每次超时时间对窗口 |
 | `tb_ref_dc` | `dc` | VREFP 随负载、随 AVDD18、VCM 随负载（含窗口与斜率限值）、规格表 |
 | `tb_ref_noise` | `psd` | VREFP / VCM 噪声谱密度与 10 kHz 积分起点、积分噪声对 120 µV 限值 |
-| `tb_ref_startup` | `startup` | 支持的上电顺序下电源、VREF_IN、VREFP、VCM 的全程波形对 −0.1~1.0 V 窗口；斜坡期间对 VREF_IN 的跟随误差；斜坡后 VREFP 向终值的建立、±5 mV 带与就绪时刻；规格表 |
+| `tb_ref_startup` | `startup` | 支持的上电顺序下电源、VREF_IN、VREFP、VCM 的全程波形对 −0.1~1.1 V 窗口；斜坡期间对 VREF_IN 的跟随误差；斜坡后 VREFP 向终值的建立、±5 mV 带与就绪时刻；规格表 |
 | `tb_ref_replay` | `replay` | 各判决时刻 VREFP 偏差对冗余容差包络与 12~14 判决限值、转换前 VREFP 的记忆、转换内跌落、ENOB 代价 |
 | `tb_top_sine`、`_sine_lf`、`_duty` | `spectrum`、`codes` | 输出谱（标称与校准权重）标注 ENOB / SNDR / SFDR 与限值；码对正弦相位折叠及拟合、拟合误差、转换时间直方图 |
 
@@ -299,7 +301,7 @@
 
 ## 5. 逐管 SOA 检查
 
-规格中“每个薄栅器件 |Vgs|、|Vgd|、|Vds| ≤ 1.0 V，各工艺角”的要求由 `adcflow` 的通用 SOA 检查
+规格中“每个薄栅器件 |Vgs|、|Vgd|、|Vds| ≤ 1.1 V，各工艺角”的要求由 `adcflow` 的通用 SOA 检查
 （`tools/adcflow/soa.py`）验收，目前用于 `adc_bootstrap` 的 BST-08（`tb_bootstrap_dc`）和 `adc_clkgen` 的 CLK-11
 （`tb_clkgen_timing`，#27）。
 
@@ -318,12 +320,12 @@ tests:
 `w = tran(job_dir)` 后调用 `soa.measure(ctx, w, m)`，画图时调用 `soa.figure(fg, ctx, m, w)`；
 规格中加一条 `metric: soa_violations, max: 0, corners: all` 的指标。测试台不必改：要保存的节点由流程加进 deck。
 
-**器件分类**：`specs/soa.yaml` 给出限值 `limit_V: 1.0` 与器件模型的分类。薄栅 MOS（端口 d g s b）检查 gs、gd、ds 三对，
+**器件分类**：`specs/soa.yaml` 给出限值 `limit_V: 1.1` 与器件模型的分类。1.1 V（全部工艺角）是项目的决定；此前的 1.0 V 来自最初的架构规格，没有记录器件依据。薄栅 MOS（端口 d g s b）检查 gs、gd、ds 三对，
 薄栅 MOS 电容（p n）检查 pn；厚栅（1.8 V）器件不检查，列在结果的 `soa_skipped`。名称像 MOS 器件（`mos_pattern`）
 却没有列出的模型使检查无法验证。该文件记入运行了 SOA 检查的结果的 `meta.files`，改动会使这些结果过期。端电压取 PDK 宏模型
 （`*_mac`）实例的端口，即网表中写出的节点。
 
-**体端不检查**（#67）：与体端有关的 Vgb、Vbs、Vbd 不作为验收条件。Vgb 只在器件导通时超过 1.0 V，此时沟道把栅氧与体端隔开，
+**体端不检查**（#67）：与体端有关的 Vgb、Vbs、Vbd 不作为验收条件。Vgb 只在器件导通时超过 `limit_V`，此时沟道把栅氧与体端隔开，
 栅氧承受的是已检查的 Vgs/Vgd；Vbs、Vbd 是反偏的结（二极管），耐压更高。仿真器报出的体端工作范围警告因此不影响验收。
 
 **机制**：建 deck 时（`runner.make_deck`）从 `dut` 实例往下展开所选视图的网表（包括子电路层次），列出每个器件及其
@@ -374,7 +376,7 @@ level; not transistor-level evidence"`，`soa_violations` 为 0 个对中的 0 �
 覆盖整段瞬态，否则无法验证。晶体管级视图下找不到薄栅器件仍是错误，不会落入这一情形；测试台顶层有未分类的 MOS 模型（缺省
 `external` 时）同样无法验证。CLK-11 的签核要用 `--view adc_clkgen=xtor` 得到的 `device` 结果。
 
-**时钟（CLK-11）**：规则与 bootstrap 相同（|Vgs|、|Vgd|、|Vds| ≤ `limit_V` = 1.0 V，绝对值、两个方向、`corners: all`），
+**时钟（CLK-11）**：规则与 bootstrap 相同（|Vgs|、|Vgd|、|Vds| ≤ `limit_V` = 1.1 V，绝对值、两个方向、`corners: all`），
 `soa: {dut: [XDUT]}`。覆盖的窗口就是 `tb_clkgen_timing` 的整段瞬态：t = 0 起的启动、占空比 50 % 的 8 个周期、45 % 与 55 %
 各 4 个周期，0~161 ns 的每个时间点，包括全部跳变沿；窗口之外（更长的运行、其它占空比或频率）不在 CLK-11 的范围内。
 测试台只用预设 `errpreset=conservative`（§2），保存的点就是仿真器接受的全部时间点。`meta.numerics` 记录日志报告的实际值。
