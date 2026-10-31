@@ -1,6 +1,6 @@
 # BUFFER-V8: reduce the physical low-level pull-ups
 
-> Evidence retention (2026-10-31): Historical raw/archive statements below refer to the original audit. Superseded waveforms were released under the user's retention policy. [EVIDENCE-RETENTION](EVIDENCE-RETENTION.md) lists the completed runs still available for raw re-audit.
+> Evidence retention (2026-10-31): Superseded raw was released. Historical verification does not imply current availability; [retained evidence](EVIDENCE-RETENTION.md) determines which runs can be re-audited.
 
 B7 passes all 135 terminal-pair checks and physical output validity at its first three corners, but SF low/cold reset is 36.559095 ps against 35 ps. Its weak pull-ups produce about 40-56 mV output low levels and substantial DC energy. This experiment removes one of the two identical PMOS pull-ups at each RP, RN, BP, BN, OUTP and OUTN. One P0.5 um / 100 nm remains at each node; both N0.5 um / 500 nm diode loads on each external output remain. All other B7 devices and capacitances are identical.
 

@@ -1,6 +1,6 @@
 # BUFFER-V13: increase input-drain integration capacitance
 
-> Evidence retention (2026-10-31): Historical raw/archive statements below refer to the original audit. Superseded waveforms were released under the user's retention policy. [EVIDENCE-RETENTION](EVIDENCE-RETENTION.md) lists the completed runs still available for raw re-audit.
+> Evidence retention (2026-10-31): Superseded raw was released. Historical verification does not imply current availability; [retained evidence](EVIDENCE-RETENTION.md) determines which runs can be re-audited.
 
 B12 fails the genuine official TT noise gate at 201.879919 uV rms against 200 uV. The 95% interval crosses the limit, but the prescribed point estimate is a failure. Its S-curve and complete samples show no gross anomaly; the old baseline interval overlaps, so no precise noise penalty is assigned to a particular repair.
 

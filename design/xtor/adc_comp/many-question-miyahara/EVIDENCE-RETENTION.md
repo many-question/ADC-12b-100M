@@ -18,6 +18,10 @@ The user requested removal of superseded waveform data after a disk-space incide
 - `20261031-154013-miyahara-buffer-v25-spec08-kickback-baseline-screen` — archive SHA-256 `4d8c53ec7d1ef654934df795ba0a471deaae6bb0aa46a33f1cb6ceecd88a695d`.
 - `20261031-154911-miyahara-buffer-v25-spec08-delay-tighter-screen` — archive SHA-256 `0f08fb5f42597c59c0fb31bbdaebb0631a4886ec23fa6b5a90e20d4af08b33db`.
 - `20261031-155649-miyahara-buffer-v25-spec08-delay-tighter-screen` — archive SHA-256 `af149bbea21cf9b349b62e0951e778a51306447f094e6f8a7b318f496489a4d9`.
+- `20261031-160654-miyahara-buffer-v26-spec08-delay-baseline-screen` — archive SHA-256 `b96521a73290a23d11ffb2667d8b740a2a3983f6b22296e15349c74520d794db`.
+- `20261031-160654-miyahara-buffer-v26-spec08-kickback-baseline-screen` — archive SHA-256 `2b41fc87a6c269eebab88d07088ce4a5c938f0d94397bc90d3a810822c30f65d`.
+- `20261031-161247-miyahara-buffer-v26-spec08-delay-tighter-screen` — archive SHA-256 `e7e9ce22d74a68edff9eba3ca7759ef4d31c9d7db63742149a9625c342be5364`.
+- `20261031-162118-miyahara-buffer-v26-spec08-noise-baseline-screen` — archive SHA-256 `65d55d31f54cd762c3ffb8b547e078fa79b23ea3ab26f2ca67f5eebeb0dd85e1`.
 
 Artificial noise-suppression trials remain ineligible for qualification. Retention does not establish compliance. Both canonical candidates retain genuine failed official 0.8 noise results. The full qualification remains incomplete.
 

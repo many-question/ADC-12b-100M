@@ -1,6 +1,6 @@
 # BUFFER-V13: genuine new-source formal gates
 
-> Evidence retention (2026-10-31): Historical raw/archive statements below refer to the original audit. Superseded waveforms were released under the user's retention policy. [EVIDENCE-RETENTION](EVIDENCE-RETENTION.md) lists the completed runs still available for raw re-audit.
+> Evidence retention (2026-10-31): Superseded raw was released. Historical verification does not imply current availability; [retained evidence](EVIDENCE-RETENTION.md) determines which runs can be re-audited.
 
 The canonical source is electrically identical to the ten-key-corner and tight-convergence source. The existing official runner, original testbench, numerical settings, measurement and recorder are unchanged. Private screens are not adopted as official records.
 

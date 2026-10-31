@@ -1,6 +1,6 @@
 # BUFFER-V22: stronger CKB pull-up for reset
 
-> Evidence retention (2026-10-31): Historical raw/archive statements below refer to the original audit. Superseded waveforms were released under the user's retention policy. [EVIDENCE-RETENTION](EVIDENCE-RETENTION.md) lists the completed runs still available for raw re-audit.
+> Evidence retention (2026-10-31): Superseded raw was released. Historical verification does not imply current availability; [retained evidence](EVIDENCE-RETENTION.md) determines which runs can be re-audited.
 
 **Full physical FS/low/125 noise fails:** `342.51175741522553` uV rms against 240 uV, with a model-conditional 95% profile interval of `[331.11, 354.49]` uV. The reset repair passes the deterministic gates below, but B22 qualification expansion stops at this noise failure. Canonical B20 is unchanged; no B22 promotion or TT-noise pass is claimed.
 

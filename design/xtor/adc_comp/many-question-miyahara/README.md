@@ -1,6 +1,6 @@
 # Miyahara comparator: BUFFER-V20
 
-> Evidence retention (2026-10-31): Historical raw/archive statements below refer to the original audit. Superseded waveforms were released under the user's retention policy. [EVIDENCE-RETENTION](EVIDENCE-RETENTION.md) lists the completed runs still available for raw re-audit.
+> Evidence retention (2026-10-31): Superseded raw was released. Historical verification does not imply current availability; [retained evidence](EVIDENCE-RETENTION.md) determines which runs can be re-audited.
 
 Canonical **B20 fails the merged adc_comp 0.8.0 official FS/low/125 noise test at 343.4944014285115 uV rms against 240 uV**. The original 17 x 512 decisions are retained, with a model-conditional 95% profile interval of 332.03 to 355.53 uV. [FORMAL-SPEC08](FORMAL-SPEC08.md) links the genuine committed result and figure. Current dependency coverage is 1 fresh / 96 records; freshness does not imply passing. This candidate remains WIP, unqualified and unselected.
 
@@ -26,4 +26,4 @@ Issues #40/#63/#69/#75/#77/#78/#84/#100 remain acknowledged. The branch includes
 
 Independent [B25](BUFFER-V25.md), with N2.6 first-buffer pull-downs and 44-finger buffer-node MOMs, passes five baseline deterministic corners: 180 actual/reset cycles and all 129 terminal pairs per corner. TT 30 mV delay is 48.65231181041175 ps, SS hot reset is 32.64727688136176 ps, and the narrowest stress margin is 424.92663561322087 uV. Dedicated TT Cin/CLKC are 19.328731218738323/12.105047338129033 fF. **Tighter FS/high/-40 fails twice with SPECTRE-16929 at 137.816 ps**, with identical source/TB/numerics and normalized decks. Both failed runs and partial traces remain archived; no complete tighter gate or B25 noise result exists, and noise expansion is held.
 
-Independent [B26](BUFFER-V26.md) increases only BP/BN physical MOMs from 44 to 48 fingers after B25 repeats the same tighter FS convergence failure. The slower buffer-node transition and larger edge margin are hypotheses; every physical gate requires new measurements. No noise benefit or promotion is assumed.
+Independent [B26](BUFFER-V26.md) increases BP/BN MOMs from 44 to 48 fingers and passes five baseline/four tighter deterministic corners plus TT loading. **Full physical FS/low/125 noise remains a failure at 270.61635250554104 uV rms [261.07, 280.6] against 240 uV**, with every 17 x 512 decision retained. Qualification expansion stops; canonical B20 and the genuine formal failure remain unchanged.

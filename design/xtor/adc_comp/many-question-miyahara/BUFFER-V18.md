@@ -1,6 +1,6 @@
 # BUFFER-V18: test stronger input-to-XP/XN drivers
 
-> Evidence retention (2026-10-31): Historical raw/archive statements below refer to the original audit. Superseded waveforms were released under the user's retention policy. [EVIDENCE-RETENTION](EVIDENCE-RETENTION.md) lists the completed runs still available for raw re-audit.
+> Evidence retention (2026-10-31): Superseded raw was released. Historical verification does not imply current availability; [retained evidence](EVIDENCE-RETENTION.md) determines which runs can be re-audited.
 
 B17 passes four initial deterministic corners and improves cold high-voltage stress margin, but its matched short FS/low/125 diagnosis retains four errors out of 256. Changing only clock pull-down reduces mean CKB/VDD at +30 ps from 0.144669 to 0.025470; FS RP SNR at +40 ps nevertheless increases only about 1.09%. DP signs at +20/+30 ps remain correct for every sample, while RP-RN at +50 ps already contains all four final errors. [BUFFER-V17.md](BUFFER-V17.md) preserves the full result and stopped broader expansion; no formal noise pass is claimed.
 

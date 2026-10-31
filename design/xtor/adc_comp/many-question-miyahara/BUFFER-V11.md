@@ -1,6 +1,6 @@
 # BUFFER-V11: constrain clock feedthrough at both rails
 
-> Evidence retention (2026-10-31): Historical raw/archive statements below refer to the original audit. Superseded waveforms were released under the user's retention policy. [EVIDENCE-RETENTION](EVIDENCE-RETENTION.md) lists the completed runs still available for raw re-audit.
+> Evidence retention (2026-10-31): Superseded raw was released. Historical verification does not imply current availability; [retained evidence](EVIDENCE-RETENTION.md) determines which runs can be re-audited.
 
 Current disposition: rejected for expansion because two FS/high/-40 input-stage terminal pairs remain above 1.0 V.
 

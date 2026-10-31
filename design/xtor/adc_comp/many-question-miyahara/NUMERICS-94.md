@@ -1,6 +1,6 @@
 # Numerical-settings transition: issue #94
 
-> Evidence retention (2026-10-31): Historical raw/archive statements below refer to the original audit. Superseded waveforms were released under the user's retention policy. [EVIDENCE-RETENTION](EVIDENCE-RETENTION.md) lists the completed runs still available for raw re-audit.
+> Evidence retention (2026-10-31): Superseded raw was released. Historical verification does not imply current availability; [retained evidence](EVIDENCE-RETENTION.md) determines which runs can be re-audited.
 
 ## Merged workflow update, 2026-10-31
 
@@ -522,3 +522,104 @@ The phase/load context was derived from SHA-verified raw evidence without modify
 Fetched raw/deck hashes match; the exact owned remote run is absent. Archive SHA-256 `4d8c53ec7d1ef654934df795ba0a471deaae6bb0aa46a33f1cb6ceecd88a695d` passed every-member CRC/SHA readback. Full qualification remains open.
 
 The complete phase/load context is included in this run's verified archive.
+
+## Private precheck 20261031-160654-miyahara-buffer-v26-spec08-delay-baseline-screen
+
+Private `tb_comp_delay`, `baseline`, clean frozen commit `3dd17927ddcb842b4e28289270fa76436dcb4ab1`; electrical SHA-256 `13c455d69c414b141aa94d910b1adc256d7929e67997eb366a71d77660a59797`. Merged 0.8.0 stimuli, loads, measurements and limits are preserved. Explicit output-only selected saves or the original monitor-only save=none apply; no wildcards, explicit maxstep or method override. No formal records or canonical source change.
+
+| Corner | 1 mV ps | 30 mV ps | Reset ps | Unrounded stress V | Gate |
+|---|---:|---:|---:|---:|---|
+| fs_high_m40 | 52.151081430029244 | 44.26605981624637 | 21.410842198444442 | 0.9994063398192367 | PASS |
+| fs_low_125 | 64.80096095755623 | 53.25260113682805 | 26.922594526043888 | 0.8131889309740241 | PASS |
+| sf_high_m40 | 58.04459111457202 | 48.52068549278047 | 22.232121714433738 | 0.9993086756734831 | PASS |
+| ss_low_125 | 78.58168478464333 | 65.5570154563273 | 33.11462822753791 | 0.8163340584746331 | PASS |
+| tt_nom_27 | 58.36318101711513 | 48.97788988704756 | 24.599993008219577 | 0.9081108180098962 | PASS |
+
+All 180 actual decisions (including 10 uV) and 180 reset intervals are retained; [129] full-trace MOS gs/gd/ds pairs per corner, output validity and full-cycle AVDD KCL are independently checked. Complete per-cycle/path and terminal-pair data remain in the archive. Energy is report-only.
+
+TT energy: meter 703.8334101600001 fJ/cycle; independent integral 703.2682314897278, evaluation 257.1543404335003, reset 446.1138910562275 fJ/cycle. All named supply probes are present and KCL closes.
+
+| Corner | Actual reltol | vabstol V | Method / preset / relref / lteratio |
+|---|---:|---:|---|
+| fs_high_m40 | 0.0001 | 1e-06 | gear2only / conservative / alllocal / 10 |
+| fs_low_125 | 0.0001 | 1e-06 | gear2only / conservative / alllocal / 10 |
+| sf_high_m40 | 0.0001 | 1e-06 | gear2only / conservative / alllocal / 10 |
+| ss_low_125 | 0.0001 | 1e-06 | gear2only / conservative / alllocal / 10 |
+| tt_nom_27 | 0.0001 | 1e-06 | gear2only / conservative / alllocal / 10 |
+
+Archive SHA-256 `b96521a73290a23d11ffb2667d8b740a2a3983f6b22296e15349c74520d794db`: every member passed CRC/SHA readback. Fetched files match remote hashes, the exact owned remote directory is absent, and the six-job session ceiling is retained. Raw availability is indexed in [EVIDENCE-RETENTION](EVIDENCE-RETENTION.md). Full qualification remains open.
+
+## Private precheck 20261031-160654-miyahara-buffer-v26-spec08-kickback-baseline-screen
+
+Private `tb_comp_kickback`, `baseline`, clean frozen commit `3dd17927ddcb842b4e28289270fa76436dcb4ab1`; electrical SHA-256 `13c455d69c414b141aa94d910b1adc256d7929e67997eb366a71d77660a59797`. Merged 0.8.0 stimuli, loads, measurements and limits are preserved. Explicit output-only selected saves or the original monitor-only save=none apply; no wildcards, explicit maxstep or method override. No formal records or canonical source change.
+
+| Corner | Input fF | CLKC fF | Net per-cycle kickback uV | Gate |
+|---|---:|---:|---:|---|
+| tt_nom_27 | 19.328731218738323 | 12.105038071102172 | 8.382100005407955e-05 | PASS |
+
+Verified conditions: 0.9 V supply, 0.49 V initial CM, 1 mV initial differential, 2.5 pF floating capacitance per input, 10 fF per output, 400 ps clock with 10 ps edges.
+
+Distinct instantaneous peaks: differential magnitude 30.645660529801145 uV, signed change -3.0645660529801146e-05 V, cycle 1, 208.8214597557895 ps after its pre-evaluation sample in reset; common-mode magnitude 7.418243573274141 mV, cycle 1, 198.1621336930186 ps in evaluation.
+
+CMP-11 measures net change after evaluation plus reset. These instantaneous peaks are not compared to its 40 uV limit; a tiny net residual does not mean an undisturbed input. Actual-CDAC decision-phase differential/common-mode validation remains open.
+
+The full raw-derived phase/load context is included in the verified archive; its SHA-256 is `45aa08db53db81592bc309b221cf49a241d5367694865dff601ab0a978e09f01`.
+
+| Corner | Actual reltol | vabstol V | Method / preset / relref / lteratio |
+|---|---:|---:|---|
+| tt_nom_27 | 1e-06 | 1e-08 | gear2only / conservative / alllocal / 10 |
+
+Archive SHA-256 `2b41fc87a6c269eebab88d07088ce4a5c938f0d94397bc90d3a810822c30f65d`: every member passed CRC/SHA readback. Fetched files match remote hashes, the exact owned remote directory is absent, and the six-job session ceiling is retained. Raw availability is indexed in [EVIDENCE-RETENTION](EVIDENCE-RETENTION.md). Full qualification remains open.
+
+## Private precheck 20261031-161247-miyahara-buffer-v26-spec08-delay-tighter-screen
+
+Private `tb_comp_delay`, `tighter`, clean frozen commit `3dd17927ddcb842b4e28289270fa76436dcb4ab1`; electrical SHA-256 `13c455d69c414b141aa94d910b1adc256d7929e67997eb366a71d77660a59797`. Merged 0.8.0 stimuli, loads, measurements and limits are preserved. Explicit output-only selected saves or the original monitor-only save=none apply; no wildcards, explicit maxstep or method override. No formal records or canonical source change.
+
+| Corner | 1 mV ps | 30 mV ps | Reset ps | Unrounded stress V | Gate |
+|---|---:|---:|---:|---:|---|
+| fs_high_m40 | 52.26084477763826 | 44.26730166543675 | 20.915973946441483 | 0.9997484829720795 | PASS |
+| sf_high_m40 | 58.18029842011501 | 48.54081604043729 | 21.804901753217557 | 0.9995304329482602 | PASS |
+| ss_low_125 | 78.85738134430444 | 65.58682858067718 | 32.88904249976513 | 0.8165190038469253 | PASS |
+| tt_nom_27 | 58.54117412412848 | 48.99406817867042 | 24.091373818177633 | 0.9083302771793746 | PASS |
+
+All 144 actual decisions (including 10 uV) and 144 reset intervals are retained; [129] full-trace MOS gs/gd/ds pairs per corner, output validity and full-cycle AVDD KCL are independently checked. Complete per-cycle/path and terminal-pair data remain in the archive. Energy is report-only.
+
+TT energy: meter 704.16690264 fJ/cycle; independent integral 704.1319377424182, evaluation 257.79018481815336, reset 446.3417529242649 fJ/cycle. All named supply probes are present and KCL closes.
+
+| Tighter minus same-source baseline | 1 mV ps | 30 mV ps | Reset ps |
+|---|---:|---:|---:|
+| fs_high_m40 | +0.109763348 | +0.001241849 | -0.494868252 |
+| sf_high_m40 | +0.135707306 | +0.020130548 | -0.427219961 |
+| ss_low_125 | +0.275696560 | +0.029813124 | -0.225585728 |
+| tt_nom_27 | +0.177993107 | +0.016178292 | -0.508619190 |
+
+The archive retains all per-pair comparisons and unrounded stress peaks; rounded comparison-table precision does not replace strict SOA checks.
+
+| Corner | Actual reltol | vabstol V | Method / preset / relref / lteratio |
+|---|---:|---:|---|
+| fs_high_m40 | 1e-06 | 1e-08 | gear2only / conservative / alllocal / 10 |
+| sf_high_m40 | 1e-06 | 1e-08 | gear2only / conservative / alllocal / 10 |
+| ss_low_125 | 1e-06 | 1e-08 | gear2only / conservative / alllocal / 10 |
+| tt_nom_27 | 1e-06 | 1e-08 | gear2only / conservative / alllocal / 10 |
+
+Archive SHA-256 `e7e9ce22d74a68edff9eba3ca7759ef4d31c9d7db63742149a9625c342be5364`: every member passed CRC/SHA readback. Fetched files match remote hashes, the exact owned remote directory is absent, and the six-job session ceiling is retained. Raw availability is indexed in [EVIDENCE-RETENTION](EVIDENCE-RETENTION.md). Full qualification remains open.
+
+## Private precheck 20261031-162118-miyahara-buffer-v26-spec08-noise-baseline-screen
+
+Private `tb_comp_noise`, `baseline`, clean frozen commit `3dd17927ddcb842b4e28289270fa76436dcb4ab1`; electrical SHA-256 `13c455d69c414b141aa94d910b1adc256d7929e67997eb366a71d77660a59797`. Merged 0.8.0 stimuli, loads, measurements and limits are preserved. Explicit output-only selected saves or the original monitor-only save=none apply; no wildcards, explicit maxstep or method override. No formal records or canonical source change.
+
+| Corner | Noise uV rms | 95% profile interval uV | Abs offset mV | Gate |
+|---|---:|---|---:|---|
+| fs_low_125 | 270.61635250554104 | [261.07, 280.6] | 0.005423585462778105 | FAIL CMP-13 |
+
+Each corner retains every finite decision from the original 17 levels x 512 samples, 50 GHz bandwidth and seed 1, with all physical noise sources enabled. All level counts and Gaussian-fit residuals are archived. Profile intervals are conditional on that fit; point-estimate passage does not establish robust margin. Monitor-only output cannot establish full reset history or full-trace SOA.
+
+fs_low_125: minimum sampled output magnitude 0.7855925505048 V; maximum absolute standardized fit residual 1.8481367537285998 (diagnostic only).
+
+| Corner | Actual reltol | vabstol V | Method / preset / relref / lteratio |
+|---|---:|---:|---|
+| fs_low_125 | 0.0001 | 1e-06 | gear2only / conservative / alllocal / 10 |
+
+Archive SHA-256 `65d55d31f54cd762c3ffb8b547e078fa79b23ea3ab26f2ca67f5eebeb0dd85e1`: every member passed CRC/SHA readback. Fetched files match remote hashes, the exact owned remote directory is absent, and the six-job session ceiling is retained. Raw availability is indexed in [EVIDENCE-RETENTION](EVIDENCE-RETENTION.md). Full qualification remains open.
+
+**This physical source fails the private gate.** Qualification expansion stops at the failure; diagnosis and circuit design continue. No failed point is discarded.

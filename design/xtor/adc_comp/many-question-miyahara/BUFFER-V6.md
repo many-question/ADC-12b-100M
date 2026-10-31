@@ -1,6 +1,6 @@
 # BUFFER-V6: slower reset-clock edges and stronger buffer damping
 
-> Evidence retention (2026-10-31): Historical raw/archive statements below refer to the original audit. Superseded waveforms were released under the user's retention policy. [EVIDENCE-RETENTION](EVIDENCE-RETENTION.md) lists the completed runs still available for raw re-audit.
+> Evidence retention (2026-10-31): Superseded raw was released. Historical verification does not imply current availability; [retained evidence](EVIDENCE-RETENTION.md) determines which runs can be re-audited.
 
 B5 retains correct physical decisions and TT timing, but its cold-FF clock release, raw output and buffer nodes still cross below ground by 11 to 17 mV; the external output reaches 1.00833 V at reset. This experiment halves the clock driver from P4/N2 to P2/N1. The slower CKB edges are intended to reduce clock feedthrough and soften the clocked reset. XP/XN and BP/BN MOM capacitance increases from 2.06055 to 4.46051 fF; raw-node MOM capacitance remains 2.06055 fF. No other electrical change is made.
 

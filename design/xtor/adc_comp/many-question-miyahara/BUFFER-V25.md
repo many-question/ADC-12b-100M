@@ -2,7 +2,7 @@
 
 **B25 has a reproducible tighter-numerics convergence failure at FS/high/-40.** The five baseline corners and dedicated TT loading pass, but the four-corner tighter gate is incomplete. Full physical noise testing is held; B25 is not promoted.
 
-> Evidence retention (2026-10-31): Historical raw/archive statements below refer to the original audit. Superseded waveforms were released under the user's retention policy. [EVIDENCE-RETENTION](EVIDENCE-RETENTION.md) lists the completed runs still available for raw re-audit.
+> Evidence retention (2026-10-31): Superseded raw was released. Historical verification does not imply current availability; [retained evidence](EVIDENCE-RETENTION.md) determines which runs can be re-audited.
 
 [B24](BUFFER-V24.md) repairs SS/FS low-hot reset but strictly fails TT 30 mV delay at 50.00497745635165 ps against 50 ps. The approximately 5 fs excess is not rounded into a pass. Its narrowest unrounded stress margin is 47.6004190316 uV at BP/BN in FS/high/-40; no tighter clearance or noise result exists. TT 30 mV mean RP, BP and external-output 50% crossings are 36.62484060586704, 45.248204187974075 and 50.00497745635165 ps.
 

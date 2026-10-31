@@ -1,6 +1,6 @@
 # BUFFER-V24: repair scaled-stage reset and loading
 
-> Evidence retention (2026-10-31): Historical raw/archive statements below refer to the original audit. Superseded waveforms were released under the user's retention policy. [EVIDENCE-RETENTION](EVIDENCE-RETENTION.md) lists the completed runs still available for raw re-audit.
+> Evidence retention (2026-10-31): Superseded raw was released. Historical verification does not imply current availability; [retained evidence](EVIDENCE-RETENTION.md) determines which runs can be re-audited.
 
 **B24 repairs reset but still fails TT 30 mV delay:** `50.00497745635165` ps is strictly above 50 ps. The approximately 5 fs excess is retained as a failure, with no rounding waiver. SS/FS low-hot reset improves to `32.17894196165223`/`26.15800892442384` ps, below 35 ps. B24 has no noise result and is not promoted.
 

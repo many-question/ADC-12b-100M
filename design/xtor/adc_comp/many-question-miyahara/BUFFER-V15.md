@@ -1,6 +1,6 @@
 # BUFFER-V15: restore buffer-node edge margin
 
-> Evidence retention (2026-10-31): Historical raw/archive statements below refer to the original audit. Superseded waveforms were released under the user's retention policy. [EVIDENCE-RETENTION](EVIDENCE-RETENTION.md) lists the completed runs still available for raw re-audit.
+> Evidence retention (2026-10-31): Superseded raw was released. Historical verification does not imply current availability; [retained evidence](EVIDENCE-RETENTION.md) determines which runs can be re-audited.
 
 B14's first SF/high/-40 and FS/high/-40 screens pass all 72 actual polarities, resets and output-validity checks, but FS fails six terminal-stress pairs. The actual BN maximum is 1.000091633924 V at 23.997853 ps after a rising midpoint, with CLKC=0.99 V and CKB=0.129335 V. BP similarly reaches 1.000089066299 V. SF peaks at 0.99991 V. B14 stops before TT and noise; no noise improvement has yet been demonstrated for its stronger interstage PMOS drive.
 

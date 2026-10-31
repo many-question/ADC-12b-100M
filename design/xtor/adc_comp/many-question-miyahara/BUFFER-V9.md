@@ -1,6 +1,6 @@
 # BUFFER-V9: earlier clocked reset and input-drain recharge
 
-> Evidence retention (2026-10-31): Historical raw/archive statements below refer to the original audit. Superseded waveforms were released under the user's retention policy. [EVIDENCE-RETENTION](EVIDENCE-RETENTION.md) lists the completed runs still available for raw re-audit.
+> Evidence retention (2026-10-31): Superseded raw was released. Historical verification does not imply current availability; [retained evidence](EVIDENCE-RETENTION.md) determines which runs can be re-audited.
 
 B8 passes six-key-corner terminal stress and physical output validity but SS low/hot reset is 41.146991 ps. At 20 ps after the falling clock, CKB is only 0.663 V, the raw winner remains at 0.475 V, and DP is only 0.159 V, leaving the second-stage supply conducting. This experiment changes the clock PMOS P2 to P3 and direct input precharge P1.6 to P2.4. The intent is to start raw reset earlier and shut off its competing PMOS supply earlier. All physical rail-offset loads and buffer capacitances remain; no ideal gate or changed threshold is introduced. Both complete geometries reuse successful zero-warning callbacks.
 

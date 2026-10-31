@@ -1,6 +1,6 @@
 # Output overlap and SAR interface
 
-> Evidence retention (2026-10-31): Historical raw/archive statements below refer to the original audit. Superseded waveforms were released under the user's retention policy. [EVIDENCE-RETENTION](EVIDENCE-RETENTION.md) lists the completed runs still available for raw re-audit.
+> Evidence retention (2026-10-31): Superseded raw was released. Historical verification does not imply current availability; [retained evidence](EVIDENCE-RETENTION.md) determines which runs can be re-audited.
 
 The frozen Miyahara source has an output-validity failure, separate from its known device-voltage failure. Current spec v0.7.0 measurements are in [VALIDITY.md](VALIDITY.md). The fine-step waveform evidence below retains its original source, settings and historical receiver audit.
 

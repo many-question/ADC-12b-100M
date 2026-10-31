@@ -1,6 +1,6 @@
 # Official validation: BUFFER-V20
 
-> Evidence retention (2026-10-31): Historical raw/archive statements below refer to the original audit. Superseded waveforms were released under the user's retention policy. [EVIDENCE-RETENTION](EVIDENCE-RETENTION.md) lists the completed runs still available for raw re-audit.
+> Evidence retention (2026-10-31): Superseded raw was released. Historical verification does not imply current availability; [retained evidence](EVIDENCE-RETENTION.md) determines which runs can be re-audited.
 
 **Old-settings records:** [issue #94](NUMERICS-94.md) requires new-settings revalidation. All results here preserve the original source and numerical protocol. The sub-microvolt kickback value is not an established physical conclusion; the earlier expansion plan below is superseded by private prechecks and formal reruns after merge.
 

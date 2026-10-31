@@ -1,6 +1,6 @@
 # Official adc_comp 0.8.0 validation
 
-> Evidence retention (2026-10-31): Historical raw/archive statements below refer to the original audit. Superseded waveforms were released under the user's retention policy. [EVIDENCE-RETENTION](EVIDENCE-RETENTION.md) lists the completed runs still available for raw re-audit.
+> Evidence retention (2026-10-31): Superseded raw was released. Historical verification does not imply current availability; [retained evidence](EVIDENCE-RETENTION.md) determines which runs can be re-audited.
 
 These are genuine canonical-view runs through the merged official runner, testbench, measurement and recorder. Each section names the actual simulated source and links byte-verified committed results. Failures remain evidence; no all-corner qualification is implied.
 

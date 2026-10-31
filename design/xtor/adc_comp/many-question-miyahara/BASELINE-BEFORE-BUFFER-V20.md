@@ -1,6 +1,6 @@
 # Preserved canonical baseline before BUFFER-V20
 
-> Evidence retention (2026-10-31): Historical raw/archive statements below refer to the original audit. Superseded waveforms were released under the user's retention policy. [EVIDENCE-RETENTION](EVIDENCE-RETENTION.md) lists the completed runs still available for raw re-audit.
+> Evidence retention (2026-10-31): Superseded raw was released. Historical verification does not imply current availability; [retained evidence](EVIDENCE-RETENTION.md) determines which runs can be re-audited.
 
 Historical source and all 96 official records are fixed at commit `5a9405c5ff48d3493c7098a7987ff7c56f7df001` and retained in a verified private archive. Statements below describe that old canonical source.
 

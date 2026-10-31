@@ -1,6 +1,6 @@
 # BUFFER-V19: buffer-node capacitance repair with P8 interstage drive
 
-> Evidence retention (2026-10-31): Historical raw/archive statements below refer to the original audit. Superseded waveforms were released under the user's retention policy. [EVIDENCE-RETENTION](EVIDENCE-RETENTION.md) lists the completed runs still available for raw re-audit.
+> Evidence retention (2026-10-31): Superseded raw was released. Historical verification does not imply current availability; [retained evidence](EVIDENCE-RETENTION.md) determines which runs can be re-audited.
 
 B18 fails six terminal pairs at each of SF/high/-40 and FS/high/-40. The raw BN peaks are 1.000148479010 V and 1.000274971668 V, respectively, at about 26 ps and 24 ps after rising clock midpoints. All 72 actual decisions, resets and output-validity checks pass, but do not override the strict stress failure. [BUFFER-V18.md](BUFFER-V18.md) retains the failed source and complete waveform evidence; B18 stops before TT or noise.
 

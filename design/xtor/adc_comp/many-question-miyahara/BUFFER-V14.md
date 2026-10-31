@@ -1,6 +1,6 @@
 # BUFFER-V14: earlier interstage PMOS drive
 
-> Evidence retention (2026-10-31): Historical raw/archive statements below refer to the original audit. Superseded waveforms were released under the user's retention policy. [EVIDENCE-RETENTION](EVIDENCE-RETENTION.md) lists the completed runs still available for raw re-audit.
+> Evidence retention (2026-10-31): Superseded raw was released. Historical verification does not imply current availability; [retained evidence](EVIDENCE-RETENTION.md) determines which runs can be re-audited.
 
 B13's formal hot-corner noise fails, worst FS/low/125 at 488.025278 uV rms. The matched phase diagnosis reproduces 11/256 wrong decisions there versus 0/256 at TT, with all resets complete and stable early-to-final output signs. Existing noiseless waveforms show that DP differential transfer decays much earlier in the worst corner; at rise +30 ps its DP and XP secant gains are -2.074 and +6.685, versus TT -4.670 and +12.142. At +40 ps RP gain is +7.313 versus +27.947. The short noisy traces show the same ordering, and all 11 final errors are already present in RP-RN by +50 ps. [The diagnosis](NOISE-DIAGNOSIS-B13.md) preserves the observations and their limits.
 

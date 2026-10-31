@@ -1,6 +1,6 @@
 # BUFFER-V5: damp measured raw and buffer excursions
 
-> Evidence retention (2026-10-31): Historical raw/archive statements below refer to the original audit. Superseded waveforms were released under the user's retention policy. [EVIDENCE-RETENTION](EVIDENCE-RETENTION.md) lists the completed runs still available for raw re-audit.
+> Evidence retention (2026-10-31): Superseded raw was released. Historical verification does not imply current availability; [retained evidence](EVIDENCE-RETENTION.md) determines which runs can be re-audited.
 
 B4 removes input-drain overvoltage and gains timing margin, but its stronger N8 reset injects a negative step into RP/RN as CKB falls. The buffer transition also produces external-output overshoot during reset. This experiment reduces raw reset to N4 and the physical clock driver to P4/N2. It adds one validated 2.06055 fF MOM at each XP/XN, RP/RN and BP/BN node, the three node families with measured undershoot or excessive slew. External 10 fF loads and all testbench stimuli remain unchanged.
 

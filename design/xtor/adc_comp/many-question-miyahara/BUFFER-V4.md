@@ -1,6 +1,6 @@
 # BUFFER-V4: direct input precharge and stronger clocked reset
 
-> Evidence retention (2026-10-31): Historical raw/archive statements below refer to the original audit. Superseded waveforms were released under the user's retention policy. [EVIDENCE-RETENTION](EVIDENCE-RETENTION.md) lists the completed runs still available for raw re-audit.
+> Evidence retention (2026-10-31): Superseded raw was released. Historical verification does not imply current availability; [retained evidence](EVIDENCE-RETENTION.md) determines which runs can be re-audited.
 
 B3 still shows input-drain overshoot during the delayed CKR rising edge and negative raw-output excursions during reset. This experiment returns to the B2 physical buffer and changes the reset path. It removes the CKR inverter and its input-precharge PMOS pair; the remaining direct-CLKC input precharge uses P1.6 um on each side. Each input drain receives a diode-connected N0.5 um / 500 nm load to create high-level headroom. These are actual PDK devices whose current is included in energy.
 

@@ -1,6 +1,6 @@
 # BUFFER-V23: stronger physical second stage
 
-> Evidence retention (2026-10-31): Historical raw/archive statements below refer to the original audit. Superseded waveforms were released under the user's retention policy. [EVIDENCE-RETENTION](EVIDENCE-RETENTION.md) lists the completed runs still available for raw re-audit.
+> Evidence retention (2026-10-31): Superseded raw was released. Historical verification does not imply current availability; [retained evidence](EVIDENCE-RETENTION.md) determines which runs can be re-audited.
 
 **B23 fails the deterministic gate:** TT 30 mV delay is 50.14965558025553 ps against 50 ps; SS/low/125 reset is 46.1394172594504 ps and FS/low/125 reset is 35.69263848338459 ps against 35 ps. No B23 noise run, promotion or qualification expansion follows these failures.
 
