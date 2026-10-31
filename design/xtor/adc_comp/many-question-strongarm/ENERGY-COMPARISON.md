@@ -89,3 +89,24 @@ These are net supply-delivery allocations, including returned charge and circuit
 
 The unchanged mixed sequence and 100 ps to 14.5 ns boundary give 404.753683 fJ/cycle from the complete AVDD trace, partitioned into 88.903251 fJ evaluation and 315.850433 fJ reset. The original meter gives 404.753296 fJ; relative integration difference is 0.000096%. All AVDD terminal probes are present and the supply allocation residual is zero. Initial reset current is 1174.561664 uA (1.057105 mW); late reset current is 1189.646551 uA. These physical reset costs are included. The result is reported-only, not a qualified efficiency ranking. It comes from clean source `0b026e2487d815e377ff0de99e28ad3a38a039ab`, run `20261031-074310-strongarm-reset-v19-screen`.
 
+
+
+## V20 measured TT supply phases
+
+Run `20261031-084834-strongarm-reset-v20-screen` measures V20 with the same full-circuit AVDD boundary and the same 36-cycle 100 ps–14.5 ns window. Only the two Q-node capacitor geometries differ from V19.
+
+| Total (fJ/cycle) | Evaluation | Reset | Initial reset current (uA) | Initial reset power (mW) |
+|---:|---:|---:|---:|---:|
+| 406.390975180 | 89.714530132 | 316.676445047 | 1174.561664158 | 1.057105498 |
+
+The original meter gives 406.390516200 fJ/cycle; the waveform integral differs by 0.000112941%. All probes are present and their AVDD terminal sum closes to numerical precision. The net change from V19 is +1.637291916 fJ/cycle (+0.404516%).
+
+| Net supply delivery group | Whole cycle (fJ) | Evaluation (fJ) | Reset (fJ) |
+|---|---:|---:|---:|
+| input precharge | 106.838943822 | 1.705417883 | 105.133525939 |
+| regenerative core | 25.321462752 | 29.177433952 | -3.855971200 |
+| Q precharge/reset | 196.799370107 | 1.291695008 | 195.507675099 |
+| external output inverters | 28.322515582 | 26.726318500 | 1.596197083 |
+| physical clock | 49.108682916 | 30.813664789 | 18.295018127 |
+
+Physical reset and weak-load costs are included. Net returned charge can make an individual phase allocation negative; these allocations are not isolated device dissipation. Power is reported only. No noise or qualification benefit is established by this cost comparison.
