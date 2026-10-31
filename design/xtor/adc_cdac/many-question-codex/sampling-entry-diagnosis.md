@@ -1060,13 +1060,13 @@ rehashing old records does not restore validity. Merge state and module
 notices will be checked before each batch and PR update. Formal module
 acknowledgements will follow their notice, not this preliminary announcement.
 
-The next circuit source, V11, is frozen at
+The next circuit source, V11, was initially frozen at
 `49b16dce926ab575c321b89837fd779983db6643fb1b34488dee99074b72b7b0`
-but has not been simulated. It routes the existing sampling-assist hold
+before the numerical comparison. It routes the existing sampling-assist hold
 PMOS source/body to VREFP and the six MID PMOS gates to that off-state
 control. All primitive geometry and capacitors are unchanged. Its proposed
-benefit, overlap/reference-current cost and leakage remain unverified;
-numerical revalidation now precedes executing that source.
+benefit, overlap/reference-current cost and leakage were hypotheses at
+that checkpoint. Its subsequent matched measurements are recorded below.
 
 ## Continuing verification
 
@@ -1131,6 +1131,55 @@ remain unchanged. Official reruns still require the merged flow and its
 pinned dependency. The observations support continuing circuit diagnosis
 with the announced numerical settings instead of relying solely on the
 old traponly screens.
+
+### V10/V11 matched conservative circuit comparison
+
+After the same-source numerical checks, both V10 and V11 were run under
+the verified announced settings from clean `2cf53ad15c6807a996447410f43dd2dbb2e5f314`.
+V11's independent flattened-netlist check confirms exactly seven changed
+MOS connections, unchanged geometry/capacitors and 568 MOS per half.
+Complete RNL validation and the assist/bit-0 drawings were checked.
+Both runs save identical native MPUP/MPPASS and supply currents, without
+adding any electrical instrumentation to the circuit.
+
+| Check | V10 baseline | V11 reference-powered assist hold |
+|---|---|---|
+| SS RL5/RL12/start | 57.8/38.4/95.7 ps, pass | 57.8/38.4/95.6 ps, pass |
+| SS tau / droop | 11.335086 ps / 0.004904730 LSB | 11.335086 ps / 0.005444980 LSB |
+| SS voltage check | 0/1704 fail, max 0.982867868 V | 0/1704 fail, max 0.983099466 V |
+| Early FF voltage check | 272/3408 fail, 191 actual net pairs | 269/3408 fail, 187 actual net pairs |
+| Early FF maximum | 1.070563930 V at 5.117470582 ns | 1.056373570 V at 5.146911407 ns |
+| SS Qref (n/a for TT budget) | 1.891895712 pC | 1.981721744 pC |
+
+The maximum in both cases is negative-side bit-0 MEQ1 gate/drain. V11
+initially holds APGATE near VREFP, but the original phase pass pair later
+connects it to the 0.99 V PHI_SB. At V11's maximum, APGATE is
+1.001566381 V and BH is -0.054807190 V. Lowering only MPUP's supply
+therefore does not bound the assist voltage through the whole handover.
+The late pass-path excursion remains, while the changed MID gate routing
+worsens its largest PMOS pair from 1.043154643 to 1.051176546 V.
+
+![Matched reference-powered assist comparison](assist-reference-comparison.png)
+
+Only three failing pairs disappear: the two MPUP drain/source pairs and
+negative-side bit-2 MSL gate/drain. No new failing pair appears, but all
+55 MEQ1/MEQ2 failing pairs and all 12 MID-PMOS failing pairs remain.
+SS reference charge increases by 89.826032 fC, not an improvement; SS
+is not the TT charge budget. Native current records retain the overlap
+and backflow. Their saved-sample integral is diagnostic, whereas the
+table's Qref is the original testbench's charge integral.
+
+Both SS deadline brackets pass; V11 stops before TT, weights and longer
+pressure expansion because early FF fails. All four proposed-setting
+runs are private. Each uses the same effective profile as the preceding
+batch, no explicit maxstep, APS only, and complete finite waveforms.
+The 9/8/9/8 raw files and 50 staged inputs per run were verified before
+exact remote cleanup. Archive SHA256 values:
+
+- V10 SS: `545b8e808d9c4edbed10ec775e5e73fac94cc223dff8e2555fba2f30c94f2eb7`
+- V10 early FF: `e41f9ff9a6cc00dab37d4b0412c7120f640dd5bf37d96a7ac8f925e846b4469c`
+- V11 SS: `eb826816e28931b269a3e1a717012f1e6f445b1afe468c5706e9cf26cdbb6ccb`
+- V11 early FF: `05f99a15c3e03df8189ed99c9e2ea9f2e0783b0eafc4d4839b0d137f0f0c4764`
 
 A brief separately controlled reference-drive assist remains an unimplemented
 hypothesis, with additional pulse alignment and loading questions.

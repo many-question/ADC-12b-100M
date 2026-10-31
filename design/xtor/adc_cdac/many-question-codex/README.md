@@ -136,8 +136,11 @@ physical AP capacitance against the remaining 4.4 ps SS start margin.
 V10's AP capacitance passes SS (RL12/start 38.3/96.4 ps), while early FF
 still has 272 failing pairs. AP and HIB negative swings decrease, but
 SS start develops 34.4 mV TOP overshoot and SS reference charge increases.
-Its proposed sampling-assist successor is frozen but has not been run;
-the numerical transition above now takes priority.
+Its sampling-assist successor V11 was then compared with V10 under the
+same announced conservative settings. Both pass SS, but V11 still fails
+269 early-FF pairs versus V10's 272: its maximum falls to 1.056374 V,
+while the phase pass path returns the assist gate to the higher digital
+clock level. SS reference charge rises by 89.826 fC. Neither is promoted.
 Existing V4 TT saves do not permit assigning its total excess to a phase.
 N4's TT evidence does not transfer to any changed case.
 The [first passing private SS comparison](https://github.com/many-question/ADC-12b-100M/blob/20d4d8896dc8d9b94206b7c928e8e5e255b5c511/design/xtor/adc_cdac/many-question-codex/balanced-predrive-ss-screen.png)
