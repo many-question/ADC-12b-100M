@@ -191,3 +191,5 @@ Noise is `342.51175741522553` uV rms (95% profile interval `[331.11, 354.49]` uV
 This outcome remains close to B20's 343.4944014285115 uV failure and does not establish a noise improvement. The next investigation uses explicitly artificial source-suppression trials to locate sensitivity before choosing another physical change. Those trials cannot qualify a circuit or be variance-subtracted into unique additive noise contributions. Any subsequent physical candidate restores all stochastic sources.
 
 Archive SHA-256 `26e302577d4bb1e1ba873aa319be231f6edc2458770a06bc2ab6fc7215845240` was verified by reading every member back with CRC and SHA-256; the exact owned remote directory is absent. Formal records are unchanged.
+
+[Artificial B22 source diagnostics](NOISE-SOURCE-DIAGNOSTICS-B22.md) retain input-pair and regenerative-stage suppression trials at the failed FS/low/125 corner. They are ineligible for qualification; physical B22 noise remains 342.51175741522553 uV rms.

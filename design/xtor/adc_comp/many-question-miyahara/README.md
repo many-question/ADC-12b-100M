@@ -15,3 +15,5 @@ Earlier private B20 TT noise is 191.43800312001045 uV rms; it is not a new forma
 [B21](BUFFER-V21.md) retains its SS reset failure at 35.42069219051348 ps. [B20 promotion proof](PROMOTION-BUFFER-V20.md), [historical baseline](BASELINE-BEFORE-BUFFER-V20.md) and [old-setting original runs](FORMAL-BUFFER-V20.md) preserve earlier sources, records and verified archives. Historical figures use byte-verified fixed published links where duplicate local PNGs were removed. No failure or stale record is discarded.
 
 Issues #40/#63/#69/#75/#77/#78/#84/#100 remain acknowledged. The branch includes main f1ac9a5's site-only fix; comparator tools, testbenches and specifications are unchanged by this candidate. Remaining corners, full formal coverage, 50-sample mismatch, operating range, mixed-top regression and lead review remain open.
+
+[Artificial B22 source diagnostics](NOISE-SOURCE-DIAGNOSTICS-B22.md) retain input-pair and regenerative-stage suppression trials at the failed FS/low/125 corner. They are ineligible for qualification; physical B22 noise remains 342.51175741522553 uV rms.
