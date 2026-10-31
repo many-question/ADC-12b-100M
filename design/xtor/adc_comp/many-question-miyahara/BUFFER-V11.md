@@ -8,7 +8,7 @@ This experiment adds a weak P0.5um/100nm pull-up and N0.5um/500nm pull-down to C
 
 The [independent source](BUFFER-V11.txt) has electrical SHA-256 `75fde3433404b4ab69723528ed5b66e47e7a2e2822c5bc73526a5b7b875259c6`. Full RNL on a byte-identical Spectre mirror passes core 0.5.2 with 0 errors, 0 warnings and 0 hints; the schematic was inspected. The new drawing also corrects the inherited MAP/MAN label to the actual nf3 and updates its summary dimensions; these annotation corrections do not change those devices electrically.
 
-![Physical CKB rail loads](buffer-v11.png)
+![Physical CKB rail loads](https://raw.githubusercontent.com/many-question/ADC-12b-100M/0c799462e700c1f74a9448031e14abdd56ec18e7/design/xtor/adc_comp/many-question-miyahara/buffer-v11.png)
 
 Screen SF/high/-40 and FS/high/-40 first. Only after they pass, complete TT, SS low/hot, SF low/cold, FF high/cold and high/hot, SF high/27 and high/hot, and FS low/hot. Check every MOS terminal voltage over the complete trace, all 36 physical polarities and resets, validity, delay, regeneration time and AVDD energy. Keep the total session concurrency at or below six jobs. No prior noise, mismatch or capacitance performance is inherited.
 
