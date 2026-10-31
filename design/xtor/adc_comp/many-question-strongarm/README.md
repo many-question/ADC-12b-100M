@@ -21,3 +21,5 @@ V27's separate tighter TT capacitance measurements are 19.331118542884703 fF per
 Issues #40/#63/#69/#75/#77/#78/#84/#100 remain acknowledged. The branch includes main f1ac9a5's site-only fix; comparator tools, testbenches and specifications are unchanged by this candidate. Remaining corners, full formal coverage, 50-sample mismatch, operating range, mixed-top regression and lead review remain open.
 
 Independent [V30](RESET-V30.md) retains V29 P8 output pull-ups and restores exact V28 N4 pull-downs. TT 30 mV delay improves to 47.35514490849851 ps, but SS/low/125 reset fails at 36.646221657802904 ps. All 144 actual decisions/resets, output validity and unrounded terminal pairs pass; the reset-time failure stops qualification expansion. Noise and capacitance remain untested. Further physical work tests Q precharge strength and explicitly checks the added clock load before any tail-current reduction.
+
+Independent [V31](RESET-V31.md) changes only Q precharge MRQP/MRQN from 3 to 3.6 um to address V30 reset. Full deterministic gates and the dedicated clock-capacitance check precede further noise work.
