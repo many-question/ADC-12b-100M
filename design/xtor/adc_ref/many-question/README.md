@@ -7,8 +7,25 @@ replica servo, a reference-absent startup clamp, and a MOS divider for VCM.
 The main28/gate16 revision uses `CGATE multi=16`, with `MPUV multi=2`,
 `MPOUT multi=16`, and six MOM-unit equivalents of servo compensation (4+1+1).
 Its tradeoff is substantial
-quiescent power and gate capacitance for settling robustness. It is not selected
-or signed off; the archived mixed-top SS-hot ENOB result remains a failure.
+quiescent power and gate capacitance for settling robustness. The block spec
+selects this candidate; current verification and mixed-top coverage are still
+required for eligibility. The archived mixed-top SS-hot failure remains historical evidence.
+
+## Spec 0.10.0 migration status
+
+PR #112 merged as `17b3a0c`, superseding #111. Notice #117 is acknowledged.
+REF-15 and REF-17 now use a 1.1 V upper limit; REF-16 and REF-18 keep their
+-0.1 V lower limit. The explicit waveform-save changes invalidate 45 DC,
+one TT noise and 45 startup result records. The 45 replay records remain fresh.
+The netlist is unchanged. Existing results have not been rehashed or relabeled.
+
+The project-side rerun announced in #117 is the result-refresh entry point;
+this contributor is coordinating its independent work to avoid a duplicate
+91-record sweep. No post-#112 rerun is claimed by this update. Lead verification
+and the 22 required ref-only mixed-top records remain separate outstanding work.
+Earlier startup plots and captions retain their original 1.0 V limit until
+replacement evidence is generated. The validation sections below describe
+their stated historical source revisions, not current 0.10.0 freshness.
 
 ## Rerun for the numerics change
 
@@ -25,7 +42,7 @@ The 90 transient records were rerun on main `c6152d2` (spec 0.9.0, #95, notice #
 
 Startup cross-checks (`traponly`, 0.1 ns) at the four corners differ by at most 0.0048 mV ready error.
 
-## Current module validation
+## Historical module validation before spec 0.10.0
 
 The main28/gate16 source has completed formal module validation at electrical
 hash `2b1163f0eb481376`. The branch is synchronized with main
