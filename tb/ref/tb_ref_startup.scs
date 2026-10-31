@@ -19,7 +19,7 @@ CDB (VREFP 0) capacitor c=ccdac
 // the two top plates on VCM (C_tot each)
 CVP (VCM 0) capacitor c=ctot
 CVN (VCM 0) capacitor c=ctot
-tran1 tran stop=tstop maxstep=1n
+tran1 tran stop=tstop maxstep=1n errpreset=conservative
 save VREFP VCM VREF_IN AVDD AVDD18
 // @RNL {
 //   /* pins connected by net name: the net-name label of rnl-std-fill on every unwired pin, placed below by its key netname */
@@ -60,5 +60,5 @@ save VREFP VCM VREF_IN AVDD AVDD18
 //   &0 @WIRE {#CVN:2 %g7:p};
 //   (-30, 31) @TEXT("tb_ref_startup: VREFP / VCM over the supported power-up sequence", halign="start") => @SET-STYLE $title_style;
 //   (-30, 29.4) @TEXT("supplies 0.1-1.1 us, VREF_IN 6.1-16.1 us, ready 21.1 us (CLK static before: no DC load), end 25.1 us", halign="start") => @SET-STYLE $note_style;
-//   (-30, 27.8) @TEXT("transient settings from the spec (numerics): maxstep 1n; convergence cross-check: adcflow sim --crosscheck", halign="start") => @SET-STYLE $note_style
+//   (-30, 27.8) @TEXT("transient settings: errpreset conservative, maxstep 1n (spec numerics); convergence cross-check: adcflow sim --crosscheck", halign="start") => @SET-STYLE $note_style
 // }

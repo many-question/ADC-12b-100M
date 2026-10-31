@@ -38,7 +38,7 @@ statistics { \
   }
 }
 mc1 montecarlo numruns=mc_runs seed=mc_seed firstrun=1 donominal=no variations=mismatch annotate=status {
-tran1 tran stop=tstop
+tran1 tran stop=tstop errpreset=conservative
 }
 tbopts options save=none
 // @RNL {

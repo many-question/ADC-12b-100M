@@ -11,7 +11,10 @@ evidence-figure check (tests/test_figures.py tests it): real results/ and their 
 differ between branches, cannot change these verdicts (#41).
 """
 
+import subprocess
+
 import pytest
+import yaml
 
 from adcflow import checks, results, runner
 from adcflow.corners import by_name, corner_names
@@ -188,6 +191,83 @@ def test_errors_and_stale_results_are_never_filtered(monkeypatch, capsys, clk10_
     out = capsys.readouterr().out
     assert "error  tb_clkgen_timing/ff_high_125: spectre rc=1" in out
     assert "stale  tb_clkgen_timing/ss_low_m40: specs/arch.yaml" in out
+
+
+def _stale_review_docs() -> list[dict]:
+    """Every result the selected candidate of an xtor-review block needs, one of them stale."""
+    b = blocks()[BLOCK]
+    view = f"xtor-{b.selected}"
+    docs = [_doc(c, test=t, view=view) for t in {s.test for s in b.specs}
+            for c in sorted(corner_names("all"))]
+    stale = next(d for d in docs if d["corner"] == "ff_high_125" and d["test"] == TEST)
+    stale["meta"]["files"] = {"specs/arch.yaml": "0000000000000000"}
+    return docs
+
+
+def _review_check(monkeypatch, docs, changed: bool) -> checks.Report:
+    monkeypatch.setattr(checks, "load_results", lambda: docs)
+    monkeypatch.setattr(checks, "_check_figures", lambda *a, **k: None)
+    monkeypatch.setattr(checks, "_selection_changed", lambda b, base: changed and b.name == BLOCK)
+    return checks.check_results(strict=True, base="base")
+
+
+def _stale_errors(rep: checks.Report) -> list[str]:
+    return [e for e in rep.errors if e.startswith(BLOCK) and "result is stale" in e]
+
+
+def test_strict_stale_review_results_only_warn(monkeypatch):
+    rep = _review_check(monkeypatch, _stale_review_docs(), changed=False)
+    assert _stale_errors(rep) == []
+    assert f"{BLOCK}: selected candidate {blocks()[BLOCK].selected} has 1 stale results, not eligible" in rep.warnings
+
+
+def test_strict_stale_review_results_fail_a_pr_that_changes_the_selection(monkeypatch):
+    rep = _review_check(monkeypatch, _stale_review_docs(), changed=True)
+    assert _stale_errors(rep)
+    assert not any("not eligible" in w for w in rep.warnings)
+
+
+def test_strict_stale_signoff_results_still_fail(monkeypatch):
+    monkeypatch.setitem(blocks()[BLOCK].raw, "status", "signoff")
+    assert _stale_errors(_review_check(monkeypatch, _stale_review_docs(), changed=False))
+
+
+def test_strict_missing_and_failing_review_results_stay_errors(monkeypatch):
+    docs = _stale_review_docs()
+    docs.remove(next(d for d in docs if d["corner"] == "ss_low_m40" and d["test"] == TEST))
+    bad = next(d for d in docs if d["corner"] == "tt_nom_27" and d["test"] == TEST)
+    bad["metrics"]["td_s_ps"] = 1e4
+    errs = _review_check(monkeypatch, docs, changed=False).errors
+    assert any("no xtor-" in e and "ss_low_m40" in e for e in errs)
+    assert any("tt_nom_27: fails" in e for e in errs)
+
+
+@pytest.fixture
+def base_repo(_isolated_root):
+    """A git repository whose HEAD holds adc_clkgen with the given fields."""
+    b = blocks()[BLOCK]
+    (_isolated_root / "specs" / "blocks").mkdir(parents=True)
+
+    def commit(**over):
+        raw = {"block": BLOCK, "selected": b.selected, "status": b.status, **over}
+        (_isolated_root / "specs" / "blocks" / b.path.name).write_text(yaml.safe_dump(raw), encoding="utf-8")
+        for args in (["init", "-q"], ["add", "-A"],
+                     ["-c", "user.name=t", "-c", "user.email=t@t", "commit", "-qm", "x", "--allow-empty"]):
+            subprocess.run(["git", *args], cwd=_isolated_root, check=True)
+
+    return b, commit
+
+
+def test_selection_changed_compares_selected_and_status(base_repo):
+    b, commit = base_repo
+    assert checks._selection_changed(b, None) is False
+    commit()
+    assert checks._selection_changed(b, "HEAD") is False
+    commit(status="behavioral")
+    assert checks._selection_changed(b, "HEAD") is True
+    commit(selected="none")
+    assert checks._selection_changed(b, "HEAD") is True
+    assert checks._selection_changed(b, "no-such-ref") is True
 
 
 def test_report_counts_unique_applicable_corners(monkeypatch, capsys, clk10_limit):

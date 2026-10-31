@@ -460,7 +460,7 @@ def sine_test_cal(arch: Arch | None = None, ni: NonIdeal | None = None, n_fft: i
 
 
 def spectrum_metrics(codes: np.ndarray, fs: float, n_codes: int | None = None) -> dict:
-    """ENOB, SNDR, SFDR, SNR, THD (adctoolbox key names) of adcflow.spectrum (SFDR fixed for #36)."""
+    """ENOB, SNDR, SFDR, SNR, THD (adctoolbox key names) of adcflow.spectrum."""
     from .spectrum import analyze
 
     r = analyze(codes, fs, n_codes)

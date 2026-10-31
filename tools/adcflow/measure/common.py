@@ -115,7 +115,7 @@ def fig_cin(fg, ctx: dict, cins: dict[str, np.ndarray], panels: list[tuple[str, 
 
 
 def spectrum(codes: np.ndarray, fs: float, full_scale: float | None, ctx: dict | None = None) -> dict:
-    """ENOB, SNDR, SFDR, SNR, THD of a sine record (adcflow.spectrum: SFDR fixed for #36).
+    """ENOB, SNDR, SFDR, SNR, THD of a sine record (adcflow.spectrum).
     With `ctx`, the estimator is recorded in the result's meta.provenance."""
     from .. import spectrum as sp
 

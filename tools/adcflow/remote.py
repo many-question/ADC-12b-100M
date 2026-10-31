@@ -22,6 +22,7 @@ import yaml
 from . import REPO_ROOT
 
 SIM_YAML = REPO_ROOT / "specs" / "sim.yaml"
+DEFAULT_JOBS = 6                                 # parallel Spectre runs without `sim.jobs` in the site config
 
 
 @lru_cache
@@ -38,6 +39,16 @@ def cfg() -> dict:
         if not c.get(key):
             raise RuntimeError(f"site config {site()['_path']}: sim.{key} is required")
     return c
+
+
+def default_jobs() -> int:
+    """Default of --jobs: `sim.jobs` of the site config, else DEFAULT_JOBS."""
+    from .site import SiteConfigError, site
+
+    try:
+        return int((site().get("sim") or {}).get("jobs") or DEFAULT_JOBS)
+    except SiteConfigError:
+        return DEFAULT_JOBS
 
 
 def _tool(name: str) -> str:

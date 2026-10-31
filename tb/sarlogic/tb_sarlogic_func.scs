@@ -27,7 +27,7 @@ QMON (OUTNE OUTN QON 0) tb_qmeter_va
 ICAP (CONVB RDY D13 D12 D11 D10 D9 D8 D7 D6 D5 D4 D3 D2 D1 D0 0) tb_capture_va vth=vdd/2 cload=cload fname="capture.txt"
 VDVDD (DVDD_S 0) vsource dc=vdd
 IMDVDD (DVDD_S DVDD) tb_imeter_va tstart=tper tstop=tstop label="DVDD" fname="power.txt"
-tran1 tran stop=tstop outputstart=nowave*tstop
+tran1 tran stop=tstop outputstart=nowave*tstop errpreset=conservative
 save CONV CLKC OUTP OUTN RDY UP12 DN12 UP11 DN11 UP10 DN10 UP9 DN9 UP8 DN8 UP7 DN7 UP6 DN6 UP4 DN4 UP0 DN0 D0 QCV QOP QON
 // @RNL {
 //   /* pins connected by net name: the net-name label of rnl-std-fill on every unwired pin, placed below by its key netname */

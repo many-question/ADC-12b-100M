@@ -27,7 +27,7 @@ VCLK (CLK 0) vsource type=pulse val0=0 val1=vdd period=tper width=tper/2-20p ris
 ICG (CLK PHI_S PHI_SB PHI_B PHI_BB CONV VDDA 0) adc_clkgen_va
 VDDA (VDDA 0) vsource dc=vdd
 VREFP (VREFP 0) vsource dc=vref_in
-tran1 tran stop=tstop outputstart=tstop
+tran1 tran stop=tstop outputstart=tstop errpreset=conservative
 tbopts options save=none
 // @RNL {
 //   /* pins connected by net name: the net-name label of rnl-std-fill on every unwired pin, placed below by its key netname */
