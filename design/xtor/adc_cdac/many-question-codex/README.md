@@ -1,7 +1,14 @@
 # CDAC candidate
 
-This WIP 28 nm HPC+ candidate retains the formal N4 source and its complete
-TT evidence. All 17 required TT metrics passed under the preceding protocol; the first slow-corner screen
+Evidence-retention update (2026-10-31): superseded large raw waveforms and
+duplicate caches/archives have been released under the user's retention policy.
+Current formal N4 SS and V16 SS/FF retain one compressed original each;
+V17/V18 retain selected decision signals, result reports and source hashes.
+Historical archive statements describe capture-time storage. Released raw data
+cannot be re-audited; selected V17/V18 signals do not support a full-DUT audit.
+
+This WIP 28 nm HPC+ candidate retains the formal N4 source and its historical
+TT reports. All 17 required TT metrics passed under the preceding protocol; the first slow-corner screen
 fails RL12 and conversion-start settling. Successor experiments remain
 independent until they earn their own validation; no old result is relabeled.
 
@@ -148,7 +155,7 @@ V12 adds a physical reference-powered phase inverter for that pass path.
 It removes all 55 sampling-assist and 12 MID-PMOS failing pairs in the
 same early window, but still fails 205/3420 pairs: the largest voltage
 is now 1.063648 V in the assist control chain. SS still passes; reference
-charge and PHI_S load increase. Its [matched waveform comparison](assist-phase-reference-effects.png)
+charge and PHI_S load increase. Its [matched waveform comparison](https://github.com/many-question/ADC-12b-100M/blob/adc-cdac-many-question-v16-history-20261031/design/xtor/adc_cdac/many-question-codex/assist-phase-reference-effects.png)
 retains both the local improvement and the later control-node failure.
 Existing V4 TT saves do not permit assigning its total excess to a phase.
 N4's TT evidence does not transfer to any changed case.
@@ -160,9 +167,10 @@ in the [immutable history snapshot](https://github.com/many-question/ADC-12b-100
 also retained by tag `adc-cdac-many-question-history-20261031`.
 The [N4 TT evidence tag](https://github.com/many-question/ADC-12b-100M/tree/adc-cdac-many-question-n4-tt-20261030)
 and [pre-N4 history tag](https://github.com/many-question/ADC-12b-100M/tree/adc-cdac-many-question-pre-n4-20261030)
-preserve the actual clean simulation commits and prior failures. Raw data,
-frozen inputs, scripts, geometry validation and recovery/hash manifests are
-retained privately. This compaction changes no circuit or official evidence.
+preserve the actual clean simulation commits and prior failures. Frozen inputs,
+scripts, geometry validation and recovery/hash manifests are retained privately;
+large waveform retention is limited to the evidence listed above. This compaction
+changes no circuit or official result.
 The [V9 history snapshot](https://github.com/many-question/ADC-12b-100M/tree/20d4d8896dc8d9b94206b7c928e8e5e255b5c511/design/xtor/adc_cdac/many-question-codex),
 tagged `adc-cdac-many-question-v9-history-20261031`, additionally preserves
 every report and figure through V9. Three earlier figures are now linked
@@ -185,3 +193,14 @@ its two-tone self-test: installed SFDR is 80.00 dB. V14 subsequently removes
 the remaining observed control-chain failures and retains passing SS,
 but still fails 157 early-FF pairs. Independent V15 reduces BN undershoot
 yet fails SS RL12 at 44.8 ps and two SS voltage pairs; it is not expanded.
+
+V16 balances the NAND N devices and reaches SS RL12/start 39.7/96.5 ps,
+but still fails 123 early-FF terminal pairs. Its 0.3 ps RL12 margin has not
+been confirmed by a convergence comparison. Two independent V16 children
+identify further tradeoffs: V17 reduces FF failures to 95, with no new pair,
+but fails SS RL12 at 41.0 ps. V18 removes four assist-device failures but
+adds eight output-device failures (127 total), while SS reference charge
+rises from 1.992429 to 3.056424 pC. Neither proceeds to TT or longer-window
+qualification. The [matched decision waveforms](next-controls-tradeoffs.png)
+and the ledger retain these failures; selected V17/V18 signals support the
+displayed comparisons, not a repeat of their original full-DUT audit.

@@ -1,5 +1,13 @@
 # CDAC diagnosis and trial ledger
 
+**Retention update, 2026-10-31.** Historical large waveforms, analysis caches and
+duplicate archives were released under the user's policy. Sources, hashes,
+reports and figures remain. Only current formal N4 SS and V16 SS/FF retain
+complete compressed originals; V17/V18 retain selected decision signals.
+Earlier archive/recovery statements record the state at capture time, not
+current raw availability. Deleted raw cannot be re-audited, and V17/V18 selected
+signals cannot reconstruct a full-DUT voltage audit.
+
 The formal candidate is N4, source SHA256
 `3d62b80300fc5d85e3fc4e498cd22cedfa92ed006c502922526f1641e0a2ae61`.
 The [README](README.md) summarizes its topology, fixed 5% per-physical-unit
@@ -1159,7 +1167,7 @@ therefore does not bound the assist voltage through the whole handover.
 The late pass-path excursion remains, while the changed MID gate routing
 worsens its largest PMOS pair from 1.043154643 to 1.051176546 V.
 
-![Matched reference-powered assist comparison](assist-reference-comparison.png)
+[Archived matched reference-powered assist comparison](https://github.com/many-question/ADC-12b-100M/blob/adc-cdac-many-question-v16-history-20261031/design/xtor/adc_cdac/many-question-codex/assist-reference-comparison.png)
 
 Only three failing pairs disappear: the two MPUP drain/source pairs and
 negative-side bit-2 MSL gate/drain. No new failing pair appears, but all
@@ -1206,7 +1214,7 @@ are added. All 55 MEQ1/MEQ2 failures and all 12 MID-PMOS failures are
 removed in this complete 0..12 ns window; the four new physical phase
 MOS also pass every pair. This is a local repair, not a complete result.
 
-![Reference phase and retained control-node failure](assist-phase-reference-effects.png)
+[Archived reference phase and retained control-node failure](https://github.com/many-question/ADC-12b-100M/blob/adc-cdac-many-question-v16-history-20261031/design/xtor/adc_cdac/many-question-codex/assist-phase-reference-effects.png)
 
 The largest voltage now **increases** to 1.063647898 V on negative-side
 assist M1P drain/source at 10.088861177 ns: D1 reaches -73.647898 mV
@@ -1452,3 +1460,60 @@ rerun results and a site-card fix. Its changes do not alter the CDAC spec,
 testbenches, simulator generation, measurement or pinned frequency tool.
 It is synchronized before subsequent experiments; these V16 inputs remain
 frozen and are not regenerated or relabeled.
+
+### V17/V18: NAND P balance and reference-powered assist controls
+
+Both are independent V16 children with 570 MOS per half and unchanged
+physical MOMs, 5% bottom Cp and external ports. V17 halves the EN-gated
+NAND MPB0 width down to the existing minimum and enlarges HIB-gated MPB1
+to an existing geometry at least twice its old width: 40 flattened MOS
+geometry changes per half, with no connection changes. V18 changes only
+the assist M1P/M2P source and body connections and MPPASS body from DVDD
+to VREFP; all geometry remains unchanged. Independent parsed preflight
+and pinned RNL checks pass. V17 renders match its parent; V18 changes only
+the inspected assist schematic.
+
+- V17 source: `7ed413b2aad1a582e5e66ed72071cf19aae1b89b37da82a92517d1b8a819f7fe`
+- V18 source: `1f21b73cc8600b1142396357f9ea37058b8d515e7addf9fbe6d81ee3809b78bc`
+
+| Case | SS RL12 / start | SS voltage failures | Early FF failures / maximum | SS Qref (not TT qualification) |
+|---|---|---|---|---|
+| V16 parent | 39.7 / 96.5 ps | 0/1710 | 123/3420, 1.015374411 V | 1.992429020 pC |
+| V17 NAND P balance | **41.0** / 96.7 ps | 0/1710 | 95/3420, 1.014203616 V | 1.988423398 pC |
+| V18 assist reference supply | 39.7 / 96.5 ps | 0/1710 | 127/3420, 1.015373328 V | 3.056423659 pC |
+
+V17 removes 28 FF failing pairs and adds none. NOFF minimum improves from
+-19.860408 to -16.332306 mV, but 54 low-driver MPB0/MPB1 pairs remain
+outside 1 V. The global maximum moves to negative-side assist MNPASS
+gate/drain at 10.103321898 ns. The additional HIB-controlled PMOS load
+coincides with RL12 worsening beyond 40 ps, so V17 cannot replace V16.
+
+V18 removes all four assist-device failing pairs present in V16, but
+adds eight positive-side XDH.MNOUT drain/source and gate/drain failures
+on bits 3, 4, 10 and 11. Its overall worst pair remains negative-side
+bit-2 MSHAREH gate/drain. SS charge increases by 1.063995 pC. Saved-point
+integration over 54.8--64.8 ns gives M1P source charge 1.011276 pC and
+M2P 0.065608 pC; M1P source current is about 41.8 uA in the 57/58 ns
+quiet samples. These observations identify a cost of the supply change,
+not an isolated proof of one leakage mechanism. The authoritative Qref
+continues to come from the testbench measurement. Neither trial advances
+to TT, weights, spectra or longer pressure runs.
+
+![V16/V17/V18 decision waveforms](next-controls-tradeoffs.png)
+
+The four runs started from clean `16eff3b`, with the merged official
+numerical controls unchanged: SS effective reltol 1e-4 / 1 uV, tracking
+1e-7 / 10 nV, conservative / gear2only and no configured maxstep. Their
+finite complete waveforms contained V17 SS/FF 5612/6704 and V18 5617/6701
+points. All raw files and 50 staged inputs per run were recovered and
+verified before remote cleanup. These runs preceded the new selective-save
+policy; their output settings are not retroactively relabeled.
+
+Subsequent user-authorized retention removed their full raw archives and
+caches. Exact original time arrays and 33 SS / 52 FF decision signals per
+case remain in sealed compact records, without resampling. They support
+the displayed comparisons and charge observations; they cannot reproduce
+the full-DUT SOA audit. Historical small audit tables, sources and hashes
+remain. Formal N4 SS and optimization baseline V16 SS/FF retain their
+compressed originals. Future private runs use an explicit selected-signal
+profile, with complete DUT terminal saves only for a stated SOA check.
