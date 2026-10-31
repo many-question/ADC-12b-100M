@@ -86,7 +86,7 @@ python -m adcflow clean-remote --older-than-h 12   # 清理服务器上本项目
 * 第一行 `parameters` 中的参数可由规格 `params:` 或 `--param` 覆盖；`vdd vdd18 tempc noise_en devnoise
   beh_speed vref_in cdac_behav` 由 deck 提供，测试台中不要声明（`cdac_behav` = 1 表示 `adc_cdac` 用行为级视图）。
 * 监视器写小文本文件（`tb/common/veriloga/`）；只在度量需要时保存波形（`save` 列出信号）。
-* 要求逐管 SOA（每个薄栅器件 |Vgs|、|Vgd|、|Vds| ≤ 1.0 V）的用例在规格中加 `soa:`：流程在 deck 中保存 DUT 内各器件的端口节点，度量函数调用 `soa.measure` / `soa.figure`，见 [`verification.md`](verification.md) §5。
+* 要求逐管 SOA（每个薄栅器件 |Vgs|、|Vgd|、|Vds| ≤ `specs/soa.yaml` 的 `limit_V`，现为 1.1 V）的用例在规格中加 `soa:`：流程在 deck 中保存 DUT 内各器件的端口节点，度量函数调用 `soa.measure` / `soa.figure`，见 [`verification.md`](verification.md) §5。
 * 度量函数放在 `tools/adcflow/measure/<block>.py`，签名 `fn(job_dir, ctx) -> dict`，键名即规格中的 `metric`。
   `ctx["figs"]` 是图的接收器（`tools/adcflow/figures.py` 的 `FigureSink`）：新测试的度量函数用
   `sink_of(ctx)` 取得它，`fg.new(...)` 建图、`fg.save(fig, tag, caption)` 保存；规格线用
@@ -108,3 +108,16 @@ python -m adcflow clean-remote --older-than-h 12   # 清理服务器上本项目
 * 只在服务器本地盘的临时目录下仿真，不在 `/home` 下运行；
 * 服务器上的数据随时可能被清除：有用的数据仿真结束就取回，大文件只取需要的部分；
 * 每次运行结束自动删除服务器目录；异常退出后用 `clean-remote` 清理。
+
+## 7. 波形保存与本地保留
+
+生成的测试台显式采用 `save=selected`（度量所需节点）或 `save=none`（仅由监视器输出样本）。
+运行器为 SOA 检查追加的受测器件端节点仍属于必需信号；不能为了节省空间省略这些节点、
+缩短验证时间窗或改变数值设置。诊断脚本应按具体问题列出所需电压与电流，避免 `all`、
+`allpub`、全层级通配保存和无选择的全器件电流保存。
+
+本地只长期保留当前正式版本、当前在研版本及未解决数值问题所需的一份完整证据。
+压缩归档核验后释放重复的展开波形和可重建缓存；被替代版本的大波形可按项目保留策略清理。
+清理应记录路径、来源、释放字节和保留副本；历史失败结论与来源哈希继续保留，
+已删除原始波形的记录应注明释放事实，不能再宣称这些原始数据可供复审。
+修改保存设置后的新运行保留新的真实来源，不能修改或重贴旧结果的来源。

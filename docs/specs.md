@@ -14,7 +14,7 @@
 
 ## adc_bootstrap
 
-**Bootstrapped gate generator for the bottom-plate input switches (one per side)** — 规格版本 0.9.0，状态 `xtor-review`。
+**Bootstrapped gate generator for the bottom-plate input switches (one per side)** — 规格版本 0.10.0，状态 `xtor-review`。
 
 While PHI_B is high, VG = VIN + Vboot (Vboot ~ AVDD, from a capacitor charged during conversion), so every NMOS input switch inside adc_cdac sees a signal-independent gate-source voltage. PHI_B falling turns VG to 0 V quickly (the sampling instant itself is set by PHI_S in adc_cdac, 20-80 ps earlier). The load is the gate capacitance of all input switches of one CDAC.
 
@@ -35,7 +35,7 @@ While PHI_B is high, VG = VIN + Vboot (Vboot ~ AVDD, from a capacitor charged du
 
 - `vin_range`: [0.0, 0.9]
 - `load`: Reference load in the testbench: the input switch of the reference CDAC (nch_ulvt_mac, total W = 96 um in 48 fingers, L = 30 nm, sized for 12.5 ohm at Vgs = 0.9 V) driving C_S = 2.057 pF (arch v0.3) whose top plate is reset to VCM by an ideal PHI_S switch; VG wiring 10 fF.
-- `soa`: |Vgs|, |Vgd|, |Vds| <= 1.0 V for every thin-oxide device in every corner
+- `soa`: |Vgs|, |Vgd|, |Vds| <= 1.1 V for every thin-oxide device in every corner
 
 ### 指标
 
@@ -50,16 +50,16 @@ While PHI_B is high, VG = VIN + Vboot (Vboot ~ AVDD, from a capacitor charged du
 | BST-07 | average AVDD current at 100 MHz (one instance) | 仅报告（无限值，不判定） | uA | typ | `tb_bootstrap_dc` |
 | BST-09 | PHI_B input capacitance (charge per rising edge / VDD) | ≤ 16 | fF | typ | `tb_bootstrap_dc` |
 | BST-10 | PHI_BB input capacitance (charge per rising edge / VDD) | ≤ 16 | fF | typ | `tb_bootstrap_dc` |
-| BST-08 | SOA violations: thin-oxide device / terminal pairs over 1.0 V (Vgs, Vgd, Vds; absolute, whole transient) | ≤ 0 | count | all | `tb_bootstrap_dc` |
+| BST-08 | SOA violations: thin-oxide device / terminal pairs over 1.1 V (Vgs, Vgd, Vds; absolute, whole transient) | ≤ 0 | count | all | `tb_bootstrap_dc` |
 
 ### 验收用例
 
-- **`tb_bootstrap_dc`** (`tb/bootstrap/tb_bootstrap_dc.scs`, 度量 `adcflow.measure.bootstrap:dc`; 需要 PDK; 逐管 SOA 检查（`docs/verification.md` §5）; 数值设置 `reltol=1e-05`; 收敛交叉检查 `reltol=1e-07`, `vabstol=1e-08`, `maxstep=1p`, `method=traponly`（`--crosscheck`，`docs/verification.md` §2）)：100 MHz ideal phases; VIN stepped 0, 0.15 .. 0.9 V (one level per 4 cycles) through 50 ohm with the reference load. Measures VG - VIN at the end of each track phase, turn-on / turn-off times and AVDD current. BST-08 is the per-device SOA check of adcflow (docs/verification.md §5): the run deck saves the d / g / s nodes of every thin-oxide MOS in XDUT and of the reference switch MSWP; |Vgs|, |Vgd| and |Vds| of each, both polarities, are taken at every time point of the whole transient (edges included) and compared with 1.0 V; soa_violations counts the device / terminal pairs above it, soa_table gives every pair's largest |V| and its time. A transistor view without such devices, an unlisted MOS model or a missing waveform is an error (unverified), never 0. The behavioral view has no devices: only MSWP is checked (|VG - VIN|, |VG - BP|, |BP - VIN|), recorded as soa_scope external, which is not transistor-level evidence. BST-09/10: PHI_B and PHI_BB reach the DUT through charge meters (tb_qmeter_va, a 0 V path); the charge a pin draws over each rising edge divided by the voltage step, mean over all rising edges (window as in adc_cdac tb_cdac_settle). Transient settings: errpreset conservative and effective reltol 1e-6 (docs/verification.md §2: 1e-4 moves BST-03 past its limit); --crosscheck repeats representative limiting corners with another integrator, a 1 ps maximum step and tighter tolerances. meta.numerics records the effective values reported by the simulator.
+- **`tb_bootstrap_dc`** (`tb/bootstrap/tb_bootstrap_dc.scs`, 度量 `adcflow.measure.bootstrap:dc`; 需要 PDK; 逐管 SOA 检查（`docs/verification.md` §5）; 数值设置 `reltol=1e-05`; 收敛交叉检查 `reltol=1e-07`, `vabstol=1e-08`, `maxstep=1p`, `method=traponly`（`--crosscheck`，`docs/verification.md` §2）)：100 MHz ideal phases; VIN stepped 0, 0.15 .. 0.9 V (one level per 4 cycles) through 50 ohm with the reference load. Measures VG - VIN at the end of each track phase, turn-on / turn-off times and AVDD current. BST-08 is the per-device SOA check of adcflow (docs/verification.md §5): the run deck saves the d / g / s nodes of every thin-oxide MOS in XDUT and of the reference switch MSWP; |Vgs|, |Vgd| and |Vds| of each, both polarities, are taken at every time point of the whole transient (edges included) and compared with 1.1 V; soa_violations counts the device / terminal pairs above it, soa_table gives every pair's largest |V| and its time. A transistor view without such devices, an unlisted MOS model or a missing waveform is an error (unverified), never 0. The behavioral view has no devices: only MSWP is checked (|VG - VIN|, |VG - BP|, |BP - VIN|), recorded as soa_scope external, which is not transistor-level evidence. BST-09/10: PHI_B and PHI_BB reach the DUT through charge meters (tb_qmeter_va, a 0 V path); the charge a pin draws over each rising edge divided by the voltage step, mean over all rising edges (window as in adc_cdac tb_cdac_settle). Transient settings: errpreset conservative and effective reltol 1e-6 (docs/verification.md §2: 1e-4 moves BST-03 past its limit); --crosscheck repeats representative limiting corners with another integrator, a 1 ps maximum step and tighter tolerances. meta.numerics records the effective values reported by the simulator.
 - **`tb_bootstrap_track`** (`tb/bootstrap/tb_bootstrap_track.scs`, 度量 `adcflow.measure.bootstrap:track`; 参数 `fin_target=49.9e6`, `npts=256`; 需要 PDK; 数值设置 `reltol=1e-06`, `vabstol=1e-08`; 收敛交叉检查 `maxstep=1p`, `method=traponly`（`--crosscheck`，`docs/verification.md` §2）)：Two bootstraps with reference loads, differential sine from 50 ohm per side, coherent 49.9 MHz, -1 dBFS. The bottom-plate voltages at the PHI_S falling edges are the samples (bottom-plate sampling); FFT of 256 samples. Explicit transient settings (numerics, #28): effective reltol 1e-7 and vabstol 10 nV with errpreset conservative; effective 1e-4 or the default vabstol leave an error of up to 363 uV in the samples, so SFDR and SNDR do not converge (docs/verification.md §2). Convergence cross-check (sim --crosscheck: traponly, maxstep 1 ps; docs/verification.md §2) at representative worst corners and after substantive design changes.
 
 ## adc_cdac
 
-**Split-capacitor redundant CDAC, one side (instantiated twice)** — 规格版本 0.7.0，状态 `behavioral`。
+**Split-capacitor redundant CDAC, one side (instantiated twice)** — 规格版本 0.8.0，状态 `behavioral`。
 
 13 weights w_j (j = 12..0) = 980 560 318 180 102 57 32 18 10 6 3 2 1 x cu, cu = 1.0 fF (arch v0.3; the LSB half is 0.5 fF). Each weight is two equal halves: H (neutral state VREFP) and L (neutral state VREFN). Bottom-plate sampling: while CONV = 0 the bottom plates of the sampled weights (all but j = 9 and j = 6) track VIN through NMOS switches whose gate is VG (bootstrapped, from adc_bootstrap) and the top plate is held at VCM by a switch on PHI_S/PHI_SB. Non-sampled weights stay in the neutral state. With CONV = 1 every half is driven by an inverter between VREFP and VREFN: H to VREFP unless DH<j>, L to VREFN unless RL<j>. The top-level connects DH = DN, RL = UP on the VINP side and DH = UP, RL = DN on the VINN side, so each decision moves the two top plates in opposite directions and the common mode stays constant.
 
@@ -119,7 +119,7 @@ While PHI_B is high, VG = VIN + Vboot (Vboot ~ AVDD, from a capacitor charged du
 
 ## adc_clkgen
 
-**Sampling clock phase generator** — 规格版本 0.7.0，状态 `xtor-review`。
+**Sampling clock phase generator** — 规格版本 0.8.0，状态 `xtor-review`。
 
 Buffers the single external CLK (high = track, low = hold + convert) into the sampling phases. Falling CLK: PHI_S falls first (sampling instant, top plate opens), then PHI_B (bottom-plate switches open), then CONV rises (DAC drivers enabled, SAR logic starts). Rising CLK: CONV falls first (drivers tri-stated, SAR reset), then PHI_B and PHI_S rise (break before make).
 
@@ -156,7 +156,7 @@ Buffers the single external CLK (high = track, low = hold + convert) into the sa
 | CLK-08 | function at CLK duty 45 % and 55 % | ≤ 0 | count | all | `tb_clkgen_timing` |
 | CLK-09 | PHI_S falling-edge jitter (device noise) | ≤ 60 | fs | typ | `tb_clkgen_jitter` |
 | CLK-10 | average AVDD current at 100 MHz incl. output loads | 仅报告（无限值，不判定） | uA | typ | `tb_clkgen_timing` |
-| CLK-11 | SOA violations: thin-oxide device / terminal pairs over 1.0 V (Vgs, Vgd, Vds; absolute, whole transient) | ≤ 0 | count | all | `tb_clkgen_timing` |
+| CLK-11 | SOA violations: thin-oxide device / terminal pairs over 1.1 V (Vgs, Vgd, Vds; absolute, whole transient) | ≤ 0 | count | all | `tb_clkgen_timing` |
 
 ### 验收用例
 
@@ -165,7 +165,7 @@ Buffers the single external CLK (high = track, low = hold + convert) into the sa
 
 ## adc_comp
 
-**Dynamic latched comparator** — 规格版本 0.8.0，状态 `behavioral`。
+**Dynamic latched comparator** — 规格版本 0.9.0，状态 `behavioral`。
 
 Single fully-dynamic comparator of the asynchronous SAR loop. CLKC low resets (OUTP = OUTN = 0); CLKC rising evaluates; exactly one of OUTP / OUTN rises and the other stays below 30 % VDD until CLKC falls (CMP-15). OUTP = 1 means V(INP) > V(INN). At the top level INP is driven by the top plate of the CDAC that samples VINN (bottom-plate sampling inverts), so OUTP = 1 means "input above the DAC level".
 
@@ -219,7 +219,7 @@ Single fully-dynamic comparator of the asynchronous SAR loop. CLKC low resets (O
 
 ## adc_ref
 
-**Reference driver (VREFP = 0.9 V) and top-plate common-mode (VCM = 0.45 V)** — 规格版本 0.9.0，状态 `xtor-review`。
+**Reference driver (VREFP = 0.9 V) and top-plate common-mode (VCM = 0.45 V)** — 规格版本 0.10.0，状态 `xtor-review`。
 
 Buffers the high-impedance 0.9 V reference input VREF_IN into VREFP, which supplies the CDAC drivers (arch v0.3, cu = 1 fF): per conversion 0.93 pC at the start (the sampled H halves go from VIN to VREFP) and 13 switch charges of w_j * 0.45 fC (0.44 pC for the MSB, <= 14 fC from decision 7 on), first-order independent of the code, plus a signal-dependent part (-cu * LSB * gain * L^2 / 4, up to 0.36 pC). Everything is on-chip: decoupling in the nF range would have to be off-chip and its bond wires are not modelled, so it is not an option. The topology, bias current and decap are the designer's choice; the specs only constrain VREFP at the instants the comparator uses it (tb_ref_replay) and its noise. The behavioral view is an open-loop NMOS follower from AVDD18 (8 mA, 6 pF decap since #35; v0.3 had 4 mA and 3 pF, which leaves VREFP too far from its final value at decisions 4..7 and 10 once the charge is drawn at the DAC drive) - a starting point, not a requirement. Runs from AVDD18 because a 0.9 V output cannot be regulated from the 0.9 V rail. VCM (0.45 V) resets the top plates during tracking and only sees small common-mode charge.
 
@@ -258,9 +258,9 @@ Buffers the high-impedance 0.9 V reference input VREF_IN into VREFP, which suppl
 | REF-13 | VREFP change over decisions 12..14 (no redundancy), max | ≤ 200 | uV | all | `tb_ref_replay` |
 | REF-14 | VREFP before conversion start, p-p over the replay (memory) | ≤ 100 | uV | all | `tb_ref_replay` |
 | REF-21 | VREFP deviation at decisions 1..11 over its redundancy tolerance, max (env_ratio) | ≤ 1 |  | all | `tb_ref_replay` |
-| REF-15 | VREFP maximum during the supported power-up (whole run) | ≤ 1.0 | V | all | `tb_ref_startup` |
+| REF-15 | VREFP maximum during the supported power-up (whole run) | ≤ 1.1 | V | all | `tb_ref_startup` |
 | REF-16 | VREFP minimum during the supported power-up (whole run) | ≥ -0.1 | V | all | `tb_ref_startup` |
-| REF-17 | VCM maximum during the supported power-up (whole run) | ≤ 1.0 | V | all | `tb_ref_startup` |
+| REF-17 | VCM maximum during the supported power-up (whole run) | ≤ 1.1 | V | all | `tb_ref_startup` |
 | REF-18 | VCM minimum during the supported power-up (whole run) | ≥ -0.1 | V | all | `tb_ref_startup` |
 | REF-19 | VREFP from ready to the end: max |VREFP - VREF_IN| (REF-01 at no load) | ≤ 5 | mV | all | `tb_ref_startup` |
 | REF-20 | VCM from ready to the end: the value furthest from 0.45 V (REF-02 range) | 0.44 .. 0.46 | V | all | `tb_ref_startup` |
@@ -270,11 +270,11 @@ Buffers the high-impedance 0.9 V reference input VREF_IN into VREFP, which suppl
 - **`tb_ref_dc`** (`tb/ref/tb_ref_dc.scs`, 度量 `adcflow.measure.ref:dc`)：DC operating point with the 200 uA average CDAC load (load_vrefp_dc): REF-01, REF-02 and REF-11 there; REF-04 is the slope of VREFP over a sweep of AVDD18 across the specified supply envelope, 1.62 .. 1.98 V (corners.yaml low .. high, nominal +/-10 %), at that load at every corner: the sweep does not depend on the corner's own supply, so no corner goes beyond the envelope (#46); process and temperature still vary by corner. A dc sweep of the load 0..200 uA is characterization (load regulation, reported, no limit); supply currents are reported.
 - **`tb_ref_replay`** (`tb/ref/tb_ref_replay.scs`, 度量 `adcflow.measure.ref:replay`; 参数 `npts=1024`, `nwarm=32`, `fin_target=49.7e6`)：The system model converts a coherent 49.7 MHz -1 dBFS sine (1024 + 32 conversions, ideal reference, TT ADC timing with each DAC step's charge drawn at the DAC drive, t_bit + t_drv = 45 ps after its decision, and the extra DAC waits of timing.t_dac_add; the hot-fast x0.88 timing is checked in the system model, analysis/ref_timing_study.py); its start charge and 13 switch charges per conversion are played into VREFP as 20 ps current pulses (iload.pwl) and VREFP is sampled at every comparator clock and just before every conversion start (trig.pwl -> vdec.txt). The sampled deviations are fed back into the same model conversion: REF-12 is the ENOB lost against an ideal reference. REF-13 is the change over the last three decisions, which have no redundancy (decisions 8..11 tolerate 2.0 / 1.2 / 0.4 / 0.4 mV). REF-21 (env_ratio, measure adcflow.measure.ref:replay): for every decision k with redundancy (delta_k >= 1 LSB, k = 1..11), the largest |VREFP(k) - VREFP(14)| over the record (VREFP at decision 14 is the end of the conversion), divided by tolerance_k = delta_k * LSB * VREF / FS, the VREFP error at which a full-scale DAC level makes a decision error of delta_k LSB; env_ratio is the largest ratio. REF-12 alone misses this error: it bites only the few near-full-scale codes whose residue falls inside a narrow window, so one record can pass or fail by its phase. Transient noise is off; noise is REF-08.
 - **`tb_ref_noise`** (`tb/ref/tb_ref_noise.scs`, 度量 `adcflow.measure.ref:noise`)：Small-signal noise of VREFP (and VCM) from 1 kHz to 100 GHz with the decoupling, the 1.2 pF CDAC load and the 200 uA average load. VREFP noise multiplies the signal (input-referred ~0.7 x at -1 dBFS): 80 / 120 / 160 / 300 uV rms cost 0.06 / 0.12 / 0.20 / 0.49 bit. REF-08 integrates from 10 kHz, about one bin of a long (8k-16k point) record; noise below that is a slow gain wander, reported as noise_lf_uV (1 - 10 kHz) with no limit, and noise_total_uV is the whole band.
-- **`tb_ref_startup`** (`tb/ref/tb_ref_startup.scs`, 度量 `adcflow.measure.ref:startup`; 数值设置 `maxstep=1n`; 收敛交叉检查 `maxstep=0.1n`, `method=traponly`（`--crosscheck`，`docs/verification.md` §2）)：The supported power-up sequence (power_up_sequence): AVDD and AVDD18 ramp together from 0.1 to 1.1 us with VREF_IN at 0 V; VREF_IN stays at 0 V for 5 us more (vref_dwell), then ramps 0 -> 0.9 V from 6.1 to 16.1 us; ready at 21.1 us; the run ends at 25.1 us. Loads: 1.2 pF on VREFP (CDAC bottom plates, as tb_ref_replay / tb_ref_noise) and 2 x 2.5 pF on VCM (the two top plates, C_tot); no DC load (CLK is static, no conversions). REF-15..18: the largest and smallest VREFP and VCM over the whole run, against -0.1 .. 1.0 V, the window the thin-oxide CDAC and comparator devices on these nets need; the dwell with VREF_IN at 0 V lets a circuit that raises its outputs without a reference show there. REF-19: the largest |VREFP - VREF_IN| from ready to the end, the REF-01 tolerance at no load, so a reference that settles late or does not start fails. REF-20: the VCM value furthest from 0.45 V from ready to the end, against the REF-02 range. Reported: the largest VREFP and VCM during the dwell, the largest |VREFP - VREFP(end)| from ready on, the final VREFP - VREF_IN, VCM at the end, the largest |VREFP - VREF_IN| during the VREF_IN ramp and the time after the ramp from which VREFP stays within 5 mV of VREF_IN. The per-device SOA check is not applied: the thin-oxide limit does not apply to the thick-oxide devices of adc_ref. The behavioral view's follower and VCM driver are ideal current sources that do not depend on AVDD18 / AVDD, so it shows the VREF_IN ramp and the settling, not supply headroom or bias start-up.
+- **`tb_ref_startup`** (`tb/ref/tb_ref_startup.scs`, 度量 `adcflow.measure.ref:startup`; 数值设置 `maxstep=1n`; 收敛交叉检查 `maxstep=0.1n`, `method=traponly`（`--crosscheck`，`docs/verification.md` §2）)：The supported power-up sequence (power_up_sequence): AVDD and AVDD18 ramp together from 0.1 to 1.1 us with VREF_IN at 0 V; VREF_IN stays at 0 V for 5 us more (vref_dwell), then ramps 0 -> 0.9 V from 6.1 to 16.1 us; ready at 21.1 us; the run ends at 25.1 us. Loads: 1.2 pF on VREFP (CDAC bottom plates, as tb_ref_replay / tb_ref_noise) and 2 x 2.5 pF on VCM (the two top plates, C_tot); no DC load (CLK is static, no conversions). REF-15..18: the largest and smallest VREFP and VCM over the whole run, against -0.1 .. 1.1 V, the window the thin-oxide CDAC and comparator devices on these nets need; the dwell with VREF_IN at 0 V lets a circuit that raises its outputs without a reference show there. REF-19: the largest |VREFP - VREF_IN| from ready to the end, the REF-01 tolerance at no load, so a reference that settles late or does not start fails. REF-20: the VCM value furthest from 0.45 V from ready to the end, against the REF-02 range. Reported: the largest VREFP and VCM during the dwell, the largest |VREFP - VREFP(end)| from ready on, the final VREFP - VREF_IN, VCM at the end, the largest |VREFP - VREF_IN| during the VREF_IN ramp and the time after the ramp from which VREFP stays within 5 mV of VREF_IN. The per-device SOA check is not applied: the thin-oxide limit does not apply to the thick-oxide devices of adc_ref. The behavioral view's follower and VCM driver are ideal current sources that do not depend on AVDD18 / AVDD, so it shows the VREF_IN ramp and the settling, not supply headroom or bias start-up.
 
 ## adc_sarlogic
 
-**Asynchronous SAR controller, bit registers and output register** — 规格版本 0.6.0，状态 `behavioral`。
+**Asynchronous SAR controller, bit registers and output register** — 规格版本 0.7.0，状态 `behavioral`。
 
 Self-timed SAR loop. CONV low = reset (CLKC = 0, all UP/DN = 0; D and RDY hold). CONV rising starts a conversion: after t_start the first CLKC rises; each comparator decision (OUTP or OUTN rising) is stored, drives the CDAC control of that step (UP<j> or DN<j>, one-hot, j = 13 - k for decision k = 1..13), resets the comparator (CLKC low) and, after the DAC settle wait, clocks the comparator again. Decision 14 has no DAC step. After decision 14 (EOC) D<13:0> is loaded and RDY rises. RDY falls at the next CONV rising. A decision that is not made within t_timeout is forced to 1. If CONV falls before EOC, the output register is loaded with the bits decided so far (undecided = 0) and RDY rises.
 

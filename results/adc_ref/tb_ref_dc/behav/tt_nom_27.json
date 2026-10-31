@@ -12,7 +12,8 @@
   "devnoise": 0,
   "beh_speed": 1.0,
   "vref_in": 0.9,
-  "cdac_behav": 1
+  "cdac_behav": 1,
+  "comp_behav": 1
  },
  "metrics": {
   "vrefp_err_mV": -1.0129567134014028,
@@ -56,23 +57,18 @@
   }
  ],
  "meta": {
-  "date": "2026-10-29T11:12:46",
-  "git": "377842e",
+  "date": "2026-10-31T16:56:04",
+  "git": "73c363a",
   "git_clean": true,
   "mode": "aps",
   "pdk": false,
   "mc": null,
-  "wall_s": 120.7,
+  "wall_s": 113.8,
   "rc": "0",
-  "sim_s": "14",
-  "numerics": {
-   "source": "spectre.log",
-   "reltol": 0.001,
-   "abstol_V": 1e-06,
-   "step_max_ps": null
-  },
+  "sim_s": "6",
+  "numerics": {},
   "files": {
-   "tb/ref/tb_ref_dc.scs": "6c0b4787bdd7e2bb",
+   "tb/ref/tb_ref_dc.scs": "0013d586de2fc7fa",
    "design/behav/adc_ref.scs": "bc2eec0046129145",
    "design/behav/veriloga/adc_ref_va.va": "746d2530d4ff6d5c"
   },
@@ -80,11 +76,6 @@
    "keys": [],
    "sha": "44136fa355b3678a"
   },
-  "views": {},
-  "rehashed": {
-   "date": "2026-10-29T20:21:37",
-   "git": "b748f30",
-   "files_before": 16
-  }
+  "views": {}
  }
 }

@@ -17,6 +17,7 @@ dcop dc
 dcload dc param=iload start=0 stop=200u step=50u
 dcline dc dev=VH param=dc start=1.62 stop=1.98 step=0.09
 save VREFP VCM VH:p VA:p VREF:p
+waveopts options save=selected
 // @RNL {
 //   /* pins connected by net name: the net-name label of rnl-std-fill on every unwired pin, placed below by its key netname */
 //   $LABEL_TERMINAL_SET @TEXT("${net}", key="netname", size=0.6);
