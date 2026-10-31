@@ -79,7 +79,7 @@ LHIB -> PCOND -> GP -> BL 50% times are 6.927 -> 13.825 -> 20.459 ->
 0.958726 V. Significant plate motion remains after the main gate edges;
 these interacting stages cannot be added as independent delays.
 
-![Unchanged N4 slow-corner stage timing](slow-corner-stage-timing.png)
+[Archived figure: Unchanged N4 slow-corner stage timing](https://github.com/many-question/ADC-12b-100M/blob/20d4d8896dc8d9b94206b7c928e8e5e255b5c511/design/xtor/adc_cdac/many-question-codex/slow-corner-stage-timing.png)
 
 The native currents include displacement. The strict N4 diagnostic saved
 bit-12 and selected buses, not every other bit's bottom plates. Its 17-MOS
@@ -175,7 +175,7 @@ samples bracketing each deadline. At 100 ps, start error is 1.666544 mV
 versus a 1.586790 mV allowance. At 40 ps, RL12 error is 18.839163 mV
 versus 9.596509 mV. No TT or tracking run follows this failed case.
 
-![Matched complete SS reference and output-family trial](matched-output-family-screen.png)
+[Archived figure: Matched complete SS reference and output-family trial](https://github.com/many-question/ADC-12b-100M/blob/20d4d8896dc8d9b94206b7c928e8e5e255b5c511/design/xtor/adc_cdac/many-question-codex/matched-output-family-screen.png)
 
 RL12's last 10%/1% crossings change from 44.1/78.2 ps to 39.9/65.7 ps.
 TOP overshoot falls from 3.319162 to 2.812952 mV. The switched BL reaches
@@ -337,7 +337,7 @@ Both raw points bracketing each deadline pass. The RL12 timing margin
 is 0.8 ps; this is this case's SS settling result, not a complete-corner
 or full-CDAC qualification.
 
-![Matched N4 and first passing private SS settling case](balanced-predrive-ss-screen.png)
+[Archived figure: Matched N4 and first passing private SS settling case](https://github.com/many-question/ADC-12b-100M/blob/20d4d8896dc8d9b94206b7c928e8e5e255b5c511/design/xtor/adc_cdac/many-question-codex/balanced-predrive-ss-screen.png)
 
 PCOND/GP/GN midpoint times are 13.146/17.962/18.149 ps, compared with
 14.043/19.207/17.929 ps in the preceding case. BL reaches 50% at
@@ -988,6 +988,85 @@ and verified before exact cleanup. Archive SHA256 values:
   `b7efa3a1667c97bb62a8a0f846ee8266cd216fabab84dd67d949c2ddb15c6af5`
 - V9 early FF (8 raw files):
   `8d4cc05eac31f04a82ac6161093681f87566dcaced97ca0e1daecab4e6d12d21`
+
+### V10 physical AP capacitance: limited improvement and retained tradeoffs
+
+V10 adds existing validated physical MOM units at every AP, sized as
+ceil(2.5 units per um of upper-PMOS width). There are 170 added units
+per half, with exactly 8.519465 fF of bottom Cp. All MOS, original
+capacitors and top-level ports are unchanged from V9. Complete pinned
+RNL check/render passes; primitive geometry is reused without modification.
+The device count remains 568 per half and 1136 differential.
+
+Source SHA256:
+`92923f4f3e0bf9ccabd7630d247f59a422e9a66872d88829c78f7c92937597b6`.
+
+SS passes all five applicable requirements and all 1704 voltage pairs:
+RL5/RL12/start 58.3/38.3/96.4 ps, tau 11.248227081 ps and droop
+0.005063857 LSB. Both deadline raw brackets pass. Maximum voltage is
+0.983116663707 V on XB9.XDL.MPOUT drain/source at 5.162004726 ns.
+However, TOP now overshoots its start-step final value by 34.428847 mV,
+and Qref increases from 1.877272342 to 1.891814685 pC at SS (n/a).
+These costs are retained despite the passing settling deadline.
+
+Early FF still fails: 272/3408 terminal pairs, 191 distinct actual net
+pairs. The maximum remains 1.070564544970 V on XDACN.XB0.MEQ1
+gate/drain at 5.117493141 ns. Bit-12 AP's negative excursion decreases
+from -30.199873 to -11.478720 mV, and its command-buffer excursion from
+-71.380816 to -48.214454 mV. MPA0 has four remaining failing pairs,
+maximum 1.001478720 V; MPA1 and MNA1 each have four, maximum
+1.002796115 V. Some GN-driver failures increase. The unchanged largest
+sampling-path peak demonstrates that the AP treatment does not repair
+all mechanisms. V10 stops before TT, weights and further expansion.
+
+Runs launched from clean `20d4d8896dc8d9b94206b7c928e8e5e255b5c511`
+with 0.5 ps / 1e-7 / 1e-8 / traponly. SS took 370 s; early FF 118 s.
+All raw files and 50 frozen inputs per run were recovered and verified
+before exact cleanup. Archive SHA256 values:
+
+- V10 SS (9 raw files):
+  `2320e8272cc43afec235cd98fc70b43ba6aae3d75e1cc50a8f905a8b6806eec9`
+- V10 early FF (8 raw files):
+  `6fb7fc5a8d624ff070f054de6381ab3d4fc4cac417911348c2bc1dd2828416db`
+
+### Numerical-settings notice #94 takes priority
+
+[The new notice](https://github.com/many-question/ADC-12b-100M/issues/94)
+is an unmerged announcement at this report's check: fetched main remains
+`3b0c002a507b5f5fba1dfbc7059db5ef103e2860`, with the prior numerical
+configuration and ADCToolbox 0.6.4. No implementing open flow PR or new
+CDAC module notice was found; #94 has no comments and requires no acknowledgement.
+
+The announced flow uses conservative transient settings without an explicit
+maxstep for CDAC tests, APS only, and a fixed upstream ADCToolbox commit
+`cd72061`. Effective settings must come from the simulator log: ordinary
+conservative tests are expected to use gear2only, reltol 1e-4, relref
+alllocal and lteratio 10; tracking retains effective reltol 1e-7 and
+10 nV voltage tolerance. Requested and effective reltol are not identical.
+The same-number PyPI 0.9.1 package does not identify the announced fix.
+
+All prior N4 and V0--V10 records remain evidence under their recorded
+settings, not evidence of acceptance under the new protocol. First,
+independent same-source private comparisons will recheck N4 SS settling,
+V6 FF full settling, and V6's original first 12 ns of tracking input.
+They change numerical configuration without changing the circuits or
+stimuli, and report every actual saved step and device pair. Any failure
+that disappears will be retained as a numerical comparison, not erased
+from the old record. No old-setting full-corner formal acceptance is started.
+
+After the change merges, affected official weights, settling and tracking
+must be rerun with the merged runner/testbenches and fixed dependency;
+rehashing old records does not restore validity. Merge state and module
+notices will be checked before each batch and PR update. Formal module
+acknowledgements will follow their notice, not this preliminary announcement.
+
+The next circuit source, V11, is frozen at
+`49b16dce926ab575c321b89837fd779983db6643fb1b34488dee99074b72b7b0`
+but has not been simulated. It routes the existing sampling-assist hold
+PMOS source/body to VREFP and the six MID PMOS gates to that off-state
+control. All primitive geometry and capacitors are unchanged. Its proposed
+benefit, overlap/reference-current cost and leakage remain unverified;
+numerical revalidation now precedes executing that source.
 
 ## Continuing verification
 

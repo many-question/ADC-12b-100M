@@ -5,6 +5,14 @@ TT evidence. All 17 required TT metrics pass; the first slow-corner screen
 fails RL12 and conversion-start settling. Successor experiments remain
 independent until they earn their own validation; no old result is relabeled.
 
+Numerical-settings transition: [notice #94](https://github.com/many-question/ADC-12b-100M/issues/94)
+announces conservative transient settings and a fixed upstream ADCToolbox
+revision. At this report's check, main is still `3b0c002` and the change
+is not merged. All existing results below use the preceding protocol.
+They do not establish acceptance under the announced settings. Same-source
+private numerical comparisons take priority over further circuit changes;
+formal affected tests will be rerun with the merged official flow.
+
 ## Circuit and fixed assumptions
 
 The single-sided CDAC has 540 MOS, 31 subcircuits and 2,278 physical MOM
@@ -57,7 +65,7 @@ A complete matched SS comparison of lower-threshold reference outputs
 also fails RL12/start (42.7/100.6 ps), despite improved tau (11.204798 ps)
 and lower TOP overshoot. Full 540-MOS pressure checks pass, but Qref rises
 50.0247% and quiet-window off currents increase. The trial's TT expansion
-is stopped. Its [matched waveform comparison](matched-output-family-screen.png)
+is stopped. Its [matched waveform comparison](https://github.com/many-question/ADC-12b-100M/blob/20d4d8896dc8d9b94206b7c928e8e5e255b5c511/design/xtor/adc_cdac/many-question-codex/matched-output-family-screen.png)
 and the ledger retain the independent source and evidence. A subsequent
 nominal-threshold case with coordinated output/enable sizing passes start
 (90.6 ps), tau (11.117939 ps) and full MOS pressure, but RL12 still fails
@@ -120,9 +128,14 @@ That V9 experiment passes SS (RL12/start 38.4/95.6 ps; maximum voltage
 and a new -30.20 mV AP excursion; command-buffer negative swing worsens.
 V9 is not promoted and stops before TT/weights. The next experiment tests
 physical AP capacitance against the remaining 4.4 ps SS start margin.
+V10's AP capacitance passes SS (RL12/start 38.3/96.4 ps), while early FF
+still has 272 failing pairs. AP and HIB negative swings decrease, but
+SS start develops 34.4 mV TOP overshoot and SS reference charge increases.
+Its proposed sampling-assist successor is frozen but has not been run;
+the numerical transition above now takes priority.
 Existing V4 TT saves do not permit assigning its total excess to a phase.
 N4's TT evidence does not transfer to any changed case.
-The [first passing private SS comparison](balanced-predrive-ss-screen.png)
+The [first passing private SS comparison](https://github.com/many-question/ADC-12b-100M/blob/20d4d8896dc8d9b94206b7c928e8e5e255b5c511/design/xtor/adc_cdac/many-question-codex/balanced-predrive-ss-screen.png)
 and complete source/evidence identifiers are in the ledger.
 
 The complete earlier report and every historical diagnostic figure remain
@@ -133,3 +146,8 @@ and [pre-N4 history tag](https://github.com/many-question/ADC-12b-100M/tree/adc-
 preserve the actual clean simulation commits and prior failures. Raw data,
 frozen inputs, scripts, geometry validation and recovery/hash manifests are
 retained privately. This compaction changes no circuit or official evidence.
+The [V9 history snapshot](https://github.com/many-question/ADC-12b-100M/tree/20d4d8896dc8d9b94206b7c928e8e5e255b5c511/design/xtor/adc_cdac/many-question-codex),
+tagged `adc-cdac-many-question-v9-history-20261031`, additionally preserves
+every report and figure through V9. Three earlier figures are now linked
+there to keep the current candidate within its 2 MB limit; their bytes
+were verified against the snapshot before removal from this checkout.
