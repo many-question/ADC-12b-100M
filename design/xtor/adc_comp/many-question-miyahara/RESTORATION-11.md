@@ -57,3 +57,5 @@ TT noise archive SHA-256: `d66ffae3eea63d95dbef69bedeb9a6cb957e9d3cd07fdbb00e513
 FS/low/125 noise archive SHA-256: `b6234ffa795ac3c6c8548e49c23505251b4f4bebf49a7b2cc3a9ee5e87c70134`. CRC, every member SHA and exact remote absence passed.
 
 TT loading archive SHA-256: `94a351fb2dcedb812a20b910a9b8f712cf3e17829b3ec231d0289c4e352345a8`. Sources, deck/TB, logs and original decisions remain retained privately.
+
+[Retained-waveform mechanism analysis](RESTORATION-MECHANISM.md) distinguishes observations from untested physical hypotheses and proposes a small number of isolated changes.
