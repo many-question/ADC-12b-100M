@@ -1,5 +1,7 @@
 # BUFFER-V22: stronger CKB pull-up for reset
 
+**Full physical FS/low/125 noise fails:** `342.51175741522553` uV rms against 240 uV, with a model-conditional 95% profile interval of `[331.11, 354.49]` uV. The reset repair passes the deterministic gates below, but B22 qualification expansion stops at this noise failure. Canonical B20 is unchanged; no B22 promotion or TT-noise pass is claimed.
+
 B21 enlarges only RP/RN MOMs, but its proposed-settings screen fails SS/low/125 reset at 35.42069219051348 ps against 35 ps. All five corners pass 180 actual polarities and completed resets, output validity and full-trace terminal stress. The reset-time failure stops noise expansion. [BUFFER-V21.md](BUFFER-V21.md) preserves the complete failure and measured path.
 
 This experiment retains both 16-finger RP/RN MOMs and changes only MCKP from 4 um/nf4 to 5 um/nf5, with 30 nm length and 1 um finger width fixed. Every other 42 MOS device and all nine MOMs remain electrically identical to B21. The zero-warning callback supplies the geometry and terminal parasitics, SHA-256 `0f9b99701437867b499708c6e500ca31a352b771d4a7a544085f7fc2f609c918`.
@@ -178,3 +180,14 @@ All saved transient points, including clock edges, are included. Values below ar
 | MUPXP | gs | 0.99 | fs_high_m40 |
 
 Full noise is still untested for B22 at this checkpoint. The known FS/low/125 B20 noise failure motivates testing that corner first. Capacitance, remaining corners, formal coverage, mismatch, operating range, mixed-top validation and lead review remain open. Canonical B20 and all earlier failures stay preserved.
+
+
+## Completed full-noise failure
+
+Run `20261031-134338-miyahara-buffer-v22-spec08-noise-baseline-screen` uses frozen clean source `7c5afe3be0b5553506c216181995eb07d6fd8bb1` and the unmodified merged 0.8.0 physical testbench baseline, with every physical noise source enabled. The full 17 levels and 512 finite decisions per level are retained; no decisions are omitted. APS, actual conservative/gear2only/reltol 1e-4/vabstol 1e-6, alllocal and lteratio 10 match the baseline. No explicit maxstep or method is set. The bandwidth is 50 GHz, seed 1 and actual low-frequency cutoff 287.216 kHz.
+
+Noise is `342.51175741522553` uV rms (95% profile interval `[331.11, 354.49]` uV), and absolute fitted offset is `0.012396837306869593` mV. The minimum sampled output magnitude is `0.7853750104008` V; the maximum absolute standardized Gaussian-fit residual is `3.0544527204236176`. These diagnostics do not prove a Gaussian physical distribution. [NUMERICS-94](NUMERICS-94.md) preserves all 17 output counts and exact numerical settings. The original sampled-only noise waveform does not establish reset history or full-trace stress; those are separately audited above.
+
+This outcome remains close to B20's 343.4944014285115 uV failure and does not establish a noise improvement. The next investigation uses explicitly artificial source-suppression trials to locate sensitivity before choosing another physical change. Those trials cannot qualify a circuit or be variance-subtracted into unique additive noise contributions. Any subsequent physical candidate restores all stochastic sources.
+
+Archive SHA-256 `26e302577d4bb1e1ba873aa319be231f6edc2458770a06bc2ab6fc7215845240` was verified by reading every member back with CRC and SHA-256; the exact owned remote directory is absent. Formal records are unchanged.

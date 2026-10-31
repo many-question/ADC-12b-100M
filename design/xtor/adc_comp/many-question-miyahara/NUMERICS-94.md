@@ -299,3 +299,44 @@ Same-source tighter-minus-announced comparison at tt_nom_27: 1 mV delay +0.16763
 | tt_nom_27 | 1e-06 | 1e-08 | gear2only / conservative / alllocal / 10 | 56.5 |
 
 The log's automatic maxstep bound is not an explicit job-deck setting. Actual APS thread information and the six-job session ceiling are recorded separately. Fetched raw/deck hashes match; the exact owned remote run is absent. Archive SHA-256 `a964a42812482b2f92e4d57f789d3e10c0c987b7d8b93ffa6cfdfb9c8980f1da` was checked by reading every member back with CRC and SHA-256. Full qualification remains open.
+
+
+## Private precheck 20261031-134338-miyahara-buffer-v22-spec08-noise-baseline-screen
+
+Test `tb_comp_noise`, accuracy `baseline`, frozen clean source `7c5afe3be0b5553506c216181995eb07d6fd8bb1`. These results use a private copy of the testbench and do not write formal records. This is an independent experimental source using the merged official 0.8.0 testbench baseline, not a formal canonical-view result. All physical stimuli, loads, samplers and measurement code are preserved. Baseline accuracy appends only saved probes; any tighter tolerances are explicitly listed. The requested settings are `{}`; no explicit maxstep or method is set.
+
+| Corner | Noise uV rms | 95% profile interval uV | Offset mV | Samples | Private gate |
+|---|---:|---|---:|---:|---|
+| fs_low_125 | 342.511757415 | 331.11 to 354.49 | 0.012396837 | 8704 | FAIL: CMP-13 |
+
+The full original 17 levels, 512 samples per level, 50 GHz bandwidth and seed 1 are preserved. Every sample is finite and none is omitted. The original outputstart=tstop waveform cannot establish reset history or full-trace terminal stress; those are separate checks. The noise interval is conditional on the Gaussian-CDF fit.
+
+At fs_low_125, minimum sampled output magnitude is 0.785375010 V and maximum absolute standardized Gaussian-fit residual is 3.054453. These residuals are diagnostic, not a proof that the physical distribution is Gaussian.
+
+| Input uV | OUTP / 512 |
+|---:|---:|
+| -800 | 4 |
+| -700 | 5 |
+| -600 | 21 |
+| -500 | 33 |
+| -400 | 76 |
+| -300 | 66 |
+| -200 | 137 |
+| -100 | 184 |
+| 0 | 267 |
+| 100 | 318 |
+| 200 | 378 |
+| 300 | 405 |
+| 400 | 438 |
+| 500 | 469 |
+| 600 | 493 |
+| 700 | 491 |
+| 800 | 510 |
+
+| Corner | Effective reltol | Effective vabstol V | Method / preset / relref / lteratio | Largest saved step ps |
+|---|---:|---:|---|---:|
+| fs_low_125 | 0.0001 | 1e-06 | gear2only / conservative / alllocal / 10 | None |
+
+The log's automatic maxstep bound is not an explicit job-deck setting. Actual APS thread information and the six-job session ceiling are recorded separately. Fetched raw/deck hashes match; the exact owned remote run is absent. Archive SHA-256 `26e302577d4bb1e1ba873aa319be231f6edc2458770a06bc2ab6fc7215845240` was checked by reading every member back with CRC and SHA-256. Full qualification remains open.
+
+This electrical source fails the private experimental gate on the merged 0.8.0 baseline. Qualification expansion stops at the failure; diagnosis and further circuit design continue. Every failure is retained.
