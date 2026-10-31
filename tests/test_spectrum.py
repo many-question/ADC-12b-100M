@@ -63,6 +63,58 @@ def test_the_pinned_toolbox_is_the_commit_with_the_fix():
     assert installed.get("vcs_info", {}).get("commit_id", "").startswith(spectrum.ADCTOOLBOX_COMMIT)
 
 
+class _Install:
+    """An adctoolbox install as importlib.metadata shows it."""
+    version = "0.9.1"
+
+    def __init__(self, direct_url):
+        self.direct_url = direct_url
+
+    def read_text(self, name):
+        return self.direct_url if name == "direct_url.json" else None
+
+
+@pytest.fixture
+def install(monkeypatch):
+    def use(direct_url):
+        monkeypatch.setattr(spectrum.metadata, "distribution", lambda name: _Install(direct_url))
+        spectrum.toolbox_problem.cache_clear()
+    yield use
+    spectrum.toolbox_problem.cache_clear()
+
+
+WRONG_INSTALLS = {
+    "pypi": None,                                                       # the same version string, no fix
+    "another commit": json.dumps({"vcs_info": {"vcs": "git", "commit_id": "0123456789abcdef"}}),
+    "local checkout": json.dumps({"dir_info": {"editable": True}}),
+}
+
+
+@pytest.mark.parametrize("name", WRONG_INSTALLS)
+def test_metrics_and_runs_refuse_any_other_install(install, name):
+    install(WRONG_INSTALLS[name])
+    assert spectrum.ADCTOOLBOX_COMMIT in spectrum.toolbox_problem()
+    with pytest.raises(RuntimeError, match="pip install"):
+        spectrum.analyze(CASES["issue36"][0], FS, 2.0)
+    with pytest.raises(RuntimeError, match="pip install"):       # before anything is simulated
+        runner.run_test("tb_top_sine")
+    with pytest.raises(RuntimeError, match="pip install"):
+        runner.remeasure("tb_top_sine", REPO_ROOT)
+    assert runner.run_test("tb_top_sine", dry=True) is not None  # a dry run measures nothing
+
+
+def test_the_pinned_install_passes_and_no_install_is_left_to_the_import(install, monkeypatch):
+    install(json.dumps({"vcs_info": {"commit_id": spectrum.ADCTOOLBOX_COMMIT + "1ff3b7a977"}}))
+    assert spectrum.toolbox_problem() is None
+    spectrum.require_toolbox()
+
+    def missing(name):
+        raise metadata.PackageNotFoundError(name)
+    monkeypatch.setattr(spectrum.metadata, "distribution", missing)
+    spectrum.toolbox_problem.cache_clear()
+    assert spectrum.toolbox_problem() is None
+
+
 def test_the_local_sfdr_is_retired():
     assert not hasattr(spectrum, "sfdr_dbc")
     assert "sfdr_dbc_adctoolbox" not in spectrum.analyze(CASES["issue36"][0], FS, 2.0)
