@@ -28,4 +28,4 @@ Independent [V31](RESET-V31.md) repairs the SS reset gate to 33.33299224307328 p
 
 Independent [V32](RESET-V32.md) repairs V31 clock loading and passes nine baseline/four tighter deterministic corners plus TT Cin/CLK (19.3311/15.5633 fF). TT baseline/tighter noise is 194.2333/196.1902 uV rms; both 95% intervals cross 200 uV. **Physical FS/low/125 and SS/low/125 noise fail at 371.8393 and 299.6542 uV rms against 240 uV**, with all 8704 samples per corner retained. Qualification expansion stops. [Artificial V32 source diagnostics](NOISE-SOURCE-DIAGNOSTICS-V32.md) guide further physical work; no artificial result qualifies the candidate. Canonical V27 and the genuine formal failure remain unchanged.
 
-Independent [V33](RESET-V33.md) tests N-latch width 8 to 4 um to alter pre-regeneration timing. All physical noise sources remain enabled; fresh physical gates are pending.
+Independent [V33](RESET-V33.md) tests N-latch width 8 to 4 um to alter pre-regeneration timing. Five baseline corners and dedicated TT capacitance pass; TT 30 mV delay is 49.4335 ps, so tighter checks remain necessary before full physical noise.
