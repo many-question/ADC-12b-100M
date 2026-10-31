@@ -1,0 +1,152 @@
+{
+ "block": "adc_cdac",
+ "test": "tb_cdac_settle",
+ "view": "xtor-many-question-codex",
+ "corner": "tt_nom_27",
+ "params": {},
+ "globals": {
+  "vdd": 0.9,
+  "vdd18": 1.8,
+  "tempc": 27.0,
+  "noise_en": 0,
+  "devnoise": 1,
+  "beh_speed": 1.0,
+  "vref_in": 0.9,
+  "cdac_behav": 0,
+  "comp_behav": 1
+ },
+ "metrics": {
+  "start_step_mV": -157.52970362392398,
+  "t_start_settle_ps": 83.39999999999993,
+  "droop_lsb": 0.004380783534564417,
+  "t_settle_rl12_ps": 35.29999999999966,
+  "step_rl12_mV": 191.62247751325683,
+  "tau_ps": 9.120184119967133,
+  "t_settle_rl5_ps": 47.29999999999672,
+  "step_rl5_mV": 3.5184075827243144,
+  "t_settle_rl0_ps": 19.69999999999984,
+  "step_rl0_mV": 0.17596407562875394,
+  "qref_pC": 1.124389535,
+  "cin_ctrl_fF": 0.8308651973123778,
+  "cin_phs_fF": 6.432310137868975,
+  "cin_phsb_fF": 12.231291382561821,
+  "cin_conv_fF": 9.850051700517659
+ },
+ "specs": {
+  "DAC-05": {
+   "metric": "t_settle_rl5_ps",
+   "value": 47.29999999999672,
+   "limit": "<= 75",
+   "pass": true
+  },
+  "DAC-06": {
+   "metric": "t_settle_rl12_ps",
+   "value": 35.29999999999966,
+   "limit": "<= 40",
+   "pass": true
+  },
+  "DAC-07": {
+   "metric": "tau_ps",
+   "value": 9.120184119967133,
+   "limit": "<= 15",
+   "pass": true
+  },
+  "DAC-08": {
+   "metric": "t_start_settle_ps",
+   "value": 83.39999999999993,
+   "limit": "<= 100",
+   "pass": true
+  },
+  "DAC-11": {
+   "metric": "droop_lsb",
+   "value": 0.004380783534564417,
+   "limit": "<= 0.1",
+   "pass": true
+  },
+  "DAC-12": {
+   "metric": "qref_pC",
+   "value": 1.124389535,
+   "limit": "<= 1.2",
+   "pass": true
+  },
+  "DAC-13": {
+   "metric": "cin_ctrl_fF",
+   "value": 0.8308651973123778,
+   "limit": "<= 6",
+   "pass": true
+  },
+  "DAC-15": {
+   "metric": "cin_phs_fF",
+   "value": 6.432310137868975,
+   "limit": "<= 40",
+   "pass": true
+  },
+  "DAC-16": {
+   "metric": "cin_phsb_fF",
+   "value": 12.231291382561821,
+   "limit": "<= 40",
+   "pass": true
+  },
+  "DAC-17": {
+   "metric": "cin_conv_fF",
+   "value": 9.850051700517659,
+   "limit": "<= 80",
+   "pass": true
+  }
+ },
+ "figures": [
+  {
+   "file": "tt_nom_27.settle.png",
+   "caption": "Top plate over the test sequence and the error to the final value after the start of conversion and after the RL12, RL5 and RL0 edges, with the tolerance band, the settle time and its limit marked."
+  },
+  {
+   "file": "tt_nom_27.cin.png",
+   "caption": "Input capacitance of the clock and digital inputs: the charge each pin draws over every rising edge (charge meter in series with it) divided by the voltage step, against the limit; the metric is the mean over the edges."
+  }
+ ],
+ "meta": {
+  "date": "2026-10-30T13:41:14",
+  "git": "14881ba",
+  "git_clean": true,
+  "mode": "aps",
+  "pdk": true,
+  "mc": null,
+  "wall_s": 36.8,
+  "rc": "0",
+  "sim_s": "30",
+  "numerics": {
+   "source": "spectre.log",
+   "reltol": 0.001,
+   "maxstep_ps": 2.0,
+   "method": "traponly",
+   "errpreset": "moderate",
+   "lteratio": 3.5,
+   "abstol_V": 1e-06,
+   "steps_accepted": 36050,
+   "step_mean_ps": 1.94175,
+   "step_max_ps": 2.0
+  },
+  "files": {
+   "tb/cdac/tb_cdac_settle.scs": "ff9490ded1bb22c5",
+   "design/behav/veriloga/adc_clkgen_va.va": "7fff1b9368bc1a20",
+   "tb/common/veriloga/tb_imeter_va.va": "d4be49aca417ad61",
+   "tb/common/veriloga/tb_cdac_seq_va.va": "800f16f07345b3b9",
+   "design/behav/veriloga/adc_bootstrap_va.va": "12338aad16f4913b",
+   "tb/common/veriloga/tb_qmeter_va.va": "fed84d572a912b39",
+   "design/xtor/adc_cdac/many-question-codex/adc_cdac.scs": "e51ec096bda93b5c"
+  },
+  "arch": {
+   "keys": [
+    "cdac.cap_sampled",
+    "cdac.cap_weights",
+    "cdac.cp_top_ratio",
+    "cdac.cu",
+    "reference.vref"
+   ],
+   "sha": "99d318ea406dddc2"
+  },
+  "views": {
+   "adc_cdac": "xtor:many-question-codex"
+  }
+ }
+}

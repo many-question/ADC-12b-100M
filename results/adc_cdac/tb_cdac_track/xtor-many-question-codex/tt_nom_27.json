@@ -1,0 +1,135 @@
+{
+ "block": "adc_cdac",
+ "test": "tb_cdac_track",
+ "view": "xtor-many-question-codex",
+ "corner": "tt_nom_27",
+ "params": {
+  "npts": 256,
+  "fin": "4.882812500e+07"
+ },
+ "globals": {
+  "vdd": 0.9,
+  "vdd18": 1.8,
+  "tempc": 27.0,
+  "noise_en": 0,
+  "devnoise": 1,
+  "beh_speed": 1.0,
+  "vref_in": 0.9,
+  "cdac_behav": 0,
+  "comp_behav": 1
+ },
+ "metrics": {
+  "sfdr_dBc": 86.41796685878245,
+  "sndr_dB": 84.52354856716035,
+  "thd_dBc": -85.23559475880722,
+  "amp_top_V": 0.7880851320069999
+ },
+ "specs": {
+  "DAC-09": {
+   "metric": "sfdr_dBc",
+   "value": 86.41796685878245,
+   "limit": ">= 85",
+   "pass": true
+  },
+  "DAC-10": {
+   "metric": "sndr_dB",
+   "value": 84.52354856716035,
+   "limit": ">= 80",
+   "pass": true
+  }
+ },
+ "figures": [
+  {
+   "file": "tt_nom_27.spectrum.png",
+   "caption": "Spectrum of the sampled top plate for a full-scale tracking input, with SFDR and SNDR against their limits."
+  }
+ ],
+ "meta": {
+  "date": "2026-10-30T16:07:05",
+  "git": "9a68c59",
+  "git_clean": true,
+  "mode": "aps",
+  "pdk": true,
+  "mc": null,
+  "wall_s": 8572.7,
+  "rc": "0",
+  "sim_s": "8567",
+  "numerics": {
+   "source": "spectre.log",
+   "reltol": 1e-07,
+   "maxstep_ps": 1.0,
+   "method": "traponly",
+   "errpreset": "moderate",
+   "lteratio": 3.5,
+   "abstol_V": 1e-08,
+   "vabstol": 1e-08,
+   "steps_accepted": 3729396,
+   "step_mean_ps": 0.698505,
+   "step_max_ps": null
+  },
+  "files": {
+   "tb/cdac/tb_cdac_track.scs": "c326ae00bdfc27e8",
+   "design/behav/veriloga/adc_clkgen_va.va": "7fff1b9368bc1a20",
+   "tb/common/veriloga/tb_sampler_va.va": "4092bc16170c588d",
+   "design/behav/veriloga/adc_bootstrap_va.va": "12338aad16f4913b",
+   "design/xtor/adc_cdac/many-question-codex/adc_cdac.scs": "e51ec096bda93b5c"
+  },
+  "arch": {
+   "keys": [],
+   "sha": "44136fa355b3678a"
+  },
+  "views": {
+   "adc_cdac": "xtor:many-question-codex"
+  },
+  "provenance": {
+   "spectrum": {
+    "estimator": "adcflow.spectrum v1",
+    "adctoolbox": "0.6.4",
+    "sfdr": "plotspec definition: peak bin of the fundamental / largest other single bin (DC and signal bins excluded, Nyquist included)",
+    "enob_sndr_snr_thd": "adctoolbox 0.6.4 compute_spectrum"
+   }
+  },
+  "crosscheck": {
+   "settings": {
+    "maxstep": "0.5p",
+    "method": "gear2only"
+   },
+   "numerics": {
+    "source": "spectre.log",
+    "reltol": 1e-07,
+    "maxstep_ps": 0.5,
+    "method": "gear2only",
+    "errpreset": "moderate",
+    "lteratio": 3.5,
+    "abstol_V": 1e-08,
+    "vabstol": 1e-08,
+    "steps_accepted": 7478510,
+    "step_mean_ps": 0.348331,
+    "step_max_ps": null
+   },
+   "rc": "0",
+   "sim_s": "25028",
+   "metrics": {
+    "sfdr_dBc": {
+     "ref": 86.41796685878245,
+     "xcheck": 86.41827470834761,
+     "diff": 0.0003078495651607227
+    },
+    "sndr_dB": {
+     "ref": 84.52354856716035,
+     "xcheck": 84.52376436865399,
+     "diff": 0.00021580149363842338
+    }
+   },
+   "samples": {
+    "file": "samples.txt",
+    "n": 256,
+    "n_ref": 256,
+    "n_xcheck": 256,
+    "time_diff_max_ps": 0.0010000001095066121,
+    "diff_rms_uV": 0.15593434239511425,
+    "diff_max_uV": 0.22363820001425339
+   }
+  }
+ }
+}
