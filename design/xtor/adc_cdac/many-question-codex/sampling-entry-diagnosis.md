@@ -1656,3 +1656,37 @@ failed family's worst-node waveforms; no duplicate full-wave NPZ exists.
 - V25 source: `794947a20de7b2ca0a66892f9e4d0dbebc605311d171fce0a4289e792e668548`
 - V26 source: `a5fdc2b2625add67c929828be247209fb6fae0c61f1b3c8e890bdd1b2818ba81`
 - V27 source: `a84952812ff9d0afc6d479e018aeea6e080dfab8ae0d848673e703c3a1365f79`
+
+### V28/V29: complementary-enable feedthrough cancellation
+
+Two independent V16 children add MNCANCEL with source/drain at NOFF,
+gate at ENB and body at VSS, in every reference-driver definition. The
+small/large versions reuse existing N geometries at least 0.25/1 times
+MNB0 width. Each half has 596 MOS; all old devices, connections and
+physical capacitor/parasitic values remain unchanged. RNL checks are
+clean and the added device drawing was inspected.
+
+| Trial | SS RL12 / start | SS Qref | FF private 1.0 V failures | Peak |
+|---|---:|---:|---:|---:|
+| V28 | 39.7 / 97.1 ps | 1.989074 pC | 69/3576 | 1.015152849 V |
+| V29 | 39.7 / 97.9 ps | 1.988803 pC | 51/3576 | 1.014845839 V |
+
+Both pass the five applicable SS metrics, with zero SS terminal
+violations. Relative to V16 they remove 54/72 FF failing pairs without
+adding any. V29 removes every MPB0/MPB1 failing pair; negative-side
+bit-12 low-driver NOFF reaches -5.606 mV rather than V16's -19.860 mV.
+The worst remaining pair is sharing-switch MSHAREH gate/drain; the
+assist MNPASS/MPUP peak remains 1.014450 V. This supports the local
+feedthrough hypothesis but does not resolve the private screen.
+
+V29 is retained for physical follow-up, not promoted to formal acceptance.
+Its SS start margin is 2.1 ps and RL12 margin only 0.3 ps, still requiring
+a convergence comparison before any qualification claim. V28 keeps exact
+decision arrays; V29 additionally retains one compressed original per
+test. Expanded waveforms are retired after verification. All four runs
+used clean `8866d4b`, official numerical settings, and 283/493 SS/FF
+selected signals including 5/8 named currents. All required DUT pairs
+and saved names were checked; all exact remote run roots were cleaned.
+
+- V28 source: `68250312222d0b0997f760811000f66473d3d98ad2f87585c8a42a88c4ba4678`
+- V29 source: `29d867d5bf07d79b3514cb49af0ad7c572ae1e929df88f33990a723bccfa0626`

@@ -224,3 +224,9 @@ Their SS metrics pass, but early FF failures increase to 141/165/183
 versus V16's 123. None is promoted. These are private 1.0 V screens;
 the pending PR112 threshold proposal does not reclassify old results.
 See the diagnosis ledger for source hashes, margins and new peak nodes.
+
+V28/V29 add complementary-enable dummy N devices at NOFF and reduce
+V16's 123 early-FF failing pairs to 69/51, without new failing pairs.
+V29 eliminates the NAND PMOS failures while preserving SS RL12 39.7 ps
+and start 97.9 ps. It is retained for physical follow-up; sharing/assist
+peaks still exceed the private 1.0 V screen and timing margins remain small.
