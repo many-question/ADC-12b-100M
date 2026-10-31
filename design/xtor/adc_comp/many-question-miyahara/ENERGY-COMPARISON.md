@@ -99,3 +99,25 @@ The original meter is 562.264007760 fJ/cycle; the waveform integral differs by 0
 | weak PMOS rail loads | 278.479340155 | 110.219406954 | 168.259933201 |
 
 The eight non-clock weak PMOS loads still draw persistent current. These are net supply-delivery allocations including charge return, not isolated device dissipation. Power remains reported only; no topology or qualification winner follows from this comparison.
+
+
+## B15 measured TT supply phases
+
+Run `20261031-082954-miyahara-buffer-v15-screen`, clean source `51a243cefebb4ae383a1e738c4786fff4a18bbd1`, measures the same complete AVDD boundary and 36-cycle 100 ps–14.5 ns window. B15 includes B14's interstage driver change and its own two buffer-capacitor changes; the comparison to B13 cannot isolate either contribution.
+
+| Total (fJ/cycle) | Evaluation | Reset | Initial reset current (uA) | Initial reset power (mW) |
+|---:|---:|---:|---:|---:|
+| 573.035216096 | 213.728578931 | 359.306637166 | 1154.406223154 | 1.038965601 |
+
+The original meter is 573.034820400 fJ/cycle; the relative waveform-integral difference is 0.000069053%. All probes are present and the AVDD terminal sum closes to numerical precision.
+
+| Net supply delivery group | Whole cycle (fJ) | Evaluation (fJ) | Reset (fJ) |
+|---|---:|---:|---:|
+| regenerative core | 60.283859523 | 38.268633417 | 22.015226106 |
+| physical clock | 57.651262920 | 29.735767221 | 27.915495699 |
+| input precharge | 128.125256833 | 2.034792117 | 126.090464716 |
+| first output buffer | 19.753370349 | 5.531544794 | 14.221825556 |
+| external output inverters | 30.320896056 | 29.101302130 | 1.219593926 |
+| weak PMOS rail loads | 276.900570415 | 109.056539251 | 167.844031163 |
+
+All physical weak-load and reset costs are included. These are net supply-delivery allocations including returned charge, not isolated device dissipation. Power remains reported only; this unqualified source establishes no topology ranking.
