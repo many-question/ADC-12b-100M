@@ -91,9 +91,15 @@ global maximum now occurs at bit 11. The [TT waveforms](apkeeper-tt-waveforms.pn
 and [charge audit](apkeeper-tt-charge.png) show the mechanism and retained
 margin. Independent TT weights/calibration also passes all five checks,
 including Cs 2.065012117 pF and calibration margin 0.369043499 LSB.
-A 125 ns ff_high_m40 differential screen is in progress for all 1092
-MOS / 3276 terminal pairs; tracking and further-corner results remain
-unverified for V6.
+The same-source ff_high_m40 checks fail device voltage: complete 70 ns
+settling passes all five applicable timing requirements but has 387 failing
+terminal pairs, with a 1.103478637 V maximum. The 125 ns differential sine
+screen has 550 failing pairs among 1092 MOS / 3276 pairs, with a
+1.108169154 V maximum. FF full scale passes its one applicable weights
+requirement. These failures stop V6's further-corner and full FFT expansion.
+The [fast-corner waveforms](fast-stress-mechanisms.png) retain the AP,
+control-buffer and bottom-plate failure mechanisms. Node/event clustering
+is in progress before freezing another source; the formal source is unchanged.
 Existing V4 TT saves do not permit assigning its total excess to a phase.
 N4's TT evidence does not transfer to any changed case.
 The [first passing private SS comparison](balanced-predrive-ss-screen.png)

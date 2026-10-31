@@ -671,12 +671,62 @@ The 36 s run started from clean commit
 Archive SHA256:
 `0248285924d988148335fdadc66527d5291bf103ee875794db3d269da357b378`.
 
-The next independent test is a 125 ns differential sine screen at
-ff_high_m40: 48.828125 MHz, -1 dBFS, 50 ohm per side, 20 fF top load,
-0.5 ps / 1e-7 / 1e-8 / traponly. It saves the full waveforms needed for
-all 1,092 actual MOS and 3,276 terminal pairs. Its eight sampled outputs
-are not a spectrum measurement. No V6 tracking result or further-corner
-pass is claimed yet.
+### Same-source fast-corner checks fail device voltage
+
+The ff_high_m40 checks use the same frozen V6 source. The full 70 ns
+settling sequence complements the 125 ns differential sine screen: the
+latter holds the decision controls low and cannot cover the complete
+conversion sequence. The two pressure runs were launched before either
+failed, with a maximum of two concurrent jobs. Both failures are retained;
+V6's other-corner and full FFT expansion is stopped.
+
+| FF high, -40 C check | Result |
+|---|---|
+| Weights: full scale (only applicable specification) | 0.993016018 V, PASS |
+| Full settling: RL5 / RL12 / start | 27.4 / 22.4 / 47.4 ps, PASS |
+| Full settling: tau / droop | 4.038938682 ps / 0.000602788 LSB, PASS |
+| Full settling: 546 MOS / 1638 pairs | 387 failing pairs; max 1.103478636613 V, FAIL |
+| Differential sine: 1092 MOS / 3276 pairs | 550 failing pairs; max 1.108169154214 V, FAIL |
+
+The full-sequence maximum is XB11.XDL.MPA1 drain/source at
+60.075266947 ns: AP reaches 1.105147984 V while PCOND is 0.001669348 V.
+Other representative failures include bit-12 HHIB at -0.067291401 V,
+bit-9 PCOND at 1.025622703 V, bit-12 NOFF at -0.032952788 V and a
+bit-2 bottom plate at -0.055118233 V. Thus the failures span floating
+AP nodes, control/prelogic feedthrough and bottom-plate excursions.
+The 387 failing terminal pairs are not 387 independent mechanisms.
+
+![Fast-corner terminal-voltage failure waveforms](fast-stress-mechanisms.png)
+
+The plotted principal peaks are smooth and have accepted time steps of
+approximately 10--30 fs nearby. No obvious alternating numerical ringing
+is seen in these selected records. This does not establish isolated
+numerical convergence, and neither the 1.0 V limit nor the stimulus has
+been changed. Exact node-pair and event clustering, including external
+gate/control-source checks, precedes the next circuit change.
+
+The differential sine retains 48.828125 MHz, -1 dBFS, 50 ohm per side,
+20 fF top load and the original phase/ideal-bootstrap models. Only the
+duration, saves and maximum step are changed for this diagnostic. Its
+worst pair is XDACN.XB0.MEQ1 gate/drain at 5.142329994 ns. Eight sampled
+outputs are not an FFT or a tracking-specification pass.
+
+Both pressure runs use 0.5 ps / reltol 1e-7 / voltage tolerance 1e-8 /
+traponly. Full settling has 235753 saved times and 378 signals, taking
+457 s; the sine has 354741 saved times and 485 signals, taking 1275 s.
+Weights retains its original numerical settings. The weights/settling
+launch commit is `a08bba88806774b0e37813b21567203257bca8e1`; the sine
+launch commit is `970c57142e56e390545549c5d4053ab89294eb09`.
+
+All raw files and 50 frozen inputs per run were recovered and verified
+before exact owned-directory cleanup. Archive SHA256 values are:
+
+- FF weights (10 raw files):
+  `5a65a3682311fb98494828dee556b2c04265e62f8de64d9b2db98d97da3ce68f`
+- FF settling (9 raw files):
+  `340f31b1a85725e68183ad3dcc2e3d6ec99b15939500f492b269517796129fb7`
+- FF differential sine (8 raw files):
+  `896786482658607a36ee483f1cff4ec099ce6abd8c4912c35b5e1a13bd0af57e`
 
 ## Continuing verification
 
