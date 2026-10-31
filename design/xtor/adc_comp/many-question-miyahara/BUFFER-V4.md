@@ -6,7 +6,7 @@ The raw-output reset NMOS increases from N2 to N8. CKB retains one physical CMOS
 
 The [independent source](BUFFER-V4.txt) has 29 MOS and three MOM capacitors. All geometries exactly reuse successful warning-free callbacks. Electrical SHA-256: `91f4c449bd4406e30da73e25fe881a2c2d2816c8cfb47d0e9ab43b920fdbb1fb`. RNL core 0.5.2 checks the byte-identical Spectre mirror with 0 errors, 0 warnings and 0 hints.
 
-![Direct input precharge and physical clocked reset](buffer-v4.png)
+![Direct input precharge and physical clocked reset](https://raw.githubusercontent.com/many-question/ADC-12b-100M/fe173f9df274e8fa4fdddfbdb14f20208dc441fb/design/xtor/adc_comp/many-question-miyahara/buffer-v4.png)
 
 The first screen uses TT nominal 27 C, FF high/-40 C and SF low/-40 C, checking all 87 MOS terminal pairs over the entire trace, actual decisions, CMP-15, delay, reset and AVDD energy. This source-freeze commit makes no pass claim. The canonical source and its official records remain unchanged.
 

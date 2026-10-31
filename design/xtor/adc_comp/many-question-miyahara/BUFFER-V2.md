@@ -6,7 +6,7 @@ The first diagnostic compares TT and SF low/-40 C against their existing V1 trac
 
 Independent source: [BUFFER-V2.txt](BUFFER-V2.txt), 31 MOS and four MOM. Electrical SHA-256: `2fcb783897758f6e3191cf85edcb8dc3a3fc8b4b357e80f8a59de2cfefa1b666`. Full RNL passes core 0.5.2 on a byte-identical `.scs` mirror with 0 errors, 0 warnings and 0 hints. This source-freeze commit claims no performance result.
 
-![Faster first-stage pull-down](buffer-v2.png)
+![Faster first-stage pull-down](https://raw.githubusercontent.com/many-question/ADC-12b-100M/fe173f9df274e8fa4fdddfbdb14f20208dc441fb/design/xtor/adc_comp/many-question-miyahara/buffer-v2.png)
 
 ## Completed targeted speed/validity check
 

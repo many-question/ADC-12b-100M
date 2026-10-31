@@ -6,7 +6,7 @@ Each clock node also gets an N1 um discharge device with gate at AVDD and anothe
 
 All MOS and capacitor geometries use successful callback outputs. The new N8 geometry has zero callback warnings. The independent [BUFFER-V3.txt](BUFFER-V3.txt) contains 35 MOS and six MOM capacitors. Electrical SHA-256: `ee0e3ce105af6fc5be92e3f23d90812e854cee53296eaa3b83b9c1bac9937aca`. Full RNL checks on a byte-identical `.scs` mirror pass core 0.5.2 with 0 errors, 0 warnings and 0 hints.
 
-![Physical cross-output discharge and clock damping](buffer-v3.png)
+![Physical cross-output discharge and clock damping](https://raw.githubusercontent.com/many-question/ADC-12b-100M/fe173f9df274e8fa4fdddfbdb14f20208dc441fb/design/xtor/adc_comp/many-question-miyahara/buffer-v3.png)
 
 The first screen is TT nominal 27 C, FF high/-40 C and SF low/-40 C at 0.5 ps, with all 105 terminal pairs, actual decisions/outputs, delay, reset and energy. These three cases gate further key-corner work. No ideal event capture, extra bias port or inherited validation is used. This source-freeze commit has no performance result.
 

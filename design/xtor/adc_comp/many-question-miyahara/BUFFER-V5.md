@@ -6,7 +6,7 @@ The capacitors and slower reset/clock edges may reduce voltage peaks while addin
 
 The [independent source](BUFFER-V5.txt) contains 29 MOS and nine MOM capacitors; all geometries reuse successful warning-free callbacks. Electrical SHA-256: `ecfaae10a0ad2b33a7c5fea90bcb4fc4d00dff60662c20f1c534ce3f0b9578ad`. The complete byte-identical Spectre mirror passes RNL core 0.5.2 with 0 errors, 0 warnings and 0 hints.
 
-![Physical node damping](buffer-v5.png)
+![Physical node damping](https://raw.githubusercontent.com/many-question/ADC-12b-100M/fe173f9df274e8fa4fdddfbdb14f20208dc441fb/design/xtor/adc_comp/many-question-miyahara/buffer-v5.png)
 
 The first TT, FF high/-40 C and SF low/-40 C screen checks all 87 terminal pairs throughout the trace, actual decisions/outputs, delay/reset and AVDD energy. This source-freeze commit makes no performance claim.
 

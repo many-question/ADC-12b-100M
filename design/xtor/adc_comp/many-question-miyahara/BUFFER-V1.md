@@ -6,7 +6,7 @@ This is a transistor-level threshold-restoration hypothesis, not a verified gate
 
 The independent [BUFFER-V1.txt](BUFFER-V1.txt) has 31 MOS and four MOM capacitors. Its electrical SHA-256 is `f7279257a3306d1219214e389fb1ae40106fb03253641590e4f4d9196327511f`. The new 0.5 um / nf1 NMOS geometry was solved by a successful, warning-free callback. Existing buffer geometries reuse successful callback results without hand scaling. Full RNL passes core 0.5.2 with 0 errors, 0 warnings and 0 hints on a byte-identical `.scs` mirror.
 
-![Physical output buffers](buffer-v1.png)
+![Physical output buffers](https://raw.githubusercontent.com/many-question/ADC-12b-100M/fe173f9df274e8fa4fdddfbdb14f20208dc441fb/design/xtor/adc_comp/many-question-miyahara/buffer-v1.png)
 
 The first screen is planned for TT nominal 27 C, FF high -40 C, FF high 125 C, SS low 125 C, SF low -40 C and SF high 27 C. It uses the current v0.7.0 delay stimulus and meter with maxstep 0.5 ps, traponly, reltol 1e-6 and vabstol 1e-8. The two SF cases target the observed simultaneous-rise and losing-peak failures. Physical validity, full-trace |Vgs|/|Vgd|/|Vds|, delay, reset and energy gate any expansion. No validation is claimed in this source-freeze commit.
 
