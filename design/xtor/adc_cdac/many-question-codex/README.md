@@ -98,8 +98,10 @@ screen has 550 failing pairs among 1092 MOS / 3276 pairs, with a
 1.108169154 V maximum. FF full scale passes its one applicable weights
 requirement. These failures stop V6's further-corner and full FFT expansion.
 The [fast-corner waveforms](fast-stress-mechanisms.png) retain the AP,
-control-buffer and bottom-plate failure mechanisms. Node/event clustering
-is in progress before freezing another source; the formal source is unchanged.
+control-buffer and bottom-plate failure mechanisms. The completed
+[node/event audit](fast-node-events.png) identifies repeated shared-net
+excursions and motivates a separate sharing-phase experiment. The formal
+source is unchanged.
 Existing V4 TT saves do not permit assigning its total excess to a phase.
 N4's TT evidence does not transfer to any changed case.
 The [first passing private SS comparison](balanced-predrive-ss-screen.png)

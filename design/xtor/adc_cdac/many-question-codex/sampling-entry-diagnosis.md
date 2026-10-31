@@ -728,6 +728,94 @@ before exact owned-directory cleanup. Archive SHA256 values are:
 - FF differential sine (8 raw files):
   `896786482658607a36ee483f1cff4ec099ce6abd8c4912c35b5e1a13bd0af57e`
 
+### Actual-node and event clustering of the fast-corner failures
+
+Re-reading the retained raw data removes duplicate terminal labels by
+grouping the actual two nets whose voltage is measured. This is descriptive
+grouping, not a count of independent root causes. A structural template
+also identifies repeated halves/bits without replacing their individual data.
+
+| Full retained record | Failing terminal pairs | Distinct actual net pairs | Repeated structural templates |
+|---|---:|---:|---:|
+| 70 ns settling | 387 | 235 | 29 |
+| 125 ns differential sine | 550 | 374 | 28 |
+
+Of the settling pairs, 265 global peaks are near CONV falling, 44 near
+CONV rising and 78 near decision edges. The sine has 338 near CONV rising
+and 212 near CONV falling. Classification uses the nearby external edge;
+the complete audit also retains every contiguous over-limit episode.
+For example, ENB-to-EQBUS is only one net pair per half yet maps to
+44 failing terminal pairs across the two halves. APGATE-to-VIN similarly
+maps two net pairs to 44 terminal pairs; PHI_SB-to-VIN maps two to 12.
+
+![Actual fast-corner nodes and triggering events](fast-node-events.png)
+
+The low-input first conversion contains two negative plate steps:
+
+- At 5.108779136 ns, VG is turning off: VINN is -0.037138425 V,
+  VGN is 0.238327126 V, and bit-0 BH/BL are approximately -0.035843 V.
+  CONV is still low and ENB remains 0.987964790 V.
+- At 5.122864329 ns, VGN is nearly zero, VINN has recovered to
+  0.005567167 V, but the shared plates remain near -0.036771 V while
+  ENB reaches 0.997719366 V.
+- At the 5.142329994 ns worst-pair peak, ENB has fallen to 0.244880553 V
+  as reference control takes over. BH reaches -0.113962968 V and BL
+  -0.093364966 V; APGATE is 0.994206187 V and VINN is 0.010048976 V.
+
+The topology and sequence indicate input-switch turn-off injection followed
+by sharing-switch turn-off and reference-gate feedthrough. Their individual
+charge contributions have not been isolated. A common structural experiment
+will separate the 22 sharing gates from conversion ENB and buffer PHI_SB
+inside the DUT, opening sharing while VG still conducts. The original
+external phases remain unchanged. Its extra PHI_SB load, SS timing and
+complete device voltages must be measured independently.
+
+Floating AP is a separate mechanism: as both series prelogic PMOS turn
+off, AP retains the positive kick while PCOND falls. A keeper applicable
+across the repeated prelogic
+structure is a candidate remedy, with its loading/current cost still to
+be tested. Control-buffer negative swings occur while a nominally low HIB
+drives the rapidly falling prelogic nodes; buffering relative to that
+coupling load needs separate attention. Neither mechanism is assumed
+fixed by the sharing experiment.
+
+The frozen phase/bootstrap models match the current repository files by
+hash. DVDD is 0.99 V and VREFP 0.9 V. PHI_S, PHI_SB and CONV remain
+between 0 and 0.99 V, with measured 10--90% edges of 9.6 ps, consistent
+with the 12 ps transition parameter. The bootstrap uses kboost=1,
+60 ps turn-on, 15 ps turn-off and 50 ohm output resistance. Stable
+tracking VG minus VIN is approximately 0.99 V. Its actual loaded VG can
+overshoot; the behavioral source is not a zero-impedance voltage clamp.
+
+The ideal sine source spans 0.007493909..0.892506091 V. The actual VIN
+port after the 50 ohm source resistance transiently reaches -0.037138425 V.
+This is observed kickback in the loaded circuit, not a negative-input
+stimulus modification. The present evidence identifies no discrepancy
+between the frozen test and its source/edge conventions. It does not
+establish transistor-level bootstrap or clock integration.
+
+Subsequent mechanism trials can screen the original 0..12 ns FF sine
+alongside SS settling, covering the first low-input conversion and next
+sampling entry before costly TT/weights expansion. That short interval
+does not cover the complete conversion history responsible for the 60 ns
+AP maximum; full settling and longer pressure checks remain necessary.
+
+### Independent sharing-phase source prepared
+
+V7 adds one physical inverter, ULVT NMOS 8 um / four fingers and ULVT
+PMOS 16 um / eight fingers, both 30 nm long. Its SAMP_ON output is the
+inverse of PHI_SB and replaces ENB only at the 22 sharing-switch gates.
+All other MOS lines, physical MOM/Cp lines and top-level ports are
+unchanged from V6. It has 548 MOS per half, 1096 in the differential
+test and 3288 terminal pairs. Fresh geometry callbacks have no warnings;
+the complete pinned RNL check/render has zero errors, warnings or hints.
+The private source and drawing are frozen, with no simulation result yet.
+
+V7 source SHA256:
+`ee633589f59275c413d47f00e46674fbc00b2956fc59d1e204514007521f920f`.
+This is a targeted experiment on sharing timing, with the other known
+mechanisms retained for observation. It inherits no V6 passing result.
+
 ## Continuing verification
 
 A brief separately controlled reference-drive assist remains an unimplemented
