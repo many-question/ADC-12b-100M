@@ -8,7 +8,7 @@ Earlier phase diagnoses found correct DP/DN signs before residual errors appeare
 
 The private screen uses conservative APS with no explicit maxstep, checking the actual Spectre log. It preserves the physical stimuli and original measurements and does not alter shared testbenches, tools, thresholds or formal results. Proposed-settings screens do not constitute official acceptance. Electrical SHA-256: `6f23c8669d6380bef466bdf2537d515f1e1802ce113310be3ffabaf43689f319`. The [source](BUFFER-V21.txt) contains complete RNL checked on a byte-identical mirror. Canonical B20 and every earlier failure remain preserved; B21 is not promoted or qualified.
 
-![Comparator with larger RP/RN MOMs](buffer-v21.png)
+![Comparator with larger RP/RN MOMs](https://raw.githubusercontent.com/many-question/ADC-12b-100M/a7ade027755ab3be3793b3da4c6d6a38388d15e0/design/xtor/adc_comp/many-question-miyahara/buffer-v21.png)
 
 
 ## Proposed-settings reset failure

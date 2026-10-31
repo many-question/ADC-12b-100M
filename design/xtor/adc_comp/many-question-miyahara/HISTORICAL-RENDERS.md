@@ -39,3 +39,11 @@ The complete RNL netlists and experiment reports remain in this candidate. To ke
 - [BUFFER-V18 rendering](https://raw.githubusercontent.com/many-question/ADC-12b-100M/fc05ec9b504909d82e993df12fa475fd234cba5b/design/xtor/adc_comp/many-question-miyahara/buffer-v18.png)
 - [BUFFER-V19 rendering](https://raw.githubusercontent.com/many-question/ADC-12b-100M/fc05ec9b504909d82e993df12fa475fd234cba5b/design/xtor/adc_comp/many-question-miyahara/buffer-v19.png)
 - [BUFFER-V20 rendering](https://raw.githubusercontent.com/many-question/ADC-12b-100M/fc05ec9b504909d82e993df12fa475fd234cba5b/design/xtor/adc_comp/many-question-miyahara/buffer-v20.png)
+
+
+## Preserved images at a7ade027755a
+
+The complete RNL sources and experiment reports remain available in this candidate. The following historical PNGs now use fixed links to byte-identical images in published commit `a7ade027755ab3be3793b3da4c6d6a38388d15e0`, keeping space for the next physical experiment. All candidate files were archived and every entry read back with CRC and SHA-256 verification before the duplicate PNGs were removed. Archive SHA-256: `4c9668f9845761ddfd5d3c02f3a45bb25aec1b30254fafe641e80634aeefc36e`. No electrical source or formal result changes in this cleanup.
+
+- [buffer-v13.png](https://raw.githubusercontent.com/many-question/ADC-12b-100M/a7ade027755ab3be3793b3da4c6d6a38388d15e0/design/xtor/adc_comp/many-question-miyahara/buffer-v13.png)
+- [buffer-v21.png](https://raw.githubusercontent.com/many-question/ADC-12b-100M/a7ade027755ab3be3793b3da4c6d6a38388d15e0/design/xtor/adc_comp/many-question-miyahara/buffer-v21.png)

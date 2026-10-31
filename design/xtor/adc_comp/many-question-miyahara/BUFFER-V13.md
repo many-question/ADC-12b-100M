@@ -8,7 +8,7 @@ The new capacitor callback succeeds without warnings, with result SHA-256 `f553a
 
 First screen SF/high/-40 and FS/high/-40, then TT speed/validity and the remaining key corners if those pass. Formal noise must establish useful margin on a frozen new source before expensive qualification expansion. The old noise result and successful private deterministic screens are not adopted as new formal measurements.
 
-![Physical comparator with larger input-drain capacitors](buffer-v13.png)
+![Physical comparator with larger input-drain capacitors](https://raw.githubusercontent.com/many-question/ADC-12b-100M/a7ade027755ab3be3793b3da4c6d6a38388d15e0/design/xtor/adc_comp/many-question-miyahara/buffer-v13.png)
 
 ## Completed screen 20261031-062838-miyahara-buffer-v13-screen
 
