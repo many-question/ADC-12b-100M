@@ -152,3 +152,18 @@ The complete waveform integral changes by -7.874262881 fJ/cycle (-1.937608%) fro
 | physical clock | 49.108855452 | 30.813626403 | 18.295229049 |
 
 Physical weak loads and reset are included. Net returned charge can make a phase allocation negative; these are supply-delivery allocations rather than isolated device dissipation. Ideal external-clock delivery is outside this boundary. Power is reported only and does not establish a qualified topology ranking.
+
+
+## V27 measured TT supply phases
+
+Only CQP/CQN increase from 5.66049 to 12.8604 fF relative to V26. The complete 36-cycle 100 ps–14.5 ns AVDD integral is 408.902291928 fJ/cycle: 89.282426247 evaluation and 319.619865681 reset. Initial reset current is 1174.561976866 uA. Total energy changes by +10.385579630 fJ/cycle from V26. The original meter gives 408.901925160 fJ/cycle; relative waveform-integral difference is 0.000089696%. All supply probes are present and KCL closes.
+
+| Net supply-delivery group | Whole cycle fJ | Evaluation | Reset |
+|---|---:|---:|---:|
+| input precharge | 106.422759938 | 1.704425791 | 104.718334146 |
+| regenerative core | 25.194418280 | 28.227213944 | -3.032795665 |
+| Q precharge/reset | 199.222046975 | 1.287885104 | 197.934161870 |
+| external output inverters | 28.954666276 | 27.249213809 | 1.705452466 |
+| physical clock | 49.108400461 | 30.813687598 | 18.294712863 |
+
+Physical weak loads and reset are included; external ideal-clock delivery is outside the AVDD boundary. Net returned charge can make an allocation negative, so these are not isolated device-dissipation values. Power is reported only, and noise qualification remains unresolved.
