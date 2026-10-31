@@ -12,7 +12,7 @@ Run `20261031-070641-13bb-tb_comp_kickback` starts from clean source commit `d4c
 | CLKC capacitance | 9.604337628086 fF | 16 fF |
 | Differential kickback | 0.001649260400 uV | 40 uV |
 
-The [official TT result](../../../../results/adc_comp/tb_comp_kickback/xtor-many-question-miyahara/tt_nom_27.json) retains its actual clean-source metadata. The complete original run and result figures are SHA-verified in a private archive, and the exact owned remote directory is confirmed absent. Execution uses +aps without explicit +mt; logs confirm effective single-thread operation.
+The [official TT result](https://github.com/many-question/ADC-12b-100M/blob/e56790eebf5a86172b256f029d6d868e83fe3950/results/adc_comp/tb_comp_kickback/xtor-many-question-miyahara/tt_nom_27.json) retains its actual clean-source metadata. The complete original run and result figures are SHA-verified in a private archive, and the exact owned remote directory is confirmed absent. Execution uses +aps without explicit +mt; logs confirm effective single-thread operation.
 
 At the completion of this first gate one of 92 records matched B13; 91 remained stale. The prescribed original TT noise test follows below. No B12 noise, remaining-corner, Monte Carlo or mixed-top result transfers.
 
@@ -42,9 +42,9 @@ All 8704 samples are present and finite, with exactly 512 at every level and non
 | 700 | 512 / 512 | 1.00000000 |
 | 800 | 512 / 512 | 1.00000000 |
 
-[Official TT result](../../../../results/adc_comp/tb_comp_noise/xtor-many-question-miyahara/tt_nom_27.json) and its plot retain the original runner metadata. Raw/deck hashes are verified and the exact owned remote run is absent. Two genuine TT cases now match B13 and 90 older-source records remain stale. Next are required official noise cases at SS/low/125, FF/high/125, SF/high/125 and FS/low/125, whose private deterministic stress gates already pass. Remaining-corner stress, all required formal coverage, mismatch and mixed-top qualification remain open.
+[Official TT result](https://github.com/many-question/ADC-12b-100M/blob/e56790eebf5a86172b256f029d6d868e83fe3950/results/adc_comp/tb_comp_noise/xtor-many-question-miyahara/tt_nom_27.json) and its plot retain the original runner metadata. Raw/deck hashes are verified and the exact owned remote run is absent. Two genuine TT cases now match B13 and 90 older-source records remain stale. Next are required official noise cases at SS/low/125, FF/high/125, SF/high/125 and FS/low/125, whose private deterministic stress gates already pass. Remaining-corner stress, all required formal coverage, mismatch and mixed-top qualification remain open.
 
-![Original official noise curve and residual](../../../../results/adc_comp/tb_comp_noise/xtor-many-question-miyahara/tt_nom_27.noise.png)
+![Original official noise curve and residual](https://raw.githubusercontent.com/many-question/ADC-12b-100M/e56790eebf5a86172b256f029d6d868e83fe3950/results/adc_comp/tb_comp_noise/xtor-many-question-miyahara/tt_nom_27.noise.png)
 
 ## Four required hot noise corners: fail
 
@@ -81,4 +81,6 @@ Each corner has all 8704 finite samples, exactly 512 per level, with none outsid
 
 The genuine results and their figures remain in the candidate result directory with their actual clean-source metadata. Raw/deck hashes and the private evidence archive are SHA-verified; the exact owned remote run is confirmed absent. Six of the current 96 records now match B13 (TT kickback/capacitance, TT noise and these four failed noise cases); 90 older-source records remain stale. Freshness does not imply passing. No remaining-corner, Monte Carlo or mixed-top qualification is claimed.
 
-![Worst required hot-corner noise curve](../../../../results/adc_comp/tb_comp_noise/xtor-many-question-miyahara/fs_low_125.noise.png)
+![Worst required hot-corner noise curve](https://raw.githubusercontent.com/many-question/ADC-12b-100M/e56790eebf5a86172b256f029d6d868e83fe3950/results/adc_comp/tb_comp_noise/xtor-many-question-miyahara/fs_low_125.noise.png)
+
+Historical result and figure links are pinned to byte-verified published commit `e56790eebf5a86172b256f029d6d868e83fe3950` so future genuine runs cannot change the evidence shown by this report.
