@@ -21,3 +21,5 @@ Issues #40, #63, #69, #75, #77, #78 and #84 remain acknowledged. Every older exp
 Original tt_nom_27 noise PASS: 191.159437 uV rms against 200 uV (95% interval 183.31–199.41). This is preserved old-settings evidence. Issue #94 supersedes the previous expansion plan: new-settings private prechecks come first; required formal reruns will use the merged official flow. No further old-settings full-corner qualification is being launched.
 
 2 of 96 records match the current electrical source; 94 retain older source hashes. [Original-run evidence](FORMAL-BUFFER-V20.md) preserves actual metadata, counts and archives. Source matching does not imply passing.
+
+Independent [BUFFER-V21](BUFFER-V21.md) tests only larger RP/RN MOMs (8 to 16 fingers). All MOS devices and other MOMs remain unchanged. Critical proposed-settings timing, reset, terminal stress and output validity must pass before further noise evaluation; no improvement is assumed.
