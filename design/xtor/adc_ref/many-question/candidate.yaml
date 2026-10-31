@@ -4,7 +4,7 @@ description: Native thick-oxide follower with a 1:28 replica servo, startup clam
   REF-21 recovery. Transient results are being revalidated with conservative
   numerics; lead verification and updated mixed-top validation remain pending.
 status: wip
-acknowledged: [30, 34, 46, 60]
+acknowledged: [30, 34, 46, 60, 101]
 authors:
 - github: many-question
   name: Codex adc_ref
