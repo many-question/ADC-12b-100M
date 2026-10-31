@@ -19,7 +19,7 @@ Actual clean source commit: `b60845b1101f1e27319fed36fdc2447b323f5b1f`. The cano
 
 This formal capacitance result is separate from the mixed-delay clock-charge diagnostic.
 
-The [genuine result JSON](../../../../results/adc_comp/tb_comp_kickback/xtor-many-question-miyahara/tt_nom_27.json) retains its original clean-source metadata.
+The [genuine result JSON](https://github.com/many-question/ADC-12b-100M/blob/a1d163133ac6c59acdc2ed46523023e16c80949e/results/adc_comp/tb_comp_kickback/xtor-many-question-miyahara/tt_nom_27.json) retains its original clean-source metadata.
 
 The run uses +aps with no explicit +mt; execution logs retain the actual threading evidence. Fetched raw/deck hashes match the owned remote run, now absent. Archive SHA-256 `75f2b4097cbe8bc3b43cf080290b29fe897dccb5fc052ca27eab6f226ea00941` preserves byte-exact result/figure snapshots and every retained audit, verified by reading every member back with CRC and SHA-256 checks.
 
@@ -62,10 +62,12 @@ The minimum sampled absolute output difference is 0.873759109 V. Largest standar
 | 700 | 512 |
 | 800 | 512 |
 
-![Original noise curve and residual](../../../../results/adc_comp/tb_comp_noise/xtor-many-question-miyahara/tt_nom_27.noise.png)
+![Original noise curve and residual](https://raw.githubusercontent.com/many-question/ADC-12b-100M/a1d163133ac6c59acdc2ed46523023e16c80949e/results/adc_comp/tb_comp_noise/xtor-many-question-miyahara/tt_nom_27.noise.png)
 
-The [genuine result JSON](../../../../results/adc_comp/tb_comp_noise/xtor-many-question-miyahara/tt_nom_27.json) retains its original clean-source metadata.
+The [genuine result JSON](https://github.com/many-question/ADC-12b-100M/blob/a1d163133ac6c59acdc2ed46523023e16c80949e/results/adc_comp/tb_comp_noise/xtor-many-question-miyahara/tt_nom_27.json) retains its original clean-source metadata.
 
 The run uses +aps with no explicit +mt; execution logs retain the actual threading evidence. Fetched raw/deck hashes match the owned remote run, now absent. Archive SHA-256 `670a0852afeab4d946dc9b712b26e1b741ebfea8f85b0771b3b406173f501b9c` preserves byte-exact result/figure snapshots and every retained audit, verified by reading every member back with CRC and SHA-256 checks.
 
 At this checkpoint, 2 of 96 official records match this source and 94 retain older source hashes. Source matching does not imply passing. This is preserved old-settings evidence. Issue #94 supersedes the previous expansion plan: new-settings private prechecks come first; required formal reruns will use the merged official flow. No further old-settings full-corner qualification is being launched. Remaining-corner SOA, all formal coverage, mismatch, operating-range checks, mixed-top qualification and lead review remain open. No source is selected or qualified.
+
+Historical result and figure links are pinned to byte-verified published commit `a1d163133ac6c59acdc2ed46523023e16c80949e` so future genuine runs cannot change the evidence shown by this report.

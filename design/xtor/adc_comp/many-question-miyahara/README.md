@@ -22,4 +22,6 @@ Original tt_nom_27 noise PASS: 191.159437 uV rms against 200 uV (95% interval 18
 
 2 of 96 records match the current electrical source; 94 retain older source hashes. [Original-run evidence](FORMAL-BUFFER-V20.md) preserves actual metadata, counts and archives. Source matching does not imply passing.
 
-Independent [BUFFER-V21](BUFFER-V21.md) tests only larger RP/RN MOMs (8 to 16 fingers). All MOS devices and other MOMs remain unchanged. Critical proposed-settings timing, reset, terminal stress and output validity must pass before further noise evaluation; no improvement is assumed.
+Independent [BUFFER-V21](BUFFER-V21.md), with only RP/RN MOMs enlarged from 8 to 16 fingers, fails SS/low/125 reset at 35.42069219051348 ps against 35 ps. All five corners pass actual polarity, output validity and unrounded terminal stress, but this reset failure stops noise expansion. The measured reset path is preserved for physical repair; no noise improvement is claimed.
+
+PR #95 has merged as `c6152d236e525793ecc4809b9a6c9dfb9fd0ad77`, raising adc_comp to 0.8.0. Necessary canonical-source evidence will be refreshed with the merged official flow and exact pinned dependency; known failed variants are not expanded to full-corner qualification.

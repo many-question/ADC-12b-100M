@@ -1,5 +1,11 @@
 # Numerical-settings transition: issue #94
 
+## Merged workflow update, 2026-10-31
+
+[PR #95](https://github.com/many-question/ADC-12b-100M/pull/95) merged at 12:44:34 into main as `c6152d236e525793ecc4809b9a6c9dfb9fd0ad77`; adc_comp is now 0.8.0. The actual comparator testbench and specification patches match the precheck settings. The private runs below retain their original pre-merge source and status. Necessary key evidence will be refreshed through the merged official runner and testbenches with exact ADCToolbox commit `cd72061ff3b7a977163dac540da126ae22f5e38d`. No rehash or private-result relabeling restores formal evidence. Stale warnings still mean ineligible; final merged per-test crosscheck rules apply where specified. New formal notices are checked before subsequent batches.
+
+The following transition plan records the earlier, unmerged checkpoint and is superseded by the merged update above.
+
 At the 2026-10-31 checkpoint, [issue #94](https://github.com/many-question/ADC-12b-100M/issues/94) is an unmerged announcement, with no comments or corresponding open workflow PR. Fetched main is `3b0c002a507b5f5fba1dfbc7059db5ef103e2860`. All existing deterministic screens, phase diagnostics and original formal records use the preceding settings. They remain preserved and do not establish compliance with the announced settings.
 
 The previously started original TT noise run completed from clean source `2b1190fab874bd1324fa44abb7a8ff8c480e7c7b`: 191.159437 uV rms, 95% profile interval 183.31 to 199.41 uV, all 8704 finite samples and exactly 512 at each of 17 levels. Its original JSON and figure remain unchanged. The complete evidence archive has SHA-256 `670a0852afeab4d946dc9b712b26e1b741ebfea8f85b0771b3b406173f501b9c`, with every member read back using CRC and SHA checks. This is old-settings evidence; hot-corner formal expansion does not follow until the revised flow is available.
@@ -190,3 +196,46 @@ At tt_nom_27, minimum sampled output magnitude is 0.873756545 V and maximum abso
 The log's automatic maxstep bound is not an explicit job-deck setting. Actual APS thread information and the six-job session ceiling are recorded separately. Fetched raw/deck hashes match; the exact owned remote run is absent. Archive SHA-256 `4286f1b5f0c5e16cf7624bbebcdbb51551f3ebc3c92f2c6bce32c5a7ad0f916c` was checked by reading every member back with CRC and SHA-256. Full qualification remains open.
 
 This electrical source fails the private proposed-settings gate. Qualification expansion stops at the failure; diagnosis and further circuit design continue. Every failure is retained.
+
+
+## Private precheck 20261031-124258-miyahara-buffer-v21-notice94-delay-announced-screen
+
+Test `tb_comp_delay`, accuracy `announced`, frozen clean source `a1d163133ac6c59acdc2ed46523023e16c80949e`. These results use a private copy of the testbench and do not write formal records. All physical stimuli, loads, samplers and measurement code are preserved. The requested settings are `{"errpreset": "conservative"}`; no explicit maxstep or method is set.
+
+| Corner | 1 mV ps | 30 mV ps | Reset ps | Raw max stress V | Actual / reset cycles | Private gate |
+|---|---:|---:|---:|---:|---:|---|
+| fs_high_m40 | 52.924993560 | 43.715370887 | 22.322850363 | 0.998807387238 | 36 / 36 | PASS |
+| fs_low_125 | 70.676098865 | 54.868882292 | 28.078949273 | 0.812121767974 | 36 / 36 | PASS |
+| sf_high_m40 | 57.162607398 | 47.004619246 | 23.370321774 | 0.998853677474 | 36 / 36 | PASS |
+| ss_low_125 | 85.032597165 | 67.427196831 | 35.420692191 | 0.815689155525 | 36 / 36 | FAIL: CMP-08 |
+| tt_nom_27 | 60.040523314 | 48.663763208 | 25.702909526 | 0.907732905178 | 36 / 36 | PASS |
+
+Every actual polarity down to 10 uV, all reset intervals, full evaluation output validity and every MOS gs/gd/ds pair are checked. The AVDD audit spans all 36 complete cycles; all supply probes are present and KCL closes. Reported power has no acceptance limit.
+
+TT full AVDD waveform integral is 593.221215187 fJ/cycle: 220.643949039 evaluation and 372.577266148 reset. The original meter gives 593.706592440 fJ/cycle; the waveform-integral difference is -0.081754%. Both values are preserved.
+
+| Corner | Effective reltol | Effective vabstol V | Method / preset / relref / lteratio | Largest saved step ps |
+|---|---:|---:|---|---:|
+| fs_high_m40 | 0.0001 | 1e-06 | gear2only / conservative / alllocal / 10 | 34.0812 |
+| fs_low_125 | 0.0001 | 1e-06 | gear2only / conservative / alllocal / 10 | 56.5 |
+| sf_high_m40 | 0.0001 | 1e-06 | gear2only / conservative / alllocal / 10 | 56.5 |
+| ss_low_125 | 0.0001 | 1e-06 | gear2only / conservative / alllocal / 10 | 56.5 |
+| tt_nom_27 | 0.0001 | 1e-06 | gear2only / conservative / alllocal / 10 | 35.9325 |
+
+The log's automatic maxstep bound is not an explicit job-deck setting. Actual APS thread information and the six-job session ceiling are recorded separately. Fetched raw/deck hashes match; the exact owned remote run is absent. Archive SHA-256 `15f17579b154b710df0b0f74b6995236d69403baf66e398f64f79f039990e0de` was checked by reading every member back with CRC and SHA-256. Full qualification remains open.
+
+This electrical source fails the private proposed-settings gate. Qualification expansion stops at the failure; diagnosis and further circuit design continue. Every failure is retained.
+
+
+## Proposed-settings short B20 phase baseline
+
+Run `20261031-124307-miyahara-buffer-v20-notice94-noise-phase-diagnostic-screen` uses clean source `a1d163133ac6c59acdc2ed46523023e16c80949e` and the unchanged B20 electrical source. It is a diagnostic with 128 cycles at each of -800 and +800 uV, 400 ps clock, original physical source/load conditions and seed 1. Actual logs confirm conservative, gear2only, reltol 1e-4, vabstol 1e-6, alllocal and lteratio 10, with no explicit maxstep. The 102.5 ns duration raises noisefmin to 9.7561 MHz, versus 287.216 kHz for the full test; it does not replace the full 343.4944014285115 uV FS noise failure.
+
+All 256 finite samples per corner are retained. TT has 0/256 incorrect decisions; FS/low/125 has 1/256. Both corners complete all 256 resets with no early/middle-to-final sign changes, late reset violations, output-validity violations or reported terminal-stress violations. All original waveforms and phase/current statistics remain in verified archive `960476031e070fdc487dca44e41de7c7f1d98becf7b3c7031a0f19602020c24b`; owned remote data is removed and absence confirmed.
+
+| Corner | RP descriptive SNR at +30 ps | At +40 ps | RP sign errors at +50 ps | Max sampled reset ps |
+|---|---:|---:|---:|---:|
+| fs_low_125 | 1.638003632 | 2.429985495 | 1 | 27.211536904 |
+| tt_nom_27 | 2.487977226 | 4.318435978 | 0 | 25.000000002 |
+
+These two-level phase ratios include nonlinear regeneration and saturation; they are not linear gain or formal input-referred noise. Differences between TT and FS/low/125 combine process, supply and temperature and do not isolate one cause.
