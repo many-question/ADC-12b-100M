@@ -17,3 +17,5 @@ Issues #40, #63, #69, #75, #77, #78 and #84 remain acknowledged. Every older exp
 Independent [RESET-V28](RESET-V28.md) changes only the CKB MOM from 16 to 8 fingers. All MOS and other MOMs are unchanged. Four proposed-settings critical corners and tighter TT/SF/SS repeats pass every actual polarity, reset, output-validity and unrounded terminal-stress check. Tighter TT 30 mV delay is 49.84967366576565 ps, leaving only 0.15032633423435 ps. These are private screens; a noise benefit remains unproven and V28 is not promoted.
 
 Official 0.8.0 run `20261031-125724-e0ac-tb_comp_noise` refreshes tt_nom_27 noise 210.100860925 uV (FAIL CMP-01). [Exact committed evidence](FORMAL-SPEC08.md) preserves the actual source and original results. Current dependency coverage is 1/92; this does not establish qualification.
+
+[Artificial V28 noise-source diagnostics](NOISE-SOURCE-DIAGNOSTICS-V28.md) preserve input-pair and Q-shunt suppression trials for physical design guidance. They are explicitly ineligible for qualification; complete-circuit V28 TT noise still fails.
