@@ -13,3 +13,5 @@ The old canonical netlist and all 92 official records are preserved at commit `8
 Issues #40, #63, #69, #75, #77, #78 and #84 remain acknowledged. Every older experiment and failed screen is retained separately.
 
 Independent [RESET-V20](RESET-V20.md) changes only the two Q-node MOMs from 4.46 to 5.66049 fF to test release-stage signal-to-noise margin after the genuine V19 TT noise failure. Its first SF/FS high/-40 and TT private screens pass all 108 actual polarities, resets, timing, output validity and terminal stress. TT 1/30 mV delay is 62.091895/47.862333 ps and reset 23.672701 ps. Its matched short phase diagnosis retains one error at cycle 54, with only about 3.16%/1.18% higher descriptive Q SNR at +30/+40 ps. This provides insufficient evidence to expand V20 as the noise repair; it remains unpromoted while Q reset-shunt strength is tested next. Canonical V19 and all formal records remain unchanged.
+
+Independent [RESET-V21](RESET-V21.md) changes only the two Q reset shunts from 0.5 to 0.3 um at 100 nm while retaining V20’s capacitors. It tests release-stage loading after the limited V20 phase improvement; its performance remains unestablished.
