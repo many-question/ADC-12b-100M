@@ -1,4 +1,4 @@
-// Canonical many-question-strongarm promoted from RESET-V14; electrical source is unchanged.
+// Canonical many-question-strongarm promoted from RESET-V19; electrical source is unchanged.
 // @RNL(type="header") {
 //   @VERSION("0.3");
 //   @USE-PACKAGE(name="adc28", version="0.1", path="../../../rnl/adc28.rnl")
@@ -24,15 +24,17 @@ MONN (OUTN QN VSS VSS) nch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-13
 MONP (OUTN QN AVDD AVDD) pch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-13 pd=4.4e-06 ps=6.5e-06 nrd=0.048530 nrs=0.048530 sa=1.79203e-07 sb=1.79203e-07 sd=1e-07
 CDP (DP VSS) cfmom_2t nr=48 lr=1e-06 w=5e-08 s=5e-08 stm=1 spm=3 multi=1
 CDN (DN VSS) cfmom_2t nr=48 lr=1e-06 w=5e-08 s=5e-08 stm=1 spm=3 multi=1
-MDQP (QP CKB VSS VSS) nch_ulvt_mac l=3e-08 w=1e-06 nf=1 m=1 ad=7.5e-14 as=7.5e-14 pd=2.15e-06 ps=2.15e-06 nrd=0.289519 nrs=0.289519 sa=7.5e-08 sb=7.5e-08 sd=1e-07
-MDQN (QN CKB VSS VSS) nch_ulvt_mac l=3e-08 w=1e-06 nf=1 m=1 ad=7.5e-14 as=7.5e-14 pd=2.15e-06 ps=2.15e-06 nrd=0.289519 nrs=0.289519 sa=7.5e-08 sb=7.5e-08 sd=1e-07
+MDQP (QP CKB VSS VSS) nch_ulvt_mac l=3e-08 w=5e-07 nf=1 m=1 ad=3.75e-14 as=3.75e-14 pd=1.15e-06 ps=1.15e-06 nrd=0.662935 nrs=0.662935 sa=7.5e-08 sb=7.5e-08 sd=1e-07
+MDQN (QN CKB VSS VSS) nch_ulvt_mac l=3e-08 w=5e-07 nf=1 m=1 ad=3.75e-14 as=3.75e-14 pd=1.15e-06 ps=1.15e-06 nrd=0.662935 nrs=0.662935 sa=7.5e-08 sb=7.5e-08 sd=1e-07
 MDDP (DP DP VSS VSS) nch_ulvt_mac l=5e-07 w=5e-07 nf=1 m=1 ad=4.75e-14 as=4.75e-14 pd=1.19e-06 ps=1.19e-06 nrd=0.645705 nrs=0.645705 sa=9.5e-08 sb=9.5e-08 sd=1.2e-07
 MDDN (DN DN VSS VSS) nch_ulvt_mac l=5e-07 w=5e-07 nf=1 m=1 ad=4.75e-14 as=4.75e-14 pd=1.19e-06 ps=1.19e-06 nrd=0.645705 nrs=0.645705 sa=9.5e-08 sb=9.5e-08 sd=1.2e-07
-MCKN (CKB CLKC VSS VSS) nch_ulvt_mac l=3e-08 w=2e-06 nf=2 m=1 ad=1e-13 as=1.5e-13 pd=2.2e-06 ps=4.3e-06 nrd=0.185844 nrs=0.185844 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
-MCKP (CKB CLKC AVDD AVDD) pch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-13 pd=4.4e-06 ps=6.5e-06 nrd=0.048530 nrs=0.048530 sa=1.79203e-07 sb=1.79203e-07 sd=1e-07
-CCB (CKB VSS) cfmom_2t nr=48 lr=1e-06 w=5e-08 s=5e-08 stm=1 spm=3 multi=1
+MCKN (CKB CLKC VSS VSS) nch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-13 pd=4.4e-06 ps=6.5e-06 nrd=0.108289 nrs=0.108289 sa=1.79203e-07 sb=1.79203e-07 sd=1e-07
+MCKP (CKB CLKC AVDD AVDD) pch_ulvt_mac l=3e-08 w=2.7e-06 nf=3 m=1 ad=1.575e-13 as=1.575e-13 pd=3.95e-06 ps=3.95e-06 nrd=0.071617 nrs=0.071617 sa=1.47042e-07 sb=1.47042e-07 sd=1e-07
+CCB (CKB VSS) cfmom_2t nr=16 lr=1e-06 w=5e-08 s=5e-08 stm=1 spm=3 multi=1
 MBLEED (CKB AVDD VSS VSS) nch_ulvt_mac l=5e-07 w=5e-07 nf=1 m=1 ad=4.75e-14 as=4.75e-14 pd=1.19e-06 ps=1.19e-06 nrd=0.645705 nrs=0.645705 sa=9.5e-08 sb=9.5e-08 sd=1.2e-07
 MUP (CKB VSS AVDD AVDD) pch_ulvt_mac l=1e-07 w=5e-07 nf=1 m=1 ad=4.75e-14 as=4.75e-14 pd=1.19e-06 ps=1.19e-06 nrd=0.256086 nrs=0.256086 sa=9.5e-08 sb=9.5e-08 sd=1.2e-07
+CQP (QP VSS) cfmom_2t nr=16 lr=1e-06 w=5e-08 s=5e-08 stm=1 spm=3 multi=1
+CQN (QN VSS) cfmom_2t nr=16 lr=1e-06 w=5e-08 s=5e-08 stm=1 spm=3 multi=1
 // @RNL(author="schematic-review") {
 //  &VSS @ADD-TO $GROUND_NET_SET;
 //  &AVDD @ADD-TO $SUPPLY_NET_SET;
@@ -47,8 +49,8 @@ MUP (CKB VSS AVDD AVDD) pch_ulvt_mac l=1e-07 w=5e-07 nf=1 m=1 ad=4.75e-14 as=4.7
 //  @LINE(linecolor="#d3dbe4", linewidth=0.08, linestyle="dashed") {(-112, -36) (112, -36) (112, 110) (-112, 110) (-112, -36)};
 //  @LINE(linecolor="#d3dbe4", linewidth=0.08, linestyle="dashed") {(-158, 30) (-118, 30) (-118, 76) (-158, 76) (-158, 30)};
 //  @LINE(linecolor="#d3dbe4", linewidth=0.08, linestyle="dashed") {(118, 30) (158, 30) (158, 76) (118, 76) (118, 30)};
-//  (0, 123) @TEXT("StrongARM RESET-V14", size=2, bold=true, halign="middle", textcolor="#273747");
-//  (0, 117) @TEXT("Direct clock; single precharge devices; stronger Q reset", size=1.1, bold=false, halign="middle", textcolor="#526171");
+//  (0, 123) @TEXT("StrongARM RESET-V19", size=2, bold=true, halign="middle", textcolor="#273747");
+//  (0, 117) @TEXT("Smaller clock PMOS reduces external clock-gate load", size=1.1, bold=false, halign="middle", textcolor="#526171");
 //  (0, 112) @TEXT("28 nm HPC+ | ULVT MOS | device labels: W/L and nf", size=0.9, bold=false, halign="middle", textcolor="#526171");
 //  (0, 106) @TEXT("Regenerative core", size=1.35, bold=true, halign="middle", textcolor="#273747");
 //  (-90, 103) @TEXT("Single DP", size=1.1, bold=true, halign="middle", textcolor="#273747");
@@ -329,12 +331,12 @@ MUP (CKB VSS AVDD AVDD) pch_ulvt_mac l=1e-07 w=5e-07 nf=1 m=1 ad=4.75e-14 as=4.7
 //  %port_CLKC @TEXT("CLKC", key="name", size=1, bold=true);
 //  &CLKC @WIRE(mode="straight", linecolor="#ab6c15", linewidth=0.16) {%port_CLKC:p #MTAIL:g};
 //  %inputs = #MINP(in_p) and #MINN(in_n) treated @AS $DIFFERENTIAL_PAIR;
-//  (-100, -29) @TEXT("23 MOS + 3 MOM. Precharge and tail use CLKC; Q loads use CKB.", size=1, halign="start");
+//  (-100, -29) @TEXT("23 MOS + 5 MOM. Precharge and tail use CLKC; Q loads use CKB.", size=1, halign="start");
 //  (-100, -34) @TEXT("Dots mark connections; crossing wires without dots are separate.", size=1, halign="start");
 //  (0, -72) @TEXT("Reset-gated Q loads and diode-connected input-drain loads", size=1.3, bold=true, halign="middle");
 //  #MDQP @PLACE(-96, -90) => @ORIENT("R0");
 //  #MDQP @TEXT("MDQP", key="name", size=1.05, halign="start") => @PLACE(-93, -88.5);
-//  #MDQP @TEXT("1um/30nm nf1", key="dims", size=.95, halign="start") => @PLACE(-93, -91.5);
+//  #MDQP @TEXT("0.5um/30nm nf1", key="dims", size=.95, halign="start") => @PLACE(-93, -91.5);
 //  %g_MDQP = $GROUND @ATTACH &VSS => @PLACE(-96, -100);
 //  &VSS @WIRE(mode="straight", linewidth=.16) {#MDQP:s %g_MDQP:p};
 //  &VSS @WIRE(mode="straight", linewidth=.16) {#MDQP:b (-94, -90) (-94, -100) %g_MDQP:p};
@@ -344,7 +346,7 @@ MUP (CKB VSS AVDD AVDD) pch_ulvt_mac l=1e-07 w=5e-07 nf=1 m=1 ad=4.75e-14 as=4.7
 //  (-96, -78) @TEXT("QP", size=1, bold=true, halign="middle");
 //  #MDQN @PLACE(-32, -90) => @ORIENT("R0");
 //  #MDQN @TEXT("MDQN", key="name", size=1.05, halign="start") => @PLACE(-29, -88.5);
-//  #MDQN @TEXT("1um/30nm nf1", key="dims", size=.95, halign="start") => @PLACE(-29, -91.5);
+//  #MDQN @TEXT("0.5um/30nm nf1", key="dims", size=.95, halign="start") => @PLACE(-29, -91.5);
 //  %g_MDQN = $GROUND @ATTACH &VSS => @PLACE(-32, -100);
 //  &VSS @WIRE(mode="straight", linewidth=.16) {#MDQN:s %g_MDQN:p};
 //  &VSS @WIRE(mode="straight", linewidth=.16) {#MDQN:b (-30, -90) (-30, -100) %g_MDQN:p};
@@ -374,18 +376,18 @@ MUP (CKB VSS AVDD AVDD) pch_ulvt_mac l=1e-07 w=5e-07 nf=1 m=1 ad=4.75e-14 as=4.7
 //  (96, -78) @TEXT("DN", size=1, bold=true, halign="middle");
 //  {#MDQP #MDQN} @AS $MATCHED;
 //  {#MDDP #MDDN} @AS $MATCHED;
-//  (0, -110) @TEXT("23 MOS + 3 MOM. Q shunts conduct in reset; physical clock generation and DC current are measured.", size=1, halign="middle");
+//  (0, -110) @TEXT("23 MOS + 5 MOM. Q shunts conduct in reset; physical clock generation and DC current are measured.", size=1, halign="middle");
 //  #MDQP:g @TEXT("CKB", key="netname", size=1, bold=true, halign="end", dx=-.8, textcolor="#ab6c15");
 //  #MDQN:g @TEXT("CKB", key="netname", size=1, bold=true, halign="end", dx=-.8, textcolor="#ab6c15");
 //  #MCKP @PLACE(-178, 8) => @ORIENT("R0");
 //  #MCKP @TEXT("MCKP", key="name", size=1.05, halign="start") => @PLACE(-175, 9.5);
-//  #MCKP @TEXT("4um/30nm nf4", key="dims", size=.95, halign="start") => @PLACE(-175, 6.5);
+//  #MCKP @TEXT("2.7um/30nm nf3", key="dims", size=.95, halign="start") => @PLACE(-175, 6.5);
 //  %s_MCKP = $SUPPLY @ATTACH &AVDD => @PLACE(-178, 16);
 //  &AVDD @WIRE(mode="straight", linecolor="#697887", linewidth=0.16) {#MCKP:s %s_MCKP:p};
 //  &AVDD @WIRE(mode="straight", linecolor="#697887", linewidth=0.16) {#MCKP:b (-176, 8) (-176, 16) %s_MCKP:p};
 //  #MCKN @PLACE(-178, -16) => @ORIENT("R0");
 //  #MCKN @TEXT("MCKN", key="name", size=1.05, halign="start") => @PLACE(-175, -14.5);
-//  #MCKN @TEXT("2um/30nm nf2", key="dims", size=.95, halign="start") => @PLACE(-175, -17.5);
+//  #MCKN @TEXT("4um/30nm nf4", key="dims", size=.95, halign="start") => @PLACE(-175, -17.5);
 //  %s_MCKN = $GROUND @ATTACH &VSS => @PLACE(-178, -24);
 //  &VSS @WIRE(mode="straight", linecolor="#697887", linewidth=0.16) {#MCKN:s %s_MCKN:p};
 //  &VSS @WIRE(mode="straight", linecolor="#697887", linewidth=0.16) {#MCKN:b (-176, -16) (-176, -24) %s_MCKN:p};
@@ -395,7 +397,7 @@ MUP (CKB VSS AVDD AVDD) pch_ulvt_mac l=1e-07 w=5e-07 nf=1 m=1 ad=4.75e-14 as=4.7
 //  &CKB @WIRE(mode="straight", linecolor="#ab6c15", linewidth=0.16) {(-178, -4) (-150, -4)};
 //  (-157, -2) @TEXT("CKB", size=1, bold=true, textcolor="#ab6c15");
 //  #CCB @PLACE(-150, -16) => @ORIENT("R0");
-//  #CCB @TEXT("CCB 14.06fF", key="name", size=1, halign="start") => @PLACE(-147, -14);
+//  #CCB @TEXT("CCB 4.46fF", key="name", size=1, halign="start") => @PLACE(-147, -14);
 //  &CKB @WIRE(mode="straight", linecolor="#ab6c15", linewidth=0.16) {(-150, -4) #CCB:p};
 //  %g_CCB = $GROUND @ATTACH &VSS => @PLACE(-150, -24);
 //  &VSS @WIRE(mode="straight", linecolor="#697887", linewidth=0.16) {#CCB:n %g_CCB:p};
@@ -418,5 +420,18 @@ MUP (CKB VSS AVDD AVDD) pch_ulvt_mac l=1e-07 w=5e-07 nf=1 m=1 ad=4.75e-14 as=4.7
 //  &CKB @WIRE(mode="straight", linecolor="#ab6c15", linewidth=.16) {#MUP:d (-126, -4)};
 //  %up_gate = $GROUND @ATTACH &VSS => @PLACE(-138, 3);
 //  &VSS @WIRE(mode="straight", linewidth=.16) {#MUP:g (-138, 8) %up_gate:p};
+//  #CQP @PLACE(-64, -90) => @ORIENT("R0");
+//  #CQP @TEXT("CQP", key="name", size=1, halign="start") => @PLACE(-61, -88.5);
+//  #CQP @TEXT("4.46fF", key="value", size=.95, halign="start") => @PLACE(-61, -91.5);
+//  &QP @WIRE(mode="straight", linewidth=.16) {%d_MDQP (-64, -80) #CQP:p};
+//  %g_CQP = $GROUND @ATTACH &VSS => @PLACE(-64, -100);
+//  &VSS @WIRE(mode="straight", linewidth=.16) {#CQP:n %g_CQP:p};
+//  #CQN @PLACE(0, -90) => @ORIENT("R0");
+//  #CQN @TEXT("CQN", key="name", size=1, halign="start") => @PLACE(3, -88.5);
+//  #CQN @TEXT("4.46fF", key="value", size=.95, halign="start") => @PLACE(3, -91.5);
+//  &QN @WIRE(mode="straight", linewidth=.16) {%d_MDQN (0, -80) #CQN:p};
+//  %g_CQN = $GROUND @ATTACH &VSS => @PLACE(0, -100);
+//  &VSS @WIRE(mode="straight", linewidth=.16) {#CQN:n %g_CQN:p};
+//  {#CQP #CQN} @AS $MATCHED;
 // }
 ends adc_comp
