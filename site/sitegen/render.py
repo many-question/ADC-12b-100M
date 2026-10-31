@@ -881,7 +881,7 @@ def overview(site: Site, data: dict[str, BlockData]) -> str:
     cnt = verdict_counts(data)
     enob, enob_doc = None, None
     for d in data["adc_top"].docs if "adc_top" in data else []:
-        if d["test"] == "tb_top_sine" and d["corner"] == "tt_nom_27":
+        if d["test"] == "tb_top_sine" and d["corner"] == "tt_nom_27" and d["view"] == "behav":   # not a mixed run
             enob, enob_doc = d["metrics"].get("enob"), d
     # PyYAML reads 100.0e6 as a string; list values (timing.t_dac_add, per DAC step) are not scalars
     t = {k: float(v) for k, v in raw["timing"].items() if not isinstance(v, (list, tuple))}
