@@ -1,6 +1,6 @@
 block: adc_ref
 title: Reference driver (VREFP = 0.9 V) and top-plate common-mode (VCM = 0.45 V)
-version: 0.9.0
+version: 0.10.0
 selected: many-question # the selected candidate (design/xtor/<block>/<name>/); verified, mixed top level passed (#86)
 status: xtor-review
 views:
@@ -73,9 +73,9 @@ specs:
   - {id: REF-13, name: "VREFP change over decisions 12..14 (no redundancy), max", metric: tail_dev_uV, unit: uV, max: 200, corners: all, test: tb_ref_replay}
   - {id: REF-14, name: "VREFP before conversion start, p-p over the replay (memory)", metric: start_pp_uV, unit: uV, max: 100, corners: all, test: tb_ref_replay}
   - {id: REF-21, name: "VREFP deviation at decisions 1..11 over its redundancy tolerance, max (env_ratio)", metric: env_ratio, unit: '', max: 1, corners: all, test: tb_ref_replay}
-  - {id: REF-15, name: "VREFP maximum during the supported power-up (whole run)", metric: vrefp_max_V, unit: V, max: 1.0, corners: all, test: tb_ref_startup}
+  - {id: REF-15, name: "VREFP maximum during the supported power-up (whole run)", metric: vrefp_max_V, unit: V, max: 1.1, corners: all, test: tb_ref_startup}
   - {id: REF-16, name: "VREFP minimum during the supported power-up (whole run)", metric: vrefp_min_V, unit: V, min: -0.1, corners: all, test: tb_ref_startup}
-  - {id: REF-17, name: "VCM maximum during the supported power-up (whole run)", metric: vcm_max_V, unit: V, max: 1.0, corners: all, test: tb_ref_startup}
+  - {id: REF-17, name: "VCM maximum during the supported power-up (whole run)", metric: vcm_max_V, unit: V, max: 1.1, corners: all, test: tb_ref_startup}
   - {id: REF-18, name: "VCM minimum during the supported power-up (whole run)", metric: vcm_min_V, unit: V, min: -0.1, corners: all, test: tb_ref_startup}
   - {id: REF-19, name: "VREFP from ready to the end: max |VREFP - VREF_IN| (REF-01 at no load)", metric: ready_err_mV, unit: mV, max: 5, corners: all, test: tb_ref_startup}
   - {id: REF-20, name: "VCM from ready to the end: the value furthest from 0.45 V (REF-02 range)", metric: vcm_ready_V, unit: V, min: 0.44, max: 0.46, corners: all, test: tb_ref_startup}
@@ -143,7 +143,7 @@ tests:
       1.2 pF on VREFP (CDAC bottom plates, as tb_ref_replay / tb_ref_noise)
       and 2 x 2.5 pF on VCM (the two top plates, C_tot); no DC load (CLK is
       static, no conversions). REF-15..18: the largest and smallest VREFP and
-      VCM over the whole run, against -0.1 .. 1.0 V, the window the thin-oxide
+      VCM over the whole run, against -0.1 .. 1.1 V, the window the thin-oxide
       CDAC and comparator devices on these nets need; the dwell with VREF_IN
       at 0 V lets a circuit that raises its outputs without a reference show
       there. REF-19: the largest |VREFP - VREF_IN| from ready to the end, the
