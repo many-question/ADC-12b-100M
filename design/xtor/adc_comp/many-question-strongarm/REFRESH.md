@@ -1,6 +1,6 @@
 # Completed combined energy and output-validity refresh
 
-> Evidence retention (2026-10-31): Superseded raw was released. Historical verification does not imply current availability; [retained evidence](EVIDENCE-RETENTION.md) determines which runs can be re-audited.
+> Superseded raw was released. Historical audits do not imply availability; see [retained runs](EVIDENCE-RETENTION.md).
 
 Completed against comparator spec v0.7.0, including merged PR #82 (`a95aa0c`), notices [#78](https://github.com/many-question/ADC-12b-100M/issues/78) and [#84](https://github.com/many-question/ADC-12b-100M/issues/84). The clean simulated source is `424d10a78ce75a1ef45d121575a9eac07a1ebd93`. Main was merged to preserve original clean source commits and historical result commits.
 

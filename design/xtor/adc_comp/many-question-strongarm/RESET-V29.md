@@ -1,6 +1,6 @@
 # RESET-V29: stronger physical output drivers
 
-> Evidence retention (2026-10-31): Superseded raw was released. Historical verification does not imply current availability; [retained evidence](EVIDENCE-RETENTION.md) determines which runs can be re-audited.
+> Superseded raw was released. Historical audits do not imply availability; see [retained runs](EVIDENCE-RETENTION.md).
 
 **V29 fails TT 30 mV delay:** 50.5384103494184 ps exceeds 50 ps. All four corners pass actual polarity, completed reset, output validity and every unrounded MOS terminal pair, but this delay failure stops V29 qualification expansion. No V29 noise run or promotion follows.
 

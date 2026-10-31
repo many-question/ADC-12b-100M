@@ -1,6 +1,6 @@
 # Preserved canonical baseline before RESET-V27
 
-> Evidence retention (2026-10-31): Superseded raw was released. Historical verification does not imply current availability; [retained evidence](EVIDENCE-RETENTION.md) determines which runs can be re-audited.
+> Superseded raw was released. Historical audits do not imply availability; see [retained runs](EVIDENCE-RETENTION.md).
 
 Historical source and all 92 official records are fixed at commit `05d4d445c50471c0627d9b41f41b238bb8cfc1d9` and retained in a verified private archive. Statements below describe that old canonical source.
 

@@ -1,6 +1,6 @@
 # RESET-V14: earlier reset-shunt enable
 
-> Evidence retention (2026-10-31): Superseded raw was released. Historical verification does not imply current availability; [retained evidence](EVIDENCE-RETENTION.md) determines which runs can be re-audited.
+> Superseded raw was released. Historical audits do not imply availability; see [retained runs](EVIDENCE-RETENTION.md).
 
 V13 passes delay, reset and physical output validity at all ten measured corners, but SF/high/-40 reaches QN=1.001890426 V and fails 10 terminal pairs. The peak occurs 5.355228 ps after the falling clock 50% crossing, with CKB still at 0.635933 V. The clock-controlled Q shunt therefore has limited gate drive during the coupled reset peak.
 

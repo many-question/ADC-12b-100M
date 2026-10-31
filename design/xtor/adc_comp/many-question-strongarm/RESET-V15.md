@@ -1,6 +1,6 @@
 # RESET-V15: release the Q shunts earlier
 
-> Evidence retention (2026-10-31): Superseded raw was released. Historical verification does not imply current availability; [retained evidence](EVIDENCE-RETENTION.md) determines which runs can be re-audited.
+> Superseded raw was released. Historical audits do not imply availability; see [retained runs](EVIDENCE-RETENTION.md).
 
 V14 fails the genuine official TT noise gate at 2094.115400 uV rms. Its short instrumented diagnosis reproduces the broad decision errors at both default and fine numerical settings, with complete reset and stable early-to-final decisions. Q-node differential noise grows during the initial common-mode drop while transfer of the input difference is weak; this supports investigating the release trajectory, without attributing the failure to one device noise source.
 

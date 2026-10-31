@@ -1,6 +1,6 @@
 # V28 artificial noise-source diagnostics
 
-> Evidence retention (2026-10-31): Superseded raw was released. Historical verification does not imply current availability; [retained evidence](EVIDENCE-RETENTION.md) determines which runs can be re-audited.
+> Superseded raw was released. Historical audits do not imply availability; see [retained runs](EVIDENCE-RETENTION.md).
 
 These simulations selectively suppress stochastic sources in an otherwise unchanged circuit. **They are not physical comparator performance and cannot establish compliance.** The actual all-noise V28 result remains a TT failure at 206.44956249285457 uV rms, with a model-conditional 95% profile interval of 198.24 to 215.06 uV. [RESET-V28](RESET-V28.md) retains that failure.
 

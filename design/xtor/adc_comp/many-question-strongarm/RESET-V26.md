@@ -1,6 +1,6 @@
 # RESET-V26: smaller input-to-latch coupling devices
 
-> Evidence retention (2026-10-31): Superseded raw was released. Historical verification does not imply current availability; [retained evidence](EVIDENCE-RETENTION.md) determines which runs can be re-audited.
+> Superseded raw was released. Historical audits do not imply availability; see [retained runs](EVIDENCE-RETENTION.md).
 
 V25 passes its three initial deterministic corners but retains the same short-diagnostic error at cycle 54 as V20. Its Q descriptive SNR falls from 1.896073 to 1.362273 at +30 ps and from 3.346148 to 3.165670 at +40 ps. At +30 ps all 256 DP signs are correct while 25 Q signs disagree with the input, versus eight for V20. By +40 ps only the final wrong Q sign remains. The source, complete data and comparison are preserved in [RESET-V25.md](RESET-V25.md). V25 stops broader expansion without a formal noise claim.
 

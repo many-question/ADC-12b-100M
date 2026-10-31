@@ -1,6 +1,6 @@
 # Official adc_comp 0.8.0 validation
 
-> Evidence retention (2026-10-31): Superseded raw was released. Historical verification does not imply current availability; [retained evidence](EVIDENCE-RETENTION.md) determines which runs can be re-audited.
+> Superseded raw was released. Historical audits do not imply availability; see [retained runs](EVIDENCE-RETENTION.md).
 
 These are genuine canonical-view runs through the merged official runner, testbench, measurement and recorder. Each section names the actual simulated source and links byte-verified committed results. Failures remain evidence; no all-corner qualification is implied.
 

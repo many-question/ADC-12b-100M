@@ -1,6 +1,6 @@
 # RESET-V3: output-controlled weak keepers
 
-> Evidence retention (2026-10-31): Superseded raw was released. Historical verification does not imply current availability; [retained evidence](EVIDENCE-RETENTION.md) determines which runs can be re-audited.
+> Superseded raw was released. Historical audits do not imply availability; see [retained runs](EVIDENCE-RETENTION.md).
 
 RESET-V2's remaining peak is QP/QN overshoot at the end of the rising clock edge, while its four-corner delay, reset and output validity pass. This experiment reduces each clocked Q precharge PMOS from 6 um to 2 um and adds a weak inverter from the external output back to its internal Q node: P2 um / N0.5 um, all at 30 nm. The PMOS keeper conducts while that output is low and may absorb positive clock feedthrough. The small NMOS keeper conducts while the output is high. The original output inverter and its external load remain physical circuit elements.
 

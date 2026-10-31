@@ -1,6 +1,6 @@
 # V32 artificial noise-source diagnostics at FS/low/125
 
-> Evidence retention (2026-10-31): Superseded raw was released. Historical verification does not imply current availability; [retained evidence](EVIDENCE-RETENTION.md) determines which runs can be re-audited.
+> Superseded raw was released. Historical audits do not imply availability; see [retained runs](EVIDENCE-RETENTION.md).
 
 **Diagnostic only; ineligible for qualification.** Full physical V32 noise remains the failed 371.83932552901155 uV rms [359.5,384.82] against 240 uV. Only the stated native transient noiseoff selectors change stochastic excitation; physical devices, dimensions, loads and actual numerical settings are unchanged. Source is `3b7108921859eba3a1514cb5f91f2d42c94472bd`, electrical SHA-256 `0611d6028825bf29c02983e7e337a09e4627884b7aef22e20130770b72d7c557`.
 

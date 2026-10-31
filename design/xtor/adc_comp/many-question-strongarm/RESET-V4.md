@@ -1,6 +1,6 @@
 # RESET-V4: complementary Q precharge
 
-> Evidence retention (2026-10-31): Superseded raw was released. Historical verification does not imply current availability; [retained evidence](EVIDENCE-RETENTION.md) determines which runs can be re-audited.
+> Superseded raw was released. Historical audits do not imply availability; see [retained runs](EVIDENCE-RETENTION.md).
 
 The DC keeper in V3 prevents small-input decisions. This experiment returns to V2's unheld regenerative core and attacks clock feedthrough with complementary precharge. Each Q node uses a 2 um PMOS gated by CLKC and a 2 um NMOS between AVDD and Q gated by CKB. One N4/P2 inverter generates CKB and a 4.46051 fF MOM device damps that clock node. The tail stays directly clocked. There is no keeper connected to the output.
 

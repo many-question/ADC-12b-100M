@@ -1,6 +1,6 @@
 # RESET-V24: test input-to-latch coupling devices
 
-> Evidence retention (2026-10-31): Superseded raw was released. Historical verification does not imply current availability; [retained evidence](EVIDENCE-RETENTION.md) determines which runs can be re-audited.
+> Superseded raw was released. Historical audits do not imply availability; see [retained runs](EVIDENCE-RETENTION.md).
 
 V23 retains complete polarity, reset, output validity and terminal-stress checks, but its weaker tail increases TT 30 mV delay to 55.258398 ps, failing the 50 ps gate. [RESET-V23.md](RESET-V23.md) preserves the stopped source, complete deterministic evidence and its comparison with V20. No noise benefit is claimed for that failed timing experiment.
 

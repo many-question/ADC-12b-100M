@@ -1,6 +1,6 @@
 # RESET-V9: increase conductance of the reset-gated Q shunts
 
-> Evidence retention (2026-10-31): Superseded raw was released. Historical verification does not imply current availability; [retained evidence](EVIDENCE-RETENTION.md) determines which runs can be re-audited.
+> Superseded raw was released. Historical audits do not imply availability; see [retained runs](EVIDENCE-RETENTION.md).
 
 V8 recovers valid outputs and timing at all four screened corners, and only cold FF retains terminal stress. At its 1.00737 V reset peak, CKB is already 0.506 V while the opposite Q is 0.290 V. This experiment doubles only each Q shunt from N1/nf1 to N2/nf2 with the complete validated geometry and parasitics. Clock generation, Q precharge, input loads and all other electrical connections remain V8.
 

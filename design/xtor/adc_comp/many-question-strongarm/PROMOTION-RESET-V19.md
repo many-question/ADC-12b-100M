@@ -1,6 +1,6 @@
 # Canonical promotion: RESET-V19
 
-> Evidence retention (2026-10-31): Superseded raw was released. Historical verification does not imply current availability; [retained evidence](EVIDENCE-RETENTION.md) determines which runs can be re-audited.
+> Superseded raw was released. Historical audits do not imply availability; see [retained runs](EVIDENCE-RETENTION.md).
 
 The private screened source is copied into the canonical `adc_comp.scs` with one header-comment change. Removing blank lines and full-line comments, stripping line-edge whitespace and joining the remaining electrical statements with newlines gives the same SHA-256 for both sources: `c14d49b929c6c404d4166762d41bc8773e097a141c4ba0365d5462fbd007e008`. No device, terminal, geometry, parasitic or electrical statement changes during promotion.
 

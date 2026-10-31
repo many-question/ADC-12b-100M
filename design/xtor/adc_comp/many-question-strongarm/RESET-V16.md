@@ -1,6 +1,6 @@
 # RESET-V16: change the clock-inverter drive ratio
 
-> Evidence retention (2026-10-31): Superseded raw was released. Historical verification does not imply current availability; [retained evidence](EVIDENCE-RETENTION.md) determines which runs can be re-audited.
+> Superseded raw was released. Historical audits do not imply availability; see [retained runs](EVIDENCE-RETENTION.md).
 
 V15 reduces wrong polarity in the matched short noise diagnosis from V14 fine-control 91/256 to 52/256 at +/-800 uV, but this is still a gross error rate and does not support wider qualification. At +5 ps after the clock midpoint QP remains near 0.586 V; Q differential noise still grows while signal transfer is weak. Complete reset and stable 80 ps-to-final signs persist. This is diagnostic evidence, not a new official noise estimate.
 

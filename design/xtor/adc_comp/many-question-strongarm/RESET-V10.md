@@ -1,6 +1,6 @@
 # RESET-V10: advance reset-load turn-on and bound the clock low level
 
-> Evidence retention (2026-10-31): Superseded raw was released. Historical verification does not imply current availability; [retained evidence](EVIDENCE-RETENTION.md) determines which runs can be re-audited.
+> Superseded raw was released. Historical audits do not imply availability; see [retained runs](EVIDENCE-RETENTION.md).
 
 V9 shows that increasing Q shunt conductance alone leaves an early cold-FF peak and violates slow-corner reset. This experiment starts from V8 with the lighter N1 Q shunts. The CKB pull-up becomes P3 instead of P2 to turn the shunts on earlier. Direct input precharge becomes P2 instead of P2.4 to offset the external clock-capacitance increase. Input diode loads remain and their recharge time is rechecked.
 

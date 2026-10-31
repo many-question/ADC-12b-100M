@@ -1,6 +1,6 @@
 # Numerical-settings transition: issue #94
 
-> Evidence retention (2026-10-31): Superseded raw was released. Historical verification does not imply current availability; [retained evidence](EVIDENCE-RETENTION.md) determines which runs can be re-audited.
+> Superseded raw was released. Historical audits do not imply availability; see [retained runs](EVIDENCE-RETENTION.md).
 
 ## Merged workflow update, 2026-10-31
 
@@ -641,3 +641,51 @@ The full raw-derived phase/load context is included in the verified archive; its
 | tt_nom_27 | 1e-06 | 1e-08 | gear2only / conservative / alllocal / 10 |
 
 Archive SHA-256 `5eeb930f26b032d56e04e497a6991757048d537366b8b6776b6d12bb178a1124`: every member passed CRC/SHA readback. Fetched files match remote hashes, the exact owned remote directory is absent, and the six-job session ceiling is retained. Raw availability is indexed in [EVIDENCE-RETENTION](EVIDENCE-RETENTION.md). Full qualification remains open.
+
+## Private precheck 20261031-163620-strongarm-reset-v33-spec08-delay-tighter-screen
+
+Private `tb_comp_delay` / `tighter`; clean frozen source `7f50c0a41ca222f1c6885eb5eb8b3d02f639524e`, electrical SHA-256 `e859347340abfbe7f5e42e0a9c3a831f378bce9bea727177b4e214ef60a1b0cf`. Merged 0.8.0 physical stimuli/loads, measurements and limits are preserved; named selected or original monitor-only saves, no wildcards. No formal writes or canonical change.
+
+| Corner | 1 mV ps | 30 mV ps | Reset ps | Unrounded stress V | Gate |
+|---|---:|---:|---:|---:|---|
+| fs_high_m40 | 59.09184111214865 | 43.09257999401472 | 19.65999981832592 | 0.9962239923785982 | PASS |
+| fs_low_125 | 72.92185339667094 | 51.36032817109835 | 27.158465592390176 | 0.8122309401200808 | PASS |
+| sf_high_m40 | 74.70111153472892 | 54.24797438397259 | 18.12030242619273 | 0.9975848355205003 | PASS |
+| ss_low_125 | 97.95372399624229 | 68.51077582019597 | 30.09058932978041 | 0.8175045478374987 | PASS |
+| tt_nom_27 | 69.26059763072612 | 49.54324517079809 | 21.777180303898454 | 0.9061428281142265 | PASS |
+
+All 180 actual decisions (including 10 uV) and 180 reset intervals are retained; [69] full-trace MOS gs/gd/ds pairs per corner, output validity and full-cycle AVDD KCL are independently checked. Complete per-cycle/path and terminal-pair data remain in the archive. Energy is report-only.
+
+TT energy: meter 421.41099276000006 fJ/cycle; independent integral 421.378144182793, evaluation 102.34928290663143, reset 319.0288612761616 fJ/cycle. All named supply probes are present and KCL closes.
+
+| Tighter minus same-source baseline | 1 mV ps | 30 mV ps | Reset ps |
+|---|---:|---:|---:|
+| fs_high_m40 | +0.743621794 | +0.066999149 | -0.226607048 |
+| fs_low_125 | +1.417048036 | +0.115508962 | -0.138974117 |
+| sf_high_m40 | +0.851474482 | +0.120684429 | -0.579988821 |
+| ss_low_125 | +1.796291827 | +0.200423245 | -0.852936249 |
+| tt_nom_27 | +0.937586792 | +0.109745816 | -0.692142047 |
+
+The archive retains all per-pair comparisons and unrounded stress peaks; rounded comparison-table precision does not replace strict SOA checks.
+
+Actual settings (fs_high_m40, fs_low_125, sf_high_m40, ss_low_125, tt_nom_27): reltol 1e-06, vabstol 1e-08 V, gear2only/conservative/alllocal, lteratio 10; no explicit maxstep or method override.
+
+Verified ZIP SHA-256 `a90c8bd026911efdf2cc93b2d26443f2b106b31cbc22ba34d5449eb55116553a`; every member passed CRC/SHA readback, retrieval/final-source guards and exact remote absence passed; session ceiling six jobs. [Retention](EVIDENCE-RETENTION.md) governs raw availability. Full qualification remains open.
+
+## Private precheck 20261031-164248-strongarm-reset-v33-spec08-noise-baseline-screen
+
+Private `tb_comp_noise` / `baseline`; clean frozen source `7f50c0a41ca222f1c6885eb5eb8b3d02f639524e`, electrical SHA-256 `e859347340abfbe7f5e42e0a9c3a831f378bce9bea727177b4e214ef60a1b0cf`. Merged 0.8.0 physical stimuli/loads, measurements and limits are preserved; named selected or original monitor-only saves, no wildcards. No formal writes or canonical change.
+
+| Corner | Noise uV rms | 95% profile interval uV | Abs offset mV | Gate |
+|---|---:|---|---:|---|
+| fs_low_125 | 483.2613219887676 | [466.39, 501.2] | 0.006339582663946007 | FAIL CMP-13 |
+
+Each corner retains every finite decision from the original 17 levels x 512 samples, 50 GHz bandwidth and seed 1, with all physical noise sources enabled. All level counts and Gaussian-fit residuals are archived. Profile intervals are conditional on that fit; point-estimate passage does not establish robust margin. Monitor-only output cannot establish full reset history or full-trace SOA.
+
+fs_low_125: minimum sampled output magnitude 0.8077121304859 V; maximum absolute standardized fit residual 2.5636001085200824 (diagnostic only).
+
+Actual settings (fs_low_125): reltol 0.0001, vabstol 1e-06 V, gear2only/conservative/alllocal, lteratio 10; no explicit maxstep or method override.
+
+Verified ZIP SHA-256 `922ca2521ff7295a2352c9fbcb6244b96e60f297aa5854fe6b7b8b8da4f05539`; every member passed CRC/SHA readback, retrieval/final-source guards and exact remote absence passed; session ceiling six jobs. [Retention](EVIDENCE-RETENTION.md) governs raw availability. Full qualification remains open.
+
+**This physical source fails the private gate.** Qualification expansion stops at the failure; diagnosis and circuit design continue. No failed point is discarded.

@@ -1,6 +1,6 @@
 # Official validation: RESET-V19
 
-> Evidence retention (2026-10-31): Superseded raw was released. Historical verification does not imply current availability; [retained evidence](EVIDENCE-RETENTION.md) determines which runs can be re-audited.
+> Superseded raw was released. Historical audits do not imply availability; see [retained runs](EVIDENCE-RETENTION.md).
 
 The canonical electrical SHA-256 is `c14d49b929c6c404d4166762d41bc8773e097a141c4ba0365d5462fbd007e008`. Only actual runs through the unchanged official runner update the result records. The fine-step private screens remain supplemental evidence.
 

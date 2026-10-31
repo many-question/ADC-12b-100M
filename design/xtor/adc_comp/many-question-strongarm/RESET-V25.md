@@ -1,6 +1,6 @@
 # RESET-V25: restore reset stress margin with N16 coupling devices
 
-> Evidence retention (2026-10-31): Superseded raw was released. Historical verification does not imply current availability; [retained evidence](EVIDENCE-RETENTION.md) determines which runs can be re-audited.
+> Superseded raw was released. Historical audits do not imply availability; see [retained runs](EVIDENCE-RETENTION.md).
 
 V24 retains all 72 actual decisions/resets and output validity in its first two corners, but SF/high/-40 fails ten terminal pairs. The raw QP peak is 1.003007138068 V at 12.971441 ps after the falling clock midpoint, with CLKC at zero and CKB already 0.982878276 V. [RESET-V24.md](RESET-V24.md) preserves the failure and complete waveform context. This is a measured reset-phase excursion; V24 has no TT or noise result.
 

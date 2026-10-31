@@ -1,6 +1,6 @@
 # RESET-V17: reduce Q reset-shunt strength
 
-> Evidence retention (2026-10-31): Superseded raw was released. Historical verification does not imply current availability; [retained evidence](EVIDENCE-RETENTION.md) determines which runs can be re-audited.
+> Superseded raw was released. Historical audits do not imply availability; see [retained runs](EVIDENCE-RETENTION.md).
 
 V16's matched short fine-step noise diagnosis improves from V15's 52/256 wrong polarities to 13/256 at +/-800 uV, while all 256 resets, stable early/mid-to-final signs, output validity and full 69-pair MOS stress pass. QP at rising midpoint +5 ps rises from approximately 0.586 V to 0.649 V. The +30 ps Q differential standard deviation drops to 1.34/1.52 mV, but is still large relative to the input-derived differential signal. These short two-level records are diagnostic only and do not estimate formal noise or isolate one device's noise contribution. V16 expansion stops.
 

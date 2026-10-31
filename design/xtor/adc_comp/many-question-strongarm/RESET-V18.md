@@ -1,6 +1,6 @@
 # RESET-V18: physical Q-node capacitance
 
-> Evidence retention (2026-10-31): Superseded raw was released. Historical verification does not imply current availability; [retained evidence](EVIDENCE-RETENTION.md) determines which runs can be re-audited.
+> Superseded raw was released. Historical audits do not imply availability; see [retained runs](EVIDENCE-RETENTION.md).
 
 V17 passes all 72 polarities/resets and output-validity checks in its first two corners, but SF/high/-40 reaches 1.001079522 V at Q during reset, about 11.653 ps after the clock falling midpoint. CKB is already 0.98355 V and CLKC is zero, so the weak shunt is on at the failing peak. Ten terminal pairs fail. The FS corner passes at 0.99735 V. V17 therefore stops before TT, noise or broader qualification.
 

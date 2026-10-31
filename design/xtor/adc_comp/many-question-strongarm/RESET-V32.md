@@ -1,6 +1,6 @@
 # RESET-V32: reduce local clock loading
 
-> Evidence retention (2026-10-31): Superseded raw was released. Historical verification does not imply current availability; [retained evidence](EVIDENCE-RETENTION.md) determines which runs can be re-audited.
+> Superseded raw was released. Historical audits do not imply availability; see [retained runs](EVIDENCE-RETENTION.md).
 
 **V32 fails full physical noise at both tested low-hot corners:** FS/low/125 is `371.83932552901155` uV rms and SS/low/125 is `299.6542222063326` uV rms against 240 uV. Further qualification expansion stops. TT baseline/tighter point estimates pass 200 uV, but both conditional confidence intervals cross that limit. Nine unique baseline deterministic corners, four tighter repeats and dedicated TT loading pass; those results do not clear the noise failure. Canonical V27 is unchanged.
 

@@ -1,6 +1,6 @@
 # Canonical promotion: RESET-V27
 
-> Evidence retention (2026-10-31): Superseded raw was released. Historical verification does not imply current availability; [retained evidence](EVIDENCE-RETENTION.md) determines which runs can be re-audited.
+> Superseded raw was released. Historical audits do not imply availability; see [retained runs](EVIDENCE-RETENTION.md).
 
 This source-preserving promotion uses old-settings screening evidence. [Issue #94 transition](NUMERICS-94.md) now governs subsequent checks; promotion does not establish new-settings qualification.
 
