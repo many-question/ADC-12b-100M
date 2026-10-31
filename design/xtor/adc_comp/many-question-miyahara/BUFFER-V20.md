@@ -10,7 +10,7 @@ The successful zero-warning callback supplies the full geometry and parasitics, 
 
 The first batch covers the failing SS/low/125 corner and both SF/FS high/-40 stress corners. TT and FS/low/125 follow only if that batch passes, before a matched short noise-phase diagnosis. Remaining known corners, actual-worst numerical convergence, source-preserving canonical promotion and original formal tests remain open. The canonical source and every genuine original record remain unchanged.
 
-![Physical comparator experiment](buffer-v20.png)
+![Physical comparator experiment](https://raw.githubusercontent.com/many-question/ADC-12b-100M/fc05ec9b504909d82e993df12fa475fd234cba5b/design/xtor/adc_comp/many-question-miyahara/buffer-v20.png)
 
 ## Completed screen 20261031-102938-miyahara-buffer-v20-screen
 

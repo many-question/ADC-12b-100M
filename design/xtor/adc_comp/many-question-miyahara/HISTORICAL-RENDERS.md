@@ -30,3 +30,12 @@ The complete RNL netlists and experiment reports remain in this candidate. To ke
 - [BUFFER-V15 rendering](https://raw.githubusercontent.com/many-question/ADC-12b-100M/1c82358bd327c795fc38a0b3ac1e63faf73429e5/design/xtor/adc_comp/many-question-miyahara/buffer-v15.png)
 - [BUFFER-V16 rendering](https://raw.githubusercontent.com/many-question/ADC-12b-100M/1c82358bd327c795fc38a0b3ac1e63faf73429e5/design/xtor/adc_comp/many-question-miyahara/buffer-v16.png)
 - [BUFFER-V17 rendering](https://raw.githubusercontent.com/many-question/ADC-12b-100M/1c82358bd327c795fc38a0b3ac1e63faf73429e5/design/xtor/adc_comp/many-question-miyahara/buffer-v17.png)
+
+
+## Additional preserved historical renderings
+
+The complete RNL netlists and experiment reports remain in this candidate. To keep the current package below its 2 MB content limit while continuing circuit work, the three additional historical PNGs are linked to their exact preserved, published commit `fc05ec9b504909d82e993df12fa475fd234cba5b`. Existing report image links now point directly to those unchanged images. All candidate files were also archived and every entry verified by CRC and SHA-256 before removing the duplicate local PNGs; the private archive SHA-256 is `308634d9f5b1baa0860370399bf54801d1c887b3ac6fff23e7d965317b99e48f`. No electrical source or result record changes in this cleanup.
+
+- [BUFFER-V18 rendering](https://raw.githubusercontent.com/many-question/ADC-12b-100M/fc05ec9b504909d82e993df12fa475fd234cba5b/design/xtor/adc_comp/many-question-miyahara/buffer-v18.png)
+- [BUFFER-V19 rendering](https://raw.githubusercontent.com/many-question/ADC-12b-100M/fc05ec9b504909d82e993df12fa475fd234cba5b/design/xtor/adc_comp/many-question-miyahara/buffer-v19.png)
+- [BUFFER-V20 rendering](https://raw.githubusercontent.com/many-question/ADC-12b-100M/fc05ec9b504909d82e993df12fa475fd234cba5b/design/xtor/adc_comp/many-question-miyahara/buffer-v20.png)

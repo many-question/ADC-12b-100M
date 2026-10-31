@@ -8,7 +8,7 @@ The hypothesis is that stronger DP/DN-controlled pull-up can change earlier XP/X
 
 Electrical SHA-256: `188a1104b165095a8732e55525b0cd62f381715785475a525b45a13dfb50b654`. The [source](BUFFER-V18.txt) contains 43 MOS and 9 MOMs with complete RNL checked on a byte-identical mirror. Remaining known corners, actual-worst numerical convergence, source-preserving canonical promotion and genuine formal tests remain open. Canonical B13 and every original formal failure remain unchanged.
 
-![Physical comparator with stronger DP/DN-controlled PMOS drivers](buffer-v18.png)
+![Physical comparator with stronger DP/DN-controlled PMOS drivers](https://raw.githubusercontent.com/many-question/ADC-12b-100M/fc05ec9b504909d82e993df12fa475fd234cba5b/design/xtor/adc_comp/many-question-miyahara/buffer-v18.png)
 
 ## Completed screen 20261031-095133-miyahara-buffer-v18-screen
 

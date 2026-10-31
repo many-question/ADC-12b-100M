@@ -8,7 +8,7 @@ The larger MOMs test more storage for the observed BP/BN edge excursion. The ear
 
 Electrical SHA-256: `80b52d592af5f3f92260a40206a5aa08793031e29a1cdecf1f9f9cf508e9b710`. The [source](BUFFER-V19.txt) contains 43 MOS and 9 MOMs, with complete RNL checked on a byte-identical mirror. SF/FS high/-40 are checked first. On a pass, TT and FS/SS low/125 deterministic screens precede a matched short noise-phase diagnosis, to expose the reset-speed cost early. The remaining known corners, actual-worst convergence, source-preserving canonical promotion and genuine original formal tests remain open. Canonical B13 and all original failures remain unchanged.
 
-![Physical comparator with larger buffer-node capacitors](buffer-v19.png)
+![Physical comparator with larger buffer-node capacitors](https://raw.githubusercontent.com/many-question/ADC-12b-100M/fc05ec9b504909d82e993df12fa475fd234cba5b/design/xtor/adc_comp/many-question-miyahara/buffer-v19.png)
 
 ## Completed screen 20261031-100609-miyahara-buffer-v19-screen
 
