@@ -20,10 +20,8 @@ Issues #40/#63/#69/#75/#77/#78/#84/#100 remain acknowledged. The branch includes
 
 [Artificial B22 source diagnostics](NOISE-SOURCE-DIAGNOSTICS-B22.md) retain input-pair and regenerative-stage trials plus the completed subgroup split. Front-driver noise suppression gives 314.50354475961876 uV rms; latch/DP-device suppression gives 281.27833319310434 uV rms, each with all 17 x 512 decisions and unchanged physical source. These artificial widths cannot be variance-subtracted into independent contributions and are ineligible for qualification; full physical B22 noise remains the failed 342.51175741522553 uV rms result.
 
-Independent [B23](BUFFER-V23.md) uniformly strengthens the ten-device second stage while retaining the B22 input/tail/reset/output devices. Added loading and physical all-source noise require new validation; no pass or promotion is assumed.
-
 [B23](BUFFER-V23.md) fails TT 30 mV delay (50.1497 ps) and SS/FS low-hot reset (46.1394/35.6926 ps). All 180 actual/reset cycles and 129 terminal pairs per corner pass; the timing failures stop noise expansion. Its dedicated Cin/CLK values are 19.3287/12.1051 fF. The retained path comparison identifies delayed RP/RN reset after stage scaling; no B23 noise improvement or promotion is claimed.
 
-Independent [B24](BUFFER-V24.md) tests stronger N8 RP/RN reset assists and smaller eight-finger RP/RN MOMs after B23 timing failures. The full scaled physical stage remains enabled; deterministic, capacitance and noise gates must be measured anew.
+[B24](BUFFER-V24.md) repairs low-hot reset with N8 assists and eight-finger RP/RN MOMs but strictly fails TT 30 mV delay at 50.00497745635165 ps; no B24 noise result exists.
 
-[B24](BUFFER-V24.md) repairs low-hot reset but strictly fails TT 30 mV delay at 50.00497745635165 ps; no B24 noise result exists. Independent [B25](BUFFER-V25.md) tests N2.6 first-buffer pull-downs and 44-finger buffer-node MOMs to address timing and the measured 47.6 uV stress margin. New physical gates are required.
+Independent [B25](BUFFER-V25.md), with N2.6 first-buffer pull-downs and 44-finger buffer-node MOMs, passes five baseline deterministic corners: 180 actual/reset cycles and all 129 terminal pairs per corner. TT 30 mV delay is 48.65231181041175 ps, SS hot reset is 32.64727688136176 ps, and the narrowest stress margin is 424.92663561322087 uV. Dedicated TT Cin/CLKC are 19.328731218738323/12.105047338129033 fF. Four critical tighter corners precede full physical noise testing; no B25 noise pass or canonical promotion is claimed.

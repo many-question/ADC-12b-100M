@@ -1,5 +1,7 @@
 # BUFFER-V25: first-buffer timing and edge margin
 
+> Evidence retention (2026-10-31): Historical raw/archive statements below refer to the original audit. Superseded waveforms were released under the user's retention policy. [EVIDENCE-RETENTION](EVIDENCE-RETENTION.md) lists the completed runs still available for raw re-audit.
+
 [B24](BUFFER-V24.md) repairs SS/FS low-hot reset but strictly fails TT 30 mV delay at 50.00497745635165 ps against 50 ps. The approximately 5 fs excess is not rounded into a pass. Its narrowest unrounded stress margin is 47.6004190316 uV at BP/BN in FS/high/-40; no tighter clearance or noise result exists. TT 30 mV mean RP, BP and external-output 50% crossings are 36.62484060586704, 45.248204187974075 and 50.00497745635165 ps.
 
 B25 changes only MBPN/MBNN, the first-buffer pull-down MOS, from 2 um/nf2 to 2.6 um/nf2 (1.3 um finger width, length 30 nm), and CBP/CBN from 40 to 44 physical MOM fingers. Stronger pull-down targets the measured buffer-to-output evaluation path; added BP/BN storage targets the observed narrow positive edge-stress margin. The other 41 MOS devices and seven MOMs are exactly B24, including its ten-device scaled stage and repaired N8 reset assists/eight-finger RP/RN loads. All stochastic sources remain enabled.
@@ -8,7 +10,13 @@ Changing the inverter ratio also shifts its threshold and may affect losing-outp
 
 Both accepted geometries use fresh zero-warning callbacks with complete parasitics and the same verified provider/release. Retrieval hashes match and the exact owned remote callback directory is absent. No Virtuoso, PDK model export, ideal clamp or behavioral output storage is used.
 
-Repeat TT, SS/low/125, SF/high/-40, FS/high/-40 and FS/low/125 delay/reset/validity/all-device stress, then dedicated TT capacitance/kickback. Full FS/low/125 noise follows only if the deterministic and loading gates pass; narrow stress margins require tighter checks. Every new simulation selects exact DUT/SOA/metric signals or keeps the original monitor-only noise protocol, with at most six session-wide jobs. Stimuli, numerical acceptance definitions and limits remain unchanged.
+The completed baseline screen at clean source `0768f17556b497d222a2b9d07bb9d72a63e5ed4e` passes TT, SS/low/125, SF/high/-40, FS/high/-40 and FS/low/125. All 180 actual decisions and resets, output validity, every one of 129 unrounded terminal pairs per corner and full-cycle AVDD KCL pass. TT 1 mV/30 mV delay is 58.04680362938184/48.65231181041175 ps; SS/low/125 reset is 32.64727688136176 ps. The highest unrounded stress is 0.9995750733643868 V at FS/high/-40, leaving only 424.92663561322087 uV. This requires tighter verification before noise expansion.
+
+Matched B24/B25 physical testbenches and numerical settings locate the TT 30 mV mean RP, BP and external-output 50% crossings at 36.6803612927205, 44.156566834671715 and 48.65231181041175 ps for B25. RP is slightly later than B24, while the buffer/output path is earlier. SS reset increases from 32.17894196165223 to 32.64727688136176 ps. All cycle-level path data are retained; these coupled changes do not isolate a noise contribution.
+
+Dedicated TT Cin/CLKC are 19.328731218738323/12.105047338129033 fF, both passing. Net per-cycle kickback is 8.58761000678554e-05 uV, a numerical residual. Separate instantaneous differential disturbance reaches 30.64311606267001 uV during reset and common-mode excursion reaches 7.418206202436939 mV during evaluation. They are not compared with the net 40 uV limit; actual-CDAC decision-phase validation remains open.
+
+[NUMERICS-94](NUMERICS-94.md) records the complete baseline delay and capacitance/kickback results. Both archives were read back with CRC/SHA verification; only verified expanded duplicates were removed. The retained delay archive includes the matched B24/B25 path audit, and the kickback archive includes full phase/load context. Four critical tighter deterministic corners come next. No B25 noise result or promotion exists. Every new simulation selects exact DUT/SOA/metric signals or keeps the original monitor-only noise protocol, with at most six session-wide jobs. Stimuli, numerical acceptance definitions and limits remain unchanged.
 
 
 | Callback | SHA-256 |
