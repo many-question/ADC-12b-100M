@@ -8,7 +8,7 @@ Each frozen revision changes one symmetric device pair from the original V2/B2 s
 
 Only CDP/CDN MOM finger count changes from 48 to 52; callback nominal capacitance 15.26030 fF per node. Length, width, spacing, metal stack and multiplicity remain the parent values.
 
-Callback receipt SHA-256 `b7ce79bbb6ee753c7660876650ee783af37a20aaca6a17cd8b39e0e949704c7f`. Provider tsmc-n28-hpcplus-ull-mmwave-1.8-2p2a-20190531, adapter 0.1.0, payload SHA-256 `c46e4713691443dbd588238d581c1863b255767fe1f79fc58722e81c0244b81f`. Ordered request: `[['Nfinger', '52'], ['Lfinger', '1u']]`. Actual values were asserted before source generation; RNL checks return zero errors/warnings/hints.
+Callback receipt SHA-256 `b7ce79bbb6ee753c7660876650ee783af37a20aaca6a17cd8b39e0e949704c7f`. 28 nm HPC+ adapter 0.1.0, payload SHA-256 `c46e4713691443dbd588238d581c1863b255767fe1f79fc58722e81c0244b81f`; exact provider/release identity is retained in the private receipt. Ordered request: `[['Nfinger', '52'], ['Lfinger', '1u']]`. Actual values were asserted before source generation; RNL checks return zero errors/warnings/hints.
 
 | Kind / corner | Measured result |
 |---|---|
@@ -45,7 +45,7 @@ Retained noise-off waveform markers (mean of four +/-100 uV cycles; exact saved 
 
 Only M14/M15 changes from W=4 um / nf=4 to W=5 um / nf=5, L=30 nm; all terminal geometry/parasitic parameters come from the successful callback. M12/M13 and DP/DN capacitance remain the parent values.
 
-Callback receipt SHA-256 `e0a6e29486c6fe53f2f3dd8c92c47f81bfa5cdf3c6b89023cf699835120771ba`. Provider tsmc-n28-hpcplus-ull-mmwave-1.8-2p2a-20190531, adapter 0.1.0, payload SHA-256 `c46e4713691443dbd588238d581c1863b255767fe1f79fc58722e81c0244b81f`. Ordered request: `[['l', '30n'], ['fingers', '5'], ['Wfg', '1u']]`. Actual values were asserted before source generation; RNL checks return zero errors/warnings/hints.
+Callback receipt SHA-256 `e0a6e29486c6fe53f2f3dd8c92c47f81bfa5cdf3c6b89023cf699835120771ba`. 28 nm HPC+ adapter 0.1.0, payload SHA-256 `c46e4713691443dbd588238d581c1863b255767fe1f79fc58722e81c0244b81f`; exact provider/release identity is retained in the private receipt. Ordered request: `[['l', '30n'], ['fingers', '5'], ['Wfg', '1u']]`. Actual values were asserted before source generation; RNL checks return zero errors/warnings/hints.
 
 | Kind / corner | Measured result |
 |---|---|
