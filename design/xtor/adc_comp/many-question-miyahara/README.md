@@ -27,3 +27,5 @@ Independent [BUFFER-V21](BUFFER-V21.md), with only RP/RN MOMs enlarged from 8 to
 PR #95 has merged as `c6152d236e525793ecc4809b9a6c9dfb9fd0ad77`, raising adc_comp to 0.8.0. Necessary canonical-source evidence will be refreshed with the merged official flow and exact pinned dependency; known failed variants are not expanded to full-corner qualification.
 
 Official 0.8.0 run `20261031-125734-f562-tb_comp_noise` refreshes fs_low_125 noise 343.494401429 uV (FAIL CMP-13). [Exact committed evidence](FORMAL-SPEC08.md) preserves the actual source and original results. Current dependency coverage is 1/96; this does not establish qualification.
+
+Independent [BUFFER-V22](BUFFER-V22.md) retains B21 storage and tests only MCKP 4 to 5 um for earlier reset assertion. All other devices remain unchanged. Actual merged-flow timing, reset, stress and validity precede further noise work.
