@@ -7,10 +7,11 @@ independent until they earn their own validation; no old result is relabeled.
 
 Numerical-settings transition: [notice #94](https://github.com/many-question/ADC-12b-100M/issues/94)
 announces conservative transient settings and a fixed upstream ADCToolbox
-revision. At this report's check, main is still `3b0c002` and the change
-is not merged. The formal results and V0--V10 circuit experiments use
+revision. At this report's check, main is still `3b0c002`; implementing
+[PR #95](https://github.com/many-question/ADC-12b-100M/pull/95) is open and
+not merged. The formal results and V0--V10 circuit experiments use
 the preceding protocol and do not establish acceptance under the announced settings. Same-source
-private numerical comparisons take priority over further circuit changes;
+private numerical comparisons were completed before the subsequent circuit changes;
 formal affected tests will be rerun with the merged official flow.
 The first three comparisons are complete: N4 SS still fails RL12/start
 (47.4/116.8 ps), and V6 FF retains exactly the same 387 failing voltage
@@ -141,6 +142,12 @@ same announced conservative settings. Both pass SS, but V11 still fails
 269 early-FF pairs versus V10's 272: its maximum falls to 1.056374 V,
 while the phase pass path returns the assist gate to the higher digital
 clock level. SS reference charge rises by 89.826 fC. Neither is promoted.
+V12 adds a physical reference-powered phase inverter for that pass path.
+It removes all 55 sampling-assist and 12 MID-PMOS failing pairs in the
+same early window, but still fails 205/3420 pairs: the largest voltage
+is now 1.063648 V in the assist control chain. SS still passes; reference
+charge and PHI_S load increase. Its [matched waveform comparison](assist-phase-reference-effects.png)
+retains both the local improvement and the later control-node failure.
 Existing V4 TT saves do not permit assigning its total excess to a phase.
 N4's TT evidence does not transfer to any changed case.
 The [first passing private SS comparison](https://github.com/many-question/ADC-12b-100M/blob/20d4d8896dc8d9b94206b7c928e8e5e255b5c511/design/xtor/adc_cdac/many-question-codex/balanced-predrive-ss-screen.png)

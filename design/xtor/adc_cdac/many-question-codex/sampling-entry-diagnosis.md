@@ -1181,6 +1181,65 @@ exact remote cleanup. Archive SHA256 values:
 - V11 SS: `eb826816e28931b269a3e1a717012f1e6f445b1afe468c5706e9cf26cdbb6ccb`
 - V11 early FF: `05f99a15c3e03df8189ed99c9e2ea9f2e0783b0eafc4d4839b0d137f0f0c4764`
 
+### V12 physical reference phase: sampling-PMOS repair with retained control failures
+
+V12 adds a VREFP-powered PHI_S inverter and uses its physical output as
+both assist-pass source nodes. The new N/P devices exactly reuse the
+existing 12 um ULVT/NF6 and 8 um nominal-threshold/NF4 geometries, L30 nm.
+All original geometry, capacitors, bottom Cp and external ports remain
+unchanged. There are now 570 MOS per half / 1140 differential. Complete
+flattened connectivity and pinned RNL checks pass; the first unplaced
+unused-port drawing attempt is preserved, followed by a drawing-only fix.
+No electrical source was clipped or replaced with an ideal limiter.
+
+Source SHA256:
+`5f9586530c87cf02fff3c3363ebd8f56cc0fb79b01bcf731561c33a3079a24dc`.
+
+Under the same private notice-94 settings, SS passes all five applicable
+metrics and 1710 device-voltage pairs: RL5/RL12/start 57.7/38.4/95.7 ps,
+tau 11.335085978 ps, droop 0.005047516 LSB, and maximum voltage
+0.982833690 V. Both raw deadline brackets pass.
+
+Early FF still fails 205/3420 pairs, representing 148 actual net pairs,
+versus V11's 269/3408 and 187. Seventy old failures disappear and six
+are added. All 55 MEQ1/MEQ2 failures and all 12 MID-PMOS failures are
+removed in this complete 0..12 ns window; the four new physical phase
+MOS also pass every pair. This is a local repair, not a complete result.
+
+![Reference phase and retained control-node failure](assist-phase-reference-effects.png)
+
+The largest voltage now **increases** to 1.063647898 V on negative-side
+assist M1P drain/source at 10.088861177 ns: D1 reaches -73.647898 mV
+while its source is 0.99 V. At the old MEQ1 peak time, APGATE/BH are
+0.914417859/-0.058256032 V, so the original sampling-PMOS mechanism
+has changed; the later control undershoot is retained separately. Six
+new failures involve positive D1 overshoot (M1N drain/source and M2N
+gate/source, both halves) and MPPASS gate/source. HIB, NOFF/BN, AP/GN
+and sampling-NMOS excursions also remain.
+
+SS Qref rises from 1.981721744 to 1.992977713 pC (+11.255969 fC).
+PHI_S input capacitance rises from 5.960165 to 22.713011 fF in the same
+SS measurement. These are SS diagnostics, not TT-budget passes. The
+additional phase delay and its input/reference loading are real costs;
+no spectral result or all-corner claim is inferred from this short run.
+V12 stops before TT, weights and longer pressure expansion.
+
+Runs launched from clean `590a41c2240e81e585381042885e3320c2cec530` and
+took 24 s (SS) / 38 s (early FF). Logs match the same conservative profiles;
+all 5427/6552 waveform points are finite and cover the full 70/12 ns.
+All native assist/phase/supply-current saves are present. Every raw file
+(9/8) and 50 frozen inputs per run was verified before exact remote cleanup:
+
+- SS archive: `b5aa721ee22a0d66d446b80bfa8a74c9be70c0cbaba9c8b17f68de55dee6bcdc`
+- Early FF archive: `7d9784affb5639bd15a5e3d347083d900344088b5e946c67e131c992eb06a06f`
+
+At publication, implementing [PR #95](https://github.com/many-question/ADC-12b-100M/pull/95)
+is open at `4096aba890302b1d2a1c3474c8d84a44ccf23b16`; main remains
+`3b0c002`. Its proposed tracking cross-check is traponly / maxstep 1 ps,
+distinct from the old cross-check. Final merged specifications, runner
+and effective logs will govern the formal rerun. Downgrading some stale
+records to warnings does not make them eligible.
+
 A brief separately controlled reference-drive assist remains an unimplemented
 hypothesis, with additional pulse alignment and loading questions.
 Each case screens SS settling plus all MOS pairs in its actual TB before
