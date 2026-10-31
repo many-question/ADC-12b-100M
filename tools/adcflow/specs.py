@@ -235,6 +235,8 @@ def _load_block(path: Path) -> Block:
             errs.append(f"test {tid}: needs netlist and measure")
         if "numerics" in t:
             errs += numerics.validate(t["numerics"], f"test {tid}: numerics")
+            errs += [f"test {tid}: numerics: {k} comes from errpreset={numerics.PRESET}"
+                     for k in numerics.FROM_PRESET if isinstance(t["numerics"], dict) and k in t["numerics"]]
         if "crosscheck" in t:
             errs += numerics.validate(t["crosscheck"], f"test {tid}: crosscheck", ("samples",))
         if "montecarlo" in t:

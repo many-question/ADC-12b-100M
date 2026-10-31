@@ -1,6 +1,6 @@
 block: adc_cdac
 title: Split-capacitor redundant CDAC, one side (instantiated twice)
-version: 0.6.0
+version: 0.7.0
 selected: none          # the selected candidate (design/xtor/<block>/<name>/); none yet
 status: behavioral
 views:
@@ -121,8 +121,8 @@ tests:
     measure: adcflow.measure.cdac:track
     prepare: adcflow.measure.top:prepare
     params: {fin_target: 49.9e6, npts: 256}
-    numerics: {reltol: 1.0e-7, vabstol: 1.0e-8, maxstep: 1p, method: traponly}
-    crosscheck: {maxstep: 0.5p, method: gear2only, samples: samples.txt}
+    numerics: {reltol: 1.0e-6, vabstol: 1.0e-8}   # effective 1e-7, as tb_bootstrap_track
+    crosscheck: {maxstep: 1p, method: traponly, samples: samples.txt}
     desc: >
       Two CDACs (P and N) with ideal bootstrapped gates, sine from 50 ohm per
       side at 49.9 MHz, -1 dBFS, 100 MS/s ideal phases, no decisions. The

@@ -22,8 +22,8 @@ def main(argv: list[str] | None = None) -> int:
 
     k = sub.add_parser("check", help="CI checks")
     k.add_argument("what", choices=["ports", "rnl", "results", "hygiene", "candidates", "all"], nargs="?", default="all")
-    k.add_argument("--strict", action="store_true", help="results: require sign-off evidence for signoff blocks")
-    k.add_argument("--base", help="candidates: git ref of the pull request base")
+    k.add_argument("--strict", action="store_true", help="results: require the evidence of xtor-review blocks too, and figures")
+    k.add_argument("--base", help="candidates, results: git ref of the pull request base")
     k.add_argument("--author", help="candidates: GitHub login of the pull request author")
 
     s = sub.add_parser("sim", help="run a block test on the simulation server")
@@ -36,7 +36,7 @@ def main(argv: list[str] | None = None) -> int:
     s.add_argument("--param", action="append", default=[], help="tb parameter override name=value")
     s.add_argument("--mode", default="aps",
                    help="spectre mode: spectre aps cx ax mx (default aps; ax/mx lose accuracy with the Verilog-A views)")
-    s.add_argument("--jobs", type=int, default=6)
+    s.add_argument("--jobs", type=int, help="parallel Spectre runs (default: sim.jobs of the site config, else 6)")
     s.add_argument("--keep", action="store_true", help="keep the remote run directory")
     s.add_argument("--no-record", action="store_true", help="do not write results/")
     s.add_argument("--dry-run", action="store_true", help="only build the run deck locally")
@@ -61,7 +61,7 @@ def main(argv: list[str] | None = None) -> int:
     vf.add_argument("--candidate", required=True, help="candidate name (design/xtor/<block>/<name>/)")
     vf.add_argument("--corners", help="corner set or comma list (default: every corner a spec of the test requires)")
     vf.add_argument("--mode", default="aps", help="spectre mode (default aps, as for acceptance)")
-    vf.add_argument("--jobs", type=int, default=6)
+    vf.add_argument("--jobs", type=int, help="parallel Spectre runs (default: sim.jobs of the site config, else 6)")
     vf.add_argument("--keep", action="store_true", help="keep the remote run directory")
     vf.add_argument("--dry-run", action="store_true", help="only check what would be verified (no simulation)")
 
@@ -121,7 +121,9 @@ def main(argv: list[str] | None = None) -> int:
         from .checks import run_checks
         return run_checks(a.what, strict=a.strict, base=a.base, author=a.author)
     elif a.cmd == "sim":
+        from .remote import default_jobs
         from .runner import run_test_cli
+        a.jobs = a.jobs or default_jobs()
         return run_test_cli(a)
     elif a.cmd == "candidates":
         import json
@@ -130,8 +132,9 @@ def main(argv: list[str] | None = None) -> int:
         rows = leaderboard(a.block, a.withdrawn)
         print(json.dumps(rows, indent=1, default=float) if a.json else table(rows))
     elif a.cmd == "verify":
+        from .remote import default_jobs
         from .verify import verify
-        return verify(a.test, a.block, a.candidate, a.corners, a.mode, a.jobs, a.keep, a.dry_run)
+        return verify(a.test, a.block, a.candidate, a.corners, a.mode, a.jobs or default_jobs(), a.keep, a.dry_run)
     elif a.cmd == "migrate-candidate":
         from .candidates import migrate
         authors = [dict(zip(("github", "name"), x.split("=", 1))) for x in a.author]

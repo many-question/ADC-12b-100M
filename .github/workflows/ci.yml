@@ -54,7 +54,9 @@ jobs:
       - name: Generated files are up to date
         run: python -m adcflow gen --check
       - name: Recorded results against the current limits
-        run: python -m adcflow check results --strict
+        env:
+          PR_BASE: ${{ github.base_ref }}
+        run: python -m adcflow check results --strict ${PR_BASE:+--base "origin/$PR_BASE"}
       - name: Unit tests
         run: python -m pytest -q -m "not slow"
 
