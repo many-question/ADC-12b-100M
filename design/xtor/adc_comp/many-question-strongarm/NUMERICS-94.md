@@ -1,5 +1,11 @@
 # Numerical-settings transition: issue #94
 
+## Merged workflow update, 2026-10-31
+
+[PR #95](https://github.com/many-question/ADC-12b-100M/pull/95) merged at 12:44:34 into main as `c6152d236e525793ecc4809b9a6c9dfb9fd0ad77`; adc_comp is now 0.8.0. The actual comparator testbench and specification patches match the precheck settings. The private runs below retain their original source and pre-merge status. Key evidence will be refreshed through the merged official runner and testbenches with the exact ADCToolbox commit `cd72061ff3b7a977163dac540da126ae22f5e38d`; no private result or old metadata is relabeled. A stale warning still means ineligible. Final merged per-test crosscheck rules apply where specified. New formal module notices are checked before subsequent batches.
+
+The following transition plan records the earlier, unmerged checkpoint; it is superseded by the merged update above.
+
 At the 2026-10-31 checkpoint, [issue #94](https://github.com/many-question/ADC-12b-100M/issues/94) is an unmerged announcement, with no comments or corresponding open workflow PR. Fetched main is `3b0c002a507b5f5fba1dfbc7059db5ef103e2860`. The existing deterministic screens, phase diagnostics and original formal records use the preceding settings. Their source hashes and measured results remain preserved; they do not establish compliance with the announced settings.
 
 The next private checks use APS, `errpreset=conservative`, and no explicit `maxstep`. Ordinary transient logs are expected to show gear2only, reltol 1e-4, relref alllocal and lteratio 10. Kickback requires effective reltol 1e-6 and vabstol 10 nV. Requested and effective tolerances are recorded separately because conservative tightens reltol. The actual Spectre log determines whether the intended protocol ran. Prior sub-microvolt kickback numbers are historical numerical outputs, not established physical kickback.
@@ -166,3 +172,57 @@ At tt_nom_27, minimum sampled output magnitude is 0.899741577 V and maximum abso
 The log's automatic maxstep bound is not an explicit job-deck setting. Actual APS thread information and the six-job session ceiling are recorded separately. Fetched raw/deck hashes match; the exact owned remote run is absent. Archive SHA-256 `94ace46b19d543b73f691f45523fbfe9ed28bec34660fe3350ca9929c5c800e3` was checked by reading every member back with CRC and SHA-256. Full qualification remains open.
 
 This electrical source fails the private proposed-settings gate. Qualification expansion stops at the failure; diagnosis and further circuit design continue. Every failure is retained.
+
+
+## Private precheck 20261031-123312-strongarm-reset-v28-notice94-delay-announced-screen
+
+Test `tb_comp_delay`, accuracy `announced`, frozen clean source `dfc2832c1d7f090b07567b6fc6e26eca6db912ba`. These results use a private copy of the testbench and do not write formal records. All physical stimuli, loads, samplers and measurement code are preserved. The requested settings are `{"errpreset": "conservative"}`; no explicit maxstep or method is set.
+
+| Corner | 1 mV ps | 30 mV ps | Reset ps | Raw max stress V | Actual / reset cycles | Private gate |
+|---|---:|---:|---:|---:|---:|---|
+| fs_high_m40 | 56.582803438 | 44.075924180 | 21.495257778 | 0.995305503669 | 36 / 36 | PASS |
+| sf_high_m40 | 72.278673274 | 54.577426176 | 20.162389672 | 0.996877996481 | 36 / 36 | PASS |
+| ss_low_125 | 89.866670935 | 67.006659578 | 34.411335410 | 0.818327031759 | 36 / 36 | PASS |
+| tt_nom_27 | 65.415524302 | 49.755692630 | 24.360297461 | 0.907419789847 | 36 / 36 | PASS |
+
+Every actual polarity down to 10 uV, all reset intervals, full evaluation output validity and every MOS gs/gd/ds pair are checked. The AVDD audit spans all 36 complete cycles; all supply probes are present and KCL closes. Reported power has no acceptance limit.
+
+TT full AVDD waveform integral is 404.738024185 fJ/cycle: 86.585263384 evaluation and 318.152760800 reset. The original meter gives 405.213707160 fJ/cycle; the waveform-integral difference is -0.117391%. Both values are preserved.
+
+| Corner | Effective reltol | Effective vabstol V | Method / preset / relref / lteratio | Largest saved step ps |
+|---|---:|---:|---|---:|
+| fs_high_m40 | 0.0001 | 1e-06 | gear2only / conservative / alllocal / 10 | 56.5 |
+| sf_high_m40 | 0.0001 | 1e-06 | gear2only / conservative / alllocal / 10 | 56.5 |
+| ss_low_125 | 0.0001 | 1e-06 | gear2only / conservative / alllocal / 10 | 56.5 |
+| tt_nom_27 | 0.0001 | 1e-06 | gear2only / conservative / alllocal / 10 | 56.5 |
+
+The log's automatic maxstep bound is not an explicit job-deck setting. Actual APS thread information and the six-job session ceiling are recorded separately. Fetched raw/deck hashes match; the exact owned remote run is absent. Archive SHA-256 `f484e3b196258aecfdfa34454478cb5ba73b773a6f8563cc9b4c3fe002e75f6d` was checked by reading every member back with CRC and SHA-256. Full qualification remains open.
+
+
+## Private precheck 20261031-123949-strongarm-reset-v28-notice94-delay-tighter-screen
+
+Test `tb_comp_delay`, accuracy `tighter`, frozen clean source `dfc2832c1d7f090b07567b6fc6e26eca6db912ba`. These results use a private copy of the testbench and do not write formal records. All physical stimuli, loads, samplers and measurement code are preserved. The requested settings are `{"errpreset": "conservative", "reltol": "1e-5", "vabstol": "1e-8"}`; no explicit maxstep or method is set.
+
+| Corner | 1 mV ps | 30 mV ps | Reset ps | Raw max stress V | Actual / reset cycles | Private gate |
+|---|---:|---:|---:|---:|---:|---|
+| sf_high_m40 | 73.117766966 | 54.704950365 | 19.683189667 | 0.996789224921 | 36 / 36 | PASS |
+| ss_low_125 | 91.563479404 | 67.143122043 | 33.364877544 | 0.818330767507 | 36 / 36 | PASS |
+| tt_nom_27 | 66.398976012 | 49.849673666 | 23.805388540 | 0.907280420320 | 36 / 36 | PASS |
+
+Every actual polarity down to 10 uV, all reset intervals, full evaluation output validity and every MOS gs/gd/ds pair are checked. The AVDD audit spans all 36 complete cycles; all supply probes are present and KCL closes. Reported power has no acceptance limit.
+
+TT full AVDD waveform integral is 407.190387962 fJ/cycle: 88.923567373 evaluation and 318.266820589 reset. The original meter gives 407.223780480 fJ/cycle; the waveform-integral difference is -0.008200%. Both values are preserved.
+
+Same-source tighter-minus-announced comparison at sf_high_m40: 1 mV delay +0.839093693 ps, 30 mV delay +0.127524190 ps, reset -0.479200005 ps. Largest per-pair stress change is 370.000 uV at the table's 10 uV resolution; all unrounded peaks are separately preserved.
+
+Same-source tighter-minus-announced comparison at ss_low_125: 1 mV delay +1.696808468 ps, 30 mV delay +0.136462465 ps, reset -1.046457865 ps. Largest per-pair stress change is 590.000 uV at the table's 10 uV resolution; all unrounded peaks are separately preserved.
+
+Same-source tighter-minus-announced comparison at tt_nom_27: 1 mV delay +0.983451710 ps, 30 mV delay +0.093981036 ps, reset -0.554908921 ps. Largest per-pair stress change is 370.000 uV at the table's 10 uV resolution; all unrounded peaks are separately preserved.
+
+| Corner | Effective reltol | Effective vabstol V | Method / preset / relref / lteratio | Largest saved step ps |
+|---|---:|---:|---|---:|
+| sf_high_m40 | 1e-06 | 1e-08 | gear2only / conservative / alllocal / 10 | 56.5 |
+| ss_low_125 | 1e-06 | 1e-08 | gear2only / conservative / alllocal / 10 | 56.5 |
+| tt_nom_27 | 1e-06 | 1e-08 | gear2only / conservative / alllocal / 10 | 56.5 |
+
+The log's automatic maxstep bound is not an explicit job-deck setting. Actual APS thread information and the six-job session ceiling are recorded separately. Fetched raw/deck hashes match; the exact owned remote run is absent. Archive SHA-256 `40b24099b53e19956827a279a85cb61d416e27b42fee805ba8253efbb7bb9b5a` was checked by reading every member back with CRC and SHA-256. Full qualification remains open.

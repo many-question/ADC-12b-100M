@@ -8,10 +8,10 @@ The source contains 23 MOS devices and 5 physical MOM capacitors. All dimensions
 
 The old canonical netlist and all 92 official records are preserved at commit `05d4d445c50471c0627d9b41f41b238bb8cfc1d9` and in a SHA-verified archive. At preservation, 2 records matched the immediate old canonical source and 90 already referred to older sources. All 92 are stale for the new source. They will be replaced only by actual new-source runs through the existing official runner; no private measurements or old metadata are relabeled. [Promotion proof](PROMOTION-RESET-V27.md) records source equivalence and preserved hashes. [Historical baseline](BASELINE-BEFORE-RESET-V27.md) retains the previous narrative and experiment links.
 
-Next gates are private checks of the announced conservative settings, followed by required formal reruns after the official flow merges. Remaining-corner SOA, all required formal corners, Monte Carlo and mixed-top qualification remain to establish. No old capacitance, noise, mismatch or qualification result is inherited.
+The conservative workflow merged in PR #95 as `c6152d236e525793ecc4809b9a6c9dfb9fd0ad77`, with adc_comp 0.8.0. The next step is to refresh necessary key evidence through the merged official runner and pinned dependency, while continuing physical repair of the known noise failure. Remaining-corner SOA, all required formal corners, Monte Carlo and mixed-top qualification remain to establish. No old capacitance, noise, mismatch or qualification result is inherited.
 
 ![Current complete transistor schematic](schematic.png)
 
 Issues #40, #63, #69, #75, #77, #78 and #84 remain acknowledged. Every older experiment and failed screen is retained separately.
 
-Independent [RESET-V28](RESET-V28.md) now tests only a smaller CKB MOM (16 to 8 fingers) to advance Q-shunt release. Every MOS and other MOM is unchanged. Critical new-settings timing, reset, stress and validity must pass before further noise evaluation; no benefit is assumed.
+Independent [RESET-V28](RESET-V28.md) changes only the CKB MOM from 16 to 8 fingers. All MOS and other MOMs are unchanged. Four proposed-settings critical corners and tighter TT/SF/SS repeats pass every actual polarity, reset, output-validity and unrounded terminal-stress check. Tighter TT 30 mV delay is 49.84967366576565 ps, leaving only 0.15032633423435 ps. These are private screens; a noise benefit remains unproven and V28 is not promoted.
