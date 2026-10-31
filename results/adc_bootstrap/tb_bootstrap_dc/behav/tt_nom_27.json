@@ -12,7 +12,8 @@
   "devnoise": 1,
   "beh_speed": 1.0,
   "vref_in": 0.9,
-  "cdac_behav": 1
+  "cdac_behav": 1,
+  "comp_behav": 1
  },
  "metrics": {
   "vgs_levels_V": [
@@ -24,10 +25,10 @@
    0.855,
    0.855
   ],
-  "vgs_min_V": 0.8549996348569,
-  "vgs_var_mV": 4.517740004317261e-05,
-  "t_off_ps": 17.24951480450592,
-  "t_on_ps": 64.54317473048683,
+  "vgs_min_V": 0.8549996348633,
+  "vgs_var_mV": 4.519759999599415e-05,
+  "t_off_ps": 17.266334026821383,
+  "t_on_ps": 64.68418498226748,
   "soa_scope": "external",
   "soa_limit_V": 1.0,
   "soa_devices": 1,
@@ -38,13 +39,13 @@
   "soa_worst": {
    "device": "MSWP",
    "pair": "gs",
-   "signed_V": -0.89989,
-   "t_ns": 245.1326,
-   "dt_ps": 0.382,
+   "signed_V": -0.8999,
+   "t_ns": 245.132,
+   "dt_ps": 1.628,
    "t_over_ps": 0.0
   },
-  "soa_points": 318762,
-  "soa_dt_max_ps": 1.0,
+  "soa_points": 12590,
+  "soa_dt_max_ps": 1558.31,
   "soa_table": [
    {
     "device": "MSWP",
@@ -52,9 +53,9 @@
     "where": "external",
     "pair": "gs",
     "max_V": 0.89999,
-    "signed_V": -0.89989,
-    "t_ns": 245.1326,
-    "dt_ps": 0.382,
+    "signed_V": -0.8999,
+    "t_ns": 245.132,
+    "dt_ps": 1.628,
     "t_over_ps": 0.0,
     "pass": true
    },
@@ -65,8 +66,8 @@
     "pair": "gd",
     "max_V": 0.85833,
     "signed_V": 0.85824,
-    "t_ns": 160.4997,
-    "dt_ps": 1.0,
+    "t_ns": 160.5,
+    "dt_ps": 2.307,
     "t_over_ps": 0.0,
     "pass": true
    },
@@ -75,58 +76,58 @@
     "master": "nch_ulvt_mac",
     "where": "external",
     "pair": "ds",
-    "max_V": 0.72087,
-    "signed_V": -0.72077,
-    "t_ns": 245.1302,
-    "dt_ps": 0.475,
+    "max_V": 0.72078,
+    "signed_V": -0.72072,
+    "t_ns": 245.1304,
+    "dt_ps": 1.348,
     "t_over_ps": 0.0,
     "pass": true
    }
   ],
   "iavg_uA": 30.0,
-  "cin_phb_fF": 11.999999999999591,
-  "cin_phbb_fF": 11.999999999999655
+  "cin_phb_fF": 11.999999999999826,
+  "cin_phbb_fF": 11.999999999999835
  },
  "specs": {
   "BST-01": {
    "metric": "vgs_min_V",
-   "value": 0.8549996348569,
+   "value": 0.8549996348633,
    "limit": ">= 0.72",
    "pass": true
   },
   "BST-02": {
    "metric": "vgs_var_mV",
-   "value": 4.517740004317261e-05,
+   "value": 4.519759999599415e-05,
    "limit": "<= 40",
    "pass": true
   },
   "BST-03": {
    "metric": "t_off_ps",
-   "value": 17.24951480450592,
+   "value": 17.266334026821383,
    "limit": "<= 60",
    "pass": true
   },
   "BST-04": {
    "metric": "t_on_ps",
-   "value": 64.54317473048683,
+   "value": 64.68418498226748,
    "limit": "<= 300",
    "pass": true
   },
   "BST-07": {
    "metric": "iavg_uA",
    "value": 30.0,
-   "limit": "<= 50",
-   "pass": true
+   "limit": "reported",
+   "pass": null
   },
   "BST-09": {
    "metric": "cin_phb_fF",
-   "value": 11.999999999999591,
+   "value": 11.999999999999826,
    "limit": "<= 16",
    "pass": true
   },
   "BST-10": {
    "metric": "cin_phbb_fF",
-   "value": 11.999999999999655,
+   "value": 11.999999999999835,
    "limit": "<= 16",
    "pass": true
   },
@@ -152,30 +153,30 @@
   }
  ],
  "meta": {
-  "date": "2026-10-29T13:00:48",
-  "git": "6bfc0e8",
+  "date": "2026-10-31T11:23:35",
+  "git": "dcaf6fe",
   "git_clean": true,
   "mode": "aps",
   "pdk": true,
   "mc": null,
-  "wall_s": 187.1,
+  "wall_s": 188.4,
   "rc": "0",
-  "sim_s": "77",
+  "sim_s": "81",
   "numerics": {
    "source": "spectre.log",
-   "reltol": 1e-08,
-   "maxstep_ps": 1.0,
-   "method": "traponly",
+   "reltol": 1e-06,
+   "maxstep_ps": 2900.0,
+   "method": "gear2only",
    "errpreset": "conservative",
    "lteratio": 10.0,
-   "abstol_V": 1e-08,
-   "vabstol": 1e-08,
-   "steps_accepted": 318761,
-   "step_mean_ps": 0.909773,
-   "step_max_ps": 1.0
+   "relref": "alllocal",
+   "abstol_V": 1e-06,
+   "steps_accepted": 12589,
+   "step_mean_ps": 23.036,
+   "step_max_ps": 1558.31
   },
   "files": {
-   "tb/bootstrap/tb_bootstrap_dc.scs": "7623413b05a0014a",
+   "tb/bootstrap/tb_bootstrap_dc.scs": "074d57d14d3299e2",
    "tb/common/veriloga/tb_imeter_va.va": "d4be49aca417ad61",
    "design/behav/veriloga/adc_clkgen_va.va": "7fff1b9368bc1a20",
    "tb/common/veriloga/tb_sampler_va.va": "4092bc16170c588d",
@@ -188,11 +189,6 @@
    "keys": [],
    "sha": "44136fa355b3678a"
   },
-  "views": {},
-  "rehashed": {
-   "date": "2026-10-29T20:21:32",
-   "git": "b748f30",
-   "files_before": 20
-  }
+  "views": {}
  }
 }

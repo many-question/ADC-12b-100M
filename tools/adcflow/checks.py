@@ -15,7 +15,10 @@ results  recorded results (results/**.json) are re-judged with the current
          a file it now reaches that was not recorded, an arch.yaml value its
          prepare or measure read; a result recorded with the whole deck: any of
          its files); blocks in status `signoff` need passing, fresh results for every spec
-         in its required corner set. Evidence figures (`figures` of a result):
+         in its required corner set, and so do `xtor-review` blocks with --strict, except
+         that their stale results only warn while the PR leaves `selected:` and `status:`
+         alone (--base; a flow change makes them stale until the candidate's own PR).
+         Evidence figures (`figures` of a result):
          listed files must exist next to the JSON and stay below 200 kB; with
          --strict every result needs figures. They are not hashed: a figure is
          as stale as the JSON it belongs to.
@@ -49,7 +52,7 @@ from pathlib import Path
 
 import yaml
 
-from . import REPO_ROOT, deps
+from . import REPO_ROOT, deps, numerics
 from .corners import corner_set
 from .netlist import parse
 from .specs import blocks
@@ -241,6 +244,21 @@ def judge(doc: dict) -> dict:
     return {"specs": verdict, "na": na, "stale": stale, "error": doc["metrics"].get("error")}
 
 
+def preset_problem(doc: dict) -> str | None:
+    """What is wrong with the transient preset of a result, None when nothing: a test with a
+    `tran` must have run at errpreset=conservative, read from its log (meta.numerics). A result
+    whose simulation failed has no numbers to doubt; `--mode cx` shows up here because it
+    replaces the preset (docs/verification.md §2)."""
+    t = getattr(blocks().get(doc["block"]), "tests", {}).get(doc["test"]) or {}
+    tb = REPO_ROOT / str(t.get("netlist", ""))
+    if doc["metrics"].get("error") or not tb.is_file():
+        return None
+    if not re.search(r"^\w+\s+tran\b", tb.read_text(encoding="utf-8"), re.M):
+        return None
+    got = (doc.get("meta", {}).get("numerics") or {}).get("errpreset")
+    return None if got == numerics.PRESET else f"ran at errpreset {got}, not {numerics.PRESET}"
+
+
 FIGURE_MAX_BYTES = 200_000
 
 
@@ -276,7 +294,20 @@ def _check_figures(r: Report, doc: dict, rel: str, strict: bool, failed: bool) -
             r.warn(f"{rel}: {png.name} is not listed in figures")
 
 
-def check_results(strict: bool = False) -> Report:
+def _selection_changed(block, base: str | None) -> bool:
+    """Whether this PR changes `selected:` or `status:` of a block (compared with the git ref `base`).
+    Without a base nothing is known to change; a block that base cannot show counts as changed."""
+    if not base:
+        return False
+    out = subprocess.run(["git", "show", f"{base}:specs/blocks/{block.path.name}"], cwd=REPO_ROOT, capture_output=True, text=True,
+                         encoding="utf-8")
+    if out.returncode:
+        return True
+    old = yaml.safe_load(out.stdout) or {}
+    return (old.get("selected") or None, old.get("status")) != (block.selected, block.status)
+
+
+def check_results(strict: bool = False, base: str | None = None) -> Report:
     r = Report("results")
     docs = load_results()
     by = {}
@@ -290,6 +321,8 @@ def check_results(strict: bool = False) -> Report:
                 r.warn(f"{rel}: {sid} = {v['value']} violates {v['limit']}")
         if j["stale"]:
             r.warn(f"{rel}: stale (changed since simulated: {', '.join(j['stale'][:4])})")
+        elif preset_problem(d):                   # a stale result is reported above and judged when rerun
+            r.err(f"{rel}: {preset_problem(d)}")
         _check_figures(r, d, rel, strict, bool(j["error"]))
         by.setdefault((d["block"], d["test"], d["view"]), {}).setdefault(d["corner"], []).append((d, j))
     for b in blocks().values():
@@ -297,6 +330,8 @@ def check_results(strict: bool = False) -> Report:
         if not need_signoff:
             continue
         view = f"xtor-{b.selected}" if b.selected else "xtor"     # the selected candidate, or the legacy view
+        stale_errors = b.status == "signoff" or _selection_changed(b, base)
+        stale_docs = set()
         for s in b.specs:
             corners = [c.name for c in corner_set(s.corners)]
             got = by.get((b.name, s.test, view), {})
@@ -308,13 +343,17 @@ def check_results(strict: bool = False) -> Report:
                     continue
                 for d, j in hit:
                     if j["stale"]:
-                        r.err(f"{b.name} {s.id} {c}: result is stale")
+                        stale_docs.add(d["_path"])
+                        if stale_errors:
+                            r.err(f"{b.name} {s.id} {c}: result is stale")
                     v = j["specs"].get(s.id, {})
                     if s.reported:                # no verdict, but the value must be there
                         if v.get("value") is None:
                             r.err(f"{b.name} {s.id} {c}: reported metric {s.metric} not measured")
                     elif not v.get("pass"):
                         r.err(f"{b.name} {s.id} {c}: fails ({v or None})")
+        if stale_docs and not stale_errors:
+            r.warn(f"{b.name}: selected candidate {b.selected or view} has {len(stale_docs)} stale results, not eligible")
     return r
 
 
@@ -464,7 +503,7 @@ def run_checks(what: str = "all", strict: bool = False, base: str | None = None,
     if what in ("rnl", "all"):
         reports.append(check_rnl())
     if what in ("results", "all"):
-        reports.append(check_results(strict))
+        reports.append(check_results(strict, base))
     if what in ("hygiene", "all"):
         reports.append(check_hygiene())
     if what in ("candidates", "all"):

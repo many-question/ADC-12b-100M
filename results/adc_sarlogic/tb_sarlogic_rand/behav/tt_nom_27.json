@@ -15,7 +15,8 @@
   "devnoise": 0,
   "beh_speed": 1.0,
   "vref_in": 0.9,
-  "cdac_behav": 1
+  "cdac_behav": 1,
+  "comp_behav": 1
  },
  "metrics": {
   "func_errors": 0,
@@ -23,8 +24,8 @@
   "level_errors": 0,
   "n_conversions": 1000,
   "t_conv_ns": 2.6957679999999997,
-  "t_conv_mean_ns": 2.6114260950000006,
-  "power_uW": 208.46246382
+  "t_conv_mean_ns": 2.6114260820000004,
+  "power_uW": 211.75828785000002
  },
  "specs": {
   "LOG-01": {
@@ -41,29 +42,30 @@
   }
  ],
  "meta": {
-  "date": "2026-10-29T11:30:27",
-  "git": "377842e",
+  "date": "2026-10-31T11:29:11",
+  "git": "dcaf6fe",
   "git_clean": true,
   "mode": "aps",
   "pdk": false,
   "mc": null,
-  "wall_s": 220.5,
+  "wall_s": 207.7,
   "rc": "0",
-  "sim_s": "112",
+  "sim_s": "100",
   "numerics": {
    "source": "spectre.log",
-   "reltol": 0.001,
-   "maxstep_ps": 200022.0,
-   "method": "traponly",
-   "errpreset": "moderate",
-   "lteratio": 3.5,
+   "reltol": 0.0001,
+   "maxstep_ps": 100011.0,
+   "method": "gear2only",
+   "errpreset": "conservative",
+   "lteratio": 10.0,
+   "relref": "alllocal",
    "abstol_V": 1e-06,
-   "steps_accepted": 789403,
-   "step_mean_ps": 12.6692,
+   "steps_accepted": 1232906,
+   "step_mean_ps": 8.11181,
    "step_max_ps": null
   },
   "files": {
-   "tb/sarlogic/tb_sarlogic_func.scs": "8e2ed844aed00bc1",
+   "tb/sarlogic/tb_sarlogic_func.scs": "08f4527704f48705",
    "tb/common/veriloga/tb_imeter_va.va": "d4be49aca417ad61",
    "tb/common/veriloga/tb_capture_va.va": "1a05df990a1ef806",
    "tb/common/veriloga/tb_qmeter_va.va": "fed84d572a912b39",
@@ -75,15 +77,12 @@
   },
   "arch": {
    "keys": [
-    "*"
+    "cdac.cap_weights",
+    "conversion.n_decisions",
+    "conversion.out_weights"
    ],
-   "sha": "05899cd622401f94"
+   "sha": "caffa09d7b9d240a"
   },
-  "views": {},
-  "rehashed": {
-   "date": "2026-10-29T20:21:40",
-   "git": "b748f30",
-   "files_before": 20
-  }
+  "views": {}
  }
 }

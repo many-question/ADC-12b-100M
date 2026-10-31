@@ -12,24 +12,25 @@
   "devnoise": 0,
   "beh_speed": 1.0,
   "vref_in": 0.9,
-  "cdac_behav": 1
+  "cdac_behav": 1,
+  "comp_behav": 1
  },
  "metrics": {
-  "start_step_mV": -163.52001251411636,
-  "t_start_settle_ps": 21.399999999999945,
-  "droop_lsb": 7.210130523306448e-07,
-  "t_settle_rl12_ps": 21.999999999998476,
-  "step_rl12_mV": 175.28518619717624,
-  "tau_ps": 1.259453997518559,
+  "start_step_mV": -163.52001247472282,
+  "t_start_settle_ps": 20.999999999999822,
+  "droop_lsb": 7.209788765943298e-07,
+  "t_settle_rl12_ps": 22.699999999999932,
+  "step_rl12_mV": 175.2851861972322,
+  "tau_ps": 1.17259510113896,
   "t_settle_rl5_ps": 24.299999999997112,
-  "step_rl5_mV": 3.2195239121344255,
-  "t_settle_rl0_ps": 19.29999999999806,
-  "step_rl0_mV": 0.1788625203884009,
-  "qref_pC": 0.7351217023,
+  "step_rl5_mV": 3.21952391212893,
+  "t_settle_rl0_ps": 20.299999999999194,
+  "step_rl0_mV": 0.17886252039717165,
+  "qref_pC": 0.7351234506000001,
   "cin_ctrl_fF": 4.499994607463177,
-  "cin_phs_fF": 30.000000000000075,
-  "cin_phsb_fF": 30.000000000000085,
-  "cin_conv_fF": 60.00000000000017
+  "cin_phs_fF": 30.000000000000036,
+  "cin_phsb_fF": 30.00000000000006,
+  "cin_conv_fF": 60.00000000000005
  },
  "specs": {
   "DAC-05": {
@@ -40,31 +41,31 @@
   },
   "DAC-06": {
    "metric": "t_settle_rl12_ps",
-   "value": 21.999999999998476,
+   "value": 22.699999999999932,
    "limit": "<= 40",
    "pass": true
   },
   "DAC-07": {
    "metric": "tau_ps",
-   "value": 1.259453997518559,
+   "value": 1.17259510113896,
    "limit": "<= 15",
    "pass": true
   },
   "DAC-08": {
    "metric": "t_start_settle_ps",
-   "value": 21.399999999999945,
+   "value": 20.999999999999822,
    "limit": "<= 100",
    "pass": true
   },
   "DAC-11": {
    "metric": "droop_lsb",
-   "value": 7.210130523306448e-07,
+   "value": 7.209788765943298e-07,
    "limit": "<= 0.1",
    "pass": true
   },
   "DAC-12": {
    "metric": "qref_pC",
-   "value": 0.7351217023,
+   "value": 0.7351234506000001,
    "limit": "<= 1.2",
    "pass": true
   },
@@ -76,19 +77,19 @@
   },
   "DAC-15": {
    "metric": "cin_phs_fF",
-   "value": 30.000000000000075,
+   "value": 30.000000000000036,
    "limit": "<= 40",
    "pass": true
   },
   "DAC-16": {
    "metric": "cin_phsb_fF",
-   "value": 30.000000000000085,
+   "value": 30.00000000000006,
    "limit": "<= 40",
    "pass": true
   },
   "DAC-17": {
    "metric": "cin_conv_fF",
-   "value": 60.00000000000017,
+   "value": 60.00000000000005,
    "limit": "<= 80",
    "pass": true
   }
@@ -104,29 +105,30 @@
   }
  ],
  "meta": {
-  "date": "2026-10-29T10:47:24",
-  "git": "377842e",
+  "date": "2026-10-31T11:23:50",
+  "git": "dcaf6fe",
   "git_clean": true,
   "mode": "aps",
   "pdk": false,
   "mc": null,
-  "wall_s": 162.6,
+  "wall_s": 203.8,
   "rc": "0",
-  "sim_s": "56",
+  "sim_s": "96",
   "numerics": {
    "source": "spectre.log",
-   "reltol": 0.001,
-   "maxstep_ps": 2.0,
-   "method": "traponly",
-   "errpreset": "moderate",
-   "lteratio": 3.5,
+   "reltol": 0.0001,
+   "maxstep_ps": 700.0,
+   "method": "gear2only",
+   "errpreset": "conservative",
+   "lteratio": 10.0,
+   "relref": "alllocal",
    "abstol_V": 1e-06,
-   "steps_accepted": 35446,
-   "step_mean_ps": 1.97483,
-   "step_max_ps": 2.0
+   "steps_accepted": 2402,
+   "step_mean_ps": 29.1424,
+   "step_max_ps": 700.0
   },
   "files": {
-   "tb/cdac/tb_cdac_settle.scs": "ff9490ded1bb22c5",
+   "tb/cdac/tb_cdac_settle.scs": "bf28033eb787d828",
    "design/behav/veriloga/adc_clkgen_va.va": "7fff1b9368bc1a20",
    "tb/common/veriloga/tb_imeter_va.va": "d4be49aca417ad61",
    "tb/common/veriloga/tb_cdac_seq_va.va": "800f16f07345b3b9",
@@ -140,15 +142,14 @@
   },
   "arch": {
    "keys": [
-    "*"
+    "cdac.cap_sampled",
+    "cdac.cap_weights",
+    "cdac.cp_top_ratio",
+    "cdac.cu",
+    "reference.vref"
    ],
-   "sha": "05899cd622401f94"
+   "sha": "99d318ea406dddc2"
   },
-  "views": {},
-  "rehashed": {
-   "date": "2026-10-29T20:21:34",
-   "git": "b748f30",
-   "files_before": 19
-  }
+  "views": {}
  }
 }

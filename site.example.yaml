@@ -8,7 +8,7 @@ sim:
   env_setup:                              # csh commands that make `spectre` available
     - source <cadence-cshrc>
   spectre: spectre                        # command (or absolute path)
-  max_parallel: 6                         # optional, overrides specs/sim.yaml
+  jobs: <parallel Spectre runs>           # optional, default of --jobs (code default: 6)
 
 pdk:
   model_dir: <directory of the Spectre model files on the server>

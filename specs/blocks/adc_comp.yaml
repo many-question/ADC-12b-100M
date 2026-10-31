@@ -1,6 +1,6 @@
 block: adc_comp
 title: Dynamic latched comparator
-version: 0.7.0
+version: 0.8.0
 selected: none          # the selected candidate (design/xtor/<block>/<name>/); none yet
 status: behavioral
 views:
@@ -102,6 +102,7 @@ tests:
   tb_comp_kickback:
     netlist: tb/comp/tb_comp_kickback.scs
     measure: adcflow.measure.comp:kickback
+    numerics: {reltol: 1.0e-5, vabstol: 1.0e-8}
     desc: >
       Inputs floating on 2.5 pF capacitors (the CDAC top plates, C_tot), preset to
       VCM +/- 0.5 mV. Measures the change of the differential input after one

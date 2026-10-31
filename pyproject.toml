@@ -10,9 +10,9 @@ requires-python = ">=3.10"
 dependencies = ["numpy>=1.24", "scipy>=1.10", "pyyaml>=6"]
 
 [project.optional-dependencies]
-# adctoolbox is pinned: adcflow.spectrum replaces its SFDR (issue #36) and tests/test_spectrum.py
-# checks the pin against adcflow.spectrum.ADCTOOLBOX; review the workaround before changing it.
-analysis = ["adctoolbox==0.6.4", "matplotlib>=3.7"]
+# adctoolbox is pinned to a commit: its version string is still 0.9.1, but PyPI's 0.9.1 does not have
+# the SFDR fix (issue #36). tests/test_spectrum.py checks the pin against adcflow.spectrum.ADCTOOLBOX_COMMIT.
+analysis = ["adctoolbox @ git+https://github.com/Arcadia-1/ADCToolbox@cd72061ff3b7a977163dac540da126ae22f5e38d#subdirectory=python", "matplotlib>=3.7"]
 dev = ["pytest>=7"]
 
 [project.scripts]

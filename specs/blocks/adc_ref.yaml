@@ -1,6 +1,6 @@
 block: adc_ref
 title: Reference driver (VREFP = 0.9 V) and top-plate common-mode (VCM = 0.45 V)
-version: 0.8.1
+version: 0.9.0
 selected: many-question # the selected candidate (design/xtor/<block>/<name>/); verified, mixed top level passed (#86)
 status: xtor-review
 views:
@@ -134,7 +134,7 @@ tests:
     netlist: tb/ref/tb_ref_startup.scs
     measure: adcflow.measure.ref:startup
     numerics: {maxstep: 1n}
-    crosscheck: {maxstep: 0.1n, method: gear2only}
+    crosscheck: {maxstep: 0.1n, method: traponly}
     desc: >
       The supported power-up sequence (power_up_sequence): AVDD and AVDD18
       ramp together from 0.1 to 1.1 us with VREF_IN at 0 V; VREF_IN stays at
