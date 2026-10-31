@@ -8,7 +8,7 @@ Each frozen revision changes one symmetric device pair from the original V2/B2 s
 
 Only CDP/CDN MOM finger count changes from 48 to 56; callback nominal capacitance 16.46030 fF per node. Length, width, spacing, metal stack and multiplicity remain the parent values.
 
-Callback receipt SHA-256 `c6778b1e6296559ad3dd87ad5289a2b4aea41d1cd6c60be66fc78a4241944f5c`. Provider tsmc-n28-hpcplus-ull-mmwave-1.8-2p2a-20190531, adapter 0.1.0, payload SHA-256 `c46e4713691443dbd588238d581c1863b255767fe1f79fc58722e81c0244b81f`. Ordered request: `[['Nfinger', '56'], ['Lfinger', '1u']]`. Actual values were asserted before source generation; RNL checks return zero errors/warnings/hints.
+Callback receipt SHA-256 `c6778b1e6296559ad3dd87ad5289a2b4aea41d1cd6c60be66fc78a4241944f5c`. 28 nm HPC+ adapter 0.1.0, payload SHA-256 `c46e4713691443dbd588238d581c1863b255767fe1f79fc58722e81c0244b81f`; exact provider/release identity is retained in the private receipt. Ordered request: `[['Nfinger', '56'], ['Lfinger', '1u']]`. Actual values were asserted before source generation; RNL checks return zero errors/warnings/hints.
 
 | Kind / corner | Measured result |
 |---|---|
@@ -18,8 +18,9 @@ Callback receipt SHA-256 `c6778b1e6296559ad3dd87ad5289a2b4aea41d1cd6c60be66fc78a
 | delay / ff_high_m40 | tdelay_1mV_ps=43.70358586483936, tdelay_30mV_ps=34.439893625728395, treset_ps=15.07084351064613, validity_violations=0, soa_max_V=1.04819, energy_fJ=172.9595062008; limited gate PASS |
 | delay / sf_high_m40 | tdelay_1mV_ps=65.54298814130557, tdelay_30mV_ps=50.270603760503924, treset_ps=16.12440135547688, validity_violations=0, soa_max_V=1.04862, energy_fJ=170.04933071279999; limited gate PASS |
 | kickback / tt_nom_27 | cin_fF=19.313134034315315, cin_clkc_fF=15.207198943660638, kickback_uV=0.00017268070003420566; PASS |
+| noise / fs_low_125 | 315.26264313649045 uV rms; unrounded 95% profile CI [304.65758490716047, 326.3792557323575]; FAIL 240 uV, finite 17 x 512 samples |
 
-Reported deterministic/loading gates are limited screening; physical FS noise is the next conditional gate.
+A required gate fails: stop long-noise or further qualification expansion for this source.
 
 Retained noise-off waveform markers (mean of four +/-100 uV cycles; exact saved traces and per-cycle values retained privately). These are descriptive thresholds, not gm/loop-gain activation points or individual noise contributions.
 
@@ -33,12 +34,15 @@ Retained noise-off waveform markers (mean of four +/-100 uV cycles; exact saved 
 | 20261101-051413-soa11-physical-tt | 26.0 | 22.2/12.7 | 278.001 | 21.562 / 63.906 / 44.922 / 3.328 / 21.063 / 123.220 |
 | 20261101-051814-soa11-physical-corners | 15.0, 25.0, 15.0, 15.0 | 10.8/12.5, 21.5/12.2, 10.8/12.5, 10.9/12.4 | 347.053 | 21.656 / 112.594 / 56.609 / 12.547 / 21.156 / 122.491 |
 | 20261101-051824-soa11-physical-loading | 31.0 | 26.9/12.4 | 284.824 | 21.953 / 72.204 / 45.265 / 0.766 / 21.062 / 123.574 |
+| 20261101-052307-soa11-v2c56-noise-fs | 254.0 | 250.0/240.0 | 491.069 | 21.718 / 276.078 / 43.235 / 5.907 / 21.281 / 122.850 |
 
 20261101-051413-soa11-physical-tt archive SHA-256 `ffc71a19d556d5cdce394b627e119cf594bf8cb7637be24002dc921b11024d1d`.
 
 20261101-051814-soa11-physical-corners archive SHA-256 `99902c48342ad0c38943c768c2b8d0a4bc8a931104ffb669474472c36e4cf389`.
 
 20261101-051824-soa11-physical-loading archive SHA-256 `b049d3a30b216a81cc694a1bc8c158f2baa39ef174b4cc630c99930044952659`.
+
+20261101-052307-soa11-v2c56-noise-fs archive SHA-256 `25aa5a2282d6623a27291b1ac310220689cd95d79895d9e3f2d1f6c38518244e`.
 
 All listed completed archives passed CRC/member SHA checks and exact remote-path absence checks. Batch timers include other variants in a shared run; overlapping durations are not campaign wall time. Archive/report time was not instrumented. Noise CIs are conditional on the binomial probit model and do not establish independent samples or seed robustness. Non-TT 30 mV delay and energy are report-only.
 
