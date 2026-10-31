@@ -207,3 +207,79 @@ The four initial deterministic corners and tight TT/initial-worst checks pass, w
 | MUP | 0.90000 | 0.90667 | 0.90133 |
 
 Archive SHA-256 `90c87f16f051217c6f1e63867f711f2b490302a07150913cb218e17a313e939d` preserves complete raw data, every error index, phase signs and the matched V26 comparison. Every entry was read back with CRC and SHA-256 verification, and the owned remote run is absent. The 102.5 ns duration raises noisefmin to 9.7561 MHz versus the original 287.216 kHz. Canonical V19 and every genuine original record remain unchanged.
+
+## Completed screen 20261031-113339-strongarm-reset-v27-screen
+
+All 216 additional actual polarities including 10 uV and all 216 resets pass, together with timing, physical output validity and all 69 full-trace terminal pairs at each of the six corners.
+
+Actual clean source commit: `f8a7fc89a689f9ea6545b388dc4e013a1238f0c7`. Electrical SHA-256: `7b20b19a2434da94d732f9785a3a8f1a2138d17ed4f4854dbdc5ab1a6cff18df`. The canonical netlist and 274 official result/figure files are unchanged.
+
+| Corner | 1 mV / 30 mV delay (ps) | Reset (ps) | AVDD (fJ/cycle) | Decided / cycles | Wrong | CMP-15 | Max stress (V) | Failed pairs |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| ff_high_125 | 50.589681 / 38.016824 | 20.352318 | 663.048982 | 36 / 36 | 0 | 0 | 0.99037 | 0 / 69 |
+| ff_high_m40 | 48.517785 / 37.336487 | 17.886895 | 570.414452 | 36 / 36 | 0 | 0 | 0.99483 | 0 / 69 |
+| fs_low_125 | 68.668422 / 51.495751 | 29.049689 | 354.413261 | 36 / 36 | 0 | 0 | 0.81326 | 0 / 69 |
+| sf_high_125 | 65.636333 / 49.021199 | 22.609131 | 568.053247 | 36 / 36 | 0 | 0 | 0.99429 | 0 / 69 |
+| sf_high_27 | 67.358152 / 50.660287 | 20.819561 | 519.851418 | 36 / 36 | 0 | 0 | 0.99589 | 0 / 69 |
+| sf_low_m40 | 91.250588 / 67.018086 | 24.036228 | 282.229642 | 36 / 36 | 0 | 0 | 0.82084 | 0 / 69 |
+
+The entire trace, including clock edges and reset, is checked for every MOS |Vgs|, |Vgd| and |Vds|. Each job uses +aps, no explicit +mt, traponly, maxstep=0.5p, reltol=1e-6 and vabstol=1e-8. The observed batch peak is 2 concurrent jobs; logs report effective single-thread simulation. All raw/deck hashes were verified, and the exact owned remote run was removed with absence confirmed.
+
+Per-device maximum over all three terminal pairs (V):
+
+| Device | ff_high_125 | ff_high_m40 | fs_low_125 | sf_high_125 | sf_high_27 | sf_low_m40 |
+|---|---:|---:|---:|---:|---:|---:|
+| MINP | 0.57365 | 0.69305 | 0.53433 | 0.64677 | 0.71646 | 0.59786 |
+| MINN | 0.57369 | 0.69320 | 0.53433 | 0.64683 | 0.71660 | 0.59801 |
+| MTAIL | 0.99000 | 0.99000 | 0.81000 | 0.99000 | 0.99000 | 0.81000 |
+| MRDP | 0.99000 | 0.99215 | 0.81000 | 0.99000 | 0.99000 | 0.81128 |
+| MRDN | 0.99000 | 0.99215 | 0.81167 | 0.99000 | 0.99000 | 0.81328 |
+| MLNP | 0.96617 | 0.99024 | 0.79885 | 0.97614 | 0.98791 | 0.80942 |
+| MLNN | 0.96617 | 0.99024 | 0.79885 | 0.97614 | 0.98791 | 0.80942 |
+| MLPP | 0.96865 | 0.99237 | 0.80383 | 0.97549 | 0.98964 | 0.81151 |
+| MLPN | 0.96865 | 0.99237 | 0.80383 | 0.97549 | 0.98964 | 0.81151 |
+| MRQP | 0.99000 | 0.99237 | 0.81158 | 0.99268 | 0.99329 | 0.81675 |
+| MRQN | 0.99000 | 0.99237 | 0.81158 | 0.99268 | 0.99329 | 0.81675 |
+| MOPN | 0.99037 | 0.99483 | 0.81158 | 0.99429 | 0.99541 | 0.81722 |
+| MOPP | 0.98834 | 0.99467 | 0.81115 | 0.99241 | 0.99505 | 0.81658 |
+| MONN | 0.99037 | 0.99483 | 0.81158 | 0.99429 | 0.99541 | 0.81722 |
+| MONP | 0.98834 | 0.99467 | 0.81115 | 0.99241 | 0.99505 | 0.81658 |
+| MDQP | 0.99037 | 0.99483 | 0.81158 | 0.99429 | 0.99589 | 0.82084 |
+| MDQN | 0.99037 | 0.99483 | 0.81158 | 0.99429 | 0.99589 | 0.82084 |
+| MDDP | 0.98535 | 0.98482 | 0.80778 | 0.98674 | 0.98587 | 0.81038 |
+| MDDN | 0.98867 | 0.98776 | 0.81167 | 0.98863 | 0.98831 | 0.81328 |
+| MCKN | 0.99000 | 0.99367 | 0.81000 | 0.99382 | 0.99589 | 0.82084 |
+| MCKP | 0.99000 | 0.99000 | 0.81326 | 0.99000 | 0.99000 | 0.81196 |
+| MBLEED | 0.99000 | 0.99367 | 0.81326 | 0.99382 | 0.99589 | 0.82084 |
+| MUP | 0.99000 | 0.99367 | 0.81326 | 0.99382 | 0.99589 | 0.82084 |
+
+Clock charge from the mixed delay sequence is a supplemental diagnostic, not the official CMP-14 input-capacitance result. No all-corner, noise, Monte Carlo or mixed-top qualification is inferred from this screen.
+
+
+### Completion of ten known risk corners
+
+The combined nominal screens retain all 360 actual polarities and resets across the ten known risk corners. TT and the actual-worst SF/high/-40 source have also passed 72 tighter repeated cycles. Every source has the same electrical hash. The latest six-corner raw audit gives:
+
+| Corner | Worst device pair | Unrounded peak V | Margin uV |
+|---|---|---:|---:|
+| ff_high_125 | MONN gs | 0.990366769169 | 9633.230831387 |
+| ff_high_m40 | MONN gs | 0.994825608636 | 5174.391363642 |
+| fs_low_125 | MCKP ds | 0.813261637436 | 186738.362563562 |
+| sf_high_125 | MONN gs | 0.994290976101 | 5709.023898941 |
+| sf_high_27 | MDQP gs | 0.995886971224 | 4113.028776050 |
+| sf_low_m40 | MDQP gs | 0.820835488119 | 179164.511880811 |
+
+The actual largest nominal peak remains sf_high_m40, 0.996799525655 V, already covered by the preserved tighter repeat. Tighter TT 30 mV delay remains 49.838319918 ps; its 0.161680082 ps margin is thin. Mixed-sequence clock capacitance is supplemental; CMP-12 and CMP-14 apply at TT through the original capacitance test, so non-TT mixed-charge values are not assigned a formal capacitance verdict.
+
+All AVDD probes are present and KCL closes over the complete 36-cycle 100 ps–14.5 ns window. Physical weak loads and reset cost are included.
+
+| Corner | Total fJ/cycle | Evaluation | Reset | Initial reset current uA |
+|---|---:|---:|---:|---:|
+| ff_high_125 | 663.049467760 | 209.940451857 | 453.109015903 | 1628.908006808 |
+| ff_high_m40 | 570.415019927 | 124.310871686 | 446.104148241 | 1679.993703516 |
+| fs_low_125 | 354.413712350 | 88.465319801 | 265.948392549 | 1040.910821057 |
+| sf_high_125 | 568.053746432 | 171.070543868 | 396.983202564 | 1314.045164872 |
+| sf_high_27 | 519.851959005 | 130.934301169 | 388.917657836 | 1321.130465270 |
+| sf_low_m40 | 282.229972516 | 60.510586700 | 221.719385816 | 852.628392486 |
+
+Archive SHA-256 `f3ce3c1f5d60010dafa64a2dc4850c7ea711ef5e678efc22502b594a250ee197` retains the six complete raw traces, every terminal-pair maximum and all audits. Every member was read back with CRC and SHA-256 verification before duplicate files were removed; the exact owned remote run is absent. Source-preserving canonical promotion and original TT capacitance/full-noise tests are next. The short noise comparison does not establish the 200 uV limit, and full qualification remains open.
