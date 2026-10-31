@@ -14,23 +14,25 @@
   "noise_en": 0,
   "devnoise": 1,
   "beh_speed": 1.0,
-  "vref_in": 0.9
+  "vref_in": 0.9,
+  "cdac_behav": 1,
+  "comp_behav": 1
  },
  "metrics": {
-  "sfdr_dBc": 85.07739440186066,
-  "sndr_dB": 84.7596711650624,
-  "thd_dBc": -84.86503962765505
+  "sfdr_dBc": 84.99974299658857,
+  "sndr_dB": 84.70053989042125,
+  "thd_dBc": -84.79411350048252
  },
  "specs": {
   "BST-05": {
    "metric": "sfdr_dBc",
-   "value": 85.07739440186066,
+   "value": 84.99974299658857,
    "limit": ">= 82",
    "pass": true
   },
   "BST-06": {
    "metric": "sndr_dB",
-   "value": 84.7596711650624,
+   "value": 84.70053989042125,
    "limit": ">= 78",
    "pass": true
   }
@@ -42,72 +44,80 @@
   }
  ],
  "meta": {
-  "date": "2026-10-29T06:23:10",
-  "git": "1478a35",
+  "date": "2026-10-31T13:02:24",
+  "git": "c6152d2",
   "git_clean": true,
   "mode": "aps",
   "pdk": true,
   "mc": null,
-  "wall_s": 4723.1,
+  "wall_s": 963.9,
   "rc": "0",
-  "sim_s": "720",
+  "sim_s": "213",
   "numerics": {
    "source": "spectre.log",
    "reltol": 1e-07,
-   "maxstep_ps": 1.0,
-   "method": "traponly",
-   "errpreset": "moderate",
-   "lteratio": 3.5,
+   "maxstep_ps": 26050.0,
+   "method": "gear2only",
+   "errpreset": "conservative",
+   "lteratio": 10.0,
+   "relref": "alllocal",
    "abstol_V": 1e-08,
    "vabstol": 1e-08,
-   "steps_accepted": 2992473,
-   "step_mean_ps": 0.870517,
+   "steps_accepted": 640267,
+   "step_mean_ps": 4.06862,
    "step_max_ps": null
   },
   "files": {
-   "tb/bootstrap/tb_bootstrap_track.scs": "78620bf2251d80ba",
+   "tb/bootstrap/tb_bootstrap_track.scs": "70215750f754bc59",
    "design/behav/veriloga/adc_clkgen_va.va": "7fff1b9368bc1a20",
    "tb/common/veriloga/tb_sampler_va.va": "4092bc16170c588d",
    "design/xtor/adc_bootstrap/many-question/adc_bootstrap.scs": "f9330137569bdf81"
   },
+  "arch": {
+   "keys": [],
+   "sha": "44136fa355b3678a"
+  },
+  "views": {
+   "adc_bootstrap": "xtor"
+  },
   "provenance": {
    "spectrum": {
-    "estimator": "adcflow.spectrum v1",
-    "adctoolbox": "0.6.4",
-    "sfdr": "plotspec definition: peak bin of the fundamental / largest other single bin (DC and signal bins excluded, Nyquist included)",
-    "enob_sndr_snr_thd": "adctoolbox 0.6.4 compute_spectrum"
+    "estimator": "adctoolbox 0.9.1 @ cd72061 compute_spectrum",
+    "adctoolbox": "0.9.1",
+    "adctoolbox_commit": "cd72061"
    }
   },
   "crosscheck": {
    "settings": {
-    "maxstep": "0.5p",
-    "method": "gear2only"
+    "maxstep": "1p",
+    "method": "traponly"
    },
    "numerics": {
     "source": "spectre.log",
     "reltol": 1e-07,
-    "maxstep_ps": 0.5,
-    "method": "gear2only",
-    "errpreset": "moderate",
-    "lteratio": 3.5,
+    "maxstep_ps": 1.0,
+    "method": "traponly",
+    "errpreset": "conservative",
+    "lteratio": 10.0,
+    "relref": "alllocal",
     "abstol_V": 1e-08,
     "vabstol": 1e-08,
-    "steps_accepted": 5639492,
-    "step_mean_ps": 0.461921,
+    "steps_accepted": 2934691,
+    "step_mean_ps": 0.887657,
     "step_max_ps": null
    },
    "rc": "0",
-   "sim_s": "1560",
+   "sim_s": "579",
    "metrics": {
     "sfdr_dBc": {
-     "ref": 85.07739440186066,
-     "xcheck": 85.03088667390804,
-     "diff": -0.046507727952615596
+     "ref": 84.99974299658857,
+     "xcheck": 85.10234981214094,
+     "diff": 0.10260681555237738
     },
     "sndr_dB": {
-     "ref": 84.7596711650624,
-     "xcheck": 84.7518145706941,
-     "diff": -0.007856594368305991
+     "ref": 84.70053989042125,
+     "xcheck": 84.76420501653755,
+     "diff": 0.06366512611629105
     }
    },
    "samples": {
@@ -116,27 +126,9 @@
     "n_ref": 256,
     "n_xcheck": 256,
     "time_diff_max_ps": 0.0,
-    "diff_rms_uV": 1.4387380730302888,
-    "diff_max_uV": 2.2120968999894686
+    "diff_rms_uV": 2.459494251541266,
+    "diff_max_uV": 4.93400300000113
    }
-  },
-  "migrated": {
-   "date": "2026-10-29T12:01:08",
-   "git": "8843a51",
-   "from": "xtor",
-   "candidate": "many-question"
-  },
-  "arch": {
-   "keys": [],
-   "sha": "44136fa355b3678a"
-  },
-  "views": {
-   "adc_bootstrap": "xtor:many-question"
-  },
-  "rehashed": {
-   "date": "2026-10-29T21:03:27",
-   "git": "55b81d1",
-   "files_before": 16
   }
  }
 }
