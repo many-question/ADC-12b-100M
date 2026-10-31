@@ -102,6 +102,11 @@ control-buffer and bottom-plate failure mechanisms. The completed
 [node/event audit](fast-node-events.png) identifies repeated shared-net
 excursions and motivates a separate sharing-phase experiment. The formal
 source is unchanged.
+The independent V7 sharing-phase experiment passes SS timing and all-MOS
+pressure, but its early FF screen fails. On a matched 0..12 ns interval,
+the worst bottom-plate excursion decreases while the total failing-pair
+count rises from 355 to 472. Its [matched comparison](early-sharing-comparison.png)
+retains both effects; TT/weights expansion is stopped for V7.
 Existing V4 TT saves do not permit assigning its total excess to a phase.
 N4's TT evidence does not transfer to any changed case.
 The [first passing private SS comparison](balanced-predrive-ss-screen.png)

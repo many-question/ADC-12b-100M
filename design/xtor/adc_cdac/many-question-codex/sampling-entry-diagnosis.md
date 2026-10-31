@@ -809,12 +809,58 @@ All other MOS lines, physical MOM/Cp lines and top-level ports are
 unchanged from V6. It has 548 MOS per half, 1096 in the differential
 test and 3288 terminal pairs. Fresh geometry callbacks have no warnings;
 the complete pinned RNL check/render has zero errors, warnings or hints.
-The private source and drawing are frozen, with no simulation result yet.
+The private source and drawing are frozen; its independent results follow.
 
 V7 source SHA256:
 `ee633589f59275c413d47f00e46674fbc00b2956fc59d1e204514007521f920f`.
 This is a targeted experiment on sharing timing, with the other known
 mechanisms retained for observation. It inherits no V6 passing result.
+
+### V7 SS pass and early FF failure
+
+The complete SS 70 ns run passes all five applicable specifications and
+all 548 MOS / 1644 pairs. RL5/RL12/start are 58.7/38.7/91.0 ps,
+tau 11.291656529 ps and droop 0.006090525 LSB. The maximum voltage is
+0.996250123617 V on XB2.MSHAREL gate/drain at 60.082693379 ns, leaving
+only 3.749876 mV margin. Both raw samples bracketing the RL12 and start
+deadlines pass. SS Qref is 1.871470009 pC and PHI_SB load is
+32.048788 fF, both n/a at this corner; they are not TT budget evidence.
+
+The original-stimulus 0..12 ns FF diagnostic fails: 472 of 3288 pairs
+across 1096 actual MOS exceed 1.0 V. Its maximum is 1.082194855432 V,
+XDACP.XB11.XDL.MPA1 drain/source at 10.074419594 ns. TT, weights and
+longer expansion are stopped for this source, despite its SS pass.
+
+![Matched first-12-ns comparison of sharing-phase control](early-sharing-comparison.png)
+
+Restricting the retained V6 data to the same 0..12 ns interval gives
+355 failing pairs, not the 550 from its entire 125 ns record. V7's
+sharing-gate 50% falling crossing moves from 5.135472908 to 5.060285280 ns.
+Bit-0 BH's minimum improves from -0.114612710 to -0.078819331 V, BL
+from -0.101566119 to -0.066309729 V, and MEQ1 gate/drain from
+1.108169154 to 1.071896996 V. However, VINN's minimum worsens from
+-0.037138425 to -0.044593525 V, and total failing pairs increase to 472.
+The experiment therefore does not establish an overall improvement.
+
+Removing sharing-gate load accelerates ENB's 10--90% rise from
+12.921128 to 11.071397 ps. The bit-12 HIB negative excursion increases
+from -0.065980344 to -0.069980266 V. At conversion start EN reaches
+-0.010746808 V against NOFF 0.989946157 V, creating a repeated
+1.000692965 V difference. The new sharing buffer itself reaches
+1.000285324 and -0.014318542 V, producing three failing pairs.
+These shared effects motivate controlling enable and sharing-output
+edge rates before evaluating the timing change further. AP floating
+and the remaining input/plate injection still require separate treatment.
+
+Both runs launched from clean commit
+`79959fc0f61763a27ee0632fedc1a30a19c91602` with 0.5 ps / 1e-7 /
+1e-8 / traponly. SS took 410 s and FF 118 s. All raw data and 50 frozen
+inputs per run were recovered and verified before exact cleanup:
+
+- V7 SS (9 raw files):
+  `21d725155540f6f2ca67d0fae9a8733a34eedb4396d0ae3e393317e61a5d05c6`
+- V7 early FF (8 raw files):
+  `ad2021648070d9758db9d282b45e9c88ec65c53fe0ace8fa740ac910be374124`
 
 ## Continuing verification
 
