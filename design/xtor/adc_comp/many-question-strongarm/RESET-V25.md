@@ -9,3 +9,111 @@ The stronger reset pull-down tests whether more sink strength suppresses the obs
 Electrical SHA-256: `6209fed9ad21a8f92ce471c5e762260227b0d820c22cba8396cd6c637b543cdf`. The [source](RESET-V25.txt) contains 23 MOS and 5 MOMs with complete RNL checked on a byte-identical mirror. SF/FS high/-40 are checked first for stress, polarity, reset and output validity. TT and a matched short phase diagnosis follow only on a useful pass. Remaining known corners, actual-worst convergence, source-preserving canonical promotion and original formal tests remain open. Canonical V19 and every genuine formal result remain unchanged.
 
 ![Physical comparator with stronger Q reset pull-downs](reset-v25.png)
+
+## Completed screen 20261031-100338-strongarm-reset-v25-screen
+
+All 72 actual polarities including 10 uV and all 72 resets pass, with timing, physical output validity and every one of 69 MOS terminal pairs passing at every tested corner. These private deterministic results do not establish noise qualification.
+
+Actual clean source commit: `0a7534091e86e24fff3105bdbf4977eb84bc1bce`. Electrical SHA-256: `6209fed9ad21a8f92ce471c5e762260227b0d820c22cba8396cd6c637b543cdf`. The canonical netlist and 274 official result/figure files are unchanged.
+
+| Corner | 1 mV / 30 mV delay (ps) | Reset (ps) | AVDD (fJ/cycle) | Decided / cycles | Wrong | CMP-15 | Max stress (V) | Failed pairs |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| fs_high_m40 | 55.119992 / 43.792854 | 22.195165 | 597.624740 | 36 / 36 | 0 | 0 | 0.99825 | 0 / 69 |
+| sf_high_m40 | 70.527271 / 54.361897 | 20.695709 | 563.207091 | 36 / 36 | 0 | 0 | 0.99986 | 0 / 69 |
+
+The entire trace, including clock edges and reset, is checked for every MOS |Vgs|, |Vgd| and |Vds|. Each job uses +aps, no explicit +mt, traponly, maxstep=0.5p, reltol=1e-6 and vabstol=1e-8. The observed batch peak is 1 concurrent jobs; logs report effective single-thread simulation. All raw/deck hashes were verified, and the exact owned remote run was removed with absence confirmed.
+
+Per-device maximum over all three terminal pairs (V):
+
+| Device | fs_high_m40 | sf_high_m40 |
+|---|---:|---:|
+| MINP | 0.69727 | 0.76355 |
+| MINN | 0.69739 | 0.76374 |
+| MTAIL | 0.99000 | 0.99000 |
+| MRDP | 0.99309 | 0.99169 |
+| MRDN | 0.99309 | 0.99169 |
+| MLNP | 0.99076 | 0.98961 |
+| MLNN | 0.99076 | 0.98961 |
+| MLPP | 0.99313 | 0.99176 |
+| MLPN | 0.99313 | 0.99176 |
+| MRQP | 0.99736 | 0.99873 |
+| MRQN | 0.99736 | 0.99873 |
+| MOPN | 0.99825 | 0.99986 |
+| MOPP | 0.99805 | 0.99961 |
+| MONN | 0.99825 | 0.99986 |
+| MONP | 0.99805 | 0.99961 |
+| MDQP | 0.99825 | 0.99986 |
+| MDQN | 0.99825 | 0.99986 |
+| MDDP | 0.98344 | 0.98514 |
+| MDDN | 0.98651 | 0.98759 |
+| MCKN | 0.99335 | 0.99589 |
+| MCKP | 0.99031 | 0.99000 |
+| MBLEED | 0.99335 | 0.99589 |
+| MUP | 0.99335 | 0.99589 |
+
+Clock charge from the mixed delay sequence is a supplemental diagnostic, not the official CMP-14 input-capacitance result. No all-corner, noise, Monte Carlo or mixed-top qualification is inferred from this screen.
+
+## Completed screen 20261031-100951-strongarm-reset-v25-screen
+
+All 36 actual polarities including 10 uV and all 36 resets pass, with timing, physical output validity and every one of 69 MOS terminal pairs passing at every tested corner. These private deterministic results do not establish noise qualification.
+
+Actual clean source commit: `0a7534091e86e24fff3105bdbf4977eb84bc1bce`. Electrical SHA-256: `6209fed9ad21a8f92ce471c5e762260227b0d820c22cba8396cd6c637b543cdf`. The canonical netlist and 274 official result/figure files are unchanged.
+
+| Corner | 1 mV / 30 mV delay (ps) | Reset (ps) | AVDD (fJ/cycle) | Decided / cycles | Wrong | CMP-15 | Max stress (V) | Failed pairs |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| tt_nom_27 | 63.616262 / 49.007296 | 24.958945 | 447.254687 | 36 / 36 | 0 | 0 | 0.90862 | 0 / 69 |
+
+The entire trace, including clock edges and reset, is checked for every MOS |Vgs|, |Vgd| and |Vds|. Each job uses +aps, no explicit +mt, traponly, maxstep=0.5p, reltol=1e-6 and vabstol=1e-8. The observed batch peak is 1 concurrent jobs; logs report effective single-thread simulation. All raw/deck hashes were verified, and the exact owned remote run was removed with absence confirmed.
+
+Per-device maximum over all three terminal pairs (V):
+
+| Device | tt_nom_27 |
+|---|---:|
+| MINP | 0.60077 |
+| MINN | 0.60086 |
+| MTAIL | 0.90000 |
+| MRDP | 0.90090 |
+| MRDN | 0.90089 |
+| MLNP | 0.89839 |
+| MLNN | 0.89839 |
+| MLPP | 0.90091 |
+| MLPN | 0.90091 |
+| MRQP | 0.90862 |
+| MRQN | 0.90862 |
+| MOPN | 0.90862 |
+| MOPP | 0.90845 |
+| MONN | 0.90862 |
+| MONP | 0.90845 |
+| MDQP | 0.90862 |
+| MDQN | 0.90862 |
+| MDDP | 0.89719 |
+| MDDN | 0.90030 |
+| MCKN | 0.90601 |
+| MCKP | 0.90063 |
+| MBLEED | 0.90601 |
+| MUP | 0.90601 |
+
+Clock charge from the mixed delay sequence is a supplemental diagnostic, not the official CMP-14 input-capacitance result. No all-corner, noise, Monte Carlo or mixed-top qualification is inferred from this screen.
+
+
+Across these initial corners, 108 actual polarities and resets pass. TT 1/30 mV delay is 63.616261871/49.007296131 ps, reset 24.958945456 ps, and mixed-sequence clock capacitance 15.716168619 fF. This clock estimate is diagnostic and does not replace the original formal capacitance test. A matched short phase diagnosis follows before broader expansion; no formal noise pass or canonical promotion is claimed.
+
+The independently recomputed unrounded maxima at the two initial high-voltage cold corners are:
+
+| Corner | Worst device pair | Peak V | Margin uV | Since rise ps | Since fall ps |
+|---|---|---:|---:|---:|---:|
+| fs_high_m40 | MOPN gs | 0.998251953114 | 1748.046886426 | -195.964741682 | 4.035258318 |
+| sf_high_m40 | MOPN gs | 0.999855286288 | 144.713712192 | 203.455657585 | 3.455657585 |
+
+These 0.5 ps results require actual-worst tighter integration if the source advances. Full AVDD waveform integrals include physical reset and weak rail loads over all 36 cycles and the same 100 ps–14.5 ns window. All supply probes are present and KCL closes to numerical precision.
+
+| Corner | Total fJ/cycle | Evaluation | Reset | Initial reset current uA |
+|---|---:|---:|---:|---:|
+| fs_high_m40 | 597.625246607 | 107.949144184 | 489.676102423 | 1888.580786208 |
+| sf_high_m40 | 563.207735218 | 125.450483635 | 437.757251582 | 1624.016331704 |
+| tt_nom_27 | 447.255148884 | 96.948720675 | 350.306428209 | 1358.730461855 |
+
+Every archived entry was read back with CRC and SHA-256 verification before duplicate local raw files were removed; owned remote runs are absent.
+
+- `20261031-100338-strongarm-reset-v25-screen`: `e0f659fe04f0fc2d0174e8e2f9a2a3719b6579403429ef0af36f22cad0f93f9f`.
+- `20261031-100951-strongarm-reset-v25-screen`: `e6621c0129a8dab29af8caacea1167c23e21da79e7fe1be24b92d85d630f9c28`.

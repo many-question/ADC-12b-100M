@@ -110,3 +110,24 @@ The original meter gives 406.390516200 fJ/cycle; the waveform integral differs b
 | physical clock | 49.108682916 | 30.813664789 | 18.295018127 |
 
 Physical reset and weak-load costs are included. Net returned charge can make an individual phase allocation negative; these allocations are not isolated device dissipation. Power is reported only. No noise or qualification benefit is established by this cost comparison.
+
+
+## V25 measured TT supply phases
+
+Run `20261031-100951-strongarm-reset-v25-screen` uses the same complete AVDD boundary and 36-cycle 100 ps–14.5 ns window as V20. This source has larger N16 coupling devices and stronger 0.6 um Q reset pull-downs; a comparison to V20 does not isolate the two changes.
+
+| Total fJ/cycle | Evaluation | Reset | Initial reset current uA | Initial reset power mW |
+|---:|---:|---:|---:|---:|
+| 447.255148884 | 96.948720675 | 350.306428209 | 1358.730461855 | 1.222857416 |
+
+The complete waveform integral changes by +40.864173704 fJ/cycle (+10.055384%) from V20. The original meter is 447.254687160 fJ/cycle; its relative difference from the waveform integral is 0.000103235%. All supply-terminal probes are present and their sum closes to numerical precision.
+
+| Net supply delivery group | Whole cycle fJ | Evaluation | Reset |
+|---|---:|---:|---:|
+| input precharge | 109.561904335 | 1.703289352 | 107.858614983 |
+| regenerative core | 30.336388990 | 34.176880110 | -3.840491120 |
+| Q precharge/reset | 227.189420805 | 1.291818318 | 225.897602487 |
+| external output inverters | 30.980316448 | 28.964836881 | 2.015479567 |
+| physical clock | 49.187118306 | 30.811896014 | 18.375222292 |
+
+Physical weak loads and reset are included. Net returned charge can make a phase allocation negative; these are supply-delivery allocations rather than isolated device dissipation. Ideal external-clock delivery is outside this boundary. Power is reported only and does not establish a qualified topology ranking.

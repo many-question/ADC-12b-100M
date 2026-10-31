@@ -8,7 +8,7 @@ Electrical SHA-256: `34e60d7b2afcb0d9a6c3ed8743189c704399b31612824baf26ca7cf6216
 
 First screen SF/high/-40 and FS/high/-40 with full-trace terminal voltages, physical decisions and reset. If they pass, check TT timing and a short noise diagnosis early before wider characterization. Promotion and formal qualification require the complete gates; no noise, capacitance or SOA pass is inherited.
 
-![Physical circuit with the smaller clock capacitor](reset-v15.png)
+![Physical circuit with the smaller clock capacitor](https://raw.githubusercontent.com/many-question/ADC-12b-100M/0a7534091e86e24fff3105bdbf4977eb84bc1bce/design/xtor/adc_comp/many-question-strongarm/reset-v15.png)
 
 ## Completed screen 20261031-061543-strongarm-reset-v15-screen
 

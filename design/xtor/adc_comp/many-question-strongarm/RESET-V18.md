@@ -6,7 +6,7 @@ This experiment adds only CQP/CQN, each a physical 4.46 fF MOM from QP/QN to VSS
 
 Electrical SHA-256: `eba5b9f0cb2409b69dc660dd433da7ec13ca3a809c4de9d2817602a51b21d11c`. The [source](RESET-V18.txt) contains 23 MOS and 5 MOM devices, with complete RNL checked through a byte-identical mirror. First screen SF/high/-40 and FS/high/-40. TT speed and matched short noise follow only after these pass; wider qualification remains gated. Canonical V14 and all prior failures stay preserved.
 
-![Comparator with matched Q-node MOM capacitors](reset-v18.png)
+![Comparator with matched Q-node MOM capacitors](https://raw.githubusercontent.com/many-question/ADC-12b-100M/0a7534091e86e24fff3105bdbf4977eb84bc1bce/design/xtor/adc_comp/many-question-strongarm/reset-v18.png)
 
 ## Completed screen 20261031-071527-strongarm-reset-v18-screen
 

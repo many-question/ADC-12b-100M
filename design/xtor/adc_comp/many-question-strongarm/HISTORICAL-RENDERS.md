@@ -20,3 +20,15 @@ The complete RNL netlists and experiment reports remain in this candidate. To ke
 - [RESET-V10 rendering](https://raw.githubusercontent.com/many-question/ADC-12b-100M/596782536a7b43a5a893660a926aa339927ea784/design/xtor/adc_comp/many-question-strongarm/reset-v10.png)
 - [RESET-V11 rendering](https://raw.githubusercontent.com/many-question/ADC-12b-100M/596782536a7b43a5a893660a926aa339927ea784/design/xtor/adc_comp/many-question-strongarm/reset-v11.png)
 - [RESET-V12 rendering](https://raw.githubusercontent.com/many-question/ADC-12b-100M/596782536a7b43a5a893660a926aa339927ea784/design/xtor/adc_comp/many-question-strongarm/reset-v12.png)
+
+
+## Additional preserved historical renderings
+
+The complete RNL netlists and experiment reports remain in this candidate. To keep the current package below its 2 MB content limit while continuing circuit work, the six additional historical PNGs are linked to their exact preserved, published commit `0a7534091e86e24fff3105bdbf4977eb84bc1bce`. Existing report image links now point directly to those unchanged images. All candidate files were also archived and every entry verified by CRC and SHA-256 before removing the duplicate local PNGs; the private archive SHA-256 is `010901ee802265e71c570f89635e57acda83d09b228c886cfd639a72e1e900ca`. No electrical source or result record changes in this cleanup.
+
+- [RESET-V13 rendering](https://raw.githubusercontent.com/many-question/ADC-12b-100M/0a7534091e86e24fff3105bdbf4977eb84bc1bce/design/xtor/adc_comp/many-question-strongarm/reset-v13.png)
+- [RESET-V14 rendering](https://raw.githubusercontent.com/many-question/ADC-12b-100M/0a7534091e86e24fff3105bdbf4977eb84bc1bce/design/xtor/adc_comp/many-question-strongarm/reset-v14.png)
+- [RESET-V15 rendering](https://raw.githubusercontent.com/many-question/ADC-12b-100M/0a7534091e86e24fff3105bdbf4977eb84bc1bce/design/xtor/adc_comp/many-question-strongarm/reset-v15.png)
+- [RESET-V16 rendering](https://raw.githubusercontent.com/many-question/ADC-12b-100M/0a7534091e86e24fff3105bdbf4977eb84bc1bce/design/xtor/adc_comp/many-question-strongarm/reset-v16.png)
+- [RESET-V17 rendering](https://raw.githubusercontent.com/many-question/ADC-12b-100M/0a7534091e86e24fff3105bdbf4977eb84bc1bce/design/xtor/adc_comp/many-question-strongarm/reset-v17.png)
+- [RESET-V18 rendering](https://raw.githubusercontent.com/many-question/ADC-12b-100M/0a7534091e86e24fff3105bdbf4977eb84bc1bce/design/xtor/adc_comp/many-question-strongarm/reset-v18.png)

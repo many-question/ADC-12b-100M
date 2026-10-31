@@ -6,7 +6,7 @@ V12 passes six-corner output validity but retains a 1.00002 V SF Q peak and 35.8
 
 The [independent source](RESET-V13.txt) has electrical SHA-256 `7b82aa1b9cb951e5dce10db119d62ba9403dbf7905f742b385479bbbe4abfa96`. Full RNL on a byte-identical Spectre mirror passes core 0.5.2 with 0 errors, 0 warnings and 0 hints; the rendered schematic was inspected.
 
-![External output pull-down change](reset-v13.png)
+![External output pull-down change](https://raw.githubusercontent.com/many-question/ADC-12b-100M/0a7534091e86e24fff3105bdbf4977eb84bc1bce/design/xtor/adc_comp/many-question-strongarm/reset-v13.png)
 
 The six-key-corner screen retains the same complete transient checks and current probes. Any passing revision proceeds to further qualification; failed revisions retain their evidence and stop their own expansion. [Energy comparison](ENERGY-COMPARISON.md) reports the measured persistent-current costs of the preceding implementations; no new performance or efficiency pass is assumed.
 
