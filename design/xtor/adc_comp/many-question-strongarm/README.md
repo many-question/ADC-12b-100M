@@ -37,3 +37,7 @@ Independent [RESET-V34](RESET-V34.md): original baseline recovered; see the repo
 The branch now includes main `17b3a0c` (adc_comp 0.9.0). Issue #116 is acknowledged: delay and kickback require fresh dependency evidence after their explicit save-policy change. The project terminal-voltage limit is 1.1 V at all corners; historical 1.0 V screening failures are retained as historical diagnostics and are not current rejection criteria.
 
 Historical V2 restoration passes five representative deterministic corners and TT loading, and passes full physical TT noise at 184.174455 uV rms. **FS/low/125 noise fails at 317.000251 uV rms against 240 uV.** Full-corner and mismatch expansion stops for this source. [Restoration evidence](RESTORATION-11.md) retains unrounded intervals, provenance, archive checks and measured runtime. Canonical source and formal results remain unchanged.
+
+[Secondary historical l16t3c1 screening](RESTORATION-SECONDARY.md) is tracked separately. [V2 mechanism analysis](RESTORATION-MECHANISM.md) uses retained internal waveforms to propose isolated physical changes; its hypotheses are not device-noise attribution. [V32 sampled-noise closure](SAMPLED-NOISE-V32.md) records a persistent 12–14% discrepancy from transient/probit and does not establish an acceptance substitute.
+
+l16t3c1 fails complete FS noise at 274.20498833482293 uV rms and stops. [Isolated V2-C56 physical trial](RESTORATION-TRIALS.md) changes only the symmetric DP/DN capacitors and preserves its own frozen source; conditional screening is tracked separately.
