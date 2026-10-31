@@ -1,5 +1,7 @@
 # Split-stage comparator A1
 
+**Initial screen failed; expansion stopped.** TT 30 mV delay is 59.9852 ps against 50 ps, and only 8/36 TT and 4/36 FS decisions complete. See [the retained A1 screen](A1-SCREEN.md) for the three recorded tests, physical timing, signal decay and limitations. Status remains `wip`.
+
 This work-in-progress candidate separates a dynamic integrating input stage from a second StrongARM latch. The first-stage DP/DN nodes connect only to the second input pair's gates. Two physical tail switches, physical precharge devices and transistor clock generation are present in each appropriate stage. Physical output inverters preserve the return-to-zero interface.
 
 The first circuit contains 40 MOS devices and 10 MOM capacitors. All MOS geometries and MOM instance parameters were generated with successful device callbacks. The external input pair is W56/L0.03 with 56 fingers; front and latch tails each use two W3/L0.03 units. Front precharge uses P16. Each front drain has five 52-finger, 1 µm MOM units (76.3015 fF nominal total before device parasitics). The second pair is W4, with N12/P8 regenerative devices and N2/P4 output inverters. Dimensions are in µm; all MOS lengths are 0.03.
