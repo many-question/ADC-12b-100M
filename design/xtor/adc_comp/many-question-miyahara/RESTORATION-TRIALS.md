@@ -102,8 +102,9 @@ Callback receipt SHA-256 `1e49a1b0563f362e75683c62f62fbf54a6c2d9339d1a2111f0f1df
 | delay / ff_high_m40 | tdelay_1mV_ps=42.92576491568427, tdelay_30mV_ps=35.715598285861404, treset_ps=18.43058546945801, validity_violations=0, soa_max_V=1.01871, energy_fJ=251.56960119720003; limited gate PASS |
 | delay / sf_high_m40 | tdelay_1mV_ps=55.55957598457285, tdelay_30mV_ps=46.39047759699909, treset_ps=21.004803368777942, validity_violations=0, soa_max_V=1.02034, energy_fJ=240.50166596279996; limited gate PASS |
 | kickback / tt_nom_27 | cin_fF=19.31090586511203, cin_clkc_fF=14.920381242967167, kickback_uV=8.622179988211631e-05; PASS |
+| noise / fs_low_125 | 357.532354035666 uV rms; unrounded 95% profile CI [345.6592383702806, 370.0146633805691]; FAIL 240 uV, finite 17 x 512 samples |
 
-Reported deterministic/loading gates are limited screening; physical FS noise is the next conditional gate.
+A required gate fails: stop long-noise or further qualification expansion for this source.
 
 Retained noise-off waveform markers (mean of four +/-100 uV cycles; exact saved traces and per-cycle values retained privately). These are descriptive thresholds, not gm/loop-gain activation points or individual noise contributions.
 
@@ -117,6 +118,7 @@ Retained noise-off waveform markers (mean of four +/-100 uV cycles; exact saved 
 | 20261101-054750-soa11-physical-p6-tt | 27.0 | 23.8/14.2 | 264.804 | 21.531 / 49.734 / 43.641 / 2.094 / 21.031 / 126.773 |
 | 20261101-055149-soa11-physical-p6-corners | 17.0, 27.0, 17.0, 16.0 | 12.6/14.5, 23.6/14.1, 12.5/14.2, 12.3/14.1 | 283.872 | 21.469 / 66.969 / 45.750 / 4.656 / 21.016 / 124.012 |
 | 20261101-055159-soa11-physical-p6-loading | 34.0 | 29.7/14.8 | 265.570 | 21.468 / 55.438 / 43.250 / 0.140 / 21.000 / 124.274 |
+| 20261101-055545-soa11-b2p6-noise-fs | 666.0 | 662.0/650.0 | 898.079 | 21.375 / 687.484 / 43.047 / 1.172 / 21.078 / 123.923 |
 
 20261101-054750-soa11-physical-p6-tt archive SHA-256 `0b659467c1f01590be48598fce635a719a6ef6a1fe1de7c77aed5b48f9de5a00`.
 
@@ -124,6 +126,10 @@ Retained noise-off waveform markers (mean of four +/-100 uV cycles; exact saved 
 
 20261101-055159-soa11-physical-p6-loading archive SHA-256 `5e1bf7259c9295a46cba58aa29b2965547522c27ac995f2b30e52646678ba591`.
 
+20261101-055545-soa11-b2p6-noise-fs archive SHA-256 `c487447d2af0672281e57dddee2c71ef68f34e6ee5e45fc012b04df81f30c0ba`.
+
 All listed completed archives passed CRC/member SHA checks and exact remote-path absence checks. Batch timers include other variants in a shared run; overlapping durations are not campaign wall time. Archive/report time was not instrumented. Noise CIs are conditional on the binomial probit model and do not establish independent samples or seed robustness. Non-TT 30 mV delay and energy are report-only.
 
 The initial PMOS request used w before fingers and returned 15 um total width; it was rejected before any netlist/simulation. A corrected l/fingers/Wfg request produced and verified 5 um. Two local checker setup attempts (text-format recognition, then missing copied RNL packages) were corrected using an exact .scs copy and complete project RNL package set; no circuit change was used to hide diagnostics.
+
+In the same noise-off deterministic input sequence, whole-cycle TT AVDD energy rises from B2 205.710367428 fJ to P5 209.40410955600007 fJ and P6 212.76100148400002 fJ (about +1.80% and +3.43%). FS energy is 215.53330357440004, 218.90835947519997 and 222.0476161788 fJ respectively. Faster response and any noise improvement therefore carry an energy cost in this test. Energy remains report-only; these measurements do not establish minimum-energy operation.
