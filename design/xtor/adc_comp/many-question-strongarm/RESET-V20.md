@@ -94,3 +94,50 @@ Per-device maximum over all three terminal pairs (V):
 | MUP | 0.90609 |
 
 Clock charge from the mixed delay sequence is a supplemental diagnostic, not the official CMP-14 input-capacitance result. No all-corner, noise, Monte Carlo or mixed-top qualification is inferred from this screen.
+
+## Matched short Q-phase diagnosis
+
+Run `20261031-085505-strongarm-reset-v20-noise-numerics-diagnostic-screen` uses clean source `e45f2ad7bea3b45f5822eae18549b326c19fc727`. The two levels, 128 cycles per level, seed 1, 50 GHz bandwidth, 0.5 ps/1e-6/1e-8 integration and the instrumented testbench hash match V19's earlier short diagnostic. V20 has OUTP 1/128 at -800 uV and 128/128 at +800 uV: one wrong polarity, again at cycle 54. All samples are retained. Identical finite error counts do not prove equal underlying noise, and the same seed does not make these nonlinear waveforms independent trials.
+
+All 256 resets complete, maximum 22.830572156 ps. There are no +80/+150 ps to final sign changes, late-reset or output-validity violations. All 69 MOS terminal pairs pass, maximum 0.90804 V.
+
+| Phase and quantity | V19 descriptive SNR | V20 descriptive SNR |
+|---|---:|---:|
+| +20 ps DP_minus_DN | 4.099504935 | 4.099704178 |
+| +20 ps QP_minus_QN | 0.317416035 | 0.305432364 |
+| +30 ps DP_minus_DN | 4.183326905 | 4.112015332 |
+| +30 ps QP_minus_QN | 1.838000206 | 1.896073158 |
+| +40 ps DP_minus_DN | 0.932839270 | 0.976058759 |
+| +40 ps QP_minus_QN | 3.307195538 | 3.346147610 |
+
+SNR is the average of the two absolute differential means divided by their sample standard deviations. It is a descriptive phase statistic, not input-referred noise. At +30 ps Q mean/std ratios improve by about 3.16%; at +40 ps by about 1.18%. The larger capacitor changes both signal and variation; the observations do not support assuming a simple kT/C noise benefit. Later saturated or sign-reversed node statistics are not used as a linear noise estimate.
+
+At +30 ps V20 Q means are +1.807340/-1.806213 mV, with standard deviations 0.982561/0.924969 mV. At +40 ps they are +8.439833/-8.605365 mV and 2.671059/2.436012 mV. The measured timing and energy costs are in the earlier sections. The small early SNR change is insufficient evidence to treat this revision as the solution to V19’s 218.770059 uV formal failure. V20 is retained as an unpromoted experiment rather than expanded through all remaining corners and formal qualification. The next controlled experiment tests Q reset-shunt strength with these capacitors held fixed.
+
+| Device | Maximum terminal stress (V) |
+|---|---:|
+| MINP | 0.59074 |
+| MINN | 0.59102 |
+| MTAIL | 0.90000 |
+| MRDP | 0.90128 |
+| MRDN | 0.90130 |
+| MLNP | 0.89908 |
+| MLNN | 0.89904 |
+| MLPP | 0.90154 |
+| MLPN | 0.90154 |
+| MRQP | 0.90768 |
+| MRQN | 0.90782 |
+| MOPN | 0.90804 |
+| MOPP | 0.90804 |
+| MONN | 0.90798 |
+| MONP | 0.90798 |
+| MDQP | 0.90768 |
+| MDQN | 0.90782 |
+| MDDP | 0.89537 |
+| MDDN | 0.89602 |
+| MCKN | 0.90668 |
+| MCKP | 0.90133 |
+| MBLEED | 0.90668 |
+| MUP | 0.90668 |
+
+Archive SHA-256 `6feb033472cadf197d43b675c47ffee60be114e8a88aa3ac336c81249ae96c2e` preserves raw data, all error-cycle indices and the V19/V20 phase comparison, with every member verified. The owned remote run is absent. The shorter 102.5 ns duration raises noisefmin to 9.7561 MHz versus the original 287.216 kHz, and read-only samplers add time points. No formal V20 noise result is claimed. Canonical V19 and its genuine original records remain unchanged.
