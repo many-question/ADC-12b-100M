@@ -1,6 +1,6 @@
 # StrongARM comparator: RESET-V27
 
-**Numerical-settings transition:** the evidence below uses the preceding settings and requires revalidation under [issue #94](NUMERICS-94.md). New-settings private critical checks take priority; no new-settings qualification is claimed.
+**Numerical-settings transition:** new-settings private checks are recorded in [issue #94 evidence](NUMERICS-94.md). Four critical corners and tighter TT/SF/SS timing, reset, output validity and MOS stress pass, as do TT capacitance and the specified net per-cycle kickback at two precisions. The full TT noise precheck fails: **210.1008609253812 uV rms against 200 uV**, with 95% interval 201.81 to 218.79 uV and all 8704 samples retained. Qualification expansion of V27 stops; circuit diagnosis and design continue. The historical screening below uses the preceding settings. No formal or new-settings qualification is claimed.
 
 The canonical `adc_comp.scs` now contains the electrically identical source screened as [RESET-V27](RESET-V27.md). All ten known key corners and targeted convergence at sf_high_m40, tt_nom_27 pass timing, reset, physical output validity and full-trace MOS stress. This is screening evidence; the candidate remains WIP, unqualified and unselected.
 
