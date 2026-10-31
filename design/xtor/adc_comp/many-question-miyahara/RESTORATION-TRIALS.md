@@ -94,8 +94,35 @@ This bounded second PMOS step follows the complete P5 FS-noise reduction from 46
 
 Callback receipt SHA-256 `1e49a1b0563f362e75683c62f62fbf54a6c2d9339d1a2111f0f1df00cc8bfad6`. 28 nm HPC+ adapter 0.1.0, payload SHA-256 `c46e4713691443dbd588238d581c1863b255767fe1f79fc58722e81c0244b81f`; exact provider/release identity is retained in the private receipt. Ordered request: `[['l', '30n'], ['fingers', '6'], ['Wfg', '1u']]`. Actual values were asserted before source generation; RNL checks return zero errors/warnings/hints.
 
-TT screening has been dispatched; no completed archived result or qualification is claimed yet.
+| Kind / corner | Measured result |
+|---|---|
+| delay / tt_nom_27 | tdelay_1mV_ps=56.287759093705006, tdelay_30mV_ps=46.58894180415552, treset_ps=23.784679574030374, validity_violations=0, soa_max_V=0.92061, energy_fJ=212.76100148400002; limited gate PASS |
+| delay / fs_low_125 | tdelay_1mV_ps=65.2484875194895, tdelay_30mV_ps=52.35531734195987, treset_ps=25.977376363541104, validity_violations=0, soa_max_V=0.82602, energy_fJ=222.0476161788; limited gate PASS |
+| delay / ss_low_125 | tdelay_1mV_ps=75.68506977444133, tdelay_30mV_ps=61.7320796434656, treset_ps=31.78379530794168, validity_violations=0, soa_max_V=0.83243, energy_fJ=195.39406261799996; limited gate PASS |
+| delay / ff_high_m40 | tdelay_1mV_ps=42.92576491568427, tdelay_30mV_ps=35.715598285861404, treset_ps=18.43058546945801, validity_violations=0, soa_max_V=1.01871, energy_fJ=251.56960119720003; limited gate PASS |
+| delay / sf_high_m40 | tdelay_1mV_ps=55.55957598457285, tdelay_30mV_ps=46.39047759699909, treset_ps=21.004803368777942, validity_violations=0, soa_max_V=1.02034, energy_fJ=240.50166596279996; limited gate PASS |
+| kickback / tt_nom_27 | cin_fF=19.31090586511203, cin_clkc_fF=14.920381242967167, kickback_uV=8.622179988211631e-05; PASS |
 
+Reported deterministic/loading gates are limited screening; physical FS noise is the next conditional gate.
+
+Retained noise-off waveform markers (mean of four +/-100 uV cycles; exact saved traces and per-cycle values retained privately). These are descriptive thresholds, not gm/loop-gain activation points or individual noise contributions.
+
+| Corner | Core reaches 1 mV: parent / trial (ps) | D differential at that event: parent / trial (mV) | Max saved D differential before that event: parent / trial (mV) |
+|---|---|---|---|
+| tt_nom_27 | 34.646518 / 33.555915 | 0.542460 / 0.527044 | 0.536524 / 0.522286 |
+| fs_low_125 | 41.360939 / 37.075604 | 0.020730 / 0.086748 | 0.338202 / 0.332287 |
+
+| Archived run | Own wrapper (s) | Own Spectre elapsed / CPU (s) | Runner elapsed (s) | Upload / execute / fetch / parse / cleanup / other guards (s) |
+|---|---|---|---:|---|
+| 20261101-054750-soa11-physical-p6-tt | 27.0 | 23.8/14.2 | 264.804 | 21.531 / 49.734 / 43.641 / 2.094 / 21.031 / 126.773 |
+| 20261101-055149-soa11-physical-p6-corners | 17.0, 27.0, 17.0, 16.0 | 12.6/14.5, 23.6/14.1, 12.5/14.2, 12.3/14.1 | 283.872 | 21.469 / 66.969 / 45.750 / 4.656 / 21.016 / 124.012 |
+| 20261101-055159-soa11-physical-p6-loading | 34.0 | 29.7/14.8 | 265.570 | 21.468 / 55.438 / 43.250 / 0.140 / 21.000 / 124.274 |
+
+20261101-054750-soa11-physical-p6-tt archive SHA-256 `0b659467c1f01590be48598fce635a719a6ef6a1fe1de7c77aed5b48f9de5a00`.
+
+20261101-055149-soa11-physical-p6-corners archive SHA-256 `ed70b261bf3c546c0a6647da90c3fcc0cb9f0ede14649c0eb08222149efad95a`.
+
+20261101-055159-soa11-physical-p6-loading archive SHA-256 `5e1bf7259c9295a46cba58aa29b2965547522c27ac995f2b30e52646678ba591`.
 
 All listed completed archives passed CRC/member SHA checks and exact remote-path absence checks. Batch timers include other variants in a shared run; overlapping durations are not campaign wall time. Archive/report time was not instrumented. Noise CIs are conditional on the binomial probit model and do not establish independent samples or seed robustness. Non-TT 30 mV delay and energy are report-only.
 
