@@ -377,3 +377,135 @@ The log's automatic maxstep bound is not an explicit job-deck setting. Actual AP
 The complete phase/load context is included in this run's verified archive.
 
 This electrical source fails the private experimental gate on the merged 0.8.0 baseline. Qualification expansion stops at the failure; diagnosis and further circuit design continue. Every failure is retained.
+
+
+## Private precheck 20261031-150826-strongarm-reset-v32-spec08-delay-baseline-screen
+
+Test `tb_comp_delay`, accuracy `baseline`, frozen clean source `d283d2014a3bad62f98f98bc03603f0199c11a55`. These results use a private copy of the testbench and do not write formal records. This is an independent experimental source using the merged official 0.8.0 testbench baseline, not a formal canonical-view result. All physical stimuli, loads, samplers and measurement code are preserved. Output selections and any tighter tolerances are recorded separately. The requested numerical settings are `{}`; no explicit maxstep or method is set.
+
+Explicit output policy: `save=selected` with named DUT/SOA voltage signals and required metric/current probes, or the preserved monitor-only noise protocol. No global or wildcard expansion is used. The exact selected signal lists, policy source and before/after testbench hashes are retained with this run; earlier runs are not relabeled with this policy.
+
+| Corner | 1 mV ps | 30 mV ps | Reset ps | Raw max stress V | Actual / reset cycles | Private gate |
+|---|---:|---:|---:|---:|---:|---|
+| fs_high_m40 | 56.041570238 | 42.005244400 | 20.961647044 | 0.995466853153 | 36 / 36 | PASS |
+| sf_high_m40 | 71.841790991 | 52.779690705 | 19.931921873 | 0.996905493020 | 36 / 36 | PASS |
+| ss_low_125 | 88.018324387 | 63.343722647 | 33.472284067 | 0.817609123230 | 36 / 36 | PASS |
+| tt_nom_27 | 64.552216870 | 47.455204527 | 23.908415648 | 0.905975996674 | 36 / 36 | PASS |
+
+Every actual polarity down to 10 uV, all reset intervals, full evaluation output validity and every MOS gs/gd/ds pair are checked. The AVDD audit spans all 36 complete cycles; all supply probes are present and KCL closes. Reported power has no acceptance limit.
+
+TT full AVDD waveform integral is 423.715629138 fJ/cycle: 102.791056661 evaluation and 320.924572477 reset. The original meter gives 424.199206800 fJ/cycle; the waveform-integral difference is -0.113998%. Both values are preserved.
+
+| Corner | Effective reltol | Effective vabstol V | Method / preset / relref / lteratio | Largest saved step ps |
+|---|---:|---:|---|---:|
+| fs_high_m40 | 0.0001 | 1e-06 | gear2only / conservative / alllocal / 10 | 56.5 |
+| sf_high_m40 | 0.0001 | 1e-06 | gear2only / conservative / alllocal / 10 | 56.5 |
+| ss_low_125 | 0.0001 | 1e-06 | gear2only / conservative / alllocal / 10 | 56.5 |
+| tt_nom_27 | 0.0001 | 1e-06 | gear2only / conservative / alllocal / 10 | 56.5 |
+
+The log's automatic maxstep bound is not an explicit job-deck setting. Actual APS thread information and the six-job session ceiling are recorded separately. Fetched raw/deck hashes match; the exact owned remote run is absent. Archive SHA-256 `23ee62d872be40a886206f848c96f2c53e80a9a728ff60bdfabd9b33daafef6c` was checked by reading every member back with CRC and SHA-256. Full qualification remains open.
+
+
+## Private precheck 20261031-150826-strongarm-reset-v32-spec08-kickback-baseline-screen
+
+Test `tb_comp_kickback`, accuracy `baseline`, frozen clean source `d283d2014a3bad62f98f98bc03603f0199c11a55`. These results use a private copy of the testbench and do not write formal records. This is an independent experimental source using the merged official 0.8.0 testbench baseline, not a formal canonical-view result. All physical stimuli, loads, samplers and measurement code are preserved. Output selections and any tighter tolerances are recorded separately. The requested numerical settings are `{}`; no explicit maxstep or method is set.
+
+Explicit output policy: `save=selected` with named DUT/SOA voltage signals and required metric/current probes, or the preserved monitor-only noise protocol. No global or wildcard expansion is used. The exact selected signal lists, policy source and before/after testbench hashes are retained with this run; earlier runs are not relabeled with this policy.
+
+| Corner | Input fF | CLKC fF | Kickback uV | Private gate |
+|---|---:|---:|---:|---|
+| tt_nom_27 | 19.331118543 | 15.563277108 | 0.000059501 | PASS |
+
+The tiny values previously produced with old settings are not used as physical conclusions. This private value remains distinct from an official rerun and from further tolerance-convergence evidence.
+
+A separate full-input-trace diagnostic at tt_nom_27 finds up to 364.462595 uV instantaneous differential change and 7.403170 mV common-mode change relative to that cycle's pre-evaluation sample. These are distinct from the specified net per-cycle kickback metric and are not judged against its 40 uV limit. A nearly zero per-cycle value does not imply an undisturbed input during evaluation and reset.
+
+Load/stimulus conditions verified against the archived staged testbench: each input floats on 2.50 pF, initialized to common mode 0.49 V and differential 1 mV; each output has 10 fF. TT supply is 0.9 V, the clock period is 400 ps, and rise/fall times are 10 ps.
+
+Unrounded recorded values: net per-cycle metric `5.950139990093528e-05` uV; instantaneous differential peak magnitude `364.4625954699607` uV (signed change `0.00036446259546996074` V), cycle 2, `70.17635571444133` ps after its pre-evaluation sample. The peak is in **evaluation**, whose measured window runs from that sample to `199.99997499999992` ps. Maximum common-mode excursion is `7.403170004551985` mV, in evaluation at `198.229137663919` ps after its cycle-1 sample.
+
+The phase/load context was derived from SHA-verified raw evidence without modifying the traces; context-file SHA-256 is `6bf38391bcbaca7774468f836d10d85b3f6fd521566b5de474adb000684ad8e7`. The specified metric concerns net change after evaluation plus reset; these instantaneous peaks describe disturbance during that interval. Future validation with the actual CDAC must check decision-phase differential and common-mode effects. No shared rule or limit changes.
+
+| Corner | Effective reltol | Effective vabstol V | Method / preset / relref / lteratio | Largest saved step ps |
+|---|---:|---:|---|---:|
+| tt_nom_27 | 1e-06 | 1e-08 | gear2only / conservative / alllocal / 10 | 33.0 |
+
+The log's automatic maxstep bound is not an explicit job-deck setting. Actual APS thread information and the six-job session ceiling are recorded separately. Fetched raw/deck hashes match; the exact owned remote run is absent. Archive SHA-256 `119356f766a5c8d477f1f64477319260ee36483383bd69ca869c7bebccae5d56` was checked by reading every member back with CRC and SHA-256. Full qualification remains open.
+
+The complete phase/load context is included in this run's verified archive.
+
+
+## Private precheck 20261031-151652-strongarm-reset-v32-spec08-delay-tighter-screen
+
+Test `tb_comp_delay`, accuracy `tighter`, frozen clean source `d283d2014a3bad62f98f98bc03603f0199c11a55`. These results use a private copy of the testbench and do not write formal records. This is an independent experimental source using the merged official 0.8.0 testbench baseline, not a formal canonical-view result. All physical stimuli, loads, samplers and measurement code are preserved. Output selections and any tighter tolerances are recorded separately. The requested numerical settings are `{"reltol": "1e-5", "vabstol": "1e-8"}`; no explicit maxstep or method is set.
+
+Explicit output policy: `save=selected` with named DUT/SOA voltage signals and required metric/current probes, or the preserved monitor-only noise protocol. No global or wildcard expansion is used. The exact selected signal lists, policy source and before/after testbench hashes are retained with this run; earlier runs are not relabeled with this policy.
+
+| Corner | 1 mV ps | 30 mV ps | Reset ps | Raw max stress V | Actual / reset cycles | Private gate |
+|---|---:|---:|---:|---:|---:|---|
+| fs_high_m40 | 56.733366371 | 42.057941595 | 20.903248500 | 0.995472779817 | 36 / 36 | PASS |
+| sf_high_m40 | 72.656321131 | 52.895502633 | 19.446476506 | 0.996897019932 | 36 / 36 | PASS |
+| ss_low_125 | 89.534940753 | 63.487463121 | 32.868603675 | 0.817505725550 | 36 / 36 | PASS |
+| tt_nom_27 | 65.450169078 | 47.552992813 | 23.506670414 | 0.905873326049 | 36 / 36 | PASS |
+
+Every actual polarity down to 10 uV, all reset intervals, full evaluation output validity and every MOS gs/gd/ds pair are checked. The AVDD audit spans all 36 complete cycles; all supply probes are present and KCL closes. Reported power has no acceptance limit.
+
+TT full AVDD waveform integral is 426.788018970 fJ/cycle: 105.798579821 evaluation and 320.989439149 reset. The original meter gives 426.823903440 fJ/cycle; the waveform-integral difference is -0.008407%. Both values are preserved.
+
+Same-source tighter-minus-announced comparison at fs_high_m40: 1 mV delay +0.691796133 ps, 30 mV delay +0.052697195 ps, reset -0.058398544 ps. Largest per-pair stress change is 460.000 uV at the table's 10 uV resolution; all unrounded peaks are separately preserved.
+
+Same-source tighter-minus-announced comparison at sf_high_m40: 1 mV delay +0.814530140 ps, 30 mV delay +0.115811928 ps, reset -0.485445368 ps. Largest per-pair stress change is 420.000 uV at the table's 10 uV resolution; all unrounded peaks are separately preserved.
+
+Same-source tighter-minus-announced comparison at ss_low_125: 1 mV delay +1.516616365 ps, 30 mV delay +0.143740474 ps, reset -0.603680392 ps. Largest per-pair stress change is 590.000 uV at the table's 10 uV resolution; all unrounded peaks are separately preserved.
+
+Same-source tighter-minus-announced comparison at tt_nom_27: 1 mV delay +0.897952208 ps, 30 mV delay +0.097788285 ps, reset -0.401745234 ps. Largest per-pair stress change is 260.000 uV at the table's 10 uV resolution; all unrounded peaks are separately preserved.
+
+| Corner | Effective reltol | Effective vabstol V | Method / preset / relref / lteratio | Largest saved step ps |
+|---|---:|---:|---|---:|
+| fs_high_m40 | 1e-06 | 1e-08 | gear2only / conservative / alllocal / 10 | 56.5 |
+| sf_high_m40 | 1e-06 | 1e-08 | gear2only / conservative / alllocal / 10 | 56.5 |
+| ss_low_125 | 1e-06 | 1e-08 | gear2only / conservative / alllocal / 10 | 56.5 |
+| tt_nom_27 | 1e-06 | 1e-08 | gear2only / conservative / alllocal / 10 | 56.5 |
+
+The log's automatic maxstep bound is not an explicit job-deck setting. Actual APS thread information and the six-job session ceiling are recorded separately. Fetched raw/deck hashes match; the exact owned remote run is absent. Archive SHA-256 `4bff292951732887e803079a71fd3dfb81ef1ce1fc3a8bb64c98865579695f34` was checked by reading every member back with CRC and SHA-256. Full qualification remains open.
+
+
+## Private precheck 20261031-151715-strongarm-reset-v32-spec08-noise-baseline-screen
+
+Test `tb_comp_noise`, accuracy `baseline`, frozen clean source `d283d2014a3bad62f98f98bc03603f0199c11a55`. These results use a private copy of the testbench and do not write formal records. This is an independent experimental source using the merged official 0.8.0 testbench baseline, not a formal canonical-view result. All physical stimuli, loads, samplers and measurement code are preserved. Output selections and any tighter tolerances are recorded separately. The requested numerical settings are `{}`; no explicit maxstep or method is set.
+
+Explicit output policy: `save=none` with named DUT/SOA voltage signals and required metric/current probes, or the preserved monitor-only noise protocol. No global or wildcard expansion is used. The exact selected signal lists, policy source and before/after testbench hashes are retained with this run; earlier runs are not relabeled with this policy.
+
+| Corner | Noise uV rms | 95% profile interval uV | Offset mV | Samples | Private gate |
+|---|---:|---|---:|---:|---|
+| tt_nom_27 | 194.233252094 | 186.32 to 202.54 | 0.009772338 | 8704 | PASS |
+
+The full original 17 levels, 512 samples per level, 50 GHz bandwidth and seed 1 are preserved. Every sample is finite and none is omitted. The original outputstart=tstop waveform cannot establish reset history or full-trace terminal stress; those are separate checks. The noise interval is conditional on the Gaussian-CDF fit.
+
+At tt_nom_27, minimum sampled output magnitude is 0.899771677 V and maximum absolute standardized Gaussian-fit residual is 4.004778. These residuals are diagnostic, not a proof that the physical distribution is Gaussian.
+
+| Input uV | OUTP / 512 |
+|---:|---:|
+| -800 | 0 |
+| -700 | 0 |
+| -600 | 0 |
+| -500 | 2 |
+| -400 | 15 |
+| -300 | 25 |
+| -200 | 69 |
+| -100 | 113 |
+| 0 | 291 |
+| 100 | 349 |
+| 200 | 420 |
+| 300 | 477 |
+| 400 | 498 |
+| 500 | 509 |
+| 600 | 512 |
+| 700 | 512 |
+| 800 | 512 |
+
+| Corner | Effective reltol | Effective vabstol V | Method / preset / relref / lteratio | Largest saved step ps |
+|---|---:|---:|---|---:|
+| tt_nom_27 | 0.0001 | 1e-06 | gear2only / conservative / alllocal / 10 | None |
+
+The log's automatic maxstep bound is not an explicit job-deck setting. Actual APS thread information and the six-job session ceiling are recorded separately. Fetched raw/deck hashes match; the exact owned remote run is absent. Archive SHA-256 `62d74c2b9aef0cd0b6cc1808caeab81d0cfb551390bb10bdd1917177aee24988` was checked by reading every member back with CRC and SHA-256. Full qualification remains open.

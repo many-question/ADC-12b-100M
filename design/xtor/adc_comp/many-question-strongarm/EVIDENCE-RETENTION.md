@@ -8,6 +8,10 @@ The user requested removal of superseded waveform data after a disk-space incide
 - `20261031-133342-strongarm-reset-v28-spec08-noiseoff-q_shunts-screen` — archive SHA-256 `a56de68b166db74a927671dd5ef6261a42d99c9bbfc9c59994ccf430ff15d8ec`.
 - `20261031-142506-strongarm-reset-v31-spec08-delay-baseline-screen` — archive SHA-256 `16675cf85040eef16b2f1408798ec477e25d271b376798f0cc202b1f35485e36`.
 - `20261031-142603-strongarm-reset-v31-spec08-kickback-baseline-screen` — archive SHA-256 `de2075791bc9a9be8109c4cb4db32f66c4f9c90fc6a3779ea0e10a1d04b9bd0e`.
+- `20261031-150826-strongarm-reset-v32-spec08-delay-baseline-screen` — archive SHA-256 `23ee62d872be40a886206f848c96f2c53e80a9a728ff60bdfabd9b33daafef6c`.
+- `20261031-150826-strongarm-reset-v32-spec08-kickback-baseline-screen` — archive SHA-256 `119356f766a5c8d477f1f64477319260ee36483383bd69ca869c7bebccae5d56`.
+- `20261031-151652-strongarm-reset-v32-spec08-delay-tighter-screen` — archive SHA-256 `4bff292951732887e803079a71fd3dfb81ef1ce1fc3a8bb64c98865579695f34`.
+- `20261031-151715-strongarm-reset-v32-spec08-noise-baseline-screen` — archive SHA-256 `62d74c2b9aef0cd0b6cc1808caeab81d0cfb551390bb10bdd1917177aee24988`.
 
 Artificial noise-suppression trials remain ineligible for qualification. Retention does not establish compliance. Both canonical candidates retain genuine failed official 0.8 noise results. The full qualification remains incomplete.
 
