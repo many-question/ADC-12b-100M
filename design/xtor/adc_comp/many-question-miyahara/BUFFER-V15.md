@@ -205,3 +205,88 @@ The unrounded maximum over all 129 terminal pairs at 0.125 ps / 1e-7 / 1e-9 is 0
 Relative to 0.5 ps / 1e-6 / 1e-8, the largest change across the full rounded pair table is 20.000 uV, with a 10 uV table resolution. Tight-minus-reference changes are +0.001014098 ps at 1 mV, -0.000157645 ps at 30 mV, -0.042219911 ps reset and +0.003000096 fJ/cycle. Both settings pass, but this does not demonstrate broad voltage margin. If the early noise diagnosis is useful, this narrow point requires further convergence assessment before promotion, in addition to all remaining known corners.
 
 The next private diagnosis compares TT and FS/low/125 with the same short +/-800 uV, 128 cycles per level, 50 GHz, seed-1 protocol used for B13. It retains the input, interstage, regeneration and output phases plus all device currents. No result is yet available for this source, and no B13 formal pass transfers.
+
+## Matched TT and worst-corner noise phase diagnosis
+
+Run `20261031-084454-miyahara-buffer-v15-noise-phase-diagnostic-screen` uses clean source `6f4090883bd5bfa9de75ff7d823f0be19c6aae27`, electrical SHA-256 `5006ef01a47d58de546a7925aa88a7ea9d7730b43632efcaf676d28974223d94`. Both corners retain the B13 short diagnostic's +/-800 uV, 128 decisions per level, 50 GHz bandwidth, seed 1, 0.5 ps / 1e-6 / 1e-8 integration, 10 fF load and VCM 0.49 V. The comparator source changes, while the testbench hash, numerical settings and protocol match the earlier diagnostic exactly.
+
+| Corner | OUTP at -800 / +800 uV | Wrong / 256 | Reset max (ps) | Max MOS stress (V) |
+|---|---:|---:|---:|---:|
+| tt_nom_27 | 0 / 128 | 0 | 23.942245420 | 0.90525 |
+| fs_low_125 | 5 / 127 | 6 | 26.223278556 | 0.81178 |
+
+All 256 resets complete in each corner. There are zero +80 ps or +150 ps to final sign changes, late-reset, output-validity or full-trace stress violations. All 129 terminal pairs are checked. The six FS errors occur at cycles 10, 53, 58, 70, 77 and 157, with all samples retained. At +50 ps RP-RN already has those six errors and its sign matches every final decision. This sample does not show new late interface errors, but it does not rule out earlier coupled interface contributions.
+
+B13 had 0/256 TT and 11/256 FS errors. These finite counts and the following phase statistics show a partial improvement; they do not establish a formal noise limit or isolate the PMOS-driver contribution from the buffer-capacitor change. Gains are two-level secants. SNR is the average of each level’s absolute differential mean divided by its sample standard deviation.
+
+| Phase and node | TT gain B13 / B15 | FS gain B13 / B15 | TT SNR B13 / B15 | FS SNR B13 / B15 |
+|---|---:|---:|---:|---:|
+| +20 ps DP_minus_DN | -3.584914 / -3.506789 | -3.021849 / -2.956183 | 4.114767 / 4.014832 | 3.308228 / 3.194453 |
+| +30 ps DP_minus_DN | -4.702372 / -4.553212 | -2.090033 / -2.249823 | 4.964894 / 4.945071 | 3.480239 / 3.561494 |
+| +30 ps XP_minus_XN | 12.159094 / 11.979471 | 6.680821 / 6.881498 | 3.852014 / 3.869898 | 2.423817 / 2.577531 |
+| +30 ps RP_minus_RN | 1.089267 / 2.020416 | 0.714084 / 1.441994 | 1.182964 / 1.990195 | 0.703461 / 1.252984 |
+| +40 ps RP_minus_RN | 28.295436 / 40.142838 | 7.557355 / 12.734365 | 4.247585 / 4.390070 | 1.852117 / 2.265981 |
+| +50 ps RP_minus_RN | 197.918410 / 322.821752 | 28.558021 / 59.577713 | 4.337550 / 4.675992 | 1.706169 / 2.198461 |
+
+At FS +20 and +30 ps, the input-stage differential sign is correct for every cycle, including the six whose final output is wrong. B15 improves RP transfer at +30/+40 ps, but much of the input discrimination is still lost before the settled internal decision. CKB normalized trajectories remain similar. The stage and time dependence supports a release-path loading test; it does not identify an isolated physical noise source.
+
+| +30 ps drain-current mean (uA) | TT | FS low/hot |
+|---|---:|---:|
+| M14 | -517.956963 | -553.247631 |
+| M12 | 211.656027 | 196.877403 |
+| M10 | -105.799836 | -135.640959 |
+| M8 | 153.366691 | 112.167711 |
+| MRQP | 31.770434 | 47.350521 |
+| MUPRP1 | -155.866855 | -100.008746 |
+
+These are terminal currents with displacement contributions, not isolated channel-current or noise estimates. [BUFFER-V16](BUFFER-V16.md) tests only MRQP/MRQN N4-to-N2 geometry with all capacitors and other devices fixed. Reset speed, changed CKB loading and terminal excursions must be rechecked. B15 remains unpromoted; its six residual worst-corner errors and separate 13.345 uV cold stress margin are preserved.
+
+| Device | TT maximum stress (V) | FS low/hot maximum stress (V) |
+|---|---:|---:|
+| MINP | 0.59558 | 0.49230 |
+| MINN | 0.59595 | 0.49236 |
+| MTAIL | 0.90017 | 0.81000 |
+| M14 | 0.90238 | 0.81178 |
+| M15 | 0.90234 | 0.81164 |
+| M12 | 0.90240 | 0.81139 |
+| M13 | 0.90249 | 0.81148 |
+| M10 | 0.89328 | 0.80104 |
+| M11 | 0.89330 | 0.80102 |
+| M6 | 0.90253 | 0.79950 |
+| M7 | 0.90253 | 0.79950 |
+| M8 | 0.90253 | 0.80640 |
+| M9 | 0.90243 | 0.80637 |
+| MCKN | 0.90225 | 0.81022 |
+| MCKP | 0.90000 | 0.81000 |
+| MRQP | 0.90253 | 0.81022 |
+| MRQN | 0.90243 | 0.81022 |
+| MAP | 0.90238 | 0.81178 |
+| MAN | 0.90226 | 0.81164 |
+| MBPP | 0.89581 | 0.80814 |
+| MBPN | 0.90525 | 0.81176 |
+| MOPP | 0.89008 | 0.80067 |
+| MOPN | 0.90525 | 0.81176 |
+| MBNP | 0.89589 | 0.80823 |
+| MBNN | 0.90517 | 0.81170 |
+| MONP | 0.88964 | 0.80016 |
+| MONN | 0.90517 | 0.81170 |
+| MDDP | 0.89754 | 0.80640 |
+| MDDN | 0.89751 | 0.80637 |
+| MUPRP1 | 0.90253 | 0.81000 |
+| MUPRN1 | 0.90243 | 0.81000 |
+| MUPBP1 | 0.90525 | 0.81176 |
+| MUPBN1 | 0.90517 | 0.81170 |
+| MUPOUTP1 | 0.90028 | 0.81000 |
+| MUPOUTN1 | 0.90019 | 0.81000 |
+| MDNOUTP1 | 0.90028 | 0.80323 |
+| MDNOUTP2 | 0.90028 | 0.80323 |
+| MDNOUTN1 | 0.90019 | 0.80316 |
+| MDNOUTN2 | 0.90019 | 0.80316 |
+| MCKUP | 0.90225 | 0.81022 |
+| MBLEED | 0.90225 | 0.81022 |
+| MUPXP | 0.90240 | 0.81139 |
+| MUPXN | 0.90249 | 0.81148 |
+
+Raw/deck hashes and every archive member are verified; archive SHA-256 `6b78f39c18c050006136ccd82cff98e3510732f0988b87e654ca1dd2374a7b7b` includes the full phase comparison and all error-cycle indices. The exact owned remote run is confirmed absent. Original canonical and formal result/figure files are unchanged.
+
+The 102.5 ns duration sets noisefmin near 9.7561 MHz, versus 287.216 kHz in the original formal test, and read-only samplers add time points. This two-level experiment is not a formal 240 uV result. B13’s four actual formal failures remain unchanged; no new formal pass or failure is fabricated.
