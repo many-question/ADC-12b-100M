@@ -675,3 +675,11 @@ The full raw-derived phase/load context is included in the verified archive; its
 Actual settings (tt_nom_27): reltol 1e-06, vabstol 1e-08 V, gear2only/conservative/alllocal, lteratio 10; no explicit maxstep or method override.
 
 Verified ZIP SHA-256 `43d0e895321f0d51853bf25d00605c2384fc4f3f15678dfe1c56912108de6597`; every member passed CRC/SHA readback, retrieval/final-source guards and exact remote absence passed; session ceiling six jobs. [Retention](EVIDENCE-RETENTION.md) governs raw availability. Full qualification remains open.
+
+## Failed private tighter screen 20261031-164621-miyahara-buffer-v27-spec08-delay-tighter-screen
+
+Frozen clean source `c412c651b6d3e2578fbc43b01a963fbb81ddfcfd`; B27 physical dimensions and merged 0.8.0 stimuli/loads are unchanged. FS/high/-40, the first warm-up job, exits 1 with SPECTRE-16929 at 137.149 ps after 1000 consecutive timesteps below 1.45e-21 s, preceded by SPECTRE-16191 warnings. The other four planned corners (TT, SS/low/125, SF/high/-40, FS/low/125) never started; they have no results. This is a failed batch, not a completed tighter gate. No B27 noise run follows.
+
+Actual log settings remain APS/conservative/gear2only/reltol 1e-6/vabstol 1e-8 V/relref alllocal/lteratio 10. No explicit maxstep or method override is introduced. The 1249 accepted saved points end at 137.149319546542 ps; OUTP is 0.00334803408066109 V, BP 0.6760131708635608 V and MOPP bulk current 1.846910186971851e-05 A. The rejected Newton iterate is not in this trace. These observations establish neither a device-model root cause nor full-cycle SOA/reset/timing.
+
+All 67 retrieved/staged files match remote SHA-256; the one started job has matched START/END events, peak concurrency one, no owned process remains, and source/canonical/formal-file guards pass. Status is explicitly failed_reviewed. ZIP SHA-256 `1cc66d19608e56c2f4b152e6be4100724dd665a9f1d6c8770a3e074a27c0dde3` passed every-member CRC/SHA readback; the exact owned remote directory is absent. The complete log, partial trace, planned/unstarted jobs and independent auditors are retained. Numerical settings and limits are preserved; canonical B20 remains unchanged.
