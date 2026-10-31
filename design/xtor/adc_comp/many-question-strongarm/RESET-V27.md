@@ -147,3 +147,63 @@ The same electrical source is repeated with 0.125 ps, reltol 1e-7 and vabstol 1e
 | tt_nom_27 | +0.007794814 | +0.000721559 | -0.087347257 | 0.00001 |
 
 Tighter TT 30 mV delay is 49.838319918 ps, leaving 0.161680082 ps to 50 ps. This remains a thin measured margin. The four initial corners retain all 144 nominal-cycle polarities and resets, followed by 72 tighter repeats. A matched short diagnosis against V26 follows; no capacitance, noise or full-corner qualification is inherited.
+
+
+## Matched short noise-phase diagnosis
+
+Run `20261031-112202-strongarm-reset-v27-noise-numerics-diagnostic-screen` uses clean source `99b0b80def67cd569723b536b4ebfec92bc77534` and matches V26's short instrumented testbench, +/-800 uV, 128 cycles per level, seed 1, 50 GHz and 0.5 ps/1e-6/1e-8 integration. It retains one wrong polarity, again at cycle 54. All 256 samples remain included. Identical error counts and a shared seed do not establish equal underlying noise or independent trials.
+
+All 256 resets complete, maximum 22.960385221 ps, with no +80/+150 ps to final sign changes, late reset or output-validity violations. Every one of the 69 MOS terminal pairs passes, maximum 0.90667 V.
+
+| Phase | Quantity | V26 secant gain | V27 secant gain | V26 descriptive SNR | V27 descriptive SNR |
+|---|---|---:|---:|---:|---:|
+| +20 ps | DP_minus_DN | -3.737213241 | -3.712764404 | 4.103276767 | 4.104177783 |
+| +20 ps | QP_minus_QN | 0.157514921 | 0.110178722 | 0.216591685 | 0.165871872 |
+| +30 ps | DP_minus_DN | -3.102577705 | -2.745051112 | 4.119998153 | 3.834737040 |
+| +30 ps | QP_minus_QN | -2.505933692 | -2.530136887 | 1.917068000 | 2.090607443 |
+| +40 ps | DP_minus_DN | 0.951521206 | 0.961255468 | 0.844930207 | 0.874191357 |
+| +40 ps | QP_minus_QN | -11.751703200 | -9.656905251 | 3.261935628 | 3.415278200 |
+
+The observed Q descriptive SNR rises about 9.1% at +30 ps and 4.7% at +40 ps. At -20 ps, its differential standard deviations are 0.352922/0.360114 mV, versus V26 0.361281/0.373230 mV; at +20 ps they are 0.521806/0.536165 mV versus 0.565746/0.591128 mV. These phase distributions reflect changing transfer and regeneration and are not formal input-referred noise. The phase result does not establish that the 200 uV TT requirement is met.
+
+All DP signs at +20/+30 ps remain correct. At +30 ps Q disagrees with the input in six cycles; at +40 ps it matches all final decisions, including the error. Early internal signs are not completed output decisions. Cycle 54 retains the following measured differentials:
+
+| Phase | DP-DN mV | QP-QN mV |
+|---|---:|---:|
+| -20 ps | -0.005795224 | -0.772069512 |
+| +5 ps | -0.200072595 | -1.311536882 |
+| +10 ps | 0.383276902 | -1.357561164 |
+| +20 ps | 0.980668227 | -1.373961943 |
+| +30 ps | 1.735775794 | -1.146955162 |
+| +40 ps | 2.067949788 | -1.267955690 |
+| +60 ps | 2.901913930 | -17.492866988 |
+
+The four initial deterministic corners and tight TT/initial-worst checks pass, while the short phase change is modest but positive at both +30/+40 ps. The remaining six known risk corners will be completed before deciding source-preserving promotion and original full noise testing. No noise pass or all-corner qualification is claimed.
+
+| Device | max abs(Vgs) V | max abs(Vgd) V | max abs(Vds) V |
+|---|---:|---:|---:|
+| MINP | 0.49211 | 0.49171 | 0.59080 |
+| MINN | 0.49210 | 0.49173 | 0.59109 |
+| MTAIL | 0.90000 | 0.89896 | 0.56812 |
+| MRDP | 0.90000 | 0.89896 | 0.90131 |
+| MRDN | 0.90000 | 0.89890 | 0.90133 |
+| MLNP | 0.89910 | 0.89930 | 0.89922 |
+| MLNN | 0.89916 | 0.89930 | 0.89906 |
+| MLPP | 0.90160 | 0.89930 | 0.90159 |
+| MLPN | 0.90159 | 0.89930 | 0.90160 |
+| MRQP | 0.90000 | 0.90468 | 0.90159 |
+| MRQN | 0.90000 | 0.90481 | 0.90160 |
+| MOPN | 0.90500 | 0.90519 | 0.90572 |
+| MOPP | 0.90159 | 0.90519 | 0.90197 |
+| MONN | 0.90505 | 0.90517 | 0.90565 |
+| MONP | 0.90160 | 0.90517 | 0.90190 |
+| MDQP | 0.90667 | 0.89914 | 0.90500 |
+| MDQN | 0.90667 | 0.89901 | 0.90505 |
+| MDDP | 0.89578 | 0.00000 | 0.89578 |
+| MDDN | 0.89645 | 0.00000 | 0.89645 |
+| MCKN | 0.90000 | 0.89419 | 0.90667 |
+| MCKP | 0.90000 | 0.89419 | 0.90133 |
+| MBLEED | 0.90000 | 0.90133 | 0.90667 |
+| MUP | 0.90000 | 0.90667 | 0.90133 |
+
+Archive SHA-256 `90c87f16f051217c6f1e63867f711f2b490302a07150913cb218e17a313e939d` preserves complete raw data, every error index, phase signs and the matched V26 comparison. Every entry was read back with CRC and SHA-256 verification, and the owned remote run is absent. The 102.5 ns duration raises noisefmin to 9.7561 MHz versus the original 287.216 kHz. Canonical V19 and every genuine original record remain unchanged.
