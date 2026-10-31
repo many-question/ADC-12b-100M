@@ -30,7 +30,7 @@
   "t_off_ps": 17.266334026821383,
   "t_on_ps": 64.68418498226748,
   "soa_scope": "external",
-  "soa_limit_V": 1.0,
+  "soa_limit_V": 1.1,
   "soa_devices": 1,
   "soa_devices_dut": 0,
   "soa_pairs": 3,
@@ -141,11 +141,11 @@
  "figures": [
   {
    "file": "tt_nom_27.switch.png",
-   "caption": "Boosted gate voltage over the input range, the worst turn-off and turn-on edge with their delays and limits, the three terminal voltages of the reference switch against the +/-1.0 V SOA limit, and the specification table."
+   "caption": "Boosted gate voltage over the input range, the worst turn-off and turn-on edge with their delays and limits, the three terminal voltages of the reference switch against the +/-1.1 V SOA limit, and the specification table."
   },
   {
    "file": "tt_nom_27.soa.png",
-   "caption": "Largest |Vgs|, |Vgd|, |Vds| of every checked device against the 1.0 V limit (scope: external), the worst pair over the whole run, and the saved time points around the time of its maximum, which set the time resolution."
+   "caption": "Largest |Vgs|, |Vgd|, |Vds| of every checked device against the 1.1 V limit (scope: external), the worst pair over the whole run, and the saved time points around the time of its maximum, which set the time resolution."
   },
   {
    "file": "tt_nom_27.cin.png",
@@ -153,15 +153,15 @@
   }
  ],
  "meta": {
-  "date": "2026-10-31T11:23:35",
-  "git": "dcaf6fe",
+  "date": "2026-10-31T15:29:39",
+  "git": "718b123",
   "git_clean": true,
   "mode": "aps",
   "pdk": true,
   "mc": null,
-  "wall_s": 188.4,
+  "wall_s": 140.1,
   "rc": "0",
-  "sim_s": "81",
+  "sim_s": "32",
   "numerics": {
    "source": "spectre.log",
    "reltol": 1e-06,
@@ -183,7 +183,7 @@
    "tb/common/veriloga/tb_qmeter_va.va": "fed84d572a912b39",
    "design/behav/adc_bootstrap.scs": "eee3a0a78eec4c5f",
    "design/behav/veriloga/adc_bootstrap_va.va": "12338aad16f4913b",
-   "specs/soa.yaml": "df574d3582df9b2c"
+   "specs/soa.yaml": "b6213fc39b550c11"
   },
   "arch": {
    "keys": [],

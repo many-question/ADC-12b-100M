@@ -26,7 +26,7 @@
   "skew_ssb_ps": 0.0,
   "iavg_uA": 70.0,
   "soa_scope": "external",
-  "soa_limit_V": 1.0,
+  "soa_limit_V": 1.1,
   "soa_devices": 0,
   "soa_devices_dut": 0,
   "soa_pairs": 0,
@@ -105,15 +105,15 @@
   }
  ],
  "meta": {
-  "date": "2026-10-31T11:22:53",
-  "git": "dcaf6fe",
+  "date": "2026-10-31T15:29:15",
+  "git": "718b123",
   "git_clean": true,
   "mode": "aps",
   "pdk": false,
   "mc": null,
-  "wall_s": 147.2,
+  "wall_s": 115.9,
   "rc": "0",
-  "sim_s": "40",
+  "sim_s": "8",
   "numerics": {
    "source": "spectre.log",
    "reltol": 0.0001,
@@ -132,7 +132,7 @@
    "tb/common/veriloga/tb_imeter_va.va": "d4be49aca417ad61",
    "design/behav/adc_clkgen.scs": "0e7831ed888587e6",
    "design/behav/veriloga/adc_clkgen_va.va": "7fff1b9368bc1a20",
-   "specs/soa.yaml": "df574d3582df9b2c"
+   "specs/soa.yaml": "b6213fc39b550c11"
   },
   "arch": {
    "keys": [],
