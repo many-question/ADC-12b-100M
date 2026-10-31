@@ -217,3 +217,10 @@ original series order. SS passes at RL12 38.4 ps, but FF still fails
 124/132 pairs, including new NEN undershoot failures. These trials are
 not promoted; the ledger distinguishes their local improvement from
 the remaining and newly introduced device pressure.
+
+V23/V24 strengthening of local NEN fails SS start; V25–V27 return to
+V16 and test assist clamps, sharing timing and a transmission-gate NAND.
+Their SS metrics pass, but early FF failures increase to 141/165/183
+versus V16's 123. None is promoted. These are private 1.0 V screens;
+the pending PR112 threshold proposal does not reclassify old results.
+See the diagnosis ledger for source hashes, margins and new peak nodes.

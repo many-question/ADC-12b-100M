@@ -1617,3 +1617,42 @@ inputs and all raw files are verified before exact remote cleanup.
 Matched result tables and exact decision arrays preserve these failures.
 The next independent trials return to V16 instead of accumulating these
 failed local-enable changes.
+
+### V25–V27: independent sampling and NAND alternatives
+
+All three are V16 children, run privately from clean `a210440`, using the
+unchanged official numerical settings and explicit selected output. V25
+strengthens the sharing N pull-down and assist pass/reference devices;
+V26 moves the sharing inverter input from PHI_SB to EN; V27 replaces
+the NAND series node with an inverted HIB and complementary transmission
+gate. Every physical MOM retains its 5% bottom parasitic.
+
+| Trial | SS RL12 / start | SS Qref | FF failing pairs at 1.0 V | Worst pair |
+|---|---:|---:|---:|---:|
+| V25 | 39.7 / 96.5 ps | 2.173725 pC | 141 | 1.015350118 V |
+| V26 | 39.6 / 97.2 ps | 1.993860 pC | 165 | 1.035325537 V |
+| V27 | 40.0 / 98.0 ps | 2.037916 pC | 183 | 1.027453302 V |
+
+All five applicable SS metrics pass and SS has no terminal violations.
+V27's RL12 is 39.999999999999034 ps: a numerical pass with no useful
+margin, not a robust improvement. V25 raises SS PHI_S/PHI_SB loading
+to 32.52/36.72 fF and reference charge without fixing the worst peak.
+V26 produces a -36.907 mV BL excursion with SAMP_ON still at 998.418 mV
+at 5.135953 ns. V27 produces NOFF=1.027453 V at 10.064390 ns, moving
+stress to MGNN/MGNP and the new HBAR inverter. All are rejected as
+replacements for V16 and do not proceed to longer-window qualification.
+
+This is private whole-DUT screening at the frozen 1.0 V threshold; the
+formal CDAC specification currently has no SOA metric. Draft PR112's
+proposed 1.1 V does not change these records or confer qualification.
+The draft diff also includes bounded-save and CDAC version changes;
+formal reruns await the coordinated final PR111/112 migration.
+
+Six complete finite waveforms and every required terminal pair were
+checked, all raw/staged files hash-verified, and the six exact owned
+remote directories removed. Exact selected decision arrays retain each
+failed family's worst-node waveforms; no duplicate full-wave NPZ exists.
+
+- V25 source: `794947a20de7b2ca0a66892f9e4d0dbebc605311d171fce0a4289e792e668548`
+- V26 source: `a5fdc2b2625add67c929828be247209fb6fae0c61f1b3c8e890bdd1b2818ba81`
+- V27 source: `a84952812ff9d0afc6d479e018aeea6e080dfab8ae0d848673e703c3a1365f79`
