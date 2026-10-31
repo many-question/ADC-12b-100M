@@ -59,7 +59,7 @@ While PHI_B is high, VG = VIN + Vboot (Vboot ~ AVDD, from a capacitor charged du
 
 ## adc_cdac
 
-**Split-capacitor redundant CDAC, one side (instantiated twice)** — 规格版本 0.7.0，状态 `behavioral`。
+**Split-capacitor redundant CDAC, one side (instantiated twice)** — 规格版本 0.8.0，状态 `behavioral`。
 
 13 weights w_j (j = 12..0) = 980 560 318 180 102 57 32 18 10 6 3 2 1 x cu, cu = 1.0 fF (arch v0.3; the LSB half is 0.5 fF). Each weight is two equal halves: H (neutral state VREFP) and L (neutral state VREFN). Bottom-plate sampling: while CONV = 0 the bottom plates of the sampled weights (all but j = 9 and j = 6) track VIN through NMOS switches whose gate is VG (bootstrapped, from adc_bootstrap) and the top plate is held at VCM by a switch on PHI_S/PHI_SB. Non-sampled weights stay in the neutral state. With CONV = 1 every half is driven by an inverter between VREFP and VREFN: H to VREFP unless DH<j>, L to VREFN unless RL<j>. The top-level connects DH = DN, RL = UP on the VINP side and DH = UP, RL = DN on the VINN side, so each decision moves the two top plates in opposite directions and the common mode stays constant.
 
@@ -165,7 +165,7 @@ Buffers the single external CLK (high = track, low = hold + convert) into the sa
 
 ## adc_comp
 
-**Dynamic latched comparator** — 规格版本 0.8.0，状态 `behavioral`。
+**Dynamic latched comparator** — 规格版本 0.9.0，状态 `behavioral`。
 
 Single fully-dynamic comparator of the asynchronous SAR loop. CLKC low resets (OUTP = OUTN = 0); CLKC rising evaluates; exactly one of OUTP / OUTN rises and the other stays below 30 % VDD until CLKC falls (CMP-15). OUTP = 1 means V(INP) > V(INN). At the top level INP is driven by the top plate of the CDAC that samples VINN (bottom-plate sampling inverts), so OUTP = 1 means "input above the DAC level".
 
@@ -274,7 +274,7 @@ Buffers the high-impedance 0.9 V reference input VREF_IN into VREFP, which suppl
 
 ## adc_sarlogic
 
-**Asynchronous SAR controller, bit registers and output register** — 规格版本 0.6.0，状态 `behavioral`。
+**Asynchronous SAR controller, bit registers and output register** — 规格版本 0.7.0，状态 `behavioral`。
 
 Self-timed SAR loop. CONV low = reset (CLKC = 0, all UP/DN = 0; D and RDY hold). CONV rising starts a conversion: after t_start the first CLKC rises; each comparator decision (OUTP or OUTN rising) is stored, drives the CDAC control of that step (UP<j> or DN<j>, one-hot, j = 13 - k for decision k = 1..13), resets the comparator (CLKC low) and, after the DAC settle wait, clocks the comparator again. Decision 14 has no DAC step. After decision 14 (EOC) D<13:0> is loaded and RDY rises. RDY falls at the next CONV rising. A decision that is not made within t_timeout is forced to 1. If CONV falls before EOC, the output register is loaded with the bits decided so far (undecided = 0) and RDY rises.
 
