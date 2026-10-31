@@ -165,3 +165,25 @@ The original meter is 586.627371000 fJ/cycle, with 0.000058569% relative differe
 | weak PMOS rail loads | 275.911054001 | 108.466543136 | 167.444510865 |
 
 Physical reset and weak loads are included. Returned charge can make an allocation negative; these are net supply delivery, not isolated device dissipation. External ideal-clock delivery is outside this boundary. Power is reported only; the SS reset failure leaves this source unqualified.
+
+
+## B20 measured TT supply phases
+
+Run `20261031-103735-miyahara-buffer-v20-screen` uses the same complete AVDD boundary and 36-cycle 100 ps–14.5 ns window as B19. The only geometry change relative to B19 is a stronger P4 CKB inverter pull-up. Capacitance, drive, transient bias and noise effects remain coupled.
+
+| Total fJ/cycle | Evaluation | Reset | Initial reset current uA | Initial reset power mW |
+|---:|---:|---:|---:|---:|
+| 590.833742059 | 217.092116290 | 373.741625769 | 1155.452499163 | 1.039907249 |
+
+The complete waveform integral changes by +4.206027475 fJ/cycle (+0.716984%) from B19. The original meter is 590.833388880 fJ/cycle; its relative difference from the waveform integral is 0.000059776%. All supply-terminal probes are present and their sum closes to numerical precision.
+
+| Net supply delivery group | Whole cycle fJ | Evaluation | Reset |
+|---|---:|---:|---:|
+| regenerative core | 70.381582243 | 42.094984994 | 28.286597249 |
+| physical clock | 59.646568537 | 30.632350451 | 29.014218086 |
+| input precharge | 130.735449516 | 2.033289915 | 128.702159601 |
+| first output buffer | 23.531836186 | 4.813456355 | 18.718379831 |
+| external output inverters | 30.305921122 | 29.051308296 | 1.254612826 |
+| weak PMOS rail loads | 276.232384455 | 108.466726279 | 167.765658176 |
+
+Physical weak loads and reset are included. Net returned charge can make a phase allocation negative; these are supply-delivery allocations rather than isolated device dissipation. Ideal external-clock delivery is outside this boundary. Power is reported only and does not establish a qualified topology ranking.
