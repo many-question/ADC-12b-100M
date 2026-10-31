@@ -1,0 +1,11 @@
+# RESET-V20: test Q release-stage charge storage
+
+Canonical V19 passes all ten private key corners, actual-worst numerical convergence and the original TT input/clock capacitance and kickback tests. Its original 17 x 512 TT noise run fails at 218.770058633 uV rms, with a 95% profile interval of 210.31–227.64 uV against 200 uV. All 8704 samples are present and resolved; the largest Gaussian-fit standardized residual is 3.784980, so a purely Gaussian mechanism is not established. The genuine failure remains in [FORMAL-RESET-V19.md](FORMAL-RESET-V19.md), and V19 qualification expansion stops.
+
+Earlier full physical observations identified the reset-release Q trajectory as a decision-sensitive stage. V19's short matched diagnostic has one wrong polarity at cycle 54, with complete reset and no new early-to-final sign changes. At +30 ps the two input levels have Q differential standard deviations about 0.983/0.930 mV. The V16-to-V18 improvement changed both Q shunts and capacitors, so it did not isolate a capacitor effect. This revision now tests only Q-node charge storage, without assuming a kT/C scaling law or transferring the Miyahara noise conclusion.
+
+Only CQP/CQN change from 16 to 20 fingers, nominally 4.46 to 5.66049 fF. The existing successful, zero-warning capacitor callback is reused exactly, SHA-256 `613c7aa6a617bd67d2699ba18a547794f801dbaee33aeab31e6b964b5ba9cc5d`. All 23 MOS devices and the other three MOMs remain electrically identical, including MCKN N4, MCKP P2.7 and both N0.5 Q shunts. Additional Q loading can delay regeneration and increase reset charge; those costs and the actual differential mean/variance must be measured.
+
+Electrical SHA-256: `fb5dcf65ea818e14a24913b753c01226796d8f3f06aa9136fd779f9298cb6b60`. The [source](RESET-V20.txt) contains 23 MOS and 5 MOMs, with complete RNL checked on a byte-identical mirror. First test SF/high/-40 and FS/high/-40, then TT timing and a matched short phase diagnosis. Only a useful result warrants remaining known corners, actual-worst convergence, source-preserving promotion and genuine original formal tests. Canonical V19 and every older result remain preserved; no previous pass transfers.
+
+![Physical comparator with larger Q capacitors](reset-v20.png)
