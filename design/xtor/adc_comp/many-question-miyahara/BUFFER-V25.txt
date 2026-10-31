@@ -1,4 +1,4 @@
-// BUFFER-V24: independent Miyahara experiment with physical high-trip output buffers.
+// BUFFER-V25: independent Miyahara experiment with physical high-trip output buffers.
 // @RNL(type="header") {
 //   @VERSION("0.3");
 //   @USE-PACKAGE(name="adc28", version="0.1", path="../../../rnl/adc28.rnl")
@@ -30,11 +30,11 @@ MAP (DP CLKC AVDD AVDD) pch_ulvt_mac l=3e-08 w=2.4e-06 nf=3 m=1 ad=1.4e-13 as=1.
 MAN (DN CLKC AVDD AVDD) pch_ulvt_mac l=3e-08 w=2.4e-06 nf=3 m=1 ad=1.4e-13 as=1.4e-13 pd=3.55e-06 ps=3.55e-06 nrd=0.082117 nrs=0.082117 sa=1.47042e-07 sb=1.47042e-07 sd=1e-07
 CCB (CKB VSS) cfmom_2t nr=48 lr=1e-06 w=5e-08 s=5e-08 stm=1 spm=3 multi=1
 MBPP (BP RP AVDD AVDD) pch_ulvt_mac l=3e-08 w=6e-06 nf=6 m=1 ad=3e-13 as=3.5e-13 pd=6.6e-06 ps=8.7e-06 nrd=0.032979 nrs=0.032979 sa=2.39369e-07 sb=2.39369e-07 sd=1e-07
-MBPN (BP RP VSS VSS) nch_ulvt_mac l=3e-08 w=2e-06 nf=2 m=1 ad=1e-13 as=1.5e-13 pd=2.2e-06 ps=4.3e-06 nrd=0.185844 nrs=0.185844 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
+MBPN (BP RP VSS VSS) nch_ulvt_mac l=3e-08 w=2.6e-06 nf=2 m=1 ad=1.3e-13 as=1.95e-13 pd=2.8e-06 ps=5.5e-06 nrd=0.153199 nrs=0.153199 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
 MOPP (OUTP BP AVDD AVDD) pch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-13 pd=4.4e-06 ps=6.5e-06 nrd=0.048530 nrs=0.048530 sa=1.79203e-07 sb=1.79203e-07 sd=1e-07
 MOPN (OUTP BP VSS VSS) nch_ulvt_mac l=3e-08 w=3e-06 nf=3 m=1 ad=1.75e-13 as=1.75e-13 pd=4.35e-06 ps=4.35e-06 nrd=0.136842 nrs=0.136842 sa=1.47042e-07 sb=1.47042e-07 sd=1e-07
 MBNP (BN RN AVDD AVDD) pch_ulvt_mac l=3e-08 w=6e-06 nf=6 m=1 ad=3e-13 as=3.5e-13 pd=6.6e-06 ps=8.7e-06 nrd=0.032979 nrs=0.032979 sa=2.39369e-07 sb=2.39369e-07 sd=1e-07
-MBNN (BN RN VSS VSS) nch_ulvt_mac l=3e-08 w=2e-06 nf=2 m=1 ad=1e-13 as=1.5e-13 pd=2.2e-06 ps=4.3e-06 nrd=0.185844 nrs=0.185844 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
+MBNN (BN RN VSS VSS) nch_ulvt_mac l=3e-08 w=2.6e-06 nf=2 m=1 ad=1.3e-13 as=1.95e-13 pd=2.8e-06 ps=5.5e-06 nrd=0.153199 nrs=0.153199 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
 MONP (OUTN BN AVDD AVDD) pch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-13 pd=4.4e-06 ps=6.5e-06 nrd=0.048530 nrs=0.048530 sa=1.79203e-07 sb=1.79203e-07 sd=1e-07
 MONN (OUTN BN VSS VSS) nch_ulvt_mac l=3e-08 w=3e-06 nf=3 m=1 ad=1.75e-13 as=1.75e-13 pd=4.35e-06 ps=4.35e-06 nrd=0.136842 nrs=0.136842 sa=1.47042e-07 sb=1.47042e-07 sd=1e-07
 MDDP (DP DP VSS VSS) nch_ulvt_mac l=5e-07 w=5e-07 nf=1 m=1 ad=4.75e-14 as=4.75e-14 pd=1.19e-06 ps=1.19e-06 nrd=0.645705 nrs=0.645705 sa=9.5e-08 sb=9.5e-08 sd=1.2e-07
@@ -43,8 +43,8 @@ CXP (XP VSS) cfmom_2t nr=16 lr=1e-06 w=5e-08 s=5e-08 stm=1 spm=3 multi=1
 CXN (XN VSS) cfmom_2t nr=16 lr=1e-06 w=5e-08 s=5e-08 stm=1 spm=3 multi=1
 CRP (RP VSS) cfmom_2t nr=8 lr=1e-06 w=5e-08 s=5e-08 stm=1 spm=3 multi=1
 CRN (RN VSS) cfmom_2t nr=8 lr=1e-06 w=5e-08 s=5e-08 stm=1 spm=3 multi=1
-CBP (BP VSS) cfmom_2t nr=40 lr=1e-06 w=5e-08 s=5e-08 stm=1 spm=3 multi=1
-CBN (BN VSS) cfmom_2t nr=40 lr=1e-06 w=5e-08 s=5e-08 stm=1 spm=3 multi=1
+CBP (BP VSS) cfmom_2t nr=44 lr=1e-06 w=5e-08 s=5e-08 stm=1 spm=3 multi=1
+CBN (BN VSS) cfmom_2t nr=44 lr=1e-06 w=5e-08 s=5e-08 stm=1 spm=3 multi=1
 MUPRP1 (RP VSS AVDD AVDD) pch_ulvt_mac l=1e-07 w=5e-07 nf=1 m=1 ad=4.75e-14 as=4.75e-14 pd=1.19e-06 ps=1.19e-06 nrd=0.256086 nrs=0.256086 sa=9.5e-08 sb=9.5e-08 sd=1.2e-07
 MUPRN1 (RN VSS AVDD AVDD) pch_ulvt_mac l=1e-07 w=5e-07 nf=1 m=1 ad=4.75e-14 as=4.75e-14 pd=1.19e-06 ps=1.19e-06 nrd=0.256086 nrs=0.256086 sa=9.5e-08 sb=9.5e-08 sd=1.2e-07
 MUPBP1 (BP VSS AVDD AVDD) pch_ulvt_mac l=1e-07 w=5e-07 nf=1 m=1 ad=4.75e-14 as=4.75e-14 pd=1.19e-06 ps=1.19e-06 nrd=0.256086 nrs=0.256086 sa=9.5e-08 sb=9.5e-08 sd=1.2e-07
@@ -74,7 +74,7 @@ MUPXN (XN VSS AVDD AVDD) pch_ulvt_mac l=1e-07 w=5e-07 nf=1 m=1 ad=4.75e-14 as=4.
 //  @LINE(linecolor="#d3dbe4", linewidth=0.08, linestyle="dashed") {(-112, 16) (-70, 16) (-70, 54) (-112, 54) (-112, 16)};
 //  @LINE(linecolor="#d3dbe4", linewidth=0.08, linestyle="dashed") {(70, 16) (112, 16) (112, 54) (70, 54) (70, 16)};
 //  @LINE(linecolor="#d3dbe4", linewidth=0.08, linestyle="dashed") {(-180, -72) (-76, -72) (-76, 0) (-180, 0) (-180, -72)};
-//  (0, 104) @TEXT("Miyahara BUFFER-V24", size=2, bold=true, halign="middle", textcolor="#273747");
+//  (0, 104) @TEXT("Miyahara BUFFER-V25", size=2, bold=true, halign="middle", textcolor="#273747");
 //  (0, 97) @TEXT("28 nm HPC+ | ULVT MOS | device labels: W/L and nf", size=0.9, bold=false, halign="middle", textcolor="#526171");
 //  (0, 91.5) @TEXT("Regenerative second stage", size=1.35, bold=true, halign="middle", textcolor="#273747");
 //  (0, 7) @TEXT("Dynamic input stage", size=1.35, bold=true, halign="middle", textcolor="#273747");
@@ -468,7 +468,7 @@ MUPXN (XN VSS AVDD AVDD) pch_ulvt_mac l=1e-07 w=5e-07 nf=1 m=1 ad=4.75e-14 as=4.
 //  &AVDD @WIRE(mode="straight", linecolor="#697887", linewidth=0.16) {#MBPP:b (-152, 65) (-152, 73) %s_MBPP_new:p};
 //  #MBPN @PLACE(-150, 37) => @ORIENT("MY");
 //  #MBPN @TEXT("MBPN", key="name", size=1.05, halign="end") => @PLACE(-153, 38.5);
-//  #MBPN @TEXT("2um/30nm nf2", key="dims", size=.95, halign="end") => @PLACE(-153, 35.5);
+//  #MBPN @TEXT("2.6um/30nm nf2", key="dims", size=.95, halign="end") => @PLACE(-153, 35.5);
 //  %s_MBPN_new = $GROUND @ATTACH &VSS => @PLACE(-150, 29);
 //  &VSS @WIRE(mode="straight", linecolor="#697887", linewidth=0.16) {#MBPN:s %s_MBPN_new:p};
 //  &VSS @WIRE(mode="straight", linecolor="#697887", linewidth=0.16) {#MBPN:b (-152, 37) (-152, 29) %s_MBPN_new:p};
@@ -511,7 +511,7 @@ MUPXN (XN VSS AVDD AVDD) pch_ulvt_mac l=1e-07 w=5e-07 nf=1 m=1 ad=4.75e-14 as=4.
 //  &AVDD @WIRE(mode="straight", linecolor="#697887", linewidth=0.16) {#MBNP:b (152, 65) (152, 73) %s_MBNP_new:p};
 //  #MBNN @PLACE(150, 37) => @ORIENT("R0");
 //  #MBNN @TEXT("MBNN", key="name", size=1.05, halign="start") => @PLACE(153, 38.5);
-//  #MBNN @TEXT("2um/30nm nf2", key="dims", size=.95, halign="start") => @PLACE(153, 35.5);
+//  #MBNN @TEXT("2.6um/30nm nf2", key="dims", size=.95, halign="start") => @PLACE(153, 35.5);
 //  %s_MBNN_new = $GROUND @ATTACH &VSS => @PLACE(150, 29);
 //  &VSS @WIRE(mode="straight", linecolor="#697887", linewidth=0.16) {#MBNN:s %s_MBNN_new:p};
 //  &VSS @WIRE(mode="straight", linecolor="#697887", linewidth=0.16) {#MBNN:b (152, 37) (152, 29) %s_MBNN_new:p};
@@ -595,13 +595,13 @@ MUPXN (XN VSS AVDD AVDD) pch_ulvt_mac l=1e-07 w=5e-07 nf=1 m=1 ad=4.75e-14 as=4.
 //  %g_CRN = $GROUND @ATTACH &VSS => @PLACE(30, -178);
 //  &VSS @WIRE(mode="straight", linewidth=.16) {#CRN:n %g_CRN:p};
 //  #CBP @PLACE(90, -170) => @ORIENT("R0");
-//  #CBP @TEXT("CBP 11.66051fF", key="name", size=.95, halign="start") => @PLACE(93, -168.5);
+//  #CBP @TEXT("CBP 12.8604fF", key="name", size=.95, halign="start") => @PLACE(93, -168.5);
 //  &BP @WIRE(mode="straight", linewidth=.16) {#CBP:p (90, -162)};
 //  (90, -160) @TEXT("BP", size=1, bold=true, halign="middle");
 //  %g_CBP = $GROUND @ATTACH &VSS => @PLACE(90, -178);
 //  &VSS @WIRE(mode="straight", linewidth=.16) {#CBP:n %g_CBP:p};
 //  #CBN @PLACE(150, -170) => @ORIENT("R0");
-//  #CBN @TEXT("CBN 11.66051fF", key="name", size=.95, halign="start") => @PLACE(153, -168.5);
+//  #CBN @TEXT("CBN 12.8604fF", key="name", size=.95, halign="start") => @PLACE(153, -168.5);
 //  &BN @WIRE(mode="straight", linewidth=.16) {#CBN:p (150, -162)};
 //  (150, -160) @TEXT("BN", size=1, bold=true, halign="middle");
 //  %g_CBN = $GROUND @ATTACH &VSS => @PLACE(150, -178);

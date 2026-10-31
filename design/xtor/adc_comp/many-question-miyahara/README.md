@@ -25,3 +25,5 @@ Independent [B23](BUFFER-V23.md) uniformly strengthens the ten-device second sta
 [B23](BUFFER-V23.md) fails TT 30 mV delay (50.1497 ps) and SS/FS low-hot reset (46.1394/35.6926 ps). All 180 actual/reset cycles and 129 terminal pairs per corner pass; the timing failures stop noise expansion. Its dedicated Cin/CLK values are 19.3287/12.1051 fF. The retained path comparison identifies delayed RP/RN reset after stage scaling; no B23 noise improvement or promotion is claimed.
 
 Independent [B24](BUFFER-V24.md) tests stronger N8 RP/RN reset assists and smaller eight-finger RP/RN MOMs after B23 timing failures. The full scaled physical stage remains enabled; deterministic, capacitance and noise gates must be measured anew.
+
+[B24](BUFFER-V24.md) repairs low-hot reset but strictly fails TT 30 mV delay at 50.00497745635165 ps; no B24 noise result exists. Independent [B25](BUFFER-V25.md) tests N2.6 first-buffer pull-downs and 44-finger buffer-node MOMs to address timing and the measured 47.6 uV stress margin. New physical gates are required.
