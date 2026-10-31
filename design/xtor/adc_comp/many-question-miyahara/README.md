@@ -1,5 +1,7 @@
 # Miyahara comparator: BUFFER-V20
 
+**Numerical-settings transition:** all evidence below uses the preceding settings and requires revalidation under [issue #94](NUMERICS-94.md). The old sub-microvolt kickback result is not an established physical conclusion. New-settings private critical checks take priority; no new-settings qualification is claimed.
+
 The canonical `adc_comp.scs` now contains the electrically identical source screened as [BUFFER-V20](BUFFER-V20.md). All ten known key corners and targeted convergence at sf_high_m40 pass timing, reset, physical output validity and full-trace MOS stress. This is screening evidence; the candidate remains WIP, unqualified and unselected.
 
 The source contains 43 MOS devices and 9 physical MOM capacitors. All dimensions and terminal parasitics come from successful callbacks or exact validated geometry reuse. Physical rail loads carry persistent current; [ENERGY-COMPARISON.md](ENERGY-COMPARISON.md) reports measured complete-circuit AVDD costs. No power limit or topology-efficiency conclusion is implied.
@@ -14,6 +16,6 @@ Issues #40, #63, #69, #75, #77, #78 and #84 remain acknowledged. Every older exp
 
 ## Current original-run status
 
-Original TT capacitance/kickback PASS: input 19.328731 fF, CLKC 11.287775 fF and kickback 0.004586 uV. The next gate is the original complete TT noise test.
+Original tt_nom_27 noise PASS: 191.159437 uV rms against 200 uV (95% interval 183.31–199.41). This is preserved old-settings evidence. Issue #94 supersedes the previous expansion plan: new-settings private prechecks come first; required formal reruns will use the merged official flow. No further old-settings full-corner qualification is being launched.
 
-1 of 96 records match the current electrical source; 95 retain older source hashes. [Original-run evidence](FORMAL-BUFFER-V20.md) preserves actual metadata, counts and archives. Source matching does not imply passing.
+2 of 96 records match the current electrical source; 94 retain older source hashes. [Original-run evidence](FORMAL-BUFFER-V20.md) preserves actual metadata, counts and archives. Source matching does not imply passing.
