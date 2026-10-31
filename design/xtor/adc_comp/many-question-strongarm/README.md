@@ -18,4 +18,6 @@ Independent [RESET-V21](RESET-V21.md) changes the two Q reset shunts from 0.5 um
 
 Independent [RESET-V22](RESET-V22.md) branches from V20 and reduces only MDQP/MDQN width from 0.5 to 0.4 um at a verified fixed 30 nm length and one finger. All other devices and capacitors remain identical. It fails ten terminal pairs at SF/high/-40, at 1.00398 V rounded peak; FS/high/-40 and all 72 actual decisions/resets pass. This fixed-length width reduction stops before TT or noise expansion.
 
-Independent [RESET-V23](RESET-V23.md) branches from V20 and changes only MTAIL width from 3.0 to 2.4 um at fixed 30 nm/nf3, retaining the original 0.5 um Q shunts. It tests the input integration interval after V22 fails stress; timing and noise benefits are unestablished.
+Independent [RESET-V23](RESET-V23.md) branches from V20 and changes only MTAIL width from 3.0 to 2.4 um at fixed 30 nm/nf3, retaining the original 0.5 um Q shunts. It passes all 108 actual polarities/resets, output validity and terminal stress at three initial corners, but TT 30 mV delay fails at 55.258398 ps versus 50 ps. V23 stops before noise or remaining corners; its deterministic phase and full AVDD evidence are retained.
+
+Independent [RESET-V24](RESET-V24.md) branches from V20 and changes only MLNP/MLNN from N12/nf12 to N16/nf16 at fixed 30 nm length and 1 um finger width, retaining the original 3 um tail. It tests input-to-Q transfer and regeneration after V23 fails TT delay; performance remains unestablished.
