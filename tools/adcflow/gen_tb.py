@@ -228,7 +228,14 @@ def render(tb: TBDef) -> str:
         params = f" {e.params}" if e.params else ""
         L += _wrap(e.nets, f"{e.name} (", f") {e.master}{params}")
     L += tb.extra
-    L += numerics.conservative(tb.analyses)
+    analyses = numerics.conservative(tb.analyses)
+    # Never rely on the simulator's default waveform-save policy. Monitor-only
+    # benches keep save=none; waveform benches retain their explicit metric
+    # signals plus any terminal-node saves appended by the runner for SOA.
+    if not any("save=" in line for line in tb.extra + analyses):
+        mode = "selected" if any(line.startswith("save ") for line in tb.extra + analyses) else "none"
+        analyses += [f"waveopts options save={mode}"]
+    L += analyses
     L += draw(tb)
     return "\n".join(L) + "\n"
 
@@ -649,7 +656,7 @@ def tb_ref() -> list[TBDef]:
         base + [El("IL", "isource", ["VREFP", "0"], "dc=iload", "load"),
                 El("CDB", "capacitor", ["VREFP", "0"], "c=ccdac", "load")],
         ["noise1 (VREFP 0) noise start=1k stop=100G dec=20",
-         "noise2 (VCM 0) noise start=1k stop=100G dec=20"]))
+         "noise2 (VCM 0) noise start=1k stop=100G dec=20", "save VREFP VCM"]))
     # the one supported power-up sequence (adc_ref.yaml operating.power_up, issue #34)
     from .measure.ref import startup_times
     ts = startup_times()
