@@ -8,6 +8,21 @@ Three small clock-coupled capacitors control switching feedthrough. CFF connects
 
 All changed dimensions were callback-normalized before simulation. CFF uses 6 fingers of length 1 µm on layers 1–6, approximately 2.90249 fF. CBI and CCONT use the same finger geometry on layers 1–3, approximately 1.46055 fF each. CBG and CMD use 12 fingers of length 5 µm on layers 1–6, approximately 30.3137 fF each; CDN uses 20 fingers of length 5 µm, approximately 52.653 fF. Finger width and spacing are 50 nm throughout. Callback payloads and device models remain private.
 
+## Rerun for the numerics change
+
+All 90 records were rerun on main `c6152d2` (spec 0.9.0, #95, notice #97) with the netlist unchanged: every `tran` at `errpreset=conservative`, ADCToolbox `cd72061`, `aps`. All 45 + 45 corners still pass. The numbers and numerical settings in the sections below are the earlier records, kept as history.
+
+| Spec | Limit | Worst corner | Worst value |
+|---|---:|---|---:|
+| BST-03 turn-off | <= 60 ps | `ss_low_125` | 59.602 ps |
+| BST-05 SFDR | >= 82 dBc | `ss_low_125` | 85.00 dBc |
+| BST-06 SNDR | >= 78 dB | `ss_low_m40` | 84.65 dB |
+| BST-01 minimum boost | >= 0.72 V | `ff_low_125` | 0.73404 V |
+| BST-02 boost variation | <= 40 mV | `ff_high_125` | 35.585 mV |
+| BST-04 turn-on | <= 300 ps | `ss_low_m40` | 231.27 ps |
+
+Cross-checks (`traponly`, 1 ps; DC also reltol 1e-7, vabstol 10 nV): tracking at the three corners differs by at most 0.31 dB SFDR and 0.27 dB SNDR, DC at the eight corners by at most 0.26 ps turn-off and 2.42 ps turn-on. BST-03's 0.40 ps margin is the smallest one.
+
 ## Complete standard DC sweep
 
 Fresh standard-flow DC runs use specification 0.6.0 and the approved numerical configuration from [#49](https://github.com/many-question/ADC-12b-100M/issues/49), integrated through [#53](https://github.com/many-question/ADC-12b-100M/pull/53). The explicit view is `adc_bootstrap=xtor:many-question`. All 45 unique primary corners pass every applicable limit. Each original official JSON and its three measurement figures are committed under `results/adc_bootstrap/tb_bootstrap_dc/xtor-many-question/`.

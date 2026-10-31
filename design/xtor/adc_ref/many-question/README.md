@@ -10,6 +10,21 @@ Its tradeoff is substantial
 quiescent power and gate capacitance for settling robustness. It is not selected
 or signed off; the archived mixed-top SS-hot ENOB result remains a failure.
 
+## Rerun for the numerics change
+
+The 90 transient records were rerun on main `c6152d2` (spec 0.9.0, #95, notice #101) with the netlist unchanged: every `tran` at `errpreset=conservative`, ADCToolbox `cd72061`, `aps`. `tb_ref_dc` and `tb_ref_noise` have no transient and keep their records. All required corners still pass. The numbers, settings and toolbox version in the sections below are the earlier records, kept as history.
+
+| Spec | Limit | Worst corner | Worst value |
+|---|---:|---|---:|
+| REF-21 `env_ratio` | <= 1 | `ss_low_125` | 0.9423 |
+| REF-13 tail | <= 200 uV | `ss_low_125` | 134.39 uV |
+| REF-14 start | <= 100 uV | `tt_nom_125` | 49.09 uV |
+| REF-12 ENOB loss | <= 0.1 bit | `fs_high_m40` | 0.0453 bit |
+| REF-15 VREFP peak | <= 1 V | `ss_high_m40` | 0.95552 V |
+| REF-19 ready error | <= 5 mV | `ff_low_125` | 1.046 mV |
+
+Startup cross-checks (`traponly`, 0.1 ns) at the four corners differ by at most 0.0048 mV ready error.
+
 ## Current module validation
 
 The main28/gate16 source has completed formal module validation at electrical
