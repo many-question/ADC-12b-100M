@@ -26,7 +26,7 @@
   "skew_ssb_ps": 6.48442659432893,
   "iavg_uA": 101.9035405,
   "soa_scope": "device",
-  "soa_limit_V": 1.0,
+  "soa_limit_V": 1.1,
   "soa_devices": 60,
   "soa_devices_dut": 60,
   "soa_pairs": 180,
@@ -2276,19 +2276,19 @@
   },
   {
    "file": "ss_low_125.soa.png",
-   "caption": "Largest |Vgs|, |Vgd|, |Vds| of every checked device against the 1.0 V limit (scope: device), the worst pair over the whole run, and the saved time points around the time of its maximum, which set the time resolution."
+   "caption": "Largest |Vgs|, |Vgd|, |Vds| of every checked device against the 1.1 V limit (scope: device), the worst pair over the whole run, and the saved time points around the time of its maximum, which set the time resolution."
   }
  ],
  "meta": {
-  "date": "2026-10-31T13:11:01",
-  "git": "c6152d2",
+  "date": "2026-11-01T04:48:27",
+  "git": "17b3a0c",
   "git_clean": true,
   "mode": "aps",
   "pdk": true,
   "mc": null,
-  "wall_s": 245.3,
+  "wall_s": 246.8,
   "rc": "0",
-  "sim_s": "18",
+  "sim_s": "21",
   "numerics": {
    "source": "spectre.log",
    "reltol": 0.0001,
@@ -2303,10 +2303,10 @@
    "step_max_ps": 1491.3
   },
   "files": {
-   "tb/clkgen/tb_clkgen_timing.scs": "0cd46ff7588db9c2",
+   "tb/clkgen/tb_clkgen_timing.scs": "65ba6528be2d0f3b",
    "tb/common/veriloga/tb_imeter_va.va": "d4be49aca417ad61",
    "design/xtor/adc_clkgen/many-question/adc_clkgen.scs": "878752080031c251",
-   "specs/soa.yaml": "df574d3582df9b2c"
+   "specs/soa.yaml": "b6213fc39b550c11"
   },
   "arch": {
    "keys": [],
@@ -2337,7 +2337,7 @@
     "step_max_ps": 1.0
    },
    "rc": "0",
-   "sim_s": "68",
+   "sim_s": "75",
    "metrics": {
     "td_s_ps": {
      "ref": 49.3732397814301,

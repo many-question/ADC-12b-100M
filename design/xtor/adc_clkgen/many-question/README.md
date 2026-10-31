@@ -10,6 +10,8 @@ Electrical content hash: `878752080031c251`. Current netlist SHA256: `7dbeabe408
 
 ## Rerun for the numerics change
 
+**Spec 0.8.0 (#112, notice #115).** The 45 `tb_clkgen_timing` records were rerun on main `17b3a0c` with the netlist unchanged, at the 1.1 V SOA limit and with explicit waveform saves. All 45 corners still pass, and every metric equals the `c6152d2` run apart from `soa_limit_V`, so the table below still stands. The largest peak leaves about 100 mV to the new limit; voltage margins in the older sections are against the old 1 V limit. The jitter record stays from the `c6152d2` run and is still fresh.
+
 All 46 records were rerun on main `c6152d2` (spec 0.7.0, #95, notice #99) with the netlist unchanged: every `tran` at `errpreset=conservative`, no `maxstep`, `aps`. All 45 corners and the TT jitter record still pass. The numbers and numerical settings in the sections below are the earlier records, kept as history.
 
 | Spec | Limit | Worst corner | Worst value |
