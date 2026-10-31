@@ -147,4 +147,4 @@ def _fig_dc(fg, ctx, w, per_level, t_off, t_on, m) -> None:
                                    "cin_phb_fF", "cin_phbb_fF"])
     fg.save(fig, "switch", "Boosted gate voltage over the input range, the worst turn-off and turn-on edge "
             "with their delays and limits, the three terminal voltages of the reference switch against the "
-            "+/-1.0 V SOA limit, and the specification table.")
+            f"+/-{lim:g} V SOA limit, and the specification table.")
