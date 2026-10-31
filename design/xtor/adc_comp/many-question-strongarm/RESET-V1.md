@@ -2,7 +2,7 @@
 
 This is an independent **private diagnostic**, not the candidate selected by the official view. The canonical `adc_comp.scs`, its schematic and all 92 official records remain frozen. The baseline circuit is the one simulated from clean source `424d10a78ce75a1ef45d121575a9eac07a1ebd93`; its electrical SHA-256 is `150dd81755a64d66f582a84fd734462f5ad2c8b31ce4399b6507481d30372119`. This experiment does not replace the standard-step v0.7.0 evidence or establish qualification.
 
-[Frozen experiment source with complete RNL](RESET-V1.txt) · [schematic](reset-v1.png).
+[Frozen experiment source with complete RNL](RESET-V1.txt) · [schematic](https://raw.githubusercontent.com/many-question/ADC-12b-100M/e45f2ad7bea3b45f5822eae18549b326c19fc727/design/xtor/adc_comp/many-question-strongarm/reset-v1.png).
 
 ## Evidence motivating the change
 

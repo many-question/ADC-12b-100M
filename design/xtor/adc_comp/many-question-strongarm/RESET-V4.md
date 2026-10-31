@@ -6,7 +6,7 @@ The hypothesis is that opposite gate transitions reduce net Q-node injection, wh
 
 The independent [RESET-V4.txt](RESET-V4.txt) has 19 MOS and three MOM capacitors. Electrical SHA-256: `f9cf4bb897ed2e9080e83eb7659570310b464618055f8b7c3e8bf79e57e9b3ac`. Full RNL checks with core 0.5.2 on a byte-identical `.scs` mirror: 0 errors, 0 warnings, 0 hints.
 
-![Complementary Q precharge](reset-v4.png)
+![Complementary Q precharge](https://raw.githubusercontent.com/many-question/ADC-12b-100M/e45f2ad7bea3b45f5822eae18549b326c19fc727/design/xtor/adc_comp/many-question-strongarm/reset-v4.png)
 
 The first screen retains the same four key corners, current delay stimulus, all-terminal voltage scope, physical output checks and 0.5 ps settings used for V2/V3. This source-freeze commit claims no validation. The canonical baseline is preserved.
 

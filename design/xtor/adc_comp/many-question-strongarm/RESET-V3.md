@@ -6,7 +6,7 @@ The keeper introduces contention during evaluation and reset. Those delay, reset
 
 [RESET-V3.txt](RESET-V3.txt) is the independent 19-MOS/two-MOM source. Electrical SHA-256: `b4446fa108ea819712f441abe31a8be623c0eb8a904c8e27b2458260b41f8902`. Its byte-identical `.scs` RNL mirror passes core 0.5.2 with 0 errors, 0 warnings and 0 hints.
 
-![Weak keeper experiment](reset-v3.png)
+![Weak keeper experiment](https://raw.githubusercontent.com/many-question/ADC-12b-100M/e45f2ad7bea3b45f5822eae18549b326c19fc727/design/xtor/adc_comp/many-question-strongarm/reset-v3.png)
 
 The first screen uses the same four key corners and 0.5 ps settings as V2, with all MOS terminal pairs, actual output validity, delay, reset, AVDD energy and supplemental clock charge. This source-freeze commit makes no performance claim. The canonical source and baseline official records remain unchanged.
 

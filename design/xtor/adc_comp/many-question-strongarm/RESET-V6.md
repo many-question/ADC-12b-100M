@@ -6,7 +6,7 @@ The weak discharge gives CKB a defined DC load and may create high-level headroo
 
 The independent [RESET-V6.txt](RESET-V6.txt) has 18 MOS and five MOM capacitors. Electrical SHA-256: `195e42741ebe64933fc373400bcc375fb4f3b4aba823ac4b188b721ff6359ec5`. Full RNL on a byte-identical `.scs` mirror passes core 0.5.2 with 0 errors, 0 warnings and 0 hints.
 
-![Clock-load and input-precharge revision](reset-v6.png)
+![Clock-load and input-precharge revision](https://raw.githubusercontent.com/many-question/ADC-12b-100M/e45f2ad7bea3b45f5822eae18549b326c19fc727/design/xtor/adc_comp/many-question-strongarm/reset-v6.png)
 
 The first screen uses TT, FF high cold/hot and SS low/hot at the same 0.5 ps settings, checking all 54 MOS terminal pairs, actual decisions and output validity, delay, reset and total AVDD energy. This source-freeze commit makes no performance claim.
 

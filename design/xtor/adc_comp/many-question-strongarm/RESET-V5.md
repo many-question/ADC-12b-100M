@@ -8,7 +8,7 @@ All MOS geometries reuse successful callback results. The new MOM geometry was s
 
 The independent [RESET-V5.txt](RESET-V5.txt) has 17 MOS and five MOM capacitors, with complete RNL and a separate preview. The first screen uses the same four key corners, full terminal-voltage scope, physical outputs and 0.5 ps settings as preceding experiments. This source-freeze commit claims no performance result. Canonical baseline evidence remains unchanged.
 
-![Capacitive compensation experiment](reset-v5.png)
+![Capacitive compensation experiment](https://raw.githubusercontent.com/many-question/ADC-12b-100M/e45f2ad7bea3b45f5822eae18549b326c19fc727/design/xtor/adc_comp/many-question-strongarm/reset-v5.png)
 
 ## Completed screen: narrowed voltage failures
 

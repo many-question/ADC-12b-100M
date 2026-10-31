@@ -6,7 +6,7 @@ The hypothesis is that direct tail activation avoids V1's added evaluation delay
 
 The standalone Spectre source is [RESET-V2.txt](RESET-V2.txt), with full RNL. Its electrical SHA-256 is `608dfd3e547ee65738662bf62ef9c9cb548b0b7ea1000b21c22087ee0c958db8`. It has 15 MOS and two MOM capacitors. A byte-identical `.scs` validation mirror passes RNL core 0.5.2 with 0 errors, 0 warnings and 0 hints; the extension workaround does not change the source.
 
-![Direct-clock experiment](reset-v2.png)
+![Direct-clock experiment](https://raw.githubusercontent.com/many-question/ADC-12b-100M/e45f2ad7bea3b45f5822eae18549b326c19fc727/design/xtor/adc_comp/many-question-strongarm/reset-v2.png)
 
 The planned first screen uses TT nominal 27 C, FF high -40 C, FF high 125 C and SS low 125 C, the current v0.7.0 delay stimulus and measurement, 0.5 ps maximum step, traponly, reltol 1e-6 and vabstol 1e-8. Every MOS |Vgs|, |Vgd| and |Vds| is checked over the full trace. Physical output validity, delay, reset, AVDD energy and supplemental clock charge are measured. Existing matched baseline traces are reused as references, not rerun or relabeled. No new validation is claimed in this source-freeze commit.
 
