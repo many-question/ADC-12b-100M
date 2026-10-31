@@ -18,56 +18,57 @@
   "devnoise": 0,
   "beh_speed": 1.0,
   "vref_in": 0.9,
-  "cdac_behav": 1
+  "cdac_behav": 1,
+  "comp_behav": 1
  },
  "metrics": {
   "n_samples": 2049,
   "missing_rdy": 0,
-  "t_conv_max_ns": 2.829621,
-  "t_conv_mean_ns": 2.736268443359375,
+  "t_conv_max_ns": 2.8253570000000003,
+  "t_conv_mean_ns": 2.7361926738281253,
   "cal_independent": true,
   "weights_cal": [
-   1960.536,
-   1120.225,
-   636.26,
-   360.137,
-   204.097,
-   114.012,
-   64.031,
-   35.947,
-   19.894,
-   11.8,
-   5.815,
-   3.572,
-   1.73,
-   0.943
+   1960.549,
+   1120.262,
+   636.208,
+   360.121,
+   204.059,
+   114.027,
+   64.005,
+   35.943,
+   19.912,
+   11.819,
+   5.859,
+   3.594,
+   1.725,
+   0.918
   ],
-  "enob": 10.949239019286225,
-  "sndr_dBc": 67.67441889610308,
-  "sfdr_dBc": 84.4859910186457,
-  "snr_dBc": 67.85945074376951,
-  "thd_dBc": -81.61422384814097,
-  "enob_nom": 10.901829454139817,
-  "sndr_nom_dBc": 67.3890133139217,
-  "sfdr_nom_dBc": 83.5266927703722,
-  "snr_nom_dBc": 67.54981501497271,
-  "thd_nom_dBc": -82.07859136526767,
-  "amp_codes": 2021.1773788116518,
-  "fs_peak_V": 0.9937203026726141,
+  "enob": 10.952725971033042,
+  "sndr_dBc": 67.69541034561891,
+  "sfdr_dBc": 83.13881421813576,
+  "snr_dBc": 67.80642058937981,
+  "thd_dBc": -83.67500978745575,
+  "enob_nom": 10.897435109347184,
+  "sndr_nom_dBc": 67.36255935827005,
+  "sfdr_nom_dBc": 83.32588538203981,
+  "snr_nom_dBc": 67.68651019526051,
+  "thd_nom_dBc": -84.63678965942626,
+  "amp_codes": 2021.1816843799809,
+  "fs_peak_V": 0.993718185826466,
   "code_min": 247,
   "code_max": 4291,
   "spike_count": 0,
-  "spike_max_lsb": 1.8056171322523369,
+  "spike_max_lsb": 1.7903886951221466,
   "spike_index": [],
-  "p_avdd_mW": 0.28196068004999997,
-  "p_dvdd_mW": 0.21068639424,
-  "p_avdd18_mW": 14.711436207000002,
-  "power_mW": 15.204083281290002
+  "p_avdd_mW": 0.28254602133,
+  "p_dvdd_mW": 0.21160630404000003,
+  "p_avdd18_mW": 14.7114582624,
+  "power_mW": 15.205610587770002
  },
  "specs": {
   "TOP-09": {
    "metric": "enob",
-   "value": 10.949239019286225,
+   "value": 10.952725971033042,
    "limit": ">= 10.5",
    "pass": true
   }
@@ -83,29 +84,30 @@
   }
  ],
  "meta": {
-  "date": "2026-10-29T13:27:44",
-  "git": "3460c8c",
+  "date": "2026-10-31T11:52:56",
+  "git": "dcaf6fe",
   "git_clean": true,
   "mode": "aps",
   "pdk": false,
   "mc": null,
-  "wall_s": 1379.1,
+  "wall_s": 1590.4,
   "rc": "0",
-  "sim_s": "598",
+  "sim_s": "718",
   "numerics": {
    "source": "spectre.log",
-   "reltol": 0.001,
-   "maxstep_ps": 410520.0,
-   "method": "traponly",
-   "errpreset": "moderate",
-   "lteratio": 3.5,
+   "reltol": 0.0001,
+   "maxstep_ps": 205260.0,
+   "method": "gear2only",
+   "errpreset": "conservative",
+   "lteratio": 10.0,
+   "relref": "alllocal",
    "abstol_V": 1e-06,
-   "steps_accepted": 3755153,
-   "step_mean_ps": 5.46609,
+   "steps_accepted": 4612243,
+   "step_mean_ps": 4.45033,
    "step_max_ps": null
   },
   "files": {
-   "tb/top/tb_top_sine.scs": "d131f9666cdb9650",
+   "tb/top/tb_top_sine.scs": "3a685ccced0de8ea",
    "tb/common/veriloga/tb_imeter_va.va": "d4be49aca417ad61",
    "tb/common/veriloga/tb_capture_va.va": "1a05df990a1ef806",
    "tb/common/veriloga/tb_rsrc_va.va": "66b85ead5a038eb0",
@@ -126,25 +128,23 @@
    "design/behav/veriloga/adc_arch_func.vams": "8eac5dace781bffc",
    "design/behav/veriloga/adc_arch.vams": "32d904828c5dbf67"
   },
-  "provenance": {
-   "spectrum": {
-    "estimator": "adcflow.spectrum v1",
-    "adctoolbox": "0.6.4",
-    "sfdr": "plotspec definition: peak bin of the fundamental / largest other single bin (DC and signal bins excluded, Nyquist included)",
-    "enob_sndr_snr_thd": "adctoolbox 0.6.4 compute_spectrum"
-   }
-  },
   "arch": {
    "keys": [
-    "*"
+    "cdac.cap_sampled",
+    "cdac.cap_weights",
+    "cdac.cu",
+    "conversion.out_weights",
+    "reference.vref"
    ],
-   "sha": "05899cd622401f94"
+   "sha": "1e3a4bd6f61d85bb"
   },
   "views": {},
-  "rehashed": {
-   "date": "2026-10-29T20:21:42",
-   "git": "b748f30",
-   "files_before": 19
+  "provenance": {
+   "spectrum": {
+    "estimator": "adctoolbox 0.9.1 @ cd72061 compute_spectrum",
+    "adctoolbox": "0.9.1",
+    "adctoolbox_commit": "cd72061"
+   }
   }
  }
 }

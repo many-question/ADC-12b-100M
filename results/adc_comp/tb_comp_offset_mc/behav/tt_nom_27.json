@@ -150,8 +150,8 @@
   }
  ],
  "meta": {
-  "date": "2026-10-29T22:22:15",
-  "git": "4aa57bd",
+  "date": "2026-10-31T11:26:00",
+  "git": "dcaf6fe",
   "git_clean": true,
   "mode": "aps",
   "pdk": false,
@@ -162,23 +162,24 @@
    "variations": "mismatch",
    "models": null
   },
-  "wall_s": 124.6,
+  "wall_s": 121.4,
   "rc": "0",
-  "sim_s": "17",
+  "sim_s": "14",
   "numerics": {
    "source": "spectre.log",
-   "reltol": 0.001,
-   "maxstep_ps": 342.0,
-   "method": "traponly",
-   "errpreset": "moderate",
-   "lteratio": 3.5,
+   "reltol": 0.0001,
+   "maxstep_ps": 171.0,
+   "method": "gear2only",
+   "errpreset": "conservative",
+   "lteratio": 10.0,
+   "relref": "alllocal",
    "abstol_V": 1e-06,
-   "steps_accepted": 1188,
-   "step_mean_ps": 14.3939,
-   "step_max_ps": 205.127
+   "steps_accepted": 1392,
+   "step_mean_ps": 12.2845,
+   "step_max_ps": 165.786
   },
   "files": {
-   "tb/comp/tb_comp_offset_mc.scs": "42b99dff2fc9fa75",
+   "tb/comp/tb_comp_offset_mc.scs": "cc4772d114a02036",
    "tb/common/veriloga/tb_offset_search_va.va": "7ae90446bc9f3060",
    "design/behav/adc_comp.scs": "c0da9398b6e09fc2",
    "design/behav/veriloga/adc_comp_va.va": "ab8a6bf210351e31"

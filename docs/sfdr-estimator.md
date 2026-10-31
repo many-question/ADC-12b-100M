@@ -144,7 +144,7 @@ SFDR = 10·log10( P[f] / max(Q) )，杂散频点 = argmax(Q)
 ## 7. 复现
 
 ```bash
-python -m pytest tests/test_spectrum.py                    # 回归：真值、MATLAB 值、0.6.4 的 #36 复现、固定版本、remeasure
+python -m pytest tests/test_spectrum.py                    # 回归：真值、MATLAB 值、固定的提交、remeasure
 python tests/sfdr_cases.py <dir>                           # 写出用例，供 MATLAB 运行
 matlab -batch "addpath('tests/matlab'); sfdr_plotspec('<dir>', '<ADCToolbox>/matlab/src')"
 python -m adcflow remeasure <test> --run build/runs/<run_id> [--dry-run]
@@ -157,4 +157,26 @@ python -m adcflow remeasure <test> --run build/runs/<run_id> [--dry-run]
 
 ## 8. 切换到上游提交 `cd72061`
 
-@@CD72061@@
+§4 的用例在 `compute_spectrum` 上的结果（dB，0.6.4 → `cd72061`；N = 1024）：
+
+| 用例 | 真值 | SFDR 0.6.4 | SFDR `cd72061` | SNDR 0.6.4 | SNDR `cd72061` |
+|---|---:|---:|---:|---:|---:|
+| `issue36`、`lower_edge`、`upper_edge` | 80.00 | 7.78 | 80.00 | 80.79 | 80.79 |
+| `upper_edge_509` | 80.00 | 7.78 | 80.00 | 81.76 | 81.58 |
+| `nonoverlap` | 80.00 | 80.00 | 80.00 | 80.00 | 80.00 |
+| `near2` | 60.00 | 7.78 | 60.00 | 60.79 | 60.79 |
+| `near3` | 60.00 | 60.00 | 60.00 | 60.00 | 60.00 |
+| `dc_offset` | 90.00 | 90.00 | 90.00 | 90.00 | 90.00 |
+| `bin1` | 80.00 | 80.64 | 80.00 | 80.64 | 80.79 |
+| `nyquist` | 80.00 | 84.77 | 80.00 | 84.77 | 80.00 |
+| `bin511` | 80.00 | 80.79 | 80.00 | 80.79 | 80.64 |
+| `clean` | ∞ | 274.0 | 274.0 | 200.0 | 200.0 |
+| `quantized` | — | 88.42 | 88.42 | 72.95 | 72.93 |
+
+* **其它函数**：同一组输入上（两个 venv，numpy、scipy 版本相同），`calibrate_weight_sine` 的权重逐位相同（两颗 12 bit 假想芯片），`find_coherent_frequency` 相同（5 组 fs / fin / N），
+  `fit_sine_4param` 的原有输出逐位相同，只多了 `converged`、`n_iterations`、`initial_frequency`、`last_delta_freq` 四个键；迭代未收敛时它现在发 `RuntimeWarning`，不影响数值。
+* **SNDR、ENOB 现在包含 Nyquist 频点**（§5 的“未改动”一条已由上游解决），所以真实记录的 ENOB 有极小变化（`quantized` −0.004 bit）。
+* **真实记录的 SFDR**：相对 #36 期间的单频点定义，噪声底上的 SFDR 回到“对杂散频点 ±1 求和再除以 ENBW”（§6 的差别，约 0.5~1.3 dB，偏保守）。
+  模型上（只换工具，同样的数据）`adcflow budget` 的标称权重 SFDR 降低 0.1~0.6 dB，校准后 ENOB 不变（差 ≤ 0.01 bit）。§6 的表与 `plotspec` 的一致性是 #36 时的事实，不再成立于噪声底主导的记录。
+* **行为级基线**（TT 与 `tb_top_sine` 的 10 个角）同时换了预设与工具，全部判定不变：顶层 SFDR 最小 82.6 dBc（限值 75），校准 ENOB 最小 10.83 bit。
+* `remeasure` 默认只允许名称含 `sfdr` 的指标变化；换工具后 SNDR、ENOB 也会变，所以旧结果应重跑，或显式加 `--allow`。
