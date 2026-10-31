@@ -1,4 +1,4 @@
-// BUFFER-V23: independent Miyahara experiment with physical high-trip output buffers.
+// BUFFER-V24: independent Miyahara experiment with physical high-trip output buffers.
 // @RNL(type="header") {
 //   @VERSION("0.3");
 //   @USE-PACKAGE(name="adc28", version="0.1", path="../../../rnl/adc28.rnl")
@@ -24,8 +24,8 @@ CDP (DP VSS) cfmom_2t nr=56 lr=1e-06 w=5e-08 s=5e-08 stm=1 spm=3 multi=1
 CDN (DN VSS) cfmom_2t nr=56 lr=1e-06 w=5e-08 s=5e-08 stm=1 spm=3 multi=1
 MCKN (CKB CLKC VSS VSS) nch_ulvt_mac l=3e-08 w=2e-06 nf=2 m=1 ad=1e-13 as=1.5e-13 pd=2.2e-06 ps=4.3e-06 nrd=0.185844 nrs=0.185844 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
 MCKP (CKB CLKC AVDD AVDD) pch_ulvt_mac l=3e-08 w=5e-06 nf=5 m=1 ad=2.75e-13 as=2.75e-13 pd=6.55e-06 ps=6.55e-06 nrd=0.039271 nrs=0.039271 sa=2.09857e-07 sb=2.09857e-07 sd=1e-07
-MRQP (RP CKB VSS VSS) nch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-13 pd=4.4e-06 ps=6.5e-06 nrd=0.108289 nrs=0.108289 sa=1.79203e-07 sb=1.79203e-07 sd=1e-07
-MRQN (RN CKB VSS VSS) nch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-13 pd=4.4e-06 ps=6.5e-06 nrd=0.108289 nrs=0.108289 sa=1.79203e-07 sb=1.79203e-07 sd=1e-07
+MRQP (RP CKB VSS VSS) nch_ulvt_mac l=3e-08 w=8e-06 nf=8 m=1 ad=4e-13 as=4.5e-13 pd=8.8e-06 ps=1.09e-05 nrd=0.059025 nrs=0.059025 sa=2.95835e-07 sb=2.95835e-07 sd=1e-07
+MRQN (RN CKB VSS VSS) nch_ulvt_mac l=3e-08 w=8e-06 nf=8 m=1 ad=4e-13 as=4.5e-13 pd=8.8e-06 ps=1.09e-05 nrd=0.059025 nrs=0.059025 sa=2.95835e-07 sb=2.95835e-07 sd=1e-07
 MAP (DP CLKC AVDD AVDD) pch_ulvt_mac l=3e-08 w=2.4e-06 nf=3 m=1 ad=1.4e-13 as=1.4e-13 pd=3.55e-06 ps=3.55e-06 nrd=0.082117 nrs=0.082117 sa=1.47042e-07 sb=1.47042e-07 sd=1e-07
 MAN (DN CLKC AVDD AVDD) pch_ulvt_mac l=3e-08 w=2.4e-06 nf=3 m=1 ad=1.4e-13 as=1.4e-13 pd=3.55e-06 ps=3.55e-06 nrd=0.082117 nrs=0.082117 sa=1.47042e-07 sb=1.47042e-07 sd=1e-07
 CCB (CKB VSS) cfmom_2t nr=48 lr=1e-06 w=5e-08 s=5e-08 stm=1 spm=3 multi=1
@@ -41,8 +41,8 @@ MDDP (DP DP VSS VSS) nch_ulvt_mac l=5e-07 w=5e-07 nf=1 m=1 ad=4.75e-14 as=4.75e-
 MDDN (DN DN VSS VSS) nch_ulvt_mac l=5e-07 w=5e-07 nf=1 m=1 ad=4.75e-14 as=4.75e-14 pd=1.19e-06 ps=1.19e-06 nrd=0.645705 nrs=0.645705 sa=9.5e-08 sb=9.5e-08 sd=1.2e-07
 CXP (XP VSS) cfmom_2t nr=16 lr=1e-06 w=5e-08 s=5e-08 stm=1 spm=3 multi=1
 CXN (XN VSS) cfmom_2t nr=16 lr=1e-06 w=5e-08 s=5e-08 stm=1 spm=3 multi=1
-CRP (RP VSS) cfmom_2t nr=16 lr=1e-06 w=5e-08 s=5e-08 stm=1 spm=3 multi=1
-CRN (RN VSS) cfmom_2t nr=16 lr=1e-06 w=5e-08 s=5e-08 stm=1 spm=3 multi=1
+CRP (RP VSS) cfmom_2t nr=8 lr=1e-06 w=5e-08 s=5e-08 stm=1 spm=3 multi=1
+CRN (RN VSS) cfmom_2t nr=8 lr=1e-06 w=5e-08 s=5e-08 stm=1 spm=3 multi=1
 CBP (BP VSS) cfmom_2t nr=40 lr=1e-06 w=5e-08 s=5e-08 stm=1 spm=3 multi=1
 CBN (BN VSS) cfmom_2t nr=40 lr=1e-06 w=5e-08 s=5e-08 stm=1 spm=3 multi=1
 MUPRP1 (RP VSS AVDD AVDD) pch_ulvt_mac l=1e-07 w=5e-07 nf=1 m=1 ad=4.75e-14 as=4.75e-14 pd=1.19e-06 ps=1.19e-06 nrd=0.256086 nrs=0.256086 sa=9.5e-08 sb=9.5e-08 sd=1.2e-07
@@ -74,7 +74,7 @@ MUPXN (XN VSS AVDD AVDD) pch_ulvt_mac l=1e-07 w=5e-07 nf=1 m=1 ad=4.75e-14 as=4.
 //  @LINE(linecolor="#d3dbe4", linewidth=0.08, linestyle="dashed") {(-112, 16) (-70, 16) (-70, 54) (-112, 54) (-112, 16)};
 //  @LINE(linecolor="#d3dbe4", linewidth=0.08, linestyle="dashed") {(70, 16) (112, 16) (112, 54) (70, 54) (70, 16)};
 //  @LINE(linecolor="#d3dbe4", linewidth=0.08, linestyle="dashed") {(-180, -72) (-76, -72) (-76, 0) (-180, 0) (-180, -72)};
-//  (0, 104) @TEXT("Miyahara BUFFER-V23", size=2, bold=true, halign="middle", textcolor="#273747");
+//  (0, 104) @TEXT("Miyahara BUFFER-V24", size=2, bold=true, halign="middle", textcolor="#273747");
 //  (0, 97) @TEXT("28 nm HPC+ | ULVT MOS | device labels: W/L and nf", size=0.9, bold=false, halign="middle", textcolor="#526171");
 //  (0, 91.5) @TEXT("Regenerative second stage", size=1.35, bold=true, halign="middle", textcolor="#273747");
 //  (0, 7) @TEXT("Dynamic input stage", size=1.35, bold=true, halign="middle", textcolor="#273747");
@@ -129,10 +129,10 @@ MUPXN (XN VSS AVDD AVDD) pch_ulvt_mac l=1e-07 w=5e-07 nf=1 m=1 ad=4.75e-14 as=4.
 //  #MTAIL @TEXT("3\mu{}m/30nm  nf3", key="dims", size=1, halign="start", textcolor="#526171") => @PLACE(2.8, -51.5);
 //  #MRQP @PLACE(-86, 30) => @ORIENT("MY");
 //  #MRQP @TEXT("MRQP", key="name", size=1.15, bold=true, halign="end", textcolor="#273747") => @PLACE(-88.8, 31.2);
-//  #MRQP @TEXT("4\mu{}m/30nm  nf4", key="dims", size=1, halign="end", textcolor="#526171") => @PLACE(-88.8, 28.5);
+//  #MRQP @TEXT("8um/30nm nf8", key="dims", size=1, halign="end", textcolor="#526171") => @PLACE(-88.8, 28.5);
 //  #MRQN @PLACE(86, 30) => @ORIENT("R0");
 //  #MRQN @TEXT("MRQN", key="name", size=1.15, bold=true, halign="start", textcolor="#273747") => @PLACE(88.8, 31.2);
-//  #MRQN @TEXT("4\mu{}m/30nm  nf4", key="dims", size=1, halign="start", textcolor="#526171") => @PLACE(88.8, 28.5);
+//  #MRQN @TEXT("8um/30nm nf8", key="dims", size=1, halign="start", textcolor="#526171") => @PLACE(88.8, 28.5);
 //  %latch_vdd_0 = (-48, 84);
 //  %latch_vdd_1 = (-18, 84);
 //  $JUNCTION @ATTACH %latch_vdd_1 => @SET-STYLE $power_wire;
@@ -583,13 +583,13 @@ MUPXN (XN VSS AVDD AVDD) pch_ulvt_mac l=1e-07 w=5e-07 nf=1 m=1 ad=4.75e-14 as=4.
 //  %g_CXN = $GROUND @ATTACH &VSS => @PLACE(-90, -178);
 //  &VSS @WIRE(mode="straight", linewidth=.16) {#CXN:n %g_CXN:p};
 //  #CRP @PLACE(-30, -170) => @ORIENT("R0");
-//  #CRP @TEXT("CRP 4.46051fF", key="name", size=.95, halign="start") => @PLACE(-27, -168.5);
+//  #CRP @TEXT("CRP 2.06055fF", key="name", size=.95, halign="start") => @PLACE(-27, -168.5);
 //  &RP @WIRE(mode="straight", linewidth=.16) {#CRP:p (-30, -162)};
 //  (-30, -160) @TEXT("RP", size=1, bold=true, halign="middle");
 //  %g_CRP = $GROUND @ATTACH &VSS => @PLACE(-30, -178);
 //  &VSS @WIRE(mode="straight", linewidth=.16) {#CRP:n %g_CRP:p};
 //  #CRN @PLACE(30, -170) => @ORIENT("R0");
-//  #CRN @TEXT("CRN 4.46051fF", key="name", size=.95, halign="start") => @PLACE(33, -168.5);
+//  #CRN @TEXT("CRN 2.06055fF", key="name", size=.95, halign="start") => @PLACE(33, -168.5);
 //  &RN @WIRE(mode="straight", linewidth=.16) {#CRN:p (30, -162)};
 //  (30, -160) @TEXT("RN", size=1, bold=true, halign="middle");
 //  %g_CRN = $GROUND @ATTACH &VSS => @PLACE(30, -178);

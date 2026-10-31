@@ -23,3 +23,5 @@ Issues #40/#63/#69/#75/#77/#78/#84/#100 remain acknowledged. The branch includes
 Independent [B23](BUFFER-V23.md) uniformly strengthens the ten-device second stage while retaining the B22 input/tail/reset/output devices. Added loading and physical all-source noise require new validation; no pass or promotion is assumed.
 
 [B23](BUFFER-V23.md) fails TT 30 mV delay (50.1497 ps) and SS/FS low-hot reset (46.1394/35.6926 ps). All 180 actual/reset cycles and 129 terminal pairs per corner pass; the timing failures stop noise expansion. Its dedicated Cin/CLK values are 19.3287/12.1051 fF. The retained path comparison identifies delayed RP/RN reset after stage scaling; no B23 noise improvement or promotion is claimed.
+
+Independent [B24](BUFFER-V24.md) tests stronger N8 RP/RN reset assists and smaller eight-finger RP/RN MOMs after B23 timing failures. The full scaled physical stage remains enabled; deterministic, capacitance and noise gates must be measured anew.
