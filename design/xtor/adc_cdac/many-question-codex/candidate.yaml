@@ -1,6 +1,6 @@
 name: many-question-codex
 description: Physical MOM banks with series half units, midpoint initialization, split-supply drivers, charge sharing, pulsed VIN assistance, and one TOP dummy per half.
 status: wip
-acknowledged: [17, 37]
+acknowledged: [17, 37, 98]
 authors:
   - {github: many-question, name: "Codex adc_cdac"}

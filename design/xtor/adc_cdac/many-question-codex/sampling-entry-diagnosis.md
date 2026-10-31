@@ -1341,3 +1341,59 @@ exact owned-run cleanup. Archives of the four complete comparisons:
 - V13 SS: `faa841debf04af546e2af9723d051c84c4cb27b9317929a025c7a5e65f5db5df`
 - V12 FF: `2b332d1d40540bf0dc94ed06d09c9a91628bfd996f163cb6b3fa4b63e8122969`
 - V13 FF: `2c9f79b3435467ad1943de9f1564fac33ce20af0a8ba7908fe5b7faf843d979a`
+
+### V14/V15: separate control and NAND holding experiments
+
+Both cases are independent children of V13, use the same merged official
+generator and verified private observations, and retain 570 MOS per half.
+V14 increases only the second-stage N devices in high-command and assist
+buffers from 8 um/NF4 to 24 um/NF12 (14 changed MOS per half). P devices
+and input stages are unchanged. V15 instead enlarges only each NAND lower
+MNB1 to the smallest already-used ULVT geometry at least four times its
+old width (26 changed MOS per half). All connections, capacitors, bottom
+Cp and external ports remain unchanged in both cases. Independent parsed
+checks pass; pinned RNL renders are byte-identical to the inspected parent.
+
+- V14 source: `28e64d99116cbefd6c631bf0130d30ebb42dc2de5dcfc34b7464e8d75291d476`
+- V15 source: `ec290b0c3c967d216a93df88a626a41c2048f555a3d583d6fdfbaa32851ae904`
+
+| Case | SS RL12 / start | SS voltage failures | Early FF failures / maximum |
+|---|---|---|---|
+| Matched V13 | 38.3 / 95.7 ps | 0/1710 | 175/3420, 1.021300057 V |
+| V14 control N | 38.4 / 95.7 ps | 0/1710 | 157/3420, 1.021301597 V |
+| V15 NAND hold | **44.8** / 94.6 ps | **2/1710**, max 1.004967185 V | 141/3420, 1.014741995 V |
+
+V14 removes 18 old FF failures and adds none. All 14 remaining failed
+high-command/assist inverter pairs disappear, together with four pairs
+that were driven by the HIB excursion. D1 minimum is now -7.474094 mV;
+maximum is 0.996527649 V. All five SS metrics pass, with tau 11.291656529 ps
+and droop 0.005191024 LSB. SS Qref is 1.992245716 pC. The separate low-driver
+NOFF minimum remains -31.301597 mV and governs the maximum FF pair.
+
+V15 removes 34 old FF failures and adds none in that window. The bit-12
+BN minimum improves from -22.231586 to -4.420837 mV; NOFF improves only
+from -31.300057 to -19.202970 mV, so it still violates the 1 V pair limit.
+The unchanged V13 control chain retains its 14 failures. More seriously,
+SS RL12 settling worsens to 44.8 ps, above 40 ps, and bit-9 low-driver
+MPOUT drain/source reaches 1.004967185 V at 5.160733711 ns. SS Qref rises
+to 2.020215319 pC. This demonstrates a timing/voltage cost to increasing
+the HIB-controlled NAND load; a smaller failed-pair count does not make
+V15 acceptable. Neither case proceeds to TT, weights or longer pressure.
+
+Runs launched from clean `fa835e6344723eac4326fd1c18751da56674352b`.
+Complete finite waveforms contain 5483/6639 points for V14 SS/FF and
+5527/6610 for V15. Full raw data and 50 staged inputs per run were verified
+before exact owned-run cleanup. The sealed audit retains all changed
+failure memberships and node extrema. Archive SHA256 values:
+
+- V14 SS: `287527aa68f9bd316e145b12723ba7e0097cbe8b5bcaf0c8375663e2ada48524`
+- V14 FF: `e6ac425b28ece6012e7bd74d712ba2a96827463f0419514743ca75260c2256d9`
+- V15 SS: `cb65855dc18bf6e492a7f2e55bc1ee1238184b425739dbd40ab9cc5c051ef3e8`
+- V15 FF: `6885b42621696b5c299364fe1c3f720e76cd5ec9127a8f3987cebac8686c6414`
+
+Formal CDAC 0.7.0 notice #98 and frequency-tool announcement #96 were read.
+[Acknowledgement](https://github.com/many-question/ADC-12b-100M/issues/98#issuecomment-6539401267)
+was posted and #98 added to candidate.yaml after the in-flight runs finished.
+The exact #96 two-tone installation test gives SFDR 79.999999999 dB.
+Its SNDR is 80.791957230 dB, illustrating the documented adjacent-spur
+SNDR limitation; this self-test is not a circuit performance result.

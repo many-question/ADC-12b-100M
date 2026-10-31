@@ -177,3 +177,10 @@ NOFF/BN and other paths remain outside the limit. The first FF attempts
 lacked voltage saves and are retained as unverified; complete-voltage reruns
 provide these conclusions. See [control-node comparison](control-clamp-comparison.png)
 and the evidence ledger. V13 stops before expensive downstream expansion.
+
+Formal spec notice [#98](https://github.com/many-question/ADC-12b-100M/issues/98)
+is acknowledged. The frequency-tool announcement #96 was checked, including
+its two-tone self-test: installed SFDR is 80.00 dB. V14 subsequently removes
+the remaining observed control-chain failures and retains passing SS,
+but still fails 157 early-FF pairs. Independent V15 reduces BN undershoot
+yet fails SS RL12 at 44.8 ps and two SS voltage pairs; it is not expanded.
