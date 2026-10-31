@@ -13,3 +13,5 @@ Next gates are private checks of the announced conservative settings, followed b
 ![Current complete transistor schematic](schematic.png)
 
 Issues #40, #63, #69, #75, #77, #78 and #84 remain acknowledged. Every older experiment and failed screen is retained separately.
+
+Independent [RESET-V28](RESET-V28.md) now tests only a smaller CKB MOM (16 to 8 fingers) to advance Q-shunt release. Every MOS and other MOM is unchanged. Critical new-settings timing, reset, stress and validity must pass before further noise evaluation; no benefit is assumed.
