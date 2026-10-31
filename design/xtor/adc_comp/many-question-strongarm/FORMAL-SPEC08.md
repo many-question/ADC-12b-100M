@@ -2,6 +2,8 @@
 
 These are genuine canonical-view runs through the merged official runner, testbench, measurement and recorder. Each section names the actual simulated source and links byte-verified committed results. Failures remain evidence; no all-corner qualification is implied.
 
+[Formal notice #100](https://github.com/many-question/ADC-12b-100M/issues/100) is acknowledged. Its required settings match the original run below; the later acknowledgement does not change the actual simulated source. The isolated runtime also passes the exact [#96 installation self-check](https://github.com/many-question/ADC-12b-100M/issues/96): `79.999999999274` dB, consistent with 80.00 dB. Official measurements remain those produced by the merged flow. The stated adjacent-spur SNDR limitation is retained; the installation self-check is not comparator performance evidence.
+
 
 ## Original run 20261031-125724-e0ac-tb_comp_noise
 
