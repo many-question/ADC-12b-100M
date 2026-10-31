@@ -143,3 +143,25 @@ The waveform integral changes by +0.196962544 fJ/cycle (+0.034372%) from B15. Th
 | weak PMOS rail loads | 276.745947489 | 109.001864971 | 167.744082518 |
 
 Physical reset and weak rail loads are included; ideal external clock delivery is outside this AVDD boundary. Net returned charge can make a phase allocation negative, and these allocations are not isolated device dissipation. Power is reported only; no qualified topology ranking follows.
+
+
+## B19 measured TT supply phases
+
+Run `20261031-101315-miyahara-buffer-v19-screen` has the same complete AVDD boundary and 36-cycle 100 ps–14.5 ns window. B19 includes both stronger P8 interstage drivers and larger buffer-node capacitors relative to B17, so this comparison does not isolate their contributions.
+
+| Total fJ/cycle | Evaluation | Reset | Initial reset current uA | Initial reset power mW |
+|---:|---:|---:|---:|---:|
+| 586.627714584 | 216.843607244 | 369.784107340 | 1155.447210661 | 1.039902490 |
+
+The original meter is 586.627371000 fJ/cycle, with 0.000058569% relative difference from the waveform integral. Every supply probe is present and its terminal-current sum closes to numerical precision.
+
+| Net supply delivery group | Whole cycle fJ | Evaluation | Reset |
+|---|---:|---:|---:|
+| regenerative core | 66.824964377 | 42.094730273 | 24.730234105 |
+| physical clock | 59.174073201 | 30.382709132 | 28.791364070 |
+| input precharge | 130.735254656 | 2.034042200 | 128.701212456 |
+| first output buffer | 23.520943412 | 4.814187469 | 18.706755943 |
+| external output inverters | 30.461424936 | 29.051395034 | 1.410029902 |
+| weak PMOS rail loads | 275.911054001 | 108.466543136 | 167.444510865 |
+
+Physical reset and weak loads are included. Returned charge can make an allocation negative; these are net supply delivery, not isolated device dissipation. External ideal-clock delivery is outside this boundary. Power is reported only; the SS reset failure leaves this source unqualified.
