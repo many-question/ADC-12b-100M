@@ -143,3 +143,86 @@ Raw evidence archives, with every member read back for CRC and SHA-256 verificat
 
 - `20261031-091848-miyahara-buffer-v17-screen`: `0b545959578e8a0be6759deb0f15c6bd6216cad7a636daa3094cdf2d82227448`.
 - `20261031-092615-miyahara-buffer-v17-screen`: `975e6b2ab2ea82da40382868cc8fee07a37e5ce3a82b201f978fa476cdd7ea5c`.
+
+## Matched TT and worst-corner noise phase diagnosis
+
+Run `20261031-093304-miyahara-buffer-v17-noise-phase-diagnostic-screen` uses clean source `14071b8f720a24f44b0f60ba25cbc7d79c296f8d`, electrical SHA-256 `f746984dca9a8b27c38058b15ad679b845a933f70653275d4fd187a41aa7be70`. Both corners retain B15's +/-800 uV, 128 decisions per level, 50 GHz bandwidth, seed 1, 0.5 ps / 1e-6 / 1e-8 integration, 10 fF load and VCM 0.49 V. The testbench hash and complete short protocol match; the source changes only the clock pull-down geometry.
+
+| Corner | OUTP at -800 / +800 uV | Wrong / 256 | Reset max ps | Max MOS stress V |
+|---|---:|---:|---:|---:|
+| tt_nom_27 | 0 / 128 | 0 | 24.184547965 | 0.90522 |
+| fs_low_125 | 3 / 127 | 4 | 26.559492165 | 0.81177 |
+
+All 256 resets complete at each corner, with no +80/+150 ps-to-final sign changes, late-reset, output-validity or full-trace stress violations. All 129 terminal pairs are checked. The four FS errors occur at cycles 10, 58, 70 and 157; every sample is retained. At +50 ps RP-RN has those same four errors and matches every final decision. DP signs at +20/+30 ps remain correct for every cycle, including all four final errors. This does not rule out earlier coupled interface contributions.
+
+B15 had 0/256 TT and 6/256 FS errors. The finite-count change does not establish a formal noise improvement, and the same seed does not make nonlinear waveforms independent trials. Gains below are two-level secants; SNR is the mean of each level’s absolute differential mean divided by its sample standard deviation. They are descriptive phase statistics, not input-referred noise.
+
+| Phase and node | TT gain B15 / B17 | FS gain B15 / B17 | TT SNR B15 / B17 | FS SNR B15 / B17 |
+|---|---:|---:|---:|---:|
+| +20 ps DP_minus_DN | -3.506789 / -3.506717 | -2.956183 / -2.956662 | 4.014832 / 4.015654 | 3.194453 / 3.195179 |
+| +30 ps DP_minus_DN | -4.553212 / -4.547374 | -2.249823 / -2.248842 | 4.945071 / 4.944207 | 3.561494 / 3.561315 |
+| +30 ps XP_minus_XN | 11.979471 / 12.232638 | 6.881498 / 7.102307 | 3.869898 / 3.866597 | 2.577531 / 2.577334 |
+| +30 ps RP_minus_RN | 2.020416 / 2.013317 | 1.441994 / 1.451648 | 1.990195 / 1.992883 | 1.252984 / 1.243384 |
+| +40 ps RP_minus_RN | 40.142838 / 40.558436 | 12.734365 / 13.415482 | 4.390070 / 4.395448 | 2.265981 / 2.290627 |
+| +50 ps RP_minus_RN | 322.821752 / 326.456393 | 59.577713 / 63.782637 | 4.675992 / 4.690828 | 2.198461 / 2.232008 |
+
+At +30 ps the mean CKB/VDD changes from 0.132463067 to 0.028298909 at TT, and from 0.144668969 to 0.025469623 at FS/low/125. Despite this earlier release, FS RP SNR at +40 ps increases only 1.087671%. The input-drain statistics remain almost unchanged. The measured phase response does not support treating stronger clock pull-down alone as the noise repair.
+
+| +30 ps drain-current mean uA | TT | FS low/hot |
+|---|---:|---:|
+| M14 | -514.884094 | -548.332717 |
+| M12 | 212.179507 | 197.777129 |
+| M10 | -97.338159 | -123.751927 |
+| M8 | 161.234838 | 125.793318 |
+| MRQP | 22.174081 | 25.486025 |
+| MUPRP1 | -155.906528 | -99.966240 |
+
+These terminal currents include displacement and do not isolate channel contention or device noise. B17 retains its improved cold high-voltage stress margin but remains unpromoted; further known-corner, tight-integration and formal expansion stops here. The next experiment retains B17’s clock and all capacitors, changing only M14/M15 from P6 to P8 to test the earlier DP-to-XP/XN transfer. Stress, timing and phase behavior must all be measured again.
+
+| Device | TT maximum stress V | FS low/hot maximum stress V |
+|---|---:|---:|
+| MINP | 0.59554 | 0.49229 |
+| MINN | 0.59590 | 0.49236 |
+| MTAIL | 0.90017 | 0.81000 |
+| M14 | 0.90238 | 0.81177 |
+| M15 | 0.90234 | 0.81164 |
+| M12 | 0.90274 | 0.81155 |
+| M13 | 0.90269 | 0.81164 |
+| M10 | 0.89330 | 0.80096 |
+| M11 | 0.89331 | 0.80096 |
+| M6 | 0.90344 | 0.80137 |
+| M7 | 0.90344 | 0.80137 |
+| M8 | 0.90344 | 0.80638 |
+| M9 | 0.90333 | 0.80636 |
+| MCKN | 0.90222 | 0.81000 |
+| MCKP | 0.90000 | 0.81000 |
+| MRQP | 0.90344 | 0.80857 |
+| MRQN | 0.90333 | 0.80857 |
+| MAP | 0.90238 | 0.81177 |
+| MAN | 0.90226 | 0.81164 |
+| MBPP | 0.89832 | 0.81082 |
+| MBPN | 0.90522 | 0.81146 |
+| MOPP | 0.89006 | 0.80040 |
+| MOPN | 0.90522 | 0.81146 |
+| MBNP | 0.89841 | 0.81093 |
+| MBNN | 0.90509 | 0.81156 |
+| MONP | 0.88953 | 0.79991 |
+| MONN | 0.90509 | 0.81156 |
+| MDDP | 0.89753 | 0.80638 |
+| MDDN | 0.89750 | 0.80636 |
+| MUPRP1 | 0.90344 | 0.81082 |
+| MUPRN1 | 0.90333 | 0.81093 |
+| MUPBP1 | 0.90522 | 0.81146 |
+| MUPBN1 | 0.90509 | 0.81156 |
+| MUPOUTP1 | 0.90039 | 0.81000 |
+| MUPOUTN1 | 0.90029 | 0.81000 |
+| MDNOUTP1 | 0.90039 | 0.80331 |
+| MDNOUTP2 | 0.90039 | 0.80331 |
+| MDNOUTN1 | 0.90029 | 0.80322 |
+| MDNOUTN2 | 0.90029 | 0.80322 |
+| MCKUP | 0.90222 | 0.81000 |
+| MBLEED | 0.90222 | 0.81000 |
+| MUPXP | 0.90274 | 0.81155 |
+| MUPXN | 0.90269 | 0.81164 |
+
+Archive SHA-256 `a98acf86b0630eb1bef7bc340248ede683d5b6be9dda03e83de106608da0baf5` preserves all raw evidence, full phase comparison and actual error indices. Every member is verified by read-back CRC and SHA-256; the owned remote run is absent. The 102.5 ns run has noisefmin about 9.7561 MHz rather than the original 287.216 kHz, and read-only samplers add time points. This is not a formal noise result. Canonical B13 and all genuine original records, including its four formal failures, remain unchanged.
