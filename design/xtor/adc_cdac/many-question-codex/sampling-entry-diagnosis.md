@@ -1589,3 +1589,31 @@ records contain V21 SS/FF 5590/6739 and V22 5607/6696 points. All inputs
 and raw files were recovered and verified before exact remote cleanup.
 The next control repair must address both NEN edges and the smaller-bit
 NOFF/BN peaks without spending the remaining SS start margin.
+
+### V23/V24: stronger local NEN pull-down does not resolve the tradeoff
+
+Both V21 children reuse V17's NAND P geometry and increase MNENN to
+existing geometries at least four/two times its prior width. There are
+66 flattened geometry changes per half, no connection or capacitor changes,
+and still 622 MOS. Independent flattening confirms the changes; all RNL
+renders are byte-identical to the inspected V21 drawings.
+
+- V23 source: `174364b6f9c0f15db29f4b056ee81ab02f79a65f93b2ce2a47dc77ca6e0f9099`
+- V24 source: `f57150e15f1de49d5c96609bcd6575cfad6a385378a0aa6c8af387e3d5affa1b`
+
+V23 SS RL12/start is 39.7/101.9 ps; V24 is 39.7/100.00000000000007 ps.
+The unchanged measurement marks start as failing in both cases. V24 has
+no positive start margin and is not rounded into a pass. Both have zero
+SS device-voltage violations. Early FF still fails 152/108 pairs, with
+maxima 1.026699476/1.016852046 V at positive-side bit-5 low-driver MPB0
+drain/source. NOFF reaches -36.699/-26.852 mV at those peaks. Stronger
+local NEN pull-down removes that node's own failing pairs in V23; V24
+still has four MNENP and four MNB0 failures. Other control excursions
+worsen, so neither variant is promoted or expanded.
+
+The four explicit-save runs use clean `bbc40af`, official numerical
+controls and the same 313/553 SS/FF selected signals. Their 50 staged
+inputs and all raw files are verified before exact remote cleanup.
+Matched result tables and exact decision arrays preserve these failures.
+The next independent trials return to V16 instead of accumulating these
+failed local-enable changes.
