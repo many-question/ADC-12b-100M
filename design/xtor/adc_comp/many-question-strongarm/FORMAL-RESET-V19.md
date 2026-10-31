@@ -16,4 +16,43 @@ The genuine [TT record](../../../../results/adc_comp/tb_comp_kickback/xtor-many-
 
 The job used +aps with no explicit +mt and effective single-thread execution. All fetched raw/deck hashes match the owned remote run, which was removed with absence confirmed. The archive SHA-256 is `dd5788ff2844a31047a95d1c793da97042b1e19fa7a3749b3123f56de03d942a`; its byte-exact result/figure snapshots and every archive member were read back and verified.
 
-One of the 92 current official records matches V19; 91 remain stale. The original complete TT noise protocol is the next gate. Remaining-corner SOA, required formal corners, mismatch, operating-range and mixed-top qualification remain open. No previous-source result transfers.
+At completion of this capacitance run, one of 92 records matched V19. The following section records the subsequent genuine noise run. Remaining-corner SOA, required formal corners, mismatch, operating-range and mixed-top qualification remain open. No previous-source result transfers.
+
+
+## TT transient noise: fail
+
+Run `20261031-082818-6cec-tb_comp_noise` uses actual clean source `cd870c295d3b361df37f897a702e57bb544837e5`. The original 17 levels, 512 decisions per level, 50 GHz noise bandwidth, seed 1, sampler, numerical settings, Gaussian-CDF fit and recorder are unchanged. All 8704 samples are finite, exactly 512 at every level, with none outside the expected sequence.
+
+| Metric | Measured | Limit | Result |
+|---|---:|---:|---|
+| Input-referred noise | 218.770058633 uV rms | 200 uV at TT | fail |
+| Noise 95% profile-likelihood interval | 210.31 to 227.64 uV | — | reported |
+| Absolute systematic offset | 0.011555686 mV | 2 mV | pass |
+
+The genuine [TT noise JSON](../../../../results/adc_comp/tb_comp_noise/xtor-many-question-strongarm/tt_nom_27.json) retains its actual source metadata. The minimum sampled absolute output difference is 0.899668058 V. The largest standardized residual from the fitted Gaussian CDF is 3.784980; intervals and residuals are conditional on that model. The original outputstart=tstop does not establish reset history, intermediate dynamic behavior or full-trace terminal stress. Private physical checks remain separate.
+
+| Input (uV) | OUTP / 512 |
+|---:|---:|
+| -800 | 0 |
+| -700 | 0 |
+| -600 | 0 |
+| -500 | 3 |
+| -400 | 17 |
+| -300 | 40 |
+| -200 | 87 |
+| -100 | 140 |
+| 0 | 288 |
+| 100 | 328 |
+| 200 | 401 |
+| 300 | 462 |
+| 400 | 492 |
+| 500 | 504 |
+| 600 | 511 |
+| 700 | 512 |
+| 800 | 512 |
+
+![Original TT noise curve](../../../../results/adc_comp/tb_comp_noise/xtor-many-question-strongarm/tt_nom_27.noise.png)
+
+The run used +aps with no explicit +mt and effective single-thread execution. Fetched raw/deck hashes match; the exact owned remote directory is confirmed absent. Archive SHA-256 `bf04b3529675aa6a1e0ac9f5d30a7c95ef3c4b48054dfb5eb065a098fb58e65d` includes byte-exact genuine result/figure snapshots and the separate sample/shape audit, with every member read back and verified.
+
+Two of the 92 current official cases now match V19 and 90 remain stale. Freshness does not imply passing. V19 qualification expansion stops at this failure; physical diagnosis and a subsequent circuit revision remain active. Remaining-corner SOA, all required formal cases, mismatch, operating-range and mixed-top qualification remain open. No source is selected or qualified.

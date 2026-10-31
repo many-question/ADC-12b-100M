@@ -17,49 +17,49 @@
  },
  "metrics": {
   "p1": [
-   0.4121,
-   0.4141,
-   0.377,
-   0.416,
-   0.4824,
-   0.5547,
-   0.418,
-   0.4277,
-   0.5391,
-   0.4727,
-   0.5059,
-   0.4727,
-   0.5137,
+   0.0,
+   0.0,
+   0.0,
+   0.0059,
+   0.0332,
+   0.0781,
+   0.1699,
+   0.2734,
+   0.5625,
    0.6406,
-   0.6934,
-   0.7051,
-   0.7207
+   0.7832,
+   0.9023,
+   0.9609,
+   0.9844,
+   0.998,
+   1.0,
+   1.0
   ],
   "n_per_level": 512,
-  "noise_uV": 2094.1153995003656,
+  "noise_uV": 218.7700586333151,
   "noise_ci95_uV": [
-   1878.31,
-   2365.39
+   210.31,
+   227.64
   ],
-  "offset_abs_mV": 0.08544841766023899,
-  "offset_mV": -0.08544841766023899
+  "offset_abs_mV": 0.011555686361547577,
+  "offset_mV": 0.011555686361547577
  },
  "specs": {
   "CMP-01": {
    "metric": "noise_uV",
-   "value": 2094.1153995003656,
+   "value": 218.7700586333151,
    "limit": "<= 200",
    "pass": false
   },
   "CMP-13": {
    "metric": "noise_uV",
-   "value": 2094.1153995003656,
+   "value": 218.7700586333151,
    "limit": "<= 240",
-   "pass": false
+   "pass": true
   },
   "CMP-02": {
    "metric": "offset_abs_mV",
-   "value": 0.08544841766023899,
+   "value": 0.011555686361547577,
    "limit": "<= 2",
    "pass": true
   }
@@ -71,15 +71,15 @@
   }
  ],
  "meta": {
-  "date": "2026-10-31T05:51:47",
-  "git": "3482a5e",
+  "date": "2026-10-31T08:34:46",
+  "git": "cd870c2",
   "git_clean": true,
   "mode": "aps",
   "pdk": true,
   "mc": null,
-  "wall_s": 377.3,
+  "wall_s": 388.3,
   "rc": "0",
-  "sim_s": "270",
+  "sim_s": "281",
   "numerics": {
    "source": "spectre.log",
    "reltol": 0.001,
@@ -88,14 +88,14 @@
    "errpreset": "moderate",
    "lteratio": 3.5,
    "abstol_V": 1e-06,
-   "steps_accepted": 971343,
-   "step_mean_ps": 3.58442,
+   "steps_accepted": 996670,
+   "step_mean_ps": 3.49333,
    "step_max_ps": null
   },
   "files": {
    "tb/comp/tb_comp_noise.scs": "72a48171fe4d3c2f",
    "tb/common/veriloga/tb_sampler_va.va": "4092bc16170c588d",
-   "design/xtor/adc_comp/many-question-strongarm/adc_comp.scs": "dd44da2a98a529e3"
+   "design/xtor/adc_comp/many-question-strongarm/adc_comp.scs": "c14d49b929c6c404"
   },
   "arch": {
    "keys": [],
