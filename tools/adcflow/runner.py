@@ -304,6 +304,9 @@ def run_test(test_id: str, block_name: str | None = None, corners: str = "typ",
     `mc` overrides its runs and seed). Returns one row per job: job, corner, rc, metrics, out (the
     recorded file, None without recording), params, globals and meta (as a result records them)."""
     from .figures import FigureSink          # matplotlib: only where figures are drawn, not for deps / checks
+    from .spectrum import require_toolbox
+    if not dry:                                # before hours of simulation, not at the measure afterwards
+        require_toolbox()
     views = views or {}
     block, test = find_test(test_id, block_name)
     cl = corner_set(corners)
@@ -492,6 +495,9 @@ def remeasure(test_id: str, run_dir: Path, block_name: str | None = None, views:
     With `redraw` only the figures may change (issue #47: the spectrum plot window): every metric
     must come out as recorded, and meta.redrawn gives the date, commit and run of the redraw."""
     from .figures import FigureSink          # matplotlib: only where figures are drawn
+    from .spectrum import require_toolbox
+    if not dry:
+        require_toolbox()
     views = views or {}
     if redraw:
         allow = ()
