@@ -19,3 +19,5 @@ V27's separate tighter TT capacitance measurements are 19.331118542884703 fF per
 [V27 promotion proof](PROMOTION-RESET-V27.md), [historical baseline](BASELINE-BEFORE-RESET-V27.md) and prior experiment reports preserve older sources, every failure and verified archives. Historical figures use byte-verified fixed published links where duplicate local PNGs were removed. Canonical V27 remains unchanged.
 
 Issues #40/#63/#69/#75/#77/#78/#84/#100 remain acknowledged. The branch includes main f1ac9a5's site-only fix; comparator tools, testbenches and specifications are unchanged by this candidate. Remaining corners, full formal coverage, 50-sample mismatch, operating range, mixed-top regression and lead review remain open.
+
+Independent [V30](RESET-V30.md) retains V29 P8 output pull-ups while restoring exact V28 N4 pull-downs. The physical four-corner baseline is its first gate; noise and capacitance are untested.
