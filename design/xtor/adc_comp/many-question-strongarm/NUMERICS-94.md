@@ -1,0 +1,11 @@
+# Numerical-settings transition: issue #94
+
+At the 2026-10-31 checkpoint, [issue #94](https://github.com/many-question/ADC-12b-100M/issues/94) is an unmerged announcement, with no comments or corresponding open workflow PR. Fetched main is `3b0c002a507b5f5fba1dfbc7059db5ef103e2860`. The existing deterministic screens, phase diagnostics and original formal records use the preceding settings. Their source hashes and measured results remain preserved; they do not establish compliance with the announced settings.
+
+The next private checks use APS, `errpreset=conservative`, and no explicit `maxstep`. Ordinary transient logs are expected to show gear2only, reltol 1e-4, relref alllocal and lteratio 10. Kickback requires effective reltol 1e-6 and vabstol 10 nV. Requested and effective tolerances are recorded separately because conservative tightens reltol. The actual Spectre log determines whether the intended protocol ran. Prior sub-microvolt kickback numbers are historical numerical outputs, not established physical kickback.
+
+RESET-V27 has 23 MOS and five MOM capacitors. Its ten known risk corners and targeted tighter runs passed under the old private settings; the tighter TT 30 mV delay was 49.838320 ps. This thin margin needs rechecking. No formal record yet matches V27: all 92 preserved records refer to earlier electrical sources. Promotion preserves electrical content and is not qualification.
+
+Old-settings full-corner formal expansion is paused while circuit development continues. First priority is private critical-corner timing, all-cycle reset/output validity and whole-transient terminal stress, followed by kickback and noise checks. These private runs do not write formal records or alter shared testbenches, tools, specifications or thresholds.
+
+After the flow merges, affected delay, kickback, noise and mismatch tests must be rerun through the merged official runner and testbenches on frozen actual sources. Rehash cannot restore old evidence. The announced ADCToolbox dependency is upstream commit `cd72061`, not the same-version PyPI 0.9.1 package. Merge status and formal module notices are checked before each batch and PR update; the announcement itself requests no acknowledgment. Qualification, remaining-corner coverage, operating-range checks, mixed-top regression and lead review remain open.

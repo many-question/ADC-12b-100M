@@ -1,4 +1,4 @@
-// Canonical many-question-strongarm promoted from RESET-V19; electrical source is unchanged.
+// Canonical many-question-strongarm promoted from RESET-V27; electrical source is unchanged.
 // @RNL(type="header") {
 //   @VERSION("0.3");
 //   @USE-PACKAGE(name="adc28", version="0.1", path="../../../rnl/adc28.rnl")
@@ -12,8 +12,8 @@ MINN (DN INN TAIL VSS) nch_ulvt_mac l=3e-08 w=5.6e-05 nf=56 m=1 ad=2.8e-12 as=2.
 MTAIL (TAIL CLKC VSS VSS) nch_ulvt_mac l=3e-08 w=3e-06 nf=3 m=1 ad=1.75e-13 as=1.75e-13 pd=4.35e-06 ps=4.35e-06 nrd=0.136842 nrs=0.136842 sa=1.47042e-07 sb=1.47042e-07 sd=1e-07
 MRDP (DP CLKC AVDD AVDD) pch_ulvt_mac l=3e-08 w=2.2e-06 nf=2 m=1 ad=1.1e-13 as=1.65e-13 pd=2.4e-06 ps=4.7e-06 nrd=0.082492 nrs=0.082492 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
 MRDN (DN CLKC AVDD AVDD) pch_ulvt_mac l=3e-08 w=2.2e-06 nf=2 m=1 ad=1.1e-13 as=1.65e-13 pd=2.4e-06 ps=4.7e-06 nrd=0.082492 nrs=0.082492 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
-MLNP (QP QN DP VSS) nch_ulvt_mac l=3e-08 w=1.2e-05 nf=12 m=1 ad=6e-13 as=6.5e-13 pd=1.32e-05 ps=1.53e-05 nrd=0.040569 nrs=0.040569 sa=4.01767e-07 sb=4.01767e-07 sd=1e-07
-MLNN (QN QP DN VSS) nch_ulvt_mac l=3e-08 w=1.2e-05 nf=12 m=1 ad=6e-13 as=6.5e-13 pd=1.32e-05 ps=1.53e-05 nrd=0.040569 nrs=0.040569 sa=4.01767e-07 sb=4.01767e-07 sd=1e-07
+MLNP (QP QN DP VSS) nch_ulvt_mac l=3e-08 w=8e-06 nf=8 m=1 ad=4e-13 as=4.5e-13 pd=8.8e-06 ps=1.09e-05 nrd=0.059025 nrs=0.059025 sa=2.95835e-07 sb=2.95835e-07 sd=1e-07
+MLNN (QN QP DN VSS) nch_ulvt_mac l=3e-08 w=8e-06 nf=8 m=1 ad=4e-13 as=4.5e-13 pd=8.8e-06 ps=1.09e-05 nrd=0.059025 nrs=0.059025 sa=2.95835e-07 sb=2.95835e-07 sd=1e-07
 MLPP (QP QN AVDD AVDD) pch_ulvt_mac l=3e-08 w=8e-06 nf=8 m=1 ad=4e-13 as=4.5e-13 pd=8.8e-06 ps=1.09e-05 nrd=0.024976 nrs=0.024976 sa=2.95835e-07 sb=2.95835e-07 sd=1e-07
 MLPN (QN QP AVDD AVDD) pch_ulvt_mac l=3e-08 w=8e-06 nf=8 m=1 ad=4e-13 as=4.5e-13 pd=8.8e-06 ps=1.09e-05 nrd=0.024976 nrs=0.024976 sa=2.95835e-07 sb=2.95835e-07 sd=1e-07
 MRQP (QP CLKC AVDD AVDD) pch_ulvt_mac l=3e-08 w=3e-06 nf=3 m=1 ad=1.75e-13 as=1.75e-13 pd=4.35e-06 ps=4.35e-06 nrd=0.063502 nrs=0.063502 sa=1.47042e-07 sb=1.47042e-07 sd=1e-07
@@ -33,8 +33,8 @@ MCKP (CKB CLKC AVDD AVDD) pch_ulvt_mac l=3e-08 w=2.7e-06 nf=3 m=1 ad=1.575e-13 a
 CCB (CKB VSS) cfmom_2t nr=16 lr=1e-06 w=5e-08 s=5e-08 stm=1 spm=3 multi=1
 MBLEED (CKB AVDD VSS VSS) nch_ulvt_mac l=5e-07 w=5e-07 nf=1 m=1 ad=4.75e-14 as=4.75e-14 pd=1.19e-06 ps=1.19e-06 nrd=0.645705 nrs=0.645705 sa=9.5e-08 sb=9.5e-08 sd=1.2e-07
 MUP (CKB VSS AVDD AVDD) pch_ulvt_mac l=1e-07 w=5e-07 nf=1 m=1 ad=4.75e-14 as=4.75e-14 pd=1.19e-06 ps=1.19e-06 nrd=0.256086 nrs=0.256086 sa=9.5e-08 sb=9.5e-08 sd=1.2e-07
-CQP (QP VSS) cfmom_2t nr=16 lr=1e-06 w=5e-08 s=5e-08 stm=1 spm=3 multi=1
-CQN (QN VSS) cfmom_2t nr=16 lr=1e-06 w=5e-08 s=5e-08 stm=1 spm=3 multi=1
+CQP (QP VSS) cfmom_2t nr=44 lr=1e-06 w=5e-08 s=5e-08 stm=1 spm=3 multi=1
+CQN (QN VSS) cfmom_2t nr=44 lr=1e-06 w=5e-08 s=5e-08 stm=1 spm=3 multi=1
 // @RNL(author="schematic-review") {
 //  &VSS @ADD-TO $GROUND_NET_SET;
 //  &AVDD @ADD-TO $SUPPLY_NET_SET;
@@ -49,8 +49,8 @@ CQN (QN VSS) cfmom_2t nr=16 lr=1e-06 w=5e-08 s=5e-08 stm=1 spm=3 multi=1
 //  @LINE(linecolor="#d3dbe4", linewidth=0.08, linestyle="dashed") {(-112, -36) (112, -36) (112, 110) (-112, 110) (-112, -36)};
 //  @LINE(linecolor="#d3dbe4", linewidth=0.08, linestyle="dashed") {(-158, 30) (-118, 30) (-118, 76) (-158, 76) (-158, 30)};
 //  @LINE(linecolor="#d3dbe4", linewidth=0.08, linestyle="dashed") {(118, 30) (158, 30) (158, 76) (118, 76) (118, 30)};
-//  (0, 123) @TEXT("StrongARM RESET-V19", size=2, bold=true, halign="middle", textcolor="#273747");
-//  (0, 117) @TEXT("Smaller clock PMOS reduces external clock-gate load", size=1.1, bold=false, halign="middle", textcolor="#526171");
+//  (0, 123) @TEXT("StrongARM RESET-V27", size=2, bold=true, halign="middle", textcolor="#273747");
+//  (0, 117) @TEXT("Larger Q storage with N8 coupling devices", size=1.1, bold=false, halign="middle", textcolor="#526171");
 //  (0, 112) @TEXT("28 nm HPC+ | ULVT MOS | device labels: W/L and nf", size=0.9, bold=false, halign="middle", textcolor="#526171");
 //  (0, 106) @TEXT("Regenerative core", size=1.35, bold=true, halign="middle", textcolor="#273747");
 //  (-90, 103) @TEXT("Single DP", size=1.1, bold=true, halign="middle", textcolor="#273747");
@@ -67,10 +67,10 @@ CQN (QN VSS) cfmom_2t nr=16 lr=1e-06 w=5e-08 s=5e-08 stm=1 spm=3 multi=1
 //  #MLPN @TEXT("8\mu{}m/30nm  nf8", key="dims", size=1, halign="start", textcolor="#526171") => @PLACE(20.8, 60.5);
 //  #MLNP @PLACE(-18, 38) => @ORIENT("MY");
 //  #MLNP @TEXT("MLNP", key="name", size=1.15, bold=true, halign="end", textcolor="#273747") => @PLACE(-20.8, 42.5);
-//  #MLNP @TEXT("12\mu{}m/30nm  nf12", key="dims", size=1, halign="end", textcolor="#526171") => @PLACE(-20.8, 40.2);
+//  #MLNP @TEXT("8um/30nm nf8", key="dims", size=1, halign="end", textcolor="#526171") => @PLACE(-20.8, 40.2);
 //  #MLNN @PLACE(18, 38) => @ORIENT("R0");
 //  #MLNN @TEXT("MLNN", key="name", size=1.15, bold=true, halign="start", textcolor="#273747") => @PLACE(20.8, 42.5);
-//  #MLNN @TEXT("12\mu{}m/30nm  nf12", key="dims", size=1, halign="start", textcolor="#526171") => @PLACE(20.8, 40.2);
+//  #MLNN @TEXT("8um/30nm nf8", key="dims", size=1, halign="start", textcolor="#526171") => @PLACE(20.8, 40.2);
 //  #MRQP @PLACE(-38, 76) => @ORIENT("MY");
 //  #MRQP @TEXT("MRQP", key="name", size=1.15, bold=true, halign="end", textcolor="#273747") => @PLACE(-40.8, 77.2);
 //  #MRQP @TEXT("3\mu{}m/30nm  nf3", key="dims", size=1, halign="end", textcolor="#526171") => @PLACE(-40.8, 74.5);
@@ -422,13 +422,13 @@ CQN (QN VSS) cfmom_2t nr=16 lr=1e-06 w=5e-08 s=5e-08 stm=1 spm=3 multi=1
 //  &VSS @WIRE(mode="straight", linewidth=.16) {#MUP:g (-138, 8) %up_gate:p};
 //  #CQP @PLACE(-64, -90) => @ORIENT("R0");
 //  #CQP @TEXT("CQP", key="name", size=1, halign="start") => @PLACE(-61, -88.5);
-//  #CQP @TEXT("4.46fF", key="value", size=.95, halign="start") => @PLACE(-61, -91.5);
+//  #CQP @TEXT("12.86fF", key="value", size=.95, halign="start") => @PLACE(-61, -91.5);
 //  &QP @WIRE(mode="straight", linewidth=.16) {%d_MDQP (-64, -80) #CQP:p};
 //  %g_CQP = $GROUND @ATTACH &VSS => @PLACE(-64, -100);
 //  &VSS @WIRE(mode="straight", linewidth=.16) {#CQP:n %g_CQP:p};
 //  #CQN @PLACE(0, -90) => @ORIENT("R0");
 //  #CQN @TEXT("CQN", key="name", size=1, halign="start") => @PLACE(3, -88.5);
-//  #CQN @TEXT("4.46fF", key="value", size=.95, halign="start") => @PLACE(3, -91.5);
+//  #CQN @TEXT("12.86fF", key="value", size=.95, halign="start") => @PLACE(3, -91.5);
 //  &QN @WIRE(mode="straight", linewidth=.16) {%d_MDQN (0, -80) #CQN:p};
 //  %g_CQN = $GROUND @ATTACH &VSS => @PLACE(0, -100);
 //  &VSS @WIRE(mode="straight", linewidth=.16) {#CQN:n %g_CQN:p};
