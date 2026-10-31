@@ -1,0 +1,101 @@
+{
+ "block": "adc_comp",
+ "test": "tb_comp_kickback",
+ "view": "xtor-many-question-miyahara",
+ "corner": "fs_high_m40",
+ "params": {},
+ "globals": {
+  "vdd": 0.99,
+  "vdd18": 1.98,
+  "tempc": -40.0,
+  "noise_en": 0,
+  "devnoise": 1,
+  "beh_speed": 1.0,
+  "vref_in": 0.9,
+  "cdac_behav": 1,
+  "comp_behav": 0
+ },
+ "metrics": {
+  "kickback_uV": 0.031106076999994417,
+  "vdiff_uV": [
+   999.984,
+   999.835,
+   999.804,
+   999.774,
+   999.746,
+   999.718,
+   999.69,
+   999.662
+  ],
+  "cin_fF": 20.14567354162902,
+  "cin_clkc_fF": 14.645670455053027
+ },
+ "specs": {
+  "CMP-11": {
+   "metric": "kickback_uV",
+   "value": 0.031106076999994417,
+   "limit": "<= 40",
+   "pass": true
+  }
+ },
+ "specs_na": {
+  "CMP-12": {
+   "metric": "cin_fF",
+   "value": 20.14567354162902,
+   "limit": "<= 20",
+   "corners": "typ"
+  },
+  "CMP-14": {
+   "metric": "cin_clkc_fF",
+   "value": 14.645670455053027,
+   "limit": "<= 16",
+   "corners": "typ"
+  }
+ },
+ "figures": [
+  {
+   "file": "fs_high_m40.kickback.png",
+   "caption": "Differential input of the floating top-plate-sized nodes after each evaluate and reset cycle, and the change per cycle against the kickback limit."
+  },
+  {
+   "file": "fs_high_m40.cin.png",
+   "caption": "Input capacitance of the clock and digital inputs: the charge each pin draws over every rising edge (charge meter in series with it) divided by the voltage step, against the limit; the metric is the mean over the edges."
+  }
+ ],
+ "meta": {
+  "date": "2026-10-30T01:52:21",
+  "git": "c41a097",
+  "git_clean": true,
+  "mode": "aps",
+  "pdk": true,
+  "mc": null,
+  "wall_s": 756.6,
+  "rc": "0",
+  "sim_s": "14",
+  "numerics": {
+   "source": "spectre.log",
+   "reltol": 0.001,
+   "maxstep_ps": 66.0,
+   "method": "traponly",
+   "errpreset": "moderate",
+   "lteratio": 3.5,
+   "abstol_V": 1e-06,
+   "steps_accepted": 880,
+   "step_mean_ps": 3.75,
+   "step_max_ps": 50.5
+  },
+  "files": {
+   "tb/comp/tb_comp_kickback.scs": "04b444f63619d31d",
+   "design/xtor/adc_comp/many-question-miyahara/adc_comp.scs": "e8a0e3d3dc1366cd",
+   "tb/common/veriloga/tb_sampler_va.va": "4092bc16170c588d",
+   "tb/common/veriloga/tb_qmeter_va.va": "fed84d572a912b39"
+  },
+  "arch": {
+   "keys": [],
+   "sha": "44136fa355b3678a"
+  },
+  "views": {
+   "adc_comp": "xtor:many-question-miyahara"
+  }
+ }
+}

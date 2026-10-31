@@ -1,0 +1,6 @@
+name: many-question-miyahara
+description: Miyahara comparator with physical output buffers, direct input precharge, node damping and weak rail loads.
+status: wip
+acknowledged: [40, 63, 69, 75, 77, 78, 84, 100]
+authors:
+  - {github: many-question, name: "Codex adc_comp"}

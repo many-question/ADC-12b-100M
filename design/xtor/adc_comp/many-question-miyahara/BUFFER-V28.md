@@ -1,0 +1,5 @@
+# B28: larger buffer MOMs
+
+Private, unqualified physical trial. Only CBP/CBN change 48 to 56 fingers (14.0604 to 16.4603 fF), using exact verified CDP/CDN geometry. All 43 MOS and seven other MOMs are unchanged. Provider and original callback hash match. CDP/CDN drawing labels are corrected from nr48 to actual nr56. B27 tighter convergence failed; the slower-buffer hypothesis does not establish its root cause.
+
+Electrical SHA-256 `6c009cb444cb9b82dfb7d5a48e66c927e1d0d8b6becdfc569f5c89677bd29988`; callback `f553a09aa0a859e87a377f0522eb6653774ef645a8e8fd75d37e131fce9a7560`. [Complete RNL](BUFFER-V28.txt) checks/renders without errors or warnings; drawing inspected locally. [Predecessor source](https://github.com/many-question/ADC-12b-100M/blob/52145b84a2bb73ed7a177c01cb32ba0eac006139/design/xtor/adc_comp/many-question-miyahara/BUFFER-V27.txt) and failures retained. Fresh baseline/tighter timing, reset, validity, private 1.0 V stress, loading and full physical noise are pending. Canonical/formal failure unchanged.

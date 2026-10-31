@@ -1,0 +1,362 @@
+{
+ "block": "adc_comp",
+ "test": "tb_comp_delay",
+ "view": "xtor-many-question-miyahara",
+ "corner": "sf_high_125",
+ "params": {},
+ "globals": {
+  "vdd": 0.99,
+  "vdd18": 1.98,
+  "tempc": 125.0,
+  "noise_en": 0,
+  "devnoise": 1,
+  "beh_speed": 1.0,
+  "vref_in": 0.9,
+  "cdac_behav": 1,
+  "comp_behav": 0
+ },
+ "metrics": {
+  "wrong_decisions": 0,
+  "tdelay_1mV_ps": 44.199713239983495,
+  "tdelay_30mV_ps": 36.769891222601295,
+  "tau_reg_ps": 0.6003430720380061,
+  "treset_ps": 17.59473355491613,
+  "validity_violations": 24,
+  "loser_peak_pct": 52.66540112797136,
+  "validity": {
+   "rule": "each CLKC rise .. fall: exactly one output >= 0.5 VDD, the other < 0.3 VDD",
+   "dt_max_ps": 30.0458,
+   "cycles": 36,
+   "decided": 36,
+   "worst": {
+    "cycle": 18,
+    "vd_uV": -10.0,
+    "output": "OUTP",
+    "t_ps": 55.911
+   },
+   "violations": [
+    {
+     "cycle": 7,
+     "vd_uV": 3000.0,
+     "winner": "OUTP",
+     "loser_peak_pct": 38.43,
+     "both_decided": false
+    },
+    {
+     "cycle": 8,
+     "vd_uV": -3000.0,
+     "winner": "OUTN",
+     "loser_peak_pct": 38.469,
+     "both_decided": false
+    },
+    {
+     "cycle": 9,
+     "vd_uV": 1000.0,
+     "winner": "OUTP",
+     "loser_peak_pct": 45.051,
+     "both_decided": false
+    },
+    {
+     "cycle": 10,
+     "vd_uV": -1000.0,
+     "winner": "OUTN",
+     "loser_peak_pct": 44.999,
+     "both_decided": false
+    },
+    {
+     "cycle": 11,
+     "vd_uV": 300.0,
+     "winner": "OUTP",
+     "loser_peak_pct": 48.773,
+     "both_decided": false
+    },
+    {
+     "cycle": 12,
+     "vd_uV": -300.0,
+     "winner": "OUTN",
+     "loser_peak_pct": 48.878,
+     "both_decided": false
+    },
+    {
+     "cycle": 13,
+     "vd_uV": 100.0,
+     "winner": "OUTP",
+     "loser_peak_pct": 50.798,
+     "both_decided": true
+    },
+    {
+     "cycle": 14,
+     "vd_uV": -100.0,
+     "winner": "OUTN",
+     "loser_peak_pct": 50.798,
+     "both_decided": true
+    },
+    {
+     "cycle": 15,
+     "vd_uV": 30.0,
+     "winner": "OUTP",
+     "loser_peak_pct": 52.014,
+     "both_decided": true
+    },
+    {
+     "cycle": 16,
+     "vd_uV": -30.0,
+     "winner": "OUTN",
+     "loser_peak_pct": 52.014,
+     "both_decided": true
+    },
+    {
+     "cycle": 17,
+     "vd_uV": 10.0,
+     "winner": "OUTP",
+     "loser_peak_pct": 52.665,
+     "both_decided": true
+    },
+    {
+     "cycle": 18,
+     "vd_uV": -10.0,
+     "winner": "OUTN",
+     "loser_peak_pct": 52.665,
+     "both_decided": true
+    },
+    {
+     "cycle": 25,
+     "vd_uV": 3000.0,
+     "winner": "OUTP",
+     "loser_peak_pct": 38.431,
+     "both_decided": false
+    },
+    {
+     "cycle": 26,
+     "vd_uV": -3000.0,
+     "winner": "OUTN",
+     "loser_peak_pct": 38.469,
+     "both_decided": false
+    },
+    {
+     "cycle": 27,
+     "vd_uV": 1000.0,
+     "winner": "OUTP",
+     "loser_peak_pct": 45.051,
+     "both_decided": false
+    },
+    {
+     "cycle": 28,
+     "vd_uV": -1000.0,
+     "winner": "OUTN",
+     "loser_peak_pct": 44.999,
+     "both_decided": false
+    },
+    {
+     "cycle": 29,
+     "vd_uV": 300.0,
+     "winner": "OUTP",
+     "loser_peak_pct": 48.773,
+     "both_decided": false
+    },
+    {
+     "cycle": 30,
+     "vd_uV": -300.0,
+     "winner": "OUTN",
+     "loser_peak_pct": 48.878,
+     "both_decided": false
+    },
+    {
+     "cycle": 31,
+     "vd_uV": 100.0,
+     "winner": "OUTP",
+     "loser_peak_pct": 50.798,
+     "both_decided": true
+    },
+    {
+     "cycle": 32,
+     "vd_uV": -100.0,
+     "winner": "OUTN",
+     "loser_peak_pct": 50.798,
+     "both_decided": true
+    },
+    {
+     "cycle": 33,
+     "vd_uV": 30.0,
+     "winner": "OUTP",
+     "loser_peak_pct": 52.014,
+     "both_decided": true
+    },
+    {
+     "cycle": 34,
+     "vd_uV": -30.0,
+     "winner": "OUTN",
+     "loser_peak_pct": 52.014,
+     "both_decided": true
+    },
+    {
+     "cycle": 35,
+     "vd_uV": 10.0,
+     "winner": "OUTP",
+     "loser_peak_pct": 52.665,
+     "both_decided": true
+    },
+    {
+     "cycle": 36,
+     "vd_uV": -10.0,
+     "winner": "OUTN",
+     "loser_peak_pct": 52.665,
+     "both_decided": true
+    }
+   ],
+   "undecided": [],
+   "loser_peaks_pct": [
+    3.445,
+    3.444,
+    9.641,
+    9.726,
+    25.72,
+    25.709,
+    38.43,
+    38.469,
+    45.051,
+    44.999,
+    48.773,
+    48.878,
+    50.798,
+    50.798,
+    52.014,
+    52.014,
+    52.665,
+    52.665,
+    3.433,
+    3.444,
+    9.642,
+    9.728,
+    25.721,
+    25.709,
+    38.431,
+    38.469,
+    45.051,
+    44.999,
+    48.773,
+    48.878,
+    50.798,
+    50.798,
+    52.014,
+    52.014,
+    52.665,
+    52.665
+   ]
+  },
+  "energy_fJ": 304.9050540096
+ },
+ "specs": {
+  "CMP-05": {
+   "metric": "tdelay_1mV_ps",
+   "value": 44.199713239983495,
+   "limit": "<= 120",
+   "pass": true
+  },
+  "CMP-07": {
+   "metric": "tau_reg_ps",
+   "value": 0.6003430720380061,
+   "limit": "<= 15",
+   "pass": true
+  },
+  "CMP-08": {
+   "metric": "treset_ps",
+   "value": 17.59473355491613,
+   "limit": "<= 35",
+   "pass": true
+  },
+  "CMP-09": {
+   "metric": "wrong_decisions",
+   "value": 0,
+   "limit": "<= 0",
+   "pass": true
+  },
+  "CMP-15": {
+   "metric": "validity_violations",
+   "value": 24,
+   "limit": "<= 0",
+   "pass": false
+  },
+  "CMP-16": {
+   "metric": "loser_peak_pct",
+   "value": 52.66540112797136,
+   "limit": "reported",
+   "pass": null
+  }
+ },
+ "specs_na": {
+  "CMP-04": {
+   "metric": "tdelay_1mV_ps",
+   "value": 44.199713239983495,
+   "limit": "<= 80",
+   "corners": "typ"
+  },
+  "CMP-06": {
+   "metric": "tdelay_30mV_ps",
+   "value": 36.769891222601295,
+   "limit": "<= 50",
+   "corners": "typ"
+  },
+  "CMP-10": {
+   "metric": "energy_fJ",
+   "value": 304.9050540096,
+   "limit": "reported",
+   "corners": "typ"
+  }
+ },
+ "figures": [
+  {
+   "file": "sf_high_125.delay.png",
+   "caption": "Comparator delay versus input difference with the log fit and limits, the +1 mV decision with its delay marked, and the reset to 10 % VDD."
+  },
+  {
+   "file": "sf_high_125.validity.png",
+   "caption": "Output validity (CMP-15): the peak of the losing output from each CLKC rise to the CLKC fall against the 30 % VDD limit, with violations and undecided cycles marked, and the transient of the cycle with the largest losing peak."
+  }
+ ],
+ "meta": {
+  "date": "2026-10-30T19:12:40",
+  "git": "a2e3509",
+  "git_clean": true,
+  "mode": "aps",
+  "pdk": true,
+  "mc": null,
+  "wall_s": 1602.7,
+  "rc": "0",
+  "sim_s": "14",
+  "numerics": {
+   "source": "spectre.log",
+   "reltol": 0.001,
+   "maxstep_ps": 290.0,
+   "method": "traponly",
+   "errpreset": "moderate",
+   "lteratio": 3.5,
+   "abstol_V": 1e-06,
+   "steps_accepted": 3635,
+   "step_mean_ps": 3.989,
+   "step_max_ps": 56.5
+  },
+  "files": {
+   "tb/comp/tb_comp_delay.scs": "ca754d0b9373b04c",
+   "tb/common/veriloga/tb_imeter_va.va": "d4be49aca417ad61",
+   "design/xtor/adc_comp/many-question-miyahara/adc_comp.scs": "e8a0e3d3dc1366cd"
+  },
+  "arch": {
+   "keys": [],
+   "sha": "44136fa355b3678a"
+  },
+  "views": {
+   "adc_comp": "xtor:many-question-miyahara"
+  },
+  "execution": {
+   "run": "20261030-184558-6b10-tb_comp_delay",
+   "job": "sf_high_125",
+   "source_git": "a2e3509597563d607d2a873ed9cc5e9d667ccfff",
+   "segment": "continued_server_serial_dispatch",
+   "deck_sha256": "95a43e0778ef17140c5b5169ed94caacb24be65fadab96a3620f3048ff1772ba",
+   "waveform_sha256": "2c889a1a7dd40a50ade7cb887c2b22e3d9b4fe1e14f97fd2cebbd5192d4f14a5",
+   "rc_sha256": "3268e7162f782da62b632757c920371a00fd5841c4f00636e61f7d7e118b70dc",
+   "continuation_note": "Same originally staged source/deck; only uncompleted corners dispatched; no completed corner rerun."
+  }
+ }
+}
