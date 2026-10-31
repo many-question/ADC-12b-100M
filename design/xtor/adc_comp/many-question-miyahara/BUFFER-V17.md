@@ -8,7 +8,7 @@ The new geometry exactly matches existing M6 and every numerical parameter agree
 
 Electrical SHA-256: `f746984dca9a8b27c38058b15ad679b845a933f70653275d4fd187a41aa7be70`. The [source](BUFFER-V17.txt) contains 43 MOS and 9 MOMs with complete RNL checked on a byte-identical mirror. SF/high/-40 and FS/high/-40 are screened first, followed only on a useful pass by TT and the known worst FS/low/125 corner and a matched short phase diagnosis. Full known-corner coverage, actual-worst numerical convergence, canonical promotion and genuine formal tests remain open. Canonical B13 and every original formal failure remain unchanged.
 
-![Physical comparator with stronger clock pull-down](buffer-v17.png)
+![Physical comparator with stronger clock pull-down](https://raw.githubusercontent.com/many-question/ADC-12b-100M/1c82358bd327c795fc38a0b3ac1e63faf73429e5/design/xtor/adc_comp/many-question-miyahara/buffer-v17.png)
 
 ## Completed screen 20261031-091848-miyahara-buffer-v17-screen
 

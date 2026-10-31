@@ -8,7 +8,7 @@ The new capacitor callback succeeds without warnings; its SHA-256 is `613c7aa6a6
 
 First repeat SF/high/-40 and FS/high/-40. If they pass, TT and FS/low/125 deterministic screens precede the matched TT/worst-corner noise diagnosis. Broader known-corner coverage, actual-worst convergence, canonical promotion and genuine original formal gates remain to establish.
 
-![Physical comparator with larger buffer-node MOMs](buffer-v15.png)
+![Physical comparator with larger buffer-node MOMs](https://raw.githubusercontent.com/many-question/ADC-12b-100M/1c82358bd327c795fc38a0b3ac1e63faf73429e5/design/xtor/adc_comp/many-question-miyahara/buffer-v15.png)
 
 ## Completed screen 20261031-082247-miyahara-buffer-v15-screen
 

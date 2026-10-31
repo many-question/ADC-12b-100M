@@ -8,7 +8,7 @@ Both complete geometries exactly reuse callback-validated MBPP geometry already 
 
 Extra gate and diffusion capacitance, switching current, reset behavior and edge stress must be measured. SF/high/-40 and FS/high/-40 come first. If they pass, TT and FS/low/125 deterministic gates precede the matched TT/worst-corner noise diagnosis, so the known worst noise corner is screened early. Remaining known corners, actual-worst convergence, canonical promotion and genuine original formal tests remain prerequisites. No B13 performance result transfers and canonical B13 with all formal failures remains preserved.
 
-![Physical comparator with larger interstage PMOS drivers](buffer-v14.png)
+![Physical comparator with larger interstage PMOS drivers](https://raw.githubusercontent.com/many-question/ADC-12b-100M/1c82358bd327c795fc38a0b3ac1e63faf73429e5/design/xtor/adc_comp/many-question-miyahara/buffer-v14.png)
 
 ## Completed screen 20261031-080818-miyahara-buffer-v14-screen
 

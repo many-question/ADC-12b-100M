@@ -10,7 +10,7 @@ Only MRQP/MRQN change from 4 um/30 nm/nf4 to 2 um/30 nm/nf2. The geometry is exa
 
 Electrical SHA-256: `dbec21e70ed9aaf442210a58df360b115215013bcf1b60301347e306f0e8dffd`. The [source](BUFFER-V16.txt) contains 43 MOS and 9 MOMs with complete RNL checked on a byte-identical mirror. First SF/high/-40 and FS/high/-40 screens are followed, only if useful, by TT and the known worst FS/low/125 corner and their matched short phase diagnosis. Full known-corner coverage, actual-worst convergence and genuine formal tests remain open. Canonical B13 and every genuine formal failure remain unchanged.
 
-![Physical comparator with smaller regeneration reset assists](buffer-v16.png)
+![Physical comparator with smaller regeneration reset assists](https://raw.githubusercontent.com/many-question/ADC-12b-100M/1c82358bd327c795fc38a0b3ac1e63faf73429e5/design/xtor/adc_comp/many-question-miyahara/buffer-v16.png)
 
 ## Completed screen 20261031-090356-miyahara-buffer-v16-screen
 

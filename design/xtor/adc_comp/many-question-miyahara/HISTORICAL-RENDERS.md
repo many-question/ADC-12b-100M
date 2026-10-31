@@ -20,3 +20,13 @@ The complete RNL netlists and experiment reports remain in this candidate. To ke
 - [BUFFER-V10 rendering](https://raw.githubusercontent.com/many-question/ADC-12b-100M/0c799462e700c1f74a9448031e14abdd56ec18e7/design/xtor/adc_comp/many-question-miyahara/buffer-v10.png)
 - [BUFFER-V11 rendering](https://raw.githubusercontent.com/many-question/ADC-12b-100M/0c799462e700c1f74a9448031e14abdd56ec18e7/design/xtor/adc_comp/many-question-miyahara/buffer-v11.png)
 - [BUFFER-V12 rendering](https://raw.githubusercontent.com/many-question/ADC-12b-100M/0c799462e700c1f74a9448031e14abdd56ec18e7/design/xtor/adc_comp/many-question-miyahara/buffer-v12.png)
+
+
+## Additional preserved historical renderings
+
+The complete RNL netlists and experiment reports remain in this candidate. To keep the current package below its 2 MB content limit while continuing circuit work, the four additional historical PNGs are linked to their exact preserved, published commit `1c82358bd327c795fc38a0b3ac1e63faf73429e5`. Existing report image links now point directly to those unchanged images. All candidate files were also archived and every entry verified by CRC and SHA-256 before removing the duplicate local PNGs; the private archive SHA-256 is `bdac391a6724410c7150216535683ec5175db01233cf3925c516ff2750307a9a`. No electrical source or result record changes in this cleanup.
+
+- [BUFFER-V14 rendering](https://raw.githubusercontent.com/many-question/ADC-12b-100M/1c82358bd327c795fc38a0b3ac1e63faf73429e5/design/xtor/adc_comp/many-question-miyahara/buffer-v14.png)
+- [BUFFER-V15 rendering](https://raw.githubusercontent.com/many-question/ADC-12b-100M/1c82358bd327c795fc38a0b3ac1e63faf73429e5/design/xtor/adc_comp/many-question-miyahara/buffer-v15.png)
+- [BUFFER-V16 rendering](https://raw.githubusercontent.com/many-question/ADC-12b-100M/1c82358bd327c795fc38a0b3ac1e63faf73429e5/design/xtor/adc_comp/many-question-miyahara/buffer-v16.png)
+- [BUFFER-V17 rendering](https://raw.githubusercontent.com/many-question/ADC-12b-100M/1c82358bd327c795fc38a0b3ac1e63faf73429e5/design/xtor/adc_comp/many-question-miyahara/buffer-v17.png)
