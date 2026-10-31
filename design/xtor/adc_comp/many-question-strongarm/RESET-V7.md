@@ -4,7 +4,7 @@ V6 retains a reset peak caused by charge arriving while the opposite Q node and 
 
 The loads may change common-mode evolution, noise, decision gain and static energy. All of these remain unestablished for this source. The NMOS geometries exactly reuse successful warning-free callbacks; no circuit performance is inherited. The [independent source](RESET-V7.txt) contains 19 MOS and two MOM capacitors. Electrical SHA-256: `a62049295cc9343d260d27b6cbfdba646d1c6ce8d02643de7fea1bed2a46e0e0`. The byte-identical Spectre mirror passes full RNL core 0.5.2 checks with 0 errors, 0 warnings and 0 hints.
 
-![Diode-loaded direct-clock StrongARM](reset-v7.png)
+![Diode-loaded direct-clock StrongARM](https://raw.githubusercontent.com/many-question/ADC-12b-100M/596782536a7b43a5a893660a926aa339927ea784/design/xtor/adc_comp/many-question-strongarm/reset-v7.png)
 
 The first screen checks TT, FF high cold/hot and SS low/hot, with all 57 terminal pairs over the entire trace, actual decisions, output validity, timing and exact AVDD energy. No performance pass is claimed at source freeze.
 

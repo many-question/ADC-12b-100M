@@ -4,7 +4,7 @@ V7 passes full-trace stress at four key corners, but its persistent Q loads caus
 
 This is real transistor control, with every device included in stress and energy. It adds no ideal timing source or external bias. The [independent source](RESET-V8.txt) contains 22 MOS and three MOM capacitors, all with previously validated geometries. Electrical SHA-256: `61c0cc313cf8ac00cfda7e84f0371d8d50ed76e57faef057001ccc8c380bd71a`. Full RNL on its byte-identical Spectre mirror passes core 0.5.2 with 0 errors, 0 warnings and 0 hints.
 
-![Reset-gated shunt loads](reset-v8.png)
+![Reset-gated shunt loads](https://raw.githubusercontent.com/many-question/ADC-12b-100M/596782536a7b43a5a893660a926aa339927ea784/design/xtor/adc_comp/many-question-strongarm/reset-v8.png)
 
 The first screen checks TT, FF high cold/hot and SS low/hot, all 66 terminal pairs over the entire trace, actual decisions/output validity, delay, reset and exact AVDD energy. Clock charge is monitored separately and cannot substitute for official CMP-14. No performance pass is claimed at source freeze.
 

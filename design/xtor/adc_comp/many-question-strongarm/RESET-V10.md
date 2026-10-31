@@ -6,7 +6,7 @@ The faster clock pull-up can increase the negative clock-edge excursion. A weak 
 
 The [independent source](RESET-V10.txt) contains 23 MOS and three MOM capacitors. Electrical SHA-256: `a6834ef58286ccc4676a5f400d1c8a1c9abf53b05f5b7341cbf2809551ee0cb3`. Full RNL on its byte-identical Spectre mirror passes core 0.5.2 with 0 errors, 0 warnings and 0 hints.
 
-![Earlier reset-load turn-on and physical clock floor](reset-v10.png)
+![Earlier reset-load turn-on and physical clock floor](https://raw.githubusercontent.com/many-question/ADC-12b-100M/596782536a7b43a5a893660a926aa339927ea784/design/xtor/adc_comp/many-question-strongarm/reset-v10.png)
 
 The first four key corners check all 69 MOS terminal pairs throughout the trace, correct decisions and CMP-15, delay/reset and exact AVDD energy. The clock-charge diagnostic does not replace official CMP-14. No inherited performance pass is claimed.
 

@@ -4,7 +4,7 @@ V8 recovers valid outputs and timing at all four screened corners, and only cold
 
 The stronger shunts may absorb more of the measured reset charge, but their extra clock capacitance and DC current can slow reset or alter initial conditions. Those effects must be measured on this source. The [independent source](RESET-V9.txt) has 22 MOS and three MOM capacitors. Electrical SHA-256: `0342611e100bfc38b994734e0038c985cc57cf503e55be09e18c468106f8c21c`. Full RNL on a byte-identical Spectre mirror passes core 0.5.2 with 0 errors, 0 warnings and 0 hints.
 
-![Stronger reset-gated Q shunts](reset-v9.png)
+![Stronger reset-gated Q shunts](https://raw.githubusercontent.com/many-question/ADC-12b-100M/596782536a7b43a5a893660a926aa339927ea784/design/xtor/adc_comp/many-question-strongarm/reset-v9.png)
 
 The first screen uses TT, FF high cold/hot and SS low/hot, with all 66 terminal pairs over the entire trace, actual decisions and CMP-15, delay, reset, and exact AVDD energy. It makes no inherited performance claim.
 

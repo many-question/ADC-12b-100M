@@ -4,7 +4,7 @@ V11 fails SF low/cold physical output validity while the two Q nodes are still r
 
 The [independent source](RESET-V12.txt) has electrical SHA-256 `fbec8c61b7accb7fdf85ccff4c17f53b68589be849236a1558ba70628a46d846`. Full RNL on its byte-identical Spectre mirror passes core 0.5.2 with 0 errors, 0 warnings and 0 hints; the schematic was inspected.
 
-![Physical reset and output repair](reset-v12.png)
+![Physical reset and output repair](https://raw.githubusercontent.com/many-question/ADC-12b-100M/596782536a7b43a5a893660a926aa339927ea784/design/xtor/adc_comp/many-question-strongarm/reset-v12.png)
 
 Six key corners now include both limiting SF cases and SS low/hot, together with TT and FF high/cold/hot. Every MOS terminal pair, all physical decisions, output validity, delay/reset and AVDD energy are checked over the entire trace. The next necessary simulations also save AVDD and device branch currents so reset/evaluation energy and persistent load current can be measured. See [energy comparison](ENERGY-COMPARISON.md); no prior qualification or topology-only efficiency advantage is claimed.
 
