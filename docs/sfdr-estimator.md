@@ -9,7 +9,8 @@
 * **现在**：ENOB、SNDR、SFDR、SNR、THD 全部直接取自 ADCToolbox 的 `compute_spectrum`（`tools/adcflow/spectrum.py`），
   `pyproject.toml` 固定到上游提交 `cd72061`（Arcadia-1/ADCToolbox#100 的修复）。#36 期间的本地估计器 `adcflow.spectrum.sfdr_dbc` 已退役。
 * **固定提交，不固定版本**：这个提交的版本号仍是 0.9.1，而 PyPI 上的 0.9.1 **没有**修复（§3）。所以 `pyproject.toml` 写提交，
-  结果的 `meta.provenance.spectrum` 同时记录版本与提交，`tests/test_spectrum.py` 检查安装的正是这个提交。
+  结果的 `meta.provenance.spectrum` 同时记录版本与提交，`tests/test_spectrum.py` 检查安装的正是这个提交。结果里的提交号是常量，单独看不能证明安装的版本，
+  所以 `sim`、`remeasure` 开始前和每次计算指标前都读安装记录（`direct_url.json`），装的不是这个提交就报错，提示重新安装。
 * **`cd72061` 在 §4 的全部用例上给出真值**（§8）。没有注入杂散的噪声底上，它仍对杂散频点 ±1 求和再除以 ENBW，`quantized` 用例报 88.42 dB，
   `plotspec` 的单频点定义报 88.08 dB；这个差别是定义不同，不是错误。
 * **上游还剩一个限制**：杂散碰到信号频点时，它的一部分泄漏被算作信号，**SNDR 约高 0.8 dB**（`issue36` 报 80.79 dB，真值 80.00 dB）。这是按频点划分信号的方法本身的局限，SFDR 不受影响。
