@@ -862,6 +862,75 @@ inputs per run were recovered and verified before exact cleanup:
 - V7 early FF (8 raw files):
   `ad2021648070d9758db9d282b45e9c88ec65c53fe0ace8fa740ac910be374124`
 
+### V8 common-edge control: SS pass, early FF still fails
+
+V8 reduces the shared-enable first-stage NMOS from 8 to 6 um and nominal-
+threshold PMOS from 16 to 12 um, retaining 30 nm length and 2 um fingers.
+It also adds 50 existing validated physical MOM units to SAMP_ON:
+50.1145 fF plus exactly 2.505725 fF bottom-plate Cp. Original MOM/Cp lines,
+other MOS and external ports remain unchanged. Fresh callbacks and complete
+pinned RNL check/render pass without warnings. There are still 548 MOS
+per half and 1096 in the differential test.
+
+Source SHA256:
+`ec01ed7effbeb53894bffeae0563837fb60d2b9ef7ffea93eb96cb5d48249555`.
+
+| V8 check | Independent result |
+|---|---|
+| SS applicable specifications | All five pass: RL5/RL12/start 58.7/38.7/94.1 ps; tau 11.291656529 ps; droop 0.005334046 LSB |
+| SS all-MOS voltage | All 1644 pairs pass; maximum 0.978616967240 V on XB2.MSHAREL gate/drain at 60.082866587 ns |
+| Early FF, original 0..12 ns | Fails: 299/3288 pairs; maximum 1.075905098325 V on XDACN.XB11.XDL.MPA1 drain/source at 10.078701238 ns |
+
+SS Qref is 1.878457519 pC; PHI_S/PHI_SB/CONV loads are
+5.963333/31.922153/14.340644 fF. These are n/a at SS, not TT budget
+passes. The failed FF gate stops this source before TT, weights or longer
+expansion. It does not stop further independent design work.
+
+![Matched common-edge experiment](common-edge-control.png)
+
+Both saved records cover the identical original first 12 ns. V7's 472
+terminal labels span 310 devices and 287 distinct actual net pairs; V8's
+299 span 215 devices and 212 actual net pairs. These are descriptive
+counts, not independent root-cause counts. Two circuit changes were made
+together, so the audit does not isolate their individual causal effect.
+
+- ENB's 10--90% sampling-entry rise changes from 11.071397 to 14.001999 ps.
+  Its associated EN negative excursion at conversion start changes from
+  -10.753927 to -9.231748 mV. The repeated MNB0 violations disappear
+  (44 to zero); MPB0 violations decrease from 110 to 22.
+- SAMP_ON's 50% falling crossing moves only 2.162307 ps, to
+  5.062447587 ns, still before VG turns off. Its NMOS buffer violation
+  disappears, but two PMOS pairs still fail, with a 1.000525356 V maximum.
+  The negative output swing is reduced, not eliminated.
+- The low-input VINN minimum is -45.035396 mV, versus -44.593525 mV in V7.
+  Bit-0 BH improves modestly from -78.819331 to -75.010269 mV; its
+  sampling-PMOS gate/drain peak remains 1.070564544 V. MID PMOS stress
+  also remains. Common edge control has not repaired input/plate injection.
+- The bit-12 HIB negative swing changes from -69.980266 to -63.730084 mV,
+  while the pulse-chain D1 remains near -49.95 mV. These still create
+  repeated logic-buffer violations.
+- At V8's worst event, AP is 1.076359230 V and PCOND is 0.000454131 V.
+  The two series PMOS can still leave AP floating when both are off.
+  Twenty-two MPA1 terminal pairs fail, so this is a repeated prelogic
+  structure, not a lone device requiring a special-case keeper.
+
+The next discriminating experiment will provide an ENB-controlled NMOS
+discharge path on AP in every repeated prelogic driver, replacing the
+bit-12-only high-state keeper. This makes AP actively low when the upper
+PMOS is off. Its extra enable load, AP edge feedthrough, SS start timing
+and reference charge remain measurements to be made. Other residual
+mechanisms are not assumed fixed by that experiment.
+
+Both V8 runs launched from clean commit
+`83e299ed99eeeabdef833df6d9b59324c3654de2` with 0.5 ps / 1e-7 /
+1e-8 / traponly. SS took 396 s and early FF 110 s. All raw data and
+50 frozen inputs per run were recovered and verified before exact cleanup:
+
+- V8 SS (9 raw files):
+  `3741d99bd697c40fcac42a5b153357d6b6e99066c43321467097995dd43287d1`
+- V8 early FF (8 raw files):
+  `2fcb5bfe39cf4f75e76c144b3954e0f3188631268634315ebd93d2aabf970323`
+
 ## Continuing verification
 
 A brief separately controlled reference-drive assist remains an unimplemented

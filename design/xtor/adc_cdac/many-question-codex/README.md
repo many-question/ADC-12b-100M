@@ -107,6 +107,13 @@ pressure, but its early FF screen fails. On a matched 0..12 ns interval,
 the worst bottom-plate excursion decreases while the total failing-pair
 count rises from 355 to 472. Its [matched comparison](early-sharing-comparison.png)
 retains both effects; TT/weights expansion is stopped for V7.
+The independent V8 common-edge experiment also passes SS: RL12/start
+38.7/94.1 ps and maximum device voltage 0.978616967 V. Its matched early
+FF record reduces failing pairs from 472 to 299, representing 212 actual
+net pairs, but still reaches 1.075905098 V on a floating AP path.
+The [common-edge comparison](common-edge-control.png) shows which shared
+excursions improve and which remain. V8 stops before TT/weights; a structural
+AP discharge experiment is the next separate source, with no inherited pass.
 Existing V4 TT saves do not permit assigning its total excess to a phase.
 N4's TT evidence does not transfer to any changed case.
 The [first passing private SS comparison](balanced-predrive-ss-screen.png)
