@@ -29,3 +29,5 @@ Independent [B25](BUFFER-V25.md), with N2.6 first-buffer pull-downs and 44-finge
 Independent [B26](BUFFER-V26.md) increases BP/BN MOMs from 44 to 48 fingers and passes five baseline/four tighter deterministic corners plus TT loading. **Full physical FS/low/125 noise remains a failure at 270.61635250554104 uV rms [261.07, 280.6] against 240 uV**, with every 17 x 512 decision retained. Qualification expansion stops; canonical B20 and the genuine formal failure remain unchanged.
 
 Independent [B27](BUFFER-V27.md) weakens only M8/M9 N4 to N2 to test earlier latch release. Five baseline corners and TT capacitance pass; TT 30 mV delay is 47.5707 ps. **Tighter FS/high/-40 fails with SPECTRE-16929 at 137.149 ps**; four planned corners never started. The complete failure is retained, no B27 noise test follows, and B26's physical noise failure remains unchanged.
+
+Independent [BUFFER-V28](BUFFER-V28.md): physical validation pending; predecessor failures retained.
