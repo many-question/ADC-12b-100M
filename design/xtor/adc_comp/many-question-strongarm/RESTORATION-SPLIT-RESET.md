@@ -21,8 +21,9 @@ If every first-screen gate passes, complete SS/low/125 and FF/high/-40 before fu
 | delay / ss_low_125 | d1=78.66814829804758 ps; d30=60.44167454551667 ps; reset=25.91374286583142 ps; CMP-15=0; unrounded peak=0.8853753588115706 V; energy=178.0780482792 fJ; PASS limited gates |
 | delay / ff_high_m40 | d1=46.29729270055616 ps; d30=35.71171234289827 ps; reset=15.468715879564217 ps; CMP-15=0; unrounded peak=1.090889275399344 V; energy=228.13611076079997 fJ; PASS limited gates |
 | delay / sf_high_m40 tighter | d1=69.19803015192613 ps; d30=51.01852098352188 ps; reset=16.65525895322749 ps; CMP-15=0; unrounded peak=1.097264316244123 V; energy=222.69583749599997 fJ; PASS limited gates |
+| noise / fs_low_125 | 276.50080267196466 uV rms; 95% profile CI [266.82071470160474, 286.6305794677563]; 17 x 512 finite samples; FAIL 240 uV |
 
-Only archived gates are shown; full physical noise has not yet produced a completed archived result.
+A required gate fails. Stop expansion for this source; no TT-noise/full-corner/mismatch result is claimed.
 
 Non-TT d30 and energy are report-only. The targeted SF check requests reltol=1e-6 and vabstol=1e-8; its log reports effective reltol=1e-7 and voltage abstol=1e-8, with no explicit maxstep/method override; all device-pair limits are applied to unrounded saved waveform maxima. No previous 30-run archive is reverified in this phase.
 
@@ -50,11 +51,14 @@ Exact terminal-current probes were retained and are finite. The mean integral of
 | 20261101-061948-soa12-l16split-first | 16.0/11.4, 16.0/11.4, 27.0/22.3 | 21.500 / 64.094 / 45.047 / 3.812 / 21.062 / 122.770 | 278.285 |
 | 20261101-061958-soa12-l16split-loading | 32.0/27.9 | 21.453 / 53.640 / 43.156 / 0.188 / 21.032 / 122.286 | 261.755 |
 | 20261101-062509-soa12-l16split-remaining | 15.0/11.1, 25.0/21.2, 26.0/21.9 | 21.437 / 73.109 / 47.485 / 15.750 / 21.078 / 122.542 | 301.401 |
+| 20261101-062942-soa12-l16split-noise-fs | 357.0/354.0 | 21.562 / 379.656 / 43.078 / 5.843 / 21.016 / 121.461 | 592.616 |
 
 20261101-061948-soa12-l16split-first archive SHA-256 `b97b7891c1c9e9cec25bdea72aecedce800c680f6457cadd91eb909144fcdd0a`.
 
 20261101-061958-soa12-l16split-loading archive SHA-256 `599708f33e5d94d547094594d95423dabbdf627df979bb82d859e16aca9e384e`.
 
 20261101-062509-soa12-l16split-remaining archive SHA-256 `b8be907c317d8a53668f07314def9643dd8c30badb0d5f60176158da9b56ae55`.
+
+20261101-062942-soa12-l16split-noise-fs archive SHA-256 `3af5ef1ad00a22008e85985597ab08e782622d82b24c91c3c271d3b84ced62e5`.
 
 Dispatch source raw SHA-256 `f381341a1ec199d37bcd78c59c4504ca2028362d8cc7a68b8193f005e0e333a4`; published source after caption-only correction `383fef0870fd40016de47fa116ab1437732eb07bc872a05c47dc827943dd764a`; electrical SHA is identical. Each completed archive passed CRC/member SHA verification and exact owned remote-path absence checks. Archive/report generation was not separately timed. Overlapping batch times must not be added as campaign wall time. Noise intervals are conditional on the binomial probit model and do not establish independent-sample or seed robustness.
