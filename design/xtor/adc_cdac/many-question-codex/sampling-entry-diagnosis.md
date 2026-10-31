@@ -1246,3 +1246,37 @@ Each case screens SS settling plus all MOS pairs in its actual TB before
 TT charge/load/settling, then spectra and further corners. A failed case
 stops its costly expansion and informs the next independent change.
 Formal N4 and all official results remain unchanged.
+
+### Official numerical-flow migration and refreshed N4 SS baseline
+
+PR #95 subsequently merged as `c6152d236e525793ecc4809b9a6c9dfb9fd0ad77`.
+This branch incorporates it at `301ace8b2688d8c8261a93beed25c5ae1fa6d8d0`.
+The exact ADCToolbox commit `cd72061ff3b7a977163dac540da126ae22f5e38d` was
+installed in an isolated environment, verified from installed VCS provenance;
+all 73 spectrum, numerical-settings and dependency tests pass. Generated
+testbenches match the merged generator.
+
+The first rerun uses the unmodified official runner, N4 source and full
+`tb_cdac_settle` at SS. The source remains
+`3d62b80300fc5d85e3fc4e498cd22cedfa92ed006c502922526f1641e0a2ae61`.
+It records RL5/RL12/start **68.6/47.4/116.8 ps**, tau 14.852871281 ps
+and droop 0.008877301 LSB. RL12 and conversion-start still fail their
+40/100 ps limits. Qref is 1.745048234 pC at SS, where the TT charge
+budget does not apply.
+
+The log confirms APS, conservative, effective reltol 1e-4, voltage tolerance
+1 uV, gear2only, relref alllocal and lteratio 10. There is no configured
+maxstep; the logged default is 700 ps. It completes in 26 solver seconds
+from clean `301ace8`, with 5158 finite points over the full 0..70 ns.
+The official test saves eight signals; it is not a replacement for the
+private full-device-voltage audits. All nine raw files and 50 staged inputs
+were recovered and hash-verified before deleting only this owned run.
+Archive SHA256: `8e13974c0b953757e0b5ffe31455d5256afc469f0ab44b5b95c111080c6a1e68`.
+
+The preceding 12 official result/figure files were copied and verified
+before rerunning, and remain in Git history. Only the SS result and its
+two figures are replaced by this actual rerun. Other old results remain
+stale; they are not rehashed or counted as current passes. Known failures
+continue to gate expensive expansion. Subsequent circuit diagnostics will
+be generated from the merged flow; tracking cross-checks, when needed,
+use its prescribed traponly / maxstep 1 ps configuration.

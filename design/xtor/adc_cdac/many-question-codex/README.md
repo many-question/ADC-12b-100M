@@ -1,22 +1,23 @@
 # CDAC candidate
 
 This WIP 28 nm HPC+ candidate retains the formal N4 source and its complete
-TT evidence. All 17 required TT metrics pass; the first slow-corner screen
+TT evidence. All 17 required TT metrics passed under the preceding protocol; the first slow-corner screen
 fails RL12 and conversion-start settling. Successor experiments remain
 independent until they earn their own validation; no old result is relabeled.
 
-Numerical-settings transition: [notice #94](https://github.com/many-question/ADC-12b-100M/issues/94)
-announces conservative transient settings and a fixed upstream ADCToolbox
-revision. At this report's check, main is still `3b0c002`; implementing
-[PR #95](https://github.com/many-question/ADC-12b-100M/pull/95) is open and
-not merged. The formal results and V0--V10 circuit experiments use
-the preceding protocol and do not establish acceptance under the announced settings. Same-source
-private numerical comparisons were completed before the subsequent circuit changes;
-formal affected tests will be rerun with the merged official flow.
-The first three comparisons are complete: N4 SS still fails RL12/start
-(47.4/116.8 ps), and V6 FF retains exactly the same 387 failing voltage
-pairs over full settling and 355 over the original first 12 ns of tracking
-input. The largest FF peaks remain 1.103506/1.108167 V. See the
+Numerical-settings transition: [PR #95](https://github.com/many-question/ADC-12b-100M/pull/95)
+merged as `c6152d236e525793ecc4809b9a6c9dfb9fd0ad77`. The candidate branch
+includes that official flow. ADCToolbox is installed from the exact pinned
+upstream commit `cd72061ff3b7a977163dac540da126ae22f5e38d` in an isolated environment.
+The first official rerun refreshes N4 SS settling: RL12/start still fail
+at 47.4/116.8 ps, using conservative, effective reltol 1e-4, gear2only
+and no explicit maxstep. The old TT results are stale and do not establish
+current acceptance; no eligibility or lead verification is inherited.
+
+Before the merge, same-source private comparisons retained the same V6 FF
+failures (387 pairs in full settling, 355 in the original first 12 ns).
+V11/V12 circuit exploration used those verified proposed settings. Their
+private evidence remains separate from the new official baseline. See the
 [same-source comparison](numerics94-same-source.png) and evidence ledger.
 
 ## Circuit and fixed assumptions
