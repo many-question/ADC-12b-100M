@@ -131,3 +131,24 @@ The complete waveform integral changes by +40.864173704 fJ/cycle (+10.055384%) f
 | physical clock | 49.187118306 | 30.811896014 | 18.375222292 |
 
 Physical weak loads and reset are included. Net returned charge can make a phase allocation negative; these are supply-delivery allocations rather than isolated device dissipation. Ideal external-clock delivery is outside this boundary. Power is reported only and does not establish a qualified topology ranking.
+
+
+## V26 measured TT supply phases
+
+Run `20261031-103621-strongarm-reset-v26-screen` uses the same complete AVDD boundary and 36-cycle 100 ps–14.5 ns window as V20. The only geometry change relative to V20 is smaller N8 input-to-Q coupling devices. Capacitance, drive, transient bias and noise effects remain coupled.
+
+| Total fJ/cycle | Evaluation | Reset | Initial reset current uA | Initial reset power mW |
+|---:|---:|---:|---:|---:|
+| 398.516712298 | 83.862647693 | 314.654064605 | 1174.561976866 | 1.057105779 |
+
+The complete waveform integral changes by -7.874262881 fJ/cycle (-1.937608%) from V20. The original meter is 398.516283000 fJ/cycle; its relative difference from the waveform integral is 0.000107724%. All supply-terminal probes are present and their sum closes to numerical precision.
+
+| Net supply delivery group | Whole cycle fJ | Evaluation | Reset |
+|---|---:|---:|---:|
+| input precharge | 104.894718352 | 1.707883394 | 103.186834958 |
+| regenerative core | 21.568086279 | 24.787404929 | -3.219318650 |
+| Q precharge/reset | 196.208573149 | 1.292769894 | 194.915803255 |
+| external output inverters | 26.736479066 | 25.260963073 | 1.475515993 |
+| physical clock | 49.108855452 | 30.813626403 | 18.295229049 |
+
+Physical weak loads and reset are included. Net returned charge can make a phase allocation negative; these are supply-delivery allocations rather than isolated device dissipation. Ideal external-clock delivery is outside this boundary. Power is reported only and does not establish a qualified topology ranking.
