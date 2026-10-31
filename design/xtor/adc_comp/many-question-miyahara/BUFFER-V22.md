@@ -12,7 +12,7 @@ The B21 worst reset cycle has CKB at 90% after 14.33700293928296 ps, both RP/RN 
 
 The independent private screen uses the merged adc_comp 0.8.0 official testbench baseline without numerical overrides, with APS and actual conservative/gear2only settings checked in the log. It first covers SS hot reset, SF/FS high-voltage cold stress, TT timing and FS/low/125. No formal result or shared testbench, measurement, rule or threshold is modified. Full noise follows only after a useful deterministic pass. Canonical B20 and all earlier failures remain preserved; B22 is not promoted or qualified.
 
-Electrical SHA-256: `379e31cd1bf978f5458ea12c2d011f0273dc918a4db5d1a8ea32b48fad8ee0b3`. The [source](BUFFER-V22.txt) contains complete RNL checked on a byte-identical mirror.
+Electrical SHA-256: `379e31cd1bf978f5458ea12c2d011f0273dc918a4db5d1a8ea32b48fad8ee0b3`. The [source](https://github.com/many-question/ADC-12b-100M/blob/2db9f93848412c520ab08fb6218adf376ff2cd50/design/xtor/adc_comp/many-question-miyahara/BUFFER-V22.txt) contains complete RNL checked on a byte-identical mirror.
 
 ![Comparator with stronger reset clock pull-up](buffer-v22.png)
 

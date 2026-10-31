@@ -1,4 +1,4 @@
-// BUFFER-V22: independent Miyahara experiment with physical high-trip output buffers.
+// BUFFER-V23: independent Miyahara experiment with physical high-trip output buffers.
 // @RNL(type="header") {
 //   @VERSION("0.3");
 //   @USE-PACKAGE(name="adc28", version="0.1", path="../../../rnl/adc28.rnl")
@@ -10,16 +10,16 @@ subckt adc_comp (INP INN CLKC OUTP OUTN AVDD VSS)
 MINP (DP INP TAIL VSS) nch_ulvt_mac l=3e-08 w=5.6e-05 nf=56 m=1 ad=2.8e-12 as=2.85e-12 pd=6.16e-05 ps=6.37e-05 nrd=0.009138 nrs=0.009138 sa=1.36619e-06 sb=1.36619e-06 sd=1e-07
 MINN (DN INN TAIL VSS) nch_ulvt_mac l=3e-08 w=5.6e-05 nf=56 m=1 ad=2.8e-12 as=2.85e-12 pd=6.16e-05 ps=6.37e-05 nrd=0.009138 nrs=0.009138 sa=1.36619e-06 sb=1.36619e-06 sd=1e-07
 MTAIL (TAIL CLKC VSS VSS) nch_ulvt_mac l=3e-08 w=3e-06 nf=3 m=1 ad=1.75e-13 as=1.75e-13 pd=4.35e-06 ps=4.35e-06 nrd=0.136842 nrs=0.136842 sa=1.47042e-07 sb=1.47042e-07 sd=1e-07
-M14 (XP DP AVDD AVDD) pch_ulvt_mac l=3e-08 w=8e-06 nf=8 m=1 ad=4e-13 as=4.5e-13 pd=8.8e-06 ps=1.09e-05 nrd=0.024976 nrs=0.024976 sa=2.95835e-07 sb=2.95835e-07 sd=1e-07
-M15 (XN DN AVDD AVDD) pch_ulvt_mac l=3e-08 w=8e-06 nf=8 m=1 ad=4e-13 as=4.5e-13 pd=8.8e-06 ps=1.09e-05 nrd=0.024976 nrs=0.024976 sa=2.95835e-07 sb=2.95835e-07 sd=1e-07
-M12 (XP DP VSS VSS) nch_ulvt_mac l=3e-08 w=1e-06 nf=2 m=1 ad=5e-14 as=7.5e-14 pd=1.2e-06 ps=2.3e-06 nrd=0.425847 nrs=0.425847 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
-M13 (XN DN VSS VSS) nch_ulvt_mac l=3e-08 w=1e-06 nf=2 m=1 ad=5e-14 as=7.5e-14 pd=1.2e-06 ps=2.3e-06 nrd=0.425847 nrs=0.425847 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
-M10 (RP RN XP AVDD) pch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-13 pd=4.4e-06 ps=6.5e-06 nrd=0.048530 nrs=0.048530 sa=1.79203e-07 sb=1.79203e-07 sd=1e-07
-M11 (RN RP XN AVDD) pch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-13 pd=4.4e-06 ps=6.5e-06 nrd=0.048530 nrs=0.048530 sa=1.79203e-07 sb=1.79203e-07 sd=1e-07
-M6 (RP RN VSS VSS) nch_ulvt_mac l=3e-08 w=2e-06 nf=2 m=1 ad=1e-13 as=1.5e-13 pd=2.2e-06 ps=4.3e-06 nrd=0.185844 nrs=0.185844 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
-M7 (RN RP VSS VSS) nch_ulvt_mac l=3e-08 w=2e-06 nf=2 m=1 ad=1e-13 as=1.5e-13 pd=2.2e-06 ps=4.3e-06 nrd=0.185844 nrs=0.185844 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
-M8 (RP DP VSS VSS) nch_ulvt_mac l=3e-08 w=2e-06 nf=2 m=1 ad=1e-13 as=1.5e-13 pd=2.2e-06 ps=4.3e-06 nrd=0.185844 nrs=0.185844 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
-M9 (RN DN VSS VSS) nch_ulvt_mac l=3e-08 w=2e-06 nf=2 m=1 ad=1e-13 as=1.5e-13 pd=2.2e-06 ps=4.3e-06 nrd=0.185844 nrs=0.185844 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
+M14 (XP DP AVDD AVDD) pch_ulvt_mac l=3e-08 w=1.6e-05 nf=16 m=1 ad=8e-13 as=8.5e-13 pd=1.76e-05 ps=1.97e-05 nrd=0.012674 nrs=0.012674 sa=5.01551e-07 sb=5.01551e-07 sd=1e-07
+M15 (XN DN AVDD AVDD) pch_ulvt_mac l=3e-08 w=1.6e-05 nf=16 m=1 ad=8e-13 as=8.5e-13 pd=1.76e-05 ps=1.97e-05 nrd=0.012674 nrs=0.012674 sa=5.01551e-07 sb=5.01551e-07 sd=1e-07
+M12 (XP DP VSS VSS) nch_ulvt_mac l=3e-08 w=2e-06 nf=2 m=1 ad=1e-13 as=1.5e-13 pd=2.2e-06 ps=4.3e-06 nrd=0.185844 nrs=0.185844 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
+M13 (XN DN VSS VSS) nch_ulvt_mac l=3e-08 w=2e-06 nf=2 m=1 ad=1e-13 as=1.5e-13 pd=2.2e-06 ps=4.3e-06 nrd=0.185844 nrs=0.185844 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
+M10 (RP RN XP AVDD) pch_ulvt_mac l=3e-08 w=8e-06 nf=8 m=1 ad=4e-13 as=4.5e-13 pd=8.8e-06 ps=1.09e-05 nrd=0.024976 nrs=0.024976 sa=2.95835e-07 sb=2.95835e-07 sd=1e-07
+M11 (RN RP XN AVDD) pch_ulvt_mac l=3e-08 w=8e-06 nf=8 m=1 ad=4e-13 as=4.5e-13 pd=8.8e-06 ps=1.09e-05 nrd=0.024976 nrs=0.024976 sa=2.95835e-07 sb=2.95835e-07 sd=1e-07
+M6 (RP RN VSS VSS) nch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-13 pd=4.4e-06 ps=6.5e-06 nrd=0.108289 nrs=0.108289 sa=1.79203e-07 sb=1.79203e-07 sd=1e-07
+M7 (RN RP VSS VSS) nch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-13 pd=4.4e-06 ps=6.5e-06 nrd=0.108289 nrs=0.108289 sa=1.79203e-07 sb=1.79203e-07 sd=1e-07
+M8 (RP DP VSS VSS) nch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-13 pd=4.4e-06 ps=6.5e-06 nrd=0.108289 nrs=0.108289 sa=1.79203e-07 sb=1.79203e-07 sd=1e-07
+M9 (RN DN VSS VSS) nch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-13 pd=4.4e-06 ps=6.5e-06 nrd=0.108289 nrs=0.108289 sa=1.79203e-07 sb=1.79203e-07 sd=1e-07
 CDP (DP VSS) cfmom_2t nr=56 lr=1e-06 w=5e-08 s=5e-08 stm=1 spm=3 multi=1
 CDN (DN VSS) cfmom_2t nr=56 lr=1e-06 w=5e-08 s=5e-08 stm=1 spm=3 multi=1
 MCKN (CKB CLKC VSS VSS) nch_ulvt_mac l=3e-08 w=2e-06 nf=2 m=1 ad=1e-13 as=1.5e-13 pd=2.2e-06 ps=4.3e-06 nrd=0.185844 nrs=0.185844 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
@@ -74,7 +74,7 @@ MUPXN (XN VSS AVDD AVDD) pch_ulvt_mac l=1e-07 w=5e-07 nf=1 m=1 ad=4.75e-14 as=4.
 //  @LINE(linecolor="#d3dbe4", linewidth=0.08, linestyle="dashed") {(-112, 16) (-70, 16) (-70, 54) (-112, 54) (-112, 16)};
 //  @LINE(linecolor="#d3dbe4", linewidth=0.08, linestyle="dashed") {(70, 16) (112, 16) (112, 54) (70, 54) (70, 16)};
 //  @LINE(linecolor="#d3dbe4", linewidth=0.08, linestyle="dashed") {(-180, -72) (-76, -72) (-76, 0) (-180, 0) (-180, -72)};
-//  (0, 104) @TEXT("Miyahara BUFFER-V22", size=2, bold=true, halign="middle", textcolor="#273747");
+//  (0, 104) @TEXT("Miyahara BUFFER-V23", size=2, bold=true, halign="middle", textcolor="#273747");
 //  (0, 97) @TEXT("28 nm HPC+ | ULVT MOS | device labels: W/L and nf", size=0.9, bold=false, halign="middle", textcolor="#526171");
 //  (0, 91.5) @TEXT("Regenerative second stage", size=1.35, bold=true, halign="middle", textcolor="#273747");
 //  (0, 7) @TEXT("Dynamic input stage", size=1.35, bold=true, halign="middle", textcolor="#273747");
@@ -84,34 +84,34 @@ MUPXN (XN VSS AVDD AVDD) pch_ulvt_mac l=1e-07 w=5e-07 nf=1 m=1 ad=4.75e-14 as=4.
 //  (-176, -5) @TEXT("Clock drive and damping", size=1.25, bold=true, halign="start", textcolor="#273747");
 //  #M14 @PLACE(-18, 72) => @ORIENT("R0");
 //  #M14 @TEXT("M14", key="name", size=1.15, bold=true, halign="start", textcolor="#273747") => @PLACE(-15.2, 73.2);
-//  #M14 @TEXT("8um/30nm nf8", key="dims", size=1, halign="start", textcolor="#526171") => @PLACE(-15.2, 70.5);
+//  #M14 @TEXT("16um/30nm nf16", key="dims", size=1, halign="start", textcolor="#526171") => @PLACE(-15.2, 70.5);
 //  #M15 @PLACE(18, 72) => @ORIENT("MY");
 //  #M15 @TEXT("M15", key="name", size=1.15, bold=true, halign="end", textcolor="#273747") => @PLACE(15.2, 73.2);
-//  #M15 @TEXT("8um/30nm nf8", key="dims", size=1, halign="end", textcolor="#526171") => @PLACE(15.2, 70.5);
+//  #M15 @TEXT("16um/30nm nf16", key="dims", size=1, halign="end", textcolor="#526171") => @PLACE(15.2, 70.5);
 //  #M10 @PLACE(-18, 52) => @ORIENT("MY");
 //  #M10 @TEXT("M10", key="name", size=1.15, bold=true, halign="end", textcolor="#273747") => @PLACE(-20.8, 53.2);
-//  #M10 @TEXT("4\mu{}m/30nm  nf4", key="dims", size=1, halign="end", textcolor="#526171") => @PLACE(-20.8, 50.5);
+//  #M10 @TEXT("8um/30nm nf8", key="dims", size=1, halign="end", textcolor="#526171") => @PLACE(-20.8, 50.5);
 //  #M11 @PLACE(18, 52) => @ORIENT("R0");
 //  #M11 @TEXT("M11", key="name", size=1.15, bold=true, halign="start", textcolor="#273747") => @PLACE(20.8, 53.2);
-//  #M11 @TEXT("4\mu{}m/30nm  nf4", key="dims", size=1, halign="start", textcolor="#526171") => @PLACE(20.8, 50.5);
+//  #M11 @TEXT("8um/30nm nf8", key="dims", size=1, halign="start", textcolor="#526171") => @PLACE(20.8, 50.5);
 //  #M6 @PLACE(-18, 30) => @ORIENT("MY");
 //  #M6 @TEXT("M6", key="name", size=1.15, bold=true, halign="end", textcolor="#273747") => @PLACE(-20.8, 31.2);
-//  #M6 @TEXT("2\mu{}m/30nm  nf2", key="dims", size=1, halign="end", textcolor="#526171") => @PLACE(-20.8, 28.5);
+//  #M6 @TEXT("4um/30nm nf4", key="dims", size=1, halign="end", textcolor="#526171") => @PLACE(-20.8, 28.5);
 //  #M7 @PLACE(18, 30) => @ORIENT("R0");
 //  #M7 @TEXT("M7", key="name", size=1.15, bold=true, halign="start", textcolor="#273747") => @PLACE(20.8, 31.2);
-//  #M7 @TEXT("2\mu{}m/30nm  nf2", key="dims", size=1, halign="start", textcolor="#526171") => @PLACE(20.8, 28.5);
+//  #M7 @TEXT("4um/30nm nf4", key="dims", size=1, halign="start", textcolor="#526171") => @PLACE(20.8, 28.5);
 //  #M12 @PLACE(-42, 60) => @ORIENT("R0");
 //  #M12 @TEXT("M12", key="name", size=1.15, bold=true, halign="start", textcolor="#273747") => @PLACE(-39.2, 61.2);
-//  #M12 @TEXT("1\mu{}m/30nm  nf2", key="dims", size=1, halign="start", textcolor="#526171") => @PLACE(-39.2, 58.5);
+//  #M12 @TEXT("2um/30nm nf2", key="dims", size=1, halign="start", textcolor="#526171") => @PLACE(-39.2, 58.5);
 //  #M13 @PLACE(42, 60) => @ORIENT("MY");
 //  #M13 @TEXT("M13", key="name", size=1.15, bold=true, halign="end", textcolor="#273747") => @PLACE(39.2, 61.2);
-//  #M13 @TEXT("1\mu{}m/30nm  nf2", key="dims", size=1, halign="end", textcolor="#526171") => @PLACE(39.2, 58.5);
+//  #M13 @TEXT("2um/30nm nf2", key="dims", size=1, halign="end", textcolor="#526171") => @PLACE(39.2, 58.5);
 //  #M8 @PLACE(-42, 30) => @ORIENT("R0");
 //  #M8 @TEXT("M8", key="name", size=1.15, bold=true, halign="start", textcolor="#273747") => @PLACE(-39.2, 31.2);
-//  #M8 @TEXT("2\mu{}m/30nm  nf2", key="dims", size=1, halign="start", textcolor="#526171") => @PLACE(-39.2, 28.5);
+//  #M8 @TEXT("4um/30nm nf4", key="dims", size=1, halign="start", textcolor="#526171") => @PLACE(-39.2, 28.5);
 //  #M9 @PLACE(42, 30) => @ORIENT("MY");
 //  #M9 @TEXT("M9", key="name", size=1.15, bold=true, halign="end", textcolor="#273747") => @PLACE(39.2, 31.2);
-//  #M9 @TEXT("2\mu{}m/30nm  nf2", key="dims", size=1, halign="end", textcolor="#526171") => @PLACE(39.2, 28.5);
+//  #M9 @TEXT("4um/30nm nf4", key="dims", size=1, halign="end", textcolor="#526171") => @PLACE(39.2, 28.5);
 //  #MAP @PLACE(-42, -8) => @ORIENT("MY");
 //  #MAP @TEXT("MAP", key="name", size=1.15, bold=true, halign="end", textcolor="#273747") => @PLACE(-44.8, -6.8);
 //  #MAP @TEXT("2.4\mu{}m/30nm  nf3", key="dims", size=1, halign="end", textcolor="#526171") => @PLACE(-44.8, -9.5);
