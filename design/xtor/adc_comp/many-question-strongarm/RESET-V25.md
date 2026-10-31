@@ -117,3 +117,58 @@ Every archived entry was read back with CRC and SHA-256 verification before dupl
 
 - `20261031-100338-strongarm-reset-v25-screen`: `e0f659fe04f0fc2d0174e8e2f9a2a3719b6579403429ef0af36f22cad0f93f9f`.
 - `20261031-100951-strongarm-reset-v25-screen`: `e6621c0129a8dab29af8caacea1167c23e21da79e7fe1be24b92d85d630f9c28`.
+
+
+## Matched short phase result
+
+Run `20261031-101638-strongarm-reset-v25-noise-numerics-diagnostic-screen`, clean source `e5e6773efe635e934b962053bae26c5affef3f3c`, matches V20's short two-level protocol, instrumented testbench hash, +/-800 uV, 128 cycles per level, seed 1, 50 GHz and 0.5 ps/1e-6/1e-8 integration. V25 retains one wrong polarity, again at cycle 54: OUTP 1/128 at -800 uV and 128/128 at +800 uV. All 256 samples remain included. Identical error counts and a shared seed do not establish equal underlying noise or independent trials.
+
+All 256 resets complete, maximum 24.138468340 ps, with no +80/+150 ps to final sign changes, late-reset or output-validity violations. All 69 terminal pairs pass, maximum 0.90924 V.
+
+| Phase | Quantity | V20 secant gain | V25 secant gain | V20 descriptive SNR | V25 descriptive SNR |
+|---|---|---:|---:|---:|---:|
+| +20 ps | DP_minus_DN | -3.650071549 | -3.593551767 | 4.099704178 | 4.093796413 |
+| +20 ps | QP_minus_QN | 0.208661496 | 0.276959481 | 0.305432364 | 0.404569680 |
+| +30 ps | DP_minus_DN | -2.957057553 | -3.377928863 | 4.112015332 | 4.482905719 |
+| +30 ps | QP_minus_QN | -2.258471023 | -1.365841608 | 1.896073158 | 1.362273050 |
+| +40 ps | DP_minus_DN | 1.097011210 | 0.483815843 | 0.976058759 | 0.490915431 |
+| +40 ps | QP_minus_QN | -10.653248828 | -8.364798338 | 3.346147610 | 3.165669523 |
+
+These are two-level waveform means and within-level variation, not formal input-referred noise. Early feedthrough can reverse internal signs, and late regeneration saturates. At +30 ps, DP signs match the input in every cycle, while Q signs disagree in 25 cycles versus eight for V20. At +40 ps Q signs already match every final decision, including the one error. The wrong cycle has the following measured differentials:
+
+| Phase | DP-DN mV | QP-QN mV |
+|---|---:|---:|
+| +20 ps | 0.951726871 | -1.512187500 |
+| +30 ps | 1.789306042 | -1.490023227 |
+| +40 ps | 2.246800431 | -2.051523227 |
+| +60 ps | 10.427864114 | -47.907537231 |
+
+V25 combines N16 coupling devices and 0.6 um Q reset pull-downs relative to V20, so these observations cannot isolate either change. The combination lowers early Q SNR and increases full TT AVDD cost; it supplies no evidence to expand as the noise repair. V25 remains unpromoted, with further corners and formal noise stopped. V26 branches from V20 and tests only smaller N8 coupling devices, retaining its original 0.5 um shunts.
+
+| Device | max abs(Vgs) V | max abs(Vgd) V | max abs(Vds) V |
+|---|---:|---:|---:|
+| MINP | 0.49161 | 0.49120 | 0.59036 |
+| MINN | 0.49160 | 0.49122 | 0.59062 |
+| MTAIL | 0.90000 | 0.89844 | 0.56812 |
+| MRDP | 0.90000 | 0.89841 | 0.90080 |
+| MRDN | 0.90000 | 0.89833 | 0.90082 |
+| MLNP | 0.89839 | 0.89841 | 0.89852 |
+| MLNN | 0.89845 | 0.89841 | 0.89839 |
+| MLPP | 0.90094 | 0.89841 | 0.90091 |
+| MLPN | 0.90091 | 0.89841 | 0.90094 |
+| MRQP | 0.90000 | 0.90889 | 0.90091 |
+| MRQN | 0.90000 | 0.90902 | 0.90094 |
+| MOPN | 0.90889 | 0.90924 | 0.90522 |
+| MOPP | 0.90091 | 0.90924 | 0.90260 |
+| MONN | 0.90902 | 0.90918 | 0.90517 |
+| MONP | 0.90094 | 0.90918 | 0.90253 |
+| MDQP | 0.90659 | 0.89884 | 0.90889 |
+| MDQN | 0.90659 | 0.89870 | 0.90902 |
+| MDDP | 0.89494 | 0.00000 | 0.89494 |
+| MDDN | 0.89556 | 0.00000 | 0.89556 |
+| MCKN | 0.90000 | 0.89425 | 0.90659 |
+| MCKP | 0.90000 | 0.89425 | 0.90131 |
+| MBLEED | 0.90000 | 0.90131 | 0.90659 |
+| MUP | 0.90000 | 0.90659 | 0.90131 |
+
+Archive SHA-256 `c6bd30283dc5a5e6ceba6553e8f3054c64c749063d7947e7d25f16c0017626da` preserves raw data, all error indices, phase signs and the matched V20/V25 comparison; every entry was read back with CRC and SHA-256 verification. The owned remote run is absent. The 102.5 ns duration raises noisefmin to 9.7561 MHz versus the original 287.216 kHz. No formal V25 noise result is claimed. Canonical V19 and every original record remain unchanged.
