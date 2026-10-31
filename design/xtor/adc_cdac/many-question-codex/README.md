@@ -8,10 +8,15 @@ independent until they earn their own validation; no old result is relabeled.
 Numerical-settings transition: [notice #94](https://github.com/many-question/ADC-12b-100M/issues/94)
 announces conservative transient settings and a fixed upstream ADCToolbox
 revision. At this report's check, main is still `3b0c002` and the change
-is not merged. All existing results below use the preceding protocol.
-They do not establish acceptance under the announced settings. Same-source
+is not merged. The formal results and V0--V10 circuit experiments use
+the preceding protocol and do not establish acceptance under the announced settings. Same-source
 private numerical comparisons take priority over further circuit changes;
 formal affected tests will be rerun with the merged official flow.
+The first three comparisons are complete: N4 SS still fails RL12/start
+(47.4/116.8 ps), and V6 FF retains exactly the same 387 failing voltage
+pairs over full settling and 355 over the original first 12 ns of tracking
+input. The largest FF peaks remain 1.103506/1.108167 V. See the
+[same-source comparison](numerics94-same-source.png) and evidence ledger.
 
 ## Circuit and fixed assumptions
 

@@ -1046,8 +1046,8 @@ alllocal and lteratio 10; tracking retains effective reltol 1e-7 and
 The same-number PyPI 0.9.1 package does not identify the announced fix.
 
 All prior N4 and V0--V10 records remain evidence under their recorded
-settings, not evidence of acceptance under the new protocol. First,
-independent same-source private comparisons will recheck N4 SS settling,
+settings, not evidence of acceptance under the new protocol. The first
+independent same-source private comparisons recheck N4 SS settling,
 V6 FF full settling, and V6's original first 12 ns of tracking input.
 They change numerical configuration without changing the circuits or
 stimuli, and report every actual saved step and device pair. Any failure
@@ -1069,6 +1069,68 @@ benefit, overlap/reference-current cost and leakage remain unverified;
 numerical revalidation now precedes executing that source.
 
 ## Continuing verification
+
+### Completed same-source notice-94 diagnostics
+
+Three independent runs from clean `a3eb13c278466b833f06edf55c9ab6045e6ca7f8`
+apply the announced numerical settings to the exact archived N4/V6
+circuits. All 50 staged inputs per run were verified; only the job deck
+and testbench differ. Device sizes, physical MOMs and 5% bottom Cp,
+loads, source waveforms, initial state, save sets and metric definitions
+remain unchanged. The tracking-input run ends at 12 ns; its comparison
+uses the same first 12 ns of the old 125 ns run, never the full-run count.
+
+| Diagnostic | Old private strict settings | Notice-94 settings |
+|---|---|---|
+| N4 SS full 70 ns: RL5/RL12/start | 69.3/47.4/117.7 ps | 68.6/47.4/116.8 ps |
+| N4 SS device-voltage pairs | 0/1620 fail | 0/1620 fail |
+| V6 FF full 70 ns: RL5/RL12/start | 27.4/22.4/47.4 ps | 27.2/22.4/47.2 ps |
+| V6 FF full settling voltage pairs | 387/1638 fail, max 1.103478637 V | Same 387 pairs fail, max 1.103506458 V |
+| V6 FF original 0..12 ns voltage pairs | 355/3276 fail, max 1.108169154 V | Same 355 pairs fail, max 1.108166729 V |
+
+Both N4 timing failures persist in the raw points bracketing their
+deadlines: start error at 100 ps is 5.093684 mV against 1.585677 mV
+allowed, and RL12 error at 40 ps is 36.532154 mV against 9.602924 mV.
+The V6 full-settling maximum remains bit-11 low-driver MPA1 drain/source
+at 60.075189254 ns. The first-12-ns maximum remains negative-side bit-0
+MEQ1 gate/drain at 5.142333029 ns. Pair-by-pair comparison confirms no
+added or removed failing pair in either V6 window. These principal
+failures therefore persist under the announced preset; this does not
+prove every old waveform detail or every circuit variant is insensitive.
+
+![Same-source numerical comparison](numerics94-same-source.png)
+
+Logs confirm APS, gear2only, conservative, relref alllocal and lteratio 10
+for all three. The settling runs use effective reltol 1e-4 and voltage
+tolerance 1 uV. Tracking requests reltol 1e-6 and records effective 1e-7
+with 10 nV voltage tolerance. No maxstep is explicitly configured.
+Spectre nevertheless reports its internal default maximum: 700 ps for
+each 70 ns run and 120 ps for the 12 ns run. Actual largest saved gaps
+are 700/700/17.237846 ps respectively; adaptive edge steps are smaller.
+The complete waveforms contain 5159/5444/6181 points and cover t=0 to
+the specified end without missing or nonfinite values.
+
+Observed simulator runtimes are 23/23/36 s. The comparable old complete
+settling runs took 348/457 s; no equivalent old 12 ns runtime was measured,
+so the old 125 ns runtime is not used for a speed ratio. This comparison
+changes tolerances, integration method and step control together; it is
+not an isolated reltol-convergence experiment. All runs have four solver
+threads as reported by Spectre, with at most three concurrent jobs.
+
+All raw evidence (9/9/8 files), frozen inputs and analysis/cache seals
+were recovered and verified before exact owned-run cleanup. Archive hashes:
+
+- N4 SS: `f274c54ed7e0b599498fc2df574f379cfdbd69617fd34a694ebb3be1d010d86c`
+- V6 FF settling: `af9f3c47cdfa25267808cf5ba511bdeb94db545571a7aa7736d18ca95144332b`
+- V6 FF first 12 ns: `04aa9e469d0528c9d637b0257081208859e7b1bb27804c32d7dff849d3f24121`
+
+These are private proposed-setting diagnostics, not formal results. No
+FFT is performed, no ADCToolbox result is claimed, and no prior failure
+is erased. The formal N4 circuit and 12 official result/figure files
+remain unchanged. Official reruns still require the merged flow and its
+pinned dependency. The observations support continuing circuit diagnosis
+with the announced numerical settings instead of relying solely on the
+old traponly screens.
 
 A brief separately controlled reference-drive assist remains an unimplemented
 hypothesis, with additional pulse alignment and loading questions.
