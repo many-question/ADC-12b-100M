@@ -32,6 +32,7 @@ IMAVDD (AVDD_S AVDD) tb_imeter_va tstart=tper tstop=tstop label="AVDD" fname="po
 tran1 tran stop=tstop errpreset=conservative
 tbopts options reltol=1e-05
 save VG VIN PHI_B PHI_BB BP QPB QPBB
+waveopts options save=selected
 // @RNL {
 //   /* pins connected by net name: the net-name label of rnl-std-fill on every unwired pin, placed below by its key netname */
 //   $LABEL_TERMINAL_SET @TEXT("${net}", key="netname", size=0.6);
