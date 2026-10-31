@@ -25,3 +25,5 @@ Original tt_nom_27 noise PASS: 191.159437 uV rms against 200 uV (95% interval 18
 Independent [BUFFER-V21](BUFFER-V21.md), with only RP/RN MOMs enlarged from 8 to 16 fingers, fails SS/low/125 reset at 35.42069219051348 ps against 35 ps. All five corners pass actual polarity, output validity and unrounded terminal stress, but this reset failure stops noise expansion. The measured reset path is preserved for physical repair; no noise improvement is claimed.
 
 PR #95 has merged as `c6152d236e525793ecc4809b9a6c9dfb9fd0ad77`, raising adc_comp to 0.8.0. Necessary canonical-source evidence will be refreshed with the merged official flow and exact pinned dependency; known failed variants are not expanded to full-corner qualification.
+
+Official 0.8.0 run `20261031-125734-f562-tb_comp_noise` refreshes fs_low_125 noise 343.494401429 uV (FAIL CMP-13). [Exact committed evidence](FORMAL-SPEC08.md) preserves the actual source and original results. Current dependency coverage is 1/96; this does not establish qualification.
