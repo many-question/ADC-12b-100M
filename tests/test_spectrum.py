@@ -1,8 +1,9 @@
-"""SFDR estimator (issue #36): adcflow.spectrum against the true values and MATLAB plotspec."""
+"""SFDR (issue #36): the pinned ADCToolbox against the true values and MATLAB plotspec."""
 
 import json
 import re
 import sys
+from importlib import metadata
 from pathlib import Path
 
 import numpy as np
@@ -31,36 +32,40 @@ def test_sfdr_matches_the_injected_spur(name):
         assert got == pytest.approx(true, abs=0.01)
 
 
-@pytest.mark.parametrize("name", sorted(set(CASES) - {"clean"}))
+@pytest.mark.parametrize("name", sorted(set(CASES) - {"clean", "quantized"}))
 def test_sfdr_matches_matlab_plotspec(name):
-    """Same definition as MATLAB ADCToolbox plotspec (values recorded with tests/matlab/sfdr_plotspec.m).
-    `clean` is left out: plotspec's automatic sideBin is 0 on a noise-free spectrum (6.02 dB)."""
+    """Same value as MATLAB ADCToolbox plotspec on a tone (values recorded with tests/matlab/sfdr_plotspec.m).
+    `clean`: plotspec's automatic sideBin is 0 on a noise-free spectrum (6.02 dB). `quantized`: below."""
     assert spectrum.analyze(CASES[name][0], FS, 1.0)["sfdr_dbc"] == pytest.approx(MATLAB_PLOTSPEC[name], abs=1e-3)
 
 
-def test_issue36_repro():
-    """The pinned adctoolbox still sums the spur window into the signal bins (7.78 dBc); ours: 80."""
-    x = CASES["issue36"][0]
-    r = spectrum.analyze(x, FS, 2.0)
-    assert r["sfdr_dbc_adctoolbox"] == pytest.approx(7.7807885108, abs=1e-6)
-    assert r["sfdr_dbc"] == pytest.approx(80.0, abs=1e-6) and r["spur_bin"] == 507
-    assert r["sndr_dbc"] == pytest.approx(80.7919572179, abs=1e-6)          # unchanged, from adctoolbox
+def test_sfdr_on_a_noise_floor_is_the_summed_spur_window():
+    """No injected tone: the spur is the window around the largest bin over the ENBW, plotspec its single bin."""
+    assert spectrum.analyze(CASES["quantized"][0], FS, 1.0)["sfdr_dbc"] == pytest.approx(88.418, abs=1e-3)
+    assert MATLAB_PLOTSPEC["quantized"] == pytest.approx(88.083, abs=1e-3)
 
 
-def test_near_tone_dc_and_nyquist():
-    near = spectrum.analyze(CASES["near2"][0], FS, 1.0)
-    assert near["spur_bin"] == 303 and near["sfdr_dbc"] == pytest.approx(60.0, abs=0.01)   # found, not hidden
-    assert spectrum.analyze(CASES["dc_offset"][0], FS, 1.0)["spur_bin"] == 150             # DC is not a spur
-    assert spectrum.analyze(CASES["bin1"][0], FS, 1.0)["spur_bin"] == 1
-    nyq = spectrum.analyze(CASES["nyquist"][0], FS, 1.0)
-    assert nyq["spur_bin"] == 512 and nyq["sfdr_dbc_adctoolbox"] > 84                    # 0.6.4 misses it
+def test_sndr_limit_that_remains():
+    """A spur that touches the signal bins partly counts as signal: SNDR about 0.8 dB high. Nyquist is seen now."""
+    assert spectrum.analyze(CASES["issue36"][0], FS, 2.0)["sndr_dbc"] == pytest.approx(80.792, abs=1e-3)
+    assert spectrum.analyze(CASES["nonoverlap"][0], FS, 1.0)["sndr_dbc"] == pytest.approx(80.0, abs=1e-3)
+    assert spectrum.analyze(CASES["nyquist"][0], FS, 1.0)["sndr_dbc"] == pytest.approx(80.0, abs=1e-3)
 
 
-def test_the_pinned_toolbox_is_the_one_the_fix_is_for():
+def test_the_pinned_toolbox_is_the_commit_with_the_fix():
     import adctoolbox
 
-    pin = re.search(r'"adctoolbox==([\d.]+)"', (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8"))
-    assert pin and pin.group(1) == spectrum.ADCTOOLBOX == adctoolbox.__version__
+    pin = re.search(r"ADCToolbox@([0-9a-f]+)#subdirectory=python", (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+    assert pin and pin.group(1).startswith(spectrum.ADCTOOLBOX_COMMIT)
+    assert adctoolbox.__version__ == spectrum.ADCTOOLBOX
+    assert spectrum.ADCTOOLBOX_COMMIT in spectrum.PROVENANCE["estimator"]
+    installed = json.loads(metadata.distribution("adctoolbox").read_text("direct_url.json") or "{}")
+    assert installed.get("vcs_info", {}).get("commit_id", "").startswith(spectrum.ADCTOOLBOX_COMMIT)
+
+
+def test_the_local_sfdr_is_retired():
+    assert not hasattr(spectrum, "sfdr_dbc")
+    assert "sfdr_dbc_adctoolbox" not in spectrum.analyze(CASES["issue36"][0], FS, 2.0)
 
 
 def test_every_sfdr_path_uses_the_estimator():
@@ -91,7 +96,7 @@ def test_remeasure_replaces_only_the_estimator(tmp_path, monkeypatch):
     run = _run_dir(tmp_path, x)
     job = runner.Job("tt_nom_27", by_name("tt_nom_27"), {"npts": 256 * 4, "tper": 10e-9}, {"vdd": 0.9})
     old = spectrum.analyze(x - x.mean(), 1e8, None)
-    metrics = {"sfdr_dBc": old["sfdr_dbc_adctoolbox"], "sndr_dB": old["sndr_dbc"], "thd_dBc": old["thd_dbc"]}
+    metrics = {"sfdr_dBc": 7.78, "sndr_dB": old["sndr_dbc"], "thd_dBc": old["thd_dbc"]}   # the #36 value
     meta = {"date": "then", "git": "abc1234", "files": {"x": "0"}}
     (tmp_path / "results").mkdir()
     path = tmp_path / "results" / "tt_nom_27.json"

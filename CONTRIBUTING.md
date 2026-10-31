@@ -188,7 +188,7 @@ git config core.hooksPath tools/hooks     # 提交前检查（hygiene / ports / 
    ```
 
    结果写入 `results/<block>/<test>/xtor-<name>/<corner>.json`。规格要求蒙特卡洛的用例（`tb_comp_offset_mc`）只在 `typ` 上运行，
-   `sim` 按规格跑全部样本；验收用 `--mode aps`（默认）。
+   `sim` 按规格跑全部样本；验收用 `--mode aps`（默认）；每个 `tran` 都是 `errpreset=conservative`，`cx` 会忽略它，`check results` 拒绝这样记录的结果（`docs/verification.md` §2）。
    单独写 `xtor`（不带候选名）表示该模块已选定的候选，不是你的候选。
 2. 全部指标在其工艺角集合上通过后，可以自己做顶层混合仿真（其余模块行为级）作参考：
    `python -m adcflow sim tb_top_sine --view <block>=xtor:<name> --corners quick`。正式的顶层混合回归由项目负责人做。
@@ -202,7 +202,7 @@ git config core.hooksPath tools/hooks     # 提交前检查（hygiene / ports / 
    ```
 
 CI 会检查：hygiene（无站点信息、模型卡片、工艺厂商名、大文件）、端口契约、RNL（0 错误 0 警告，网表必须画完整）、
-生成文件同步、候选 PR 的路径和作者规则（结果里不得有 `meta.verified_by`，候选 PR 不得改 `verification/`）、`results/` 与当前规格一致且未过期、单元测试。
+生成文件同步、候选 PR 的路径和作者规则（结果里不得有 `meta.verified_by`，候选 PR 不得改 `verification/`）、`results/` 与当前规格一致且未过期（`xtor-review` 模块的过期结果只报警告，让流程改动与候选重跑分开合并；改变 `selected:` 或 `status:` 的 PR、`signoff` 模块仍报错；过期的候选不可选定）、单元测试。
 
 ## 10. PR 流程、评比与选定
 

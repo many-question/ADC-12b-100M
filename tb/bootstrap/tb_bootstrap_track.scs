@@ -33,8 +33,8 @@ ICG (CLK PHI_S PHI_SB PHI_B PHI_BB CONV VDDA 0) adc_clkgen_va
 VDDA (VDDA 0) vsource dc=vdd
 VVCM (VCM 0) vsource dc=vref_in/2
 VAVDD (AVDD 0) vsource dc=vdd
-tran1 tran stop=tstop outputstart=tstop maxstep=1p method=traponly
-tbopts options save=none reltol=1e-07 vabstol=1e-08
+tran1 tran stop=tstop outputstart=tstop errpreset=conservative
+tbopts options save=none reltol=1e-06 vabstol=1e-08
 // @RNL {
 //   /* pins connected by net name: the net-name label of rnl-std-fill on every unwired pin, placed below by its key netname */
 //   $LABEL_TERMINAL_SET @TEXT("${net}", key="netname", size=0.6);
@@ -141,5 +141,5 @@ tbopts options save=none reltol=1e-07 vabstol=1e-08
 //   %g16 = $GROUND @ATTACH &0 => @PLACE(24, 13.5);
 //   &0 @WIRE {#VAVDD:2 %g16:p};
 //   (-30, 31) @TEXT("tb_bootstrap_track: differential tracking linearity with the reference switch", halign="start") => @SET-STYLE $title_style;
-//   (-30, 29.4) @TEXT("transient settings from the spec (numerics): reltol 1e-07, vabstol 1e-08, maxstep 1p, method traponly; convergence cross-check: adcflow sim --crosscheck", halign="start") => @SET-STYLE $note_style
+//   (-30, 29.4) @TEXT("transient settings: errpreset conservative, reltol 1e-06, vabstol 1e-08 (spec numerics); convergence cross-check: adcflow sim --crosscheck", halign="start") => @SET-STYLE $note_style
 // }

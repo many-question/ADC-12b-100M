@@ -21,7 +21,7 @@ ILD (VREFP 0) isource type=pwl file="iload.pwl"
 VTRIG (TRIG 0) vsource type=pwl file="trig.pwl"
 // VREFP at every toggle
 ISMP (VREFP 0 TRIG 0) tb_sampler_va vth=0.5 dir=0 delay=0 fname="vdec.txt"
-tran1 tran stop=tstop outputstart=tstop
+tran1 tran stop=tstop outputstart=tstop errpreset=conservative
 tbopts options save=none
 // @RNL {
 //   /* pins connected by net name: the net-name label of rnl-std-fill on every unwired pin, placed below by its key netname */

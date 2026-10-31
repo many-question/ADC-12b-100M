@@ -1,15 +1,19 @@
-"""Numerical settings of transient runs: explicit per test, recorded per result, cross-checked.
+"""Numerical settings of transient runs: one preset, explicit per test, recorded per result, cross-checked.
 
-A test can fix its transient settings in its block spec (issue #28)::
+Every ``tran`` of every generated testbench has ``errpreset=conservative`` (``conservative``, applied
+by gen_tb.render), which fixes method gear2only, relref alllocal and lteratio 10 and divides the
+requested reltol by 10. checks.check_results fails a fresh result that ran with anything else.
+A test can tighten its tolerances in its block spec (issue #28)::
 
     tests:
       tb_bootstrap_track:
-        numerics: {reltol: 1.0e-7, vabstol: 1.0e-8, maxstep: 1p, method: traponly}
-        crosscheck: {maxstep: 0.5p, method: gear2only, samples: samples.txt}
+        numerics: {reltol: 1.0e-6, vabstol: 1.0e-8}
+        crosscheck: {maxstep: 1p, method: traponly, samples: samples.txt}
 
 * ``numerics``: written into the generated testbench (gen_tb.py), so the testbench file, which
   every result hashes, carries them. Simulator options (reltol, vabstol, iabstol) go on its
-  ``options`` line, the others (maxstep, method, errpreset, lteratio) on its ``tran`` line.
+  ``options`` line, the others (maxstep, lteratio) on its ``tran`` line. ``errpreset`` and
+  ``method`` are not allowed here: they come from the preset.
 * ``crosscheck``: ``python -m adcflow sim <test> --crosscheck`` runs every job a second time
   with these settings replacing the testbench's and records the differences of the spec
   metrics and of the raw samples (``samples``, a tb_sampler_va file) in the result's
@@ -30,6 +34,9 @@ OPTION_KEYS = ("reltol", "vabstol", "iabstol")
 TRAN_KEYS = ("maxstep", "method", "errpreset", "lteratio")
 METHODS = ("traponly", "trap", "gear2only", "gear2", "euler")
 CROSSCHECK_KEYS = OPTION_KEYS + TRAN_KEYS + ("samples",)
+PRESET = "conservative"                       # errpreset of every transient: docs/verification.md §2
+FROM_PRESET = ("errpreset", "method")         # not for a test's `numerics:`
+_TRAN = re.compile(r"^\w+\s+tran\b")
 
 
 def validate(settings, where: str, extra: tuple[str, ...] = ()) -> list[str]:
@@ -54,6 +61,11 @@ def set_params(line: str, kv: dict) -> str:
         if not n:
             line = f"{line} {new}"
     return line
+
+
+def conservative(analyses: list[str]) -> list[str]:
+    """Analysis lines with the preset on every `tran` (a montecarlo's too)."""
+    return [set_params(ln, {"errpreset": PRESET}) if _TRAN.match(ln) else ln for ln in analyses]
 
 
 def apply(tb_text: str, settings: dict) -> str:
@@ -112,7 +124,7 @@ def _tran_block(text: str) -> dict[str, object]:
 
 def from_log(text: str) -> dict:
     """Effective settings of the first transient analysis in a Spectre log: reltol, maxstep,
-    method, errpreset, lteratio, abstol(V) (`Important parameter values`), vabstol (global
+    method, errpreset, lteratio, relref, abstol(V) (`Important parameter values`), vabstol (global
     options) and the number of accepted time steps with the mean step. {} without a tran."""
     tran = _tran_block(text)
     if not tran:
@@ -120,7 +132,7 @@ def from_log(text: str) -> dict:
     opts = _block(text, "Global user options:")
     out: dict = {"source": "spectre.log"}
     for key, name, scale in (("reltol", "reltol", 1), ("maxstep", "maxstep_ps", 1e12), ("method", "method", 1),
-                             ("errpreset", "errpreset", 1), ("lteratio", "lteratio", 1),
+                             ("errpreset", "errpreset", 1), ("lteratio", "lteratio", 1), ("relref", "relref", 1),
                              ("abstol(V)", "abstol_V", 1)):
         v = tran.get(key)
         if v is not None:

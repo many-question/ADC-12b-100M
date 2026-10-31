@@ -12,7 +12,8 @@
   "devnoise": 0,
   "beh_speed": 1.0,
   "vref_in": 0.9,
-  "cdac_behav": 1
+  "cdac_behav": 1,
+  "comp_behav": 1
  },
  "metrics": {
   "func_errors": 0,
@@ -20,20 +21,20 @@
   "level_errors": 0,
   "n_conversions": 60,
   "t_conv_ns": 2.674706,
-  "t_conv_mean_ns": 2.613619033333333,
-  "t_start_ps": 105.00500001114845,
+  "t_conv_mean_ns": 2.6136189999999995,
+  "t_start_ps": 105.00500001114787,
   "t_start_max_ps": 105.00500001128097,
   "t_start_min_ps": 105.00500001104275,
-  "t_bit_ps": 35.00200000445955,
+  "t_bit_ps": 35.00200000446035,
   "t_bit_max_ps": 35.002000004573276,
   "t_bit_min_ps": 35.00200000436152,
-  "t_rst_ps": 40.002000004448405,
+  "t_rst_ps": 40.00200000444735,
   "t_rst_max_ps": 40.002000004578946,
   "t_rst_min_ps": 40.002000004340715,
-  "t_dac_fast_ps": 48.00000000002039,
+  "t_dac_fast_ps": 48.00000000002012,
   "t_dac_fast_max_ps": 48.00000000011871,
   "t_dac_fast_min_ps": 47.99999999992208,
-  "t_dac_slow_ps": 83.00000000001418,
+  "t_dac_slow_ps": 83.00000000000946,
   "t_dac_slow_max_ps": 83.00000000012058,
   "t_dac_slow_min_ps": 82.99999999990882,
   "t_dac_add_ps": {
@@ -43,48 +44,48 @@
    "6": 30.0,
    "9": 25.0
   },
-  "t_dac_add_err_pct": 1.836086838125084e-10,
+  "t_dac_add_err_pct": 1.8031132142937167e-10,
   "t_setup_ps": 109.99999999991297,
-  "power_uW": 209.52001881,
-  "cin_conv_fF": 30.00000000000001,
-  "cin_outp_fF": 5.000000000000004,
-  "cin_outn_fF": 5.0000000000000036,
-  "cin_cmp_fF": 5.000000000000004
+  "power_uW": 212.81549877,
+  "cin_conv_fF": 30.000000000000043,
+  "cin_outp_fF": 5.000000000000011,
+  "cin_outn_fF": 5.00000000000001,
+  "cin_cmp_fF": 5.000000000000011
  },
  "specs": {
   "LOG-02": {
    "metric": "t_bit_ps",
-   "value": 35.00200000445955,
+   "value": 35.00200000446035,
    "limit": "<= 40",
    "pass": true
   },
   "LOG-03": {
    "metric": "t_rst_ps",
-   "value": 40.002000004448405,
+   "value": 40.00200000444735,
    "limit": "<= 45",
    "pass": true
   },
   "LOG-04": {
    "metric": "t_dac_fast_ps",
-   "value": 48.00000000002039,
+   "value": 48.00000000002012,
    "limit": "35 .. 60",
    "pass": true
   },
   "LOG-05": {
    "metric": "t_dac_slow_ps",
-   "value": 83.00000000001418,
+   "value": 83.00000000000946,
    "limit": "70 .. 100",
    "pass": true
   },
   "LOG-06": {
    "metric": "t_dac_slow_ps",
-   "value": 83.00000000001418,
+   "value": 83.00000000000946,
    "limit": ">= 70",
    "pass": true
   },
   "LOG-07": {
    "metric": "t_start_ps",
-   "value": 105.00500001114845,
+   "value": 105.00500001114787,
    "limit": "80 .. 160",
    "pass": true
   },
@@ -102,25 +103,25 @@
   },
   "LOG-13": {
    "metric": "power_uW",
-   "value": 209.52001881,
-   "limit": "<= 300",
-   "pass": true
+   "value": 212.81549877,
+   "limit": "reported",
+   "pass": null
   },
   "LOG-14": {
    "metric": "cin_conv_fF",
-   "value": 30.00000000000001,
+   "value": 30.000000000000043,
    "limit": "<= 40",
    "pass": true
   },
   "LOG-15": {
    "metric": "cin_cmp_fF",
-   "value": 5.000000000000004,
+   "value": 5.000000000000011,
    "limit": "<= 7",
    "pass": true
   },
   "LOG-16": {
    "metric": "t_dac_add_err_pct",
-   "value": 1.836086838125084e-10,
+   "value": 1.8031132142937167e-10,
    "limit": "<= 20",
    "pass": true
   }
@@ -144,29 +145,30 @@
   }
  ],
  "meta": {
-  "date": "2026-10-29T11:23:09",
-  "git": "377842e",
+  "date": "2026-10-31T11:26:53",
+  "git": "dcaf6fe",
   "git_clean": true,
   "mode": "aps",
   "pdk": false,
   "mc": null,
-  "wall_s": 155.8,
+  "wall_s": 140.4,
   "rc": "0",
-  "sim_s": "48",
+  "sim_s": "32",
   "numerics": {
    "source": "spectre.log",
-   "reltol": 0.001,
-   "maxstep_ps": 12022.4,
-   "method": "traponly",
-   "errpreset": "moderate",
-   "lteratio": 3.5,
+   "reltol": 0.0001,
+   "maxstep_ps": 6011.2,
+   "method": "gear2only",
+   "errpreset": "conservative",
+   "lteratio": 10.0,
+   "relref": "alllocal",
    "abstol_V": 1e-06,
-   "steps_accepted": 48881,
-   "step_mean_ps": 12.2976,
-   "step_max_ps": 2558.56
+   "steps_accepted": 75544,
+   "step_mean_ps": 7.95722,
+   "step_max_ps": 2072.48
   },
   "files": {
-   "tb/sarlogic/tb_sarlogic_func.scs": "8e2ed844aed00bc1",
+   "tb/sarlogic/tb_sarlogic_func.scs": "08f4527704f48705",
    "tb/common/veriloga/tb_imeter_va.va": "d4be49aca417ad61",
    "tb/common/veriloga/tb_capture_va.va": "1a05df990a1ef806",
    "tb/common/veriloga/tb_qmeter_va.va": "fed84d572a912b39",
@@ -178,15 +180,13 @@
   },
   "arch": {
    "keys": [
-    "*"
+    "cdac.cap_weights",
+    "conversion.n_decisions",
+    "conversion.out_weights",
+    "timing.t_dac_add"
    ],
-   "sha": "05899cd622401f94"
+   "sha": "57134622f32b5830"
   },
-  "views": {},
-  "rehashed": {
-   "date": "2026-10-29T20:21:39",
-   "git": "b748f30",
-   "files_before": 20
-  }
+  "views": {}
  }
 }

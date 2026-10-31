@@ -1,9 +1,10 @@
-"""Explicit transient settings of the tracking tests and their convergence cross-check (issue #28)."""
+"""The transient preset of every testbench, the explicit settings of the tests that need more and
+their convergence cross-check (issue #28)."""
 
 import numpy as np
 import pytest
 
-from adcflow import REPO_ROOT, numerics, runner
+from adcflow import REPO_ROOT, checks, gen_tb, numerics, remote, runner, site
 from adcflow.specs import blocks, find_test
 
 TRACKING = ("tb_bootstrap_track", "tb_cdac_track")
@@ -41,41 +42,42 @@ Number of accepted tran steps =             2700000
 def _analyses(test_id: str) -> tuple[str, str]:
     _, t = find_test(test_id)
     lines = (REPO_ROOT / t["netlist"]).read_text(encoding="utf-8").splitlines()
-    return next(ln for ln in lines if " tran " in ln), next(ln for ln in lines if " options " in ln)
+    return next(ln for ln in lines if " tran " in ln), next(ln for ln in lines if ln.split()[1:2] == ["options"])
 
 
 @pytest.mark.parametrize("test_id", TRACKING)
 def test_tracking_testbenches_carry_the_spec_settings(test_id):
     _, t = find_test(test_id)
-    assert t["numerics"] == {"reltol": 1e-7, "vabstol": 1e-8, "maxstep": "1p", "method": "traponly"}
-    assert t["crosscheck"] == {"maxstep": "0.5p", "method": "gear2only", "samples": "samples.txt"}
+    assert t["numerics"] == {"reltol": 1e-6, "vabstol": 1e-8}
+    assert t["crosscheck"] == {"maxstep": "1p", "method": "traponly", "samples": "samples.txt"}
     tran, opts = _analyses(test_id)
-    assert tran == "tran1 tran stop=tstop outputstart=tstop maxstep=1p method=traponly"
-    assert opts == "tbopts options save=none reltol=1e-07 vabstol=1e-08"
+    assert tran == "tran1 tran stop=tstop outputstart=tstop errpreset=conservative"
+    assert opts == "tbopts options save=none reltol=1e-06 vabstol=1e-08"
 
 
 def test_crosscheck_replaces_only_step_and_method():
     _, t = find_test("tb_bootstrap_track")
     text = (REPO_ROOT / t["netlist"]).read_text(encoding="utf-8")
-    alt = numerics.apply(text, {"maxstep": "0.5p", "method": "gear2only"})
+    alt = numerics.apply(text, {"maxstep": "1p", "method": "traponly"})
     diff = [(a, b) for a, b in zip(text.splitlines(), alt.splitlines()) if a != b]
-    assert diff == [("tran1 tran stop=tstop outputstart=tstop maxstep=1p method=traponly",
-                     "tran1 tran stop=tstop outputstart=tstop maxstep=0.5p method=gear2only")]
+    assert diff == [("tran1 tran stop=tstop outputstart=tstop errpreset=conservative",
+                     "tran1 tran stop=tstop outputstart=tstop errpreset=conservative maxstep=1p method=traponly")]
 
 
 def test_bootstrap_dc_generates_numerics_and_preserves_full_waveform_crosscheck():
     _, test = find_test("tb_bootstrap_dc")
-    assert test["numerics"] == {"reltol": 1e-7, "vabstol": 1e-8, "maxstep": "1p",
-                                "method": "traponly", "errpreset": "conservative"}
-    assert test["crosscheck"] == {"maxstep": "0.5p", "method": "gear2only", "samples": "vgs.txt"}
+    assert test["numerics"] == {"reltol": 1e-5}
+    assert test["crosscheck"] == {"reltol": 1e-7, "vabstol": 1e-8, "maxstep": "1p", "method": "traponly",
+                                  "samples": "vgs.txt"}
     text = (REPO_ROOT / test["netlist"]).read_text(encoding="utf-8")
     tran, opts = _analyses("tb_bootstrap_dc")
-    assert tran == "tran1 tran stop=tstop maxstep=1p method=traponly errpreset=conservative"
-    assert opts == "tbopts options reltol=1e-07 vabstol=1e-08"
+    assert tran == "tran1 tran stop=tstop errpreset=conservative"
+    assert opts == "tbopts options reltol=1e-05"
     assert "save VG VIN PHI_B PHI_BB BP QPB QPBB" in text.splitlines()
     alt = numerics.apply(text, {k: v for k, v in test["crosscheck"].items() if k != "samples"})
     diff = [(a, b) for a, b in zip(text.splitlines(), alt.splitlines()) if a != b]
-    assert diff == [(tran, "tran1 tran stop=tstop maxstep=0.5p method=gear2only errpreset=conservative")]
+    assert diff == [(tran, "tran1 tran stop=tstop errpreset=conservative maxstep=1p method=traponly"),
+                    (opts, "tbopts options reltol=1e-07 vabstol=1e-08")]
 
 
 def test_conservative_log_uses_effective_transient_reltol():
@@ -89,18 +91,18 @@ def test_conservative_log_uses_effective_transient_reltol():
 
 def test_clkgen_timing_generates_numerics_and_preserves_step_only_crosscheck():
     _, test = find_test("tb_clkgen_timing")
-    assert test["numerics"] == {"reltol": 1e-7, "vabstol": 1e-8, "maxstep": "1p",
-                                "method": "traponly", "errpreset": "conservative"}
-    assert test["crosscheck"] == {"maxstep": "0.5p"}
+    assert "numerics" not in test
+    assert test["crosscheck"] == {"reltol": 1e-7, "vabstol": 1e-8, "maxstep": "1p", "method": "traponly"}
     text = (REPO_ROOT / test["netlist"]).read_text(encoding="utf-8")
     tran, opts = _analyses("tb_clkgen_timing")
-    assert tran == "tran1 tran stop=tstop maxstep=1p method=traponly errpreset=conservative"
-    assert opts == "tbopts options reltol=1e-07 vabstol=1e-08"
+    assert tran == "tran1 tran stop=tstop errpreset=conservative"
+    assert opts == "tbopts options"
     assert "parameters tstop=161n" in text.splitlines()
     assert "save CLK PHI_S PHI_SB PHI_B PHI_BB CONV" in text.splitlines()
     alt = numerics.apply(text, test["crosscheck"])
     diff = [(a, b) for a, b in zip(text.splitlines(), alt.splitlines()) if a != b]
-    assert diff == [(tran, "tran1 tran stop=tstop maxstep=0.5p method=traponly errpreset=conservative")]
+    assert diff == [(tran, "tran1 tran stop=tstop errpreset=conservative maxstep=1p method=traponly"),
+                    (opts, "tbopts options reltol=1e-07 vabstol=1e-08")]
 
 
 def test_apply_sets_and_appends():
@@ -175,3 +177,75 @@ def test_settings_of_the_transient_inside_a_montecarlo_analysis():
           "Statistical parameters:\n    Defined mismatch parameters (subckt based): 1\n\n")
     nu = numerics.from_log(mc + LOG.split("Opening the PSFASCII file deck.raw/tran1.tran.tran ...\n")[1])
     assert nu["method"] == "traponly" and nu["reltol"] == pytest.approx(1e-7)
+
+
+def _trans():
+    """(testbench, tran line) of every generated testbench, read from the rendered text."""
+    for tb in gen_tb.all_tbs():
+        for ln in gen_tb.render(tb).splitlines():
+            if numerics._TRAN.match(ln):
+                yield tb.path, ln
+
+
+def test_every_transient_is_conservative_without_method_or_maxstep():
+    trans = list(_trans())
+    with_tran = {p for p, _ in trans}
+    assert len(with_tran) == len(trans)          # one tran per testbench
+    assert {tb.path for tb in gen_tb.all_tbs()} - with_tran == {"tb/ref/tb_ref_dc.scs", "tb/ref/tb_ref_noise.scs"}
+    assert "tb/comp/tb_comp_offset_mc.scs" in with_tran
+    for path, ln in trans:
+        assert ln.count("errpreset=") == 1 and "errpreset=conservative" in ln, path
+        assert "method=" not in ln, path
+        assert ("maxstep=1n" in ln) if path == "tb/ref/tb_ref_startup.scs" else ("maxstep=" not in ln), path
+
+
+def test_kickback_is_tightened_for_its_numerical_drift():
+    _, test = find_test("tb_comp_kickback")
+    assert test["numerics"] == {"reltol": 1.0e-5, "vabstol": 1.0e-8}
+    tran, opts = _analyses("tb_comp_kickback")
+    assert "errpreset=conservative" in tran and "maxstep=" not in tran
+    assert opts.endswith("reltol=1e-05 vabstol=1e-08")
+
+
+def _doc(**numerics_meta):
+    return {"block": "adc_clkgen", "test": "tb_clkgen_timing", "corner": "tt_nom_27", "metrics": {},
+            "meta": {"numerics": numerics_meta}}
+
+
+def test_a_result_not_run_at_the_preset_is_a_problem():
+    assert checks.preset_problem(_doc(errpreset="conservative")) is None
+    assert "moderate" in checks.preset_problem(_doc(errpreset="moderate"))
+    assert "conservative_sigglobal" in checks.preset_problem(_doc(errpreset="conservative_sigglobal"))    # --mode cx
+    assert "None" in checks.preset_problem(_doc())
+    assert checks.preset_problem({**_doc(errpreset="moderate"), "metrics": {"error": "no waveform"}}) is None
+    # no transient in the testbench, nothing to check
+    assert checks.preset_problem({**_doc(), "block": "adc_ref", "test": "tb_ref_dc"}) is None
+
+
+@pytest.mark.parametrize("stale", (True, False))
+def test_check_results_fails_only_a_fresh_result_off_the_preset(monkeypatch, tmp_path, stale):
+    doc = {**_doc(errpreset="moderate"), "view": "behav", "_path": REPO_ROOT / "results" / "x.json"}
+    monkeypatch.setattr(checks, "load_results", lambda: [doc])
+    monkeypatch.setattr(checks, "judge", lambda d: {"specs": {}, "na": {}, "stale": ["tb/x.scs"] if stale else [],
+                                                    "error": None})
+    monkeypatch.setattr(checks, "_check_figures", lambda *a: None)
+    r = checks.check_results()
+    assert any("not conservative" in m for m in r.errors) is (not stale)
+    assert any("stale" in m for m in r.warnings) is stale
+
+
+def test_relref_is_recorded():
+    assert numerics.from_log(LOG.replace("errpreset = moderate", "errpreset = moderate\n    relref = alllocal"))["relref"] == "alllocal"
+
+
+def test_default_jobs_comes_from_the_site_config(monkeypatch):
+    monkeypatch.setattr(site, "site", lambda: {"sim": {"jobs": 17}})
+    assert remote.default_jobs() == 17
+    monkeypatch.setattr(site, "site", lambda: {"sim": {}})
+    assert remote.default_jobs() == remote.DEFAULT_JOBS
+
+    def none():
+        raise site.SiteConfigError("no site")
+
+    monkeypatch.setattr(site, "site", none)
+    assert remote.default_jobs() == remote.DEFAULT_JOBS

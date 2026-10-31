@@ -17,7 +17,7 @@ CON (OUTN 0) capacitor c=cload
 // decision of every cycle, sampled when CLKC falls
 ISMP (OUTP OUTN CLKC 0) tb_sampler_va vth=vdd/2 dir=-1 delay=0 fname="decisions.txt"
 VAVDD (AVDD 0) vsource dc=vdd
-tran1 tran stop=tstop noisefmax=nfmax*noise_en*devnoise noiseseed=1 outputstart=tstop
+tran1 tran stop=tstop noisefmax=nfmax*noise_en*devnoise noiseseed=1 outputstart=tstop errpreset=conservative
 tbopts options save=none
 // @RNL {
 //   /* pins connected by net name: the net-name label of rnl-std-fill on every unwired pin, placed below by its key netname */

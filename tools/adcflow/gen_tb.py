@@ -51,9 +51,9 @@ def _numerics(block: str, test: str, lines: list[str]) -> list[str]:
 
 
 def _numerics_note(block: str, test: str) -> str:
-    nu = blocks()[block].tests[test]["numerics"]
-    return ("transient settings from the spec (numerics): " + ", ".join(f"{k} {v}" for k, v in nu.items())
-            + "; convergence cross-check: adcflow sim --crosscheck")
+    nu = blocks()[block].tests[test].get("numerics") or {}
+    return (f"transient settings: errpreset {numerics.PRESET}" + "".join(f", {k} {v}" for k, v in nu.items())
+            + " (spec numerics); convergence cross-check: adcflow sim --crosscheck")
 
 
 _ARCH = Arch.load()
@@ -228,7 +228,7 @@ def render(tb: TBDef) -> str:
         params = f" {e.params}" if e.params else ""
         L += _wrap(e.nets, f"{e.name} (", f") {e.master}{params}")
     L += tb.extra
-    L += tb.analyses
+    L += numerics.conservative(tb.analyses)
     L += draw(tb)
     return "\n".join(L) + "\n"
 
@@ -386,11 +386,13 @@ def tb_comp() -> list[TBDef]:
         "tb/comp/tb_comp_kickback.scs",
         f"tb_comp_kickback: kickback on floating {_ARCH.c_tot * 1e12:.2f} pF inputs (C_tot), input capacitances",
         [f"parameters cs={_CTOT} cload={cload} ncyc=8", f"parameters tstop=ncyc*{TCYC:g}+100p"],
-        els, ["tran1 tran stop=tstop", "ac1 ac freq=100M", "save INP INN CLKC VAC:p QCK"],
+        els, _numerics("adc_comp", "tb_comp_kickback",
+                       ["tran1 tran stop=tstop", "ac1 ac freq=100M", "save INP INN CLKC VAC:p QCK", "tbopts options"]),
         extra=["ic INP=0.4905 INN=0.4895"],
         notes=["inputs preset to 0.49 V +/- 0.5 mV and left floating on cs; the change of V(INP)-V(INN) per cycle is the kickback",
                "XDUT2 (CLKC = 0) with an AC source on INP2: C_in = Im(I)/(2 pi f) at 100 MHz",
-               "QMCK: the charge into CLKC per rising edge / VDD is the clock input capacitance (CMP-14)"]))
+               "QMCK: the charge into CLKC per rising edge / VDD is the clock input capacitance (CMP-14)",
+               _numerics_note("adc_comp", "tb_comp_kickback")]))
     return out
 
 
@@ -487,7 +489,7 @@ def tb_cdac() -> list[TBDef]:
     out.append(TBDef(
         "tb/cdac/tb_cdac_settle.scs", "tb_cdac_settle: DAC step settling, conversion start, hold droop, VREFP charge",
         [f"parameters tper=10n ctop={_CTOP}", "parameters tstop=7*tper"],
-        els, ["tran1 tran stop=tstop maxstep=2p", "ac1 ac freq=100M",
+        els, ["tran1 tran stop=tstop", "ac1 ac freq=100M",
               "save TOP CONV PHI_S PHI_SB VDH5:p QPS QPSB QCV"],
         notes=["cycle 1 has no control activity: conversion-start settling and 5 ns hold droop",
                "QMPS / QMPSB / QMCV: the charge into PHI_S, PHI_SB, CONV per rising edge / VDD (DAC-15..17)"]))

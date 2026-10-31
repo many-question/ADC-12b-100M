@@ -18,7 +18,7 @@ CLPHI_B (PHI_B 0) capacitor c=40f
 CLPHI_BB (PHI_BB 0) capacitor c=40f
 CLCONV (CONV 0) capacitor c=250f
 VAVDD (AVDD 0) vsource dc=vdd
-tran1 tran stop=tstop noisefmax=nfmax*noise_en*devnoise noiseseed=1 outputstart=tstop
+tran1 tran stop=tstop noisefmax=nfmax*noise_en*devnoise noiseseed=1 outputstart=tstop errpreset=conservative
 tbopts options save=none
 // @RNL {
 //   /* pins connected by net name: the net-name label of rnl-std-fill on every unwired pin, placed below by its key netname */
