@@ -1,6 +1,6 @@
 # BUFFER-V17: test earlier physical clock release
 
-> Evidence retention (2026-10-31): Superseded raw was released. Historical verification does not imply current availability; [retained evidence](EVIDENCE-RETENTION.md) determines which runs can be re-audited.
+> Superseded raw was released. Historical audits do not imply availability; see [retained runs](EVIDENCE-RETENTION.md).
 
 B15 retains six wrong polarities in the paired FS/low/125 short diagnosis. B16 then reduced the two regeneration reset assists from N4 to N2. It fails the first FS/high/-40 stress screen at a raw BP peak of 1.000025374154 V and slows reset by 6.438097 ps relative to B15. B16 therefore stops before TT or noise expansion. Its measured failure is preserved in [BUFFER-V16.md](BUFFER-V16.md).
 

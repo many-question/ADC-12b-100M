@@ -1,6 +1,6 @@
 # BUFFER-V2: recover threshold-stage speed
 
-> Evidence retention (2026-10-31): Superseded raw was released. Historical verification does not imply current availability; [retained evidence](EVIDENCE-RETENTION.md) determines which runs can be re-audited.
+> Superseded raw was released. Historical audits do not imply availability; see [retained runs](EVIDENCE-RETENTION.md).
 
 BUFFER-V1 has a large output-validity margin in its six screened corners but misses the TT 30 mV delay by 2.984 ps. This experiment changes only the first buffer NMOS from 0.5 um/nf1 to 1 um/nf1, using the existing successful callback geometry. It increases pull-down drive and lowers the first-stage switching region. The P6 first-stage device, second inverter, core and reset circuitry remain electrically identical to V1.
 

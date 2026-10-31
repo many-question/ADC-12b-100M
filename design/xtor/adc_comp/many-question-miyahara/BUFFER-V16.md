@@ -1,6 +1,6 @@
 # BUFFER-V16: test regeneration reset-assist loading
 
-> Evidence retention (2026-10-31): Superseded raw was released. Historical verification does not imply current availability; [retained evidence](EVIDENCE-RETENTION.md) determines which runs can be re-audited.
+> Superseded raw was released. Historical audits do not imply availability; see [retained runs](EVIDENCE-RETENTION.md).
 
 B15's paired short diagnosis has 0/256 wrong polarities at TT and 6/256 at FS/low/125, with complete reset, no later interface sign changes and no full-trace stress violation. The FS result is improved from B13's 11/256 in this finite sample, but does not establish the 240 uV requirement. All six errors are already present in RP-RN at +50 ps, which agrees with every final decision. B15 remains unpromoted, including its separate 13.345 uV cold high-voltage stress-margin concern.
 

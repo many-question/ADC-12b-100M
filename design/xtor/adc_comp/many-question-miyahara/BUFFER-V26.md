@@ -1,6 +1,6 @@
 # BUFFER-V26: buffer-node slew experiment
 
-> Evidence retention (2026-10-31): Superseded raw was released. Historical verification does not imply current availability; [retained evidence](EVIDENCE-RETENTION.md) determines which runs can be re-audited.
+> Superseded raw was released. Historical audits do not imply availability; see [retained runs](EVIDENCE-RETENTION.md).
 
 [B25](BUFFER-V25.md) passes five baseline deterministic corners and dedicated TT loading, but its tighter FS/high/-40 transient repeatedly fails with SPECTRE-16929 at 137.816 ps. Both attempts preserve the same source, exact testbench, numerical settings and normalized job deck; each retains 1260 accepted samples through 137.8159453449029 ps. The failed Newton iterate is not represented by the saved trace. B25 has no complete tighter gate or noise result.
 

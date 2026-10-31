@@ -1,6 +1,6 @@
 # BUFFER-V21: larger regeneration-node storage
 
-> Evidence retention (2026-10-31): Superseded raw was released. Historical verification does not imply current availability; [retained evidence](EVIDENCE-RETENTION.md) determines which runs can be re-audited.
+> Superseded raw was released. Historical audits do not imply availability; see [retained runs](EVIDENCE-RETENTION.md).
 
 B20 passes the full proposed-settings TT noise precheck at 191.43800312001045 uV rms but fails FS/low/125 at 343.4944014285115 uV against 240 uV (95% profile interval 332.03 to 355.53 uV). All 8704 finite samples per corner remain preserved. [NUMERICS-94.md](NUMERICS-94.md) records the failure and verified archive. B20 qualification expansion has stopped.
 

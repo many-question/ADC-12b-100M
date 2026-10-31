@@ -1,6 +1,6 @@
 # BUFFER-V7: physical rail headroom at raw, buffer and output nodes
 
-> Evidence retention (2026-10-31): Superseded raw was released. Historical verification does not imply current availability; [retained evidence](EVIDENCE-RETENTION.md) determines which runs can be re-audited.
+> Superseded raw was released. Historical audits do not imply availability; see [retained runs](EVIDENCE-RETENTION.md).
 
 B6 passes clock and XP/XN stress but retains small RP/RN, BP/BN and output excursions. Timing margin is limited, so this experiment keeps B6 clock drive and all capacitances. Each raw, buffer and external output node receives two parallel P0.5 um / 100 nm devices from AVDD, with gates at VSS, to create a small physical low-level offset. Each external output also receives two parallel diode-connected N0.5 um / 500 nm loads to provide high-level headroom. Every device is explicit with m=1 and complete validated parasitics.
 

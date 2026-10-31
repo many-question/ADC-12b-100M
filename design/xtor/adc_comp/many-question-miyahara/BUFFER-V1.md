@@ -1,6 +1,6 @@
 # BUFFER-V1: physical output-validity experiment
 
-> Evidence retention (2026-10-31): Superseded raw was released. Historical verification does not imply current availability; [retained evidence](EVIDENCE-RETENTION.md) determines which runs can be re-audited.
+> Superseded raw was released. Historical audits do not imply availability; see [retained runs](EVIDENCE-RETENTION.md).
 
 The baseline's raw outputs rise together before regeneration, with losing peaks above 50% VDD in the failing SF waveform. This experiment renames those nodes RP/RN and inserts two actual CMOS inverters per output. The first inverter uses P6 um / N0.5 um at 30 nm to move its switching region above the raw common-mode excursion; the second uses P4 um / N2 um to drive the unchanged 10 fF external load. The original core, reset and clock devices retain their geometries and connections apart from the output-node renaming.
 

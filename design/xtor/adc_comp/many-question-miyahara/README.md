@@ -1,6 +1,6 @@
 # Miyahara comparator: BUFFER-V20
 
-> Evidence retention (2026-10-31): Superseded raw was released. Historical verification does not imply current availability; [retained evidence](EVIDENCE-RETENTION.md) determines which runs can be re-audited.
+> Superseded raw was released. Historical audits do not imply availability; see [retained runs](EVIDENCE-RETENTION.md).
 
 Canonical **B20 fails the merged adc_comp 0.8.0 official FS/low/125 noise test at 343.4944014285115 uV rms against 240 uV**. The original 17 x 512 decisions are retained, with a model-conditional 95% profile interval of 332.03 to 355.53 uV. [FORMAL-SPEC08](FORMAL-SPEC08.md) links the genuine committed result and figure. Current dependency coverage is 1 fresh / 96 records; freshness does not imply passing. This candidate remains WIP, unqualified and unselected.
 
@@ -28,4 +28,4 @@ Independent [B25](BUFFER-V25.md), with N2.6 first-buffer pull-downs and 44-finge
 
 Independent [B26](BUFFER-V26.md) increases BP/BN MOMs from 44 to 48 fingers and passes five baseline/four tighter deterministic corners plus TT loading. **Full physical FS/low/125 noise remains a failure at 270.61635250554104 uV rms [261.07, 280.6] against 240 uV**, with every 17 x 512 decision retained. Qualification expansion stops; canonical B20 and the genuine formal failure remain unchanged.
 
-Independent [B27](BUFFER-V27.md) weakens only M8/M9 N4 to N2 to test earlier latch release. Physical validation is pending; B26's noise failure is retained.
+Independent [B27](BUFFER-V27.md) weakens only M8/M9 N4 to N2 to test earlier latch release. Five baseline corners and TT capacitance pass; TT 30 mV delay is 47.5707 ps. Tighter and full physical noise checks remain pending; B26's failure is retained.

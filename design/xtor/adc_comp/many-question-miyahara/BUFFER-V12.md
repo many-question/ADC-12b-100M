@@ -1,6 +1,6 @@
 # BUFFER-V12: suppress input-stage negative feedthrough
 
-> Evidence retention (2026-10-31): Superseded raw was released. Historical verification does not imply current availability; [retained evidence](EVIDENCE-RETENTION.md) determines which runs can be re-audited.
+> Superseded raw was released. Historical audits do not imply availability; see [retained runs](EVIDENCE-RETENTION.md).
 
 B11 removes the clock-rail stress failure but retains the two M14/M15 Vds failures already present in B10. At FS/high/-40, XP reaches -10.919713 mV at 11.480779 ps after the rising clock 50% crossing, producing 1.00092 V maximum stress. CKB is now bounded between 0.037750 and 0.988618 V. Both targeted corners otherwise pass timing, reset, regeneration and physical output validity, with all 36 correct decisions and resets.
 

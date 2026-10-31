@@ -1,6 +1,6 @@
 # Numerical-settings transition: issue #94
 
-> Evidence retention (2026-10-31): Superseded raw was released. Historical verification does not imply current availability; [retained evidence](EVIDENCE-RETENTION.md) determines which runs can be re-audited.
+> Superseded raw was released. Historical audits do not imply availability; see [retained runs](EVIDENCE-RETENTION.md).
 
 ## Merged workflow update, 2026-10-31
 
@@ -21,6 +21,18 @@ These private runs do not update formal records or change shared tools, testbenc
 
 Shared reporting convention: the automatic maxstep bound in a log is not an explicit deck setting. Each archived run records actual APS threading and the six-job session ceiling. The compact wording below preserves every run heading, requested/effective setting, metric table, failure and archive hash. The [unabridged earlier wording](https://github.com/many-question/ADC-12b-100M/blob/855618b7d6ad7aeed2b909dfbd70e4b86975e99a/design/xtor/adc_comp/many-question-miyahara/NUMERICS-94.md) remains fixed in published history. Present raw availability is governed by EVIDENCE-RETENTION, including superseded archives that were released.
 
+Shared repeated audit statements: each reference below applies the following complete statement to that specific run. Only repeated prose is consolidated; all original run headings, metric/numerics tables, failure rows and archive hashes remain.
+
+**C1.** Every actual polarity down to 10 uV, all reset intervals, full evaluation output validity and every MOS gs/gd/ds pair are checked. The AVDD audit spans all 36 complete cycles; all supply probes are present and KCL closes. Reported power has no acceptance limit.
+
+**C2.** The tiny values previously produced with old settings are not used as physical conclusions. This private value remains distinct from an official rerun and from further tolerance-convergence evidence.
+
+**C3.** Load/stimulus conditions verified against the archived staged testbench: each input floats on 2.50 pF, initialized to common mode 0.49 V and differential 1 mV; each output has 10 fF. TT supply is 0.9 V, the clock period is 400 ps, and rise/fall times are 10 ps.
+
+**C4.** This electrical source fails the private experimental gate on the merged 0.8.0 baseline. Qualification expansion stops at the failure; diagnosis and further circuit design continue. Every failure is retained.
+
+**C5.** Explicit output policy: `save=selected` with named DUT/SOA voltage signals and required metric/current probes, or the preserved monitor-only noise protocol. No global or wildcard expansion is used. The exact selected signal lists, policy source and before/after testbench hashes are retained with this run; earlier runs are not relabeled with this policy.
+
 ## Private precheck 20261031-115735-miyahara-buffer-v20-notice94-delay-announced-screen
 
 Test `tb_comp_delay`, accuracy `announced`, frozen clean source `b52372eaf0c4cd4b8ed2e2cc628ff1707a693750`. Private testbench; no formal writes. Physical stimuli, loads, samplers and measurements are preserved. The requested settings are `{"errpreset": "conservative"}`; no explicit maxstep or method is set.
@@ -32,7 +44,7 @@ Test `tb_comp_delay`, accuracy `announced`, frozen clean source `b52372eaf0c4cd4
 | ss_low_125 | 81.243858209 | 65.852219364 | 34.565290945 | 0.816233054312 | 36 / 36 | PASS |
 | tt_nom_27 | 58.178086741 | 47.852823183 | 25.122445139 | 0.908277825263 | 36 / 36 | PASS |
 
-Every actual polarity down to 10 uV, all reset intervals, full evaluation output validity and every MOS gs/gd/ds pair are checked. The AVDD audit spans all 36 complete cycles; all supply probes are present and KCL closes. Reported power has no acceptance limit.
+Common audit statement C1 applies to this run.
 
 TT full AVDD waveform integral is 590.097391547 fJ/cycle: 216.634245588 evaluation and 373.463145959 reset. The original meter gives 590.568141960 fJ/cycle; the waveform-integral difference is -0.079711%. Both values are preserved.
 
@@ -56,7 +68,7 @@ Test `tb_comp_delay`, accuracy `tighter`, frozen clean source `b52372eaf0c4cd4b8
 | ss_low_125 | 81.497004707 | 65.857671854 | 33.744693617 | 0.816389325007 | 36 / 36 | PASS |
 | tt_nom_27 | 58.340296634 | 47.856914989 | 24.593307457 | 0.908484695228 | 36 / 36 | PASS |
 
-Every actual polarity down to 10 uV, all reset intervals, full evaluation output validity and every MOS gs/gd/ds pair are checked. The AVDD audit spans all 36 complete cycles; all supply probes are present and KCL closes. Reported power has no acceptance limit.
+Common audit statement C1 applies to this run.
 
 TT full AVDD waveform integral is 590.793397012 fJ/cycle: 217.068560428 evaluation and 373.724836584 reset. The original meter gives 590.822127720 fJ/cycle; the waveform-integral difference is -0.004863%. Both values are preserved.
 
@@ -83,11 +95,11 @@ Test `tb_comp_kickback`, accuracy `announced`, frozen clean source `b52372eaf0c4
 |---|---:|---:|---:|---|
 | tt_nom_27 | 19.328731219 | 11.288522979 | 0.000089411 | PASS |
 
-The tiny values previously produced with old settings are not used as physical conclusions. This private value remains distinct from an official rerun and from further tolerance-convergence evidence.
+Common audit statement C2 applies to this run.
 
 A separate full-input-trace diagnostic at tt_nom_27 finds up to 25.236375 uV instantaneous differential change and 7.425379 mV common-mode change relative to that cycle's pre-evaluation sample. These are distinct from the specified net per-cycle kickback metric and are not judged against its 40 uV limit. A nearly zero per-cycle value does not imply an undisturbed input during evaluation and reset.
 
-Load/stimulus conditions verified against the archived staged testbench: each input floats on 2.50 pF, initialized to common mode 0.49 V and differential 1 mV; each output has 10 fF. TT supply is 0.9 V, the clock period is 400 ps, and rise/fall times are 10 ps.
+Common audit statement C3 applies to this run.
 
 Unrounded recorded values: net per-cycle metric `8.94110998347214e-05` uV; instantaneous differential peak magnitude `25.236375154639003` uV (signed change `-2.5236375154639003e-05` V), cycle 1, `41.6474902437462` ps after its pre-evaluation sample. The peak is in **evaluation**, whose measured window runs from that sample to `199.99997500000003` ps. Maximum common-mode excursion is `7.425379036375523` mV, in evaluation at `198.14281503283968` ps after its cycle-1 sample.
 
@@ -110,7 +122,7 @@ Test `tb_comp_kickback`, accuracy `tighter`, frozen clean source `b52372eaf0c4cd
 |---|---:|---:|---:|---|
 | tt_nom_27 | 19.328731219 | 11.288471705 | 0.000084992 | PASS |
 
-The tiny values previously produced with old settings are not used as physical conclusions. This private value remains distinct from an official rerun and from further tolerance-convergence evidence.
+Common audit statement C2 applies to this run.
 
 A separate full-input-trace diagnostic at tt_nom_27 finds up to 25.237841 uV instantaneous differential change and 7.425734 mV common-mode change relative to that cycle's pre-evaluation sample. These are distinct from the specified net per-cycle kickback metric and are not judged against its 40 uV limit. A nearly zero per-cycle value does not imply an undisturbed input during evaluation and reset.
 
@@ -122,7 +134,7 @@ A separate full-input-trace diagnostic at tt_nom_27 finds up to 25.237841 uV ins
 | max_instantaneous_differential_change_uV | 25.2363751546 | 25.237840953 | +0.00146579832798 |
 | max_instantaneous_common_mode_change_mV | 7.42537903638 | 7.42573364601 | +0.000354609633546 |
 
-Load/stimulus conditions verified against the archived staged testbench: each input floats on 2.50 pF, initialized to common mode 0.49 V and differential 1 mV; each output has 10 fF. TT supply is 0.9 V, the clock period is 400 ps, and rise/fall times are 10 ps.
+Common audit statement C3 applies to this run.
 
 Unrounded recorded values: net per-cycle metric `8.49919999830473e-05` uV; instantaneous differential peak magnitude `25.237840952966987` uV (signed change `-2.5237840952966988e-05` V), cycle 1, `41.586452909315604` ps after its pre-evaluation sample. The peak is in **evaluation**, whose measured window runs from that sample to `199.99999750000003` ps. Maximum common-mode excursion is `7.4257336460090695` mV, in evaluation at `198.20392799531726` ps after its cycle-1 sample.
 
@@ -214,7 +226,7 @@ Test `tb_comp_delay`, accuracy `announced`, frozen clean source `a1d163133ac6c59
 | ss_low_125 | 85.032597165 | 67.427196831 | 35.420692191 | 0.815689155525 | 36 / 36 | FAIL: CMP-08 |
 | tt_nom_27 | 60.040523314 | 48.663763208 | 25.702909526 | 0.907732905178 | 36 / 36 | PASS |
 
-Every actual polarity down to 10 uV, all reset intervals, full evaluation output validity and every MOS gs/gd/ds pair are checked. The AVDD audit spans all 36 complete cycles; all supply probes are present and KCL closes. Reported power has no acceptance limit.
+Common audit statement C1 applies to this run.
 
 TT full AVDD waveform integral is 593.221215187 fJ/cycle: 220.643949039 evaluation and 372.577266148 reset. The original meter gives 593.706592440 fJ/cycle; the waveform-integral difference is -0.081754%. Both values are preserved.
 
@@ -257,7 +269,7 @@ Test `tb_comp_delay`, accuracy `baseline`, frozen clean source `d8f3002c6dec07fb
 | ss_low_125 | 85.033180602 | 67.429036855 | 34.071442459 | 0.816829614447 | 36 / 36 | PASS |
 | tt_nom_27 | 60.047639458 | 48.661348937 | 24.725165065 | 0.907738971948 | 36 / 36 | PASS |
 
-Every actual polarity down to 10 uV, all reset intervals, full evaluation output validity and every MOS gs/gd/ds pair are checked. The AVDD audit spans all 36 complete cycles; all supply probes are present and KCL closes. Reported power has no acceptance limit.
+Common audit statement C1 applies to this run.
 
 TT full AVDD waveform integral is 596.185510717 fJ/cycle: 221.046003124 evaluation and 375.139507593 reset. The original meter gives 596.682927000 fJ/cycle; the waveform-integral difference is -0.083364%. Both values are preserved.
 
@@ -283,7 +295,7 @@ Test `tb_comp_delay`, accuracy `tighter`, frozen clean source `d8f3002c6dec07fb8
 | ss_low_125 | 85.339954989 | 67.427282291 | 33.300871031 | 0.817047340394 | 36 / 36 | PASS |
 | tt_nom_27 | 60.215271388 | 48.666272117 | 24.282080927 | 0.907907863342 | 36 / 36 | PASS |
 
-Every actual polarity down to 10 uV, all reset intervals, full evaluation output validity and every MOS gs/gd/ds pair are checked. The AVDD audit spans all 36 complete cycles; all supply probes are present and KCL closes. Reported power has no acceptance limit.
+Common audit statement C1 applies to this run.
 
 TT full AVDD waveform integral is 596.920364186 fJ/cycle: 221.547545466 evaluation and 375.372818720 reset. The original meter gives 596.949467040 fJ/cycle; the waveform-integral difference is -0.004875%. Both values are preserved.
 
@@ -343,14 +355,14 @@ At fs_low_125, minimum sampled output magnitude is 0.785375010 V and maximum abs
 
 Fetched raw/deck hashes match; the exact owned remote run is absent. Archive SHA-256 `26e302577d4bb1e1ba873aa319be231f6edc2458770a06bc2ab6fc7215845240` passed every-member CRC/SHA readback. Full qualification remains open.
 
-This electrical source fails the private experimental gate on the merged 0.8.0 baseline. Qualification expansion stops at the failure; diagnosis and further circuit design continue. Every failure is retained.
+Common audit statement C4 applies to this run.
 
 
 ## Private precheck 20261031-151621-miyahara-buffer-v23-spec08-delay-baseline-screen
 
 Test `tb_comp_delay`, accuracy `baseline`, frozen clean source `c3b7afee025c8c97fb22bcd4dbea1b3fe75d7bff`. Private testbench; no formal writes. Independent source on the merged 0.8.0 baseline; not a canonical result. Physical stimuli, loads, samplers and measurements are preserved. Output selections and any tighter tolerances are recorded separately. The requested numerical settings are `{}`; no explicit maxstep or method is set.
 
-Explicit output policy: `save=selected` with named DUT/SOA voltage signals and required metric/current probes, or the preserved monitor-only noise protocol. No global or wildcard expansion is used. The exact selected signal lists, policy source and before/after testbench hashes are retained with this run; earlier runs are not relabeled with this policy.
+Common audit statement C5 applies to this run.
 
 | Corner | 1 mV ps | 30 mV ps | Reset ps | Raw max stress V | Actual / reset cycles | Private gate |
 |---|---:|---:|---:|---:|---:|---|
@@ -360,7 +372,7 @@ Explicit output policy: `save=selected` with named DUT/SOA voltage signals and r
 | ss_low_125 | 80.757598217 | 67.380901503 | 46.139417259 | 0.816904192418 | 36 / 36 | FAIL: CMP-08 |
 | tt_nom_27 | 59.657300543 | 50.149655580 | 34.646199388 | 0.908492882231 | 36 / 36 | FAIL: CMP-06 |
 
-Every actual polarity down to 10 uV, all reset intervals, full evaluation output validity and every MOS gs/gd/ds pair are checked. The AVDD audit spans all 36 complete cycles; all supply probes are present and KCL closes. Reported power has no acceptance limit.
+Common audit statement C1 applies to this run.
 
 TT full AVDD waveform integral is 667.197031713 fJ/cycle: 256.218888413 evaluation and 410.978143301 reset. The original meter gives 667.733088600 fJ/cycle; the waveform-integral difference is -0.080280%. Both values are preserved.
 
@@ -374,24 +386,24 @@ TT full AVDD waveform integral is 667.197031713 fJ/cycle: 256.218888413 evaluati
 
 Fetched raw/deck hashes match; the exact owned remote run is absent. Archive SHA-256 `fa9c7f2c759ee3be53dd4ce7daf89cfcc4179781830004362fa4a6b6984b21aa` passed every-member CRC/SHA readback. Full qualification remains open.
 
-This electrical source fails the private experimental gate on the merged 0.8.0 baseline. Qualification expansion stops at the failure; diagnosis and further circuit design continue. Every failure is retained.
+Common audit statement C4 applies to this run.
 
 
 ## Private precheck 20261031-151635-miyahara-buffer-v23-spec08-kickback-baseline-screen
 
 Test `tb_comp_kickback`, accuracy `baseline`, frozen clean source `c3b7afee025c8c97fb22bcd4dbea1b3fe75d7bff`. Private testbench; no formal writes. Independent source on the merged 0.8.0 baseline; not a canonical result. Physical stimuli, loads, samplers and measurements are preserved. Output selections and any tighter tolerances are recorded separately. The requested numerical settings are `{}`; no explicit maxstep or method is set.
 
-Explicit output policy: `save=selected` with named DUT/SOA voltage signals and required metric/current probes, or the preserved monitor-only noise protocol. No global or wildcard expansion is used. The exact selected signal lists, policy source and before/after testbench hashes are retained with this run; earlier runs are not relabeled with this policy.
+Common audit statement C5 applies to this run.
 
 | Corner | Input fF | CLKC fF | Kickback uV | Private gate |
 |---|---:|---:|---:|---|
 | tt_nom_27 | 19.328731219 | 12.105070079 | 0.000083107 | PASS |
 
-The tiny values previously produced with old settings are not used as physical conclusions. This private value remains distinct from an official rerun and from further tolerance-convergence evidence.
+Common audit statement C2 applies to this run.
 
 A separate full-input-trace diagnostic at tt_nom_27 finds up to 28.669688 uV instantaneous differential change and 7.418295 mV common-mode change relative to that cycle's pre-evaluation sample. These are distinct from the specified net per-cycle kickback metric and are not judged against its 40 uV limit. A nearly zero per-cycle value does not imply an undisturbed input during evaluation and reset.
 
-Load/stimulus conditions verified against the archived staged testbench: each input floats on 2.50 pF, initialized to common mode 0.49 V and differential 1 mV; each output has 10 fF. TT supply is 0.9 V, the clock period is 400 ps, and rise/fall times are 10 ps.
+Common audit statement C3 applies to this run.
 
 Unrounded recorded values: net per-cycle metric `8.310719994131244e-05` uV; instantaneous differential peak magnitude `28.669688034964768` uV (signed change `-2.866968803496477e-05` V), cycle 1, `49.1687119340883` ps after its pre-evaluation sample. The peak is in **evaluation**, whose measured window runs from that sample to `199.99997500000003` ps. Maximum common-mode excursion is `7.418294723631758` mV, in evaluation at `198.177560250713` ps after its cycle-1 sample.
 
@@ -410,7 +422,7 @@ The complete phase/load context is included in this run's verified archive.
 
 Test `tb_comp_delay`, accuracy `baseline`, frozen clean source `892fe664af7c0764ed93b689b28da4514b64dd63`. Private testbench; no formal writes. Independent source on the merged 0.8.0 baseline; not a canonical result. Physical stimuli, loads, samplers and measurements are preserved. Output selections and any tighter tolerances are recorded separately. The requested numerical settings are `{}`; no explicit maxstep or method is set.
 
-Explicit output policy: `save=selected` with named DUT/SOA voltage signals and required metric/current probes, or the preserved monitor-only noise protocol. No global or wildcard expansion is used. The exact selected signal lists, policy source and before/after testbench hashes are retained with this run; earlier runs are not relabeled with this policy.
+Common audit statement C5 applies to this run.
 
 | Corner | 1 mV ps | 30 mV ps | Reset ps | Raw max stress V | Actual / reset cycles | Private gate |
 |---|---:|---:|---:|---:|---:|---|
@@ -420,7 +432,7 @@ Explicit output policy: `save=selected` with named DUT/SOA voltage signals and r
 | ss_low_125 | 79.984397129 | 67.044100250 | 32.178941962 | 0.817080371476 | 36 / 36 | PASS |
 | tt_nom_27 | 59.359488787 | 50.004977456 | 24.027469464 | 0.908611903035 | 36 / 36 | FAIL: CMP-06 |
 
-Every actual polarity down to 10 uV, all reset intervals, full evaluation output validity and every MOS gs/gd/ds pair are checked. The AVDD audit spans all 36 complete cycles; all supply probes are present and KCL closes. Reported power has no acceptance limit.
+Common audit statement C1 applies to this run.
 
 TT full AVDD waveform integral is 699.364658662 fJ/cycle: 255.420517725 evaluation and 443.944140937 reset. The original meter gives 699.939986400 fJ/cycle; the waveform-integral difference is -0.082197%. Both values are preserved.
 
@@ -434,24 +446,24 @@ TT full AVDD waveform integral is 699.364658662 fJ/cycle: 255.420517725 evaluati
 
 Fetched raw/deck hashes match; the exact owned remote run is absent. Archive SHA-256 `2cd8f43a2829e19f19c91bc9cf7ab356afb08692e9dfe466c652dbd901e08c3e` passed every-member CRC/SHA readback. Full qualification remains open.
 
-This electrical source fails the private experimental gate on the merged 0.8.0 baseline. Qualification expansion stops at the failure; diagnosis and further circuit design continue. Every failure is retained.
+Common audit statement C4 applies to this run.
 
 
 ## Private precheck 20261031-152755-miyahara-buffer-v24-spec08-kickback-baseline-screen
 
 Test `tb_comp_kickback`, accuracy `baseline`, frozen clean source `892fe664af7c0764ed93b689b28da4514b64dd63`. Private testbench; no formal writes. Independent source on the merged 0.8.0 baseline; not a canonical result. Physical stimuli, loads, samplers and measurements are preserved. Output selections and any tighter tolerances are recorded separately. The requested numerical settings are `{}`; no explicit maxstep or method is set.
 
-Explicit output policy: `save=selected` with named DUT/SOA voltage signals and required metric/current probes, or the preserved monitor-only noise protocol. No global or wildcard expansion is used. The exact selected signal lists, policy source and before/after testbench hashes are retained with this run; earlier runs are not relabeled with this policy.
+Common audit statement C5 applies to this run.
 
 | Corner | Input fF | CLKC fF | Kickback uV | Private gate |
 |---|---:|---:|---:|---|
 | tt_nom_27 | 19.328731219 | 12.105033731 | 0.000082911 | PASS |
 
-The tiny values previously produced with old settings are not used as physical conclusions. This private value remains distinct from an official rerun and from further tolerance-convergence evidence.
+Common audit statement C2 applies to this run.
 
 A separate full-input-trace diagnostic at tt_nom_27 finds up to 30.673205 uV instantaneous differential change and 7.418208 mV common-mode change relative to that cycle's pre-evaluation sample. These are distinct from the specified net per-cycle kickback metric and are not judged against its 40 uV limit. A nearly zero per-cycle value does not imply an undisturbed input during evaluation and reset.
 
-Load/stimulus conditions verified against the archived staged testbench: each input floats on 2.50 pF, initialized to common mode 0.49 V and differential 1 mV; each output has 10 fF. TT supply is 0.9 V, the clock period is 400 ps, and rise/fall times are 10 ps.
+Common audit statement C3 applies to this run.
 
 Unrounded recorded values: net per-cycle metric `8.291090015065394e-05` uV; instantaneous differential peak magnitude `30.67320509575933` uV (signed change `-3.067320509575933e-05` V), cycle 1, `208.77303347348487` ps after its pre-evaluation sample. The peak is in **reset**, whose measured window runs from that sample to `199.99997499999992` ps. Maximum common-mode excursion is `7.418207759610773` mV, in evaluation at `198.12496019318317` ps after its cycle-1 sample.
 
@@ -470,7 +482,7 @@ The complete phase/load context is included in this run's verified archive.
 
 Test `tb_comp_delay`, accuracy `baseline`, frozen clean source `0768f17556b497d222a2b9d07bb9d72a63e5ed4e`. Private testbench; no formal writes. Independent source on the merged 0.8.0 baseline; not a canonical result. Physical stimuli, loads, samplers and measurements are preserved. Output selections and any tighter tolerances are recorded separately. The requested numerical settings are `{}`; no explicit maxstep or method is set.
 
-Explicit output policy: `save=selected` with named DUT/SOA voltage signals and required metric/current probes, or the preserved monitor-only noise protocol. No global or wildcard expansion is used. The exact selected signal lists, policy source and before/after testbench hashes are retained with this run; earlier runs are not relabeled with this policy.
+Common audit statement C5 applies to this run.
 
 | Corner | 1 mV ps | 30 mV ps | Reset ps | Raw max stress V | Actual / reset cycles | Private gate |
 |---|---:|---:|---:|---:|---:|---|
@@ -480,7 +492,7 @@ Explicit output policy: `save=selected` with named DUT/SOA voltage signals and r
 | ss_low_125 | 78.059647901 | 65.011445755 | 32.647276881 | 0.816437679775 | 36 / 36 | PASS |
 | tt_nom_27 | 58.046803629 | 48.652311810 | 24.449384612 | 0.908208501608 | 36 / 36 | PASS |
 
-Every actual polarity down to 10 uV, all reset intervals, full evaluation output validity and every MOS gs/gd/ds pair are checked. The AVDD audit spans all 36 complete cycles; all supply probes are present and KCL closes. Reported power has no acceptance limit.
+Common audit statement C1 applies to this run.
 
 TT full AVDD waveform integral is 702.356656497 fJ/cycle: 257.200838026 evaluation and 445.155818471 reset. The original meter gives 702.937018800 fJ/cycle; the waveform-integral difference is -0.082562%. Both values are preserved.
 
@@ -499,17 +511,17 @@ Fetched raw/deck hashes match; the exact owned remote run is absent. Archive SHA
 
 Test `tb_comp_kickback`, accuracy `baseline`, frozen clean source `0768f17556b497d222a2b9d07bb9d72a63e5ed4e`. Private testbench; no formal writes. Independent source on the merged 0.8.0 baseline; not a canonical result. Physical stimuli, loads, samplers and measurements are preserved. Output selections and any tighter tolerances are recorded separately. The requested numerical settings are `{}`; no explicit maxstep or method is set.
 
-Explicit output policy: `save=selected` with named DUT/SOA voltage signals and required metric/current probes, or the preserved monitor-only noise protocol. No global or wildcard expansion is used. The exact selected signal lists, policy source and before/after testbench hashes are retained with this run; earlier runs are not relabeled with this policy.
+Common audit statement C5 applies to this run.
 
 | Corner | Input fF | CLKC fF | Kickback uV | Private gate |
 |---|---:|---:|---:|---|
 | tt_nom_27 | 19.328731219 | 12.105047338 | 0.000085876 | PASS |
 
-The tiny values previously produced with old settings are not used as physical conclusions. This private value remains distinct from an official rerun and from further tolerance-convergence evidence.
+Common audit statement C2 applies to this run.
 
 A separate full-input-trace diagnostic at tt_nom_27 finds up to 30.643116 uV instantaneous differential change and 7.418206 mV common-mode change relative to that cycle's pre-evaluation sample. These are distinct from the specified net per-cycle kickback metric and are not judged against its 40 uV limit. A nearly zero per-cycle value does not imply an undisturbed input during evaluation and reset.
 
-Load/stimulus conditions verified against the archived staged testbench: each input floats on 2.50 pF, initialized to common mode 0.49 V and differential 1 mV; each output has 10 fF. TT supply is 0.9 V, the clock period is 400 ps, and rise/fall times are 10 ps.
+Common audit statement C3 applies to this run.
 
 Unrounded recorded values: net per-cycle metric `8.58761000678554e-05` uV; instantaneous differential peak magnitude `30.64311606267001` uV (signed change `-3.064311606267001e-05` V), cycle 1, `208.81896388285887` ps after its pre-evaluation sample. The peak is in **reset**, whose measured window runs from that sample to `199.99997499999998` ps. Maximum common-mode excursion is `7.418206202436939` mV, in evaluation at `198.1180368403619` ps after its cycle-1 sample.
 
@@ -623,3 +635,43 @@ fs_low_125: minimum sampled output magnitude 0.7855925505048 V; maximum absolute
 Archive SHA-256 `65d55d31f54cd762c3ffb8b547e078fa79b23ea3ab26f2ca67f5eebeb0dd85e1`: every member passed CRC/SHA readback. Fetched files match remote hashes, the exact owned remote directory is absent, and the six-job session ceiling is retained. Raw availability is indexed in [EVIDENCE-RETENTION](EVIDENCE-RETENTION.md). Full qualification remains open.
 
 **This physical source fails the private gate.** Qualification expansion stops at the failure; diagnosis and circuit design continue. No failed point is discarded.
+
+## Private precheck 20261031-163937-miyahara-buffer-v27-spec08-delay-baseline-screen
+
+Private `tb_comp_delay` / `baseline`; clean frozen source `aa34324bf3fe55d9a89e647873669894578eae4d`, electrical SHA-256 `12af77935658afe02d22cf915b436c702ebafcc0635e2fef176e62417aa52bac`. Merged 0.8.0 physical stimuli/loads, measurements and limits are preserved; named selected or original monitor-only saves, no wildcards. No formal writes or canonical change.
+
+| Corner | 1 mV ps | 30 mV ps | Reset ps | Unrounded stress V | Gate |
+|---|---:|---:|---:|---:|---|
+| fs_high_m40 | 50.560495018137495 | 43.0908866415408 | 21.236649519696737 | 0.999342381737211 | PASS |
+| fs_low_125 | 62.0583606072116 | 51.052454745449744 | 26.74369410400403 | 0.8130948203135783 | PASS |
+| sf_high_m40 | 55.70833379941035 | 46.85509032862123 | 22.190070383320464 | 0.9993361471097826 | PASS |
+| ss_low_125 | 76.34097448033253 | 63.8071653042842 | 33.00179441176625 | 0.8164243345330188 | PASS |
+| tt_nom_27 | 56.47951364995501 | 47.57069780086384 | 24.529892011825098 | 0.9081558705643794 | PASS |
+
+All 180 actual decisions (including 10 uV) and 180 reset intervals are retained; [129] full-trace MOS gs/gd/ds pairs per corner, output validity and full-cycle AVDD KCL are independently checked. Complete per-cycle/path and terminal-pair data remain in the archive. Energy is report-only.
+
+TT energy: meter 693.28026648 fJ/cycle; independent integral 692.7130369555329, evaluation 250.7678289437746, reset 441.94520801175827 fJ/cycle. All named supply probes are present and KCL closes.
+
+Actual settings (fs_high_m40, fs_low_125, sf_high_m40, ss_low_125, tt_nom_27): reltol 0.0001, vabstol 1e-06 V, gear2only/conservative/alllocal, lteratio 10; no explicit maxstep or method override.
+
+Verified ZIP SHA-256 `6c56c840831d72fc7dd7f1d960dc0c42ad3f94d7df084d5772c145a6f6050487`; every member passed CRC/SHA readback, retrieval/final-source guards and exact remote absence passed; session ceiling six jobs. [Retention](EVIDENCE-RETENTION.md) governs raw availability. Full qualification remains open.
+
+## Private precheck 20261031-163937-miyahara-buffer-v27-spec08-kickback-baseline-screen
+
+Private `tb_comp_kickback` / `baseline`; clean frozen source `aa34324bf3fe55d9a89e647873669894578eae4d`, electrical SHA-256 `12af77935658afe02d22cf915b436c702ebafcc0635e2fef176e62417aa52bac`. Merged 0.8.0 physical stimuli/loads, measurements and limits are preserved; named selected or original monitor-only saves, no wildcards. No formal writes or canonical change.
+
+| Corner | Input fF | CLKC fF | Net per-cycle kickback uV | Gate |
+|---|---:|---:|---:|---|
+| tt_nom_27 | 19.328731218738323 | 12.110042590340404 | 8.544480010683198e-05 | PASS |
+
+Verified conditions: 0.9 V supply, 0.49 V initial CM, 1 mV initial differential, 2.5 pF floating capacitance per input, 10 fF per output, 400 ps clock with 10 ps edges.
+
+Distinct instantaneous peaks: differential magnitude 35.09871575089812 uV, signed change -3.509871575089812e-05 V, cycle 1, 49.74139909909451 ps after its pre-evaluation sample in evaluation; common-mode magnitude 7.419482888406104 mV, cycle 1, 198.1288801058256 ps in evaluation.
+
+CMP-11 measures net change after evaluation plus reset. These instantaneous peaks are not compared to its 40 uV limit; a tiny net residual does not mean an undisturbed input. Actual-CDAC decision-phase differential/common-mode validation remains open.
+
+The full raw-derived phase/load context is included in the verified archive; its SHA-256 is `b9c3b4378690a121381fa13b1fe45d70f638ba7c6c79f73eb8f2b511c2477a86`.
+
+Actual settings (tt_nom_27): reltol 1e-06, vabstol 1e-08 V, gear2only/conservative/alllocal, lteratio 10; no explicit maxstep or method override.
+
+Verified ZIP SHA-256 `43d0e895321f0d51853bf25d00605c2384fc4f3f15678dfe1c56912108de6597`; every member passed CRC/SHA readback, retrieval/final-source guards and exact remote absence passed; session ceiling six jobs. [Retention](EVIDENCE-RETENTION.md) governs raw availability. Full qualification remains open.

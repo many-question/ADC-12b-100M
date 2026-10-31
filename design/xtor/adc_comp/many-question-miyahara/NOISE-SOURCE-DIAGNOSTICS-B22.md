@@ -1,6 +1,6 @@
 # B22 artificial noise-source diagnostics at FS/low/125
 
-> Evidence retention (2026-10-31): Superseded raw was released. Historical verification does not imply current availability; [retained evidence](EVIDENCE-RETENTION.md) determines which runs can be re-audited.
+> Superseded raw was released. Historical audits do not imply availability; see [retained runs](EVIDENCE-RETENTION.md).
 
 These simulations suppress selected stochastic sources in an otherwise unchanged B22 circuit. **They are not physical comparator performance and cannot establish compliance.** The full physical B22 FS/low/125 result remains a failure at 342.51175741522553 uV rms, against 240 uV, with a model-conditional 95% profile interval of 331.11 to 354.49 uV. [BUFFER-V22](BUFFER-V22.md) preserves that failure and its separately passing deterministic checks.
 

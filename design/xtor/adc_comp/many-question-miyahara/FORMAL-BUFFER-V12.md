@@ -1,6 +1,6 @@
 # Official new-source validation: BUFFER-V12
 
-> Evidence retention (2026-10-31): Superseded raw was released. Historical verification does not imply current availability; [retained evidence](EVIDENCE-RETENTION.md) determines which runs can be re-audited.
+> Superseded raw was released. Historical audits do not imply availability; see [retained runs](EVIDENCE-RETENTION.md).
 
 The canonical electrical SHA-256 is `e64f215d6bd941a8c48d56a5cf4582d6459c4a31981ff85973a2e4915d96bc65`. These results come from actual new simulations through the existing official runner and recorder. Private screening remains supplemental.
 

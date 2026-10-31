@@ -1,6 +1,6 @@
 # B13: worst-corner physical phase diagnosis
 
-> Evidence retention (2026-10-31): Superseded raw was released. Historical verification does not imply current availability; [retained evidence](EVIDENCE-RETENTION.md) determines which runs can be re-audited.
+> Superseded raw was released. Historical audits do not imply availability; see [retained runs](EVIDENCE-RETENTION.md).
 
 The original formal four-corner failures remain in [FORMAL-BUFFER-V13.md](FORMAL-BUFFER-V13.md), including FS/low/125 at 488.025278 uV rms. This independent diagnostic uses actual clean source `bfeddcb74f6ee3ec0dfc6ab26c05d1fd0936f00f`, electrical SHA-256 `ce5b3787a38ea80eb6775686bbe1df538e8864a2deb3d5f784d67e119b6146e0`, run `20261031-074723-miyahara-noise-phase-diagnostic-screen`. The physical source, 10 fF output load, VCM 0.49 V, +/-800 uV levels with 128 cycles each, seed 1, 50 GHz bandwidth and fine 0.5 ps/1e-6/1e-8 integration match between TT/0.9 V/27 C and FS/0.81 V/125 C. Voltage thresholds and normalized statistics use each corner's actual VDD.
 

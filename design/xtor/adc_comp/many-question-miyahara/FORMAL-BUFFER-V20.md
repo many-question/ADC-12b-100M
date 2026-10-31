@@ -1,6 +1,6 @@
 # Official validation: BUFFER-V20
 
-> Evidence retention (2026-10-31): Superseded raw was released. Historical verification does not imply current availability; [retained evidence](EVIDENCE-RETENTION.md) determines which runs can be re-audited.
+> Superseded raw was released. Historical audits do not imply availability; see [retained runs](EVIDENCE-RETENTION.md).
 
 **Old-settings records:** [issue #94](NUMERICS-94.md) requires new-settings revalidation. All results here preserve the original source and numerical protocol. The sub-microvolt kickback value is not an established physical conclusion; the earlier expansion plan below is superseded by private prechecks and formal reruns after merge.
 
