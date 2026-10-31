@@ -1,5 +1,10 @@
 #!/bin/sh
 # Pre-commit: refuse site data / model cards, broken port contracts and stale generated files.
+# Git runs commit hooks at the committing worktree root. Prefer its flow over an
+# editable install or PYTHONPATH belonging to another checkout. Let Python choose
+# the path separator (native Windows Python uses ';', even under Git's sh).
+PYTHONPATH=$(python -c 'import os; print(os.pathsep.join(filter(None, [os.path.abspath("tools"), os.environ.get("PYTHONPATH")])) )') || exit 1
+export PYTHONPATH
 python -m adcflow check hygiene || exit 1
 python -m adcflow check ports || exit 1
 python -m adcflow gen --check > /dev/null || { echo "generated files are stale: run python -m adcflow gen"; exit 1; }
