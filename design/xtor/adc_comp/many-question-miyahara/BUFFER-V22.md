@@ -27,6 +27,8 @@ The five baseline corners pass all 180 actual polarities including 10 uV, all 18
 
 baseline archive SHA-256 `5f94e2debe4a8f549c57e17719cfd46eeb8936fbbb6f0c957640cb56059d4c6d`; every member was verified by CRC and SHA-256 readback, and the exact owned remote directory is absent.
 
+| Accuracy | Corner | 1 mV ps | 30 mV ps | Reset ps | Unrounded maximum V |
+|---|---|---:|---:|---:|---:|
 | tighter | fs_high_m40 | 53.04113562026039 | 43.70729498255623 | 20.986455394458936 | 0.9989851539211555 |
 | tighter | sf_high_m40 | 57.306128209559304 | 47.00758188491303 | 22.01269078196144 | 0.9991158110744197 |
 | tighter | ss_low_125 | 85.33995498878679 | 67.42728229073158 | 33.30087103116152 | 0.8170473403941269 |
