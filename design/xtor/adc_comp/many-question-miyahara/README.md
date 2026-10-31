@@ -41,3 +41,5 @@ Historical B2 restoration passes five representative deterministic corners and T
 [Secondary historical r0t3c1 screening](RESTORATION-SECONDARY.md) fails CMP-15 in 24 TT cycles and stops before noise expansion. [B2 mechanism analysis](RESTORATION-MECHANISM.md) compares retained front-stage and regenerative trajectories and proposes isolated physical changes while preserving output buffers; individual device-noise contributions remain unmeasured.
 
 [Isolated physical trials](RESTORATION-TRIALS.md) pass five representative deterministic corners and TT loading, but fail full FS noise: B2-C52 gives 463.74178616731064 uV rms, B2-P5 gives 395.8138409185866 uV rms, and the bounded second PMOS step B2-P6 gives 357.532354035666 uV rms against 240 uV. P6 improves 23.8% from B2 and 9.7% from P5, with a 3.43% TT energy increase from B2, but remains unqualified. All three stop before TT noise and further qualification expansion. Each retains its own callback-verified frozen source; the capacitor and PMOS changes are never combined.
+
+[P6-N075 isolated transfer-width trial](RESTORATION-N075.md) retains its separate evidence.

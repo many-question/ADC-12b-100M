@@ -16,14 +16,16 @@ Current adc_comp 0.9.0, 1.1 V unrounded terminal limit, physical models, APS wit
 TT loading: Cin 19.310905865112, CLKC 14.920785787680 fF; kickback 8.63435000581e-05 uV.
 
 
-Status: Five corners/loading pass; 180 actual decisions/resets and 93 terminal pairs/corner pass. FS 17x512 noise running; TT noise gated.
+Status: Five corners/loading, 180 actual decisions/resets and 93 pairs/corner pass. FS 17x512 noise FAIL: 352.9976959168495 uV; CI95 [341.2615238167267,365.3317360735859]. Only 1.2683% below P6, intervals overlap. No TT noise or qualification expansion.
 
 New archives (CRC/member SHA verified; exact owned remote directories removed):
 - `20261101-064443-soa12-n075-first`: `7b74cfa60afd66ff41ddbfcb0c1dd92fb9b7ba3cf7ac09ec3f5e71f6d7d5e670`
 - `20261101-064453-soa12-n075-loading`: `42698af493b540838c6f7e3634394fd0420b1c03f1694eda7995127dd898d5af`
 - `20261101-064851-soa12-n075-remaining`: `52ecbdaca462fa7db490b0a6fd93fb46b31a4270b57db403bcd8933526f91707`
+- `20261101-065310-soa12-n075-noise-fs`: `13ef6aa7f5131e28b540358d280ff09a3507c44ad253e2050c53b1c06fc9a791`
 
 Runtime seconds (solver/wrapper per job; transfer=upload+fetch; other guards separate):
 first 11.8/16,12/16,23.5/28; transfer 67.6, guard 122.6, total 284.8.
 loading 28.2/33; transfer 64.8, guard 122.2, total 262.2.
 remaining 22.7/27,11.4/15; transfer 66.2, guard 121.4, total 276.9.
+noise-fs 610/614; transfer 64.5, guard 123.0, total 845.5.
