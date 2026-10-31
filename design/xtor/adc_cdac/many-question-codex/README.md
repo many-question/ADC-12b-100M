@@ -114,6 +114,12 @@ net pairs, but still reaches 1.075905098 V on a floating AP path.
 The [common-edge comparison](common-edge-control.png) shows which shared
 excursions improve and which remain. V8 stops before TT/weights; a structural
 AP discharge experiment is the next separate source, with no inherited pass.
+That V9 experiment passes SS (RL12/start 38.4/95.6 ps; maximum voltage
+0.977265105 V), but early FF still has 279 failing pairs. Its
+[AP comparison](ap-discharge-effects.png) shows positive retention removed
+and a new -30.20 mV AP excursion; command-buffer negative swing worsens.
+V9 is not promoted and stops before TT/weights. The next experiment tests
+physical AP capacitance against the remaining 4.4 ps SS start margin.
 Existing V4 TT saves do not permit assigning its total excess to a phase.
 N4's TT evidence does not transfer to any changed case.
 The [first passing private SS comparison](balanced-predrive-ss-screen.png)

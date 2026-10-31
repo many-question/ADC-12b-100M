@@ -931,6 +931,64 @@ Both V8 runs launched from clean commit
 - V8 early FF (8 raw files):
   `2fcb5bfe39cf4f75e76c144b3954e0f3188631268634315ebd93d2aabf970323`
 
+### V9 active AP discharge: the floating state is removed, other stress remains
+
+V9 adds an ENB-controlled ULVT NMOS from AP to VREFN in every repeated
+driver, complementing the upper PMOS. Widths are 1/0.575/0.325/0.185/0.12 um
+for bits 12/11/10/9/smaller, all 30 nm long with one finger. It removes
+the three bit-12 high-state keeper devices in each branch to avoid
+contention. The net change is +20 MOS per half: 568 per half, 1136 in the
+differential test. Fresh geometry callbacks and full pinned RNL checks
+pass without warnings. All capacitors, other MOS and external ports remain
+unchanged from V8.
+
+Source SHA256:
+`6adc4c24b88bc29251f9bfd72c0a74d7c5d7cbe5ad7e879080bd647f3ef7d3f1`.
+
+The full SS run passes all five applicable specifications and all
+1704 terminal pairs. RL5/RL12/start are 58.7/38.4/95.6 ps, tau
+11.291656529 ps and droop 0.005148503 LSB. The worst voltage is
+0.977265105026 V on XB2.XDL.MNOUT drain/source at 60.077348509 ns.
+Raw samples bracketing both deadlines pass. SS Qref 1.877272342 pC
+and PHI_SB load 31.798972 fF are n/a, not TT evidence.
+
+The original early FF screen still fails: 279 of 3408 pairs, across
+198 devices and 200 distinct actual net pairs. Its maximum is now
+1.070564545153 V on XDACN.XB0.MEQ1 gate/drain at 5.117493141 ns,
+with APGATE 1.009392881 V and BH -0.061171665 V. That sampling-path
+peak is essentially unchanged from V8. Every newly added MNDAP pair
+passes this window; the failure count includes the changed device set.
+
+![AP discharge effects in the original early FF window](ap-discharge-effects.png)
+
+Bit-11 low-branch AP's full-window maximum falls from 1.076371625 to
+0.997353408 V. It now discharges to ground at sampling entry instead
+of retaining positive charge. However, AP starts from ground before
+conversion; the falling ENB edge causes a new negative excursion.
+Bit-12 AP reaches -0.030199873 V at 5.129748929 ns, producing
+MPA0 drain/source 1.020199873 V and MPA1 gate/source 1.019672849 V.
+There are 16 new MPA0 failing pairs and 12 remaining MPA1 pairs, so
+this is not a complete AP voltage repair. The held-low bit-12 command
+buffer also worsens from -63.730084 to -71.380816 mV. Its deeper
+excursion is retained alongside the removed floating state.
+
+V9 stops before TT, weights and longer expansion. The next independent
+experiment adds physical AP capacitance uniformly scaled to upper-PMOS
+width, with 5% bottom Cp on every added unit. It will test whether
+diluting feedthrough and slowing AP edges can retain the 4.4 ps SS start
+margin. The size choice is an empirical experiment, not a proven charge
+model, and the separate sampling/MID/pulse-chain failures remain open.
+
+V9 launched from clean `bc896cd8c4543bac76d3ba483454307610a8a512`,
+with the same 0.5 ps / 1e-7 / 1e-8 / traponly settings. SS took 372 s,
+early FF 119 s. All raw data and 50 frozen inputs per run were recovered
+and verified before exact cleanup. Archive SHA256 values:
+
+- V9 SS (9 raw files):
+  `b7efa3a1667c97bb62a8a0f846ee8266cd216fabab84dd67d949c2ddb15c6af5`
+- V9 early FF (8 raw files):
+  `8d4cc05eac31f04a82ac6161093681f87566dcaced97ca0e1daecab4e6d12d21`
+
 ## Continuing verification
 
 A brief separately controlled reference-drive assist remains an unimplemented
