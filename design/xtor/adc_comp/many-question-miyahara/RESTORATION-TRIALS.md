@@ -18,8 +18,9 @@ Callback receipt SHA-256 `b7ce79bbb6ee753c7660876650ee783af37a20aaca6a17cd8b39e0
 | delay / ff_high_m40 | tdelay_1mV_ps=45.0331938829977, tdelay_30mV_ps=37.34178146236071, treset_ps=17.604585434071996, validity_violations=0, soa_max_V=1.01689, energy_fJ=244.25183910599998; limited gate PASS |
 | delay / sf_high_m40 | tdelay_1mV_ps=58.24301645787593, tdelay_30mV_ps=48.58893885452085, treset_ps=20.563556730457286, validity_violations=0, soa_max_V=1.01787, energy_fJ=234.59507545320002; limited gate PASS |
 | kickback / tt_nom_27 | cin_fF=19.31090586511203, cin_clkc_fF=14.9214190114932, kickback_uV=8.650640013346811e-05; PASS |
+| noise / fs_low_125 | 463.74178616731064 uV rms; unrounded 95% profile CI [447.78862513183816, 480.6659066590029]; FAIL 240 uV, finite 17 x 512 samples |
 
-Reported deterministic/loading gates are limited screening; physical FS noise is the next conditional gate.
+A required gate fails: stop long-noise or further qualification expansion for this source.
 
 Retained noise-off waveform markers (mean of four +/-100 uV cycles; exact saved traces and per-cycle values retained privately). These are descriptive thresholds, not gm/loop-gain activation points or individual noise contributions.
 
@@ -33,12 +34,15 @@ Retained noise-off waveform markers (mean of four +/-100 uV cycles; exact saved 
 | 20261101-051413-soa11-physical-tt | 15.0 | 11.6/13.1 | 278.001 | 21.562 / 63.906 / 44.922 / 3.328 / 21.063 / 123.220 |
 | 20261101-051814-soa11-physical-corners | 17.0, 17.0, 16.0, 18.0 | 12.0/13.6, 11.9/13.3, 11.4/13.2, 12.4/13.4 | 347.053 | 21.656 / 112.594 / 56.609 / 12.547 / 21.156 / 122.491 |
 | 20261101-051824-soa11-physical-loading | 19.0 | 14.0/15.5 | 284.824 | 21.953 / 72.204 / 45.265 / 0.766 / 21.062 / 123.574 |
+| 20261101-052318-soa11-b2c52-noise-fs | 641.0 | 636.0/625.0 | 872.543 | 22.078 / 662.188 / 43.281 / 0.922 / 21.032 / 123.042 |
 
 20261101-051413-soa11-physical-tt archive SHA-256 `ffc71a19d556d5cdce394b627e119cf594bf8cb7637be24002dc921b11024d1d`.
 
 20261101-051814-soa11-physical-corners archive SHA-256 `99902c48342ad0c38943c768c2b8d0a4bc8a931104ffb669474472c36e4cf389`.
 
 20261101-051824-soa11-physical-loading archive SHA-256 `b049d3a30b216a81cc694a1bc8c158f2baa39ef174b4cc630c99930044952659`.
+
+20261101-052318-soa11-b2c52-noise-fs archive SHA-256 `832c3217640a2a8d5cc6742a96f828f447e86ec2139022b08a5fb0cbe37fcaa1`.
 ## B2-P5
 
 [Complete frozen source](RESTORE-B2-P5.txt), raw SHA-256 `82c32d30eb380f185bcd4d4cc67be1cf81697ebc76c05f62ff389bd15f9ba01c`; electrical SHA-256 `0242a27c4d8b3ccccaf712ab242fee68e77d872f3424c4b87a064934b5d38282`. Parent restore-b2: `2fcb783897758f6e3191cf85edcb8dc3a3fc8b4b357e80f8a59de2cfefa1b666`.
@@ -55,8 +59,9 @@ Callback receipt SHA-256 `e0a6e29486c6fe53f2f3dd8c92c47f81bfa5cdf3c6b89023cf6998
 | delay / ff_high_m40 | tdelay_1mV_ps=43.59064500589525, tdelay_30mV_ps=36.22034289218469, treset_ps=18.289564784830443, validity_violations=0, soa_max_V=1.01808, energy_fJ=247.01423464079997; limited gate PASS |
 | delay / sf_high_m40 | tdelay_1mV_ps=56.306410892332686, tdelay_30mV_ps=47.018943844032606, treset_ps=20.94203238190305, validity_violations=0, soa_max_V=1.01947, energy_fJ=236.31809081759997; limited gate PASS |
 | kickback / tt_nom_27 | cin_fF=19.31090586511203, cin_clkc_fF=14.922185522591375, kickback_uV=8.651269999861155e-05; PASS |
+| noise / fs_low_125 | 395.8138409185866 uV rms; unrounded 95% profile CI [382.61143680702924, 409.73629421135746]; FAIL 240 uV, finite 17 x 512 samples |
 
-Reported deterministic/loading gates are limited screening; physical FS noise is the next conditional gate.
+A required gate fails: stop long-noise or further qualification expansion for this source.
 
 Retained noise-off waveform markers (mean of four +/-100 uV cycles; exact saved traces and per-cycle values retained privately). These are descriptive thresholds, not gm/loop-gain activation points or individual noise contributions.
 
@@ -70,12 +75,27 @@ Retained noise-off waveform markers (mean of four +/-100 uV cycles; exact saved 
 | 20261101-051413-soa11-physical-tt | 16.0 | 11.6/13.1 | 278.001 | 21.562 / 63.906 / 44.922 / 3.328 / 21.063 / 123.220 |
 | 20261101-051814-soa11-physical-corners | 16.0, 15.0, 16.0, 17.0 | 11.4/13.2, 11.4/13.1, 11.6/13.2, 12.4/14.1 | 347.053 | 21.656 / 112.594 / 56.609 / 12.547 / 21.156 / 122.491 |
 | 20261101-051824-soa11-physical-loading | 18.0 | 13.3/15.1 | 284.824 | 21.953 / 72.204 / 45.265 / 0.766 / 21.062 / 123.574 |
+| 20261101-052328-soa11-b2p5-noise-fs | 640.0 | 636.0/625.0 | 871.897 | 21.610 / 662.078 / 43.156 / 1.422 / 21.062 / 122.569 |
 
 20261101-051413-soa11-physical-tt archive SHA-256 `ffc71a19d556d5cdce394b627e119cf594bf8cb7637be24002dc921b11024d1d`.
 
 20261101-051814-soa11-physical-corners archive SHA-256 `99902c48342ad0c38943c768c2b8d0a4bc8a931104ffb669474472c36e4cf389`.
 
 20261101-051824-soa11-physical-loading archive SHA-256 `b049d3a30b216a81cc694a1bc8c158f2baa39ef174b4cc630c99930044952659`.
+
+20261101-052328-soa11-b2p5-noise-fs archive SHA-256 `8607ec4cce3f34156a6025adc941fd6fd8ea9f8db92f8f72170b128d390bb49e`.
+## B2-P6
+
+[Complete frozen source](RESTORE-B2-P6.txt), raw SHA-256 `9b2d74bf5a900271e2c0e93ba5dfdac4ad0f25bb350b2dd6a21cd4a52105ebe8`; electrical SHA-256 `993e1d7e900ad08470a928e335dcb3017181fe3691fd9e864602775e8955734e`. Parent restore-b2: `2fcb783897758f6e3191cf85edcb8dc3a3fc8b4b357e80f8a59de2cfefa1b666`.
+
+Only M14/M15 changes from W=4 um / nf=4 to W=6 um / nf=6, L=30 nm; all terminal geometry/parasitic parameters come from the successful callback. M12/M13 and DP/DN capacitance remain the parent values.
+
+This bounded second PMOS step follows the complete P5 FS-noise reduction from 469.46 to 395.81 uV and its earlier core response. It retains the original B2 capacitors and N-device geometry; no capacitance change is combined with this test.
+
+Callback receipt SHA-256 `1e49a1b0563f362e75683c62f62fbf54a6c2d9339d1a2111f0f1df00cc8bfad6`. 28 nm HPC+ adapter 0.1.0, payload SHA-256 `c46e4713691443dbd588238d581c1863b255767fe1f79fc58722e81c0244b81f`; exact provider/release identity is retained in the private receipt. Ordered request: `[['l', '30n'], ['fingers', '6'], ['Wfg', '1u']]`. Actual values were asserted before source generation; RNL checks return zero errors/warnings/hints.
+
+TT screening has been dispatched; no completed archived result or qualification is claimed yet.
+
 
 All listed completed archives passed CRC/member SHA checks and exact remote-path absence checks. Batch timers include other variants in a shared run; overlapping durations are not campaign wall time. Archive/report time was not instrumented. Noise CIs are conditional on the binomial probit model and do not establish independent samples or seed robustness. Non-TT 30 mV delay and energy are report-only.
 
