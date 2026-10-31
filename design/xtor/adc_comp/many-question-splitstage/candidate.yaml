@@ -1,0 +1,6 @@
+name: many-question-splitstage
+description: Physical integrating front stage with an independent gate-coupled StrongARM latch and delayed transistor clock. First deterministic screen; feasibility remains unproven.
+status: wip
+acknowledged: [69, 78, 84, 100, 116]
+authors:
+  - {github: many-question, name: "Codex split-stage comparator"}
