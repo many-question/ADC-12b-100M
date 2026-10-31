@@ -1,6 +1,10 @@
-# Main28/gate16 formal validation
+# Historical main28/gate16 validation before PR #95
 
-Status: **ready** for candidate review. Current main:
+This report preserves the evidence and settings from before the conservative
+numerics migration. Current acceptance evidence is documented in
+[NUMERICS95-validation.md](NUMERICS95-validation.md).
+
+Historical status: **ready** for candidate review. Main at that time:
 `33337c605ff670e04eee814c2178ed26eca7346d`; adc_ref specification 0.8.0.
 The formal simulation series used the unmodified official flow on main
 `fac0194179a4ae593438b022a0713d6e5b59663f`. Synchronizing main afterwards

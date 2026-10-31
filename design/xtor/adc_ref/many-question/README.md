@@ -7,22 +7,27 @@ replica servo, a reference-absent startup clamp, and a MOS divider for VCM.
 The main28/gate16 revision uses `CGATE multi=16`, with `MPUV multi=2`,
 `MPOUT multi=16`, and six MOM-unit equivalents of servo compensation (4+1+1).
 Its tradeoff is substantial
-quiescent power and gate capacitance for settling robustness. It is not selected
-or signed off; the archived mixed-top SS-hot ENOB result remains a failure.
+quiescent power and gate capacitance for settling robustness. Eligibility and
+signoff require renewed lead verification and mixed-top evidence. The archived
+mixed-top SS-hot ENOB failure remains preserved in the historical reports.
 
 ## Current module validation
 
-The main28/gate16 source has completed formal module validation at electrical
-hash `2b1163f0eb481376`. The branch is synchronized with main
-`33337c605ff670e04eee814c2178ed26eca7346d` (adc_ref spec 0.8.0), with the
-source and all 272 result/figure files unchanged by the rebase.
-The [formal validation record](REF21-validation.md) tracks fresh committed-source
-runs. Current committed-source evidence: **136 fresh passes / 0 fresh failures / 0 stale**.
-All 15 required specifications pass at all 631 required spec/corner pairs:
-45 DC, one TT noise, 45 startup and 45 replay records, plus four official
-startup cross-checks. Lead verification, updated mixed-top regression and
-dynamic VCM integration remain pending. Ready is the candidate-review status;
-it does not establish project selection or signoff.
+The unchanged main28/gate16 circuit has been revalidated on the official flow
+merged at `c6152d236e525793ecc4809b9a6c9dfb9fd0ad77`, adc_ref specification 0.9.0.
+The electrical hash remains `2b1163f0eb481376`; the source and RNL drawing are unchanged.
+The [conservative numerics validation record](NUMERICS95-validation.md) documents
+**136 fresh passes / 0 failures / 0 stale**, covering 631 applicable
+specification/corner checks. All 45 startup and 45 replay records were rerun with
+APS and the official conservative settings. The 45 DC and one noise record,
+including their figures, remain byte-identical. Four startup risk corners also
+pass the official `traponly / maxstep=0.1n` convergence comparisons.
+
+Notice #101 is acknowledged. The [earlier validation record](REF21-validation.md)
+is preserved as history from before PR #95. Renewed lead verification, updated
+mixed-top regression and dynamic VCM integration remain separate requirements.
+Ready is the candidate-review status; self-reported module results do not by
+themselves establish eligibility or signoff.
 
 The [numerical and sizing diagnosis](REF21-diagnosis.md) documents the unchanged
 baseline's converged failure and the exact main28/gate16 proposal. Its four
