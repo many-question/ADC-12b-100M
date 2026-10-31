@@ -121,3 +121,25 @@ The original meter is 573.034820400 fJ/cycle; the relative waveform-integral dif
 | weak PMOS rail loads | 276.900570415 | 109.056539251 | 167.844031163 |
 
 All physical weak-load and reset costs are included. These are net supply-delivery allocations including returned charge, not isolated device dissipation. Power remains reported only; this unqualified source establishes no topology ranking.
+
+
+## B17 measured TT supply phases
+
+Run `20261031-092615-miyahara-buffer-v17-screen` measures B17 with the same full-circuit AVDD boundary and 36-cycle 100 ps–14.5 ns window as B15. Only MCKN geometry differs between these electrical sources; its physical capacitance, drive and transient bias all change together.
+
+| Total fJ/cycle | Evaluation | Reset | Initial reset current uA | Initial reset power mW |
+|---:|---:|---:|---:|---:|
+| 573.232178640 | 213.959479549 | 359.272699091 | 1154.782004607 | 1.039303804 |
+
+The waveform integral changes by +0.196962544 fJ/cycle (+0.034372%) from B15. The original meter gives 573.231882240 fJ/cycle, a 0.000051707% relative difference. Every supply probe is present and the terminal-current sum closes to numerical precision.
+
+| Net supply delivery group | Whole cycle fJ | Evaluation | Reset |
+|---|---:|---:|---:|
+| regenerative core | 59.060542834 | 37.883527238 | 21.177015596 |
+| physical clock | 59.174056428 | 30.382746485 | 28.791309943 |
+| input precharge | 128.125456839 | 2.035049037 | 126.090407802 |
+| first output buffer | 19.763113996 | 5.545286173 | 14.217827823 |
+| external output inverters | 30.363061055 | 29.111005646 | 1.252055409 |
+| weak PMOS rail loads | 276.745947489 | 109.001864971 | 167.744082518 |
+
+Physical reset and weak rail loads are included; ideal external clock delivery is outside this AVDD boundary. Net returned charge can make a phase allocation negative, and these allocations are not isolated device dissipation. Power is reported only; no qualified topology ranking follows.
