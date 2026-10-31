@@ -1,4 +1,4 @@
-// BUFFER-V26: independent Miyahara experiment with physical high-trip output buffers.
+// BUFFER-V27: independent Miyahara experiment with physical high-trip output buffers.
 // @RNL(type="header") {
 //   @VERSION("0.3");
 //   @USE-PACKAGE(name="adc28", version="0.1", path="../../../rnl/adc28.rnl")
@@ -18,8 +18,8 @@ M10 (RP RN XP AVDD) pch_ulvt_mac l=3e-08 w=8e-06 nf=8 m=1 ad=4e-13 as=4.5e-13 pd
 M11 (RN RP XN AVDD) pch_ulvt_mac l=3e-08 w=8e-06 nf=8 m=1 ad=4e-13 as=4.5e-13 pd=8.8e-06 ps=1.09e-05 nrd=0.024976 nrs=0.024976 sa=2.95835e-07 sb=2.95835e-07 sd=1e-07
 M6 (RP RN VSS VSS) nch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-13 pd=4.4e-06 ps=6.5e-06 nrd=0.108289 nrs=0.108289 sa=1.79203e-07 sb=1.79203e-07 sd=1e-07
 M7 (RN RP VSS VSS) nch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-13 pd=4.4e-06 ps=6.5e-06 nrd=0.108289 nrs=0.108289 sa=1.79203e-07 sb=1.79203e-07 sd=1e-07
-M8 (RP DP VSS VSS) nch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-13 pd=4.4e-06 ps=6.5e-06 nrd=0.108289 nrs=0.108289 sa=1.79203e-07 sb=1.79203e-07 sd=1e-07
-M9 (RN DN VSS VSS) nch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-13 pd=4.4e-06 ps=6.5e-06 nrd=0.108289 nrs=0.108289 sa=1.79203e-07 sb=1.79203e-07 sd=1e-07
+M8 (RP DP VSS VSS) nch_ulvt_mac l=3e-08 w=2e-06 nf=2 m=1 ad=1e-13 as=1.5e-13 pd=2.2e-06 ps=4.3e-06 nrd=0.185844 nrs=0.185844 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
+M9 (RN DN VSS VSS) nch_ulvt_mac l=3e-08 w=2e-06 nf=2 m=1 ad=1e-13 as=1.5e-13 pd=2.2e-06 ps=4.3e-06 nrd=0.185844 nrs=0.185844 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
 CDP (DP VSS) cfmom_2t nr=56 lr=1e-06 w=5e-08 s=5e-08 stm=1 spm=3 multi=1
 CDN (DN VSS) cfmom_2t nr=56 lr=1e-06 w=5e-08 s=5e-08 stm=1 spm=3 multi=1
 MCKN (CKB CLKC VSS VSS) nch_ulvt_mac l=3e-08 w=2e-06 nf=2 m=1 ad=1e-13 as=1.5e-13 pd=2.2e-06 ps=4.3e-06 nrd=0.185844 nrs=0.185844 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
@@ -74,7 +74,7 @@ MUPXN (XN VSS AVDD AVDD) pch_ulvt_mac l=1e-07 w=5e-07 nf=1 m=1 ad=4.75e-14 as=4.
 //  @LINE(linecolor="#d3dbe4", linewidth=0.08, linestyle="dashed") {(-112, 16) (-70, 16) (-70, 54) (-112, 54) (-112, 16)};
 //  @LINE(linecolor="#d3dbe4", linewidth=0.08, linestyle="dashed") {(70, 16) (112, 16) (112, 54) (70, 54) (70, 16)};
 //  @LINE(linecolor="#d3dbe4", linewidth=0.08, linestyle="dashed") {(-180, -72) (-76, -72) (-76, 0) (-180, 0) (-180, -72)};
-//  (0, 104) @TEXT("Miyahara BUFFER-V26", size=2, bold=true, halign="middle", textcolor="#273747");
+//  (0, 104) @TEXT("Miyahara BUFFER-V27", size=2, bold=true, halign="middle", textcolor="#273747");
 //  (0, 97) @TEXT("28 nm HPC+ | ULVT MOS | device labels: W/L and nf", size=0.9, bold=false, halign="middle", textcolor="#526171");
 //  (0, 91.5) @TEXT("Regenerative second stage", size=1.35, bold=true, halign="middle", textcolor="#273747");
 //  (0, 7) @TEXT("Dynamic input stage", size=1.35, bold=true, halign="middle", textcolor="#273747");
@@ -108,10 +108,10 @@ MUPXN (XN VSS AVDD AVDD) pch_ulvt_mac l=1e-07 w=5e-07 nf=1 m=1 ad=4.75e-14 as=4.
 //  #M13 @TEXT("2um/30nm nf2", key="dims", size=1, halign="end", textcolor="#526171") => @PLACE(39.2, 58.5);
 //  #M8 @PLACE(-42, 30) => @ORIENT("R0");
 //  #M8 @TEXT("M8", key="name", size=1.15, bold=true, halign="start", textcolor="#273747") => @PLACE(-39.2, 31.2);
-//  #M8 @TEXT("4um/30nm nf4", key="dims", size=1, halign="start", textcolor="#526171") => @PLACE(-39.2, 28.5);
+//  #M8 @TEXT("2um/30nm nf2", key="dims", size=1, halign="start", textcolor="#526171") => @PLACE(-39.2, 28.5);
 //  #M9 @PLACE(42, 30) => @ORIENT("MY");
 //  #M9 @TEXT("M9", key="name", size=1.15, bold=true, halign="end", textcolor="#273747") => @PLACE(39.2, 31.2);
-//  #M9 @TEXT("4um/30nm nf4", key="dims", size=1, halign="end", textcolor="#526171") => @PLACE(39.2, 28.5);
+//  #M9 @TEXT("2um/30nm nf2", key="dims", size=1, halign="end", textcolor="#526171") => @PLACE(39.2, 28.5);
 //  #MAP @PLACE(-42, -8) => @ORIENT("MY");
 //  #MAP @TEXT("MAP", key="name", size=1.15, bold=true, halign="end", textcolor="#273747") => @PLACE(-44.8, -6.8);
 //  #MAP @TEXT("2.4\mu{}m/30nm  nf3", key="dims", size=1, halign="end", textcolor="#526171") => @PLACE(-44.8, -9.5);
@@ -545,7 +545,7 @@ MUPXN (XN VSS AVDD AVDD) pch_ulvt_mac l=1e-07 w=5e-07 nf=1 m=1 ad=4.75e-14 as=4.
 //  %port_OUTN @TEXT("OUTN", key="name", size=1, bold=true);
 //  &OUTN @WIRE(mode="straight", linecolor="#263442", linewidth=0.16) {(205, 51) %port_OUTN:p};
 //  (150, 11) @TEXT("RN -> BN -> OUTN", size=1, halign="middle");
-//  (0, -91) @TEXT("Direct input precharge P2.4; raw reset N4; buffer P6/N2; output P4/N3; CKB rail loads.", size=1, halign="middle");
+//  (0, -91) @TEXT("Input precharge P2.4; raw reset N8; D-gated clamps N2; buffer P6/N2.6; output P4/N3.", size=1, halign="middle");
 //  (0, -104) @TEXT("Weak input-drain diode loads", size=1.3, bold=true, halign="middle");
 //  #MDDP @PLACE(-45, -122) => @ORIENT("R0");
 //  #MDDP @TEXT("MDDP", key="name", size=1.05, halign="start") => @PLACE(-42, -120.5);
