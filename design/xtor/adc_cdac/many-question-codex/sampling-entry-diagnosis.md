@@ -1397,3 +1397,58 @@ was posted and #98 added to candidate.yaml after the in-flight runs finished.
 The exact #96 two-tone installation test gives SFDR 79.999999999 dB.
 Its SNDR is 80.791957230 dB, illustrating the documented adjacent-spur
 SNDR limitation; this self-test is not a circuit performance result.
+
+### V16: moderate NAND holding and smaller EN-controlled device
+
+V16 starts from V14. NAND upper MNB0 is reduced to an existing ULVT
+geometry at most half its previous width, with the existing 0.12 um floor;
+lower MNB1 uses the smallest existing geometry at least twice its old width.
+This changes 20 raw MOS lines, 40 flattened instances per half, while
+retaining 570 MOS per half. Connections, capacitors, bottom Cp and ports
+are unchanged. Independent parsed checks pass; pinned RNL renders are
+byte-identical to the inspected parent. Source SHA256:
+`c788cbb3b3536b27dee705aeb546832722a17e3d21b4319d74db9dcdc165f1d5`.
+
+New SS and early-FF diagnostics launched from clean `0288ae6`, using the
+merged official generator and numerical controls. All requested voltages
+and currents are present, finite and cover the full 70/12 ns windows.
+
+| Case | SS RL12 / start | SS voltage failures | Early FF failures / maximum |
+|---|---|---|---|
+| V14 parent | 38.4 / 95.7 ps | 0/1710 | 157/3420, 1.021301597 V |
+| V16 NAND balance | 39.7 / 96.5 ps | 0/1710 | 123/3420, 1.015374411 V |
+
+V16 removes 34 parent FF failures and adds none. Distinct failed net pairs
+number 90. The low-driver BN minimum is -6.465691 mV and NOFF minimum
+is -19.860408 mV, versus V14's -22.232449/-31.301597 mV. All 66 remaining
+MPB0/MPB1 failures still occur; their maximum is 1.009860408 V. The worst
+overall pair is negative-side bit-2 MSHAREH gate/drain at 10.082648204 ns:
+SAMP_ON is -9.793962 mV while BH is 1.005580449 V. Separate primary sampling,
+assist-gate, reference-phase and small control-node excursions remain.
+
+All five applicable SS metrics pass the official measurement: RL5 58.0 ps,
+RL12 39.7 ps, start 96.5 ps, tau 11.291656529 ps and droop 0.005084020 LSB.
+The largest of 1710 SS pairs is 0.979463080 V. Qref is 1.992429020 pC,
+PHI_S/PHI_SB/CONV capacitances are 22.637142/23.806061/14.340757 fF;
+these SS observations do not establish TT charge or loading compliance.
+
+The RL12 result has only 0.3 ps margin. At the 40 ps deadline, interpolated
+TOP error is 8.770694 mV against a 9.604790 mV band. Adjacent raw points
+are 38.656704 ps / 13.034245 mV (outside) and 40.505866 ps / 7.165103 mV
+(inside). This is a measured pass on this saved waveform, not a numerical
+convergence confirmation. A retained design must receive a purposeful
+convergence comparison before relying on this small margin. Known FF
+failures still prevent TT, weights and longer-window expansion.
+
+SS/FF contain 5619/6668 saved points. All raw files and 50 staged inputs
+per run were verified before exact owned-run cleanup. The sealed audit
+retains every changed failure membership and actual terminal voltages.
+
+- SS archive: `0b626935aae8a81702a53e2b80d53318c1fbc815f1efb2038cec588602528a7f`
+- FF archive: `1644d83d854d02b3e23cec9554f4adf0ab8f219dd0266a93b216ccf3db2d24cd`
+
+Main subsequently advanced through `b66a0a8`, containing other candidates'
+rerun results and a site-card fix. Its changes do not alter the CDAC spec,
+testbenches, simulator generation, measurement or pinned frequency tool.
+It is synchronized before subsequent experiments; these V16 inputs remain
+frozen and are not regenerated or relabeled.

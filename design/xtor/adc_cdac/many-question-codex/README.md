@@ -36,19 +36,20 @@ not an extracted value or a parameter already present in the MOM model.
 Weights 180 and 32 are excluded from sampling. No assumption changes in
 the private output-driver studies.
 
-## Formal evidence on N4
+## N4 evidence: historical TT and current failing SS
 
 | Check | Result |
 |---|---|
-| TT weights/calibration | 5/5 pass; Cs 2.065012 pF, full scale 0.993034 V, calibration margin 0.369061 LSB, calibrated ENOB loss 0.000364369 bit |
-| TT settling/charge/load | 10/10 pass; RL12/start 35.3/83.4 ps, tau 9.120184 ps, Qref 1.124389535 pC |
-| TT tracking | SFDR 86.417966859 dBc and SNDR 84.523548567 dB pass; prescribed numerical comparison differs by 0.000307850/0.000215801 dB |
-| Official ss_low_125 | Full scale, RL5, tau and droop pass; RL12 47.4 ps >40 ps and start 117.7 ps >100 ps fail |
+| Historical TT weights/calibration (stale) | Previously 5/5 pass; Cs 2.065012 pF, full scale 0.993034 V, calibration margin 0.369061 LSB, calibrated ENOB loss 0.000364369 bit |
+| Historical TT settling/charge/load (stale) | Previously 10/10 pass; RL12/start 35.3/83.4 ps, tau 9.120184 ps, Qref 1.124389535 pC |
+| Historical TT tracking (stale) | Previously SFDR 86.417966859 dBc and SNDR 84.523548567 dB pass; old prescribed comparison differs by 0.000307850/0.000215801 dB |
+| Current official ss_low_125 | RL5, tau and droop pass; RL12 47.4 ps >40 ps and start 116.8 ps >100 ps fail |
 
-All 12 official result/figure files remain unchanged. Required coverage is
-9/17 requirements complete across their corner sets, 23/369 specification-
-corner results, with five self-reported records. Other corners, project-lead
-verification and mixed top-level regression remain incomplete. Status stays
+The preceding 12 official result/figure files are preserved in history;
+the SS result and its two figures were refreshed by an actual rerun.
+The old 9/17 requirement and 23/369 corner coverage counts describe the
+preceding protocol, not current acceptance. Other current tests/corners,
+project-lead verification and mixed top-level regression remain incomplete. Status stays
 `wip`; ideal bootstrap/clock stimuli do not establish full integration or
 reliability acceptance.
 
