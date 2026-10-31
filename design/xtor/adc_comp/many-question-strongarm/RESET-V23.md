@@ -8,7 +8,7 @@ Only MTAIL width changes from 3.0 to 2.4 um, at directly verified **30 nm length
 
 Electrical SHA-256: `a3d21ee7163a19a881abc0592038e318efe8ee8fd75977c236608ca5aa711116`. The [source](RESET-V23.txt) contains 23 MOS and 5 MOMs, with complete RNL checked on a byte-identical mirror. SF/FS high/-40 are screened first for stress and validity. TT follows on a useful pass, particularly its 50 ps limit at 30 mV, before a matched short phase diagnosis. Remaining known corners, actual-worst convergence, source-preserving promotion and original formal tests remain open. Canonical V19 and all genuine original records remain unchanged.
 
-![Physical comparator with a 2.4 um tail at fixed length and finger count](reset-v23.png)
+![Physical comparator with a 2.4 um tail at fixed length and finger count](https://raw.githubusercontent.com/many-question/ADC-12b-100M/e6c95aadd9ec412bcca1a03d4b1a625321630588/design/xtor/adc_comp/many-question-strongarm/reset-v23.png)
 
 ## Completed screen 20261031-093138-strongarm-reset-v23-screen
 

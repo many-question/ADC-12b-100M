@@ -8,7 +8,7 @@ These two NMOS devices connect the input drains to Q and also participate in cro
 
 Electrical SHA-256: `d1f39f9752433bf61e8c6d6727d0096a73c5b86e545e4317c7590a733411847d`. The [source](RESET-V24.txt) contains 23 MOS and 5 MOMs with complete RNL checked on a byte-identical mirror. SF/FS high/-40 are screened first, then TT on a useful pass, including the 50 ps delay limit at 30 mV. A matched short phase diagnosis follows only after those gates. Remaining known corners, actual-worst convergence, source-preserving promotion and original formal tests remain open. Canonical V19 and all genuine original records remain unchanged.
 
-![Physical comparator with larger input-to-latch NMOS devices](reset-v24.png)
+![Physical comparator with larger input-to-latch NMOS devices](https://raw.githubusercontent.com/many-question/ADC-12b-100M/e6c95aadd9ec412bcca1a03d4b1a625321630588/design/xtor/adc_comp/many-question-strongarm/reset-v24.png)
 
 ## Completed screen 20261031-094545-strongarm-reset-v24-screen
 
