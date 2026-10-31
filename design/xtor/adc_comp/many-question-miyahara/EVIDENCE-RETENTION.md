@@ -12,6 +12,8 @@ The user requested removal of superseded waveform data after a disk-space incide
 - `20261031-142358-miyahara-buffer-v22-spec08-noiseoff-latch_devices-screen` — archive SHA-256 `9ba91d5735c997491486182ed1f11e7e9af79052f97652dd5e3080a5c90448ca`.
 - `20261031-151621-miyahara-buffer-v23-spec08-delay-baseline-screen` — archive SHA-256 `fa9c7f2c759ee3be53dd4ce7daf89cfcc4179781830004362fa4a6b6984b21aa`.
 - `20261031-151635-miyahara-buffer-v23-spec08-kickback-baseline-screen` — archive SHA-256 `340e1463aa7f293ec8c20a0cf4816d56a674e52f96eb51384ec328a9c7e087e6`.
+- `20261031-152741-miyahara-buffer-v24-spec08-delay-baseline-screen` — archive SHA-256 `2cd8f43a2829e19f19c91bc9cf7ab356afb08692e9dfe466c652dbd901e08c3e`.
+- `20261031-152755-miyahara-buffer-v24-spec08-kickback-baseline-screen` — archive SHA-256 `755525d32f379a3891466cd6bfe5c08e5f3412ff9992c3258d5643dd1ba5ca7b`.
 
 Artificial noise-suppression trials remain ineligible for qualification. Retention does not establish compliance. Both canonical candidates retain genuine failed official 0.8 noise results. The full qualification remains incomplete.
 
