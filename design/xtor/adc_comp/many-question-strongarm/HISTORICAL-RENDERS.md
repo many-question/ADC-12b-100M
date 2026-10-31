@@ -60,3 +60,5 @@ The complete RNL sources and experiment reports remain available in this candida
 
 - [reset-v25.png](https://raw.githubusercontent.com/many-question/ADC-12b-100M/8728841e7a6946263fb953d45599cb4afef59ce7/design/xtor/adc_comp/many-question-strongarm/reset-v25.png)
 - [reset-v26.png](https://raw.githubusercontent.com/many-question/ADC-12b-100M/8728841e7a6946263fb953d45599cb4afef59ce7/design/xtor/adc_comp/many-question-strongarm/reset-v26.png)
+
+RESET-V1 reset-window figure uses its immutable published image at `bf9cbca8027d2786cc814cfdf573a3d82c117e1d`; SHA-256 `0b1e241f4bf61084fcbed4c8762d22961223741f4a66f94bc74a615c6511d4e7`, 98261 bytes, compared byte-for-byte before removing the duplicate candidate image to preserve the 2 MB budget.

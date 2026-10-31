@@ -117,7 +117,7 @@ The threshold-based control separation is positive for every measured cycle. The
 | ff_high_125 | 7.331 .. 7.332 | 11.946 .. 11.948 |
 | ss_low_125 | 13.130 .. 13.137 | 19.213 .. 19.215 |
 
-![Worst SS reset windows](reset-v1-reset.png)
+![Worst SS reset windows](https://raw.githubusercontent.com/many-question/ADC-12b-100M/bf9cbca8027d2786cc814cfdf573a3d82c117e1d/design/xtor/adc_comp/many-question-strongarm/reset-v1-reset.png)
 
 ### The one 0.25 ps repeat
 

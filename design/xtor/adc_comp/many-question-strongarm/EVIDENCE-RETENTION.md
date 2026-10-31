@@ -26,3 +26,5 @@ The user requested removal of superseded waveform data after a disk-space incide
 Artificial noise-suppression trials remain ineligible for qualification. Retention does not establish compliance. Both canonical candidates retain genuine failed official 0.8 noise results. The full qualification remains incomplete.
 
 Future owned runs explicitly select DUT/SOA and measurement signals. Continuous noise/MC traces remain disabled where the existing protocol uses monitor files. Wildcard/global waveform expansion is rejected. Stimuli, numerical tolerances, measurements and acceptance limits are preserved; shared qualification save-policy changes are coordinated separately in PR #111. Original runs are not relabeled as if they used the new wrapper.
+
+- `20261031-170208-strongarm-reset-v34-spec08-delay-baseline-screen` — archive SHA-256 `bd2afe8e272e1c07b5700d9054cd38c77ce85972c34ab9ed805d067d83f694b7`; recovered and verified on 2026-11-01.

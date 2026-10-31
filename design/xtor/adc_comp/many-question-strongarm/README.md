@@ -2,7 +2,7 @@
 
 > Superseded raw was released. Historical audits do not imply availability; see [retained runs](EVIDENCE-RETENTION.md).
 
-Canonical **V27 fails the merged adc_comp 0.8.0 official TT noise test at 210.1008609253812 uV rms against 200 uV**. The original 17 x 512 decisions are retained, with a model-conditional 95% profile interval of 201.81 to 218.79 uV. [FORMAL-SPEC08](FORMAL-SPEC08.md) links the genuine committed result and figure. Current dependency coverage is 1 fresh / 92 records; freshness does not imply passing. This candidate remains WIP, unqualified and unselected.
+Canonical **V27 fails the merged adc_comp 0.8.0 official TT noise test at 210.1008609253812 uV rms against 200 uV**. The original 17 x 512 decisions are retained, with a model-conditional 95% profile interval of 201.81 to 218.79 uV. [FORMAL-SPEC08](FORMAL-SPEC08.md) links the genuine committed result and figure. At the recorded 0.8 checkpoint, dependency coverage was 1 fresh / 92 records; this is not a current 0.9 freshness count. This candidate remains WIP, unqualified and unselected.
 
 Independent [V28](RESET-V28.md) reduces CKB storage from 16 to 8 fingers. Critical-corner deterministic checks and tighter repeats pass, but full physical TT noise still fails at 206.44956249285457 uV rms (198.24 to 215.06 uV). Its tighter TT 30 mV delay is 49.84967366576565 ps, leaving 0.15032633423435 ps. A confidence interval crossing the limit does not establish a pass; V28 qualification expansion is stopped.
 
@@ -30,4 +30,12 @@ Independent [V32](RESET-V32.md) repairs V31 clock loading and passes nine baseli
 
 Independent [V33](RESET-V33.md) tests N-latch width 8 to 4 um to alter pre-regeneration timing. Five baseline/five tighter corners and TT capacitance pass, but **full physical FS/low/125 noise fails at 483.2613219887676 uV rms [466.39, 501.2]**, worse than V32. The weaker-N trial is rejected; all samples and failure evidence are retained.
 
-Independent [RESET-V34](RESET-V34.md): physical validation pending; predecessor failures retained.
+Independent [RESET-V34](RESET-V34.md): original baseline recovered; see the report for measured failures and remaining gates.
+
+## Current 1.1 V restoration work
+
+The branch now includes main `17b3a0c` (adc_comp 0.9.0). Issue #116 is acknowledged: delay and kickback require fresh dependency evidence after their explicit save-policy change. The project terminal-voltage limit is 1.1 V at all corners; historical 1.0 V screening failures are retained as historical diagnostics and are not current rejection criteria.
+
+Historical V2 (15 MOS, two MOM capacitors) is the first restoration under test. Frozen electrical SHA-256: `608dfd3e547ee65738662bf62ef9c9cb548b0b7ea1000b21c22087ee0c958db8`. Its earlier 1.04856 V peak is below the current rule; timing, validity, loading, physical noise and mismatch still require matching current evidence. The canonical source and genuine failed formal noise result remain unchanged while restoration is screened privately.
+
+[V2 restoration TT evidence](RESTORATION-11.md) passes the limited current deterministic screen; remaining gates stay open.
