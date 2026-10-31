@@ -1552,3 +1552,40 @@ inputs per run were verified before deleting the exact remote run folder.
 No full-wave NPZ duplicate is created. Exact compact decision signals and
 small result tables retain the failed mechanisms when these trial archives
 are released; this limited retention does not support a full-DUT re-audit.
+
+### V21/V22: local NAND N-enable shaping, with new internal pressure
+
+These independent V16 children retain the original NAND series order.
+A physical ENB inverter drives only upper MNB0 through NEN; the original
+EN-controlled P gate is unchanged. Its P width is at least twice / once
+the upper N width in V21/V22, and its N width is an existing geometry at
+most one quarter, with the existing minimum floor. Lower MNB1 is halved
+to reduce HIB load. Each half has 622 MOS (52 added). All geometry is
+reused; MOMs, bottom Cp and ports are unchanged. Parsed preflight and
+RNL checks pass, and the added inverter drawing has been inspected.
+
+- V21 source: `d2e03c6461ba18f51865928d220f3ae75fb70c6b9d5b12f5f8eb7bece9b1cbce`
+- V22 source: `d5c88a05527eca72332144b9c0cbf874e663e70c88e7630bbecb73e48ac74480`
+
+| Trial | SS RL12 / start | SS voltage failures | Early FF failures / maximum |
+|---|---|---|---|
+| V21 | 38.4 / 98.4 ps | 0/1866 | 124/3732, 1.014414633 V |
+| V22 | 38.4 / 98.8 ps | 0/1866 | 132/3732, 1.014433726 V |
+
+V21 removes 35 V16 failing pairs but adds 36; V22 removes 19 but adds
+28. Representative bit-12 low-driver NOFF improves to -9.240/-10.834 mV,
+but the new NEN node undershoots on the opposite edge. High-driver NEN
+reaches -17.454/-11.858 mV, creating MNENP drain/source and MNB0
+gate/drain failures. Residual low-driver NAND failures, several added
+control pairs and existing sampling/assist failures remain. The global
+maximum is still the negative-side assist MNPASS gate/drain. These
+limited improvements are not acceptance, and neither trial proceeds to
+TT or longer-window qualification. SS Qref is 1.998936131/1.991556544 pC.
+
+All four runs start from clean `65bcc19`, using the same official numerical
+controls. Explicit selection captures 313 SS / 553 FF signals, including
+9/16 named currents; actual saved names match the list. Complete finite
+records contain V21 SS/FF 5590/6739 and V22 5607/6696 points. All inputs
+and raw files were recovered and verified before exact remote cleanup.
+The next control repair must address both NEN edges and the smaller-bit
+NOFF/BN peaks without spending the remaining SS start margin.

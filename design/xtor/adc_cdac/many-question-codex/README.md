@@ -211,3 +211,9 @@ MNB0 drain/source peaks. They are rejected despite better settling.
 Their new explicit-save runs preserve every required DUT terminal node
 while recording only 285/497 SS/FF signals; no blanket current save or
 duplicate full-wave cache is used.
+
+V21/V22 instead add local NAND N-enable shaping while retaining the
+original series order. SS passes at RL12 38.4 ps, but FF still fails
+124/132 pairs, including new NEN undershoot failures. These trials are
+not promoted; the ledger distinguishes their local improvement from
+the remaining and newly introduced device pressure.
