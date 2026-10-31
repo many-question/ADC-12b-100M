@@ -1,6 +1,6 @@
 # Strongarm comparator: RESET-V27
 
-> Evidence retention (2026-10-31): Historical raw/archive statements below refer to the original audit. Superseded waveforms were released under the user's retention policy. [EVIDENCE-RETENTION](EVIDENCE-RETENTION.md) lists the completed runs still available for raw re-audit.
+> Evidence retention (2026-10-31): Superseded raw was released. Historical verification does not imply current availability; [retained evidence](EVIDENCE-RETENTION.md) determines which runs can be re-audited.
 
 Canonical **V27 fails the merged adc_comp 0.8.0 official TT noise test at 210.1008609253812 uV rms against 200 uV**. The original 17 x 512 decisions are retained, with a model-conditional 95% profile interval of 201.81 to 218.79 uV. [FORMAL-SPEC08](FORMAL-SPEC08.md) links the genuine committed result and figure. Current dependency coverage is 1 fresh / 92 records; freshness does not imply passing. This candidate remains WIP, unqualified and unselected.
 
@@ -26,5 +26,4 @@ Independent [V30](RESET-V30.md) retains V29 P8 output pull-ups and restores exac
 
 Independent [V31](RESET-V31.md) repairs the SS reset gate to 33.33299224307328 ps and passes all four-corner deterministic checks, but its dedicated TT clock capacitance is **16.65232415714863 fF, FAIL 16**. Qualification expansion stops; V31 noise is untested and it is not promoted. Further physical work targets the local clock driver and load while preserving Q precharge strength.
 
-Independent [V32](RESET-V32.md) reduces the local CKB driver and uses a legal 6-finger CKB MOM to address V31 clock loading. Deterministic and dedicated capacitance checks come first; no physical pass or promotion is assumed.
-Independent [V32](RESET-V32.md) passes four baseline/four tighter deterministic corners and TT dedicated Cin/CLK (19.3311/15.5633 fF). Complete TT noise is 194.2333 uV rms (95% profile interval 186.32–202.54 uV); its point estimate passes 200 uV but margin, hot corners and numerical noise convergence remain open. Canonical V27 is unchanged and full qualification is incomplete.
+Independent [V32](RESET-V32.md) repairs V31 clock loading and passes nine baseline/four tighter deterministic corners plus TT Cin/CLK (19.3311/15.5633 fF). TT baseline/tighter noise is 194.2333/196.1902 uV rms; both 95% intervals cross 200 uV. **Physical FS/low/125 and SS/low/125 noise fail at 371.8393 and 299.6542 uV rms against 240 uV**, with all 8704 samples per corner retained. Qualification expansion stops. [Artificial V32 source diagnostics](NOISE-SOURCE-DIAGNOSTICS-V32.md) guide further physical work; no artificial result qualifies the candidate. Canonical V27 and the genuine formal failure remain unchanged.

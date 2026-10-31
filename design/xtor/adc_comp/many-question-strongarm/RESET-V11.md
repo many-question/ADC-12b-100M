@@ -1,6 +1,6 @@
 # RESET-V11: slightly stronger input precharge
 
-> Evidence retention (2026-10-31): Historical raw/archive statements below refer to the original audit. Superseded waveforms were released under the user's retention policy. [EVIDENCE-RETENTION](EVIDENCE-RETENTION.md) lists the completed runs still available for raw re-audit.
+> Evidence retention (2026-10-31): Superseded raw was released. Historical verification does not imply current availability; [retained evidence](EVIDENCE-RETENTION.md) determines which runs can be re-audited.
 
 V10 passes all-device stress and physical output validity at four key corners, but its SS low/hot reset takes 35.044926 ps against a 35 ps limit. This experiment changes only MRDP/MRDN from P2 to P2.2 um, with two fingers and L=30 nm. A new successful zero-warning callback supplies all geometry and parasitics. The lighter reset-gated Q loads, physical clock circuit and weak clock-floor load remain unchanged.
 

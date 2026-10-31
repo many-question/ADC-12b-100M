@@ -1,6 +1,6 @@
 # RESET-V31: stronger Q precharge for reset
 
-> Evidence retention (2026-10-31): Historical raw/archive statements below refer to the original audit. Superseded waveforms were released under the user's retention policy. [EVIDENCE-RETENTION](EVIDENCE-RETENTION.md) lists the completed runs still available for raw re-audit.
+> Evidence retention (2026-10-31): Superseded raw was released. Historical verification does not imply current availability; [retained evidence](EVIDENCE-RETENTION.md) determines which runs can be re-audited.
 
 **V31 fails the dedicated TT clock-input capacitance gate:** 16.65232415714863 fF exceeds 16 fF. Four-corner delay/reset/output-validity and all unrounded MOS terminal checks pass, including SS reset at 33.33299224307328 ps. Qualification expansion stops at CMP-14; no V31 noise run or promotion is claimed.
 

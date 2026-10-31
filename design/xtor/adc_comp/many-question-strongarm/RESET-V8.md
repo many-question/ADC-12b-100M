@@ -1,6 +1,6 @@
 # RESET-V8: enable Q shunt loads only during reset
 
-> Evidence retention (2026-10-31): Historical raw/archive statements below refer to the original audit. Superseded waveforms were released under the user's retention policy. [EVIDENCE-RETENTION](EVIDENCE-RETENTION.md) lists the completed runs still available for raw re-audit.
+> Evidence retention (2026-10-31): Superseded raw was released. Historical verification does not imply current availability; [retained evidence](EVIDENCE-RETENTION.md) determines which runs can be re-audited.
 
 V7 passes full-trace stress at four key corners, but its persistent Q loads cause losing-output peaks above 30 percent of VDD. This experiment changes only the Q-load control mechanism: each N1 um shunt gate is driven by a physical inverted clock CKB, so the current should turn off during evaluation. The input-drain diode loads remain. A P2/N2 inverter generates CKB, with a 14.06 fF MOM and the previously validated weak N0.5 um / 500 nm clock load. Q precharge changes from P6 to P4 to offset the added external clock-gate load. The resulting reset speed and actual phase overlap require measurement.
 

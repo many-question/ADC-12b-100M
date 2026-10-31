@@ -1,6 +1,6 @@
 # RESET-V7: physical diode-connected shunt loads
 
-> Evidence retention (2026-10-31): Historical raw/archive statements below refer to the original audit. Superseded waveforms were released under the user's retention policy. [EVIDENCE-RETENTION](EVIDENCE-RETENTION.md) lists the completed runs still available for raw re-audit.
+> Evidence retention (2026-10-31): Superseded raw was released. Historical verification does not imply current availability; [retained evidence](EVIDENCE-RETENTION.md) determines which runs can be re-audited.
 
 V6 retains a reset peak caused by charge arriving while the opposite Q node and the compensation clock rise. This experiment returns to V2 direct-clock precharge and removes the compensation clock path. Each Q node receives a diode-connected N1 um / 30 nm load, and each input drain receives a weaker N0.5 um / 500 nm load. Their high-level conduction is intended to create voltage headroom and dissipate edge-coupled charge. Gate and drain are physically connected, so these are nonlinear MOS loads, not ideal voltage clamps.
 

@@ -1,6 +1,6 @@
 # RESET-V22: isolate Q reset-shunt width at fixed length
 
-> Evidence retention (2026-10-31): Historical raw/archive statements below refer to the original audit. Superseded waveforms were released under the user's retention policy. [EVIDENCE-RETENTION](EVIDENCE-RETENTION.md) lists the completed runs still available for raw re-audit.
+> Evidence retention (2026-10-31): Superseded raw was released. Historical verification does not imply current availability; [retained evidence](EVIDENCE-RETENTION.md) determines which runs can be re-audited.
 
 V20 retains one wrong polarity at cycle 54 in the matched short noise diagnosis, with only small Q-stage descriptive SNR improvements over V19. V21 then changes Q reset shunts from 0.5 um/30 nm to 0.3 um/100 nm and fails both high-voltage cold stress screens. Its initial prose incorrectly described the predecessor length; [RESET-V21.md](RESET-V21.md) corrects that statement against the actual preserved source and explicitly retains both geometry changes and the failed result. V21 provides no isolated width or noise conclusion.
 

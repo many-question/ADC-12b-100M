@@ -1,6 +1,6 @@
 # Preserved canonical baseline before RESET-V19
 
-> Evidence retention (2026-10-31): Historical raw/archive statements below refer to the original audit. Superseded waveforms were released under the user's retention policy. [EVIDENCE-RETENTION](EVIDENCE-RETENTION.md) lists the completed runs still available for raw re-audit.
+> Evidence retention (2026-10-31): Superseded raw was released. Historical verification does not imply current availability; [retained evidence](EVIDENCE-RETENTION.md) determines which runs can be re-audited.
 
 Historical source and all 92 official records are fixed at commit `8c0d2666ccb0e135e5799e3c2390bbd4db3dfe12` and retained in a verified private archive. Statements below describe that old canonical source.
 

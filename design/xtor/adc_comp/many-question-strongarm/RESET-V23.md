@@ -1,6 +1,6 @@
 # RESET-V23: test the input integration interval
 
-> Evidence retention (2026-10-31): Historical raw/archive statements below refer to the original audit. Superseded waveforms were released under the user's retention policy. [EVIDENCE-RETENTION](EVIDENCE-RETENTION.md) lists the completed runs still available for raw re-audit.
+> Evidence retention (2026-10-31): Superseded raw was released. Historical verification does not imply current availability; [retained evidence](EVIDENCE-RETENTION.md) determines which runs can be re-audited.
 
 The fixed-length Q-shunt width experiment V22 fails ten terminal pairs at SF/high/-40, with a rounded 1.00398 V peak; FS/high/-40 passes. [RESET-V22.md](RESET-V22.md) preserves the actual raw peak, full checks and stopped expansion. V23 therefore branches electrically from V20, restoring its 0.5 um/30 nm Q shunts and retaining all five MOMs and physical clock devices.
 

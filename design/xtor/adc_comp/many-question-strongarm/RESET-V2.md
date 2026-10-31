@@ -1,6 +1,6 @@
 # RESET-V2: direct-clock reset experiment
 
-> Evidence retention (2026-10-31): Historical raw/archive statements below refer to the original audit. Superseded waveforms were released under the user's retention policy. [EVIDENCE-RETENTION](EVIDENCE-RETENTION.md) lists the completed runs still available for raw re-audit.
+> Evidence retention (2026-10-31): Superseded raw was released. Historical verification does not imply current availability; [retained evidence](EVIDENCE-RETENTION.md) determines which runs can be re-audited.
 
 This independent experiment removes RESET-V1's NAND/NOR controls, their internal floating nodes and the now-unused two-inverter clock branch. The tail and all four single precharge devices use CLKC. Input precharge remains 2.4 um / 30 nm, nf3; Q precharge remains 6 um / 30 nm, nf6. The other device geometries and the two input-drain capacitors are unchanged. These geometries reuse successful, warning-free callbacks from RESET-V1; no parasitic values were hand scaled.
 

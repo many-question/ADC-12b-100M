@@ -1,6 +1,6 @@
 # RESET-V27: larger Q storage with N8 coupling devices
 
-> Evidence retention (2026-10-31): Historical raw/archive statements below refer to the original audit. Superseded waveforms were released under the user's retention policy. [EVIDENCE-RETENTION](EVIDENCE-RETENTION.md) lists the completed runs still available for raw re-audit.
+> Evidence retention (2026-10-31): Superseded raw was released. Historical verification does not imply current availability; [retained evidence](EVIDENCE-RETENTION.md) determines which runs can be re-audited.
 
 V26 passes its three initial deterministic corners, but its matched short noise diagnosis retains the same wrong cycle 54 as V20. Descriptive Q SNR changes from 1.896073 to 1.917068 at +30 ps and from 3.346148 to 3.261936 at +40 ps. At -20 ps, Q differential standard deviations remain 0.361281/0.373230 mV across the two input levels; the wrong cycle already has -0.812609 mV Q differential. These phase observations do not establish a noise source or completed decision. [RESET-V26.md](RESET-V26.md) preserves the full result.
 

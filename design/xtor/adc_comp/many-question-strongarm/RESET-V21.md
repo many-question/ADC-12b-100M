@@ -1,6 +1,6 @@
 # RESET-V21: test weaker Q reset shunts
 
-> Evidence retention (2026-10-31): Historical raw/archive statements below refer to the original audit. Superseded waveforms were released under the user's retention policy. [EVIDENCE-RETENTION](EVIDENCE-RETENTION.md) lists the completed runs still available for raw re-audit.
+> Evidence retention (2026-10-31): Superseded raw was released. Historical verification does not imply current availability; [retained evidence](EVIDENCE-RETENTION.md) determines which runs can be re-audited.
 
 V20 passes the first SF/FS high/-40 and TT deterministic screens, but its matched short noise diagnosis retains the same one wrong polarity at cycle 54 as V19. At +30/+40 ps the descriptive Q differential SNR improves only about 3.16%/1.18%, with both signal and variation changing. This does not establish enough benefit to solve V19's genuine 218.770059 uV TT noise failure. [RESET-V20.md](RESET-V20.md) preserves the measured cost and phase evidence; V20 remains an unpromoted experiment.
 

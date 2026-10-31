@@ -1,6 +1,6 @@
 # RESET-V6: bound the compensated clock and input recharge
 
-> Evidence retention (2026-10-31): Historical raw/archive statements below refer to the original audit. Superseded waveforms were released under the user's retention policy. [EVIDENCE-RETENTION](EVIDENCE-RETENTION.md) lists the completed runs still available for raw re-audit.
+> Evidence retention (2026-10-31): Superseded raw was released. Historical verification does not imply current availability; [retained evidence](EVIDENCE-RETENTION.md) determines which runs can be re-audited.
 
 V5 separates three remaining events: early clock/Q excursions, a reset Q peak while CKB is still rising, and DP/DN injection at an input transition during reset. This experiment changes the input precharge PMOS from 1 to 1.6 um, reduces the clock inverter PMOS from 1 to 0.5 um, and adds a weak CKB discharge NMOS (W=0.5 um, L=500 nm, gate tied to AVDD). All three new geometries have successful, warning-free callbacks.
 

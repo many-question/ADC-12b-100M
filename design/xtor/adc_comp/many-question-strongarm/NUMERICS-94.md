@@ -1,6 +1,6 @@
 # Numerical-settings transition: issue #94
 
-> Evidence retention (2026-10-31): Historical raw/archive statements below refer to the original audit. Superseded waveforms were released under the user's retention policy. [EVIDENCE-RETENTION](EVIDENCE-RETENTION.md) lists the completed runs still available for raw re-audit.
+> Evidence retention (2026-10-31): Superseded raw was released. Historical verification does not imply current availability; [retained evidence](EVIDENCE-RETENTION.md) determines which runs can be re-audited.
 
 ## Merged workflow update, 2026-10-31
 
@@ -19,9 +19,11 @@ Old-settings full-corner formal expansion is paused while circuit development co
 After the flow merges, affected delay, kickback, noise and mismatch tests must be rerun through the merged official runner and testbenches on frozen actual sources. Rehash cannot restore old evidence. The announced ADCToolbox dependency is upstream commit `cd72061`, not the same-version PyPI 0.9.1 package. Merge status and formal module notices are checked before each batch and PR update; the announcement itself requests no acknowledgment. Qualification, remaining-corner coverage, operating-range checks, mixed-top regression and lead review remain open.
 
 
+Shared reporting convention: the automatic maxstep bound in a log is not an explicit deck setting. Each archived run records actual APS threading and the six-job session ceiling. The compact wording below preserves every run heading, requested/effective setting, metric table, failure and archive hash. The [unabridged earlier wording](https://github.com/many-question/ADC-12b-100M/blob/3b7108921859eba3a1514cb5f91f2d42c94472bd/design/xtor/adc_comp/many-question-strongarm/NUMERICS-94.md) remains fixed in published history. Present raw availability is governed by EVIDENCE-RETENTION, including superseded archives that were released.
+
 ## Private precheck 20261031-115725-strongarm-reset-v27-notice94-delay-announced-screen
 
-Test `tb_comp_delay`, accuracy `announced`, frozen clean source `f727f91aa5b0acaf3ced8a962aae3a6a56237d73`. These results use a private copy of the testbench and do not write formal records. All physical stimuli, loads, samplers and measurement code are preserved. The requested settings are `{"errpreset": "conservative"}`; no explicit maxstep or method is set.
+Test `tb_comp_delay`, accuracy `announced`, frozen clean source `f727f91aa5b0acaf3ced8a962aae3a6a56237d73`. Private testbench; no formal writes. Physical stimuli, loads, samplers and measurements are preserved. The requested settings are `{"errpreset": "conservative"}`; no explicit maxstep or method is set.
 
 | Corner | 1 mV ps | 30 mV ps | Reset ps | Raw max stress V | Actual / reset cycles | Private gate |
 |---|---:|---:|---:|---:|---:|---|
@@ -41,12 +43,12 @@ TT full AVDD waveform integral is 406.328839435 fJ/cycle: 86.844638589 evaluatio
 | ss_low_125 | 0.0001 | 1e-06 | gear2only / conservative / alllocal / 10 | 56.5 |
 | tt_nom_27 | 0.0001 | 1e-06 | gear2only / conservative / alllocal / 10 | 56.5 |
 
-The log's automatic maxstep bound is not an explicit job-deck setting. Actual APS thread information and the six-job session ceiling are recorded separately. Fetched raw/deck hashes match; the exact owned remote run is absent. Archive SHA-256 `709c4647e9ae4608dd04f2e74014101290032f4a7018554808d9be46dcd39375` was checked by reading every member back with CRC and SHA-256. Full qualification remains open.
+Fetched raw/deck hashes match; the exact owned remote run is absent. Archive SHA-256 `709c4647e9ae4608dd04f2e74014101290032f4a7018554808d9be46dcd39375` passed every-member CRC/SHA readback. Full qualification remains open.
 
 
 ## Private precheck 20261031-120336-strongarm-reset-v27-notice94-delay-tighter-screen
 
-Test `tb_comp_delay`, accuracy `tighter`, frozen clean source `f727f91aa5b0acaf3ced8a962aae3a6a56237d73`. These results use a private copy of the testbench and do not write formal records. All physical stimuli, loads, samplers and measurement code are preserved. The requested settings are `{"errpreset": "conservative", "reltol": "1e-5", "vabstol": "1e-8"}`; no explicit maxstep or method is set.
+Test `tb_comp_delay`, accuracy `tighter`, frozen clean source `f727f91aa5b0acaf3ced8a962aae3a6a56237d73`. Private testbench; no formal writes. Physical stimuli, loads, samplers and measurements are preserved. The requested settings are `{"errpreset": "conservative", "reltol": "1e-5", "vabstol": "1e-8"}`; no explicit maxstep or method is set.
 
 | Corner | 1 mV ps | 30 mV ps | Reset ps | Raw max stress V | Actual / reset cycles | Private gate |
 |---|---:|---:|---:|---:|---:|---|
@@ -70,12 +72,12 @@ Same-source tighter-minus-announced comparison at tt_nom_27: 1 mV delay +0.96825
 | ss_low_125 | 1e-06 | 1e-08 | gear2only / conservative / alllocal / 10 | 56.5 |
 | tt_nom_27 | 1e-06 | 1e-08 | gear2only / conservative / alllocal / 10 | 56.5 |
 
-The log's automatic maxstep bound is not an explicit job-deck setting. Actual APS thread information and the six-job session ceiling are recorded separately. Fetched raw/deck hashes match; the exact owned remote run is absent. Archive SHA-256 `a0ee84791027375a03ad3e0f1a33f66e58c2e2b1f4a3bad6c27a91b99ce2fc83` was checked by reading every member back with CRC and SHA-256. Full qualification remains open.
+Fetched raw/deck hashes match; the exact owned remote run is absent. Archive SHA-256 `a0ee84791027375a03ad3e0f1a33f66e58c2e2b1f4a3bad6c27a91b99ce2fc83` passed every-member CRC/SHA readback. Full qualification remains open.
 
 
 ## Private precheck 20261031-120357-strongarm-reset-v27-notice94-kickback-announced-screen
 
-Test `tb_comp_kickback`, accuracy `announced`, frozen clean source `f727f91aa5b0acaf3ced8a962aae3a6a56237d73`. These results use a private copy of the testbench and do not write formal records. All physical stimuli, loads, samplers and measurement code are preserved. The requested settings are `{"errpreset": "conservative", "reltol": "1e-5", "vabstol": "1e-8"}`; no explicit maxstep or method is set.
+Test `tb_comp_kickback`, accuracy `announced`, frozen clean source `f727f91aa5b0acaf3ced8a962aae3a6a56237d73`. Private testbench; no formal writes. Physical stimuli, loads, samplers and measurements are preserved. The requested settings are `{"errpreset": "conservative", "reltol": "1e-5", "vabstol": "1e-8"}`; no explicit maxstep or method is set.
 
 | Corner | Input fF | CLKC fF | Kickback uV | Private gate |
 |---|---:|---:|---:|---|
@@ -95,14 +97,14 @@ The supplemental phase/load context was derived from the SHA-verified archive wi
 |---|---:|---:|---|---:|
 | tt_nom_27 | 1e-06 | 1e-08 | gear2only / conservative / alllocal / 10 | 33.0 |
 
-The log's automatic maxstep bound is not an explicit job-deck setting. Actual APS thread information and the six-job session ceiling are recorded separately. Fetched raw/deck hashes match; the exact owned remote run is absent. Archive SHA-256 `d41c26241ccccdf79ce60560e804c431b7e6ea9280cccf0366a875c2856773ed` was checked by reading every member back with CRC and SHA-256. Full qualification remains open.
+Fetched raw/deck hashes match; the exact owned remote run is absent. Archive SHA-256 `d41c26241ccccdf79ce60560e804c431b7e6ea9280cccf0366a875c2856773ed` passed every-member CRC/SHA readback. Full qualification remains open.
 
 The later phase/load supplement is also preserved in a separate verified archive, SHA-256 `d644c7aaa33e654444ec8aff293aa78f07e9a7db885e3d80ca1f53c6f6a91288`; the original run archive remains unchanged.
 
 
 ## Private precheck 20261031-121037-strongarm-reset-v27-notice94-kickback-tighter-screen
 
-Test `tb_comp_kickback`, accuracy `tighter`, frozen clean source `f727f91aa5b0acaf3ced8a962aae3a6a56237d73`. These results use a private copy of the testbench and do not write formal records. All physical stimuli, loads, samplers and measurement code are preserved. The requested settings are `{"errpreset": "conservative", "reltol": "1e-6", "vabstol": "1e-9"}`; no explicit maxstep or method is set.
+Test `tb_comp_kickback`, accuracy `tighter`, frozen clean source `f727f91aa5b0acaf3ced8a962aae3a6a56237d73`. Private testbench; no formal writes. Physical stimuli, loads, samplers and measurements are preserved. The requested settings are `{"errpreset": "conservative", "reltol": "1e-6", "vabstol": "1e-9"}`; no explicit maxstep or method is set.
 
 | Corner | Input fF | CLKC fF | Kickback uV | Private gate |
 |---|---:|---:|---:|---|
@@ -130,14 +132,14 @@ The supplemental phase/load context was derived from the SHA-verified archive wi
 |---|---:|---:|---|---:|
 | tt_nom_27 | 1e-07 | 1e-09 | gear2only / conservative / alllocal / 10 | 27.4104 |
 
-The log's automatic maxstep bound is not an explicit job-deck setting. Actual APS thread information and the six-job session ceiling are recorded separately. Fetched raw/deck hashes match; the exact owned remote run is absent. Archive SHA-256 `acf992e2f6b53a93232ab9b9c5dd0418c61c4bf4c7641151943423a6abd0cd89` was checked by reading every member back with CRC and SHA-256. Full qualification remains open.
+Fetched raw/deck hashes match; the exact owned remote run is absent. Archive SHA-256 `acf992e2f6b53a93232ab9b9c5dd0418c61c4bf4c7641151943423a6abd0cd89` passed every-member CRC/SHA readback. Full qualification remains open.
 
 The later phase/load supplement is also preserved in a separate verified archive, SHA-256 `d644c7aaa33e654444ec8aff293aa78f07e9a7db885e3d80ca1f53c6f6a91288`; the original run archive remains unchanged.
 
 
 ## Private precheck 20261031-121026-strongarm-reset-v27-notice94-noise-announced-screen
 
-Test `tb_comp_noise`, accuracy `announced`, frozen clean source `f727f91aa5b0acaf3ced8a962aae3a6a56237d73`. These results use a private copy of the testbench and do not write formal records. All physical stimuli, loads, samplers and measurement code are preserved. The requested settings are `{"errpreset": "conservative"}`; no explicit maxstep or method is set.
+Test `tb_comp_noise`, accuracy `announced`, frozen clean source `f727f91aa5b0acaf3ced8a962aae3a6a56237d73`. Private testbench; no formal writes. Physical stimuli, loads, samplers and measurements are preserved. The requested settings are `{"errpreset": "conservative"}`; no explicit maxstep or method is set.
 
 | Corner | Noise uV rms | 95% profile interval uV | Offset mV | Samples | Private gate |
 |---|---:|---|---:|---:|---|
@@ -171,14 +173,14 @@ At tt_nom_27, minimum sampled output magnitude is 0.899741577 V and maximum abso
 |---|---:|---:|---|---:|
 | tt_nom_27 | 0.0001 | 1e-06 | gear2only / conservative / alllocal / 10 | None |
 
-The log's automatic maxstep bound is not an explicit job-deck setting. Actual APS thread information and the six-job session ceiling are recorded separately. Fetched raw/deck hashes match; the exact owned remote run is absent. Archive SHA-256 `94ace46b19d543b73f691f45523fbfe9ed28bec34660fe3350ca9929c5c800e3` was checked by reading every member back with CRC and SHA-256. Full qualification remains open.
+Fetched raw/deck hashes match; the exact owned remote run is absent. Archive SHA-256 `94ace46b19d543b73f691f45523fbfe9ed28bec34660fe3350ca9929c5c800e3` passed every-member CRC/SHA readback. Full qualification remains open.
 
 This electrical source fails the private proposed-settings gate. Qualification expansion stops at the failure; diagnosis and further circuit design continue. Every failure is retained.
 
 
 ## Private precheck 20261031-123312-strongarm-reset-v28-notice94-delay-announced-screen
 
-Test `tb_comp_delay`, accuracy `announced`, frozen clean source `dfc2832c1d7f090b07567b6fc6e26eca6db912ba`. These results use a private copy of the testbench and do not write formal records. All physical stimuli, loads, samplers and measurement code are preserved. The requested settings are `{"errpreset": "conservative"}`; no explicit maxstep or method is set.
+Test `tb_comp_delay`, accuracy `announced`, frozen clean source `dfc2832c1d7f090b07567b6fc6e26eca6db912ba`. Private testbench; no formal writes. Physical stimuli, loads, samplers and measurements are preserved. The requested settings are `{"errpreset": "conservative"}`; no explicit maxstep or method is set.
 
 | Corner | 1 mV ps | 30 mV ps | Reset ps | Raw max stress V | Actual / reset cycles | Private gate |
 |---|---:|---:|---:|---:|---:|---|
@@ -198,12 +200,12 @@ TT full AVDD waveform integral is 404.738024185 fJ/cycle: 86.585263384 evaluatio
 | ss_low_125 | 0.0001 | 1e-06 | gear2only / conservative / alllocal / 10 | 56.5 |
 | tt_nom_27 | 0.0001 | 1e-06 | gear2only / conservative / alllocal / 10 | 56.5 |
 
-The log's automatic maxstep bound is not an explicit job-deck setting. Actual APS thread information and the six-job session ceiling are recorded separately. Fetched raw/deck hashes match; the exact owned remote run is absent. Archive SHA-256 `f484e3b196258aecfdfa34454478cb5ba73b773a6f8563cc9b4c3fe002e75f6d` was checked by reading every member back with CRC and SHA-256. Full qualification remains open.
+Fetched raw/deck hashes match; the exact owned remote run is absent. Archive SHA-256 `f484e3b196258aecfdfa34454478cb5ba73b773a6f8563cc9b4c3fe002e75f6d` passed every-member CRC/SHA readback. Full qualification remains open.
 
 
 ## Private precheck 20261031-123949-strongarm-reset-v28-notice94-delay-tighter-screen
 
-Test `tb_comp_delay`, accuracy `tighter`, frozen clean source `dfc2832c1d7f090b07567b6fc6e26eca6db912ba`. These results use a private copy of the testbench and do not write formal records. All physical stimuli, loads, samplers and measurement code are preserved. The requested settings are `{"errpreset": "conservative", "reltol": "1e-5", "vabstol": "1e-8"}`; no explicit maxstep or method is set.
+Test `tb_comp_delay`, accuracy `tighter`, frozen clean source `dfc2832c1d7f090b07567b6fc6e26eca6db912ba`. Private testbench; no formal writes. Physical stimuli, loads, samplers and measurements are preserved. The requested settings are `{"errpreset": "conservative", "reltol": "1e-5", "vabstol": "1e-8"}`; no explicit maxstep or method is set.
 
 | Corner | 1 mV ps | 30 mV ps | Reset ps | Raw max stress V | Actual / reset cycles | Private gate |
 |---|---:|---:|---:|---:|---:|---|
@@ -227,12 +229,12 @@ Same-source tighter-minus-announced comparison at tt_nom_27: 1 mV delay +0.98345
 | ss_low_125 | 1e-06 | 1e-08 | gear2only / conservative / alllocal / 10 | 56.5 |
 | tt_nom_27 | 1e-06 | 1e-08 | gear2only / conservative / alllocal / 10 | 56.5 |
 
-The log's automatic maxstep bound is not an explicit job-deck setting. Actual APS thread information and the six-job session ceiling are recorded separately. Fetched raw/deck hashes match; the exact owned remote run is absent. Archive SHA-256 `40b24099b53e19956827a279a85cb61d416e27b42fee805ba8253efbb7bb9b5a` was checked by reading every member back with CRC and SHA-256. Full qualification remains open.
+Fetched raw/deck hashes match; the exact owned remote run is absent. Archive SHA-256 `40b24099b53e19956827a279a85cb61d416e27b42fee805ba8253efbb7bb9b5a` passed every-member CRC/SHA readback. Full qualification remains open.
 
 
 ## Private precheck 20261031-131451-strongarm-reset-v28-spec08-noise-baseline-screen
 
-Test `tb_comp_noise`, accuracy `baseline`, frozen clean source `274a6dd469cbda33ea68538be2ab9bc1e1c46c21`. These results use a private copy of the testbench and do not write formal records. This is an independent experimental source using the merged official 0.8.0 testbench baseline, not a formal canonical-view result. All physical stimuli, loads, samplers and measurement code are preserved. Baseline accuracy appends only saved probes; any tighter tolerances are explicitly listed. The requested settings are `{}`; no explicit maxstep or method is set.
+Test `tb_comp_noise`, accuracy `baseline`, frozen clean source `274a6dd469cbda33ea68538be2ab9bc1e1c46c21`. Private testbench; no formal writes. Independent source on the merged 0.8.0 baseline; not a canonical result. Physical stimuli, loads, samplers and measurements are preserved. Baseline accuracy appends only saved probes; any tighter tolerances are explicitly listed. The requested settings are `{}`; no explicit maxstep or method is set.
 
 | Corner | Noise uV rms | 95% profile interval uV | Offset mV | Samples | Private gate |
 |---|---:|---|---:|---:|---|
@@ -266,14 +268,14 @@ At tt_nom_27, minimum sampled output magnitude is 0.899743608 V and maximum abso
 |---|---:|---:|---|---:|
 | tt_nom_27 | 0.0001 | 1e-06 | gear2only / conservative / alllocal / 10 | None |
 
-The log's automatic maxstep bound is not an explicit job-deck setting. Actual APS thread information and the six-job session ceiling are recorded separately. Fetched raw/deck hashes match; the exact owned remote run is absent. Archive SHA-256 `54ff6269212616fd41dc09b383f106a78132651e58a2dbbb69c8717e6c296b92` was checked by reading every member back with CRC and SHA-256. Full qualification remains open.
+Fetched raw/deck hashes match; the exact owned remote run is absent. Archive SHA-256 `54ff6269212616fd41dc09b383f106a78132651e58a2dbbb69c8717e6c296b92` passed every-member CRC/SHA readback. Full qualification remains open.
 
 This electrical source fails the private experimental gate on the merged 0.8.0 baseline. Qualification expansion stops at the failure; diagnosis and further circuit design continue. Every failure is retained.
 
 
 ## Private precheck 20261031-135907-strongarm-reset-v29-spec08-delay-baseline-screen
 
-Test `tb_comp_delay`, accuracy `baseline`, frozen clean source `9090cd1297a489aee0bac058ce5347d1a04c5115`. These results use a private copy of the testbench and do not write formal records. This is an independent experimental source using the merged official 0.8.0 testbench baseline, not a formal canonical-view result. All physical stimuli, loads, samplers and measurement code are preserved. Baseline accuracy appends only saved probes; any tighter tolerances are explicitly listed. The requested settings are `{}`; no explicit maxstep or method is set.
+Test `tb_comp_delay`, accuracy `baseline`, frozen clean source `9090cd1297a489aee0bac058ce5347d1a04c5115`. Private testbench; no formal writes. Independent source on the merged 0.8.0 baseline; not a canonical result. Physical stimuli, loads, samplers and measurements are preserved. Baseline accuracy appends only saved probes; any tighter tolerances are explicitly listed. The requested settings are `{}`; no explicit maxstep or method is set.
 
 | Corner | 1 mV ps | 30 mV ps | Reset ps | Raw max stress V | Actual / reset cycles | Private gate |
 |---|---:|---:|---:|---:|---:|---|
@@ -293,14 +295,14 @@ TT full AVDD waveform integral is 440.609095778 fJ/cycle: 114.220839307 evaluati
 | ss_low_125 | 0.0001 | 1e-06 | gear2only / conservative / alllocal / 10 | 56.5 |
 | tt_nom_27 | 0.0001 | 1e-06 | gear2only / conservative / alllocal / 10 | 56.5 |
 
-The log's automatic maxstep bound is not an explicit job-deck setting. Actual APS thread information and the six-job session ceiling are recorded separately. Fetched raw/deck hashes match; the exact owned remote run is absent. Archive SHA-256 `9a9b64993366a0709af81b7d359c4a98bfbf93052eb8240a1f9ab0ce221bd8f1` was checked by reading every member back with CRC and SHA-256. Full qualification remains open.
+Fetched raw/deck hashes match; the exact owned remote run is absent. Archive SHA-256 `9a9b64993366a0709af81b7d359c4a98bfbf93052eb8240a1f9ab0ce221bd8f1` passed every-member CRC/SHA readback. Full qualification remains open.
 
 This electrical source fails the private experimental gate on the merged 0.8.0 baseline. Qualification expansion stops at the failure; diagnosis and further circuit design continue. Every failure is retained.
 
 
 ## Private precheck 20261031-141113-strongarm-reset-v30-spec08-delay-baseline-screen
 
-Test `tb_comp_delay`, accuracy `baseline`, frozen clean source `750a09c5e82ed0febef9a66e29081d76f4719fbe`. These results use a private copy of the testbench and do not write formal records. This is an independent experimental source using the merged official 0.8.0 testbench baseline, not a formal canonical-view result. All physical stimuli, loads, samplers and measurement code are preserved. Baseline accuracy appends only saved probes; any tighter tolerances are explicitly listed. The requested settings are `{}`; no explicit maxstep or method is set.
+Test `tb_comp_delay`, accuracy `baseline`, frozen clean source `750a09c5e82ed0febef9a66e29081d76f4719fbe`. Private testbench; no formal writes. Independent source on the merged 0.8.0 baseline; not a canonical result. Physical stimuli, loads, samplers and measurements are preserved. Baseline accuracy appends only saved probes; any tighter tolerances are explicitly listed. The requested settings are `{}`; no explicit maxstep or method is set.
 
 | Corner | 1 mV ps | 30 mV ps | Reset ps | Raw max stress V | Actual / reset cycles | Private gate |
 |---|---:|---:|---:|---:|---:|---|
@@ -320,14 +322,14 @@ TT full AVDD waveform integral is 424.265963860 fJ/cycle: 102.839857634 evaluati
 | ss_low_125 | 0.0001 | 1e-06 | gear2only / conservative / alllocal / 10 | 56.5 |
 | tt_nom_27 | 0.0001 | 1e-06 | gear2only / conservative / alllocal / 10 | 56.5 |
 
-The log's automatic maxstep bound is not an explicit job-deck setting. Actual APS thread information and the six-job session ceiling are recorded separately. Fetched raw/deck hashes match; the exact owned remote run is absent. Archive SHA-256 `411d569d438bf1ed3242e65420057a2140c6c8f276887753170fa8bba1cc03b4` was checked by reading every member back with CRC and SHA-256. Full qualification remains open.
+Fetched raw/deck hashes match; the exact owned remote run is absent. Archive SHA-256 `411d569d438bf1ed3242e65420057a2140c6c8f276887753170fa8bba1cc03b4` passed every-member CRC/SHA readback. Full qualification remains open.
 
 This electrical source fails the private experimental gate on the merged 0.8.0 baseline. Qualification expansion stops at the failure; diagnosis and further circuit design continue. Every failure is retained.
 
 
 ## Private precheck 20261031-142506-strongarm-reset-v31-spec08-delay-baseline-screen
 
-Test `tb_comp_delay`, accuracy `baseline`, frozen clean source `59d298a829e2b07341286e3d0868895aa9fc93df`. These results use a private copy of the testbench and do not write formal records. This is an independent experimental source using the merged official 0.8.0 testbench baseline, not a formal canonical-view result. All physical stimuli, loads, samplers and measurement code are preserved. Baseline accuracy appends only saved probes; any tighter tolerances are explicitly listed. The requested settings are `{}`; no explicit maxstep or method is set.
+Test `tb_comp_delay`, accuracy `baseline`, frozen clean source `59d298a829e2b07341286e3d0868895aa9fc93df`. Private testbench; no formal writes. Independent source on the merged 0.8.0 baseline; not a canonical result. Physical stimuli, loads, samplers and measurements are preserved. Baseline accuracy appends only saved probes; any tighter tolerances are explicitly listed. The requested settings are `{}`; no explicit maxstep or method is set.
 
 | Corner | 1 mV ps | 30 mV ps | Reset ps | Raw max stress V | Actual / reset cycles | Private gate |
 |---|---:|---:|---:|---:|---:|---|
@@ -347,12 +349,12 @@ TT full AVDD waveform integral is 424.817112136 fJ/cycle: 102.794418350 evaluati
 | ss_low_125 | 0.0001 | 1e-06 | gear2only / conservative / alllocal / 10 | 56.5 |
 | tt_nom_27 | 0.0001 | 1e-06 | gear2only / conservative / alllocal / 10 | 56.5 |
 
-The log's automatic maxstep bound is not an explicit job-deck setting. Actual APS thread information and the six-job session ceiling are recorded separately. Fetched raw/deck hashes match; the exact owned remote run is absent. Archive SHA-256 `16675cf85040eef16b2f1408798ec477e25d271b376798f0cc202b1f35485e36` was checked by reading every member back with CRC and SHA-256. Full qualification remains open.
+Fetched raw/deck hashes match; the exact owned remote run is absent. Archive SHA-256 `16675cf85040eef16b2f1408798ec477e25d271b376798f0cc202b1f35485e36` passed every-member CRC/SHA readback. Full qualification remains open.
 
 
 ## Private precheck 20261031-142603-strongarm-reset-v31-spec08-kickback-baseline-screen
 
-Test `tb_comp_kickback`, accuracy `baseline`, frozen clean source `59d298a829e2b07341286e3d0868895aa9fc93df`. These results use a private copy of the testbench and do not write formal records. This is an independent experimental source using the merged official 0.8.0 testbench baseline, not a formal canonical-view result. All physical stimuli, loads, samplers and measurement code are preserved. Baseline accuracy appends only saved probes; any tighter tolerances are explicitly listed. The requested settings are `{}`; no explicit maxstep or method is set.
+Test `tb_comp_kickback`, accuracy `baseline`, frozen clean source `59d298a829e2b07341286e3d0868895aa9fc93df`. Private testbench; no formal writes. Independent source on the merged 0.8.0 baseline; not a canonical result. Physical stimuli, loads, samplers and measurements are preserved. Baseline accuracy appends only saved probes; any tighter tolerances are explicitly listed. The requested settings are `{}`; no explicit maxstep or method is set.
 
 | Corner | Input fF | CLKC fF | Kickback uV | Private gate |
 |---|---:|---:|---:|---|
@@ -372,7 +374,7 @@ The phase/load context was derived from SHA-verified raw evidence without modify
 |---|---:|---:|---|---:|
 | tt_nom_27 | 1e-06 | 1e-08 | gear2only / conservative / alllocal / 10 | 33.0 |
 
-The log's automatic maxstep bound is not an explicit job-deck setting. Actual APS thread information and the six-job session ceiling are recorded separately. Fetched raw/deck hashes match; the exact owned remote run is absent. Archive SHA-256 `de2075791bc9a9be8109c4cb4db32f66c4f9c90fc6a3779ea0e10a1d04b9bd0e` was checked by reading every member back with CRC and SHA-256. Full qualification remains open.
+Fetched raw/deck hashes match; the exact owned remote run is absent. Archive SHA-256 `de2075791bc9a9be8109c4cb4db32f66c4f9c90fc6a3779ea0e10a1d04b9bd0e` passed every-member CRC/SHA readback. Full qualification remains open.
 
 The complete phase/load context is included in this run's verified archive.
 
@@ -381,7 +383,7 @@ This electrical source fails the private experimental gate on the merged 0.8.0 b
 
 ## Private precheck 20261031-150826-strongarm-reset-v32-spec08-delay-baseline-screen
 
-Test `tb_comp_delay`, accuracy `baseline`, frozen clean source `d283d2014a3bad62f98f98bc03603f0199c11a55`. These results use a private copy of the testbench and do not write formal records. This is an independent experimental source using the merged official 0.8.0 testbench baseline, not a formal canonical-view result. All physical stimuli, loads, samplers and measurement code are preserved. Output selections and any tighter tolerances are recorded separately. The requested numerical settings are `{}`; no explicit maxstep or method is set.
+Test `tb_comp_delay`, accuracy `baseline`, frozen clean source `d283d2014a3bad62f98f98bc03603f0199c11a55`. Private testbench; no formal writes. Independent source on the merged 0.8.0 baseline; not a canonical result. Physical stimuli, loads, samplers and measurements are preserved. Output selections and any tighter tolerances are recorded separately. The requested numerical settings are `{}`; no explicit maxstep or method is set.
 
 Explicit output policy: `save=selected` with named DUT/SOA voltage signals and required metric/current probes, or the preserved monitor-only noise protocol. No global or wildcard expansion is used. The exact selected signal lists, policy source and before/after testbench hashes are retained with this run; earlier runs are not relabeled with this policy.
 
@@ -403,12 +405,12 @@ TT full AVDD waveform integral is 423.715629138 fJ/cycle: 102.791056661 evaluati
 | ss_low_125 | 0.0001 | 1e-06 | gear2only / conservative / alllocal / 10 | 56.5 |
 | tt_nom_27 | 0.0001 | 1e-06 | gear2only / conservative / alllocal / 10 | 56.5 |
 
-The log's automatic maxstep bound is not an explicit job-deck setting. Actual APS thread information and the six-job session ceiling are recorded separately. Fetched raw/deck hashes match; the exact owned remote run is absent. Archive SHA-256 `23ee62d872be40a886206f848c96f2c53e80a9a728ff60bdfabd9b33daafef6c` was checked by reading every member back with CRC and SHA-256. Full qualification remains open.
+Fetched raw/deck hashes match; the exact owned remote run is absent. Archive SHA-256 `23ee62d872be40a886206f848c96f2c53e80a9a728ff60bdfabd9b33daafef6c` passed every-member CRC/SHA readback. Full qualification remains open.
 
 
 ## Private precheck 20261031-150826-strongarm-reset-v32-spec08-kickback-baseline-screen
 
-Test `tb_comp_kickback`, accuracy `baseline`, frozen clean source `d283d2014a3bad62f98f98bc03603f0199c11a55`. These results use a private copy of the testbench and do not write formal records. This is an independent experimental source using the merged official 0.8.0 testbench baseline, not a formal canonical-view result. All physical stimuli, loads, samplers and measurement code are preserved. Output selections and any tighter tolerances are recorded separately. The requested numerical settings are `{}`; no explicit maxstep or method is set.
+Test `tb_comp_kickback`, accuracy `baseline`, frozen clean source `d283d2014a3bad62f98f98bc03603f0199c11a55`. Private testbench; no formal writes. Independent source on the merged 0.8.0 baseline; not a canonical result. Physical stimuli, loads, samplers and measurements are preserved. Output selections and any tighter tolerances are recorded separately. The requested numerical settings are `{}`; no explicit maxstep or method is set.
 
 Explicit output policy: `save=selected` with named DUT/SOA voltage signals and required metric/current probes, or the preserved monitor-only noise protocol. No global or wildcard expansion is used. The exact selected signal lists, policy source and before/after testbench hashes are retained with this run; earlier runs are not relabeled with this policy.
 
@@ -430,14 +432,14 @@ The phase/load context was derived from SHA-verified raw evidence without modify
 |---|---:|---:|---|---:|
 | tt_nom_27 | 1e-06 | 1e-08 | gear2only / conservative / alllocal / 10 | 33.0 |
 
-The log's automatic maxstep bound is not an explicit job-deck setting. Actual APS thread information and the six-job session ceiling are recorded separately. Fetched raw/deck hashes match; the exact owned remote run is absent. Archive SHA-256 `119356f766a5c8d477f1f64477319260ee36483383bd69ca869c7bebccae5d56` was checked by reading every member back with CRC and SHA-256. Full qualification remains open.
+Fetched raw/deck hashes match; the exact owned remote run is absent. Archive SHA-256 `119356f766a5c8d477f1f64477319260ee36483383bd69ca869c7bebccae5d56` passed every-member CRC/SHA readback. Full qualification remains open.
 
 The complete phase/load context is included in this run's verified archive.
 
 
 ## Private precheck 20261031-151652-strongarm-reset-v32-spec08-delay-tighter-screen
 
-Test `tb_comp_delay`, accuracy `tighter`, frozen clean source `d283d2014a3bad62f98f98bc03603f0199c11a55`. These results use a private copy of the testbench and do not write formal records. This is an independent experimental source using the merged official 0.8.0 testbench baseline, not a formal canonical-view result. All physical stimuli, loads, samplers and measurement code are preserved. Output selections and any tighter tolerances are recorded separately. The requested numerical settings are `{"reltol": "1e-5", "vabstol": "1e-8"}`; no explicit maxstep or method is set.
+Test `tb_comp_delay`, accuracy `tighter`, frozen clean source `d283d2014a3bad62f98f98bc03603f0199c11a55`. Private testbench; no formal writes. Independent source on the merged 0.8.0 baseline; not a canonical result. Physical stimuli, loads, samplers and measurements are preserved. Output selections and any tighter tolerances are recorded separately. The requested numerical settings are `{"reltol": "1e-5", "vabstol": "1e-8"}`; no explicit maxstep or method is set.
 
 Explicit output policy: `save=selected` with named DUT/SOA voltage signals and required metric/current probes, or the preserved monitor-only noise protocol. No global or wildcard expansion is used. The exact selected signal lists, policy source and before/after testbench hashes are retained with this run; earlier runs are not relabeled with this policy.
 
@@ -467,12 +469,12 @@ Same-source tighter-minus-announced comparison at tt_nom_27: 1 mV delay +0.89795
 | ss_low_125 | 1e-06 | 1e-08 | gear2only / conservative / alllocal / 10 | 56.5 |
 | tt_nom_27 | 1e-06 | 1e-08 | gear2only / conservative / alllocal / 10 | 56.5 |
 
-The log's automatic maxstep bound is not an explicit job-deck setting. Actual APS thread information and the six-job session ceiling are recorded separately. Fetched raw/deck hashes match; the exact owned remote run is absent. Archive SHA-256 `4bff292951732887e803079a71fd3dfb81ef1ce1fc3a8bb64c98865579695f34` was checked by reading every member back with CRC and SHA-256. Full qualification remains open.
+Fetched raw/deck hashes match; the exact owned remote run is absent. Archive SHA-256 `4bff292951732887e803079a71fd3dfb81ef1ce1fc3a8bb64c98865579695f34` passed every-member CRC/SHA readback. Full qualification remains open.
 
 
 ## Private precheck 20261031-151715-strongarm-reset-v32-spec08-noise-baseline-screen
 
-Test `tb_comp_noise`, accuracy `baseline`, frozen clean source `d283d2014a3bad62f98f98bc03603f0199c11a55`. These results use a private copy of the testbench and do not write formal records. This is an independent experimental source using the merged official 0.8.0 testbench baseline, not a formal canonical-view result. All physical stimuli, loads, samplers and measurement code are preserved. Output selections and any tighter tolerances are recorded separately. The requested numerical settings are `{}`; no explicit maxstep or method is set.
+Test `tb_comp_noise`, accuracy `baseline`, frozen clean source `d283d2014a3bad62f98f98bc03603f0199c11a55`. Private testbench; no formal writes. Independent source on the merged 0.8.0 baseline; not a canonical result. Physical stimuli, loads, samplers and measurements are preserved. Output selections and any tighter tolerances are recorded separately. The requested numerical settings are `{}`; no explicit maxstep or method is set.
 
 Explicit output policy: `save=none` with named DUT/SOA voltage signals and required metric/current probes, or the preserved monitor-only noise protocol. No global or wildcard expansion is used. The exact selected signal lists, policy source and before/after testbench hashes are retained with this run; earlier runs are not relabeled with this policy.
 
@@ -508,4 +510,72 @@ At tt_nom_27, minimum sampled output magnitude is 0.899771677 V and maximum abso
 |---|---:|---:|---|---:|
 | tt_nom_27 | 0.0001 | 1e-06 | gear2only / conservative / alllocal / 10 | None |
 
-The log's automatic maxstep bound is not an explicit job-deck setting. Actual APS thread information and the six-job session ceiling are recorded separately. Fetched raw/deck hashes match; the exact owned remote run is absent. Archive SHA-256 `62d74c2b9aef0cd0b6cc1808caeab81d0cfb551390bb10bdd1917177aee24988` was checked by reading every member back with CRC and SHA-256. Full qualification remains open.
+Fetched raw/deck hashes match; the exact owned remote run is absent. Archive SHA-256 `62d74c2b9aef0cd0b6cc1808caeab81d0cfb551390bb10bdd1917177aee24988` passed every-member CRC/SHA readback. Full qualification remains open.
+
+## Private precheck 20261031-153022-strongarm-reset-v32-spec08-delay-baseline-screen
+
+Private `tb_comp_delay`, `baseline`, clean frozen commit `3b7108921859eba3a1514cb5f91f2d42c94472bd`; electrical SHA-256 `0611d6028825bf29c02983e7e337a09e4627884b7aef22e20130770b72d7c557`. Merged 0.8.0 stimuli, loads, measurements and limits are preserved. Explicit output-only selected saves or the original monitor-only save=none apply; no wildcards, explicit maxstep or method override. No formal records or canonical source change.
+
+| Corner | 1 mV ps | 30 mV ps | Reset ps | Unrounded stress V | Gate |
+|---|---:|---:|---:|---:|---|
+| ff_high_125 | 47.27746346337113 | 33.98350812544957 | 21.442855882313317 | 0.99 | PASS |
+| ff_high_m40 | 47.26479508138647 | 35.29652233301355 | 18.30010634016058 | 0.9943467576631665 | PASS |
+| ff_low_125 | 55.37111701006521 | 39.45701042213123 | 25.054309002785846 | 0.813409865387113 | PASS |
+| fs_low_125 | 65.16977215217723 | 47.393873574281734 | 30.126708251658034 | 0.8120452388053727 | PASS |
+| sf_low_125 | 74.78037133471436 | 53.408952279107815 | 27.411163033048492 | 0.8169081217081842 | PASS |
+
+All 180 actual decisions (including 10 uV) and 180 reset intervals are retained; [69] full-trace MOS gs/gd/ds pairs per corner, output validity and full-cycle AVDD KCL are independently checked. Complete per-cycle/path and terminal-pair data remain in the archive. Energy is report-only.
+
+| Corner | Actual reltol | vabstol V | Method / preset / relref / lteratio |
+|---|---:|---:|---|
+| ff_high_125 | 0.0001 | 1e-06 | gear2only / conservative / alllocal / 10 |
+| ff_high_m40 | 0.0001 | 1e-06 | gear2only / conservative / alllocal / 10 |
+| ff_low_125 | 0.0001 | 1e-06 | gear2only / conservative / alllocal / 10 |
+| fs_low_125 | 0.0001 | 1e-06 | gear2only / conservative / alllocal / 10 |
+| sf_low_125 | 0.0001 | 1e-06 | gear2only / conservative / alllocal / 10 |
+
+Archive SHA-256 `36976bd7ac9f7e3cb626bb470b288578e35202692865f81dd7f4ce0cef264e31`: every member passed CRC/SHA readback. Fetched files match remote hashes, the exact owned remote directory is absent, and the six-job session ceiling is retained. Raw availability is indexed in [EVIDENCE-RETENTION](EVIDENCE-RETENTION.md). Full qualification remains open.
+
+## Private precheck 20261031-153036-strongarm-reset-v32-spec08-noise-tighter-screen
+
+Private `tb_comp_noise`, `tighter`, clean frozen commit `3b7108921859eba3a1514cb5f91f2d42c94472bd`; electrical SHA-256 `0611d6028825bf29c02983e7e337a09e4627884b7aef22e20130770b72d7c557`. Merged 0.8.0 stimuli, loads, measurements and limits are preserved. Explicit output-only selected saves or the original monitor-only save=none apply; no wildcards, explicit maxstep or method override. No formal records or canonical source change.
+
+| Corner | Noise uV rms | 95% profile interval uV | Abs offset mV | Gate |
+|---|---:|---|---:|---|
+| tt_nom_27 | 196.19021968049825 | [188.25, 204.52] | 0.010228299140700985 | PASS |
+
+Each corner retains every finite decision from the original 17 levels x 512 samples, 50 GHz bandwidth and seed 1, with all physical noise sources enabled. All level counts and Gaussian-fit residuals are archived. Profile intervals are conditional on that fit; point-estimate passage does not establish robust margin. Monitor-only output cannot establish full reset history or full-trace SOA.
+
+tt_nom_27: minimum sampled output magnitude 0.89978091365 V; maximum absolute standardized fit residual 4.214829068093892 (diagnostic only).
+
+Matched precision comparison: baseline 194.23325209435865 uV, tighter 196.19021968049825 uV, difference 1.9569675861395979 uV; 10 of 17 level counts change. Only reltol/vabstol differ in the tested bench. Adaptive steps can change stochastic sequences despite the same seed; this is not proof of a statistically resolved difference or a new convergence tolerance.
+
+| Corner | Actual reltol | vabstol V | Method / preset / relref / lteratio |
+|---|---:|---:|---|
+| tt_nom_27 | 1e-06 | 1e-08 | gear2only / conservative / alllocal / 10 |
+
+Archive SHA-256 `68b379d689a8eb810ffcb1341375a60afc3bbae44ea761e9f9130cb58a89fe1c`: every member passed CRC/SHA readback. Fetched files match remote hashes, the exact owned remote directory is absent, and the six-job session ceiling is retained. Raw availability is indexed in [EVIDENCE-RETENTION](EVIDENCE-RETENTION.md). Full qualification remains open.
+
+## Private precheck 20261031-153652-strongarm-reset-v32-spec08-noise-baseline-screen
+
+Private `tb_comp_noise`, `baseline`, clean frozen commit `3b7108921859eba3a1514cb5f91f2d42c94472bd`; electrical SHA-256 `0611d6028825bf29c02983e7e337a09e4627884b7aef22e20130770b72d7c557`. Merged 0.8.0 stimuli, loads, measurements and limits are preserved. Explicit output-only selected saves or the original monitor-only save=none apply; no wildcards, explicit maxstep or method override. No formal records or canonical source change.
+
+| Corner | Noise uV rms | 95% profile interval uV | Abs offset mV | Gate |
+|---|---:|---|---:|---|
+| fs_low_125 | 371.83932552901155 | [359.5, 384.82] | 0.001885833969101262 | FAIL CMP-13 |
+| ss_low_125 | 299.6542222063326 | [289.43, 310.36] | 0.011372399257592595 | FAIL CMP-13 |
+
+Each corner retains every finite decision from the original 17 levels x 512 samples, 50 GHz bandwidth and seed 1, with all physical noise sources enabled. All level counts and Gaussian-fit residuals are archived. Profile intervals are conditional on that fit; point-estimate passage does not establish robust margin. Monitor-only output cannot establish full reset history or full-trace SOA.
+
+fs_low_125: minimum sampled output magnitude 0.8072275291529 V; maximum absolute standardized fit residual 3.4992740803871762 (diagnostic only).
+
+ss_low_125: minimum sampled output magnitude 0.8083717114481 V; maximum absolute standardized fit residual 3.4266282039718137 (diagnostic only).
+
+| Corner | Actual reltol | vabstol V | Method / preset / relref / lteratio |
+|---|---:|---:|---|
+| fs_low_125 | 0.0001 | 1e-06 | gear2only / conservative / alllocal / 10 |
+| ss_low_125 | 0.0001 | 1e-06 | gear2only / conservative / alllocal / 10 |
+
+Archive SHA-256 `b6aca8e051c7a481eb59604c06c987bc6518d64c090e0ac73ddfcfbe9dad91e0`: every member passed CRC/SHA readback. Fetched files match remote hashes, the exact owned remote directory is absent, and the six-job session ceiling is retained. Raw availability is indexed in [EVIDENCE-RETENTION](EVIDENCE-RETENTION.md). Full qualification remains open.
+
+**This physical source fails the private gate.** Qualification expansion stops at the failure; diagnosis and circuit design continue. No failed point is discarded.
