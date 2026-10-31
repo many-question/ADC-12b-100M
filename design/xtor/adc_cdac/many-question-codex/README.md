@@ -2,7 +2,7 @@
 
 Evidence-retention update (2026-10-31): superseded large raw waveforms and
 duplicate caches/archives have been released under the user's retention policy.
-Current formal N4 SS and V16 SS/FF retain one compressed original each;
+Historical formal N4 SS, V16 SS/FF and follow-up V29 SS/FF retain compressed originals;
 V17/V18 retain selected decision signals, result reports and source hashes.
 Historical archive statements describe capture-time storage. Released raw data
 cannot be re-audited; selected V17/V18 signals do not support a full-DUT audit.
@@ -16,10 +16,11 @@ Numerical-settings transition: [PR #95](https://github.com/many-question/ADC-12b
 merged as `c6152d236e525793ecc4809b9a6c9dfb9fd0ad77`. The candidate branch
 includes that official flow. ADCToolbox is installed from the exact pinned
 upstream commit `cd72061ff3b7a977163dac540da126ae22f5e38d` in an isolated environment.
-The first official rerun refreshes N4 SS settling: RL12/start still fail
+The first PR95 official rerun recorded N4 SS settling: RL12/start still fail
 at 47.4/116.8 ps, using conservative, effective reltol 1e-4, gear2only
 and no explicit maxstep. The old TT results are stale and do not establish
-current acceptance; no eligibility or lead verification is inherited.
+current acceptance; no eligibility or lead verification is inherited. PR112 now
+also makes the stored SS settle testbench dependency stale.
 
 Before the merge, same-source private comparisons retained the same V6 FF
 failures (387 pairs in full settling, 355 in the original first 12 ns).
@@ -43,7 +44,7 @@ not an extracted value or a parameter already present in the MOM model.
 Weights 180 and 32 are excluded from sampling. No assumption changes in
 the private output-driver studies.
 
-## N4 evidence: historical TT and current failing SS
+## N4 evidence: historical TT and failing SS
 
 | Check | Result |
 |---|---|
@@ -222,7 +223,7 @@ V23/V24 strengthening of local NEN fails SS start; V25–V27 return to
 V16 and test assist clamps, sharing timing and a transmission-gate NAND.
 Their SS metrics pass, but early FF failures increase to 141/165/183
 versus V16's 123. None is promoted. These are private 1.0 V screens;
-the pending PR112 threshold proposal does not reclassify old results.
+PR112 has since merged; its 1.1 V global limit does not rewrite these historical records.
 See the diagnosis ledger for source hashes, margins and new peak nodes.
 
 V28/V29 add complementary-enable dummy N devices at NOFF and reduce
@@ -230,3 +231,22 @@ V16's 123 early-FF failing pairs to 69/51, without new failing pairs.
 V29 eliminates the NAND PMOS failures while preserving SS RL12 39.7 ps
 and start 97.9 ps. It is retained for physical follow-up; sharing/assist
 peaks still exceed the private 1.0 V screen and timing margins remain small.
+
+## Current migration after PR112
+
+Merged main `17b3a0c` includes the explicit-save policy and global 1.1 V
+SOA limit. CDAC v0.8.0 keeps the same numerical settings and performance
+limits; it still has no formal SOA metric. Historical private 1.0 V failure
+counts remain diagnostic and do not veto further qualification.
+
+The two stored candidate settle records depend on the changed testbench.
+Weights and tracking remain stale from earlier changes, not newly from
+PR112. No result hashes or values have been rewritten. The formal N4
+source remains unchanged and has known SS timing failures.
+
+Next compare V16/V29 with fresh SS primary/convergence checks and TT
+settling, reference charge and input loading before selecting a source
+for weights, spectra and corner expansion. V30/V31 are optional further
+undershoot work. Both servers were unreachable at the latest check; the
+thu-sui profile is prepared locally with ic6_sui and SSD-only paths, but
+its tool/model/runtime verification and all new runs remain pending.

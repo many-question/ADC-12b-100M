@@ -1690,3 +1690,14 @@ and saved names were checked; all exact remote run roots were cleaned.
 
 - V28 source: `68250312222d0b0997f760811000f66473d3d98ad2f87585c8a42a88c4ba4678`
 - V29 source: `29d867d5bf07d79b3514cb49af0ad7c572ae1e929df88f33990a723bccfa0626`
+
+### PR112 merged: qualification priorities
+
+Main `17b3a0c` supersedes the draft-status notes above. New global SOA
+checks use 1.1 V; CDAC's formal performance limits and numerical settings
+are unchanged. Old 1.0 V diagnostics remain immutable historical data,
+not a hard gate for qualification under the current project policy.
+The first synchronized comparison will use V16/V29 SS primary and
+convergence checks plus TT settling/charge/load. Their stored early-FF
+peak tables do not establish whole-window or all-corner qualification.
+No new run or hash refresh is claimed while the servers are unreachable.
