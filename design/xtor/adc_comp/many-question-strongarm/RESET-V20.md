@@ -1,5 +1,7 @@
 # RESET-V20: test Q release-stage charge storage
 
+> Evidence retention (2026-10-31): Historical raw/archive statements below refer to the original audit. Superseded waveforms were released under the user's retention policy. [EVIDENCE-RETENTION](EVIDENCE-RETENTION.md) lists the completed runs still available for raw re-audit.
+
 Canonical V19 passes all ten private key corners, actual-worst numerical convergence and the original TT input/clock capacitance and kickback tests. Its original 17 x 512 TT noise run fails at 218.770058633 uV rms, with a 95% profile interval of 210.31–227.64 uV against 200 uV. All 8704 samples are present and resolved; the largest Gaussian-fit standardized residual is 3.784980, so a purely Gaussian mechanism is not established. The genuine failure remains in [FORMAL-RESET-V19.md](FORMAL-RESET-V19.md), and V19 qualification expansion stops.
 
 Earlier full physical observations identified the reset-release Q trajectory as a decision-sensitive stage. V19's short matched diagnostic has one wrong polarity at cycle 54, with complete reset and no new early-to-final sign changes. At +30 ps the two input levels have Q differential standard deviations about 0.983/0.930 mV. The V16-to-V18 improvement changed both Q shunts and capacitors, so it did not isolate a capacitor effect. This revision now tests only Q-node charge storage, without assuming a kT/C scaling law or transferring the Miyahara noise conclusion.

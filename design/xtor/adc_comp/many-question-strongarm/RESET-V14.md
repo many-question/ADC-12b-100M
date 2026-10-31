@@ -1,5 +1,7 @@
 # RESET-V14: earlier reset-shunt enable
 
+> Evidence retention (2026-10-31): Historical raw/archive statements below refer to the original audit. Superseded waveforms were released under the user's retention policy. [EVIDENCE-RETENTION](EVIDENCE-RETENTION.md) lists the completed runs still available for raw re-audit.
+
 V13 passes delay, reset and physical output validity at all ten measured corners, but SF/high/-40 reaches QN=1.001890426 V and fails 10 terminal pairs. The peak occurs 5.355228 ps after the falling clock 50% crossing, with CKB still at 0.635933 V. The clock-controlled Q shunt therefore has limited gate drive during the coupled reset peak.
 
 This experiment changes only MCKP from P3/nf3 to P4/nf4, using the complete identical callback-validated geometry of MOPP. The stronger pull-up is intended to enable the existing N1 Q shunts earlier. All 23 MOS and 3 physical MOM capacitors remain individually represented. The extra clock input charge and persistent-current cost must be measured.

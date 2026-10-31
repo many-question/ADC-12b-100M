@@ -1,5 +1,7 @@
 # Canonical promotion: RESET-V14
 
+> Evidence retention (2026-10-31): Historical raw/archive statements below refer to the original audit. Superseded waveforms were released under the user's retention policy. [EVIDENCE-RETENTION](EVIDENCE-RETENTION.md) lists the completed runs still available for raw re-audit.
+
 The private screened source is copied into the canonical `adc_comp.scs` with one header-comment change. Removing blank lines and full-line comments, stripping line-edge whitespace and joining the remaining electrical statements with newlines gives the same SHA-256 for both sources: `dd44da2a98a529e3f4dced4b72a1728101738d03a1bdc63d4042371206fa6455`. No device, terminal, geometry, parasitic or electrical statement changes during promotion.
 
 | Evidence | SHA-256 / commit |

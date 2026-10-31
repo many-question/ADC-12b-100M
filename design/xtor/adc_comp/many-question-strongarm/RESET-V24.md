@@ -1,5 +1,7 @@
 # RESET-V24: test input-to-latch coupling devices
 
+> Evidence retention (2026-10-31): Historical raw/archive statements below refer to the original audit. Superseded waveforms were released under the user's retention policy. [EVIDENCE-RETENTION](EVIDENCE-RETENTION.md) lists the completed runs still available for raw re-audit.
+
 V23 retains complete polarity, reset, output validity and terminal-stress checks, but its weaker tail increases TT 30 mV delay to 55.258398 ps, failing the 50 ps gate. [RESET-V23.md](RESET-V23.md) preserves the stopped source, complete deterministic evidence and its comparison with V20. No noise benefit is claimed for that failed timing experiment.
 
 V24 branches electrically from V20, restoring the 3 um tail and keeping its 0.5 um/30 nm Q shunts, clock and all five MOMs. Only MLNP/MLNN change from 12 um/30 nm/nf12 to 16 um/30 nm/nf16. Channel length and 1 um finger width remain fixed; total width and finger count both increase. The complete zero-warning N16 callback geometry is used, SHA-256 `f7dd3061987c03157e7411ed97c5554d5d6981d377691e3da1413bee8298ef85`. All other 21 MOS devices and every capacitor remain electrically identical to V20.

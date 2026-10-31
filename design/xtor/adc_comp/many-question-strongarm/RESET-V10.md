@@ -1,5 +1,7 @@
 # RESET-V10: advance reset-load turn-on and bound the clock low level
 
+> Evidence retention (2026-10-31): Historical raw/archive statements below refer to the original audit. Superseded waveforms were released under the user's retention policy. [EVIDENCE-RETENTION](EVIDENCE-RETENTION.md) lists the completed runs still available for raw re-audit.
+
 V9 shows that increasing Q shunt conductance alone leaves an early cold-FF peak and violates slow-corner reset. This experiment starts from V8 with the lighter N1 Q shunts. The CKB pull-up becomes P3 instead of P2 to turn the shunts on earlier. Direct input precharge becomes P2 instead of P2.4 to offset the external clock-capacitance increase. Input diode loads remain and their recharge time is rechecked.
 
 The faster clock pull-up can increase the negative clock-edge excursion. A weak P0.5 um / 100 nm from AVDD to CKB, with its gate at VSS, provides a small physical low-level pull-up; the existing weak NMOS clock load remains. The resulting clock voltage range, low-level leakage into the Q loads, reset overlap and DC energy are all measured. This is not an ideal clamp or an extra bias supply. Both new PMOS geometries have successful zero-warning callbacks.

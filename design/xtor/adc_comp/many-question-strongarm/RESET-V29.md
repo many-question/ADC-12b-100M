@@ -1,5 +1,7 @@
 # RESET-V29: stronger physical output drivers
 
+> Evidence retention (2026-10-31): Historical raw/archive statements below refer to the original audit. Superseded waveforms were released under the user's retention policy. [EVIDENCE-RETENTION](EVIDENCE-RETENTION.md) lists the completed runs still available for raw re-audit.
+
 **V29 fails TT 30 mV delay:** 50.5384103494184 ps exceeds 50 ps. All four corners pass actual polarity, completed reset, output validity and every unrounded MOS terminal pair, but this delay failure stops V29 qualification expansion. No V29 noise run or promotion follows.
 
 The complete V28 circuit still fails TT noise at 206.44956249285457 uV rms against 200 uV. Its tighter TT 30 mV delay is 49.84967366576565 ps, leaving only 0.15032633423435 ps. [RESET-V28](RESET-V28.md) preserves the failure; [artificial source diagnostics](NOISE-SOURCE-DIAGNOSTICS-V28.md) guide further work without constituting physical performance.

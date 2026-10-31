@@ -1,5 +1,7 @@
 # RESET-V21: test weaker Q reset shunts
 
+> Evidence retention (2026-10-31): Historical raw/archive statements below refer to the original audit. Superseded waveforms were released under the user's retention policy. [EVIDENCE-RETENTION](EVIDENCE-RETENTION.md) lists the completed runs still available for raw re-audit.
+
 V20 passes the first SF/FS high/-40 and TT deterministic screens, but its matched short noise diagnosis retains the same one wrong polarity at cycle 54 as V19. At +30/+40 ps the descriptive Q differential SNR improves only about 3.16%/1.18%, with both signal and variation changing. This does not establish enough benefit to solve V19's genuine 218.770059 uV TT noise failure. [RESET-V20.md](RESET-V20.md) preserves the measured cost and phase evidence; V20 remains an unpromoted experiment.
 
 In the independent StrongARM phase evidence, input-drain discrimination is already present at +20 ps while Q differential transfer remains small and initially opposed. The Q reset/load release trajectory remains a testable sensitivity. This experiment changes only the two physical Q reset shunts MDQP/MDQN from 0.5 um/30 nm to 0.3 um/100 nm, with one finger in both versions. Both width and length change, so this is not an isolated width test. It tests how lower shunt drive/loading changes Q initialization and release, rather than increasing the capacitors again. The result may also change clock loading, bias trajectory and device noise; no isolated channel-noise cause is assumed.

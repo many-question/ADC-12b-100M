@@ -1,5 +1,7 @@
 # V28 artificial noise-source diagnostics
 
+> Evidence retention (2026-10-31): Historical raw/archive statements below refer to the original audit. Superseded waveforms were released under the user's retention policy. [EVIDENCE-RETENTION](EVIDENCE-RETENTION.md) lists the completed runs still available for raw re-audit.
+
 These simulations selectively suppress stochastic sources in an otherwise unchanged circuit. **They are not physical comparator performance and cannot establish compliance.** The actual all-noise V28 result remains a TT failure at 206.44956249285457 uV rms, with a model-conditional 95% profile interval of 198.24 to 215.06 uV. [RESET-V28](RESET-V28.md) retains that failure.
 
 The native Spectre `tran noiseoff` parameter is documented by the installed simulator's help. Each tested deck contains the named instance list, and no selection-related warning occurs. The archived circuit source and all other testbench bytes match the all-noise reference. Both artificial trials use clean source `a991aba96dc3e6987f39335d7105c78943c9a8c8`, APS, conservative/gear2only, actual reltol 1e-4, default vabstol, alllocal and lteratio 10; no explicit maxstep or method. The full 17 levels and 512 finite samples per level are retained, along with 50 GHz bandwidth, actual 287.216 kHz low-frequency cutoff and seed 1. No formal records are written, and physical gate/report helpers explicitly reject this diagnostic class.

@@ -1,5 +1,7 @@
 # Numerical-settings transition: issue #94
 
+> Evidence retention (2026-10-31): Historical raw/archive statements below refer to the original audit. Superseded waveforms were released under the user's retention policy. [EVIDENCE-RETENTION](EVIDENCE-RETENTION.md) lists the completed runs still available for raw re-audit.
+
 ## Merged workflow update, 2026-10-31
 
 [PR #95](https://github.com/many-question/ADC-12b-100M/pull/95) merged at 12:44:34 into main as `c6152d236e525793ecc4809b9a6c9dfb9fd0ad77`; adc_comp is now 0.8.0. The actual comparator testbench and specification patches match the precheck settings. The private runs below retain their original source and pre-merge status. Key evidence will be refreshed through the merged official runner and testbenches with the exact ADCToolbox commit `cd72061ff3b7a977163dac540da126ae22f5e38d`; no private result or old metadata is relabeled. A stale warning still means ineligible. Final merged per-test crosscheck rules apply where specified. New formal module notices are checked before subsequent batches.
@@ -319,5 +321,59 @@ TT full AVDD waveform integral is 424.265963860 fJ/cycle: 102.839857634 evaluati
 | tt_nom_27 | 0.0001 | 1e-06 | gear2only / conservative / alllocal / 10 | 56.5 |
 
 The log's automatic maxstep bound is not an explicit job-deck setting. Actual APS thread information and the six-job session ceiling are recorded separately. Fetched raw/deck hashes match; the exact owned remote run is absent. Archive SHA-256 `411d569d438bf1ed3242e65420057a2140c6c8f276887753170fa8bba1cc03b4` was checked by reading every member back with CRC and SHA-256. Full qualification remains open.
+
+This electrical source fails the private experimental gate on the merged 0.8.0 baseline. Qualification expansion stops at the failure; diagnosis and further circuit design continue. Every failure is retained.
+
+
+## Private precheck 20261031-142506-strongarm-reset-v31-spec08-delay-baseline-screen
+
+Test `tb_comp_delay`, accuracy `baseline`, frozen clean source `59d298a829e2b07341286e3d0868895aa9fc93df`. These results use a private copy of the testbench and do not write formal records. This is an independent experimental source using the merged official 0.8.0 testbench baseline, not a formal canonical-view result. All physical stimuli, loads, samplers and measurement code are preserved. Baseline accuracy appends only saved probes; any tighter tolerances are explicitly listed. The requested settings are `{}`; no explicit maxstep or method is set.
+
+| Corner | 1 mV ps | 30 mV ps | Reset ps | Raw max stress V | Actual / reset cycles | Private gate |
+|---|---:|---:|---:|---:|---:|---|
+| fs_high_m40 | 56.055124193 | 42.017541798 | 21.103877139 | 0.995483622192 | 36 / 36 | PASS |
+| sf_high_m40 | 71.956622663 | 52.774828836 | 20.045380303 | 0.996888383755 | 36 / 36 | PASS |
+| ss_low_125 | 88.018791693 | 63.339930406 | 33.332992243 | 0.818405250327 | 36 / 36 | PASS |
+| tt_nom_27 | 64.584263262 | 47.473880684 | 23.930863640 | 0.907400190464 | 36 / 36 | PASS |
+
+Every actual polarity down to 10 uV, all reset intervals, full evaluation output validity and every MOS gs/gd/ds pair are checked. The AVDD audit spans all 36 complete cycles; all supply probes are present and KCL closes. Reported power has no acceptance limit.
+
+TT full AVDD waveform integral is 424.817112136 fJ/cycle: 102.794418350 evaluation and 322.022693787 reset. The original meter gives 425.326360680 fJ/cycle; the waveform-integral difference is -0.119731%. Both values are preserved.
+
+| Corner | Effective reltol | Effective vabstol V | Method / preset / relref / lteratio | Largest saved step ps |
+|---|---:|---:|---|---:|
+| fs_high_m40 | 0.0001 | 1e-06 | gear2only / conservative / alllocal / 10 | 56.5 |
+| sf_high_m40 | 0.0001 | 1e-06 | gear2only / conservative / alllocal / 10 | 56.5 |
+| ss_low_125 | 0.0001 | 1e-06 | gear2only / conservative / alllocal / 10 | 56.5 |
+| tt_nom_27 | 0.0001 | 1e-06 | gear2only / conservative / alllocal / 10 | 56.5 |
+
+The log's automatic maxstep bound is not an explicit job-deck setting. Actual APS thread information and the six-job session ceiling are recorded separately. Fetched raw/deck hashes match; the exact owned remote run is absent. Archive SHA-256 `16675cf85040eef16b2f1408798ec477e25d271b376798f0cc202b1f35485e36` was checked by reading every member back with CRC and SHA-256. Full qualification remains open.
+
+
+## Private precheck 20261031-142603-strongarm-reset-v31-spec08-kickback-baseline-screen
+
+Test `tb_comp_kickback`, accuracy `baseline`, frozen clean source `59d298a829e2b07341286e3d0868895aa9fc93df`. These results use a private copy of the testbench and do not write formal records. This is an independent experimental source using the merged official 0.8.0 testbench baseline, not a formal canonical-view result. All physical stimuli, loads, samplers and measurement code are preserved. Baseline accuracy appends only saved probes; any tighter tolerances are explicitly listed. The requested settings are `{}`; no explicit maxstep or method is set.
+
+| Corner | Input fF | CLKC fF | Kickback uV | Private gate |
+|---|---:|---:|---:|---|
+| tt_nom_27 | 19.331118543 | 16.652324157 | 0.000061514 | FAIL: CMP-14 |
+
+The tiny values previously produced with old settings are not used as physical conclusions. This private value remains distinct from an official rerun and from further tolerance-convergence evidence.
+
+A separate full-input-trace diagnostic at tt_nom_27 finds up to 364.658016 uV instantaneous differential change and 7.403152 mV common-mode change relative to that cycle's pre-evaluation sample. These are distinct from the specified net per-cycle kickback metric and are not judged against its 40 uV limit. A nearly zero per-cycle value does not imply an undisturbed input during evaluation and reset.
+
+Load/stimulus conditions verified against the archived staged testbench: each input floats on 2.50 pF, initialized to common mode 0.49 V and differential 1 mV; each output has 10 fF. TT supply is 0.9 V, the clock period is 400 ps, and rise/fall times are 10 ps.
+
+Unrounded recorded values: net per-cycle metric `6.151410002035174e-05` uV; instantaneous differential peak magnitude `364.65801587939734` uV (signed change `0.0003646580158793973` V), cycle 8, `70.21352053439826` ps after its pre-evaluation sample. The peak is in **evaluation**, whose measured window runs from that sample to `199.99997500000055` ps. Maximum common-mode excursion is `7.403152283855963` mV, in evaluation at `198.2363112925205` ps after its cycle-1 sample.
+
+The phase/load context was derived from SHA-verified raw evidence without modifying the traces; context-file SHA-256 is `3008ddaa61dd342d85665a98289670af6eb655c8255873d9b337c26880b21cf0`. The specified metric concerns net change after evaluation plus reset; these instantaneous peaks describe disturbance during that interval. Future validation with the actual CDAC must check decision-phase differential and common-mode effects. No shared rule or limit changes.
+
+| Corner | Effective reltol | Effective vabstol V | Method / preset / relref / lteratio | Largest saved step ps |
+|---|---:|---:|---|---:|
+| tt_nom_27 | 1e-06 | 1e-08 | gear2only / conservative / alllocal / 10 | 33.0 |
+
+The log's automatic maxstep bound is not an explicit job-deck setting. Actual APS thread information and the six-job session ceiling are recorded separately. Fetched raw/deck hashes match; the exact owned remote run is absent. Archive SHA-256 `de2075791bc9a9be8109c4cb4db32f66c4f9c90fc6a3779ea0e10a1d04b9bd0e` was checked by reading every member back with CRC and SHA-256. Full qualification remains open.
+
+The complete phase/load context is included in this run's verified archive.
 
 This electrical source fails the private experimental gate on the merged 0.8.0 baseline. Qualification expansion stops at the failure; diagnosis and further circuit design continue. Every failure is retained.

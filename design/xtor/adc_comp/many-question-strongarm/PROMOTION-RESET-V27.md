@@ -1,5 +1,7 @@
 # Canonical promotion: RESET-V27
 
+> Evidence retention (2026-10-31): Historical raw/archive statements below refer to the original audit. Superseded waveforms were released under the user's retention policy. [EVIDENCE-RETENTION](EVIDENCE-RETENTION.md) lists the completed runs still available for raw re-audit.
+
 This source-preserving promotion uses old-settings screening evidence. [Issue #94 transition](NUMERICS-94.md) now governs subsequent checks; promotion does not establish new-settings qualification.
 
 The private screened source is copied into the canonical `adc_comp.scs` with one header-comment change. Removing blank lines and full-line comments, stripping line-edge whitespace and joining the remaining electrical statements with newlines gives the same SHA-256 for both sources: `7b20b19a2434da94d732f9785a3a8f1a2138d17ed4f4854dbdc5ab1a6cff18df`. No device, terminal, geometry, parasitic or electrical statement changes during promotion.

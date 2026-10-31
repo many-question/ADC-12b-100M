@@ -1,5 +1,7 @@
 # V14 noise mechanism diagnosis
 
+> Evidence retention (2026-10-31): Historical raw/archive statements below refer to the original audit. Superseded waveforms were released under the user's retention policy. [EVIDENCE-RETENTION](EVIDENCE-RETENTION.md) lists the completed runs still available for raw re-audit.
+
 The genuine official TT failure remains 2094.115400 uV rms from clean source `3482a5e501a99ba6cedfe8415827c25c338f27fd`. All 17 levels have 512 samples. The smallest sampled output difference is 0.899716 V, and the shallow, nonmonotonic S-curve has a largest Gaussian-fit residual of 4.59 binomial standard deviations. A purely Gaussian noise mechanism is not established by that fit. The original test saves its analog trace only at the end, so reset coverage cannot be recovered from that run.
 
 ## Instrumented short comparison

@@ -1,5 +1,7 @@
 # RESET-V13: strengthen only the external output pull-down
 
+> Evidence retention (2026-10-31): Historical raw/archive statements below refer to the original audit. Superseded waveforms were released under the user's retention policy. [EVIDENCE-RETENTION](EVIDENCE-RETENTION.md) lists the completed runs still available for raw re-audit.
+
 Current disposition: rejected for expansion after the additional cold high-voltage corners. See the final completed-screen section below.
 
 V12 passes six-corner output validity but retains a 1.00002 V SF Q peak and 35.861626 ps SS reset. This experiment changes only MOPN and MONN from N3 to N4 um, L=30 nm, with 4 fingers. Complete geometry and parasitics are copied from an identical previously validated canonical device. Stronger output discharge and a lower inverter trip point may improve the physical reset metric; the added gate load also changes the upstream waveform, so delay, output validity and all-device stress must be measured again. No Q-shunt or weak pull-up is strengthened.

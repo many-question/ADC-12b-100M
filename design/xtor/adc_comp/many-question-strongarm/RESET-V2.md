@@ -1,5 +1,7 @@
 # RESET-V2: direct-clock reset experiment
 
+> Evidence retention (2026-10-31): Historical raw/archive statements below refer to the original audit. Superseded waveforms were released under the user's retention policy. [EVIDENCE-RETENTION](EVIDENCE-RETENTION.md) lists the completed runs still available for raw re-audit.
+
 This independent experiment removes RESET-V1's NAND/NOR controls, their internal floating nodes and the now-unused two-inverter clock branch. The tail and all four single precharge devices use CLKC. Input precharge remains 2.4 um / 30 nm, nf3; Q precharge remains 6 um / 30 nm, nf6. The other device geometries and the two input-drain capacitors are unchanged. These geometries reuse successful, warning-free callbacks from RESET-V1; no parasitic values were hand scaled.
 
 The hypothesis is that direct tail activation avoids V1's added evaluation delay and Q-node rising-edge overshoot, while single precharge removes DPX/DNX and AX entirely. Stronger Q reset may retain the slow-corner reset improvement. Direct clock coupling and clock-input charge remain risks to measure.

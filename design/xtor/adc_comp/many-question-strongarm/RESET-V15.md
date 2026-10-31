@@ -1,5 +1,7 @@
 # RESET-V15: release the Q shunts earlier
 
+> Evidence retention (2026-10-31): Historical raw/archive statements below refer to the original audit. Superseded waveforms were released under the user's retention policy. [EVIDENCE-RETENTION](EVIDENCE-RETENTION.md) lists the completed runs still available for raw re-audit.
+
 V14 fails the genuine official TT noise gate at 2094.115400 uV rms. Its short instrumented diagnosis reproduces the broad decision errors at both default and fine numerical settings, with complete reset and stable early-to-final decisions. Q-node differential noise grows during the initial common-mode drop while transfer of the input difference is weak; this supports investigating the release trajectory, without attributing the failure to one device noise source.
 
 This source changes only the CKB MOM from 48 to 16 fingers, nominally 14.06 to 4.46 fF. The smaller clock load is intended to turn the reset-only Q shunts off earlier on a rising CLKC edge, reducing the initial Q-node drop and the interval of weak input coupling. It also changes falling-edge behavior, so terminal stress, reset and output validity must be measured again. The full capacitor geometry exactly reuses a previously callback-validated instance; all MOS dimensions and other electrical statements are unchanged.

@@ -1,5 +1,7 @@
 # RESET-V16: change the clock-inverter drive ratio
 
+> Evidence retention (2026-10-31): Historical raw/archive statements below refer to the original audit. Superseded waveforms were released under the user's retention policy. [EVIDENCE-RETENTION](EVIDENCE-RETENTION.md) lists the completed runs still available for raw re-audit.
+
 V15 reduces wrong polarity in the matched short noise diagnosis from V14 fine-control 91/256 to 52/256 at +/-800 uV, but this is still a gross error rate and does not support wider qualification. At +5 ps after the clock midpoint QP remains near 0.586 V; Q differential noise still grows while signal transfer is weak. Complete reset and stable 80 ps-to-final signs persist. This is diagnostic evidence, not a new official noise estimate.
 
 This experiment changes only MCKN N2 to N4 and MCKP P4 to P3, retaining the 4.46 fF CKB capacitor and every other electrical statement. The stronger pull-down and shifted inverter trip point are intended to release the Q shunts before Q precharge is lost. The smaller PMOS also limits the added input clock-gate load. Both full geometries exactly reuse validated devices already in V15. Clock capacitance and falling-edge stress must be remeasured; neither is assumed to pass.

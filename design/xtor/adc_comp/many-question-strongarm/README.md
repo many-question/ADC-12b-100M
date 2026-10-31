@@ -1,5 +1,7 @@
 # Strongarm comparator: RESET-V27
 
+> Evidence retention (2026-10-31): Historical raw/archive statements below refer to the original audit. Superseded waveforms were released under the user's retention policy. [EVIDENCE-RETENTION](EVIDENCE-RETENTION.md) lists the completed runs still available for raw re-audit.
+
 Canonical **V27 fails the merged adc_comp 0.8.0 official TT noise test at 210.1008609253812 uV rms against 200 uV**. The original 17 x 512 decisions are retained, with a model-conditional 95% profile interval of 201.81 to 218.79 uV. [FORMAL-SPEC08](FORMAL-SPEC08.md) links the genuine committed result and figure. Current dependency coverage is 1 fresh / 92 records; freshness does not imply passing. This candidate remains WIP, unqualified and unselected.
 
 Independent [V28](RESET-V28.md) reduces CKB storage from 16 to 8 fingers. Critical-corner deterministic checks and tighter repeats pass, but full physical TT noise still fails at 206.44956249285457 uV rms (198.24 to 215.06 uV). Its tighter TT 30 mV delay is 49.84967366576565 ps, leaving 0.15032633423435 ps. A confidence interval crossing the limit does not establish a pass; V28 qualification expansion is stopped.
@@ -22,4 +24,4 @@ Issues #40/#63/#69/#75/#77/#78/#84/#100 remain acknowledged. The branch includes
 
 Independent [V30](RESET-V30.md) retains V29 P8 output pull-ups and restores exact V28 N4 pull-downs. TT 30 mV delay improves to 47.35514490849851 ps, but SS/low/125 reset fails at 36.646221657802904 ps. All 144 actual decisions/resets, output validity and unrounded terminal pairs pass; the reset-time failure stops qualification expansion. Noise and capacitance remain untested. Further physical work tests Q precharge strength and explicitly checks the added clock load before any tail-current reduction.
 
-Independent [V31](RESET-V31.md) changes only Q precharge MRQP/MRQN from 3 to 3.6 um to address V30 reset. Full deterministic gates and the dedicated clock-capacitance check precede further noise work.
+Independent [V31](RESET-V31.md) repairs the SS reset gate to 33.33299224307328 ps and passes all four-corner deterministic checks, but its dedicated TT clock capacitance is **16.65232415714863 fF, FAIL 16**. Qualification expansion stops; V31 noise is untested and it is not promoted. Further physical work targets the local clock driver and load while preserving Q precharge strength.

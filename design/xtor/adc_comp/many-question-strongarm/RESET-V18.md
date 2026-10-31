@@ -1,5 +1,7 @@
 # RESET-V18: physical Q-node capacitance
 
+> Evidence retention (2026-10-31): Historical raw/archive statements below refer to the original audit. Superseded waveforms were released under the user's retention policy. [EVIDENCE-RETENTION](EVIDENCE-RETENTION.md) lists the completed runs still available for raw re-audit.
+
 V17 passes all 72 polarities/resets and output-validity checks in its first two corners, but SF/high/-40 reaches 1.001079522 V at Q during reset, about 11.653 ps after the clock falling midpoint. CKB is already 0.98355 V and CLKC is zero, so the weak shunt is on at the failing peak. Ten terminal pairs fail. The FS corner passes at 0.99735 V. V17 therefore stops before TT, noise or broader qualification.
 
 This experiment adds only CQP/CQN, each a physical 4.46 fF MOM from QP/QN to VSS, copying the exact validated CCB geometry. All 23 MOS, the N0.5 reset shunts, clock controls, and three existing capacitors are unchanged. The added capacitance tests whether storing the coupled edge charge can reduce the reset peak and release droop without restoring the large shunt current. It also loads regeneration and reset; the TT 30 mV delay limit remains 50 ps and must be rechecked. No stress or noise benefit is assumed.

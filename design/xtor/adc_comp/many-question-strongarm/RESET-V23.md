@@ -1,5 +1,7 @@
 # RESET-V23: test the input integration interval
 
+> Evidence retention (2026-10-31): Historical raw/archive statements below refer to the original audit. Superseded waveforms were released under the user's retention policy. [EVIDENCE-RETENTION](EVIDENCE-RETENTION.md) lists the completed runs still available for raw re-audit.
+
 The fixed-length Q-shunt width experiment V22 fails ten terminal pairs at SF/high/-40, with a rounded 1.00398 V peak; FS/high/-40 passes. [RESET-V22.md](RESET-V22.md) preserves the actual raw peak, full checks and stopped expansion. V23 therefore branches electrically from V20, restoring its 0.5 um/30 nm Q shunts and retaining all five MOMs and physical clock devices.
 
 StrongARM's own V20 phase evidence shows mean CKB near 74.77 mV at +5 ps and 11.57 mV at +10 ps, staying near 11.4 mV through +30 ps. Input-drain differential means at +20 ps are +2.88739/-2.95272 mV with about 0.712 mV within-level deviation; Q transfer remains small and opposed there. By +30 ps the DP difference has fallen to +2.34277/-2.38852 mV while Q differential transfer develops, and DP reverses sign by +40 ps as the latch takes over. These observations motivate testing the input integration interval. They do not identify a unique device-noise source or justify transferring a Miyahara clock conclusion.

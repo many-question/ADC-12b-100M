@@ -1,5 +1,7 @@
 # Preserved canonical baseline before RESET-V27
 
+> Evidence retention (2026-10-31): Historical raw/archive statements below refer to the original audit. Superseded waveforms were released under the user's retention policy. [EVIDENCE-RETENTION](EVIDENCE-RETENTION.md) lists the completed runs still available for raw re-audit.
+
 Historical source and all 92 official records are fixed at commit `05d4d445c50471c0627d9b41f41b238bb8cfc1d9` and retained in a verified private archive. Statements below describe that old canonical source.
 
 # StrongARM comparator: RESET-V19

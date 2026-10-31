@@ -1,5 +1,7 @@
 # RESET-V30: stronger output pull-ups with original pull-downs
 
+> Evidence retention (2026-10-31): Historical raw/archive statements below refer to the original audit. Superseded waveforms were released under the user's retention policy. [EVIDENCE-RETENTION](EVIDENCE-RETENTION.md) lists the completed runs still available for raw re-audit.
+
 **V30 fails SS/low/125 reset:** 36.646221657802904 ps exceeds 35 ps, despite TT 30 mV delay improving to 47.35514490849851 ps. All 144 actual decisions and completed resets, output validity and all 69 unrounded terminal pairs per corner pass. Qualification expansion stops at the reset-time failure; no V30 noise run or promotion follows.
 
 [V29](RESET-V29.md) enlarged both output polarities and failed TT 30 mV delay at 50.5384103494184 ps. Its matched V28 comparison shows Q reaching 50% later by 1.987082135325636 ps, while the Q50-to-OUT50 interval shortens by 1.2043644156613755 ps. All four corners retain correct outputs, completed resets and terminal stress below 1 V. The failed experiment and complete waveform evidence are preserved.

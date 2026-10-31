@@ -1,5 +1,7 @@
 # Energy cost of the physical repairs
 
+> Evidence retention (2026-10-31): Historical raw/archive statements below refer to the original audit. Superseded waveforms were released under the user's retention policy. [EVIDENCE-RETENTION](EVIDENCE-RETENTION.md) lists the completed runs still available for raw re-audit.
+
 This compares the complete implemented candidates at TT, 0.9 V, 27 C, VCM=0.49 V, identical 10 fF output loads and the same 36-decision mixed +/-100 mV through +/-10 uV sequence. AVDD charge is integrated from 100 ps to 14.5 ns and divided by 36. All local clock, output, damping and rail-offset circuitry is inside the AVDD boundary; the external ideal clock source is outside it. Energy is reported-only, without an acceptance threshold.
 
 | Implemented candidate | Canonical baseline (fJ/cycle) | Compared experiment (fJ/cycle) | Increase |
