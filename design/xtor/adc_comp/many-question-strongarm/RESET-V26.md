@@ -119,3 +119,69 @@ Every archived entry was read back with CRC and SHA-256 verification before dupl
 
 - `20261031-102928-strongarm-reset-v26-screen`: `ff01d7a2dfdf2ab3c928440d79ed193453c5529ae092584ba3dcd317b77eade3`.
 - `20261031-103621-strongarm-reset-v26-screen`: `16dea2efd747e0993f40faa4ac73060a1dafac87de52f24af49b96526ad0d913`.
+
+
+## Matched short phase result
+
+Run `20261031-104525-strongarm-reset-v26-noise-numerics-diagnostic-screen`, clean source `451dc6004aba5727e9aecd8ce16df9d9465d71f4`, matches V20's instrumented short testbench, +/-800 uV, 128 cycles per level, seed 1, 50 GHz and 0.5 ps/1e-6/1e-8 integration. V26 retains one wrong polarity at cycle 54: OUTP 1/128 at -800 uV and 128/128 at +800 uV. All 256 samples remain included. Shared seeds and equal error counts do not establish equal underlying noise or independent trials.
+
+All 256 resets complete, maximum 21.685153076 ps. There are no +80/+150 ps to final sign changes, late-reset or output-validity violations. All 69 terminal pairs pass, maximum 0.90667 V.
+
+| Phase | Quantity | V20 secant gain | V26 secant gain | V20 descriptive SNR | V26 descriptive SNR |
+|---|---|---:|---:|---:|---:|
+| +20 ps | DP_minus_DN | -3.650071549 | -3.737213241 | 4.099704178 | 4.103276767 |
+| +20 ps | QP_minus_QN | 0.208661496 | 0.157514921 | 0.305432364 | 0.216591685 |
+| +30 ps | DP_minus_DN | -2.957057553 | -3.102577705 | 4.112015332 | 4.119998153 |
+| +30 ps | QP_minus_QN | -2.258471023 | -2.505933692 | 1.896073158 | 1.917068000 |
+| +40 ps | DP_minus_DN | 1.097011210 | 0.951521206 | 0.976058759 | 0.844930207 |
+| +40 ps | QP_minus_QN | -10.653248828 | -11.751703200 | 3.346147610 | 3.261935628 |
+
+These waveform means and within-level variation are descriptive, not formal input-referred noise. Early feedthrough can reverse internal signs and late regeneration saturates. The exact mismatch counts are retained below; internal signs are not completed output decisions.
+
+| Phase | DP input-sign mismatches | Q input-sign mismatches | Q final-sign mismatches |
+|---|---:|---:|---:|
+| +20 ps | 0 | 147 | 146 |
+| +30 ps | 0 | 9 | 8 |
+| +40 ps | 214 | 1 | 0 |
+
+At -20 ps, Q differential standard deviations are 0.361281/0.373230 mV across the two levels, versus V20 0.356192/0.364912 mV. At +20 ps they are 0.565746/0.591128 mV, versus 0.534098/0.555201 mV. Cycle 54 retains the following differentials:
+
+| Phase | DP-DN mV | QP-QN mV |
+|---|---:|---:|
+| -20 ps | -0.005695590 | -0.812609459 |
+| +5 ps | -0.198022951 | -1.385587688 |
+| +10 ps | 0.385074946 | -1.444416445 |
+| +20 ps | 0.987254261 | -1.478310322 |
+| +30 ps | 1.806141214 | -1.318657131 |
+| +40 ps | 2.129363350 | -1.996134628 |
+| +60 ps | 11.608600830 | -83.886379660 |
+
+Q SNR improves about 1.1% at +30 ps and falls about 2.5% at +40 ps. This limited change does not support broader noise qualification. V26 remains unpromoted. V27 retains its MOS devices and tests only larger Q storage; its signal attenuation, delay, reset, stress and noise remain to be measured.
+
+| Device | max abs(Vgs) V | max abs(Vgd) V | max abs(Vds) V |
+|---|---:|---:|---:|
+| MINP | 0.49246 | 0.49209 | 0.59046 |
+| MINN | 0.49245 | 0.49211 | 0.59075 |
+| MTAIL | 0.90000 | 0.89928 | 0.56812 |
+| MRDP | 0.90000 | 0.89927 | 0.90169 |
+| MRDN | 0.90000 | 0.89922 | 0.90171 |
+| MLNP | 0.89944 | 0.89972 | 0.89958 |
+| MLNN | 0.89949 | 0.89972 | 0.89943 |
+| MLPP | 0.90218 | 0.89972 | 0.90216 |
+| MLPN | 0.90216 | 0.89972 | 0.90218 |
+| MRQP | 0.90000 | 0.90555 | 0.90216 |
+| MRQN | 0.90000 | 0.90569 | 0.90218 |
+| MOPN | 0.90595 | 0.90612 | 0.90598 |
+| MOPP | 0.90216 | 0.90612 | 0.90247 |
+| MONN | 0.90600 | 0.90612 | 0.90591 |
+| MONP | 0.90218 | 0.90612 | 0.90240 |
+| MDQP | 0.90667 | 0.89896 | 0.90595 |
+| MDQN | 0.90667 | 0.89881 | 0.90600 |
+| MDDP | 0.89565 | 0.00000 | 0.89565 |
+| MDDN | 0.89632 | 0.00000 | 0.89632 |
+| MCKN | 0.90000 | 0.89423 | 0.90667 |
+| MCKP | 0.90000 | 0.89423 | 0.90133 |
+| MBLEED | 0.90000 | 0.90133 | 0.90667 |
+| MUP | 0.90000 | 0.90667 | 0.90133 |
+
+Archive SHA-256 `b0c6cc3121a8832fc0f54befe1a71097c69464699afca51c578f6a82445b07bf` preserves raw data, all indices, phase signs and the matched comparison. Every entry was read back with CRC and SHA-256 verification, and the owned remote run is absent. The 102.5 ns duration raises noisefmin to 9.7561 MHz versus the original 287.216 kHz. No formal V26 noise result is claimed; canonical V19 and all genuine original records remain unchanged.
