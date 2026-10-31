@@ -30,7 +30,7 @@ VDVDD (DVDD_S 0) vsource dc=vdd
 IMDVDD (DVDD_S DVDD) tb_imeter_va tstart=tstart tstop=tstop label="DVDD" fname="power.txt"
 VAVDD18 (AVDD18_S 0) vsource dc=vdd18
 IMAVDD18 (AVDD18_S AVDD18) tb_imeter_va tstart=tstart tstop=tstop label="AVDD18" fname="power.txt"
-tran1 tran stop=tstop noisefmax=nfmax*noise_en noiseseed=1 outputstart=tstop
+tran1 tran stop=tstop noisefmax=nfmax*noise_en noiseseed=1 outputstart=tstop errpreset=conservative
 tbopts options save=none
 // @RNL {
 //   /* pins connected by net name: the net-name label of rnl-std-fill on every unwired pin, placed below by its key netname */

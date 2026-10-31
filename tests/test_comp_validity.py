@@ -185,7 +185,7 @@ def test_cmp15_and_cmp16_on_tb_comp_delay():
     assert (s16.metric, s16.reported, s16.max, s16.corners, s16.test) == ("loser_peak_pct", True, None, "all",
                                                                          "tb_comp_delay")
     assert (s09.metric, s09.max, s09.corners) == ("wrong_decisions", 0, "all")      # unchanged
-    assert b.raw["version"] == "0.7.0"
+    assert b.raw["version"] == "0.8.0"
     judged, _ = b.verdicts("tb_comp_delay", "ss_low_125", None, {"validity_violations": 1, "loser_peak_pct": 55.0})
     assert judged["CMP-15"]["pass"] is False and judged["CMP-16"]["pass"] is None
     judged, _ = b.verdicts("tb_comp_delay", "ss_low_125", None, {"validity_violations": 0, "loser_peak_pct": 12.0})

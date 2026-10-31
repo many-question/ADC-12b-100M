@@ -3,7 +3,7 @@
 ## 1. 本地环境（一次性）
 
 ```bash
-pip install -e ".[analysis,dev]"          # adcflow 工具包 + adctoolbox 0.6.4 + pytest
+pip install -e ".[analysis,dev]"          # adcflow 工具包 + adctoolbox（上游提交 cd72061，需要 git）+ pytest
 git config core.hooksPath tools/hooks     # 提交前检查（hygiene / ports / 生成文件）
 ```
 
@@ -31,7 +31,7 @@ git config core.hooksPath tools/hooks     # 提交前检查（hygiene / ports / 
 
 ```bash
 python -m adcflow sim <test> [--corners typ|quick|all|<name,...>] [--view <block>=xtor ...] \
-       [--param name=value ...] [--mode aps] [--jobs 6] [--keep] [--no-record]
+       [--param name=value ...] [--mode aps] [--jobs N] [--keep] [--no-record]
 python -m adcflow report [--block adc_comp]     # 结果对照规格
 python -m adcflow candidates [--block adc_comp] [--json]   # 晶体管级候选的排行榜（docs/proposals/open-candidates.md §3）
 python -m adcflow verify <test> --block <block> --candidate <name> [--corners …] [--dry-run]   # 项目负责人在同一网表哈希上复跑候选的结果，写复核记录 verification/…（docs/verification.md §7）
@@ -75,7 +75,9 @@ python -m adcflow clean-remote --older-than-h 12   # 清理服务器上本项目
 视图选择：默认全部行为级；`--view adc_comp=xtor` 使用 `design/xtor/adc_comp/adc_comp.scs`，
 此时自动包含所选工艺角的 PDK 模型段并打开器件噪声（`devnoise=1`）。
 
-仿真模式默认 `aps`。`ax` / `mx` 在本项目的 Verilog-A 行为级模型上精度不足
+`--jobs` 的默认值是站点配置的 `sim.jobs`（没有时为 6）。
+
+仿真模式默认 `aps`。`cx` 忽略 `errpreset` 与 `relref`（SPECTRE-592），也不用于正式结果（[`verification.md`](verification.md) §2）。`ax` / `mx` 在本项目的 Verilog-A 行为级模型上精度不足
 （行为级 ADC 的 ENOB 从 11.25 掉到 10.63），只能用于晶体管级的快速探索，验收必须用 `aps`。
 
 ## 4. 新增或修改测试台

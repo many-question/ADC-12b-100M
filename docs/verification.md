@@ -34,27 +34,59 @@
   度量拒绝别的积分窗口或周期数，旧测试台的结果不会被当成新定义）、LOG-13、CLK-10、BST-07。项目不设功耗上限，
   `docs/architecture.md` §8 的数字只是估算 FoM 的预算；排行榜按 TT 功耗排序（`CONTRIBUTING.md` §10）。
   另有 CMP-16（比较器落败输出的最大峰值，见下面的输出有效性），只作诊断。
-* **瞬态数值设置**：每个结果的 `meta.numerics` 记录仿真器实际使用的设置，读自 `spectre.log` 的
-  `Important parameter values`：`reltol`、`maxstep_ps`、`method`、`errpreset`、`lteratio`、`abstol_V`，全局 `vabstol`，
-  接受的步数 `steps_accepted` 与平均步长 `step_mean_ps`；保存了整段波形（从 t = 0 到结束）的测试另记实际最大步长
-  `step_max_ps`，否则为 null（例如跟踪测试 `save=none`、`outputstart=tstop`，步长以 `maxstep` 为上限）。
-  需要固定设置的测试在规格中写 `numerics:`，由 `gen_tb.py` 写进测试台的 `options`、`tran` 语句（测试台计入结果哈希）。
-  **跟踪线性度测试**（`tb_bootstrap_track`、`tb_cdac_track`，BST-05/06、DAC-09/10）用 `reltol=1e-7`、`vabstol=1e-8`、
-  `maxstep=1p`、`method=traponly`（#28）：默认设置（`reltol=1e-5`，`maxstep` 为仿真长度的 1/50 = 52.1 ns）下晶体管级开关的
-  SFDR / SNDR 为 66.7 / 63.3 dB，没有收敛（收敛后约 93.6 / 93.0 dB），且在 `maxstep` 20 ps~1 ps 之间不单调，
-  因此不能挑选某个粗步长的结果作证据。激励、采样时刻、FFT、端口、负载和限值不变。
-* **收敛交叉检查**：`python -m adcflow sim <test> --crosscheck` 让每个 job 再用规格 `crosscheck:` 的设置跑一次
-  （跟踪测试：`maxstep=0.5p`、`method=gear2only`，其余同 `numerics`），只记录原设置的结果，差值写进它的 `meta.crosscheck`：
+* **瞬态数值设置**：
+  * **统一的预设**：所有生成测试台的每个 `tran`（含蒙特卡洛的 `tran`）都带 `errpreset=conservative`，由 `gen_tb.render` 一处写入，
+    规格不能再设 `errpreset` 或 `method`。这个预设决定 `method=gear2only`、`relref=alllocal`、`lteratio=10`，并把要求的 `reltol` 除以 10
+    作为瞬态实际使用的值。除 `tb_ref_startup`（`maxstep=1n`）外不设 `maxstep`：时钟与激励的断点已经约束了步长，下表的 `traponly`、1 ps 结果也不比没有 `maxstep` 的结果更准。
+    `tb_ref_dc`、`tb_ref_noise` 没有瞬态。
+  * **需要更严容差的测试**在规格中写 `numerics:`，由 `gen_tb.py` 写进测试台的 `options`、`tran` 语句（测试台计入结果哈希）。
+    其余测试只用预设（有效 `reltol` 1e-4，默认 `vabstol` 1 µV）：
+
+    | 测试 | `numerics` | 有效 `reltol` | `vabstol` | 原因 |
+    |---|---|---:|---:|---|
+    | `tb_bootstrap_track`、`tb_cdac_track` | `reltol: 1e-6, vabstol: 1e-8` | 1e-7 | 10 nV | 见下表：有效 1e-4 不及格，默认 `vabstol` 限制精度 |
+    | `tb_bootstrap_dc` | `reltol: 1e-5` | 1e-6 | 默认 | 有效 1e-4 时 ss_low_125 的 `t_off` +1.19 ps，超过 0.48 ps 的余量；1e-6 时 +0.08 ps |
+    | `tb_comp_kickback` | `reltol: 1e-5, vabstol: 1e-8` | 1e-6 | 10 nV | 约 1 µV 以下的读数是数值漂移：晶体管级 TT 从 0.39 µV（原设置）到 0.03 µV（只用预设）再到 9.5e-5 µV，仿真时间不增加；限值 40 µV |
+    | `tb_clkgen_timing` | 无 | 1e-4 | 默认 | 最大变化 0.28 ps（余量 3.54 ps），SOA 峰值不变 |
+    | `tb_ref_startup` | `maxstep: 1n` | 1e-4 | 默认 | 长瞬态（25 µs）上的上电过程 |
+
+  * **依据**（晶体管级 `tb_bootstrap_track`，`aps`，gear2only、无 `maxstep`；“杂散”是与原记录结果的样本差去掉直流和基波后最大的单个频点，
+    −82 dBc 约对应 66 µV）。四个工艺角为 tt_nom_27 / ss_low_125 / ff_high_125 / ss_low_m40：
+
+    | 有效 `reltol` | `vabstol` | SFDR (dBc，限值 82) | SNDR (dB，限值 78) | 杂散 (µV) | TT 接受步数 | TT 仿真时间 |
+    |---:|---:|---|---|---:|---:|---:|
+    | 1e-4 | 1 µV | 67.7 / 75.2 / 82.3 / 82.6 | 64.6 / 70.8 / 71.0 / 75.0 | 66~363 | 77 k | 41 s |
+    | 1e-5 | 1 µV | 87.4 / 85.7 / 74.0 / 83.2 | 82.8 / 81.2 / 70.4 / 80.6 | 23~186 | 151 k | 67 s |
+    | 1e-6 | 1 µV | 87.1 / 87.4 / 93.6 / 85.5 | 84.3 / 85.3 / 86.5 / 82.4 | 13~25 | 254 k | 111 s |
+    | 1e-7 | 1 µV | 88.7 / 86.6 / 92.4 / 86.2 | 86.0 / 86.3 / 89.5 / 83.6 | 8~25 | 305 k | 108 s |
+    | 1e-6 | 100 nV | 90.0 / 86.2 / 97.6 / 87.3 | 87.7 / 86.1 / 93.5 / 84.3 | 5~9 | 315 k | 122 s |
+    | **1e-7** | **10 nV** | **90.6 / 85.0 / 100.2 / 88.2** | **88.7 / 84.7 / 97.4 / 84.7** | **0.6~1.2** | **663 k** | **222 s** |
+    | 原设置（traponly，`maxstep` 1 ps，1e-7，10 nV，moderate） | | 90.8 / 85.1 / 100.3 / 87.9 | 88.8 / 84.8 / 97.1 / 84.5 | — | 3.03 M | 637 s |
+    | 1e-6，`maxstep` 0.5 ps | 1 µV | 89.2 / 86.6 / — / — | 87.3 / 86.1 / — / — | 9~10 | 5.32 M | 709 s |
+
+    `reltol` 低于约 1e-5 之后 `vabstol` 成为限制：默认 1 µV 下把有效 `reltol` 从 1e-6 收紧到 1e-7 几乎没有改善，缩小 `maxstep` 也没有（最后一行）。
+    两种积分方法、两种步长序列的结果（粗体与原设置）相差不超过 0.34 dB，因此认为它们已收敛；新设置的仿真时间约为原设置的 0.3 倍。
+    预设本身的代价（只加 `errpreset=conservative`，`aps`，相对于原来的 moderate、要求 `reltol` 1e-3）：`tb_top_sine` 行为级与混合 clkgen 约 1.22~1.26 倍，
+    `tb_ref_replay` 1.11~1.40 倍。
+  * **`cx` 不用于正式结果**：`+preset=cx` 下日志报告 `errpreset=conservative_sigglobal`、`relref=sigglobal`，即使 `tran` 上写了 `errpreset=conservative`
+    或 `relref=alllocal`，警告 SPECTRE-592 说明这两个参数被忽略或重新定义；两种写法的结果逐位相同。`ax`、`mx` 另见 `docs/workflow.md`。验收一律用 `aps`。
+  * **记录与检查**：每个结果的 `meta.numerics` 记录仿真器实际使用的设置，读自 `spectre.log` 的 `Important parameter values`：`reltol`、`maxstep_ps`、`method`、
+    `errpreset`、`lteratio`、`relref`、`abstol_V`，全局 `vabstol`，接受的步数 `steps_accepted` 与平均步长 `step_mean_ps`；保存了整段波形（从 t = 0 到结束）的测试
+    另记实际最大步长 `step_max_ps`，否则为 null（例如跟踪测试 `save=none`、`outputstart=tstop`）。`check results` 让未过期、测试台有 `tran`、仿真成功的结果
+    在 `meta.numerics.errpreset` 不是 `conservative` 时报错（例如用 `--mode cx` 记录的结果）。过期的结果只按过期报告，它们的数值不算证据，重跑后才受这条检查。
+* **收敛交叉检查**：`python -m adcflow sim <test> --crosscheck` 让每个 job 再用规格 `crosscheck:` 的设置跑一次，只记录原设置的结果，差值写进它的 `meta.crosscheck`：
   两次的设置（要求的与实际的）、各指标的两个值与差、原始样本（`samples.txt`）的个数、采样时刻的最大差、逐样本差的 rms 与最大值；
-  有逐管 SOA 时还有各对峰值的最大变化（§5）。**必须重做的时机**：跟踪测试在有代表性的最坏工艺角（对开关导通电阻与边沿最敏感的
+  有逐管 SOA 时还有各对峰值的最大变化（§5）。正式设置是 gear2only，所以交叉检查都换积分方法并限制步长：跟踪测试 `method=traponly`、`maxstep=1p`；
+  `tb_bootstrap_dc`、`tb_clkgen_timing` 再加 `reltol=1e-7`、`vabstol=1e-8`；`tb_ref_startup` `method=traponly`、`maxstep=0.1n`。
+  **必须重做的时机**：跟踪测试在有代表性的最坏工艺角（对开关导通电阻与边沿最敏感的
   角，例如 `ss_low_m40`、`ss_low_125`、`ff_high_125`）以及模块设计有实质改动（拓扑、开关或自举电容尺寸、负载、时钟边沿）之后
   至少各做一次；正式验收在同步后的 `main` 与最终候选电路上重做。差值与指标到限值的余量相比必须可以忽略（#28 中晶体管级
   TT 的参照：两种方法差 0.05 dB SFDR、0.01 dB SNDR，样本差 2.8 µV rms），否则结果不能作证据，先查明原因。
-  行为级 TT 的交叉检查见 §3 后的表。
-* **频谱指标**：ENOB、SNDR、SNR、THD 由 ADCToolbox 0.6.4（`pyproject.toml` 固定版本）计算；SFDR 由 `tools/adcflow/spectrum.py`
-  按 MATLAB `plotspec` 的定义计算（基波峰值频点 / 信号频点与 DC 之外最大的单个频点，含 Nyquist），因为 0.6.4 的 SFDR
-  在杂散紧挨信号频点时出错（#36）。比较与依据见 [`docs/sfdr-estimator.md`](sfdr-estimator.md)；结果的
-  `meta.provenance.spectrum` 记录所用的估计器。注意：ADCToolbox 0.6.4 `compute_spectrum` 返回的 `plot_data.is_coherent`
+  行为级 TT 的交叉检查见 §3 后的表（#28 当时的设置）。
+* **频谱指标**：ENOB、SNDR、SFDR、SNR、THD 都由 ADCToolbox 的 `compute_spectrum` 计算（`tools/adcflow/spectrum.py`）。
+  `pyproject.toml` 把它固定到上游提交 `cd72061`：它的版本号仍是 0.9.1，而 PyPI 上的 0.9.1 没有这个修复（#36）。比较与依据见
+  [`docs/sfdr-estimator.md`](sfdr-estimator.md)；结果的 `meta.provenance.spectrum` 记录版本与提交。
+  还有一个上游的限制：杂散碰到信号频点时 SNDR 约高 0.8 dB。注意：`compute_spectrum` 返回的 `plot_data.is_coherent`
   实际是参数 `coherent_averaging`（是否做了多次记录的相干平均），不是按频点偏差判断的相干性。不能用它判断输入频率是否相干，
   相干性看实际的 fin、N 与 k（#47）。
 * **噪声**（每个噪声源只计一次）：`noise_en=1` 时行为级模型注入比较器噪声、采样 kT/C 与时钟抖动。
@@ -149,7 +181,10 @@
   度量代码与规格限值照旧不计入（限值在检查时重新判定，改了度量用 `remeasure`）；测试参数与全局参数随结果记录。
   旧格式的结果（没有 `meta.arch`，记录了整个 deck 与整个 `arch.yaml`）仍按“任一记录文件变化即过期”判定，
   可用 `python -m adcflow rehash` 不重仿真地迁到上述依赖集（规则见 [`workflow.md`](workflow.md) §3）。
-  签核模块的过期结果 CI 报错。证据图（§4）不单独计哈希：图与 JSON 来自同一次仿真，JSON 过期则其图一并过期。
+  `signoff` 模块的过期结果 CI 报错。`xtor-review` 模块的过期结果（`check results --strict`）只报警告，每个模块另有一条汇总
+  （`<block>: selected candidate <name> has N stale results, not eligible`）：规格或流程的改动使它们过期，而候选路径规则不允许同一个 PR 重跑
+  （`adcflow.candidates.pr_problems`），所以重跑在之后各候选自己的 PR 里进行，其间 `main` 保持绿色。但改变该模块 `selected:` 或 `status:` 的 PR
+  （与 `--base` 比较）遇到选定候选的过期结果仍然报错；缺少结果与不通过在 `xtor-review` 上也始终报错。证据图（§4）不单独计哈希：图与 JSON 来自同一次仿真，JSON 过期则其图一并过期。
 
 ## 3. 行为级基线（架构 v0.3，TT，`aps`，`results/*/behav/`）
 
@@ -187,7 +222,7 @@
   （固定电流 + 每次判决的电荷），不代表电路实际功耗。
 * 参考电压的规格只约束判决时刻的行为（`tb_ref_replay`），回放方法见 `docs/reference.md` §6。
 
-**跟踪测试的数值设置与收敛交叉检查**（行为级，TT，`aps`，`sim --crosscheck`，§2，#28）。“默认”是改动前 `main` 上的结果
+**跟踪测试的数值设置与收敛交叉检查**（行为级，TT，`aps`，`sim --crosscheck`，§2，#28；这张表是 #28 当时的设置与结果，现行设置见 §2）。“默认”是改动前 `main` 上的结果
 （#32 之后，`reltol=1e-5`，`maxstep` 52.1 ns）；“显式”是 `numerics` 设置（记录的结果）；“交叉检查”只改 `maxstep=0.5p`、`gear2only`。
 样本差是 256 个原始样本的逐点差，两次的采样时刻相同。显式与交叉检查的 SFDR 按 `adcflow.spectrum`（#36）计算，默认一行是旧值。
 
@@ -339,11 +374,10 @@ level; not transistor-level evidence"`，`soa_violations` 为 0 个对中的 0 �
 **时钟（CLK-11）**：规则与 bootstrap 相同（|Vgs|、|Vgd|、|Vds| ≤ `limit_V` = 1.0 V，绝对值、两个方向、`corners: all`），
 `soa: {dut: [XDUT]}`。覆盖的窗口就是 `tb_clkgen_timing` 的整段瞬态：t = 0 起的启动、占空比 50 % 的 8 个周期、45 % 与 55 %
 各 4 个周期，0~161 ns 的每个时间点，包括全部跳变沿；窗口之外（更长的运行、其它占空比或频率）不在 CLK-11 的范围内。
-按 #49，测试台从规格 `numerics` 显式设置 `maxstep=1p`、`method=traponly`、`errpreset=conservative`、
-`reltol=1e-7`、`vabstol=1e-8`，保存的点就是仿真器接受的全部时间点。`meta.numerics` 记录日志报告的实际值；
-conservative 下的有效容差可能不同于请求值。晶体管级视图的时间分辨率按 #19 的做法核对：在有代表性的
-最坏工艺角运行 `sim tb_clkgen_timing --view adc_clkgen=xtor --corners <角> --crosscheck`（规格 `crosscheck: {maxstep: 0.5p}`，§2），
-交叉检查保留相同的积分方法及容差，只将最大步长减半。结果的 `meta.crosscheck.metrics` 比较时序等指标，
+测试台只用预设 `errpreset=conservative`（§2），保存的点就是仿真器接受的全部时间点。`meta.numerics` 记录日志报告的实际值。
+晶体管级视图的时间分辨率按 #19 的做法核对：在有代表性的
+最坏工艺角运行 `sim tb_clkgen_timing --view adc_clkgen=xtor --corners <角> --crosscheck`（规格 `crosscheck`，§2），
+交叉检查换成 `traponly`、`maxstep=1p`、`reltol=1e-7`、`vabstol=1e-8`。结果的 `meta.crosscheck.metrics` 比较时序等指标，
 `meta.crosscheck.soa` 给出各对峰值的最大差值与违例数的对比，记入设计 PR。
 体端与结的正向偏置不设项目门槛，由设计按器件的合法使用条件保证（#27）。
 

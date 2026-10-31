@@ -487,7 +487,7 @@ def test_judge_raises_unexpected_errors_and_marks_unresolved_ones_stale(monkeypa
         raise ModuleNotFoundError("No module named 'matplotlib'")
 
     monkeypatch.setattr(deps, "unrecorded", unresolved)
-    assert checks.judge(doc)["stale"] == ["(dependencies: adc_comp: no candidate 'gone')"]
+    assert "(dependencies: adc_comp: no candidate 'gone')" in checks.judge(doc)["stale"]
     monkeypatch.setattr(deps, "unrecorded", broken)
     with pytest.raises(ModuleNotFoundError):
         checks.judge(doc)

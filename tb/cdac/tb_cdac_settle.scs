@@ -33,7 +33,7 @@ VCLK (CLK 0) vsource type=pulse val0=0 val1=vdd period=tper width=tper/2-20p ris
 ICG (CLK PHI_S PHI_SB PHI_B PHI_BB CONV VDDA 0) adc_clkgen_va
 VDDA (VDDA 0) vsource dc=vdd
 VVCM (VCM 0) vsource dc=vref_in/2
-tran1 tran stop=tstop maxstep=2p
+tran1 tran stop=tstop errpreset=conservative
 ac1 ac freq=100M
 save TOP CONV PHI_S PHI_SB VDH5:p QPS QPSB QCV
 // @RNL {

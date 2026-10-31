@@ -16,7 +16,7 @@ COP (OUTP 0) capacitor c=cload
 CON (OUTN 0) capacitor c=cload
 VAVDD (AVDD_S 0) vsource dc=vdd
 IMAVDD (AVDD_S AVDD) tb_imeter_va tstart=tstart tstop=tstop label="AVDD" fname="power.txt"
-tran1 tran stop=tstop
+tran1 tran stop=tstop errpreset=conservative
 save INP INN CLKC OUTP OUTN
 // @RNL {
 //   /* pins connected by net name: the net-name label of rnl-std-fill on every unwired pin, placed below by its key netname */

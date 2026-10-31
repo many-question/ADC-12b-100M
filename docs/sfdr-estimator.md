@@ -2,30 +2,19 @@
 
 本项目所有正弦测试的 SFDR（顶层 `tb_top_*`、`tb_bootstrap_track`、`tb_cdac_track`、`tb_ref_replay`，以及系统模型
 `model.sine_test_cal` 和 `adcflow budget` 的失配表）都经过同一个辅助函数。#36 发现它报出的 SFDR 可能完全错误。
-本文说明 Python 与 MATLAB 两个版本的 ADCToolbox 各错在哪里、我们现在采用的定义、测试结果，以及对已记录结果的影响。
+本文说明现在的做法，以及 Python 与 MATLAB 两个版本的 ADCToolbox 曾经各错在哪里。§2 ~ §6 是 #36 当时的记录，保留作依据。
 
 ## 1. 结论
 
-* **Python ADCToolbox 0.6.4 的 SFDR 有两个错误。**
-  1. 最大杂散的搜索排除了信号频点，但计算杂散功率时又在**未屏蔽**的频谱上，以杂散频点为中心对 ±side_bin 个频点求和。
-     杂散紧挨着信号频点时，求和窗口会伸进信号频点。#36 的记录里，一个 −80 dBc 的杂散因此报成 SFDR 7.78 dBc；
-     离基波 2 个频点、真实的 −60 dBc 单音也报成 7.78 dBc。
-  2. 搜索与总功率都只用到频点 0 … N/2 − 1，看不到 Nyquist 频点。Nyquist 上 −80 dBc 的杂散报成 84.8 dBc，
-     SNDR 同样漏掉它（报 84.8 dB，应为 80.0 dB）。
-* **MATLAB ADCToolbox `plotspec`（v1.32）的 SFDR 定义是对的**，§4 的全部杂散用例都给出准确值。它的缺陷在别处：
-  频谱几乎没有噪声时，自动 `sideBin` 会取 0，于是一个干净正弦的 SFDR 报 6.02 dB、SNDR 报 3.01 dB。
-  真实的 ADC 记录都有噪声底，碰不到这种情形。
-* **PyPI 上的 ADCToolbox 0.9.1 修好了 0.6.4 的两个错误**（重叠与 Nyquist），但杂散功率仍对 ±side_bin 的窗口求和，
-  只是改在已屏蔽的副本上求和：窗口碰到被屏蔽的频点（信号频点或 DC）时，那部分泄漏被丢掉，SFDR 偏乐观
-  （本文用例中 0.64 ~ 1.58 dB，窗口只剩一个频点时最多 10·log10(1.5) = 1.76 dB，§3）。所以我们不升级，保留自己的
-  `plotspec` 式估计器。上游已报告为 [Arcadia-1/ADCToolbox#100](https://github.com/Arcadia-1/ADCToolbox/issues/100)。
-* **我们采用 `plotspec` 的 SFDR 定义**，在项目自己的 Python 度量路径里实现（`tools/adcflow/spectrum.py`），
-  因为 CI 和贡献者没有 MATLAB。信号频点和 side_bin 取自 0.6.4 的 `compute_spectrum`，相干 Hann 窗下为 1，
-  也就避开了 MATLAB 自动 sideBin 的问题。ENOB、SNDR、SNR、THD 仍由 adctoolbox 0.6.4 计算，数值不变。
-  §4 的 13 个用例全部正确，并与 MATLAB 逐一一致（干净正弦除外，原因见上）。
-* **对已记录结果的影响**（§6）：7 个结果、11 个 SFDR 值都没有落入 #36 的重叠情形。变化只来自定义的差别：
-  0.6.4 把杂散频点两侧频点里的噪声也算进了杂散。变化为 −0.03 ~ +1.30 dB，判定都不变。
-  新值与 MATLAB `plotspec` 在相同记录上的结果相差 < 1e-8 dB。
+* **现在**：ENOB、SNDR、SFDR、SNR、THD 全部直接取自 ADCToolbox 的 `compute_spectrum`（`tools/adcflow/spectrum.py`），
+  `pyproject.toml` 固定到上游提交 `cd72061`（Arcadia-1/ADCToolbox#100 的修复）。#36 期间的本地估计器 `adcflow.spectrum.sfdr_dbc` 已退役。
+* **固定提交，不固定版本**：这个提交的版本号仍是 0.9.1，而 PyPI 上的 0.9.1 **没有**修复（§3）。所以 `pyproject.toml` 写提交，
+  结果的 `meta.provenance.spectrum` 同时记录版本与提交，`tests/test_spectrum.py` 检查安装的正是这个提交。
+* **`cd72061` 在 §4 的全部用例上给出真值**（§8）。没有注入杂散的噪声底上，它仍对杂散频点 ±1 求和再除以 ENBW，`quantized` 用例报 88.42 dB，
+  `plotspec` 的单频点定义报 88.08 dB；这个差别是定义不同，不是错误。
+* **上游还剩一个限制**：杂散碰到信号频点时，它的一部分泄漏被算作信号，**SNDR 约高 0.8 dB**（`issue36` 报 80.79 dB，真值 80.00 dB）。这是按频点划分信号的方法本身的局限，SFDR 不受影响。
+* MATLAB ADCToolbox `plotspec`（v1.32）的 SFDR 定义也是对的。它的缺陷在别处：
+  频谱几乎没有噪声时，自动 `sideBin` 会取 0，于是一个干净正弦的 SFDR 报 6.02 dB、SNDR 报 3.01 dB。真实的 ADC 记录都有噪声底，碰不到这种情形。
 
 ## 2. Python ADCToolbox 0.6.4 错在哪里
 
@@ -165,3 +154,7 @@ python -m adcflow remeasure <test> --run build/runs/<run_id> [--dry-run]
 其它任何指标与记录不同即中止（说明不是同一次仿真的数据），不写任何文件。仿真的 `meta`（日期、提交、文件哈希）保留，
 `meta.remeasured` 记下重算的日期、提交、所用运行，以及每个变化指标的旧值与新值。保存了原始捕获的结果（例如 #36 中
 晶体管级混合顶层的记录）可以用它按新定义重算，并留下明确的新旧出处。
+
+## 8. 切换到上游提交 `cd72061`
+
+@@CD72061@@
