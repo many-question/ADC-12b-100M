@@ -306,3 +306,180 @@ B20 has repaired the known deterministic stress and reset failures. The remainin
 | MUPXN | 0.90000 | 0.90245 | 0.85867 |
 
 Archive SHA-256 `c8a74ccede6235c327f18a07859b6212db81ef8ef240a8c695fe06fe96ccf653` retains both complete raws, phase distributions, saved drain-terminal currents, every error index and the matched B17 comparison. Every member was read back with CRC and SHA-256 verification; the owned remote run is absent. The 102.5 ns duration gives noisefmin 9.7561 MHz instead of the original 287.216 kHz. Terminal currents include dynamic displacement and do not isolate channel noise. Canonical B13 and every genuine original record remain unchanged.
+
+## Completed screen 20261031-110714-miyahara-buffer-v20-screen
+
+All 180 actual polarities including 10 uV and all 180 resets pass, together with timing, physical output validity and all 129 terminal pairs at each corner. These deterministic gates do not establish formal noise.
+
+Actual clean source commit: `2ec8da8a83bf225c0456bf5261a44b0f37984b66`. Electrical SHA-256: `53b627cde3353cbe6176adc85391ea2ccb4b51dd81d63849c0ad6c56a5aa895f`. The canonical netlist and 282 official result/figure files are unchanged.
+
+| Corner | 1 mV / 30 mV delay (ps) | Reset (ps) | AVDD (fJ/cycle) | Decided / cycles | Wrong | CMP-15 | Max stress (V) | Failed pairs |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| ff_high_125 | 47.819600 / 36.762230 | 19.404313 | 967.080370 | 36 / 36 | 0 | 0 | 0.99186 | 0 / 129 |
+| ff_high_m40 | 42.532224 / 34.976358 | 18.148558 | 857.454823 | 36 / 36 | 0 | 0 | 0.99793 | 0 / 129 |
+| sf_high_125 | 55.754687 / 44.873251 | 23.816062 | 869.004428 | 36 / 36 | 0 | 0 | 0.99485 | 0 / 129 |
+| sf_high_27 | 54.562836 / 44.975383 | 23.078308 | 822.217758 | 36 / 36 | 0 | 0 | 0.99784 | 0 / 129 |
+| sf_low_m40 | 73.406252 / 58.622438 | 28.332520 | 424.409353 | 36 / 36 | 0 | 0 | 0.82264 | 0 / 129 |
+
+The entire trace, including clock edges and reset, is checked for every MOS |Vgs|, |Vgd| and |Vds|. Each job uses +aps, no explicit +mt, traponly, maxstep=0.5p, reltol=1e-6 and vabstol=1e-8. The observed batch peak is 2 concurrent jobs; logs report effective single-thread simulation. All raw/deck hashes were verified, and the exact owned remote run was removed with absence confirmed.
+
+Per-device maximum over all three terminal pairs (V):
+
+| Device | ff_high_125 | ff_high_m40 | sf_high_125 | sf_high_27 | sf_low_m40 |
+|---|---:|---:|---:|---:|---:|
+| MINP | 0.57859 | 0.69755 | 0.65134 | 0.72083 | 0.60121 |
+| MINN | 0.57864 | 0.69766 | 0.65139 | 0.72094 | 0.60133 |
+| MTAIL | 0.99000 | 0.99000 | 0.99000 | 0.99000 | 0.81000 |
+| M14 | 0.98719 | 0.99200 | 0.98707 | 0.99084 | 0.81179 |
+| M15 | 0.98719 | 0.99200 | 0.98707 | 0.99084 | 0.81179 |
+| M12 | 0.98938 | 0.99206 | 0.99077 | 0.99228 | 0.81331 |
+| M13 | 0.98938 | 0.99206 | 0.99077 | 0.99228 | 0.81331 |
+| M10 | 0.96085 | 0.98004 | 0.96378 | 0.97556 | 0.80876 |
+| M11 | 0.96085 | 0.98004 | 0.96378 | 0.97556 | 0.80876 |
+| M6 | 0.97734 | 0.99338 | 0.98872 | 0.99352 | 0.81576 |
+| M7 | 0.97734 | 0.99338 | 0.98872 | 0.99352 | 0.81576 |
+| M8 | 0.98702 | 0.99338 | 0.98872 | 0.99352 | 0.81576 |
+| M9 | 0.98888 | 0.99338 | 0.98872 | 0.99352 | 0.81576 |
+| MCKN | 0.99000 | 0.99269 | 0.99358 | 0.99446 | 0.81815 |
+| MCKP | 0.99000 | 0.99000 | 0.99000 | 0.99000 | 0.81000 |
+| MRQP | 0.98993 | 0.99338 | 0.99358 | 0.99446 | 0.81815 |
+| MRQN | 0.98993 | 0.99338 | 0.99358 | 0.99446 | 0.81815 |
+| MAP | 0.99000 | 0.99200 | 0.99000 | 0.99084 | 0.81179 |
+| MAN | 0.99000 | 0.99200 | 0.99000 | 0.99084 | 0.81283 |
+| MBPP | 0.98819 | 0.98784 | 0.98536 | 0.98513 | 0.80771 |
+| MBPN | 0.99186 | 0.99793 | 0.99485 | 0.99784 | 0.82264 |
+| MOPP | 0.97055 | 0.98113 | 0.97108 | 0.97623 | 0.80789 |
+| MOPN | 0.99186 | 0.99793 | 0.99485 | 0.99784 | 0.82264 |
+| MBNP | 0.98818 | 0.98781 | 0.98534 | 0.98511 | 0.80771 |
+| MBNN | 0.99185 | 0.99792 | 0.99484 | 0.99783 | 0.82263 |
+| MONP | 0.97055 | 0.98112 | 0.97108 | 0.97623 | 0.80788 |
+| MONN | 0.99185 | 0.99792 | 0.99484 | 0.99783 | 0.82263 |
+| MDDP | 0.98702 | 0.98535 | 0.98825 | 0.98736 | 0.81029 |
+| MDDN | 0.98888 | 0.98793 | 0.98865 | 0.98840 | 0.81283 |
+| MUPRP1 | 0.99000 | 0.99338 | 0.99000 | 0.99352 | 0.81576 |
+| MUPRN1 | 0.99000 | 0.99338 | 0.99000 | 0.99352 | 0.81576 |
+| MUPBP1 | 0.99186 | 0.99793 | 0.99485 | 0.99784 | 0.82264 |
+| MUPBN1 | 0.99185 | 0.99792 | 0.99484 | 0.99783 | 0.82263 |
+| MUPOUTP1 | 0.99000 | 0.99000 | 0.99000 | 0.99000 | 0.81542 |
+| MUPOUTN1 | 0.99000 | 0.99000 | 0.99000 | 0.99000 | 0.81542 |
+| MDNOUTP1 | 0.97749 | 0.98641 | 0.98376 | 0.98731 | 0.81542 |
+| MDNOUTP2 | 0.97749 | 0.98641 | 0.98376 | 0.98731 | 0.81542 |
+| MDNOUTN1 | 0.97749 | 0.98641 | 0.98376 | 0.98731 | 0.81542 |
+| MDNOUTN2 | 0.97749 | 0.98641 | 0.98376 | 0.98731 | 0.81542 |
+| MCKUP | 0.99000 | 0.99269 | 0.99358 | 0.99446 | 0.81815 |
+| MBLEED | 0.99000 | 0.99269 | 0.99358 | 0.99446 | 0.81815 |
+| MUPXP | 0.99000 | 0.99206 | 0.99077 | 0.99228 | 0.81331 |
+| MUPXN | 0.99000 | 0.99206 | 0.99077 | 0.99228 | 0.81331 |
+
+Clock charge from the mixed delay sequence is a supplemental diagnostic, not the official CMP-14 input-capacitance result. No all-corner, noise, Monte Carlo or mixed-top qualification is inferred from this screen.
+
+## Completed screen 20261031-111631-miyahara-buffer-v20-screen
+
+All 36 actual polarities including 10 uV and all 36 resets pass, together with timing, physical output validity and all 129 terminal pairs at each corner. These deterministic gates do not establish formal noise.
+
+Actual clean source commit: `2ec8da8a83bf225c0456bf5261a44b0f37984b66`. Electrical SHA-256: `53b627cde3353cbe6176adc85391ea2ccb4b51dd81d63849c0ad6c56a5aa895f`. The canonical netlist and 282 official result/figure files are unchanged.
+
+| Corner | 1 mV / 30 mV delay (ps) | Reset (ps) | AVDD (fJ/cycle) | Decided / cycles | Wrong | CMP-15 | Max stress (V) | Failed pairs |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| sf_high_m40 | 55.861230 / 46.287308 | 22.265960 | 822.628409 | 36 / 36 | 0 | 0 | 0.99975 | 0 / 129 |
+
+The entire trace, including clock edges and reset, is checked for every MOS |Vgs|, |Vgd| and |Vds|. Each job uses +aps, no explicit +mt, traponly, maxstep=0.125p, reltol=1e-7 and vabstol=1e-9. The observed batch peak is 1 concurrent jobs; logs report effective single-thread simulation. All raw/deck hashes were verified, and the exact owned remote run was removed with absence confirmed.
+
+Per-device maximum over all three terminal pairs (V):
+
+| Device | sf_high_m40 |
+|---|---:|
+| MINP | 0.76920 |
+| MINN | 0.76938 |
+| MTAIL | 0.99000 |
+| M14 | 0.99188 |
+| M15 | 0.99188 |
+| M12 | 0.99296 |
+| M13 | 0.99296 |
+| M10 | 0.98227 |
+| M11 | 0.98228 |
+| M6 | 0.99516 |
+| M7 | 0.99516 |
+| M8 | 0.99516 |
+| M9 | 0.99516 |
+| MCKN | 0.99457 |
+| MCKP | 0.99000 |
+| MRQP | 0.99516 |
+| MRQN | 0.99516 |
+| MAP | 0.99188 |
+| MAN | 0.99188 |
+| MBPP | 0.98527 |
+| MBPN | 0.99975 |
+| MOPP | 0.97896 |
+| MOPN | 0.99975 |
+| MBNP | 0.98524 |
+| MBNN | 0.99974 |
+| MONP | 0.97896 |
+| MONN | 0.99974 |
+| MDDP | 0.98632 |
+| MDDN | 0.98792 |
+| MUPRP1 | 0.99516 |
+| MUPRN1 | 0.99516 |
+| MUPBP1 | 0.99975 |
+| MUPBN1 | 0.99974 |
+| MUPOUTP1 | 0.99000 |
+| MUPOUTN1 | 0.99000 |
+| MDNOUTP1 | 0.98945 |
+| MDNOUTP2 | 0.98945 |
+| MDNOUTN1 | 0.98945 |
+| MDNOUTN2 | 0.98945 |
+| MCKUP | 0.99457 |
+| MBLEED | 0.99457 |
+| MUPXP | 0.99296 |
+| MUPXN | 0.99296 |
+
+Clock charge from the mixed delay sequence is a supplemental diagnostic, not the official CMP-14 input-capacitance result. No all-corner, noise, Monte Carlo or mixed-top qualification is inferred from this screen.
+
+
+### Raw peak and complete-supply audits for the new gates
+
+Run `20261031-110714-miyahara-buffer-v20-screen` has the following independently recomputed, unrounded full-trace maxima.
+
+| Corner | Device pair | Peak V | Margin uV | Since rise ps | Since fall ps |
+|---|---|---:|---:|---:|---:|
+| ff_high_125 | MBPN ds | 0.991855736010 | 8144.263990151 | 16.551013372 | -183.448986628 |
+| ff_high_m40 | MBPN ds | 0.997928250789 | 2071.749210570 | 18.706265160 | -181.293734840 |
+| sf_high_125 | MBPN ds | 0.994852816115 | 5147.183884750 | 22.948994845 | -177.051005155 |
+| sf_high_27 | MBPN ds | 0.997842065679 | 2157.934321459 | 24.618358968 | -175.381641032 |
+| sf_low_m40 | MBPN ds | 0.822636486487 | 177363.513513286 | 33.437499588 | -166.562500412 |
+
+All supply probes are present and KCL closes to numerical precision. The complete AVDD integrals cover all 36 mixed cycles from 100 ps to 14.5 ns, including reset and physical weak loads.
+
+| Corner | Total fJ/cycle | Evaluation | Reset | Initial reset current uA |
+|---|---:|---:|---:|---:|
+| ff_high_125 | 967.080724071 | 409.752303556 | 557.328420515 | 1660.928858352 |
+| ff_high_m40 | 857.455137514 | 332.158132955 | 525.297004559 | 1727.909573834 |
+| sf_high_125 | 869.004798916 | 345.764322996 | 523.240475921 | 1514.458054744 |
+| sf_high_27 | 822.218126818 | 316.760649069 | 505.457477749 | 1557.159591169 |
+| sf_low_m40 | 424.409534883 | 153.665167758 | 270.744367125 | 944.061512462 |
+
+Raw/deck evidence and every audit are preserved under archive SHA-256 `f9927a23a9c6c577ce8cdc58423cd87a4f177ca3aed81b1842b6879f64f599b2`. Every entry was read back with CRC and SHA-256 verification before duplicate raw files were removed; the owned remote run is absent.
+
+Run `20261031-111631-miyahara-buffer-v20-screen` has the following independently recomputed, unrounded full-trace maxima.
+
+| Corner | Device pair | Peak V | Margin uV | Since rise ps | Since fall ps |
+|---|---|---:|---:|---:|---:|
+| sf_high_m40 | MBPN ds | 0.999746509088 | 253.490912065 | 25.827698663 | -174.172301337 |
+
+All supply probes are present and KCL closes to numerical precision. The complete AVDD integrals cover all 36 mixed cycles from 100 ps to 14.5 ns, including reset and physical weak loads.
+
+| Corner | Total fJ/cycle | Evaluation | Reset | Initial reset current uA |
+|---|---:|---:|---:|---:|
+| sf_high_m40 | 822.628481193 | 314.737971757 | 507.890509436 | 1659.189744730 |
+
+Raw/deck evidence and every audit are preserved under archive SHA-256 `cdbd356bc74cfeea22f91a99d490a2758acda20fd1f31eae0f5bc09ce0df6fa5`. Every entry was read back with CRC and SHA-256 verification before duplicate raw files were removed; the owned remote run is absent.
+
+### Numerical convergence
+
+The same electrical source is repeated with 0.125 ps, reltol 1e-7 and vabstol 1e-9. All actual polarities, resets, output validity, timing and terminal pairs still pass. Deltas below are tighter minus initial; all per-pair changes are retained in the archived comparison.
+
+| Corner | 1 mV delay delta ps | 30 mV delay delta ps | Reset delta ps | Largest absolute pair-peak change V |
+|---|---:|---:|---:|---:|
+| sf_high_m40 | +0.000930803 | -0.000027855 | -0.005028260 | 0.00002 |
+
+Together with the earlier five corners, B20 now passes all ten known risk corners, all 360 nominal-cycle polarities/resets and the 36-cycle tighter actual-worst stress repeat. Source-preserving canonical promotion and original TT capacitance/full-noise gates are next. B13 remains canonical until that explicit preservation and copy step. No B20 noise pass is inferred from these screens.
