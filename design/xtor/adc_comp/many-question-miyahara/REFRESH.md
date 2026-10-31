@@ -1,5 +1,7 @@
 # Completed combined energy and output-validity refresh
 
+> Evidence retention (2026-10-31): Historical raw/archive statements below refer to the original audit. Superseded waveforms were released under the user's retention policy. [EVIDENCE-RETENTION](EVIDENCE-RETENTION.md) lists the completed runs still available for raw re-audit.
+
 Completed against comparator spec v0.7.0, including merged PR #82 (`a95aa0c`), notices [#78](https://github.com/many-question/ADC-12b-100M/issues/78) and [#84](https://github.com/many-question/ADC-12b-100M/issues/84). The clean simulated source is `a2e3509597563d607d2a873ed9cc5e9d667ccfff`. Main was merged to preserve original clean source commits and historical result commits.
 
 | Test | Current records | Fresh | Stale | Action |

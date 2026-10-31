@@ -1,5 +1,7 @@
 # Numerical-settings transition: issue #94
 
+> Evidence retention (2026-10-31): Historical raw/archive statements below refer to the original audit. Superseded waveforms were released under the user's retention policy. [EVIDENCE-RETENTION](EVIDENCE-RETENTION.md) lists the completed runs still available for raw re-audit.
+
 ## Merged workflow update, 2026-10-31
 
 [PR #95](https://github.com/many-question/ADC-12b-100M/pull/95) merged at 12:44:34 into main as `c6152d236e525793ecc4809b9a6c9dfb9fd0ad77`; adc_comp is now 0.8.0. The actual comparator testbench and specification patches match the precheck settings. The private runs below retain their original pre-merge source and status. Necessary key evidence will be refreshed through the merged official runner and testbenches with exact ADCToolbox commit `cd72061ff3b7a977163dac540da126ae22f5e38d`. No rehash or private-result relabeling restores formal evidence. Stale warnings still mean ineligible; final merged per-test crosscheck rules apply where specified. New formal notices are checked before subsequent batches.

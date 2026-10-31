@@ -1,5 +1,7 @@
 # BUFFER-V13: increase input-drain integration capacitance
 
+> Evidence retention (2026-10-31): Historical raw/archive statements below refer to the original audit. Superseded waveforms were released under the user's retention policy. [EVIDENCE-RETENTION](EVIDENCE-RETENTION.md) lists the completed runs still available for raw re-audit.
+
 B12 fails the genuine official TT noise gate at 201.879919 uV rms against 200 uV. The 95% interval crosses the limit, but the prescribed point estimate is a failure. Its S-curve and complete samples show no gross anomaly; the old baseline interval overlaps, so no precise noise penalty is assigned to a particular repair.
 
 This source changes only the physical CDP/CDN MOMs from 48 to 56 fingers, nominally 14.06 to 16.4603 fF. Longer front-end integration is intended to improve differential signal development before the later stage decides, and to increase noise margin without widening the input transistors whose official input capacitance is already 19.328731 fF. This is a hypothesis requiring measurement. Extra capacitance costs delay and reset charge; the TT 30 mV delay limit remains 50 ps and all stress/reset gates still apply. No measured noise improvement is claimed at source freeze.

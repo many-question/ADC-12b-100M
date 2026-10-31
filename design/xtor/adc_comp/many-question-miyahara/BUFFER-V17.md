@@ -1,5 +1,7 @@
 # BUFFER-V17: test earlier physical clock release
 
+> Evidence retention (2026-10-31): Historical raw/archive statements below refer to the original audit. Superseded waveforms were released under the user's retention policy. [EVIDENCE-RETENTION](EVIDENCE-RETENTION.md) lists the completed runs still available for raw re-audit.
+
 B15 retains six wrong polarities in the paired FS/low/125 short diagnosis. B16 then reduced the two regeneration reset assists from N4 to N2. It fails the first FS/high/-40 stress screen at a raw BP peak of 1.000025374154 V and slows reset by 6.438097 ps relative to B15. B16 therefore stops before TT or noise expansion. Its measured failure is preserved in [BUFFER-V16.md](BUFFER-V16.md).
 
 This experiment branches electrically from B15. Only the physical clock inverter NMOS MCKN changes from 1 um/30 nm/nf1 to 2 um/30 nm/nf2. The two regeneration reset assists retain their B15 N4 geometry. All other 42 MOS devices and all nine MOMs remain identical to B15, including the 20-finger BP/BN capacitors and 48-finger CKB capacitor. This tests faster CKB release while retaining reset strength. It does not assume that B16 isolated channel noise: changed geometry also changes capacitance and the clock trajectory.

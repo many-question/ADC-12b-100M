@@ -1,5 +1,7 @@
 # BUFFER-V21: larger regeneration-node storage
 
+> Evidence retention (2026-10-31): Historical raw/archive statements below refer to the original audit. Superseded waveforms were released under the user's retention policy. [EVIDENCE-RETENTION](EVIDENCE-RETENTION.md) lists the completed runs still available for raw re-audit.
+
 B20 passes the full proposed-settings TT noise precheck at 191.43800312001045 uV rms but fails FS/low/125 at 343.4944014285115 uV against 240 uV (95% profile interval 332.03 to 355.53 uV). All 8704 finite samples per corner remain preserved. [NUMERICS-94.md](NUMERICS-94.md) records the failure and verified archive. B20 qualification expansion has stopped.
 
 This experiment changes only CRP/CRN from 8 to 16 MOM fingers, 2.06055 to 4.46051 fF. Every one of the 43 MOS devices and the other seven MOMs is electrically identical to B20. Finger length, width, spacing and metal range remain unchanged. The zero-warning callback SHA-256 is `84249f3512afcb0edf2f7347f87ad24398cca5bb59af70eca1e7bd579b236135`.

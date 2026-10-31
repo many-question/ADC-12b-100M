@@ -1,5 +1,7 @@
 # Output overlap and SAR interface
 
+> Evidence retention (2026-10-31): Historical raw/archive statements below refer to the original audit. Superseded waveforms were released under the user's retention policy. [EVIDENCE-RETENTION](EVIDENCE-RETENTION.md) lists the completed runs still available for raw re-audit.
+
 The frozen Miyahara source has an output-validity failure, separate from its known device-voltage failure. Current spec v0.7.0 measurements are in [VALIDITY.md](VALIDITY.md). The fine-step waveform evidence below retains its original source, settings and historical receiver audit.
 
 [PR #82](https://github.com/many-question/ADC-12b-100M/pull/82) implemented #77 and [notice #84](https://github.com/many-question/ADC-12b-100M/issues/84) announced it. All 45 corners have now been refreshed under the merged 50% decision / 30% losing-peak rule, together with the #78 energy meter. The historical fine-step repeat below remains supplemental evidence; it is not relabeled as a current official run.

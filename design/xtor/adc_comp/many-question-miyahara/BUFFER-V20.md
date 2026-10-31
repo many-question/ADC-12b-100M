@@ -1,5 +1,7 @@
 # BUFFER-V20: stronger CKB rise for hot slow reset
 
+> Evidence retention (2026-10-31): Historical raw/archive statements below refer to the original audit. Superseded waveforms were released under the user's retention policy. [EVIDENCE-RETENTION](EVIDENCE-RETENTION.md) lists the completed runs still available for raw re-audit.
+
 B19 repairs the buffer-node high-voltage cold stress but fails SS/low/125 reset at 36.016839 ps against 35 ps. All 180 actual polarities and completed resets, output validity and terminal stress pass across its five initial corners; the reset-time failure still stops noise and broader expansion. At its worst SS cycle, CKB reaches 50%/90% after 8.523814/17.044882 ps, both RP/RN fall below 30% after 22.157436 ps, both BP/BN exceed 90% after 30.059430 ps, and the external outputs reset after 36.016839 ps. [BUFFER-V19.md](BUFFER-V19.md) preserves the source, failure and measured path.
 
 This source retains all B19 P8 interstage drivers, N2 clock pull-down, N4 regeneration reset assists and 40-finger buffer capacitors. Only the CKB inverter PMOS MCKP changes from 3 um/nf3 to 4 um/nf4, with 30 nm length and 1 um finger width fixed. All other 42 MOS devices and all nine MOMs are electrically identical to B19.

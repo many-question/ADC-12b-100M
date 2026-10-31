@@ -1,5 +1,7 @@
 # BUFFER-V10: strengthen only the external output pull-down
 
+> Evidence retention (2026-10-31): Historical raw/archive statements below refer to the original audit. Superseded waveforms were released under the user's retention policy. [EVIDENCE-RETENTION](EVIDENCE-RETENTION.md) lists the completed runs still available for raw re-audit.
+
 Current disposition: rejected for expansion after the additional cold high-voltage corners. See the final completed-screen section below.
 
 B9 passes six-corner terminal stress and output validity, but SS reset is 36.120741 ps. Its SF clock peak already reaches 0.99996 V, leaving little room to strengthen the clock further. This experiment changes only MOPN and MONN from N2 to N3 um, L=30 nm, with 3 fingers. Complete geometry and parasitics are copied from an identical previously validated canonical device. Stronger output discharge and a lower inverter trip point may improve the physical reset metric; the added gate load also changes the upstream waveform, so delay, output validity and all-device stress must be measured again. No Q-shunt or weak pull-up is strengthened.

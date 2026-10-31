@@ -1,5 +1,7 @@
 # BUFFER-V2: recover threshold-stage speed
 
+> Evidence retention (2026-10-31): Historical raw/archive statements below refer to the original audit. Superseded waveforms were released under the user's retention policy. [EVIDENCE-RETENTION](EVIDENCE-RETENTION.md) lists the completed runs still available for raw re-audit.
+
 BUFFER-V1 has a large output-validity margin in its six screened corners but misses the TT 30 mV delay by 2.984 ps. This experiment changes only the first buffer NMOS from 0.5 um/nf1 to 1 um/nf1, using the existing successful callback geometry. It increases pull-down drive and lowers the first-stage switching region. The P6 first-stage device, second inverter, core and reset circuitry remain electrically identical to V1.
 
 The first diagnostic compares TT and SF low/-40 C against their existing V1 traces at the same 0.5 ps settings. It tests whether the speed recovery preserves physical losing-output suppression before spending work on a separate reset/feedthrough redesign. V1's high-voltage failures remain known concerns; no high-voltage qualification is inherited or claimed.

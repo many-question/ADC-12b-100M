@@ -1,5 +1,7 @@
 # BUFFER-V11: constrain clock feedthrough at both rails
 
+> Evidence retention (2026-10-31): Historical raw/archive statements below refer to the original audit. Superseded waveforms were released under the user's retention policy. [EVIDENCE-RETENTION](EVIDENCE-RETENTION.md) lists the completed runs still available for raw re-audit.
+
 Current disposition: rejected for expansion because two FS/high/-40 input-stage terminal pairs remain above 1.0 V.
 
 B10 passes delay, reset and output validity at all ten measured corners, but CKB feedthrough fails stress at two newly measured corners. SF/high/-40 reaches 1.000656171 V, 1.038279 ps before the rising clock 50% crossing. FS/high/-40 reaches -11.143791 mV, 1.571604 ps before the falling crossing, producing 1.001143791 V terminal stress. The latter is the actual worst measured stress.

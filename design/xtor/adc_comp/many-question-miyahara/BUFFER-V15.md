@@ -1,5 +1,7 @@
 # BUFFER-V15: restore buffer-node edge margin
 
+> Evidence retention (2026-10-31): Historical raw/archive statements below refer to the original audit. Superseded waveforms were released under the user's retention policy. [EVIDENCE-RETENTION](EVIDENCE-RETENTION.md) lists the completed runs still available for raw re-audit.
+
 B14's first SF/high/-40 and FS/high/-40 screens pass all 72 actual polarities, resets and output-validity checks, but FS fails six terminal-stress pairs. The actual BN maximum is 1.000091633924 V at 23.997853 ps after a rising midpoint, with CLKC=0.99 V and CKB=0.129335 V. BP similarly reaches 1.000089066299 V. SF peaks at 0.99991 V. B14 stops before TT and noise; no noise improvement has yet been demonstrated for its stronger interstage PMOS drive.
 
 This source changes only CBP/CBN, the physical buffer-node MOMs, from 16 to 20 fingers, nominally 4.46 to 5.66049 fF. It tests additional edge-charge storage at the two observed overvoltage nodes. All 43 MOS devices, including B14's M14/M15 P6 drivers, and the other seven MOMs are electrically unchanged. This repairs an observed edge-margin problem; it does not assume that added capacitance fixes the B13 noise mechanism. Added buffer delay and reset charge must be measured.

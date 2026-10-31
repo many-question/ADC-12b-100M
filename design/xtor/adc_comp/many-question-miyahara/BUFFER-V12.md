@@ -1,5 +1,7 @@
 # BUFFER-V12: suppress input-stage negative feedthrough
 
+> Evidence retention (2026-10-31): Historical raw/archive statements below refer to the original audit. Superseded waveforms were released under the user's retention policy. [EVIDENCE-RETENTION](EVIDENCE-RETENTION.md) lists the completed runs still available for raw re-audit.
+
 B11 removes the clock-rail stress failure but retains the two M14/M15 Vds failures already present in B10. At FS/high/-40, XP reaches -10.919713 mV at 11.480779 ps after the rising clock 50% crossing, producing 1.00092 V maximum stress. CKB is now bounded between 0.037750 and 0.988618 V. Both targeted corners otherwise pass timing, reset, regeneration and physical output validity, with all 36 correct decisions and resets.
 
 This experiment adds one P0.5um/100nm weak pull-up to each XP/XN node. Its complete geometry and terminal parasitics are identical to the existing callback-validated MUPRP1 device. All earlier electrical statements remain unchanged. Each of the resulting 43 MOS and 9 MOM capacitors is represented physically; the new devices' persistent current and AVDD energy are included.

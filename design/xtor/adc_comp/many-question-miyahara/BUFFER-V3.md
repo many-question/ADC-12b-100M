@@ -1,5 +1,7 @@
 # BUFFER-V3: cross-output discharge and clock damping
 
+> Evidence retention (2026-10-31): Historical raw/archive statements below refer to the original audit. Superseded waveforms were released under the user's retention policy. [EVIDENCE-RETENTION](EVIDENCE-RETENTION.md) lists the completed runs still available for raw re-audit.
+
 B2 passes the six key corners' decision, output-validity and timing checks but retains raw-output reset undershoot and clock-node excursions. This experiment adds an 8 um NMOS from each raw node to ground, gated by the opposite physical external output. Once one output wins, it can hold the opposite raw node low through the observed reset-coupling interval. Both clamp gates are low during initial evaluation; this differs electrically from a keeper that continuously opposes the winning node. The feedback is implemented with actual transistors and is itself subject to validity and timing checks.
 
 Each clock node also gets an N1 um discharge device with gate at AVDD and another 2.06055 fF physical MOM capacitor in parallel with its existing damping capacitor. Their DC current and reduced swing are included in measured AVDD energy. To drive the added clamp-gate loads, the output inverter becomes P6/N3 and the first buffer pull-down becomes N2. These changes can alter threshold behavior, races and reset speed; none is assumed safe merely because B2 passed output validity.

@@ -1,5 +1,7 @@
 # BUFFER-V18: test stronger input-to-XP/XN drivers
 
+> Evidence retention (2026-10-31): Historical raw/archive statements below refer to the original audit. Superseded waveforms were released under the user's retention policy. [EVIDENCE-RETENTION](EVIDENCE-RETENTION.md) lists the completed runs still available for raw re-audit.
+
 B17 passes four initial deterministic corners and improves cold high-voltage stress margin, but its matched short FS/low/125 diagnosis retains four errors out of 256. Changing only clock pull-down reduces mean CKB/VDD at +30 ps from 0.144669 to 0.025470; FS RP SNR at +40 ps nevertheless increases only about 1.09%. DP signs at +20/+30 ps remain correct for every sample, while RP-RN at +50 ps already contains all four final errors. [BUFFER-V17.md](BUFFER-V17.md) preserves the full result and stopped broader expansion; no formal noise pass is claimed.
 
 This experiment branches electrically from B17. Only M14/M15, the PMOS devices driven by DP/DN and supplying XP/XN, change from 6 um/30 nm/nf6 to 8 um/30 nm/nf8. Length and 1 um finger width remain fixed; total width and finger count both increase. A new successful zero-warning P8 callback supplies full geometry and parasitics, SHA-256 `20855415d9559ad00227138e98d1e759f6c67857f07cd4c5123d67502d0fec87`. All other 41 MOS devices and all nine MOMs are identical to B17, including its N2 clock pull-down, N4 regeneration reset assists and 20-finger BP/BN capacitors.

@@ -1,5 +1,7 @@
 # BUFFER-V16: test regeneration reset-assist loading
 
+> Evidence retention (2026-10-31): Historical raw/archive statements below refer to the original audit. Superseded waveforms were released under the user's retention policy. [EVIDENCE-RETENTION](EVIDENCE-RETENTION.md) lists the completed runs still available for raw re-audit.
+
 B15's paired short diagnosis has 0/256 wrong polarities at TT and 6/256 at FS/low/125, with complete reset, no later interface sign changes and no full-trace stress violation. The FS result is improved from B13's 11/256 in this finite sample, but does not establish the 240 uV requirement. All six errors are already present in RP-RN at +50 ps, which agrees with every final decision. B15 remains unpromoted, including its separate 13.345 uV cold high-voltage stress-margin concern.
 
 The FS input difference remains correct for every sample at +20 and +30 ps, while later transfer loses discrimination. At +30 ps B15's two-level DP/XP/RP descriptive SNR values are 3.561/2.578/1.253. At +40 ps RP gain/SNR is 12.734/2.266, versus B13 7.557/1.852. Stronger interstage drive improved early transfer but residual errors remain; B13 to B15 also changed buffer capacitors, so it is not a one-variable causal comparison.
