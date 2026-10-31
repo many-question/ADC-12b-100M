@@ -179,3 +179,130 @@ Matched SS/low/125 traces compare all 36 reset cycles directly with B19. Only MC
 | OUT_reset10 | -2.363354926 | -2.189100201 | -2.143760784 |
 
 These waveform timings establish the measured reset change without separating drive, capacitance and transient bias or inferring a channel-noise benefit.
+
+
+## Matched short noise-phase diagnosis
+
+Run `20261031-104845-miyahara-buffer-v20-noise-phase-diagnostic-screen` uses clean report source `3f355984d8d699235698aea12287085e1834d464` and matches B17's short testbench, +/-800 uV, 128 cycles per level, seed 1, 50 GHz and 0.5 ps/1e-6/1e-8 integration. All 256 samples at each corner are retained. TT has zero wrong polarities, and FS/low/125 has one at cycle 90, compared with B17's zero and four. The sources differ in three respects: P8 interstage drivers, 40-finger buffer capacitors and the P4 clock pull-up. The noise-phase comparison cannot isolate one change, and B19 has no noise run.
+
+| Corner | B17 errors / 256 | B20 errors / 256 | B20 max reset ps | B20 full-trace stress max V |
+|---|---:|---:|---:|---:|
+| fs_low_125 | 4 | 1 | 26.727982072 | 0.81187 |
+| tt_nom_27 | 0 | 0 | 24.509463400 | 0.90509 |
+
+All 512 resets complete. Each corner has zero +80/+150 ps to final sign changes, late resets, physical output-validity violations or terminal stress violations. All 129 terminal pairs are retained per corner. Internal DP signs at +20/+30 ps remain correct in all cycles. In FS, RP at +40 ps already matches every final decision, including cycle 90. Internal phase signs are not completed output decisions.
+
+| Corner | Phase | Quantity | B17 secant gain | B20 secant gain | B17 descriptive SNR | B20 descriptive SNR |
+|---|---|---|---:|---:|---:|---:|
+| fs_low_125 | +20 ps | DP_minus_DN | -2.956662453 | -2.914792306 | 3.195179258 | 3.304776722 |
+| fs_low_125 | +30 ps | DP_minus_DN | -2.248841899 | -2.412605335 | 3.561315001 | 3.683677980 |
+| fs_low_125 | +30 ps | RP_minus_RN | 1.451648488 | 2.102596898 | 1.243383953 | 1.599191355 |
+| fs_low_125 | +40 ps | RP_minus_RN | 13.415481745 | 18.221802599 | 2.290627063 | 2.417807670 |
+| fs_low_125 | +50 ps | RP_minus_RN | 63.782637276 | 97.895809119 | 2.232008419 | 2.381413779 |
+| tt_nom_27 | +20 ps | DP_minus_DN | -3.506716777 | -3.448740607 | 4.015653799 | 4.109964216 |
+| tt_nom_27 | +30 ps | DP_minus_DN | -4.547373865 | -4.437873426 | 4.944206576 | 4.997977473 |
+| tt_nom_27 | +30 ps | RP_minus_RN | 2.013317210 | 2.725748598 | 1.992883387 | 2.358429583 |
+| tt_nom_27 | +40 ps | RP_minus_RN | 40.558435837 | 49.480209871 | 4.395448234 | 4.292202927 |
+| tt_nom_27 | +50 ps | RP_minus_RN | 326.456392859 | 434.019955908 | 4.690827751 | 4.927262694 |
+
+At FS +40 ps the descriptive RP SNR rises from 2.290627 to 2.417808, about 5.6%; at +50 ps it rises from 2.232008 to 2.381414. TT +40 ps falls from 4.395448 to 4.292203. These two-level statistics include changing transfer and regeneration and are not formal input-referred noise. The single remaining hot-corner error and modest SNR change leave the 240 uV requirement unresolved. Shared seeds and finite counts do not establish noise equality, independence or a pass.
+
+B20 has repaired the known deterministic stress and reset failures. The remaining five known risk corners and actual-worst tighter stress convergence will therefore be completed before deciding source-preserving canonical promotion. Only the unchanged original full tests can establish formal noise performance; B20 is currently unpromoted and no formal noise pass is claimed.
+
+### Full-trace terminal pairs: fs_low_125
+
+| Device | max abs(Vgs) V | max abs(Vgd) V | max abs(Vds) V |
+|---|---:|---:|---:|
+| MINP | 0.49224 | 0.49194 | 0.40557 |
+| MINN | 0.49229 | 0.49196 | 0.40487 |
+| MTAIL | 0.81000 | 0.80976 | 0.59121 |
+| M14 | 0.81169 | 0.81127 | 0.77973 |
+| M15 | 0.81157 | 0.81120 | 0.78004 |
+| M12 | 0.80664 | 0.81127 | 0.81154 |
+| M13 | 0.80596 | 0.81120 | 0.81159 |
+| M10 | 0.79007 | 0.78413 | 0.80221 |
+| M11 | 0.79009 | 0.78413 | 0.80225 |
+| M6 | 0.80236 | 0.78413 | 0.80244 |
+| M7 | 0.80244 | 0.78413 | 0.80236 |
+| M8 | 0.80664 | 0.80286 | 0.80244 |
+| M9 | 0.80596 | 0.80276 | 0.80236 |
+| MCKN | 0.81000 | 0.80518 | 0.81187 |
+| MCKP | 0.81000 | 0.80518 | 0.80132 |
+| MRQP | 0.81187 | 0.80630 | 0.80244 |
+| MRQN | 0.81187 | 0.80612 | 0.80236 |
+| MAP | 0.81000 | 0.80986 | 0.81169 |
+| MAN | 0.81000 | 0.80977 | 0.81157 |
+| MBPP | 0.81085 | 0.81024 | 0.79926 |
+| MBPN | 0.80244 | 0.81024 | 0.81143 |
+| MOPP | 0.79926 | 0.80031 | 0.79981 |
+| MOPN | 0.81143 | 0.80031 | 0.80298 |
+| MBNP | 0.81078 | 0.81017 | 0.79930 |
+| MBNN | 0.80236 | 0.81017 | 0.81148 |
+| MONP | 0.79930 | 0.80022 | 0.79982 |
+| MONN | 0.81148 | 0.80022 | 0.80303 |
+| MDDP | 0.80664 | 0.00000 | 0.80664 |
+| MDDN | 0.80596 | 0.00000 | 0.80596 |
+| MUPRP1 | 0.81000 | 0.80244 | 0.81085 |
+| MUPRN1 | 0.81000 | 0.80236 | 0.81078 |
+| MUPBP1 | 0.81000 | 0.81143 | 0.79926 |
+| MUPBN1 | 0.81000 | 0.81148 | 0.79930 |
+| MUPOUTP1 | 0.81000 | 0.80298 | 0.79981 |
+| MUPOUTN1 | 0.81000 | 0.80303 | 0.79982 |
+| MDNOUTP1 | 0.80298 | 0.00000 | 0.80298 |
+| MDNOUTP2 | 0.80298 | 0.00000 | 0.80298 |
+| MDNOUTN1 | 0.80303 | 0.00000 | 0.80303 |
+| MDNOUTN2 | 0.80303 | 0.00000 | 0.80303 |
+| MCKUP | 0.81000 | 0.81187 | 0.80132 |
+| MBLEED | 0.81000 | 0.80132 | 0.81187 |
+| MUPXP | 0.81000 | 0.81154 | 0.77973 |
+| MUPXN | 0.81000 | 0.81159 | 0.78004 |
+
+### Full-trace terminal pairs: tt_nom_27
+
+| Device | max abs(Vgs) V | max abs(Vgd) V | max abs(Vds) V |
+|---|---:|---:|---:|
+| MINP | 0.49294 | 0.49258 | 0.59614 |
+| MINN | 0.49298 | 0.49257 | 0.59611 |
+| MTAIL | 0.90000 | 0.90014 | 0.56819 |
+| M14 | 0.90231 | 0.90229 | 0.85830 |
+| M15 | 0.90220 | 0.90224 | 0.85867 |
+| M12 | 0.89766 | 0.90229 | 0.90241 |
+| M13 | 0.89703 | 0.90224 | 0.90245 |
+| M10 | 0.87675 | 0.87661 | 0.89393 |
+| M11 | 0.87680 | 0.87661 | 0.89395 |
+| M6 | 0.90358 | 0.87661 | 0.90363 |
+| M7 | 0.90363 | 0.87661 | 0.90358 |
+| M8 | 0.89766 | 0.90185 | 0.90363 |
+| M9 | 0.89703 | 0.90193 | 0.90358 |
+| MCKN | 0.90000 | 0.89594 | 0.90503 |
+| MCKP | 0.90000 | 0.89594 | 0.88624 |
+| MRQP | 0.90503 | 0.89733 | 0.90363 |
+| MRQN | 0.90503 | 0.89714 | 0.90358 |
+| MAP | 0.90000 | 0.90026 | 0.90231 |
+| MAN | 0.90000 | 0.90016 | 0.90220 |
+| MBPP | 0.89821 | 0.89830 | 0.88579 |
+| MBPN | 0.90363 | 0.89830 | 0.90509 |
+| MOPP | 0.88579 | 0.88952 | 0.88754 |
+| MOPN | 0.90509 | 0.88952 | 0.89874 |
+| MBNP | 0.89815 | 0.89822 | 0.88586 |
+| MBNN | 0.90358 | 0.89822 | 0.90498 |
+| MONP | 0.88586 | 0.88943 | 0.88766 |
+| MONN | 0.90498 | 0.88943 | 0.89877 |
+| MDDP | 0.89766 | 0.00000 | 0.89766 |
+| MDDN | 0.89703 | 0.00000 | 0.89703 |
+| MUPRP1 | 0.90000 | 0.90363 | 0.89821 |
+| MUPRN1 | 0.90000 | 0.90358 | 0.89815 |
+| MUPBP1 | 0.90000 | 0.90509 | 0.88579 |
+| MUPBN1 | 0.90000 | 0.90498 | 0.88586 |
+| MUPOUTP1 | 0.90000 | 0.89874 | 0.88754 |
+| MUPOUTN1 | 0.90000 | 0.89877 | 0.88766 |
+| MDNOUTP1 | 0.89874 | 0.00000 | 0.89874 |
+| MDNOUTP2 | 0.89874 | 0.00000 | 0.89874 |
+| MDNOUTN1 | 0.89877 | 0.00000 | 0.89877 |
+| MDNOUTN2 | 0.89877 | 0.00000 | 0.89877 |
+| MCKUP | 0.90000 | 0.90503 | 0.88624 |
+| MBLEED | 0.90000 | 0.88624 | 0.90503 |
+| MUPXP | 0.90000 | 0.90241 | 0.85830 |
+| MUPXN | 0.90000 | 0.90245 | 0.85867 |
+
+Archive SHA-256 `c8a74ccede6235c327f18a07859b6212db81ef8ef240a8c695fe06fe96ccf653` retains both complete raws, phase distributions, saved drain-terminal currents, every error index and the matched B17 comparison. Every member was read back with CRC and SHA-256 verification; the owned remote run is absent. The 102.5 ns duration gives noisefmin 9.7561 MHz instead of the original 287.216 kHz. Terminal currents include dynamic displacement and do not isolate channel noise. Canonical B13 and every genuine original record remain unchanged.
