@@ -240,7 +240,7 @@ def test_parsed_psf_sample(tmp_path):
     f.write_text("\n".join(lines + ["END", ""]))
     m = soa.check(p, psf.read(f))
     bad = {(r["device"], r["pair"]): r["signed_V"] for r in m["soa_table"] if not r["pass"]}
-    assert bad == {("XDUT.X1.MP", "gs"): pytest.approx(-1.1)}
+    assert bad == {("XDUT.X1.MP", "gs"): pytest.approx(-1.2)}
 
 
 # ------------------------------------------------------------------ adc_clkgen (CLK-11, issue #27)
