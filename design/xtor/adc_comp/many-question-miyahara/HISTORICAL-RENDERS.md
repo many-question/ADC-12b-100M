@@ -49,3 +49,5 @@ The complete RNL sources and experiment reports remain available in this candida
 
 - [buffer-v13.png](https://raw.githubusercontent.com/many-question/ADC-12b-100M/a7ade027755ab3be3793b3da4c6d6a38388d15e0/design/xtor/adc_comp/many-question-miyahara/buffer-v13.png)
 - [buffer-v21.png](https://raw.githubusercontent.com/many-question/ADC-12b-100M/a7ade027755ab3be3793b3da4c6d6a38388d15e0/design/xtor/adc_comp/many-question-miyahara/buffer-v21.png)
+
+Historical one-hot event figure uses its immutable published image at `6214f6109214d03c56a7e523f8a209d10c96f5ed`; SHA-256 `1fd670da35b0d3fe329798aeb77378eb0c9cb4d9598f93ad948a76fc7be84fc6`, 177986 bytes, compared byte-for-byte before removing the duplicate candidate image to preserve the 2 MB budget.

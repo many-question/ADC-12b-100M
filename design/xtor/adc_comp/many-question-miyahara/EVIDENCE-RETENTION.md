@@ -29,3 +29,5 @@ The user requested removal of superseded waveform data after a disk-space incide
 Artificial noise-suppression trials remain ineligible for qualification. Retention does not establish compliance. Both canonical candidates retain genuine failed official 0.8 noise results. The full qualification remains incomplete.
 
 Future owned runs explicitly select DUT/SOA and measurement signals. Continuous noise/MC traces remain disabled where the existing protocol uses monitor files. Wildcard/global waveform expansion is rejected. Stimuli, numerical tolerances, measurements and acceptance limits are preserved; shared qualification save-policy changes are coordinated separately in PR #111. Original runs are not relabeled as if they used the new wrapper.
+
+- `20261031-170203-miyahara-buffer-v28-spec08-delay-baseline-screen` — archive SHA-256 `86a3823c35ddfabb29c02fca7cc0857fcaab3984daa3d1d3358f94ccbcfb1784`; recovered and verified on 2026-11-01.

@@ -24,7 +24,7 @@ The crossing estimates are interpolated between the actual saved samples. The br
 
 All times in the table are ps after the rising CLKC 50% crossing. The stable point is the first saved point after the last violation of correct output >80% VDD and the opposite output <20% VDD, before the clock starts falling; the interval brackets that sampled transition. The interpolated first-crossing polarity is wrong in 0/36 cycles in this noise-off repeat, including 0 wrong cases for |vd| >= 100 uV. This is not a statistical noise or mismatch test.
 
-![Frozen-source output-overlap timing](onehot-events.png)
+![Frozen-source output-overlap timing](https://raw.githubusercontent.com/many-question/ADC-12b-100M/6214f6109214d03c56a7e523f8a209d10c96f5ed/design/xtor/adc_comp/many-question-miyahara/onehot-events.png)
 
 The green line marks the first output event, which would latch the internal bit in the current behavioral SAR model. The purple line is only that model's projected clock-fall command at first event +35 ps for speed=1. The plotted CLKC is the independent module stimulus; feedback from SAR and CDAC was not simulated here.
 

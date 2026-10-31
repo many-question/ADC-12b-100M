@@ -2,7 +2,7 @@
 
 > Superseded raw was released. Historical audits do not imply availability; see [retained runs](EVIDENCE-RETENTION.md).
 
-Canonical **B20 fails the merged adc_comp 0.8.0 official FS/low/125 noise test at 343.4944014285115 uV rms against 240 uV**. The original 17 x 512 decisions are retained, with a model-conditional 95% profile interval of 332.03 to 355.53 uV. [FORMAL-SPEC08](FORMAL-SPEC08.md) links the genuine committed result and figure. Current dependency coverage is 1 fresh / 96 records; freshness does not imply passing. This candidate remains WIP, unqualified and unselected.
+Canonical **B20 fails the merged adc_comp 0.8.0 official FS/low/125 noise test at 343.4944014285115 uV rms against 240 uV**. The original 17 x 512 decisions are retained, with a model-conditional 95% profile interval of 332.03 to 355.53 uV. [FORMAL-SPEC08](FORMAL-SPEC08.md) links the genuine committed result and figure. At the recorded 0.8 checkpoint, dependency coverage was 1 fresh / 96 records; this is not a current 0.9 freshness count. This candidate remains WIP, unqualified and unselected.
 
 The independent [B22 experiment](BUFFER-V22.md) passes five merged-baseline deterministic corners and four tighter repeats: all 180/144 actual decisions and resets, output validity and all 129 unrounded MOS terminal pairs. Its stronger CKB pull-up repairs B21's SS reset failure to 34.071442458944574 ps at baseline and 33.30087103116152 ps tighter. However, its complete FS/low/125 noise test **also fails at 342.51175741522553 uV rms** (331.11 to 354.49 uV). B22 qualification expansion stops; B22 TT noise remains untested and B22 is not promoted. Further circuit design continues, preserving every failure.
 
@@ -30,4 +30,12 @@ Independent [B26](BUFFER-V26.md) increases BP/BN MOMs from 44 to 48 fingers and 
 
 Independent [B27](BUFFER-V27.md) weakens only M8/M9 N4 to N2 to test earlier latch release. Five baseline corners and TT capacitance pass; TT 30 mV delay is 47.5707 ps. **Tighter FS/high/-40 fails with SPECTRE-16929 at 137.149 ps**; four planned corners never started. The complete failure is retained, no B27 noise test follows, and B26's physical noise failure remains unchanged.
 
-Independent [BUFFER-V28](BUFFER-V28.md): physical validation pending; predecessor failures retained.
+Independent [BUFFER-V28](BUFFER-V28.md): original baseline recovered; see the report for measured failures and remaining gates.
+
+## Current 1.1 V restoration work
+
+The branch now includes main `17b3a0c` (adc_comp 0.9.0). Issue #116 is acknowledged: delay and kickback require fresh dependency evidence after their explicit save-policy change. The project terminal-voltage limit is 1.1 V at all corners; historical 1.0 V screening failures are retained as historical diagnostics and are not current rejection criteria.
+
+Historical B2 (31 MOS, four MOM capacitors) is the first restoration under test. Frozen electrical SHA-256: `2fcb783897758f6e3191cf85edcb8dc3a3fc8b4b357e80f8a59de2cfefa1b666`. Physical buffer isolation is retained; raw internal loser-node behavior is not substituted for output validity. Loading, physical noise and mismatch remain open. The canonical source and genuine failed formal noise result remain unchanged while restoration is screened privately.
+
+[B2 restoration TT evidence](RESTORATION-11.md) passes the limited current deterministic screen; remaining gates stay open.
