@@ -36,6 +36,4 @@ Independent [BUFFER-V28](BUFFER-V28.md): original baseline recovered; see the re
 
 The branch now includes main `17b3a0c` (adc_comp 0.9.0). Issue #116 is acknowledged: delay and kickback require fresh dependency evidence after their explicit save-policy change. The project terminal-voltage limit is 1.1 V at all corners; historical 1.0 V screening failures are retained as historical diagnostics and are not current rejection criteria.
 
-Historical B2 (31 MOS, four MOM capacitors) is the first restoration under test. Frozen electrical SHA-256: `2fcb783897758f6e3191cf85edcb8dc3a3fc8b4b357e80f8a59de2cfefa1b666`. Physical buffer isolation is retained; raw internal loser-node behavior is not substituted for output validity. Loading, physical noise and mismatch remain open. The canonical source and genuine failed formal noise result remain unchanged while restoration is screened privately.
-
-[B2 restoration TT evidence](RESTORATION-11.md) passes the limited current deterministic screen; remaining gates stay open.
+Historical B2 restoration passes five representative deterministic corners and TT loading, and passes full physical TT noise at 186.695494 uV rms. **FS/low/125 noise fails at 469.460077 uV rms against 240 uV.** Full-corner and mismatch expansion stops for this source. [Restoration evidence](RESTORATION-11.md) retains unrounded intervals, provenance, archive checks and measured runtime. Canonical source and formal results remain unchanged.
