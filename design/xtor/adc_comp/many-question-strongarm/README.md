@@ -36,6 +36,4 @@ Independent [RESET-V34](RESET-V34.md): original baseline recovered; see the repo
 
 The branch now includes main `17b3a0c` (adc_comp 0.9.0). Issue #116 is acknowledged: delay and kickback require fresh dependency evidence after their explicit save-policy change. The project terminal-voltage limit is 1.1 V at all corners; historical 1.0 V screening failures are retained as historical diagnostics and are not current rejection criteria.
 
-Historical V2 (15 MOS, two MOM capacitors) is the first restoration under test. Frozen electrical SHA-256: `608dfd3e547ee65738662bf62ef9c9cb548b0b7ea1000b21c22087ee0c958db8`. Its earlier 1.04856 V peak is below the current rule; timing, validity, loading, physical noise and mismatch still require matching current evidence. The canonical source and genuine failed formal noise result remain unchanged while restoration is screened privately.
-
-[V2 restoration TT evidence](RESTORATION-11.md) passes the limited current deterministic screen; remaining gates stay open.
+Historical V2 restoration passes five representative deterministic corners and TT loading, and passes full physical TT noise at 184.174455 uV rms. **FS/low/125 noise fails at 317.000251 uV rms against 240 uV.** Full-corner and mismatch expansion stops for this source. [Restoration evidence](RESTORATION-11.md) retains unrounded intervals, provenance, archive checks and measured runtime. Canonical source and formal results remain unchanged.
