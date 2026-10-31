@@ -1,6 +1,8 @@
 # Miyahara comparator: BUFFER-V20
 
-**Numerical-settings transition:** all evidence below uses the preceding settings and requires revalidation under [issue #94](NUMERICS-94.md). The old sub-microvolt kickback result is not an established physical conclusion. New-settings private critical checks take priority; no new-settings qualification is claimed.
+**Proposed-settings noise failure:** the full private TT test passes at 191.43800312001045 uV rms (95% profile interval 183.58–199.69 uV), but FS/low/125 fails at 343.4944014285115 uV (332.03–355.53 uV) against 240 uV. Each test retains all 8704 finite samples. B20 qualification expansion has stopped while physical design continues. [NUMERICS-94.md](NUMERICS-94.md) preserves the failed noise test and the passing private critical-corner timing, reset, validity, terminal-stress and kickback checks. These are proposed-settings prechecks, not formal acceptance.
+
+**Numerical-settings transition:** older original-run records below require actual revalidation after [issue #94](NUMERICS-94.md) merges. The old sub-microvolt kickback result is not an established physical conclusion. New private kickback evidence distinguishes the specified net change after evaluation and reset from instantaneous differential and common-mode disturbances; only the net metric is judged against its 40 uV limit. Future actual-CDAC validation must inspect decision-phase input disturbance.
 
 The canonical `adc_comp.scs` now contains the electrically identical source screened as [BUFFER-V20](BUFFER-V20.md). All ten known key corners and targeted convergence at sf_high_m40 pass timing, reset, physical output validity and full-trace MOS stress. This is screening evidence; the candidate remains WIP, unqualified and unselected.
 
