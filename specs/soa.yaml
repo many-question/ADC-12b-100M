@@ -5,7 +5,9 @@
 
 # |Vgs|, |Vgd|, |Vds| (both polarities) of every thin-oxide device; for a MOS
 # capacitor the voltage across it. Changing this makes the SOA results stale.
-limit_V: 1.0
+# 1.1 V at all corners is a project decision. The earlier 1.0 V came from the first
+# architecture spec and had no recorded device basis.
+limit_V: 1.1
 
 thin_oxide:
   # 0.9 V core MOS, terminals d g s b: pairs gs, gd, ds

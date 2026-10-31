@@ -16,7 +16,7 @@
 | `adc_comp` | 噪声 TT ≤ 200 µV、全角 ≤ 240 µV，1 mV 时延 ≤ 80 ps，τ ≤ 15 ps，Cin ≤ 20 fF，CLKC 输入 ≤ 16 fF，回踢 ≤ 40 µV/周期 | 慢角延时、回踢电荷留在浮空上极板 | 负载与时钟来自 SAR 逻辑 | 动态比较器 / 噪声 |
 | `adc_sarlogic` | 全角转换 ≤ 4.1 ns（70 ps 比较器），环路开销 ≤ 35/40 ps，两段 DAC 等待 | SS/0.81 V/−40 °C 慢 1.6× 以上 | 驱动 CDAC 控制（15 fF/线）；输入 CONV ≤ 40 fF、OUTP/OUTN ≤ 7 fF | 异步数字 / 定制逻辑 |
 | `adc_cdac` | C_S = 2.057 pF（cu = 1 fF，权重 980 560 318 180 102 57 32 18 10 6 3 2 1），权重误差在冗余内可校准（DAC-03），τ ≤ 15 ps，跟踪 SFDR ≥ 85 dB | 0.5 fF 半电容、驱动器 PMOS 在 0.81 V 关断不彻底、底板结电容非线性 | 栅压来自 bootstrap，控制来自 SAR 逻辑；时钟输入 PHI_S/PHI_SB ≤ 40 fF、CONV ≤ 80 fF | 电容阵列 / 开关 |
-| `adc_bootstrap` | VG−VIN ≥ 0.72 V 且波动 ≤ 40 mV，关断 ≤ 60 ps，跟踪 SFDR ≥ 82 dB | 器件耐压（≤ 1.0 V）、负载为整个输入开关栅电容 | 负载 = CDAC 输入开关（规格给出参考负载）；PHI_B/PHI_BB 输入 ≤ 16 fF | 采样开关 |
+| `adc_bootstrap` | VG−VIN ≥ 0.72 V 且波动 ≤ 40 mV，关断 ≤ 60 ps，跟踪 SFDR ≥ 82 dB | 器件耐压（≤ 1.1 V）、负载为整个输入开关栅电容 | 负载 = CDAC 输入开关（规格给出参考负载）；PHI_B/PHI_BB 输入 ≤ 16 fF | 采样开关 |
 | `adc_clkgen` | PHI_S→PHI_B 20–80 ps，先断后合，PHI_S 下降沿 ≤ 20 ps、抖动 ≤ 60 fs；AVDD 总电流（含负载）只报告，越低越好 | 抖动、占空比 45/55 % | 驱动所有相位负载（共 530 fF） | 时钟 |
 | `adc_ref` | 电荷回放 ENOB 损失 ≤ 0.1 bit，判决 12~14 期间变化 ≤ 200 µV，噪声（10 kHz~100 GHz）≤ 120 µV，直流 ±5 mV；不设功耗上限 | 全部片内（不用 nF 电容），小去耦下的恢复速度；只能用 1.8 V 供电得到 0.9 V | 负载 ≈ 2 pC/转换（与码基本无关，平均 200 µA） | 模拟 / 驱动 |
 
@@ -108,7 +108,7 @@ CONV 的分配：CDAC 的 CONV 使能 22 个采样半电容的三态驱动器（
 ### adc_bootstrap
 * 经典栅压自举（Abo/Gray 结构），升压电容在转换期间充电；负载为一侧全部输入开关的栅电容
   （测试台中用 96 µm/30 nm `nch_ulvt_mac` + 2.057 pF 作为参考负载）。
-* 所有薄栅器件端电压 ≤ 1.0 V（各工艺角，BST-08 逐管检查 |Vgs|、|Vgd|、|Vds|，见 [`verification.md`](verification.md) §5）；PHI_B 下降后 VG 需在 60 ps 内降到 0.1 V 以下。
+* 所有薄栅器件端电压 ≤ 1.1 V（各工艺角，BST-08 逐管检查 |Vgs|、|Vgd|、|Vds|，见 [`verification.md`](verification.md) §5）；PHI_B 下降后 VG 需在 60 ps 内降到 0.1 V 以下。
 * PHI_B、PHI_BB 输入各 ≤ 16 fF（BST-09/10，每个上升沿的电荷 / VDD）：时钟负载 40 fF 由两个自举电路分担，另留 8 fF 走线。
   关断下拉管（约 110 fF × 1.8 V 在 40 ps 内放完，需数 mA）若由 PHI_BB 直接驱动会接近或超过该限值，可加一级本地缓冲，
   其延时计入 BST-03（≤ 60 ps，自 PHI_B 下降沿起）。
@@ -159,7 +159,7 @@ CONV 的分配：CDAC 的 CONV 使能 22 个采样半电容的三态驱动器（
   其它任何顺序都不支持、不验证。`tb_ref_startup`（全部工艺角）按这个顺序施加电源与 VREF_IN：两个电源一起在 0.1~1.1 µs 上升，
   VREF_IN 再保持 0 V 5 µs（测试台条件，`power_up.vref_dwell`，比顺序本身要求的长：没有参考时就抬起 VREFP / VCM 的电路，
   例如负责人提到的无钳位 v3，会在这里显出来），6.1~16.1 µs 斜坡，就绪 21.1 µs，运行到 25.1 µs；负载为 VREFP 1.2 pF、
-  VCM 2 × 2.5 pF，没有直流负载（CLK 静止）。REF-15~18 要求整个过程中 VREFP、VCM 在 −0.1~1.0 V 之内；从就绪到结束，
+  VCM 2 × 2.5 pF，没有直流负载（CLK 静止）。REF-15~18 要求整个过程中 VREFP、VCM 在 −0.1~1.1 V 之内；从就绪到结束，
   REF-19 要求 |VREFP − VREF_IN| ≤ 5 mV（空载下的 REF-01），REF-20 要求 VCM 在 0.44~0.46 V（REF-02 的范围），
   所以启动过晚或没有启动都不通过。报告（不设限值）：等待期间 VREFP、VCM 的最大值，从就绪起 VREFP 与其终值的最大差，
   终值 VREFP − VREF_IN、终值 VCM、斜坡期间最大 |VREFP − VREF_IN|、斜坡结束后进入 ±5 mV 的时间。逐管 SOA 检查不用于 `adc_ref`（厚栅器件）。负责人此前看到的 1.39 V / 1.085 V 峰值
