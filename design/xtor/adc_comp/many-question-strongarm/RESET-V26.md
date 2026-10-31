@@ -10,7 +10,7 @@ The successful zero-warning callback supplies the full geometry and parasitics, 
 
 SF/FS high/-40 are checked first, then TT and a matched short phase diagnosis on a useful pass. Timing, full AVDD cost, reset, output validity and every terminal pair must be measured again. Remaining known corners, actual-worst numerical convergence, source-preserving canonical promotion and original formal tests remain open. The canonical source and every genuine original record remain unchanged.
 
-![Physical comparator experiment](reset-v26.png)
+![Physical comparator experiment](https://raw.githubusercontent.com/many-question/ADC-12b-100M/8728841e7a6946263fb953d45599cb4afef59ce7/design/xtor/adc_comp/many-question-strongarm/reset-v26.png)
 
 ## Completed screen 20261031-102928-strongarm-reset-v26-screen
 

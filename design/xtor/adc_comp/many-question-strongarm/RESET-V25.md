@@ -8,7 +8,7 @@ The stronger reset pull-down tests whether more sink strength suppresses the obs
 
 Electrical SHA-256: `6209fed9ad21a8f92ce471c5e762260227b0d820c22cba8396cd6c637b543cdf`. The [source](RESET-V25.txt) contains 23 MOS and 5 MOMs with complete RNL checked on a byte-identical mirror. SF/FS high/-40 are checked first for stress, polarity, reset and output validity. TT and a matched short phase diagnosis follow only on a useful pass. Remaining known corners, actual-worst convergence, source-preserving canonical promotion and original formal tests remain open. Canonical V19 and every genuine formal result remain unchanged.
 
-![Physical comparator with stronger Q reset pull-downs](reset-v25.png)
+![Physical comparator with stronger Q reset pull-downs](https://raw.githubusercontent.com/many-question/ADC-12b-100M/8728841e7a6946263fb953d45599cb4afef59ce7/design/xtor/adc_comp/many-question-strongarm/reset-v25.png)
 
 ## Completed screen 20261031-100338-strongarm-reset-v25-screen
 
