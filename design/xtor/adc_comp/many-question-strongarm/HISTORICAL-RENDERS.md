@@ -32,3 +32,13 @@ The complete RNL netlists and experiment reports remain in this candidate. To ke
 - [RESET-V16 rendering](https://raw.githubusercontent.com/many-question/ADC-12b-100M/0a7534091e86e24fff3105bdbf4977eb84bc1bce/design/xtor/adc_comp/many-question-strongarm/reset-v16.png)
 - [RESET-V17 rendering](https://raw.githubusercontent.com/many-question/ADC-12b-100M/0a7534091e86e24fff3105bdbf4977eb84bc1bce/design/xtor/adc_comp/many-question-strongarm/reset-v17.png)
 - [RESET-V18 rendering](https://raw.githubusercontent.com/many-question/ADC-12b-100M/0a7534091e86e24fff3105bdbf4977eb84bc1bce/design/xtor/adc_comp/many-question-strongarm/reset-v18.png)
+
+
+## Preserved images at fc09a938d5e7
+
+The complete RNL sources and experiment reports remain available in this candidate. The following historical PNGs now use fixed links to byte-identical images in published commit `fc09a938d5e73830ff7ad6e293ca46d66fff2671`, keeping space for the next physical experiment. All candidate files were archived and every entry read back with CRC and SHA-256 verification before the duplicate PNGs were removed. Archive SHA-256: `291398536e07a3dd1da73e38492dca3f16ed4055ddece60ddcba962d5ccc4cae`. No electrical source or formal result changes in this cleanup.
+
+- [reset-v19.png](https://raw.githubusercontent.com/many-question/ADC-12b-100M/fc09a938d5e73830ff7ad6e293ca46d66fff2671/design/xtor/adc_comp/many-question-strongarm/reset-v19.png)
+- [reset-v20.png](https://raw.githubusercontent.com/many-question/ADC-12b-100M/fc09a938d5e73830ff7ad6e293ca46d66fff2671/design/xtor/adc_comp/many-question-strongarm/reset-v20.png)
+- [reset-v21.png](https://raw.githubusercontent.com/many-question/ADC-12b-100M/fc09a938d5e73830ff7ad6e293ca46d66fff2671/design/xtor/adc_comp/many-question-strongarm/reset-v21.png)
+- [reset-v22.png](https://raw.githubusercontent.com/many-question/ADC-12b-100M/fc09a938d5e73830ff7ad6e293ca46d66fff2671/design/xtor/adc_comp/many-question-strongarm/reset-v22.png)

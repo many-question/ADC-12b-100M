@@ -6,7 +6,7 @@ V18's TT mixed-sequence CLK charge gives 16.037833 fF, slightly above the 16 fF 
 
 The smaller PMOS should reduce external clock-gate charge but may delay shunt turn-on and restore reset overshoot. SF/high/-40 and FS/high/-40 therefore come first, followed by TT and the matched noise diagnosis only if those pass. Electrical SHA-256: `c14d49b929c6c404d4166762d41bc8773e097a141c4ba0365d5462fbd007e008`. The [source](RESET-V19.txt) contains 23 MOS and 5 MOMs, with complete RNL checked on a byte-identical mirror. Canonical V14 and all older evidence remain preserved. Formal capacitance, noise and qualification do not transfer.
 
-![Physical comparator with smaller clock PMOS](reset-v19.png)
+![Physical comparator with smaller clock PMOS](https://raw.githubusercontent.com/many-question/ADC-12b-100M/fc09a938d5e73830ff7ad6e293ca46d66fff2671/design/xtor/adc_comp/many-question-strongarm/reset-v19.png)
 
 ## Completed screen 20261031-073542-strongarm-reset-v19-screen
 

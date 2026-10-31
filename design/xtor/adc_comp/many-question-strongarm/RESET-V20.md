@@ -8,7 +8,7 @@ Only CQP/CQN change from 16 to 20 fingers, nominally 4.46 to 5.66049 fF. The exi
 
 Electrical SHA-256: `fb5dcf65ea818e14a24913b753c01226796d8f3f06aa9136fd779f9298cb6b60`. The [source](RESET-V20.txt) contains 23 MOS and 5 MOMs, with complete RNL checked on a byte-identical mirror. First test SF/high/-40 and FS/high/-40, then TT timing and a matched short phase diagnosis. Only a useful result warrants remaining known corners, actual-worst convergence, source-preserving promotion and genuine original formal tests. Canonical V19 and every older result remain preserved; no previous pass transfers.
 
-![Physical comparator with larger Q capacitors](reset-v20.png)
+![Physical comparator with larger Q capacitors](https://raw.githubusercontent.com/many-question/ADC-12b-100M/fc09a938d5e73830ff7ad6e293ca46d66fff2671/design/xtor/adc_comp/many-question-strongarm/reset-v20.png)
 
 ## Completed screen 20261031-084147-strongarm-reset-v20-screen
 

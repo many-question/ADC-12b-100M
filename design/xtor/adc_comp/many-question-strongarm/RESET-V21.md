@@ -8,7 +8,7 @@ The new N0.3 callback succeeds with zero warnings; its complete geometry and ter
 
 Electrical SHA-256: `51e0735f2471b3edbfc79f641438d016320d096a689b9e45bd7265661944a90e`. The [source](RESET-V21.txt) contains 23 MOS and 5 MOMs, with complete RNL checked on a byte-identical mirror. After the first stress corners, TT and a matched short phase diagnosis determine whether broader known-corner coverage and actual-worst convergence are useful. Original formal capacitance and noise gates require an electrically identical frozen canonical promotion; no private result substitutes for them. Canonical V19 and all original results remain unchanged.
 
-![Physical comparator with weaker Q reset shunts](reset-v21.png)
+![Physical comparator with weaker Q reset shunts](https://raw.githubusercontent.com/many-question/ADC-12b-100M/fc09a938d5e73830ff7ad6e293ca46d66fff2671/design/xtor/adc_comp/many-question-strongarm/reset-v21.png)
 
 ## Completed screen 20261031-091145-strongarm-reset-v21-screen
 

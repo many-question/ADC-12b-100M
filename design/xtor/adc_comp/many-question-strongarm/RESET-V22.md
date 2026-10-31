@@ -8,7 +8,7 @@ The 20% width reduction tests a smaller change in physical Q reset strength and 
 
 Electrical SHA-256: `67137adab331fb3243cb50939afde1e6ff3bb6f733888439348b3dc85380202e`. The [source](RESET-V22.txt) contains 23 MOS and 5 MOMs, with complete RNL checked on a byte-identical mirror. Remaining known corners, actual-worst convergence, electrically identical canonical promotion and original formal tests remain open. Canonical V19 and all genuine original records remain unchanged.
 
-![Physical comparator with fixed-length 0.4 um Q reset shunts](reset-v22.png)
+![Physical comparator with fixed-length 0.4 um Q reset shunts](https://raw.githubusercontent.com/many-question/ADC-12b-100M/fc09a938d5e73830ff7ad6e293ca46d66fff2671/design/xtor/adc_comp/many-question-strongarm/reset-v22.png)
 
 ## Completed screen 20261031-092126-strongarm-reset-v22-screen
 
