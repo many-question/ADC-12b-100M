@@ -16,56 +16,56 @@
   "comp_behav": 1
  },
  "metrics": {
-  "vrefp_max_V": 0.9015409353141792,
-  "vrefp_min_V": -4.816111909166056e-44,
-  "vcm_max_V": 0.4507738017570986,
-  "vcm_min_V": -6.385808465093209e-45,
-  "vrefp_max_t_us": 16.136965246258523,
-  "vcm_max_t_us": 16.136965246258523,
-  "vrefp_dwell_max_V": 0.44246740898633,
-  "vcm_dwell_max_V": 0.2212337011547154,
-  "ready_err_mV": 0.9745662697381308,
-  "vcm_ready_V": 0.4504897872446196,
-  "ready_dev_mV": 7.51620987671231e-11,
-  "vrefp_final_err_mV": 0.9745662697329127,
-  "vcm_final_V": 0.4504897872446187,
-  "ramp_lag_mV": 442.2384930078798,
+  "vrefp_max_V": 0.9015390771380805,
+  "vrefp_min_V": -2.799521602221299e-18,
+  "vcm_max_V": 0.450769591796409,
+  "vcm_min_V": -8.309420037890415e-20,
+  "vrefp_max_t_us": 16.13699999999995,
+  "vcm_max_t_us": 16.13699999999995,
+  "vrefp_dwell_max_V": 0.4424673247007287,
+  "vcm_dwell_max_V": 0.2212336730579675,
+  "ready_err_mV": 0.9802529554093775,
+  "vcm_ready_V": 0.4504893501185643,
+  "ready_dev_mV": 0.0,
+  "vrefp_final_err_mV": 0.9802529554093775,
+  "vcm_final_V": 0.4504893501185643,
+  "ramp_lag_mV": 442.2454431680161,
   "t_settle_us": 0.0
  },
  "specs": {
   "REF-15": {
    "metric": "vrefp_max_V",
-   "value": 0.9015409353141792,
+   "value": 0.9015390771380805,
    "limit": "<= 1.0",
    "pass": true
   },
   "REF-16": {
    "metric": "vrefp_min_V",
-   "value": -4.816111909166056e-44,
+   "value": -2.799521602221299e-18,
    "limit": ">= -0.1",
    "pass": true
   },
   "REF-17": {
    "metric": "vcm_max_V",
-   "value": 0.4507738017570986,
+   "value": 0.450769591796409,
    "limit": "<= 1.0",
    "pass": true
   },
   "REF-18": {
    "metric": "vcm_min_V",
-   "value": -6.385808465093209e-45,
+   "value": -8.309420037890415e-20,
    "limit": ">= -0.1",
    "pass": true
   },
   "REF-19": {
    "metric": "ready_err_mV",
-   "value": 0.9745662697381308,
+   "value": 0.9802529554093775,
    "limit": "<= 5",
    "pass": true
   },
   "REF-20": {
    "metric": "vcm_ready_V",
-   "value": 0.4504897872446196,
+   "value": 0.4504893501185643,
    "limit": "0.44 .. 0.46",
    "pass": true
   }
@@ -77,29 +77,30 @@
   }
  ],
  "meta": {
-  "date": "2026-10-30T01:31:07",
-  "git": "81d8e02",
+  "date": "2026-10-31T13:16:45",
+  "git": "80f29d0",
   "git_clean": true,
   "mode": "aps",
   "pdk": true,
   "mc": null,
-  "wall_s": 277.3,
+  "wall_s": 316.2,
   "rc": "0",
-  "sim_s": "15",
+  "sim_s": "17",
   "numerics": {
    "source": "spectre.log",
-   "reltol": 0.001,
+   "reltol": 0.0001,
    "maxstep_ps": 1000.0,
-   "method": "traponly",
-   "errpreset": "moderate",
-   "lteratio": 3.5,
+   "method": "gear2only",
+   "errpreset": "conservative",
+   "lteratio": 10.0,
+   "relref": "alllocal",
    "abstol_V": 1e-06,
-   "steps_accepted": 25111,
-   "step_mean_ps": 999.562,
+   "steps_accepted": 25112,
+   "step_mean_ps": 999.522,
    "step_max_ps": 1000.0
   },
   "files": {
-   "tb/ref/tb_ref_startup.scs": "d0842a4224af4dfb",
+   "tb/ref/tb_ref_startup.scs": "9edd45ad54f8258b",
    "design/xtor/adc_ref/many-question/adc_ref.scs": "2b1163f0eb481376"
   },
   "arch": {
