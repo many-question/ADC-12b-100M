@@ -267,3 +267,30 @@ At tt_nom_27, minimum sampled output magnitude is 0.899743608 V and maximum abso
 The log's automatic maxstep bound is not an explicit job-deck setting. Actual APS thread information and the six-job session ceiling are recorded separately. Fetched raw/deck hashes match; the exact owned remote run is absent. Archive SHA-256 `54ff6269212616fd41dc09b383f106a78132651e58a2dbbb69c8717e6c296b92` was checked by reading every member back with CRC and SHA-256. Full qualification remains open.
 
 This electrical source fails the private experimental gate on the merged 0.8.0 baseline. Qualification expansion stops at the failure; diagnosis and further circuit design continue. Every failure is retained.
+
+
+## Private precheck 20261031-135907-strongarm-reset-v29-spec08-delay-baseline-screen
+
+Test `tb_comp_delay`, accuracy `baseline`, frozen clean source `9090cd1297a489aee0bac058ce5347d1a04c5115`. These results use a private copy of the testbench and do not write formal records. This is an independent experimental source using the merged official 0.8.0 testbench baseline, not a formal canonical-view result. All physical stimuli, loads, samplers and measurement code are preserved. Baseline accuracy appends only saved probes; any tighter tolerances are explicitly listed. The requested settings are `{}`; no explicit maxstep or method is set.
+
+| Corner | 1 mV ps | 30 mV ps | Reset ps | Raw max stress V | Actual / reset cycles | Private gate |
+|---|---:|---:|---:|---:|---:|---|
+| fs_high_m40 | 59.099983046 | 44.691524101 | 20.609129130 | 0.995250119148 | 36 / 36 | PASS |
+| sf_high_m40 | 76.083784011 | 55.900866579 | 19.306941259 | 0.996918138292 | 36 / 36 | PASS |
+| ss_low_125 | 93.418906051 | 67.647388810 | 32.076531064 | 0.818252380280 | 36 / 36 | PASS |
+| tt_nom_27 | 68.393376701 | 50.538410349 | 23.036918142 | 0.907368119469 | 36 / 36 | FAIL: CMP-06 |
+
+Every actual polarity down to 10 uV, all reset intervals, full evaluation output validity and every MOS gs/gd/ds pair are checked. The AVDD audit spans all 36 complete cycles; all supply probes are present and KCL closes. Reported power has no acceptance limit.
+
+TT full AVDD waveform integral is 440.609095778 fJ/cycle: 114.220839307 evaluation and 326.388256470 reset. The original meter gives 441.179372520 fJ/cycle; the waveform-integral difference is -0.129262%. Both values are preserved.
+
+| Corner | Effective reltol | Effective vabstol V | Method / preset / relref / lteratio | Largest saved step ps |
+|---|---:|---:|---|---:|
+| fs_high_m40 | 0.0001 | 1e-06 | gear2only / conservative / alllocal / 10 | 56.5 |
+| sf_high_m40 | 0.0001 | 1e-06 | gear2only / conservative / alllocal / 10 | 56.5 |
+| ss_low_125 | 0.0001 | 1e-06 | gear2only / conservative / alllocal / 10 | 56.5 |
+| tt_nom_27 | 0.0001 | 1e-06 | gear2only / conservative / alllocal / 10 | 56.5 |
+
+The log's automatic maxstep bound is not an explicit job-deck setting. Actual APS thread information and the six-job session ceiling are recorded separately. Fetched raw/deck hashes match; the exact owned remote run is absent. Archive SHA-256 `9a9b64993366a0709af81b7d359c4a98bfbf93052eb8240a1f9ab0ce221bd8f1` was checked by reading every member back with CRC and SHA-256. Full qualification remains open.
+
+This electrical source fails the private experimental gate on the merged 0.8.0 baseline. Qualification expansion stops at the failure; diagnosis and further circuit design continue. Every failure is retained.
