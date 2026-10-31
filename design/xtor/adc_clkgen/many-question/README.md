@@ -8,6 +8,19 @@ The historical mixed-top SS low-voltage / 125 C failure from [#35](https://githu
 
 Electrical content hash: `878752080031c251`. Current netlist SHA256: `7dbeabe408e25b960281545139f02c7e736807b30210db72edbed59cc81ce3bd`.
 
+## Rerun for the numerics change
+
+All 46 records were rerun on main `c6152d2` (spec 0.7.0, #95, notice #99) with the netlist unchanged: every `tran` at `errpreset=conservative`, no `maxstep`, `aps`. All 45 corners and the TT jitter record still pass. The numbers and numerical settings in the sections below are the earlier records, kept as history.
+
+| Spec | Limit | Worst corner | Worst value |
+|---|---:|---|---:|
+| CLK-04 `td_conv` | <= 200 ps | `ss_low_125` | 196.74 ps |
+| CLK-02 `skew_sb` | <= 80 ps | `ss_low_125` | 60.44 ps |
+| CLK-06 `tf_s` | <= 20 ps | `ss_low_125` | 12.77 ps |
+| CLK-09 jitter | <= 60 fs | `tt_nom_27` | 38.58 fs |
+
+Cross-checks (`traponly`, 1 ps, reltol 1e-7, vabstol 10 nV) at the five corners differ by at most 0.28 ps (`td_conv`). SOA: 0 violations.
+
 ## Current module evidence
 
 45/45 timing/SOA corners and the TT jitter record have current circuit dependencies on main `3f1f7ce`. After #48 and #57, all 46 records were checked and migrated with the official `adcflow rehash` from merged [#62](https://github.com/many-question/ADC-12b-100M/pull/62). Metrics, figures, original simulation commits and dates are unchanged; this transition ran no new simulations. See [the baseline audit](BASELINE.md).
