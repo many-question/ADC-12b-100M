@@ -61,13 +61,13 @@
   }
  ],
  "meta": {
-  "date": "2026-10-31T11:25:20",
-  "git": "dcaf6fe",
+  "date": "2026-10-31T16:56:00",
+  "git": "73c363a",
   "git_clean": true,
   "mode": "aps",
   "pdk": false,
   "mc": null,
-  "wall_s": 123.9,
+  "wall_s": 125.2,
   "rc": "0",
   "sim_s": "17",
   "numerics": {
@@ -85,7 +85,7 @@
    "step_max_ps": 33.0
   },
   "files": {
-   "tb/comp/tb_comp_kickback.scs": "04359d076ab92d7f",
+   "tb/comp/tb_comp_kickback.scs": "505337caf7038338",
    "design/behav/adc_comp.scs": "c0da9398b6e09fc2",
    "design/behav/veriloga/adc_comp_va.va": "ab8a6bf210351e31",
    "tb/common/veriloga/tb_sampler_va.va": "4092bc16170c588d",
