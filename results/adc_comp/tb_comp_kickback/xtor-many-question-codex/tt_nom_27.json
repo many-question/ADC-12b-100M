@@ -1,0 +1,98 @@
+{
+ "block": "adc_comp",
+ "test": "tb_comp_kickback",
+ "view": "xtor-many-question-codex",
+ "corner": "tt_nom_27",
+ "params": {},
+ "globals": {
+  "vdd": 0.9,
+  "vdd18": 1.8,
+  "tempc": 27.0,
+  "noise_en": 0,
+  "devnoise": 1,
+  "beh_speed": 1.0,
+  "vref_in": 0.9,
+  "cdac_behav": 1
+ },
+ "metrics": {
+  "kickback_uV": 0.06903168660006911,
+  "vdiff_uV": [
+   1000.0,
+   999.902,
+   999.971,
+   1000.04,
+   1000.095,
+   1000.151,
+   1000.207,
+   1000.263
+  ],
+  "cin_fF": 18.83025793697451,
+  "cin_clkc_fF": 5.063295390900602
+ },
+ "specs": {
+  "CMP-11": {
+   "metric": "kickback_uV",
+   "value": 0.06903168660006911,
+   "limit": "<= 40",
+   "pass": true
+  },
+  "CMP-12": {
+   "metric": "cin_fF",
+   "value": 18.83025793697451,
+   "limit": "<= 20",
+   "pass": true
+  },
+  "CMP-14": {
+   "metric": "cin_clkc_fF",
+   "value": 5.063295390900602,
+   "limit": "<= 16",
+   "pass": true
+  }
+ },
+ "figures": [
+  {
+   "file": "tt_nom_27.kickback.png",
+   "caption": "Differential input of the floating top-plate-sized nodes after each evaluate and reset cycle, and the change per cycle against the kickback limit."
+  },
+  {
+   "file": "tt_nom_27.cin.png",
+   "caption": "Input capacitance of the clock and digital inputs: the charge each pin draws over every rising edge (charge meter in series with it) divided by the voltage step, against the limit; the metric is the mean over the edges."
+  }
+ ],
+ "meta": {
+  "date": "2026-10-29T21:42:46",
+  "git": "227305a",
+  "git_clean": true,
+  "mode": "aps",
+  "pdk": true,
+  "mc": null,
+  "wall_s": 123.7,
+  "rc": "0",
+  "sim_s": "36",
+  "numerics": {
+   "source": "spectre.log",
+   "reltol": 0.001,
+   "maxstep_ps": 66.0,
+   "method": "traponly",
+   "errpreset": "moderate",
+   "lteratio": 3.5,
+   "abstol_V": 1e-06,
+   "steps_accepted": 950,
+   "step_mean_ps": 3.47368,
+   "step_max_ps": 50.5
+  },
+  "files": {
+   "tb/comp/tb_comp_kickback.scs": "04b444f63619d31d",
+   "design/xtor/adc_comp/many-question-codex/adc_comp.scs": "23b7e4ac143d6542",
+   "tb/common/veriloga/tb_sampler_va.va": "4092bc16170c588d",
+   "tb/common/veriloga/tb_qmeter_va.va": "fed84d572a912b39"
+  },
+  "arch": {
+   "keys": [],
+   "sha": "44136fa355b3678a"
+  },
+  "views": {
+   "adc_comp": "xtor:many-question-codex"
+  }
+ }
+}
