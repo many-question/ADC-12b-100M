@@ -204,3 +204,10 @@ rises from 1.992429 to 3.056424 pC. Neither proceeds to TT or longer-window
 qualification. The [matched decision waveforms](next-controls-tradeoffs.png)
 and the ledger retain these failures; selected V17/V18 signals support the
 displayed comparisons, not a repeat of their original full-DUT audit.
+
+The next NAND stack-order trials V19/V20 improve SS RL12 to 37.7/39.2 ps
+but introduce an internal BN undershoot and approximately 1.10 V FF
+MNB0 drain/source peaks. They are rejected despite better settling.
+Their new explicit-save runs preserve every required DUT terminal node
+while recording only 285/497 SS/FF signals; no blanket current save or
+duplicate full-wave cache is used.

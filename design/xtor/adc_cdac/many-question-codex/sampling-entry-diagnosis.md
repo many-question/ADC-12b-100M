@@ -1517,3 +1517,38 @@ the full-DUT SOA audit. Historical small audit tables, sources and hashes
 remain. Formal N4 SS and optimization baseline V16 SS/FF retain their
 compressed originals. Future private runs use an explicit selected-signal
 profile, with complete DUT terminal saves only for a stated SOA check.
+
+### V19/V20: NAND stack reordering exposes a floating-node failure
+
+V19 starts from V16; V20 starts from V17. Both move HIB to the upper
+NAND N gate and EN to the lower gate, and halve the lower device using
+an already validated complete geometry. Each half retains 570 MOS,
+unchanged capacitors and ports, with 52 flattened connection changes.
+All 13 driver drawings change only EN/HIB labels and their right-aligned
+text widths. Parsed preflight and pinned RNL checks pass.
+
+- V19 source: `9763c07bf2a93794784baefd7b1e0b4fe6c11eb106a2ac32ba8ede332861c4d3`
+- V20 source: `f8c03700760588e49336e5b942999fcbfad107780249a0ddf6eee13a80fe9588`
+
+| Trial | SS RL12 / start | SS voltage failures | Early FF failures / maximum |
+|---|---|---|---|
+| V19 | 37.7 / 98.0 ps | 0/1710 | 166/3420, **1.096808148 V** |
+| V20 | 39.2 / 98.2 ps | 0/1710 | 96/3420, **1.100634568 V** |
+
+The smaller HIB load improves RL12 settling, but the reordered stack
+introduces large BN undershoot. The worst pair in both cases is negative-side
+bit-11 high-driver MNB0 drain/source: BN is -107.824/-111.010 mV while
+NOFF is 988.984/989.624 mV. V19 removes 45 parent failures but adds 88;
+V20 removes 57 but adds 58. The new failure is decisive even where the
+total count is smaller. Neither trial is expanded. SS Qref is
+1.994228021/1.989630041 pC; both pass the five applicable SS metrics.
+
+These four runs start from clean `bf3e2c8`, synchronized with main
+`2574015`. They are private diagnostics, with unchanged official numerical
+controls and explicit `save=selected`: 285 signals for SS, 497 for FF,
+including all necessary DUT gs/gd/ds nodes and only 7/12 named currents.
+The saved-name audit finds no extra signals. All raw files and 50 staged
+inputs per run were verified before deleting the exact remote run folder.
+No full-wave NPZ duplicate is created. Exact compact decision signals and
+small result tables retain the failed mechanisms when these trial archives
+are released; this limited retention does not support a full-DUT re-audit.
