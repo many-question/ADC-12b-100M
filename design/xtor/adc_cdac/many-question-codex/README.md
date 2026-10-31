@@ -167,3 +167,13 @@ tagged `adc-cdac-many-question-v9-history-20261031`, additionally preserves
 every report and figure through V9. Three earlier figures are now linked
 there to keep the current candidate within its 2 MB limit; their bytes
 were verified against the snapshot before removal from this checkout.
+
+The subsequent matched V12/V13 private tests are generated from the merged
+official flow. V13 strengthens only the second-stage high-command and
+assist inverters, retaining their connections and all capacitors. SS passes;
+early FF falls from 205 to 175 failing pairs, with no added failures and
+maximum voltage reduced to 1.021300057 V. D1 undershoot improves, but
+NOFF/BN and other paths remain outside the limit. The first FF attempts
+lacked voltage saves and are retained as unverified; complete-voltage reruns
+provide these conclusions. See [control-node comparison](control-clamp-comparison.png)
+and the evidence ledger. V13 stops before expensive downstream expansion.

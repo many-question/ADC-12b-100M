@@ -1280,3 +1280,64 @@ stale; they are not rehashed or counted as current passes. Known failures
 continue to gate expensive expansion. Subsequent circuit diagnostics will
 be generated from the merged flow; tracking cross-checks, when needed,
 use its prescribed traponly / maxstep 1 ps configuration.
+
+### V13: stronger control inverters, matched against V12 after the merge
+
+V13 changes the second-stage N/P widths from 2/4 um to 8/16 um in the
+high-command buffer and assist pulse chain. The exact existing ULVT
+geometries are reused: NF4/NF8, L30 nm. There are 28 changed MOS instances
+per half, with 570 MOS per half overall. Every connection, capacitor,
+bottom Cp, top-level port and direct RL input inverter is unchanged.
+Independent parsed hierarchy/connectivity checks and pinned RNL checks pass.
+Source SHA256: `9c1c1ba2ea2633476e946d093890c7c330cc0c6cacded1f59e1d94001914a71a`.
+
+Both variants are newly staged using the merged official build_jobs,
+make_deck and stage functions, with the pinned ADCToolbox. Numerical controls
+come directly from that flow. These remain private circuit diagnostics:
+full MOS/native-current saves are added, and FF tracking stops at the
+original first 12 ns. Matched testbench text, normalized decks, stimuli,
+loads, globals and observation lists are identical between V12 and V13.
+
+Both SS cases pass all five applicable metrics and 1710 voltage pairs.
+V12 RL5/RL12/start are 57.8/38.4/95.7 ps; V13 is 57.8/38.3/95.7 ps,
+with tau 11.291656529 ps and droop 0.005085171 LSB. V13's adjacent
+raw points both satisfy the RL12/start deadline bands. Its largest SS
+pair is 0.978617235 V. SS Qref changes from 1.992984241 to 1.992188196 pC;
+PHI_S capacitance changes from 22.713011 to 22.680599 fF. These SS values
+do not establish the TT charge or pin-loading budgets.
+
+Early FF fails **175/3420 pairs**, versus V12's 205/3420. Thirty previous
+failures disappear and none is added; distinct failed net pairs decrease
+from 148 to 130. The largest pair decreases from 1.063647898 to
+**1.021300057 V**, now positive-side bit-12 low-driver MPB0 drain/source
+at 10.066510798 ns. D1 minimum improves from -73.647898 to -21.578018 mV
+and maximum from 1.010690485 to 0.996408905 V. Worst high-command HIB
+minimum improves from -48.214613 to -12.491100 mV. These remaining
+undershoots are still failures where the other terminal is near 0.99 V.
+
+![Control undershoot and separate NOFF failure](control-clamp-comparison.png)
+
+The largest NOFF excursion is -31.300057 mV. At its peak, EN is falling
+through 0.681944547 V, LHIB is 0.988372371 V, and the lower NAND node
+BN is -21.923751 mV. This is a separate mechanism from the repaired
+control-buffer excursion. NOFF/BN, AP/GN and sampling-NMOS failures remain;
+V13 does not proceed to TT, weights or longer pressure tests.
+
+The initial two FF attempts retained the official FFT's save=none option,
+so 484 required voltage nodes were absent. They were fully archived and
+explicitly marked unverified, with no pressure verdict. Two fresh runs
+change only the private output-recording option to save=selected; all
+official tolerances and stimuli are unchanged. These reruns save every
+required voltage and native current. The incomplete attempts are retained,
+not overwritten or presented as passing circuit evidence.
+
+All runs use clean `bd54f61f92b2abca6d26b04ed5853944297e8d96`. The verified
+SS runs take 28/29 s and contain 5428/5451 points (V12/V13); the complete
+FF runs take 36/36 s with 6552/6608 points. All waves are finite and cover
+70/12 ns. Each archive verifies 50 staged inputs and every raw file before
+exact owned-run cleanup. Archives of the four complete comparisons:
+
+- V12 SS: `cbd8046510d62a88155e286f09ceda78e1d7c80a9497de5278aaacb77656b01b`
+- V13 SS: `faa841debf04af546e2af9723d051c84c4cb27b9317929a025c7a5e65f5db5df`
+- V12 FF: `2b332d1d40540bf0dc94ed06d09c9a91628bfd996f163cb6b3fa4b63e8122969`
+- V13 FF: `2c9f79b3435467ad1943de9f1564fac33ce20af0a8ba7908fe5b7faf843d979a`
