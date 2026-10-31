@@ -1,0 +1,5 @@
+# V33: weaker N latch pair
+
+Private, unqualified physical trial. Only MLNP/MLNN change from N8 to N4 (30 nm, four 1 um fingers), reusing the exact verified V32 output-N4 geometry and all terminal parasitics. The other 21 MOS devices and all five MOMs are unchanged. The V32 trajectory diagnostic suggests less input amplification before the Q transition at FS/low/125; weakening the N latch tests that timing hypothesis. Delay, reset, SOA, capacitance and full physical noise require fresh measurements. No benefit is assumed.
+
+Electrical SHA-256 `e859347340abfbe7f5e42e0a9c3a831f378bce9bea727177b4e214ef60a1b0cf`. The [complete RNL source](RESET-V33.txt) passes check/render with zero errors or warnings; the inspected drawing is retained locally. V32 is pinned at [published eac8e8c](https://github.com/many-question/ADC-12b-100M/blob/eac8e8c280d5c0220b4412a1f7622b93a3148e8f/design/xtor/adc_comp/many-question-strongarm/RESET-V32.txt) and in verified archives. Canonical V27 and genuine formal failures are unchanged.

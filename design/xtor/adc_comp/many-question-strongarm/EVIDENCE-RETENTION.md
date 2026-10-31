@@ -17,6 +17,7 @@ The user requested removal of superseded waveform data after a disk-space incide
 - `20261031-153652-strongarm-reset-v32-spec08-noise-baseline-screen` — archive SHA-256 `b6aca8e051c7a481eb59604c06c987bc6518d64c090e0ac73ddfcfbe9dad91e0`.
 - `20261031-155740-strongarm-reset-v32-spec08-noiseoff-input_pair-screen` — archive SHA-256 `05b5044e82b47ab655a53877a0441ec24641b7606076d1f808a2254426de94f4`.
 - `20261031-155750-strongarm-reset-v32-spec08-noiseoff-q_shunts-screen` — archive SHA-256 `af2285073d6bc33d99eebcdd7d0e1ad760405a80d89c2f7f4acd19ae60baf5aa`.
+- `20261031-161219-strongarm-reset-v32-spec08-noiseoff-regenerative_stage-screen` — archive SHA-256 `9bbd31d6641b33c9dbe7062887ec2b454ef3a8a6b2d829c1aa31c01acbb5c77f`.
 
 Artificial noise-suppression trials remain ineligible for qualification. Retention does not establish compliance. Both canonical candidates retain genuine failed official 0.8 noise results. The full qualification remains incomplete.
 

@@ -16,7 +16,7 @@ The initial 4-finger MOM request was rejected by the PDK constraint (minimum 6 f
 | P2.4 | `fbd2ae501149d9e263c33ae9c7ea35093767bb3d159beabba77b0ddf3bfb7344` |
 | 6-finger MOM | `5203e49d3fdbdd21901ae4d33fe1937969ddacb2d55bce81580f8548ebb6a240` |
 
-Electrical SHA-256: `0611d6028825bf29c02983e7e337a09e4627884b7aef22e20130770b72d7c557`. The [complete RNL source](RESET-V32.txt) was checked and rendered from a byte-identical mirror. The full local drawing is retained with the source-preparation evidence; a duplicate PNG is not added to the bounded candidate folder. Canonical V27 and all formal records remain unchanged.
+Electrical SHA-256: `0611d6028825bf29c02983e7e337a09e4627884b7aef22e20130770b72d7c557`. The [complete RNL source](https://github.com/many-question/ADC-12b-100M/blob/eac8e8c280d5c0220b4412a1f7622b93a3148e8f/design/xtor/adc_comp/many-question-strongarm/RESET-V32.txt) was checked and rendered from a byte-identical mirror. The full local drawing is retained with the source-preparation evidence; a duplicate PNG is not added to the bounded candidate folder. Canonical V27 and all formal records remain unchanged.
 
 Future runs use an explicit selected-signal policy retaining every required DUT SOA node and named energy/clock probes. Full noise uses the unchanged 17 x 512 sampler-only protocol. Output-policy differences are recorded separately from unchanged stimuli, numerical tolerances and measurement code.
 
