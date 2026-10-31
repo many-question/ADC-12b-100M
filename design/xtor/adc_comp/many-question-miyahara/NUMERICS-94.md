@@ -342,3 +342,63 @@ At fs_low_125, minimum sampled output magnitude is 0.785375010 V and maximum abs
 The log's automatic maxstep bound is not an explicit job-deck setting. Actual APS thread information and the six-job session ceiling are recorded separately. Fetched raw/deck hashes match; the exact owned remote run is absent. Archive SHA-256 `26e302577d4bb1e1ba873aa319be231f6edc2458770a06bc2ab6fc7215845240` was checked by reading every member back with CRC and SHA-256. Full qualification remains open.
 
 This electrical source fails the private experimental gate on the merged 0.8.0 baseline. Qualification expansion stops at the failure; diagnosis and further circuit design continue. Every failure is retained.
+
+
+## Private precheck 20261031-151621-miyahara-buffer-v23-spec08-delay-baseline-screen
+
+Test `tb_comp_delay`, accuracy `baseline`, frozen clean source `c3b7afee025c8c97fb22bcd4dbea1b3fe75d7bff`. These results use a private copy of the testbench and do not write formal records. This is an independent experimental source using the merged official 0.8.0 testbench baseline, not a formal canonical-view result. All physical stimuli, loads, samplers and measurement code are preserved. Output selections and any tighter tolerances are recorded separately. The requested numerical settings are `{}`; no explicit maxstep or method is set.
+
+Explicit output policy: `save=selected` with named DUT/SOA voltage signals and required metric/current probes, or the preserved monitor-only noise protocol. No global or wildcard expansion is used. The exact selected signal lists, policy source and before/after testbench hashes are retained with this run; earlier runs are not relabeled with this policy.
+
+| Corner | 1 mV ps | 30 mV ps | Reset ps | Raw max stress V | Actual / reset cycles | Private gate |
+|---|---:|---:|---:|---:|---:|---|
+| fs_high_m40 | 53.232886398 | 45.255767742 | 29.806597490 | 0.999776145263 | 36 / 36 | PASS |
+| fs_low_125 | 66.220278649 | 54.591661601 | 35.692638483 | 0.813230740423 | 36 / 36 | FAIL: CMP-08 |
+| sf_high_m40 | 59.188555215 | 49.578186747 | 30.661744750 | 0.999439615188 | 36 / 36 | PASS |
+| ss_low_125 | 80.757598217 | 67.380901503 | 46.139417259 | 0.816904192418 | 36 / 36 | FAIL: CMP-08 |
+| tt_nom_27 | 59.657300543 | 50.149655580 | 34.646199388 | 0.908492882231 | 36 / 36 | FAIL: CMP-06 |
+
+Every actual polarity down to 10 uV, all reset intervals, full evaluation output validity and every MOS gs/gd/ds pair are checked. The AVDD audit spans all 36 complete cycles; all supply probes are present and KCL closes. Reported power has no acceptance limit.
+
+TT full AVDD waveform integral is 667.197031713 fJ/cycle: 256.218888413 evaluation and 410.978143301 reset. The original meter gives 667.733088600 fJ/cycle; the waveform-integral difference is -0.080280%. Both values are preserved.
+
+| Corner | Effective reltol | Effective vabstol V | Method / preset / relref / lteratio | Largest saved step ps |
+|---|---:|---:|---|---:|
+| fs_high_m40 | 0.0001 | 1e-06 | gear2only / conservative / alllocal / 10 | 31.7257 |
+| fs_low_125 | 0.0001 | 1e-06 | gear2only / conservative / alllocal / 10 | 56.5 |
+| sf_high_m40 | 0.0001 | 1e-06 | gear2only / conservative / alllocal / 10 | 56.5 |
+| ss_low_125 | 0.0001 | 1e-06 | gear2only / conservative / alllocal / 10 | 56.5 |
+| tt_nom_27 | 0.0001 | 1e-06 | gear2only / conservative / alllocal / 10 | 30.9084 |
+
+The log's automatic maxstep bound is not an explicit job-deck setting. Actual APS thread information and the six-job session ceiling are recorded separately. Fetched raw/deck hashes match; the exact owned remote run is absent. Archive SHA-256 `fa9c7f2c759ee3be53dd4ce7daf89cfcc4179781830004362fa4a6b6984b21aa` was checked by reading every member back with CRC and SHA-256. Full qualification remains open.
+
+This electrical source fails the private experimental gate on the merged 0.8.0 baseline. Qualification expansion stops at the failure; diagnosis and further circuit design continue. Every failure is retained.
+
+
+## Private precheck 20261031-151635-miyahara-buffer-v23-spec08-kickback-baseline-screen
+
+Test `tb_comp_kickback`, accuracy `baseline`, frozen clean source `c3b7afee025c8c97fb22bcd4dbea1b3fe75d7bff`. These results use a private copy of the testbench and do not write formal records. This is an independent experimental source using the merged official 0.8.0 testbench baseline, not a formal canonical-view result. All physical stimuli, loads, samplers and measurement code are preserved. Output selections and any tighter tolerances are recorded separately. The requested numerical settings are `{}`; no explicit maxstep or method is set.
+
+Explicit output policy: `save=selected` with named DUT/SOA voltage signals and required metric/current probes, or the preserved monitor-only noise protocol. No global or wildcard expansion is used. The exact selected signal lists, policy source and before/after testbench hashes are retained with this run; earlier runs are not relabeled with this policy.
+
+| Corner | Input fF | CLKC fF | Kickback uV | Private gate |
+|---|---:|---:|---:|---|
+| tt_nom_27 | 19.328731219 | 12.105070079 | 0.000083107 | PASS |
+
+The tiny values previously produced with old settings are not used as physical conclusions. This private value remains distinct from an official rerun and from further tolerance-convergence evidence.
+
+A separate full-input-trace diagnostic at tt_nom_27 finds up to 28.669688 uV instantaneous differential change and 7.418295 mV common-mode change relative to that cycle's pre-evaluation sample. These are distinct from the specified net per-cycle kickback metric and are not judged against its 40 uV limit. A nearly zero per-cycle value does not imply an undisturbed input during evaluation and reset.
+
+Load/stimulus conditions verified against the archived staged testbench: each input floats on 2.50 pF, initialized to common mode 0.49 V and differential 1 mV; each output has 10 fF. TT supply is 0.9 V, the clock period is 400 ps, and rise/fall times are 10 ps.
+
+Unrounded recorded values: net per-cycle metric `8.310719994131244e-05` uV; instantaneous differential peak magnitude `28.669688034964768` uV (signed change `-2.866968803496477e-05` V), cycle 1, `49.1687119340883` ps after its pre-evaluation sample. The peak is in **evaluation**, whose measured window runs from that sample to `199.99997500000003` ps. Maximum common-mode excursion is `7.418294723631758` mV, in evaluation at `198.177560250713` ps after its cycle-1 sample.
+
+The phase/load context was derived from SHA-verified raw evidence without modifying the traces; context-file SHA-256 is `8b31c188751e0f48c2776fabda5a459caf702f9f450c2f0bf53ef70a309ea01d`. The specified metric concerns net change after evaluation plus reset; these instantaneous peaks describe disturbance during that interval. Future validation with the actual CDAC must check decision-phase differential and common-mode effects. No shared rule or limit changes.
+
+| Corner | Effective reltol | Effective vabstol V | Method / preset / relref / lteratio | Largest saved step ps |
+|---|---:|---:|---|---:|
+| tt_nom_27 | 1e-06 | 1e-08 | gear2only / conservative / alllocal / 10 | 25.5745 |
+
+The log's automatic maxstep bound is not an explicit job-deck setting. Actual APS thread information and the six-job session ceiling are recorded separately. Fetched raw/deck hashes match; the exact owned remote run is absent. Archive SHA-256 `340e1463aa7f293ec8c20a0cf4816d56a674e52f96eb51384ec328a9c7e087e6` was checked by reading every member back with CRC and SHA-256. Full qualification remains open.
+
+The complete phase/load context is included in this run's verified archive.
