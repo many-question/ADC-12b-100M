@@ -29,3 +29,5 @@ PR #95 has merged as `c6152d236e525793ecc4809b9a6c9dfb9fd0ad77`, raising adc_com
 Official 0.8.0 run `20261031-125734-f562-tb_comp_noise` refreshes fs_low_125 noise 343.494401429 uV (FAIL CMP-13). [Exact committed evidence](FORMAL-SPEC08.md) preserves the actual source and original results. Current dependency coverage is 1/96; this does not establish qualification.
 
 Independent [BUFFER-V22](BUFFER-V22.md) retains B21 storage and tests only MCKP 4 to 5 um for earlier reset assertion. All other devices remain unchanged. Actual merged-flow timing, reset, stress and validity precede further noise work.
+
+B22 passes five merged-baseline deterministic corners and four tighter repeats, including all 180/144 actual decisions and resets and every unrounded MOS terminal pair. [B22 evidence](BUFFER-V22.md) preserves the complete tighter stress table and matched B21 reset-path comparison. Full noise remains the next gate; no promotion or qualification is claimed.

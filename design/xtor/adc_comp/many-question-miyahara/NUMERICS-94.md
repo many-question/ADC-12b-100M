@@ -239,3 +239,63 @@ All 256 finite samples per corner are retained. TT has 0/256 incorrect decisions
 | tt_nom_27 | 2.487977226 | 4.318435978 | 0 | 25.000000002 |
 
 These two-level phase ratios include nonlinear regeneration and saturation; they are not linear gain or formal input-referred noise. Differences between TT and FS/low/125 combine process, supply and temperature and do not isolate one cause.
+
+
+## Private precheck 20261031-131817-miyahara-buffer-v22-spec08-delay-baseline-screen
+
+Test `tb_comp_delay`, accuracy `baseline`, frozen clean source `d8f3002c6dec07fb8fa03646e07997a38397a666`. These results use a private copy of the testbench and do not write formal records. This is an independent experimental source using the merged official 0.8.0 testbench baseline, not a formal canonical-view result. All physical stimuli, loads, samplers and measurement code are preserved. Baseline accuracy appends only saved probes; any tighter tolerances are explicitly listed. The requested settings are `{}`; no explicit maxstep or method is set.
+
+| Corner | 1 mV ps | 30 mV ps | Reset ps | Raw max stress V | Actual / reset cycles | Private gate |
+|---|---:|---:|---:|---:|---:|---|
+| fs_high_m40 | 52.933697611 | 43.719053386 | 21.408865583 | 0.998768988475 | 36 / 36 | PASS |
+| fs_low_125 | 70.677521297 | 54.872768350 | 26.694289076 | 0.813249658736 | 36 / 36 | PASS |
+| sf_high_m40 | 57.150642403 | 46.995379297 | 22.399532917 | 0.998832382737 | 36 / 36 | PASS |
+| ss_low_125 | 85.033180602 | 67.429036855 | 34.071442459 | 0.816829614447 | 36 / 36 | PASS |
+| tt_nom_27 | 60.047639458 | 48.661348937 | 24.725165065 | 0.907738971948 | 36 / 36 | PASS |
+
+Every actual polarity down to 10 uV, all reset intervals, full evaluation output validity and every MOS gs/gd/ds pair are checked. The AVDD audit spans all 36 complete cycles; all supply probes are present and KCL closes. Reported power has no acceptance limit.
+
+TT full AVDD waveform integral is 596.185510717 fJ/cycle: 221.046003124 evaluation and 375.139507593 reset. The original meter gives 596.682927000 fJ/cycle; the waveform-integral difference is -0.083364%. Both values are preserved.
+
+| Corner | Effective reltol | Effective vabstol V | Method / preset / relref / lteratio | Largest saved step ps |
+|---|---:|---:|---|---:|
+| fs_high_m40 | 0.0001 | 1e-06 | gear2only / conservative / alllocal / 10 | 32.1617 |
+| fs_low_125 | 0.0001 | 1e-06 | gear2only / conservative / alllocal / 10 | 56.5 |
+| sf_high_m40 | 0.0001 | 1e-06 | gear2only / conservative / alllocal / 10 | 56.5 |
+| ss_low_125 | 0.0001 | 1e-06 | gear2only / conservative / alllocal / 10 | 56.5 |
+| tt_nom_27 | 0.0001 | 1e-06 | gear2only / conservative / alllocal / 10 | 33.8064 |
+
+The log's automatic maxstep bound is not an explicit job-deck setting. Actual APS thread information and the six-job session ceiling are recorded separately. Fetched raw/deck hashes match; the exact owned remote run is absent. Archive SHA-256 `5f94e2debe4a8f549c57e17719cfd46eeb8936fbbb6f0c957640cb56059d4c6d` was checked by reading every member back with CRC and SHA-256. Full qualification remains open.
+
+
+## Private precheck 20261031-132625-miyahara-buffer-v22-spec08-delay-tighter-screen
+
+Test `tb_comp_delay`, accuracy `tighter`, frozen clean source `d8f3002c6dec07fb8fa03646e07997a38397a666`. These results use a private copy of the testbench and do not write formal records. This is an independent experimental source using the merged official 0.8.0 testbench baseline, not a formal canonical-view result. All physical stimuli, loads, samplers and measurement code are preserved. Baseline accuracy appends only saved probes; any tighter tolerances are explicitly listed. The requested settings are `{"reltol": "1e-5", "vabstol": "1e-8"}`; no explicit maxstep or method is set.
+
+| Corner | 1 mV ps | 30 mV ps | Reset ps | Raw max stress V | Actual / reset cycles | Private gate |
+|---|---:|---:|---:|---:|---:|---|
+| fs_high_m40 | 53.041135620 | 43.707294983 | 20.986455394 | 0.998985153921 | 36 / 36 | PASS |
+| sf_high_m40 | 57.306128210 | 47.007581885 | 22.012690782 | 0.999115811074 | 36 / 36 | PASS |
+| ss_low_125 | 85.339954989 | 67.427282291 | 33.300871031 | 0.817047340394 | 36 / 36 | PASS |
+| tt_nom_27 | 60.215271388 | 48.666272117 | 24.282080927 | 0.907907863342 | 36 / 36 | PASS |
+
+Every actual polarity down to 10 uV, all reset intervals, full evaluation output validity and every MOS gs/gd/ds pair are checked. The AVDD audit spans all 36 complete cycles; all supply probes are present and KCL closes. Reported power has no acceptance limit.
+
+TT full AVDD waveform integral is 596.920364186 fJ/cycle: 221.547545466 evaluation and 375.372818720 reset. The original meter gives 596.949467040 fJ/cycle; the waveform-integral difference is -0.004875%. Both values are preserved.
+
+Same-source tighter-minus-announced comparison at fs_high_m40: 1 mV delay +0.107438009 ps, 30 mV delay -0.011758403 ps, reset -0.422410188 ps. Largest per-pair stress change is 560.000 uV at the table's 10 uV resolution; all unrounded peaks are separately preserved.
+
+Same-source tighter-minus-announced comparison at sf_high_m40: 1 mV delay +0.155485806 ps, 30 mV delay +0.012202588 ps, reset -0.386842135 ps. Largest per-pair stress change is 760.000 uV at the table's 10 uV resolution; all unrounded peaks are separately preserved.
+
+Same-source tighter-minus-announced comparison at ss_low_125: 1 mV delay +0.306774387 ps, 30 mV delay -0.001754564 ps, reset -0.770571428 ps. Largest per-pair stress change is 550.000 uV at the table's 10 uV resolution; all unrounded peaks are separately preserved.
+
+Same-source tighter-minus-announced comparison at tt_nom_27: 1 mV delay +0.167631930 ps, 30 mV delay +0.004923180 ps, reset -0.443084138 ps. Largest per-pair stress change is 970.000 uV at the table's 10 uV resolution; all unrounded peaks are separately preserved.
+
+| Corner | Effective reltol | Effective vabstol V | Method / preset / relref / lteratio | Largest saved step ps |
+|---|---:|---:|---|---:|
+| fs_high_m40 | 1e-06 | 1e-08 | gear2only / conservative / alllocal / 10 | 29.0 |
+| sf_high_m40 | 1e-06 | 1e-08 | gear2only / conservative / alllocal / 10 | 29.0 |
+| ss_low_125 | 1e-06 | 1e-08 | gear2only / conservative / alllocal / 10 | 56.5 |
+| tt_nom_27 | 1e-06 | 1e-08 | gear2only / conservative / alllocal / 10 | 56.5 |
+
+The log's automatic maxstep bound is not an explicit job-deck setting. Actual APS thread information and the six-job session ceiling are recorded separately. Fetched raw/deck hashes match; the exact owned remote run is absent. Archive SHA-256 `a964a42812482b2f92e4d57f789d3e10c0c987b7d8b93ffa6cfdfb9c8980f1da` was checked by reading every member back with CRC and SHA-256. Full qualification remains open.
