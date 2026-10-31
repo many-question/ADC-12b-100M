@@ -250,3 +250,13 @@ for weights, spectra and corner expansion. V30/V31 are optional further
 undershoot work. Both servers were unreachable at the latest check; the
 thu-sui profile is prepared locally with ic6_sui and SSD-only paths, but
 its tool/model/runtime verification and all new runs remain pending.
+
+The resumed PR112 comparison finds DAC-12 failing for both V16/V29:
+TT Qref 1.271878048/1.269059280 pC versus 1.2 pC; nine other TT metrics
+pass. SS primary and stricter checks pass but their differences are not
+negligible relative to timing margins, and the 0.1 ps measurement grid
+has been explicitly audited. A same-source branch audit identifies
+77.084398 fC drawn by the reference-fed assist/phase control PMOS. Next
+experiments will test their supply allocation while preserving all physical
+capacitors and 5% parasitics, and reporting digital as well as reference
+energy. The candidate remains draft and unqualified.

@@ -1701,3 +1701,54 @@ The first synchronized comparison will use V16/V29 SS primary and
 convergence checks plus TT settling/charge/load. Their stored early-FF
 peak tables do not establish whole-window or all-corner qualification.
 No new run or hash refresh is claimed while the servers are unreachable.
+
+### PR112 recovery: TT reference-charge failure and measured convergence
+
+Six fresh V16/V29 comparisons use clean `28d3157`, merged main `17b3a0c`,
+verified Spectre/model identity and explicit selected saves. Primary runs
+use the current official numerical settings. The engineering SS comparison
+uses traponly, maxstep 1 ps, effective reltol 1e-7 and vabstol 10 nV, all
+verified from logs. This is separate from formal qualification.
+
+| Variant | SS primary RL12 / start | SS comparison RL12 / start | TT Qref | TT result |
+|---|---:|---:|---:|---|
+| V16 | 39.7 / 96.5 ps | 39.6 / 97.3 ps | 1.271878048 pC | 9/10 pass; DAC-12 fails by 71.878048 fC |
+| V29 | 39.7 / 97.9 ps | 39.6 / 98.4 ps | 1.269059280 pC | 9/10 pass; DAC-12 fails by 69.059280 fC |
+
+Each SS run passes its five applicable metrics. All six runs have zero
+1.1 V terminal violations. Neither variant proceeds to a complete corner
+sweep while the TT 1.2 pC charge limit fails. The 1.0 V diagnostic counts
+do not control this decision.
+
+The timing measure interpolates accepted samples onto a 0.1 ps grid and
+returns the last point outside tolerance; it does not round the output.
+Using identical reference times/final values/tolerances, last crossings
+of the piecewise-linear raw data are 39.737205/39.653453 ps for V16
+primary/comparison and 39.705406/39.630011 ps for V29. The underlying
+reconstructed differences are -0.083753/-0.075395 ps, rather than exactly
+-0.1 ps. Start crossings differ by +0.729713/+0.517382 ps. These are
+sample-reconstruction comparisons, not estimates of continuous-time truth;
+they do not establish negligible error relative to the small margins.
+
+A seventh same-source V29 TT audit saves exactly the MOS terminals
+connected to VREFP (188 explicitly enumerated terminals, plus two supply
+currents). Its timing metrics and accepted-step count match the prior TT
+run; Qref changes by only 0.00183 fC, and remains failing at 1.269061110 pC.
+Saved-point total charge is 1266.290715 fC, 2.770395 fC below the official
+integrated meter. Terminal-current sums close to that sampled total within
+floating-point precision. This integration gap is reported, never deducted
+from the official excess. Currents include displacement, not just overlap.
+
+Whole-window reference contributions are MPOUT 917.732703 fC, MGPP
+212.201271 fC, MGNP 59.260111 fC, assist MPUP 41.713192 fC, and phase
+inverter MREFP 35.371206 fC. In sampling entry MGPP draws 195.180334 fC
+and MPUP 36.500624 fC while output PMOS return 43.014407 fC. The bit-12
+MGPP contributions are close to retained V6 values; the two reference-fed
+assist/control PMOS are a more direct candidate for the new excess.
+
+The next bounded experiments can power MPUP alone, then MPUP plus MREFP,
+from DVDD with their bodies following their sources. These devices drive
+control gates; the analog DAC output drivers remain on VREFP. This shifts
+control energy to DVDD rather than making it disappear, and must be judged
+on total supply energy, SS timing and FF 1.1 V stress. Every physical MOM
+and its 5% bottom parasitic stays unchanged. No such variant has run yet.
