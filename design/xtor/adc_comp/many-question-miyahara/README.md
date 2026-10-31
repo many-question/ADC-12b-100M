@@ -39,3 +39,5 @@ The branch now includes main `17b3a0c` (adc_comp 0.9.0). Issue #116 is acknowled
 Historical B2 restoration passes five representative deterministic corners and TT loading, and passes full physical TT noise at 186.695494 uV rms. **FS/low/125 noise fails at 469.460077 uV rms against 240 uV.** Full-corner and mismatch expansion stops for this source. [Restoration evidence](RESTORATION-11.md) retains unrounded intervals, provenance, archive checks and measured runtime. Canonical source and formal results remain unchanged.
 
 [Secondary historical r0t3c1 screening](RESTORATION-SECONDARY.md) fails CMP-15 in 24 TT cycles and stops before noise expansion. [B2 mechanism analysis](RESTORATION-MECHANISM.md) compares retained front-stage and regenerative trajectories and proposes isolated physical changes while preserving output buffers; individual device-noise contributions remain unmeasured.
+
+[Isolated physical trials](RESTORATION-TRIALS.md) freeze B2-C52 (only DP/DN capacitors) and B2-P5 (only M14/M15 geometry) independently. Their conditional screening and source hashes are separate from the failed original B2 source.
