@@ -1,5 +1,7 @@
 # Baseline and dependency audit
 
+> Historical audit: the statements below describe the 2026-10-29 baseline. PR #95 later invalidated all 46 clock results; current refresh status and convergence limitations are in [README.md](README.md) and [NUMERICS94.md](NUMERICS94.md).
+
 On 2026-10-29 this candidate was rebased from main `17205ec` to `3f1f7ce`, including #48, #57 and #62. The public tag `history/adc_clkgen/numerics53-before-arch48` preserves the completed stage at `441d48c`. The 60-MOS netlist is byte-identical; its electrical content hash remains `878752080031c251`.
 
 ## Module results
