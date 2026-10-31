@@ -16,36 +16,36 @@
   "comp_behav": 0
  },
  "metrics": {
-  "kickback_uV": 1.0633986980001109,
+  "kickback_uV": 0.9308260619999512,
   "vdiff_uV": [
-   999.989,
-   1000.95,
-   1002.013,
-   1002.964,
-   1004.025,
-   1004.768,
-   1005.548,
-   1006.295
+   999.992,
+   1000.509,
+   1001.44,
+   1002.37,
+   1003.301,
+   1004.231,
+   1005.161,
+   1006.091
   ],
-  "cin_fF": 19.330481923112334,
-  "cin_clkc_fF": 15.099418559299874
+  "cin_fF": 19.330641078055425,
+  "cin_clkc_fF": 15.807766244641812
  },
  "specs": {
   "CMP-11": {
    "metric": "kickback_uV",
-   "value": 1.0633986980001109,
+   "value": 0.9308260619999512,
    "limit": "<= 40",
    "pass": true
   },
   "CMP-12": {
    "metric": "cin_fF",
-   "value": 19.330481923112334,
+   "value": 19.330641078055425,
    "limit": "<= 20",
    "pass": true
   },
   "CMP-14": {
    "metric": "cin_clkc_fF",
-   "value": 15.099418559299874,
+   "value": 15.807766244641812,
    "limit": "<= 16",
    "pass": true
   }
@@ -61,15 +61,15 @@
   }
  ],
  "meta": {
-  "date": "2026-10-31T05:41:20",
-  "git": "116b758",
+  "date": "2026-10-31T08:23:36",
+  "git": "e8ebf86",
   "git_clean": true,
   "mode": "aps",
   "pdk": true,
   "mc": null,
-  "wall_s": 137.2,
+  "wall_s": 137.5,
   "rc": "0",
-  "sim_s": "30",
+  "sim_s": "29",
   "numerics": {
    "source": "spectre.log",
    "reltol": 0.001,
@@ -78,13 +78,13 @@
    "errpreset": "moderate",
    "lteratio": 3.5,
    "abstol_V": 1e-06,
-   "steps_accepted": 708,
-   "step_mean_ps": 4.66102,
+   "steps_accepted": 766,
+   "step_mean_ps": 4.30809,
    "step_max_ps": 50.5
   },
   "files": {
    "tb/comp/tb_comp_kickback.scs": "04b444f63619d31d",
-   "design/xtor/adc_comp/many-question-strongarm/adc_comp.scs": "dd44da2a98a529e3",
+   "design/xtor/adc_comp/many-question-strongarm/adc_comp.scs": "c14d49b929c6c404",
    "tb/common/veriloga/tb_sampler_va.va": "4092bc16170c588d",
    "tb/common/veriloga/tb_qmeter_va.va": "fed84d572a912b39"
   },
