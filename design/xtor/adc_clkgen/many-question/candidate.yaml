@@ -1,13 +1,14 @@
 name: many-question
 description: 60-MOS static CMOS phase generator with loaded-output interlocks and
   MOS gate loads for internal voltage shaping.
-status: ready
+status: wip
 acknowledged:
 - 18
 - 27
 - 29
 - 49
 - 80
+- 99
 authors:
 - github: many-question
   name: Codex adc_clkgen
