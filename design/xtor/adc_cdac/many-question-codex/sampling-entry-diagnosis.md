@@ -1751,4 +1751,90 @@ from DVDD with their bodies following their sources. These devices drive
 control gates; the analog DAC output drivers remain on VREFP. This shifts
 control energy to DVDD rather than making it disappear, and must be judged
 on total supply energy, SS timing and FF 1.1 V stress. Every physical MOM
-and its 5% bottom parasitic stays unchanged. No such variant has run yet.
+and its 5% bottom parasitic stays unchanged. The following section records
+the subsequently completed trials; that original proposal is historical.
+
+### V32/V33 TT supply allocation; further trials stopped for budget decision
+
+Both TT jobs completed before the user's instruction to stop further
+electrical optimization and raise the DAC-12 budget question centrally.
+No SS/FF follow-up, FFT, all-corner run, or further electrical edit was
+started. There are zero active jobs. The coordinator owns the single budget
+issue; the formal 1.2 pC limit and formal N4 source remain unchanged.
+
+V32/V33 independently start from V29. V32 changes only XAPULSE.MPUP
+source and body from VREFP to DVDD. V33 changes MPUP and MREFP source
+and body. Both retain 596 MOS per half, every dimension and other electrical
+connection, all physical MOMs with their 5% bottom-to-ground Cp and
+annotations, and VREFP-powered analog output drivers. Independent
+connectivity checks and RNL check/render pass. Rendered supply labels were
+inspected; the inherited "Reference-powered local phase" drawing heading
+in V33 is historical wording, while its actual source/body labels are DVDD.
+
+The clean source/flow commit is `e0723bd2af5164987a395175dee674ac13f0de4d`,
+with main `88654d672044eee754472d1c2c8a0dee2e76d81e`. The additions since
+main `17b3a0c` do not change CDAC simulation dependencies. Server identity,
+its paired environment, Spectre 21.1.0.509.isr12 and both external model hashes
+were reverified. Each job uses the official 70 ns TT settle stimulus and
+effective reltol 1e-4, vabstol 1 uV, gear2only, conservative, no explicit
+maxstep. Actual logs verify these values. Each saves 284 selected signals,
+including six named currents and the complete 596-MOS terminal union.
+The only testbench instrumentation change is an ideal 0 V DUT-DVDD meter,
+using the existing tb_imeter_va and the original 54.8–64.8 ns Qref window.
+Stimuli, analog reference meter, limits and official measurement code are
+unchanged. These private runs do not overwrite formal result records.
+
+| Source | Official Qref | DAC-12 margin | TT applicable metrics | Full 1.1 V screen |
+|---|---:|---:|---:|---:|
+| V29 prior baseline | 1.269059280 pC | -69.059280 fC | 9/10 | 0 violations |
+| V32 MPUP to DVDD | 1.227138535 pC | -27.138535 fC | 9/10 | 0/1788 pairs |
+| V33 MPUP + MREFP to DVDD | 1.191673910 pC | +8.326090 fC | 10/10 | 0/1788 pairs |
+
+V32/V33 retain TT RL12/start 30.2/70.1 ps and RL5 39.8 ps; control input
+capacitance is 0.830865 fF and PHI_S/PHI_SB/CONV loads are
+22.861439/24.666184/14.773952 fF. The maximum terminal difference is
+0.996456157 V at XDUT.XB2.MSHAREH gd. TT nominal DVDD and VREFP are
+both 0.9 V. The interpolated maximum change from V29 is about 1.17 uV
+at TOP, 50.4 uV at APGATE and 7.14 uV at PHI_SB_REF; these compare
+sampled trajectories, not exact continuous-time errors. Equal TT supply
+amplitudes do not establish SS/FF logic levels, isolation or timing.
+
+| Quantity, original 10 ns window | V29 | V32 | V33 |
+|---|---:|---:|---:|
+| Sampled VREFP charge (pC) | 1.266289136 | 1.224576480 | 1.189205269 |
+| Sampled VDDA-source charge (pC) | 3.097763118 | 3.139476771 | 3.174847982 |
+| Sampled VREFP + VDDA energy (pJ) | 3.927647028 | 3.927647926 | 3.927647926 |
+| Isolated DUT-DVDD meter charge (pC) | not measured | 2.142390015 | 2.177854640 |
+| Isolated DUT-DVDD meter energy (pJ) | not measured | 1.928151014 | 1.960069176 |
+
+V33 reduces official Qref by 77.385370 fC but raises sampled VDDA draw
+by 77.084865 fC. This is a supply-load transfer, not a total-energy saving.
+VDDA-source integration includes testbench branches; the added meter
+isolates the DUT's digital supply. The two-supply sum excludes ideal
+clock/input and other sources and is not complete chip energy. Sampled
+reference integrals differ from the authoritative meter by -2.770144,
+-2.562055 and -2.468641 fC, respectively; none is deducted from the
+official margin. Named terminal currents include displacement current.
+
+The original V16/V29 SS RL12 margin remains only 0.3 ps, with the
+previously documented cross-check differences. V33 inherits none of that
+qualification and has only 8.326090 fC TT charge margin. A central budget
+decision can assess the measured approximately 1.27 pC reference demand
+with justified margin, REF-21 recovery, digital/reference supply loading
+and 100 MS/s operation together, versus this unqualified supply-transfer
+alternative. No limit relaxation or acceptance is asserted here.
+
+The two complete raw archives and staged inputs were hash-verified before
+their exact owned remote roots were cleaned. Compact exact decision arrays,
+all-pair maxima, current/energy audits and unique compressed originals are
+retained. All nine recent expanded transient duplicates were removed after
+archive and compact-evidence verification, releasing 2,603,481,342 bytes.
+The nine unique compressed originals remain; no unchecked evidence was
+deleted. Exact path, hash, size and no-reparse-point checks preceded deletion.
+
+- V32 source SHA256: `62823729f1f938251ffc6660c55589480d2e457ac727b9925d668d9fe888cb36`
+- V33 source SHA256: `0051405a845bd44d79785525cebce4217d363040e7a5c5d15bbc8f584c0728ec`
+- V32 run: `iterate-20261101T033427Z-77c453-settle-supply-tt-v32-assist-digital-supply-tt_nom_27`
+- V33 run: `iterate-20261101T033431Z-08f3fc-settle-supply-tt-v33-assist-phase-digital-supply-tt_nom_27`
+- V32 archive SHA256: `5877c46e0434ce518f744901890800f2db5fcdcedee7c37eea7646f54a278c38`
+- V33 archive SHA256: `ea1775082652b7c5cd1447e9026bbff000338a9239c0f1aa048bcd1b969ea79b`

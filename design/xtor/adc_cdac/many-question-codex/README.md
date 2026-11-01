@@ -1,5 +1,17 @@
 # CDAC candidate
 
+Current status (2026-11-01): new electrical changes and further simulations are
+stopped at the user's request pending the coordinated DAC-12 budget issue.
+V29 TT fails Qref at 1.269059280 pC against 1.2 pC. Two already launched
+supply-allocation trials completed: V32 still fails at 1.227138535 pC;
+V33 passes all ten applicable TT settle/charge/loading metrics at
+1.191673910 pC, with 8.326090 fC charge margin. Both pass the full 70 ns
+1.1 V terminal screen. V33 moves about 77 fC of reference load to DVDD;
+the measured two-supply energy is essentially unchanged. It has no new
+SS/FF/FFT validation and is not promoted. There are zero active jobs.
+The formal N4 source and 1.2 pC limit remain unchanged. See the final
+sections of the [evidence ledger](sampling-entry-diagnosis.md).
+
 Evidence-retention update (2026-10-31): superseded large raw waveforms and
 duplicate caches/archives have been released under the user's retention policy.
 Historical formal N4 SS, V16 SS/FF and follow-up V29 SS/FF retain compressed originals;
@@ -244,19 +256,20 @@ Weights and tracking remain stale from earlier changes, not newly from
 PR112. No result hashes or values have been rewritten. The formal N4
 source remains unchanged and has known SS timing failures.
 
-Next compare V16/V29 with fresh SS primary/convergence checks and TT
-settling, reference charge and input loading before selecting a source
-for weights, spectra and corner expansion. V30/V31 are optional further
-undershoot work. Both servers were unreachable at the latest check; the
-thu-sui profile is prepared locally with ic6_sui and SSD-only paths, but
-its tool/model/runtime verification and all new runs remain pending.
+Servers recovered, and the six V16/V29 SS primary/convergence and TT
+comparisons plus the reference-branch audit completed on the configured server. The
+subsequent V32/V33 TT jobs also completed after identity, environment,
+model hashes and absence of duplicate owned jobs were checked. Current
+main snapshot `88654d6` adds other modules' results; CDAC simulation
+dependencies are unchanged from `17b3a0c`.
 
 The resumed PR112 comparison finds DAC-12 failing for both V16/V29:
 TT Qref 1.271878048/1.269059280 pC versus 1.2 pC; nine other TT metrics
 pass. SS primary and stricter checks pass but their differences are not
 negligible relative to timing margins, and the 0.1 ps measurement grid
 has been explicitly audited. A same-source branch audit identifies
-77.084398 fC drawn by the reference-fed assist/phase control PMOS. Next
-experiments will test their supply allocation while preserving all physical
-capacitors and 5% parasitics, and reporting digital as well as reference
-energy. The candidate remains draft and unqualified.
+77.084398 fC drawn by the reference-fed assist/phase control PMOS. The
+completed V32/V33 tests confirm supply-load transfer while preserving
+all physical capacitors and 5% parasitics. Further electrical optimization
+and SS/FF expansion are stopped pending the budget decision. The candidate
+remains draft and unqualified.
