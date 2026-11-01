@@ -9,8 +9,14 @@ V33 passes all ten applicable TT settle/charge/loading metrics at
 1.1 V terminal screen. V33 moves about 77 fC of reference load to DVDD;
 the measured two-supply energy is essentially unchanged. It has no new
 SS/FF/FFT validation and is not promoted. There are zero active jobs.
-The formal N4 source and 1.2 pC limit remain unchanged. See the final
+The formal N4 electrical source and 1.2 pC limit remain unchanged. See the final
 sections of the [evidence ledger](sampling-entry-diagnosis.md).
+
+Drawing update (2026-11-01): the [schematic review](schematic-review.md)
+provides before/after previews, readable array details and V29/V33 diagnostic
+supply diagrams. All 31 N4 hierarchy views are in the RNL source. Only RNL comments changed;
+all non-RNL bytes and the status of all 397 recorded results are unchanged.
+No simulations or result rehashing were performed for this update.
 
 Evidence-retention update (2026-10-31): superseded large raw waveforms and
 duplicate caches/archives have been released under the user's retention policy.
