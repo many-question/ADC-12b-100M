@@ -1,4 +1,12 @@
-# Current validation: wip
+# Validation: timeout optimization in progress
+
+The baseline measurements below belong to the previous circuit
+`e3eebc31d22e3add`. The current circuit is `df50102541da9321`, with a 12-tap
+EHVT NMOS-loaded timeout chain. Its four-conversion diagnostics cover all
+45 corners with zero recovery errors and approximately 205–340 ps timeout.
+The standard 40-conversion full-corner timeout runs and the standard TT
+function run are in progress. The old result JSON is intentionally not
+rehashed; it will be replaced by the new simulations.
 
 Specification: adc_sarlogic 0.7.0. Circuit hash: `e3eebc31d22e3add`.
 All observations below use this circuit, APS and the project's unchanged

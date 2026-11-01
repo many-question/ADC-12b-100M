@@ -46,10 +46,18 @@ decisions 3, 4, 5, 6 and 9 implement the project's nominal extra waits of
 10, 30, 30, 30 and 25 ps. These increments must be measured with LOG-16;
 they are not ideal time-delay sources.
 
-A shared 16-tap timeout chain starts on CLKC rising. Each tap is explicitly
+A shared 12-tap timeout chain starts on CLKC rising. Each tap is explicitly
 reset while CLKC is low. This prevents a delayed pulse from a completed
 comparison from forcing the next comparison. A timeout sets the currently
 enabled stage's positive rail, producing the required forced decision of 1.
+
+The timeout taps use a separate EHVT NMOS gate-load cell, with its drain,
+source and body tied to VSS. The falling wait node sees the load's
+bias-dependent capacitance. This reduces slow/fast delay spread compared with
+the paired ULVT MOS loads used for DAC waits. The tap count and `timer_load`
+are jointly set from PVT measurements; the reset NAND gates and output
+inverters retain their original devices. No extra timing pin, reference
+voltage, calibration interval or ideal delay element is introduced.
 
 ## Output capture and interruption
 
