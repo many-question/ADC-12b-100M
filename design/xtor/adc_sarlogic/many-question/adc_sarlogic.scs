@@ -1853,7 +1853,7 @@ ends adc_sarlogic_step
 
 // 14-decision asynchronous SAR, 13 split-CDAC updates, parallel output storage and persistent RDY.
 subckt adc_sarlogic (CONV OUTP OUTN CLKC UP12 UP11 UP10 UP9 UP8 UP7 UP6 UP5 UP4 UP3 UP2 UP1 UP0 DN12 DN11 DN10 DN9 DN8 DN7 DN6 DN5 DN4 DN3 DN2 DN1 DN0 D13 D12 D11 D10 D9 D8 D7 D6 D5 D4 D3 D2 D1 D0 RDY DVDD VSS)
-parameters wait_fast=200n wait_slow=11400n extra3=1900n extra456=6u extra9=7600n timer_load=4400n reset_load=3u start_load=4200n ready_load=4700n
+parameters wait_fast=200n wait_slow=11400n extra3=2150n extra456=6u extra9=7600n timer_load=5u reset_load=3u start_load=4200n ready_load=4650n
 ICV (CONV cv DVDD VSS) adc_sarlogic_buf drive=4
 ICB (cv cvb DVDD VSS) adc_sarlogic_inv wn=1600n wp=2400n drive=4
 IP (OUTP pi pib DVDD VSS) adc_sarlogic_cmpbuf
@@ -4060,7 +4060,7 @@ IRDB (ready RDY DVDD VSS) adc_sarlogic_buf drive=4
 //   %port46=$IO_PORT @ATTACH &VSS => @PLACE(-28,-138) => @ORIENT("R0");
 //   (-28,24) @TEXT("adc_sarlogic", size=1.2, bold=true);
 //   (-28,20) @TEXT("14-decision asynchronous SAR, 13 split-CDAC updates, parallel output storage and persistent RDY.", size=0.7);
-//   (-28,16) @TEXT("Defaults: wait_fast=200n wait_slow=11400n extra3=1900n extra456=6u extra9=7600n timer_load=4400n reset_load=3u start_load=4200n ready_load=4700n", size=0.8);
+//   (-28,16) @TEXT("Defaults: wait_fast=200n wait_slow=11400n extra3=2150n extra456=6u extra9=7600n timer_load=5u reset_load=3u start_load=4200n ready_load=4650n", size=0.8);
 // }
 ends adc_sarlogic
 

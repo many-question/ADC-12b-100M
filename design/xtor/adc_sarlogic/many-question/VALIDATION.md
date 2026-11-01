@@ -1,6 +1,6 @@
 # LOG-08 optimization and revalidation in progress
 
-Current circuit hash: `49ab94f9521d0865`. Specification: adc_sarlogic 0.7.0.
+Current circuit hash: `237b05f50a71cbad`. Specification: adc_sarlogic 0.7.0.
 Issue #130's maintainer decision is acknowledged: LOG-08 remains <= 2.75 ns;
 2.90 ns is not an approved target. The candidate remains `wip`.
 
@@ -16,9 +16,12 @@ Fast waits are shortened; slow waits are retuned to preserve the all-corner
 The nominal extra DAC/reference waits and all external ports are unchanged.
 The ready delay must still provide >= 100 ps output setup.
 
-The current revision's standard TT function test and short full-corner
-functional/timing diagnostic are being rerun. The prescribed 100-conversion,
-70 ps comparator full-corner test will follow on a stable circuit.
+The intermediate circuit `49ab94f9521d0865` completed its standard 60-word
+TT test with zero bit/DAC errors and LOG-08 = 2.747042 ns, but failed LOG-16.
+The current revision corrects the decision-3 extra load and retunes the
+independent timeout load after the clock path change. Its standard TT
+function test is being rerun. The prescribed 100-conversion, 70 ps comparator
+full-corner test will follow on a stable circuit.
 
 The previously recorded results and TIMEOUT_CORNERS.png belong to circuit
 `df50102541da9321`, not this revision. That circuit passed LOG-11/12 at all
