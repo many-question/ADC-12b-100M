@@ -20,16 +20,19 @@ Delayed completion prepares the next stage after the local DAC wait.
 Completion is monotonic during a conversion, so subsequent comparator
 activity cannot retract it. A local ACTIVE latch is set only when that stage
 is requested and CLKC is high. It holds permission through comparator reset
-until this stage's result has been stored. Preparing a stage while the
-comparator is resetting therefore cannot copy the preceding stage's decision.
+until this stage's result has been stored. Permission is also qualified by
+CONV, so interruption inhibits further writes while preserving the raw bank
+for capture. Once ACTIVE is set, this stage withdraws its clock request;
+its DONE bit prevents the request from reappearing when ACTIVE is cleared.
 
-The comparator clock is the balanced OR of the enabled stages, qualified by
-the conversion window and the comparator's return-to-zero state. The
-comparator receivers' first inverter outputs lower CLKC directly, while their
-later stages drive the bit latches. ACTIVE retains the enabled stage long
-enough to store its result after the early comparator reset. The restart path
-follows stored completion and the DAC wait, and is qualified by both
-comparator outputs being low.
+The balanced request tree sets a separate clock holding latch. Comparator
+validity, timeout or CONV low resets that latch. The comparator receivers'
+first inverter outputs reset CLKC, while their later stages drive the bit
+latches. ACTIVE retains the enabled stage long enough to store its result
+after comparator reset. Because the old request was withdrawn at evaluation
+start, return-to-zero cannot reassert the clock for the previous stage.
+Only the next stage's request can restart it, after stored completion and
+the DAC wait, and with both comparator outputs low.
 
 The comparator pins each see one small input receiver. Its later stages drive
 the distributed decision latches. CONV similarly has one input buffer before
