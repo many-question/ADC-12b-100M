@@ -38,9 +38,11 @@ feedback and separately qualifies the conversion window and timeout.
 ## Coverage still in progress
 
 The standard all-45-corner slow-comparator test is running with its original
-100 conversions per corner and 70 ps comparator condition. The standard
-all-45-corner timeout test is also running with its original 40 conversions
-per corner. These pending runs are not claimed to pass.
+100 conversions per corner and 70 ps comparator condition. That pending run
+is not yet claimed to pass. The current standard all-45-corner timeout test
+is complete: 1800 captures, zero recovery errors, and corner-mean timeout
+204.479-337.386 ps. LOG-11/12 pass at all required corners on the current
+circuit, with fresh records.
 
 The current four-conversion quick-set diagnostic covers seven corners and
 28 conversions with no bit, DAC-level or clock-count errors. Its minimum
@@ -50,9 +52,9 @@ LOG-06/07/10. The earlier all-45-corner four-conversion diagnostic belongs
 to intermediate circuit `49ab94f9521d0865`, before the final timeout and
 ready/extra-wait correction, and does not qualify the current circuit.
 
-The previously recorded timeout results and TIMEOUT_CORNERS.png belong to
-`df50102541da9321`. They are superseded until replaced by the current
-simulations; they are deliberately not rehashed to claim another circuit.
+The timeout records and TIMEOUT_CORNERS.png now describe the current
+circuit. The older results of `df50102541da9321` have been replaced, not
+rehashed to claim a different circuit.
 
 ## Reproduction and remaining qualification
 
@@ -64,7 +66,7 @@ python -m adcflow sim tb_sarlogic_timeout --view adc_sarlogic=xtor:many-question
 
 The candidate stays `wip`: formal remaining function-corner coverage,
 1000-conversion random, mixed top-level regression, SOA and independent
-verification remain pending. The all-corner slow and timeout tests must also
-finish and be judged before their coverage can be claimed. RNL reports zero
+verification remain pending. The all-corner slow test must also finish and be judged before its coverage
+can be claimed. RNL reports zero
 errors, warnings and hints. The local unit suite reports 457 passed, 2 skipped
 and 1 deselected with `pytest -q -m "not slow"`.
