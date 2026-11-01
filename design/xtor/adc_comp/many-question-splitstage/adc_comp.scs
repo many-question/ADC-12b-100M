@@ -1,4 +1,4 @@
-// Split-stage comparator A5: physical integrator, independent latch and physical clock.
+// Split-stage comparator A6: physical integrator, independent latch and physical clock.
 // @RNL(type="header") {
 // @VERSION("0.3");
 // @USE-PACKAGE(name="adc28", version="0.1", path="../../../rnl/adc28.rnl")
@@ -22,8 +22,8 @@ CDN2 (DN VSS) cfmom_2t nr=52 lr=1e-06 w=5e-08 s=5e-08 stm=1 spm=3 multi=1
 CDN3 (DN VSS) cfmom_2t nr=52 lr=1e-06 w=5e-08 s=5e-08 stm=1 spm=3 multi=1
 CDN4 (DN VSS) cfmom_2t nr=52 lr=1e-06 w=5e-08 s=5e-08 stm=1 spm=3 multi=1
 CDN5 (DN VSS) cfmom_2t nr=52 lr=1e-06 w=5e-08 s=5e-08 stm=1 spm=3 multi=1
-MSIP (XP DN ST VSS) nch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-13 pd=4.4e-06 ps=6.5e-06 nrd=0.108289 nrs=0.108289 sa=1.79203e-07 sb=1.79203e-07 sd=1e-07
-MSIN (XN DP ST VSS) nch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-13 pd=4.4e-06 ps=6.5e-06 nrd=0.108289 nrs=0.108289 sa=1.79203e-07 sb=1.79203e-07 sd=1e-07
+MSIP (XP DN ST VSS) nch_ulvt_mac l=3e-08 w=6e-06 nf=6 m=1 ad=3e-13 as=3.5e-13 pd=6.6e-06 ps=8.7e-06 nrd=0.076404 nrs=0.076404 sa=2.39369e-07 sb=2.39369e-07 sd=1e-07
+MSIN (XN DP ST VSS) nch_ulvt_mac l=3e-08 w=6e-06 nf=6 m=1 ad=3e-13 as=3.5e-13 pd=6.6e-06 ps=8.7e-06 nrd=0.076404 nrs=0.076404 sa=2.39369e-07 sb=2.39369e-07 sd=1e-07
 MST1 (ST CKL VSS VSS) nch_ulvt_mac l=3e-08 w=3e-06 nf=3 m=1 ad=1.75e-13 as=1.75e-13 pd=4.35e-06 ps=4.35e-06 nrd=0.136842 nrs=0.136842 sa=1.47042e-07 sb=1.47042e-07 sd=1e-07
 MST2 (ST CKL VSS VSS) nch_ulvt_mac l=3e-08 w=3e-06 nf=3 m=1 ad=1.75e-13 as=1.75e-13 pd=4.35e-06 ps=4.35e-06 nrd=0.136842 nrs=0.136842 sa=1.47042e-07 sb=1.47042e-07 sd=1e-07
 MLNP (QP QN XP VSS) nch_ulvt_mac l=3e-08 w=1.2e-05 nf=12 m=1 ad=6e-13 as=6.5e-13 pd=1.32e-05 ps=1.53e-05 nrd=0.040569 nrs=0.040569 sa=4.01767e-07 sb=4.01767e-07 sd=1e-07
@@ -56,12 +56,12 @@ MHEP1 (HP CKB AVDD AVDD) pch_ulvt_mac l=3e-08 w=8e-06 nf=8 m=1 ad=4e-13 as=4.5e-
 MHEP2 (CKE CKL HP AVDD) pch_ulvt_mac l=3e-08 w=8e-06 nf=8 m=1 ad=4e-13 as=4.5e-13 pd=8.8e-06 ps=1.09e-05 nrd=0.024976 nrs=0.024976 sa=2.95835e-07 sb=2.95835e-07 sd=1e-07
 MHEN1 (CKE CKB VSS VSS) nch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-13 pd=4.4e-06 ps=6.5e-06 nrd=0.108289 nrs=0.108289 sa=1.79203e-07 sb=1.79203e-07 sd=1e-07
 MHEN2 (CKE CKL VSS VSS) nch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-13 pd=4.4e-06 ps=6.5e-06 nrd=0.108289 nrs=0.108289 sa=1.79203e-07 sb=1.79203e-07 sd=1e-07
-// @RNL(author="splitstage-a5") {
+// @RNL(author="splitstage-a6") {
 // # @SELECT-INSTANCE => @TEXT("",key="model");
 // # @SELECT-TERMINAL => @REMOVE-FROM $GROUND_FILL_SET;
 // # @SELECT-TERMINAL => @REMOVE-FROM $SUPPLY_FILL_SET;
 // # @SELECT-NET(port=true) => @REMOVE-FROM $PORT_FILL_SET;
-// (0,151) @TEXT("A5 front integrator | W56 pair, 2 x W3 tail, 5 x C52 per node",size=1.5,bold=true);
+// (0,151) @TEXT("A6 front integrator | W56 pair, 2 x W3 tail, 5 x C52 per node",size=1.5,bold=true);
 // (160,151) @TEXT("Independent latch | gate-only DN / DP coupling | physical RTZ buffers",size=1.5,bold=true);
 // (0,39) @TEXT("Clock: CKL = CLKC AND CKD; CKE = NOR(CKB, CKL) stops front tail; reset stays CKF",size=1.4,bold=true);
 // (0,-23) @TEXT("Every physical device and pin is shown. Wires terminate at exact net labels; equal labels are electrically connected.",size=1.1);
@@ -247,7 +247,7 @@ MHEN2 (CKE CKL VSS VSS) nch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-1
 // (144,93) @TEXT("VSS",size=.75,bold=true,halign="middle");
 // #MSIP @PLACE(192,72) => @ORIENT("R0");
 // #MSIP @TEXT("MSIP",key="name",size=.85,dx=2.2,dy=2.5,halign="start");
-// #MSIP @TEXT("4um/30nm nf4",key="dims",size=.7,dx=2.2,dy=.3,halign="start");
+// #MSIP @TEXT("6um/30nm nf6",key="dims",size=.7,dx=2.2,dy=.3,halign="start");
 // %p_MSIP_1 = (192,78);
 // &XP @WIRE(mode="horizontal-vertical") {#MSIP:1 %p_MSIP_1};
 // (192,79) @TEXT("XP",size=.75,bold=true,halign="middle");
@@ -262,7 +262,7 @@ MHEN2 (CKE CKL VSS VSS) nch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-1
 // (198.3,67) @TEXT("VSS",size=.75,bold=true,halign="start");
 // #MSIN @PLACE(224,72) => @ORIENT("R0");
 // #MSIN @TEXT("MSIN",key="name",size=.85,dx=2.2,dy=2.5,halign="start");
-// #MSIN @TEXT("4um/30nm nf4",key="dims",size=.7,dx=2.2,dy=.3,halign="start");
+// #MSIN @TEXT("6um/30nm nf6",key="dims",size=.7,dx=2.2,dy=.3,halign="start");
 // %p_MSIN_1 = (224,78);
 // &XN @WIRE(mode="horizontal-vertical") {#MSIN:1 %p_MSIN_1};
 // (224,79) @TEXT("XN",size=.75,bold=true,halign="middle");

@@ -1,4 +1,6 @@
-# Split-stage comparator A5
+# Split-stage comparator A6
+
+**A6 is an independent W6 second-input-pair experiment; qualification is pending.** Only MSIP/MSIN change W4/nf4 to W6/nf6 with complete verified callback parameters. All connections, tail devices and other geometries remain A5. See [A6 scope and evidence](A6-SCREEN.md). A5 results below are historical and cannot be inherited by A6; unchanged old result records remain stale until rerun.
 
 **A5 fails the full FS physical-noise gate:** 341.8605253429254 uV rms (95% CI 330.4249508199212–353.8682080578653 uV), above the 240 uV limit. See [the retained FS noise result](A5-NOISE.md). TT noise was not dispatched. Status remains `wip`, with deterministic passes and all earlier failures preserved.
 
@@ -18,7 +20,7 @@
 
 This work-in-progress candidate separates a dynamic integrating input stage from a second StrongARM latch. The first-stage DP/DN nodes connect only to the second input pair's gates. Two physical tail switches, physical precharge devices and transistor clock generation are present in each appropriate stage. Physical output inverters preserve the return-to-zero interface.
 
-The A5 circuit contains 40 MOS devices and 10 MOM capacitors. All MOS geometries and MOM instance parameters were generated with successful device callbacks. The external input pair is W56/L0.03 with 56 fingers; front and latch tails each use two W3/L0.03 units. Front precharge uses P16. Each front drain has five 52-finger, 1 µm MOM units (76.3015 fF nominal total before device parasitics). The second pair is W4, with N12/P8 regenerative devices and N3/P4 output inverters. Dimensions are in µm; all MOS lengths are 0.03.
+The A6 circuit contains 40 MOS devices and 10 MOM capacitors. All MOS geometries and MOM instance parameters were generated with successful device callbacks. The external input pair is W56/L0.03 with 56 fingers; front and latch tails each use two W3/L0.03 units. Front precharge uses P16. Each front drain has five 52-finger, 1 µm MOM units (76.3015 fF nominal total before device parasitics). The second pair is W6, with N12/P8 regenerative devices and N3/P4 output inverters. Dimensions are in µm; all MOS lengths are 0.03.
 
 CLKC drives two physical inverters to CKF. CKF passes through two further inverters to CKD. A physical NAND2 and inverter produce CKL = CLKC AND CKD. The direct CLKC path lets CKL fall without waiting for the delay chain. No ideal source, delay, or assumed 20 ps phase spacing is part of the candidate. Actual rise/fall crossings and reset overlap must be measured with the full load.
 

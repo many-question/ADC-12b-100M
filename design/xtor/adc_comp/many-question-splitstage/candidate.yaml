@@ -1,5 +1,5 @@
 name: many-question-splitstage
-description: Physical integrating front stage with an independent gate-coupled StrongARM latch and delayed transistor clock. A5 uses N3 output pulldowns with A4 NAND reordering and front-tail hold; feasibility remains unproven.
+description: Physical integrating front stage with an independent gate-coupled StrongARM latch and delayed transistor clock. A6 changes only the A5 second input pair to callback-derived W6/nf6; feasibility remains unproven.
 status: wip
 acknowledged: [69, 78, 84, 100, 116]
 authors:
