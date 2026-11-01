@@ -1,46 +1,65 @@
-# A6 schematic readability update
+# A6 schematic: compact gallery-based layout
 
-This is a drawing-only revision of the A6 source at `e14223a51665d6a931de1054d4d526d93516f735`. Electrical iteration remains paused under [issue 124](https://github.com/many-question/ADC-12b-100M/issues/124). No simulation was dispatched, no result was regenerated, and the full FS noise failure remains unchanged.
+Drawing-only revision of `14296531a379164dc46e85dc3df060422f8516fa`. Electrical optimization remains paused under [issue 124](https://github.com/many-question/ADC-12b-100M/issues/124). No simulation, rehash, result regeneration or test-conclusion change occurred.
 
-[Before: exact A6 source rendered before editing](schematic-before.png) · [After: full sheet](schematic.png) · [Zoomable SVG](schematic.svg) · [Editable RNL/netlist](adc_comp.scs)
+[Previous sheet](schematic-previous.png) · [New main schematic](schematic.png) · [Main SVG](schematic.svg) · [Complete SVG including clock details](schematic-all.svg) · [Editable RNL](adc_comp.scs)
 
-![A6 connected schematic](schematic.png)
+![A6 main transistor schematic](schematic.png)
 
-## What changed in the drawing
+## Reference actually read and rendered
 
-The previous sheet drew each device separately with four labelled terminal stubs. The new sheet shows the actual differential branches, common-source nodes, parallel tails, capacitor banks and cross-coupled feedback. The input stage, regenerative stage and output buffers read from left to right. AVDD is above each circuit and VSS is below it. Reset switches sit beside the nodes they precharge, with their supply routing outside the latch. The revised feedback wiring stays between the two regenerative branches instead of making long loops around the input pair.
+The reference is [RISCA L3_comparator_V1.scs](https://github.com/rich-netlist/rnl-gallery/blob/b270920982c5c1bbd4634f585297a8468886d25c/examples/risca/L3_comparator_V1.scs), pinned to gallery commit `b270920982c5c1bbd4634f585297a8468886d25c`. Its complete source, local symbol/style packages and semantic package were read. It was rendered with the gallery's exact locked `@rich-netlist/runtime` **0.4.0**, with its supplied packages, and rasterized with its locked resvg **2.6.2**. The reference has no errors or warnings; its hints report intentional package-name overrides. Both the full reference and the transistor-region crop were visually inspected. The gallery's published cover is a different cell, `L2_single_ch_V2`; the comparator image below is our actual render of the requested source.
 
-The circuit remains one flat `adc_comp` subcircuit. No electrical hierarchy or module was introduced merely for drawing. Five detail images are cropped directly from the same rendered sheet, so they cannot silently acquire a different circuit:
+![Reference transistor region](schematic-reference.png)
 
-| View | What can be checked |
+Reference attribution: RISCA example by **many-question**, semantic annotations by **Gemini-4-Argon**, distributed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). This image is a cropped and rasterized rendering; reference electrical content was not copied into A6. [Original example license](https://github.com/rich-netlist/rnl-gallery/blob/b270920982c5c1bbd4634f585297a8468886d25c/examples/risca/LICENSE).
+
+## Concrete changes guided by the reference
+
+| Reference drawing practice | Applied to A6 |
 |---|---|
-| [Front integrator](schematic-front.png) | Mirrored W56 pair, CKF reset pair, common FT node, two W3 tail devices and all ten MOM instances |
-| [Regenerative latch](schematic-latch.png) | DN/DP gate-only coupling, mirrored device stacks, QP/QN cross-coupling, XP/XN and QP/QN reset devices, common ST node |
-| [RTZ outputs](schematic-outputs.png) | Standard inverter symbols and the corresponding P4/N3 transistor pairs |
-| [Clock function](schematic-clock.png) | Four inverter stages, NAND plus inverter for CKL, and NOR for CKE; actual net names are shown |
-| [Clock transistor detail](schematic-clock-devices.png) | All 18 clock devices, including the exact NAND NMOS and NOR PMOS series order |
+| Compact, mirrored input pair with a short common-source connection | Front pair separation reduced from 36 to 24 grid units; front reset/input/tail row pitch reduced from 18 to 12 |
+| Regenerative devices aligned in vertical columns; feedback contained between them | Latch branch separation reduced from 36 to 24; the PMOS/NMOS pitch reduced from 18 to 12; two short, undotted feedback crossings remain between gate buses |
+| Reset devices close to the nodes they precharge | QP/QN and XP/XN resets sit immediately outside the latch columns; AVDD routes run around their exterior, clear of CKL labels |
+| Readable labels adjacent to the device, distinct from node labels | Device names enlarged from 1.0 to 1.2 grid units, widths from 0.9 to 1.1; explicit Arial text, green device strokes and dark wires; capacitor names moved off their wires |
+| Signal flow and recognizable circuit groups carry the explanation | Main image contains only the physical integrator, regenerative stage and CMOS outputs; duplicate output inverter views and long in-figure prose removed |
+| Local power connections and intentional whitespace | AVDD remains above and ground below; compact local rails; a 182-by-84-grid main viewport replaces the old five-panel overview as the opening image |
 
-The standard library provides `$NMOS`, `$PMOS`, `$CAPACITOR`, `$INVERTER`, `$NAND_2INPUT`, `$NOR_2INPUT`, `$SUPPLY`, `$GROUND` and `$JUNCTION`. All 40 MOS bodies are tied to their conventional rails in the unchanged netlist, so their symbols are three-terminal: NMOS bulk is VSS and PMOS bulk is AVDD. No device needs a special four-terminal body connection in this candidate. All 50 physical instances remain individually visible at transistor level; the nine logic-gate usages are drawing-only functional views on existing nets, not added devices.
+The reference's circuit region, rather than its large annotation banner, guided the proportions. A6 retains standard-library symbols instead of copying the reference's custom MOS graphics. The standard symbols have 4-grid terminal height, so a 12-grid stage pitch leaves room for the longer A6 instance names and explicit widths. The original flat `adc_comp` remains flat: no fictitious subcircuits, devices or hierarchy were introduced.
 
-The A6 subcircuit now has a purpose-made [seven-port comparator symbol](schematic-symbol.png): differential inputs on the left, two explicitly marked decision outputs on the right, CLKC below the input side with a clock marker, AVDD above and VSS below. The tapered comparator body and polarity marks convey its function. The preview uses a private drawing fixture only; it is not a new testbench or simulation and does not modify the candidate hierarchy.
+## Main and supporting views
 
-![A6 subcircuit symbol](schematic-symbol.png)
+Every image below is a viewport of the **same RNL render**, not an independently redrawn circuit. Main SVG contains the same scene with a focused viewport; complete SVG exposes all auxiliary circuitry.
 
-Every drawn pin-to-wire endpoint was checked against the original net name. The 158 explicit wires use shared named points for real branches. All 56 junction dots have at least three distinct wire directions on the same net; ordinary bends and unconnected crossings have no dots. The latch feedback and clock bypass crossings are deliberately undotted. Matching, differential-pair and functional grouping semantics remain in RNL.
+| View | Content |
+|---|---|
+| [Main schematic](schematic.png) | 22 MOS plus ten MOMs: both analog stages and four output transistors |
+| [Front integrator](schematic-front.png) | Mirrored W56 inputs, CKF resets, common FT, parallel W3 tails, ten individually named MOMs |
+| [Regenerative latch](schematic-latch.png) | W6 input pair, N12/P8 regeneration, QP/QN and XP/XN resets, common ST and parallel tails |
+| [Outputs](schematic-outputs.png) | Actual P4/N3 CMOS pairs shown once, OUTP/OUTN reset low |
+| [Clock function](schematic-clock.png) | Standard inverter, NAND2 and NOR2 symbols on the actual existing nets |
+| [Clock implementation](schematic-clock-devices.png) | All 18 physical clock MOS, including the original NAND NMOS and NOR PMOS series order |
+| [Comparator symbol](schematic-symbol.png) | Existing functional seven-port symbol; inputs left, outputs right, clock below input side, AVDD above, VSS below |
+
+Equal net labels connect across groups, as in the reference: DN drives MSIP, DP drives MSIN, QP drives the OUTP inverter and QN drives the OUTN inverter. The functional clock usages add no electrical instances. All **40 MOS and ten MOMs** appear once at physical level; the seven logic usages are explanatory views of those same clock devices.
+
+Standard symbols used are `$NMOS`, `$PMOS`, `$CAPACITOR`, `$INVERTER`, `$NAND_2INPUT`, `$NOR_2INPUT`, `$SUPPLY`, `$GROUND` and `$JUNCTION`. All MOS bodies retain the original conventional connections: NMOS to VSS and PMOS to AVDD, permitting three-terminal symbols. The custom comparator symbol preserves its functional shape and seven ports. Its preview uses a private drawing fixture, not a simulation testbench.
+
+The geometry audit validates every wire endpoint against the unchanged original netlist: **154 explicit wires**, **56 junction dots**. Every dot has at least three distinct wire directions on its own net; corners and unconnected crossings have no dots. Matching, differential-pair and grouping semantics remain.
 
 ## Electrical and result preservation
 
-The original file and all candidate result files were snapshotted before editing. Removing only complete RNL records from the old and new source yields **byte-identical remaining content**, including every original non-RNL comment. Independently, every non-comment electrical line, including ports, instance order, parameters and connections, is byte-identical. No whitespace normalization of electrical lines is needed for this equality.
+The previous source and all result files were snapshotted before editing. Removing only complete RNL records yields byte-identical remaining content, including original non-RNL comments. Independently, all non-comment electrical lines and their line endings compare byte-for-byte: ports, topology, instance order, models and parameters remain unchanged.
 
 | Fingerprint | Before | After |
 |---|---|---|
-| Full source SHA-256 | `8d300f399e0ff5b9f2273ba23c166ce6de63aa8218da1dd434ad4b2225d00621` | `028f3927f1159ca1814f55f4d2ff806f1d35fcf48f39ae906cadd30742855d54` |
+| Full source SHA-256 | `028f3927f1159ca1814f55f4d2ff806f1d35fcf48f39ae906cadd30742855d54` | `7b86ef236b1bba9bcdf0fb599b9b77d97cff237740a2cdd58d108c02de2f435b` |
 | Electrical-lines SHA-256 | `fb35051d0ec3e345c550baddafc8e3ab43d9de7187453188e365cddca1544274` | identical |
 | Non-RNL bytes SHA-256 | `d21bf83f18b9a764f4b535f7e416c233b62297fdb7ddd2f9131b84c75fc806cf` | identical |
-| Project simulation-dependency hash | `539043ed0964eba8` | identical |
+| Simulation-dependency hash | `539043ed0964eba8` | identical |
 
-The project hashes `.scs` simulation dependencies through `adcflow.netlist.content_hash`, using logical electrical lines and excluding RNL comments. Consequently this drawing change does not newly invalidate results. All **20 existing result/plot files are byte-identical** to the snapshot, including their original source commits, simulation dates, full-file source hashes and failures. No rehash, recorder operation or metadata substitution was performed.
+`adcflow.netlist.content_hash` ignores RNL comments when hashing `.scs` logical electrical lines. All **20 existing result/plot files** retain their exact bytes and metadata. Actual `checks.judge` still reports **five fresh** records (TT/SF/FS delay, TT loading, FS noise) and **two historically stale** SS/FF delay records. Fresh FS noise remains **FAIL: 325.0388413768936 uV rms against 240 uV**; its [statistical limitations](A6-NOISE.md) and every previous conclusion remain intact.
 
-Actual `checks.judge` output after the drawing change retains **five fresh records**: TT/SF/FS delay, TT loading and FS noise. The two old SS/FF delay records remain stale for the previous electrical-source reason. Fresh means matching dependencies, not passing qualification: the fresh FS noise result still fails at 325.0388413768936 uV rms, with the [statistical limitations already documented](A6-NOISE.md).
+A6 was checked/rendered with repository-pinned **RNL 0.5.2 (`7fe8de1`)**: **0 errors, 0 warnings, 0 hints**. The reference, previous full sheet, revised main, every detail, complete sheet and custom symbol were actually viewed. Subsequent visual fixes moved capacitor labels off wires, moved latch supply rails away from CKL labels, separated the latch-driver caption from AVDD and corrected crop boundaries. Each PNG stays below 200 kB; the candidate stays below 2 MB.
 
-Validation used the repository-pinned RNL CLI **0.5.2 (`7fe8de1`)**, with **0 errors, 0 warnings and 0 hints**. The before/after sheet, each detail image and the custom symbol were rendered and visually inspected. Layout iterations shortened feedback paths, moved power routing clear of CKL labels, corrected crop boundaries and moved the symbol instance label away from its supply pin. All images are below the 200 kB limit, and the candidate directory remains below 2 MB.
+For the original isolated-device drawing before the first readability pass, see [the earlier baseline](schematic-before.png). The immediate before/after for this revision is [previous sheet](schematic-previous.png) versus [new main](schematic.png) plus its supporting views above.

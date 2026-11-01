@@ -1,6 +1,6 @@
 # Split-stage comparator A6
 
-[Connected A6 schematic and detail views](A6-DRAWING.md) · [full SVG](schematic.svg). This drawing-only update preserves every electrical line and all simulation records; its source-file SHA changes only because of RNL comments.
+[Compact A6 schematic, gallery reference and detail views](A6-DRAWING.md) · [main SVG](schematic.svg) · [complete SVG with clock implementation](schematic-all.svg). This drawing-only update preserves every electrical line and all simulation records; its source-file SHA changes only because of RNL comments.
 
 **A6 fails full FS physical noise: 325.0388413768936 uV rms versus 240 uV.** Its conditional 95% interval is 314.05764906285185–336.55596519873524 uV, with a Gaussian/binomial fit warning. See [the complete A6 noise audit](A6-NOISE.md). Work is paused under [issue 124](https://github.com/many-question/ADC-12b-100M/issues/124); [historical noise-delay tradeoffs](HISTORICAL-NOISE-DELAY-AUDIT.md) retain exact-source alternatives. No TT noise, further corners, mismatch, new diagnostics or variants were dispatched.
 
