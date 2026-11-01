@@ -86,3 +86,6 @@ Acceptance uses the unchanged project tests `tb_sarlogic_func`,
 `--view adc_sarlogic=xtor:many-question --mode aps`. Official results belong
 under this candidate's result view. Short diagnostic runs do not establish
 LOG-01's 1000-conversion requirement or all-corner coverage.
+
+Current measurements and remaining failures are recorded in
+[VALIDATION.md](VALIDATION.md). The candidate is not ready for selection.
