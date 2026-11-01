@@ -1,90 +1,88 @@
-# Validation: timeout optimization in progress
+# Current validation: wip
 
-The baseline measurements below belong to the previous circuit
-`e3eebc31d22e3add`. The current circuit is `df50102541da9321`, with a 12-tap
-EHVT NMOS-loaded timeout chain. Its four-conversion diagnostics cover all
-45 corners with zero recovery errors and approximately 205–340 ps timeout.
-The standard 40-conversion full-corner timeout runs and the standard TT
-function run are in progress. The old result JSON is intentionally not
-rehashed; it will be replaced by the new simulations.
-
-Specification: adc_sarlogic 0.7.0. Circuit hash: `e3eebc31d22e3add`.
-All observations below use this circuit, APS and the project's unchanged
+Specification: adc_sarlogic 0.7.0. Circuit hash: `df50102541da9321`.
+All recorded results below use this circuit, APS and the unchanged project
 `errpreset=conservative` testbench settings. Results are self-reported;
 independent verification and selection have not been performed.
 
-## Recorded TT acceptance runs
+## Timeout qualification
 
-The committed JSON and figures are produced by these standard commands,
-without overriding conversion counts:
+The standard timeout test was run at all 45 corners, with its specified
+40 conversions per corner. It captures **1800 conversions
+with zero bit/DAC-level recovery errors**. LOG-11 and LOG-12 pass at every
+required corner. All records match the current circuit and are not stale.
 
-```text
-python -m adcflow sim tb_sarlogic_func --view adc_sarlogic=xtor:many-question --corners typ
-python -m adcflow sim tb_sarlogic_timeout --view adc_sarlogic=xtor:many-question --corners typ
-```
+The corner-average timeout range is **205.277 to
+340.024 ps**, within 200-350 ps. The minimum is
+`ff_high_m40`; the maximum is `ss_low_125`.
 
-The first run captures 60 conversions with zero bit or DAC-level errors.
-The second captures 40 conversions with zero forced-decision recovery errors.
-Both results match the current circuit hash and are not stale.
+The timeout uses 12 resettable taps and an EHVT NMOS-only gate load at each
+tap (`timer_load=4400n`). The original reset NAND gates and output inverters
+are retained. The voltage-dependent load reduces PVT delay spread without an
+extra reference, calibration phase, port or ideal delay element. DAC waits
+continue to use their separate paired MOS loads.
+
+| Previously failing corner | Baseline timeout (ps) | Current timeout (ps) | 200-350 ps |
+|---|---:|---:|---|
+| ff_high_m40 | 199.955 | 205.277 | pass |
+| ss_low_m40 | 354.763 | 312.287 | pass |
+| ss_low_125 | 365.375 | 340.024 | pass |
+
+The baseline values are the earlier four-conversion diagnostics of circuit
+`e3eebc31d22e3add`; current values are the full 40-conversion formal runs.
+The current four-conversion sweep also covers all 45 corners, captures 180
+conversions without recovery errors and measures approximately 205-340 ps.
+
+![Formal timeout across all PVT corners](TIMEOUT_CORNERS.png)
+
+## Ordinary TT conversion
+
+The standard function test captures 60 conversions with
+zero bit or DAC-level errors. Among the applicable bounded TT observations,
+only the existing LOG-08 conversion-time limit is unmet.
 
 | TT observation | Measured | Requirement | TT verdict |
 |---|---:|---:|---|
-| LOG-02: decision to UP/DN | 35.43 ps | <= 40 ps | pass |
-| LOG-03: decision to CLKC falling | 36.50 ps | <= 45 ps | pass |
-| LOG-04: fast DAC wait, net of extra wait | 53.37 ps | 35–60 ps | pass |
-| LOG-05/06: slow DAC wait, net of extra wait | 93.69 ps | 70–100 ps at TT | pass |
-| LOG-07: first CLKC | 113.54 ps | 80–160 ps | pass |
-| LOG-08: maximum conversion time | **2.864236 ns** | **<= 2.75 ns** | **FAIL** |
-| LOG-10: D setup before RDY | 140.43 ps | >= 100 ps | pass |
-| LOG-11: forced-decision errors | 0 / 40 conversions | 0 | pass |
-| LOG-12: timeout | 264.54 ps | 200–350 ps | pass |
-| LOG-13: DVDD power at 100 MS/s | 960.68 uW | reported only | info |
-| LOG-14: CONV input capacitance | 2.53 fF | <= 40 fF | pass |
-| LOG-15: larger comparator input capacitance | 5.03 fF | <= 7 fF | pass |
-| LOG-16: worst extra-wait error | 14.98 % | <= 20 % | pass |
+| LOG-02 decision to UP/DN | 35.428210 ps | <= 40 | pass |
+| LOG-03 decision to CLKC falling | 36.177000 ps | <= 45 | pass |
+| LOG-04 fast wait, net of extra wait | 53.094494 ps | 35-60 | pass |
+| LOG-05 slow wait, net of extra wait | 93.436694 ps | 70-100 | pass |
+| LOG-07 first CLKC | 113.273954 ps | 80-160 | pass at TT |
+| LOG-08 maximum conversion time | 2.860505 ns | <= 2.75 | FAIL |
+| LOG-10 D setup before RDY | 140.426259 ps | >= 100 | pass at TT |
+| LOG-13 DVDD power | 940.131396 uW | reported only | info |
+| LOG-14 CONV input capacitance | 2.534006 fF | <= 40 | pass |
+| LOG-15 larger comparator input capacitance | 5.032981 fF | <= 7 | pass |
+| LOG-16 worst extra-wait error | 13.459551 % | <= 20 | pass |
 
 These are TT observations. Requirements that name all corners still need
-their complete formal corner coverage. The 60-conversion function run does
-not satisfy LOG-01's separate 1000-conversion random test.
+their formal coverage in the corresponding function tests. This run does not
+satisfy LOG-01's separate 1000-conversion random test.
 
-## Additional diagnostics
+## Reproduction and remaining qualification
 
-* The unmodified function test with `--corners all --param nconv=4 --no-record`
-  captures 180 conversions across all 45 corners. Bit errors, DAC-level errors
-  and comparison-clock-count errors are all zero. Every completed conversion
-  has exactly 14 comparison clocks.
-* The timeout test with `--corners quick --param nconv=4 --no-record` captures
-  four conversions in each of seven corners, all with zero recovery errors.
-  The timeout range is not yet compliant:
+```text
+python -m adcflow sim tb_sarlogic_timeout --view adc_sarlogic=xtor:many-question --corners all
+python -m adcflow sim tb_sarlogic_func --view adc_sarlogic=xtor:many-question --corners typ
+```
 
-  | Corner | Timeout | 200–350 ps |
-  |---|---:|---|
-  | tt_nom_27 | 264.518 ps | pass |
-  | ss_low_m40 | **354.763 ps** | **FAIL** |
-  | ss_low_125 | **365.375 ps** | **FAIL** |
-  | ff_high_m40 | **199.955 ps** | **FAIL** |
-  | ff_high_125 | 235.022 ps | pass |
-  | fs_nom_27 | 264.038 ps | pass |
-  | sf_nom_27 | 260.392 ps | pass |
+The full-corner timeout execution used the same 45 named corners in a
+different order to run the fastest corner first during simulator warm-up;
+no parameters, sample counts, numerical settings or limits were changed.
 
-* An interruption diagnostic uses `--param nconv=4 --param tconv=700p
-  --no-record`. The shortened window permits five captures before the test
-  stops. Each contains exactly the first four completed comparator decisions
-  followed by ten zeros. Comparing the output against comparator edges before
-  CONV falls gives zero errors; RDY is generated for every capture.
+The aggregate waveform archive transfer failed after all 45 simulator jobs
+completed. The same completed jobs were recovered in six transfer batches.
+Their preserved decks, testbenches and dependency hashes were checked against
+the original staged inputs before the unchanged project measurement,
+figure and recording functions were used. The result metadata records this
+as `fetch_recovery`; no simulation data or acceptance conditions were changed.
 
-These short runs are diagnostic observations, not substitute acceptance
-records. Their raw simulator data is not committed.
+The candidate remains `wip`: LOG-08 still needs
+110.505 ps less maximum TT conversion time. The required
+1000-conversion random, slow-comparator and remaining full-corner function
+tests, mixed top-level regression and independent verification are pending.
+No specifications, testbenches or acceptance limits were changed.
 
-## Remaining qualification
-
-The candidate remains `wip`. LOG-08 needs 114.236 ps less maximum TT conversion
-time; LOG-12 needs more margin across PVT. After tuning, the required
-1000-conversion random, slow-comparator and full-corner acceptance runs must
-be completed on the final circuit hash, followed by mixed top-level regression
-and independent verification. No specification, testbench or acceptance limit
-was changed to accommodate this candidate.
-
-Local checks pass, with the results check reporting the known LOG-08 limit
-warning. RNL reports zero errors, warnings and hints. The unit suite reports
-455 passed, 2 skipped and 1 deselected with `pytest -q -m "not slow"`.
+Local checks pass with the known LOG-08 results warning. RNL has zero
+errors, warnings and hints. The unit suite reports 457 passed, 2 skipped
+and 1 deselected with `pytest -q -m "not slow"`.
