@@ -1,6 +1,8 @@
 # Split-stage comparator A5
 
-**A5 also passes the subsequent six-job gate:** official FS/SS/FF, an independent tighter TT check, and private FS VCM=0.40/0.56 V endpoints. See [A5 corner, numerical and CM evidence](A5-GATES.md). Official primary TT remains 49.630304508151376 ps; tighter TT is 49.62271853885258 ps. Physical noise and qualification remain pending.
+**A5 fails the full FS physical-noise gate:** 341.8605253429254 uV rms (95% CI 330.4249508199212–353.8682080578653 uV), above the 240 uV limit. See [the retained FS noise result](A5-NOISE.md). TT noise was not dispatched. Status remains `wip`, with deterministic passes and all earlier failures preserved.
+
+**A5 also passes the subsequent six-job gate:** official FS/SS/FF, an independent tighter TT check, and private FS VCM=0.40/0.56 V endpoints. See [A5 corner, numerical and CM evidence](A5-GATES.md). Official primary TT remains 49.630304508151376 ps; tighter TT is 49.62271853885258 ps. The subsequent physical-noise failure is documented above; qualification remains incomplete.
 
 **A5 passes the initial TT/SF delay and TT loading screen.** SF validity is repaired by changing only MOPN/MONN from N2 to complete callback-derived N3 geometry. TT 30 mV delay is 49.630304508151376 ps, leaving only 0.3696954918 ps margin. See [A5 measurements and timing cost](A5-SCREEN.md). All connections, including the A4 NAND reorder, remain unchanged. Fresh records cover TT/SF delay and TT loading; FS/SS/FF were subsequently refreshed as documented above. Full-corner noise and mismatch remain unestablished; status is `wip`.
 
@@ -16,7 +18,7 @@
 
 This work-in-progress candidate separates a dynamic integrating input stage from a second StrongARM latch. The first-stage DP/DN nodes connect only to the second input pair's gates. Two physical tail switches, physical precharge devices and transistor clock generation are present in each appropriate stage. Physical output inverters preserve the return-to-zero interface.
 
-The A3 circuit contains 40 MOS devices and 10 MOM capacitors. All MOS geometries and MOM instance parameters were generated with successful device callbacks. The external input pair is W56/L0.03 with 56 fingers; front and latch tails each use two W3/L0.03 units. Front precharge uses P16. Each front drain has five 52-finger, 1 µm MOM units (76.3015 fF nominal total before device parasitics). The second pair is W4, with N12/P8 regenerative devices and N2/P4 output inverters. Dimensions are in µm; all MOS lengths are 0.03.
+The A5 circuit contains 40 MOS devices and 10 MOM capacitors. All MOS geometries and MOM instance parameters were generated with successful device callbacks. The external input pair is W56/L0.03 with 56 fingers; front and latch tails each use two W3/L0.03 units. Front precharge uses P16. Each front drain has five 52-finger, 1 µm MOM units (76.3015 fF nominal total before device parasitics). The second pair is W4, with N12/P8 regenerative devices and N3/P4 output inverters. Dimensions are in µm; all MOS lengths are 0.03.
 
 CLKC drives two physical inverters to CKF. CKF passes through two further inverters to CKD. A physical NAND2 and inverter produce CKL = CLKC AND CKD. The direct CLKC path lets CKL fall without waiting for the delay chain. No ideal source, delay, or assumed 20 ps phase spacing is part of the candidate. Actual rise/fall crossings and reset overlap must be measured with the full load.
 
