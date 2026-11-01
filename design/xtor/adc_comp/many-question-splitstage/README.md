@@ -1,4 +1,6 @@
-# Split-stage comparator A4
+# Split-stage comparator A5
+
+**A5 is an isolated output-ratio experiment awaiting TT/SF validation.** Only MOPN/MONN change from N2 to N3 using complete successful callback geometry. All connections and remaining devices, including the A4 NAND reorder, are unchanged. A4 evidence is frozen at [af604643](https://github.com/many-question/ADC-12b-100M/tree/af60464331bdd6b8babb99398154fc5296225721/design/xtor/adc_comp/many-question-splitstage). Previous result records are stale for A5 until rerun.
 
 **A4 fixes SOA in the bounded TT/SF screen, but SF still fails CMP-15.** TT 30 mV delay is 48.745866 ps; SF loser peak is 34.472066% VDD with eight violations. See [A4 measurements and reset mechanism](A4-SCREEN.md). Only MNG1 gate CLKC→CKD and MNG2 gate CKD→CLKC change; all device geometries, PMOS connections and outputs remain unchanged. Logic remains CKL=CLKC AND CKD. A3 evidence is frozen at [93caae32](https://github.com/many-question/ADC-12b-100M/tree/93caae32913aef5c8a1754210ff9cf2c398f027a/design/xtor/adc_comp/many-question-splitstage). TT/SF delay records are fresh for A4; remaining A3 records, including loading, are stale. No loading, CM or noise jobs were added.
 

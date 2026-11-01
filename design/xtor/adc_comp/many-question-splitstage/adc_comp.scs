@@ -1,4 +1,4 @@
-// Split-stage comparator A4: physical integrator, independent latch and physical clock.
+// Split-stage comparator A5: physical integrator, independent latch and physical clock.
 // @RNL(type="header") {
 // @VERSION("0.3");
 // @USE-PACKAGE(name="adc28", version="0.1", path="../../../rnl/adc28.rnl")
@@ -35,9 +35,9 @@ MRXN (XN CKL AVDD AVDD) pch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-1
 MRQP (QP CKL AVDD AVDD) pch_ulvt_mac l=3e-08 w=1.6e-05 nf=16 m=1 ad=8e-13 as=8.5e-13 pd=1.76e-05 ps=1.97e-05 nrd=0.012674 nrs=0.012674 sa=5.01551e-07 sb=5.01551e-07 sd=1e-07
 MRQN (QN CKL AVDD AVDD) pch_ulvt_mac l=3e-08 w=1.6e-05 nf=16 m=1 ad=8e-13 as=8.5e-13 pd=1.76e-05 ps=1.97e-05 nrd=0.012674 nrs=0.012674 sa=5.01551e-07 sb=5.01551e-07 sd=1e-07
 MOPP (OUTP QP AVDD AVDD) pch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-13 pd=4.4e-06 ps=6.5e-06 nrd=0.048530 nrs=0.048530 sa=1.79203e-07 sb=1.79203e-07 sd=1e-07
-MOPN (OUTP QP VSS VSS) nch_ulvt_mac l=3e-08 w=2e-06 nf=2 m=1 ad=1e-13 as=1.5e-13 pd=2.2e-06 ps=4.3e-06 nrd=0.185844 nrs=0.185844 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
+MOPN (OUTP QP VSS VSS) nch_ulvt_mac l=3e-08 w=3e-06 nf=3 m=1 ad=1.75e-13 as=1.75e-13 pd=4.35e-06 ps=4.35e-06 nrd=0.136842 nrs=0.136842 sa=1.47042e-07 sb=1.47042e-07 sd=1e-07
 MONP (OUTN QN AVDD AVDD) pch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-13 pd=4.4e-06 ps=6.5e-06 nrd=0.048530 nrs=0.048530 sa=1.79203e-07 sb=1.79203e-07 sd=1e-07
-MONN (OUTN QN VSS VSS) nch_ulvt_mac l=3e-08 w=2e-06 nf=2 m=1 ad=1e-13 as=1.5e-13 pd=2.2e-06 ps=4.3e-06 nrd=0.185844 nrs=0.185844 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
+MONN (OUTN QN VSS VSS) nch_ulvt_mac l=3e-08 w=3e-06 nf=3 m=1 ad=1.75e-13 as=1.75e-13 pd=4.35e-06 ps=4.35e-06 nrd=0.136842 nrs=0.136842 sa=1.47042e-07 sb=1.47042e-07 sd=1e-07
 MB0P (CKB CLKC AVDD AVDD) pch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-13 pd=4.4e-06 ps=6.5e-06 nrd=0.048530 nrs=0.048530 sa=1.79203e-07 sb=1.79203e-07 sd=1e-07
 MB0N (CKB CLKC VSS VSS) nch_ulvt_mac l=3e-08 w=2e-06 nf=2 m=1 ad=1e-13 as=1.5e-13 pd=2.2e-06 ps=4.3e-06 nrd=0.185844 nrs=0.185844 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
 MB1P (CKF CKB AVDD AVDD) pch_ulvt_mac l=3e-08 w=8e-06 nf=8 m=1 ad=4e-13 as=4.5e-13 pd=8.8e-06 ps=1.09e-05 nrd=0.024976 nrs=0.024976 sa=2.95835e-07 sb=2.95835e-07 sd=1e-07
@@ -56,12 +56,12 @@ MHEP1 (HP CKB AVDD AVDD) pch_ulvt_mac l=3e-08 w=8e-06 nf=8 m=1 ad=4e-13 as=4.5e-
 MHEP2 (CKE CKL HP AVDD) pch_ulvt_mac l=3e-08 w=8e-06 nf=8 m=1 ad=4e-13 as=4.5e-13 pd=8.8e-06 ps=1.09e-05 nrd=0.024976 nrs=0.024976 sa=2.95835e-07 sb=2.95835e-07 sd=1e-07
 MHEN1 (CKE CKB VSS VSS) nch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-13 pd=4.4e-06 ps=6.5e-06 nrd=0.108289 nrs=0.108289 sa=1.79203e-07 sb=1.79203e-07 sd=1e-07
 MHEN2 (CKE CKL VSS VSS) nch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-13 pd=4.4e-06 ps=6.5e-06 nrd=0.108289 nrs=0.108289 sa=1.79203e-07 sb=1.79203e-07 sd=1e-07
-// @RNL(author="splitstage-a4") {
+// @RNL(author="splitstage-a5") {
 // # @SELECT-INSTANCE => @TEXT("",key="model");
 // # @SELECT-TERMINAL => @REMOVE-FROM $GROUND_FILL_SET;
 // # @SELECT-TERMINAL => @REMOVE-FROM $SUPPLY_FILL_SET;
 // # @SELECT-NET(port=true) => @REMOVE-FROM $PORT_FILL_SET;
-// (0,151) @TEXT("A4 front integrator | W56 pair, 2 x W3 tail, 5 x C52 per node",size=1.5,bold=true);
+// (0,151) @TEXT("A5 front integrator | W56 pair, 2 x W3 tail, 5 x C52 per node",size=1.5,bold=true);
 // (160,151) @TEXT("Independent latch | gate-only DN / DP coupling | physical RTZ buffers",size=1.5,bold=true);
 // (0,39) @TEXT("Clock: CKL = CLKC AND CKD; CKE = NOR(CKB, CKL) stops front tail; reset stays CKF",size=1.4,bold=true);
 // (0,-23) @TEXT("Every physical device and pin is shown. Wires terminate at exact net labels; equal labels are electrically connected.",size=1.1);
@@ -442,7 +442,7 @@ MHEN2 (CKE CKL VSS VSS) nch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-1
 // (294.3,119) @TEXT("AVDD",size=.75,bold=true,halign="start");
 // #MOPN @PLACE(288,100) => @ORIENT("R0");
 // #MOPN @TEXT("MOPN",key="name",size=.85,dx=2.2,dy=2.5,halign="start");
-// #MOPN @TEXT("2um/30nm nf2",key="dims",size=.7,dx=2.2,dy=.3,halign="start");
+// #MOPN @TEXT("3um/30nm nf3",key="dims",size=.7,dx=2.2,dy=.3,halign="start");
 // %p_MOPN_1 = (288,106);
 // &OUTP @WIRE(mode="horizontal-vertical") {#MOPN:1 %p_MOPN_1};
 // (288,107) @TEXT("OUTP",size=.75,bold=true,halign="middle");
@@ -472,7 +472,7 @@ MHEN2 (CKE CKL VSS VSS) nch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-1
 // (326.3,119) @TEXT("AVDD",size=.75,bold=true,halign="start");
 // #MONN @PLACE(320,100) => @ORIENT("R0");
 // #MONN @TEXT("MONN",key="name",size=.85,dx=2.2,dy=2.5,halign="start");
-// #MONN @TEXT("2um/30nm nf2",key="dims",size=.7,dx=2.2,dy=.3,halign="start");
+// #MONN @TEXT("3um/30nm nf3",key="dims",size=.7,dx=2.2,dy=.3,halign="start");
 // %p_MONN_1 = (320,106);
 // &OUTN @WIRE(mode="horizontal-vertical") {#MONN:1 %p_MONN_1};
 // (320,107) @TEXT("OUTN",size=.75,bold=true,halign="middle");
