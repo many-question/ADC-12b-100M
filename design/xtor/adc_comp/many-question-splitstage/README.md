@@ -1,4 +1,6 @@
-# Split-stage comparator A3
+# Split-stage comparator A4
+
+**A4 is an isolated NAND-stack input reorder awaiting TT/SF validation.** Only MNG1 gate CLKC→CKD and MNG2 gate CKD→CLKC change; all device geometries, PMOS connections and outputs remain unchanged. Logic remains CKL=CLKC AND CKD. A3 evidence is frozen at [93caae32](https://github.com/many-question/ADC-12b-100M/tree/93caae32913aef5c8a1754210ff9cf2c398f027a/design/xtor/adc_comp/many-question-splitstage). Existing A3 result records are stale for A4 until rerun. No loading, CM or noise jobs are added.
 
 **A3 fails the subsequent representative-corner gate.** SF high voltage at -40 C has eight CMP-15 violations (loser peak 34.2195% VDD) and MNG1 Vds=1.116376 V against 1.1 V. SS and FF pass the bounded gate; a separate tighter TT diagnostic also passes but retains narrow margins. See [the failure measurements and mechanism](A3-GATES.md). CM endpoints and all noise testing stopped before dispatch. Status remains `wip`.
 

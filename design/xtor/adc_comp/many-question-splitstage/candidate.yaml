@@ -1,5 +1,5 @@
 name: many-question-splitstage
-description: Physical integrating front stage with an independent gate-coupled StrongARM latch and delayed transistor clock. A3 physical NOR-controlled front-tail hold; feasibility remains unproven.
+description: Physical integrating front stage with an independent gate-coupled StrongARM latch and delayed transistor clock. A4 reorders physical NAND stack inputs; front-tail hold retained, feasibility remains unproven.
 status: wip
 acknowledged: [69, 78, 84, 100, 116]
 authors:
