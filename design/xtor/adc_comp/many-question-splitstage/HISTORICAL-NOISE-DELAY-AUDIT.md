@@ -1,8 +1,8 @@
 # Historical comparator noise and delay audit
 
-This read-only audit supports [issue 124](https://github.com/many-question/ADC-12b-100M/issues/124). Noise and delay take priority; conflicting auxiliary requirements need a top-level decision. No specification is changed, no source is promoted, and no new simulation is authorized by this report. Only the already dispatched A6 FS physical-noise job may finish and be archived. TT noise, additional corners, mismatch, diagnostics and new variants remain paused.
+This read-only audit supports [issue 124](https://github.com/many-question/ADC-12b-100M/issues/124). Noise and delay take priority; conflicting auxiliary requirements need a top-level decision. No specification is changed, no source is promoted, and no new simulation is authorized by this report. The already dispatched A6 FS physical-noise job has now finished and been archived; no further job follows. TT noise, additional corners, mismatch, diagnostics and new variants remain paused.
 
-The completed evidence below contains **no full 45-corner physical-noise pass and no demonstrated full-physical FS/low/125 result at or below 240 uV**. A TT pass cannot establish either. Historical raw retention varies; pinned reports and records are evidence of completed measurements, not a promise that every old waveform remains available. A6 is reported separately when its pending run is audited.
+The completed evidence below contains **no full 45-corner physical-noise pass and no demonstrated full-physical FS/low/125 result at or below 240 uV**. A TT pass cannot establish either. Historical raw retention varies; pinned reports and records are evidence of completed measurements, not a promise that every old waveform remains available. [A6 has now completed at 325.0388413768936 uV with a model-fit warning and an official FAIL](A6-NOISE.md); it does not change that conclusion.
 
 ## Full physical TT noise evidence
 

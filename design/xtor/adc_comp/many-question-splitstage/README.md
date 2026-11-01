@@ -1,6 +1,8 @@
 # Split-stage comparator A6
 
-**A6 passes its four-job TT/SF/FS deterministic and TT loading screen; physical noise is untested.** Only MSIP/MSIN change W4/nf4 to W6/nf6 using complete callback geometry; all connections and remaining devices stay A5. TT d30=47.149668074361 ps (2.850331925639 ps margin); all three delay corners are36/36 correct/reset with CMP-15 and120-pair SOA passing. See [A6 measurements and mechanism](A6-SCREEN.md). A5 results below are historical and cannot qualify A6; old SS/FF/noise records remain stale.
+**A6 fails full FS physical noise: 325.0388413768936 uV rms versus 240 uV.** Its conditional 95% interval is 314.05764906285185–336.55596519873524 uV, with a Gaussian/binomial fit warning. See [the complete A6 noise audit](A6-NOISE.md). Work is paused under [issue 124](https://github.com/many-question/ADC-12b-100M/issues/124); [historical noise-delay tradeoffs](HISTORICAL-NOISE-DELAY-AUDIT.md) retain exact-source alternatives. No TT noise, further corners, mismatch, new diagnostics or variants were dispatched.
+
+**A6 passes its four-job TT/SF/FS deterministic and TT loading screen.** Only MSIP/MSIN change W4/nf4 to W6/nf6 using complete callback geometry; all connections and remaining devices stay A5. TT d30=47.149668074361 ps (2.850331925639 ps margin); all three delay corners are36/36 correct/reset with CMP-15 and120-pair SOA passing. See [A6 measurements and mechanism](A6-SCREEN.md). A5 results below are historical and cannot qualify A6; old SS/FF and other noise records remain stale; only the completed A6 FS noise record was subsequently refreshed.
 
 **A5 fails the full FS physical-noise gate:** 341.8605253429254 uV rms (95% CI 330.4249508199212–353.8682080578653 uV), above the 240 uV limit. See [the retained FS noise result](A5-NOISE.md). TT noise was not dispatched. Status remains `wip`, with deterministic passes and all earlier failures preserved.
 
