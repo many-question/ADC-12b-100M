@@ -59,7 +59,7 @@ While PHI_B is high, VG = VIN + Vboot (Vboot ~ AVDD, from a capacitor charged du
 
 ## adc_cdac
 
-**Split-capacitor redundant CDAC, one side (instantiated twice)** — 规格版本 0.8.0，状态 `behavioral`。
+**Split-capacitor redundant CDAC, one side (instantiated twice)** — 规格版本 0.9.0，状态 `behavioral`。
 
 13 weights w_j (j = 12..0) = 980 560 318 180 102 57 32 18 10 6 3 2 1 x cu, cu = 1.0 fF (arch v0.3; the LSB half is 0.5 fF). Each weight is two equal halves: H (neutral state VREFP) and L (neutral state VREFN). Bottom-plate sampling: while CONV = 0 the bottom plates of the sampled weights (all but j = 9 and j = 6) track VIN through NMOS switches whose gate is VG (bootstrapped, from adc_bootstrap) and the top plate is held at VCM by a switch on PHI_S/PHI_SB. Non-sampled weights stay in the neutral state. With CONV = 1 every half is driven by an inverter between VREFP and VREFN: H to VREFP unless DH<j>, L to VREFN unless RL<j>. The top-level connects DH = DN, RL = UP on the VINP side and DH = UP, RL = DN on the VINN side, so each decision moves the two top plates in opposite directions and the common mode stays constant.
 
@@ -105,7 +105,7 @@ While PHI_B is high, VG = VIN + Vboot (Vboot ~ AVDD, from a capacitor charged du
 | DAC-09 | tracking SFDR (ideal VG, 50 ohm, 49.9 MHz, -1 dBFS, diff) | ≥ 85 | dBc | all | `tb_cdac_track` |
 | DAC-10 | tracking SNDR excl. kT/C (same) | ≥ 80 | dB | all | `tb_cdac_track` |
 | DAC-11 | top-plate droop over 5 ns hold | ≤ 0.1 | LSB | all | `tb_cdac_settle` |
-| DAC-12 | VREFP charge per conversion (per side) | ≤ 1.2 | pC | typ | `tb_cdac_settle` |
+| DAC-12 | VREFP charge per conversion (per side) | ≤ 1.35 | pC | typ | `tb_cdac_settle` |
 | DAC-13 | control input capacitance (DH/RL) | ≤ 6 | fF | typ | `tb_cdac_settle` |
 | DAC-15 | PHI_S input capacitance (charge per rising edge / VDD) | ≤ 40 | fF | typ | `tb_cdac_settle` |
 | DAC-16 | PHI_SB input capacitance (charge per rising edge / VDD) | ≤ 40 | fF | typ | `tb_cdac_settle` |
@@ -165,7 +165,7 @@ Buffers the single external CLK (high = track, low = hold + convert) into the sa
 
 ## adc_comp
 
-**Dynamic latched comparator** — 规格版本 0.9.0，状态 `behavioral`。
+**Dynamic latched comparator** — 规格版本 0.10.0，状态 `behavioral`。
 
 Single fully-dynamic comparator of the asynchronous SAR loop. CLKC low resets (OUTP = OUTN = 0); CLKC rising evaluates; exactly one of OUTP / OUTN rises and the other stays below 30 % VDD until CLKC falls (CMP-15). OUTP = 1 means V(INP) > V(INN). At the top level INP is driven by the top plate of the CDAC that samples VINN (bottom-plate sampling inverts), so OUTP = 1 means "input above the DAC level".
 
@@ -194,14 +194,14 @@ Single fully-dynamic comparator of the asynchronous SAR loop. CLKC low resets (O
 | ID | 指标 | 限值 | 单位 | 工艺角 | 用例 |
 |---|---|---|---|---|---|
 | CMP-01 | input-referred noise (diff rms) | ≤ 200 | uV | typ | `tb_comp_noise` |
-| CMP-13 | input-referred noise (diff rms, all corners) | ≤ 240 | uV | all | `tb_comp_noise` |
+| CMP-13 | input-referred noise (diff rms, all corners) | ≤ 280 | uV | all | `tb_comp_noise` |
 | CMP-02 | systematic offset | ≤ 2 | mV | all | `tb_comp_noise` |
 | CMP-03 | offset sigma (Monte Carlo, 50 runs) | ≤ 5 | mV | typ，MC 50 | `tb_comp_offset_mc` |
 | CMP-04 | delay CLKC->OUT at 1 mV | ≤ 80 | ps | typ | `tb_comp_delay` |
 | CMP-05 | delay CLKC->OUT at 1 mV (all corners) | ≤ 120 | ps | all | `tb_comp_delay` |
 | CMP-06 | delay CLKC->OUT at 30 mV | ≤ 50 | ps | typ | `tb_comp_delay` |
 | CMP-07 | regeneration time constant | ≤ 15 | ps | all | `tb_comp_delay` |
-| CMP-08 | reset time CLKC fall -> both outputs < 10 % | ≤ 35 | ps | all | `tb_comp_delay` |
+| CMP-08 | reset time CLKC fall -> both outputs < 10 % | ≤ 45 | ps | all | `tb_comp_delay` |
 | CMP-09 | wrong decisions for |vd| >= 100 uV (noise off) | ≤ 0 | count | all | `tb_comp_delay` |
 | CMP-10 | average AVDD energy per comparison, 36-decision mixed-amplitude sequence (+/-100 mV .. +/-10 uV, twice) | 仅报告（无限值，不判定） | fJ | typ | `tb_comp_delay` |
 | CMP-11 | differential kickback per cycle on 2.5 pF | ≤ 40 | uV | all | `tb_comp_kickback` |
@@ -213,7 +213,7 @@ Single fully-dynamic comparator of the asynchronous SAR loop. CLKC low resets (O
 ### 验收用例
 
 - **`tb_comp_delay`** (`tb/comp/tb_comp_delay.scs`, 度量 `adcflow.measure.comp:delay`)：Ideal differential steps around VCM = 0.49 V: vd = +/-{100m, 30m, 10m, 3m, 1m, 300u, 100u, 30u, 10u} V, twice (36 decisions), one decision per 400 ps CLKC period, 10 fF loads. Transient noise off. Extracts delay vs |vd|, tau_reg (fit of delay vs ln|vd|), reset time and decision errors. CMP-10 (reported, no limit) is the average AVDD energy per comparison over this mixed-amplitude sequence: the AVDD meter integrates exactly the 36 full CLKC cycles from the first rising edge (100 ps .. 14.5 ns, no lead-in, no partial cycle) and energy_fJ = AVDD charge x VDD / 36. It is not a dedicated 1 mV measurement; the energy of the CLKC source is outside the meter. CMP-15 (output validity, #77): in every evaluate interval, from the CLKC rise to the CLKC fall (50 % crossings), exactly one output crosses 50 % VDD and the other output's peak over the whole interval, taken over every saved point, stays below 30 % VDD; a cycle where both cross 50 % or the losing peak is >= 30 % is a violation. A cycle without any crossing is not counted here (CMP-09 for |vd| >= 100 uV; below that the SAR timeout, LOG-11). CMP-16 reports the worst losing peak (% VDD, no limit); the result's `validity` gives its cycle, vd and output and the largest saved time step over the intervals. CMP-09 keeps judging the polarity of the first output to rise.
-- **`tb_comp_noise`** (`tb/comp/tb_comp_noise.scs`, 度量 `adcflow.measure.comp:noise`; 瞬态噪声)：Transient noise on (behavioral: internal Gaussian). vd swept over -800..+800 uV in 17 levels (100 uV steps, about +/-3.3 sigma at the all-corner limit), 512 decisions per level. The OUTP counts are fitted by binomial maximum likelihood with a probit (Gaussian CDF) model: sigma = noise, mean = offset; noise_ci95_uV is the 95 % profile-likelihood interval of sigma. The 1-sigma error of sigma is <= 2.7 % for 120..300 uV.
+- **`tb_comp_noise`** (`tb/comp/tb_comp_noise.scs`, 度量 `adcflow.measure.comp:noise`; 瞬态噪声)：Transient noise on (behavioral: internal Gaussian). vd swept over -800..+800 uV in 17 levels (100 uV steps, about +/-2.9 sigma at the all-corner limit), 512 decisions per level. The OUTP counts are fitted by binomial maximum likelihood with a probit (Gaussian CDF) model: sigma = noise, mean = offset; noise_ci95_uV is the 95 % profile-likelihood interval of sigma. The 1-sigma error of sigma is <= 2.7 % for 120..300 uV.
 - **`tb_comp_offset_mc`** (`tb/comp/tb_comp_offset_mc.scs`, 度量 `adcflow.measure.comp:offset_mc`)：Input offset under local device mismatch at TT: one Spectre montecarlo analysis of 50 samples (seed 6303, samples 1..50, no nominal run) over a transient with transient noise off. In every sample a Verilog-A stimulus (tb_offset_search_va) searches the differential input at which the decision flips, one decision per 1 ns CLKC cycle around VCM = 0.49 V: vd = +25 mV must give OUTP and -25 mV OUTN (else the offset is out of range), 13 halvings of [-25, +25] mV (6.1 uV), then offset + 50 uV must give OUTP and offset - 50 uV OUTN (else the search did not converge). offset_sigma_mV is the sample standard deviation (n - 1) of the offsets. A sample that is out of range, has no valid decision, fails the re-check, ends with a simulation error or is missing counts in mc_failed: CMP-03 passes only with all 50 samples valid (mc_ok = 50, mc_failed = 0); no sample is dropped. The behavioral comparator has no device statistics: while adc_comp is behavioral a series offset source in the testbench gives every sample vos_beh * N(0, 1) from the montecarlo mismatch statistics (vos_beh = 2 mV), so the search, the Monte Carlo loop and the aggregation run end to end.
 - **`tb_comp_kickback`** (`tb/comp/tb_comp_kickback.scs`, 度量 `adcflow.measure.comp:kickback`; 数值设置 `reltol=1e-05`, `vabstol=1e-08`)：Inputs floating on 2.5 pF capacitors (the CDAC top plates, C_tot), preset to VCM +/- 0.5 mV. Measures the change of the differential input after one evaluate + reset cycle. CMP-12: AC current into INP of a second instance in reset at 100 MHz. CMP-14: CLKC reaches the DUT through a charge meter (tb_qmeter_va, a 0 V path); the charge it draws over each rising edge divided by the voltage step, mean over the 8 cycles (window as in adc_cdac tb_cdac_settle).
 

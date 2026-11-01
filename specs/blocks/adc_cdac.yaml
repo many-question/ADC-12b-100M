@@ -1,6 +1,6 @@
 block: adc_cdac
 title: Split-capacitor redundant CDAC, one side (instantiated twice)
-version: 0.8.0
+version: 0.9.0
 selected: none          # the selected candidate (design/xtor/<block>/<name>/); none yet
 status: behavioral
 views:
@@ -76,7 +76,9 @@ specs:
   - {id: DAC-09, name: "tracking SFDR (ideal VG, 50 ohm, 49.9 MHz, -1 dBFS, diff)", metric: sfdr_dBc, unit: dBc, min: 85, corners: all, test: tb_cdac_track}
   - {id: DAC-10, name: "tracking SNDR excl. kT/C (same)",               metric: sndr_dB,       unit: dB, min: 80, corners: all, test: tb_cdac_track}
   - {id: DAC-11, name: "top-plate droop over 5 ns hold",                metric: droop_lsb,     unit: LSB, max: 0.1, corners: all, test: tb_cdac_settle}
-  - {id: DAC-12, name: "VREFP charge per conversion (per side)",        metric: qref_pC,       unit: pC, max: 1.2, corners: typ, test: tb_cdac_settle}
+  # DAC-12 1.35 pC (0.9.0, was 1.2): an allocation. 1.2 pC was only 0.6 pC doubled with C_S and was not derived
+  # from the reference; the real constraint is REF-21 under the real current shape.
+  - {id: DAC-12, name: "VREFP charge per conversion (per side)",        metric: qref_pC,       unit: pC, max: 1.35, corners: typ, test: tb_cdac_settle}
   - {id: DAC-13, name: "control input capacitance (DH/RL)",             metric: cin_ctrl_fF,   unit: fF, max: 6, corners: typ, test: tb_cdac_settle}
   - {id: DAC-15, name: "PHI_S input capacitance (charge per rising edge / VDD)", metric: cin_phs_fF, unit: fF, max: 40, corners: typ, test: tb_cdac_settle}
   - {id: DAC-16, name: "PHI_SB input capacitance (charge per rising edge / VDD)", metric: cin_phsb_fF, unit: fF, max: 40, corners: typ, test: tb_cdac_settle}

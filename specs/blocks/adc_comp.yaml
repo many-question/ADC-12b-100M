@@ -1,6 +1,6 @@
 block: adc_comp
 title: Dynamic latched comparator
-version: 0.9.0
+version: 0.10.0
 selected: none          # the selected candidate (design/xtor/<block>/<name>/); none yet
 status: behavioral
 views:
@@ -27,14 +27,19 @@ operating:
   # CLKC (CMP-14) is the adc_sarlogic CLKC load load_clkc (20 fF): 16 fF + 4 fF of wire.
 specs:
   - {id: CMP-01, name: "input-referred noise (diff rms)",            metric: noise_uV,       unit: uV,    max: 200, corners: typ, test: tb_comp_noise}
-  - {id: CMP-13, name: "input-referred noise (diff rms, all corners)", metric: noise_uV,     unit: uV,    max: 240, corners: all, test: tb_comp_noise}
+  # CMP-13 280 uV (0.10.0, was 240): the 1.2 x TT ratio assumed in arch v0.3 did not hold in measurement,
+  # about 1.7 x (V2 184 uV TT, 317 uV FS, candidate-reported, #124). Budget: docs/noise-budget.md 3.3.
+  - {id: CMP-13, name: "input-referred noise (diff rms, all corners)", metric: noise_uV,     unit: uV,    max: 280, corners: all, test: tb_comp_noise}
   - {id: CMP-02, name: "systematic offset",                          metric: offset_abs_mV,  unit: mV,    max: 2,   corners: all, test: tb_comp_noise}
   - {id: CMP-03, name: "offset sigma (Monte Carlo, 50 runs)",        metric: offset_sigma_mV, unit: mV,   max: 5,   corners: typ, test: tb_comp_offset_mc, mc: 50}
   - {id: CMP-04, name: "delay CLKC->OUT at 1 mV",                    metric: tdelay_1mV_ps,  unit: ps,    max: 80,  corners: typ, test: tb_comp_delay}
   - {id: CMP-05, name: "delay CLKC->OUT at 1 mV (all corners)",      metric: tdelay_1mV_ps,  unit: ps,    max: 120,  corners: all, test: tb_comp_delay}
   - {id: CMP-06, name: "delay CLKC->OUT at 30 mV",                   metric: tdelay_30mV_ps, unit: ps,    max: 50,  corners: typ, test: tb_comp_delay}
   - {id: CMP-07, name: "regeneration time constant",                 metric: tau_reg_ps,     unit: ps,    max: 15,  corners: all, test: tb_comp_delay}
-  - {id: CMP-08, name: "reset time CLKC fall -> both outputs < 10 %", metric: treset_ps,      unit: ps,    max: 35,  corners: all, test: tb_comp_delay}
+  # CMP-08 45 ps (0.10.0, was 35): a loop budget. Behavioral TT CLKC low is about 43 ps (t_bit 35 + t_dac_fast 48
+  # - t_rst 40) and t_conv has about 1.5 ns of margin. The x1.6 slow-corner scaling of that window is an
+  # assumption until adc_sarlogic exists at transistor level.
+  - {id: CMP-08, name: "reset time CLKC fall -> both outputs < 10 %", metric: treset_ps,      unit: ps,    max: 45,  corners: all, test: tb_comp_delay}
   - {id: CMP-09, name: "wrong decisions for |vd| >= 100 uV (noise off)", metric: wrong_decisions, unit: count, max: 0, corners: all, test: tb_comp_delay}
   # reported only (#75): power has no acceptance limit, lower is better; docs/architecture.md §8 keeps the budget
   - {id: CMP-10, name: "average AVDD energy per comparison, 36-decision mixed-amplitude sequence (+/-100 mV .. +/-10 uV, twice)", metric: energy_fJ, unit: fJ, reported: true, corners: typ, test: tb_comp_delay}
@@ -74,7 +79,7 @@ tests:
     tran_noise: true
     desc: >
       Transient noise on (behavioral: internal Gaussian). vd swept over
-      -800..+800 uV in 17 levels (100 uV steps, about +/-3.3 sigma at the
+      -800..+800 uV in 17 levels (100 uV steps, about +/-2.9 sigma at the
       all-corner limit), 512 decisions per level. The OUTP counts are fitted
       by binomial maximum likelihood with a probit (Gaussian CDF) model:
       sigma = noise, mean = offset; noise_ci95_uV is the 95 % profile-likelihood

@@ -23,7 +23,7 @@ T0 = 100e-12
 # crosses DECIDE x VDD and the other stays below LOSER_MAX x VDD
 DECIDE = 0.5
 LOSER_MAX = 0.3
-NOISE_LEVELS = [round(-800e-6 + 100e-6 * i, 9) for i in range(17)]   # +/-3.3 sigma at the 240 uV limit
+NOISE_LEVELS = [round(-800e-6 + 100e-6 * i, 9) for i in range(17)]   # +/-2.9 sigma at the 280 uV limit
 NOISE_REPEAT = 512                    # 1-sigma error of sigma <= 2.7 % for 120..300 uV (binomial ML)
 # tb_comp_offset_mc: offset search per Monte Carlo sample (tb_offset_search_va)
 MC_TCYC = 1e-9                        # one decision per 1 ns: no metastable miss even within 1 uV of the offset
