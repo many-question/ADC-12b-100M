@@ -1,0 +1,808 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="3281" height="3299" viewBox="-35.00 -1523.48 3281.49 3298.71" font-family="Noto Sans SC, Noto Sans CJK SC, Source Han Sans SC, sans-serif" style="font-kerning:none;font-variant-ligatures:none;text-spacing-trim:space-all;text-autospace:no-autospace">
+<rect class="backdrop" x="-35.00" y="-1523.48" width="3281.49" height="3298.71" fill="#ffffff"/>
+<g data-id="#MINP"><path d="M316.06,-821.77 L336.00,-821.77 L336.00,-840.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MINP"><path d="M305.48,-825.43 L305.48,-798.57 L309.55,-798.57 L309.55,-825.43 L305.48,-825.43 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MINP"><path d="M312.80,-829.50 L312.80,-794.50 L316.87,-794.50 L316.87,-829.50 L312.80,-829.50 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MINP"><path d="M307.51,-812.00 L294.00,-812.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MINP"><path d="M314.84,-802.23 L336.00,-802.23 L336.00,-784.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MINP"><path d="M336.81,-802.23 L323.79,-807.93 L323.79,-796.53 L336.81,-802.23 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MINN"><path d="M859.94,-821.77 L840.00,-821.77 L840.00,-840.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MINN"><path d="M870.52,-825.43 L870.52,-798.57 L866.45,-798.57 L866.45,-825.43 L870.52,-825.43 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MINN"><path d="M863.20,-829.50 L863.20,-794.50 L859.13,-794.50 L859.13,-829.50 L863.20,-829.50 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MINN"><path d="M868.49,-812.00 L882.00,-812.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MINN"><path d="M861.16,-802.23 L840.00,-802.23 L840.00,-784.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MINN"><path d="M839.19,-802.23 L852.21,-807.93 L852.21,-796.53 L839.19,-802.23 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MFT1"><path d="M470.06,-569.77 L490.00,-569.77 L490.00,-588.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MFT1"><path d="M459.48,-573.43 L459.48,-546.57 L463.55,-546.57 L463.55,-573.43 L459.48,-573.43 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MFT1"><path d="M466.80,-577.50 L466.80,-542.50 L470.87,-542.50 L470.87,-577.50 L466.80,-577.50 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MFT1"><path d="M461.51,-560.00 L448.00,-560.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MFT1"><path d="M468.84,-550.23 L490.00,-550.23 L490.00,-532.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MFT1"><path d="M490.81,-550.23 L477.79,-555.93 L477.79,-544.53 L490.81,-550.23 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MFT2"><path d="M705.94,-569.77 L686.00,-569.77 L686.00,-588.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MFT2"><path d="M716.52,-573.43 L716.52,-546.57 L712.45,-546.57 L712.45,-573.43 L716.52,-573.43 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MFT2"><path d="M709.20,-577.50 L709.20,-542.50 L705.13,-542.50 L705.13,-577.50 L709.20,-577.50 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MFT2"><path d="M714.49,-560.00 L728.00,-560.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MFT2"><path d="M707.16,-550.23 L686.00,-550.23 L686.00,-532.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MFT2"><path d="M685.19,-550.23 L698.21,-555.93 L698.21,-544.53 L685.19,-550.23 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MRDP"><path d="M316.06,-1054.23 L336.00,-1054.23 L336.00,-1036.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MRDP"><path d="M305.48,-1077.43 L305.48,-1050.57 L309.55,-1050.57 L309.55,-1077.43 L305.48,-1077.43 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MRDP"><path d="M312.80,-1081.50 L312.80,-1046.50 L316.87,-1046.50 L316.87,-1081.50 L312.80,-1081.50 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MRDP"><path d="M307.51,-1064.00 L294.00,-1064.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MRDP"><path d="M329.90,-1073.97 L336.00,-1073.97 L336.00,-1092.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MRDP"><path d="M316.87,-1073.97 L329.90,-1079.67 L329.90,-1068.27 L316.87,-1073.97 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MRDN"><path d="M859.94,-1054.23 L840.00,-1054.23 L840.00,-1036.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MRDN"><path d="M870.52,-1077.43 L870.52,-1050.57 L866.45,-1050.57 L866.45,-1077.43 L870.52,-1077.43 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MRDN"><path d="M863.20,-1081.50 L863.20,-1046.50 L859.13,-1046.50 L859.13,-1081.50 L863.20,-1081.50 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MRDN"><path d="M868.49,-1064.00 L882.00,-1064.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MRDN"><path d="M846.10,-1073.97 L840.00,-1073.97 L840.00,-1092.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MRDN"><path d="M859.13,-1073.97 L846.10,-1079.67 L846.10,-1068.27 L859.13,-1073.97 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#CDP1"><path d="M67.27,-130.53 L44.73,-130.53" fill="none" stroke="#1d1d1f" stroke-width="3.36"/></g>
+<g data-id="#CDP1"><path d="M67.27,-121.47 L44.73,-121.47" fill="none" stroke="#1d1d1f" stroke-width="3.36"/></g>
+<g data-id="#CDP1"><path d="M56.00,-130.53 L56.00,-154.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#CDP1"><path d="M56.00,-121.47 L56.00,-98.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#CDP2"><path d="M151.27,-130.53 L128.73,-130.53" fill="none" stroke="#1d1d1f" stroke-width="3.36"/></g>
+<g data-id="#CDP2"><path d="M151.27,-121.47 L128.73,-121.47" fill="none" stroke="#1d1d1f" stroke-width="3.36"/></g>
+<g data-id="#CDP2"><path d="M140.00,-130.53 L140.00,-154.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#CDP2"><path d="M140.00,-121.47 L140.00,-98.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#CDP3"><path d="M235.27,-130.53 L212.73,-130.53" fill="none" stroke="#1d1d1f" stroke-width="3.36"/></g>
+<g data-id="#CDP3"><path d="M235.27,-121.47 L212.73,-121.47" fill="none" stroke="#1d1d1f" stroke-width="3.36"/></g>
+<g data-id="#CDP3"><path d="M224.00,-130.53 L224.00,-154.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#CDP3"><path d="M224.00,-121.47 L224.00,-98.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#CDP4"><path d="M319.27,-130.53 L296.73,-130.53" fill="none" stroke="#1d1d1f" stroke-width="3.36"/></g>
+<g data-id="#CDP4"><path d="M319.27,-121.47 L296.73,-121.47" fill="none" stroke="#1d1d1f" stroke-width="3.36"/></g>
+<g data-id="#CDP4"><path d="M308.00,-130.53 L308.00,-154.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#CDP4"><path d="M308.00,-121.47 L308.00,-98.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#CDP5"><path d="M403.27,-130.53 L380.73,-130.53" fill="none" stroke="#1d1d1f" stroke-width="3.36"/></g>
+<g data-id="#CDP5"><path d="M403.27,-121.47 L380.73,-121.47" fill="none" stroke="#1d1d1f" stroke-width="3.36"/></g>
+<g data-id="#CDP5"><path d="M392.00,-130.53 L392.00,-154.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#CDP5"><path d="M392.00,-121.47 L392.00,-98.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#CDN1"><path d="M795.27,-130.53 L772.73,-130.53" fill="none" stroke="#1d1d1f" stroke-width="3.36"/></g>
+<g data-id="#CDN1"><path d="M795.27,-121.47 L772.73,-121.47" fill="none" stroke="#1d1d1f" stroke-width="3.36"/></g>
+<g data-id="#CDN1"><path d="M784.00,-130.53 L784.00,-154.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#CDN1"><path d="M784.00,-121.47 L784.00,-98.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#CDN2"><path d="M879.27,-130.53 L856.73,-130.53" fill="none" stroke="#1d1d1f" stroke-width="3.36"/></g>
+<g data-id="#CDN2"><path d="M879.27,-121.47 L856.73,-121.47" fill="none" stroke="#1d1d1f" stroke-width="3.36"/></g>
+<g data-id="#CDN2"><path d="M868.00,-130.53 L868.00,-154.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#CDN2"><path d="M868.00,-121.47 L868.00,-98.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#CDN3"><path d="M963.27,-130.53 L940.73,-130.53" fill="none" stroke="#1d1d1f" stroke-width="3.36"/></g>
+<g data-id="#CDN3"><path d="M963.27,-121.47 L940.73,-121.47" fill="none" stroke="#1d1d1f" stroke-width="3.36"/></g>
+<g data-id="#CDN3"><path d="M952.00,-130.53 L952.00,-154.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#CDN3"><path d="M952.00,-121.47 L952.00,-98.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#CDN4"><path d="M1047.27,-130.53 L1024.73,-130.53" fill="none" stroke="#1d1d1f" stroke-width="3.36"/></g>
+<g data-id="#CDN4"><path d="M1047.27,-121.47 L1024.73,-121.47" fill="none" stroke="#1d1d1f" stroke-width="3.36"/></g>
+<g data-id="#CDN4"><path d="M1036.00,-130.53 L1036.00,-154.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#CDN4"><path d="M1036.00,-121.47 L1036.00,-98.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#CDN5"><path d="M1131.27,-130.53 L1108.73,-130.53" fill="none" stroke="#1d1d1f" stroke-width="3.36"/></g>
+<g data-id="#CDN5"><path d="M1131.27,-121.47 L1108.73,-121.47" fill="none" stroke="#1d1d1f" stroke-width="3.36"/></g>
+<g data-id="#CDN5"><path d="M1120.00,-130.53 L1120.00,-154.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#CDN5"><path d="M1120.00,-121.47 L1120.00,-98.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MSIP"><path d="M1548.06,-653.77 L1568.00,-653.77 L1568.00,-672.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MSIP"><path d="M1537.48,-657.43 L1537.48,-630.57 L1541.55,-630.57 L1541.55,-657.43 L1537.48,-657.43 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MSIP"><path d="M1544.80,-661.50 L1544.80,-626.50 L1548.87,-626.50 L1548.87,-661.50 L1544.80,-661.50 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MSIP"><path d="M1539.51,-644.00 L1526.00,-644.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MSIP"><path d="M1546.84,-634.23 L1568.00,-634.23 L1568.00,-616.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MSIP"><path d="M1568.81,-634.23 L1555.79,-639.93 L1555.79,-628.53 L1568.81,-634.23 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MSIN"><path d="M2091.94,-653.77 L2072.00,-653.77 L2072.00,-672.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MSIN"><path d="M2102.52,-657.43 L2102.52,-630.57 L2098.45,-630.57 L2098.45,-657.43 L2102.52,-657.43 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MSIN"><path d="M2095.20,-661.50 L2095.20,-626.50 L2091.13,-626.50 L2091.13,-661.50 L2095.20,-661.50 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MSIN"><path d="M2100.49,-644.00 L2114.00,-644.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MSIN"><path d="M2093.16,-634.23 L2072.00,-634.23 L2072.00,-616.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MSIN"><path d="M2071.19,-634.23 L2084.21,-639.93 L2084.21,-628.53 L2071.19,-634.23 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MST1"><path d="M1702.06,-401.77 L1722.00,-401.77 L1722.00,-420.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MST1"><path d="M1691.48,-405.43 L1691.48,-378.57 L1695.55,-378.57 L1695.55,-405.43 L1691.48,-405.43 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MST1"><path d="M1698.80,-409.50 L1698.80,-374.50 L1702.87,-374.50 L1702.87,-409.50 L1698.80,-409.50 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MST1"><path d="M1693.51,-392.00 L1680.00,-392.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MST1"><path d="M1700.84,-382.23 L1722.00,-382.23 L1722.00,-364.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MST1"><path d="M1722.81,-382.23 L1709.79,-387.93 L1709.79,-376.53 L1722.81,-382.23 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MST2"><path d="M1937.94,-401.77 L1918.00,-401.77 L1918.00,-420.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MST2"><path d="M1948.52,-405.43 L1948.52,-378.57 L1944.45,-378.57 L1944.45,-405.43 L1948.52,-405.43 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MST2"><path d="M1941.20,-409.50 L1941.20,-374.50 L1937.13,-374.50 L1937.13,-409.50 L1941.20,-409.50 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MST2"><path d="M1946.49,-392.00 L1960.00,-392.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MST2"><path d="M1939.16,-382.23 L1918.00,-382.23 L1918.00,-364.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MST2"><path d="M1917.19,-382.23 L1930.21,-387.93 L1930.21,-376.53 L1917.19,-382.23 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MLNP"><path d="M1587.94,-849.77 L1568.00,-849.77 L1568.00,-868.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MLNP"><path d="M1598.52,-853.43 L1598.52,-826.57 L1594.45,-826.57 L1594.45,-853.43 L1598.52,-853.43 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MLNP"><path d="M1591.20,-857.50 L1591.20,-822.50 L1587.13,-822.50 L1587.13,-857.50 L1591.20,-857.50 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MLNP"><path d="M1596.49,-840.00 L1610.00,-840.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MLNP"><path d="M1589.16,-830.23 L1568.00,-830.23 L1568.00,-812.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MLNP"><path d="M1567.19,-830.23 L1580.21,-835.93 L1580.21,-824.53 L1567.19,-830.23 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MLNN"><path d="M2052.06,-849.77 L2072.00,-849.77 L2072.00,-868.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MLNN"><path d="M2041.48,-853.43 L2041.48,-826.57 L2045.55,-826.57 L2045.55,-853.43 L2041.48,-853.43 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MLNN"><path d="M2048.80,-857.50 L2048.80,-822.50 L2052.87,-822.50 L2052.87,-857.50 L2048.80,-857.50 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MLNN"><path d="M2043.51,-840.00 L2030.00,-840.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MLNN"><path d="M2050.84,-830.23 L2072.00,-830.23 L2072.00,-812.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MLNN"><path d="M2072.81,-830.23 L2059.79,-835.93 L2059.79,-824.53 L2072.81,-830.23 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MLPP"><path d="M1587.94,-1082.23 L1568.00,-1082.23 L1568.00,-1064.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MLPP"><path d="M1598.52,-1105.43 L1598.52,-1078.57 L1594.45,-1078.57 L1594.45,-1105.43 L1598.52,-1105.43 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MLPP"><path d="M1591.20,-1109.50 L1591.20,-1074.50 L1587.13,-1074.50 L1587.13,-1109.50 L1591.20,-1109.50 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MLPP"><path d="M1596.49,-1092.00 L1610.00,-1092.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MLPP"><path d="M1574.10,-1101.97 L1568.00,-1101.97 L1568.00,-1120.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MLPP"><path d="M1587.13,-1101.97 L1574.10,-1107.67 L1574.10,-1096.27 L1587.13,-1101.97 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MLPN"><path d="M2052.06,-1082.23 L2072.00,-1082.23 L2072.00,-1064.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MLPN"><path d="M2041.48,-1105.43 L2041.48,-1078.57 L2045.55,-1078.57 L2045.55,-1105.43 L2041.48,-1105.43 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MLPN"><path d="M2048.80,-1109.50 L2048.80,-1074.50 L2052.87,-1074.50 L2052.87,-1109.50 L2048.80,-1109.50 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MLPN"><path d="M2043.51,-1092.00 L2030.00,-1092.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MLPN"><path d="M2065.90,-1101.97 L2072.00,-1101.97 L2072.00,-1120.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MLPN"><path d="M2052.87,-1101.97 L2065.90,-1107.67 L2065.90,-1096.27 L2052.87,-1101.97 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MRXP"><path d="M1352.06,-746.23 L1372.00,-746.23 L1372.00,-728.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MRXP"><path d="M1341.48,-769.43 L1341.48,-742.57 L1345.55,-742.57 L1345.55,-769.43 L1341.48,-769.43 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MRXP"><path d="M1348.80,-773.50 L1348.80,-738.50 L1352.87,-738.50 L1352.87,-773.50 L1348.80,-773.50 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MRXP"><path d="M1343.51,-756.00 L1330.00,-756.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MRXP"><path d="M1365.90,-765.97 L1372.00,-765.97 L1372.00,-784.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MRXP"><path d="M1352.87,-765.97 L1365.90,-771.67 L1365.90,-760.27 L1352.87,-765.97 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MRXN"><path d="M2287.94,-746.23 L2268.00,-746.23 L2268.00,-728.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MRXN"><path d="M2298.52,-769.43 L2298.52,-742.57 L2294.45,-742.57 L2294.45,-769.43 L2298.52,-769.43 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MRXN"><path d="M2291.20,-773.50 L2291.20,-738.50 L2287.13,-738.50 L2287.13,-773.50 L2291.20,-773.50 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MRXN"><path d="M2296.49,-756.00 L2310.00,-756.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MRXN"><path d="M2274.10,-765.97 L2268.00,-765.97 L2268.00,-784.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MRXN"><path d="M2287.13,-765.97 L2274.10,-771.67 L2274.10,-760.27 L2287.13,-765.97 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MRQP"><path d="M1352.06,-1082.23 L1372.00,-1082.23 L1372.00,-1064.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MRQP"><path d="M1341.48,-1105.43 L1341.48,-1078.57 L1345.55,-1078.57 L1345.55,-1105.43 L1341.48,-1105.43 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MRQP"><path d="M1348.80,-1109.50 L1348.80,-1074.50 L1352.87,-1074.50 L1352.87,-1109.50 L1348.80,-1109.50 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MRQP"><path d="M1343.51,-1092.00 L1330.00,-1092.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MRQP"><path d="M1365.90,-1101.97 L1372.00,-1101.97 L1372.00,-1120.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MRQP"><path d="M1352.87,-1101.97 L1365.90,-1107.67 L1365.90,-1096.27 L1352.87,-1101.97 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MRQN"><path d="M2287.94,-1082.23 L2268.00,-1082.23 L2268.00,-1064.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MRQN"><path d="M2298.52,-1105.43 L2298.52,-1078.57 L2294.45,-1078.57 L2294.45,-1105.43 L2298.52,-1105.43 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MRQN"><path d="M2291.20,-1109.50 L2291.20,-1074.50 L2287.13,-1074.50 L2287.13,-1109.50 L2291.20,-1109.50 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MRQN"><path d="M2296.49,-1092.00 L2310.00,-1092.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MRQN"><path d="M2274.10,-1101.97 L2268.00,-1101.97 L2268.00,-1120.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MRQN"><path d="M2287.13,-1101.97 L2274.10,-1107.67 L2274.10,-1096.27 L2287.13,-1101.97 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MOPP"><path d="M2640.06,-746.23 L2660.00,-746.23 L2660.00,-728.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MOPP"><path d="M2629.48,-769.43 L2629.48,-742.57 L2633.55,-742.57 L2633.55,-769.43 L2629.48,-769.43 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MOPP"><path d="M2636.80,-773.50 L2636.80,-738.50 L2640.87,-738.50 L2640.87,-773.50 L2636.80,-773.50 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MOPP"><path d="M2631.51,-756.00 L2618.00,-756.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MOPP"><path d="M2653.90,-765.97 L2660.00,-765.97 L2660.00,-784.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MOPP"><path d="M2640.87,-765.97 L2653.90,-771.67 L2653.90,-760.27 L2640.87,-765.97 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MOPN"><path d="M2640.06,-597.77 L2660.00,-597.77 L2660.00,-616.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MOPN"><path d="M2629.48,-601.43 L2629.48,-574.57 L2633.55,-574.57 L2633.55,-601.43 L2629.48,-601.43 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MOPN"><path d="M2636.80,-605.50 L2636.80,-570.50 L2640.87,-570.50 L2640.87,-605.50 L2636.80,-605.50 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MOPN"><path d="M2631.51,-588.00 L2618.00,-588.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MOPN"><path d="M2638.84,-578.23 L2660.00,-578.23 L2660.00,-560.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MOPN"><path d="M2660.81,-578.23 L2647.79,-583.93 L2647.79,-572.53 L2660.81,-578.23 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MONP"><path d="M3032.06,-746.23 L3052.00,-746.23 L3052.00,-728.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MONP"><path d="M3021.48,-769.43 L3021.48,-742.57 L3025.55,-742.57 L3025.55,-769.43 L3021.48,-769.43 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MONP"><path d="M3028.80,-773.50 L3028.80,-738.50 L3032.87,-738.50 L3032.87,-773.50 L3028.80,-773.50 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MONP"><path d="M3023.51,-756.00 L3010.00,-756.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MONP"><path d="M3045.90,-765.97 L3052.00,-765.97 L3052.00,-784.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MONP"><path d="M3032.87,-765.97 L3045.90,-771.67 L3045.90,-760.27 L3032.87,-765.97 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MONN"><path d="M3032.06,-597.77 L3052.00,-597.77 L3052.00,-616.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MONN"><path d="M3021.48,-601.43 L3021.48,-574.57 L3025.55,-574.57 L3025.55,-601.43 L3021.48,-601.43 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MONN"><path d="M3028.80,-605.50 L3028.80,-570.50 L3032.87,-570.50 L3032.87,-605.50 L3028.80,-605.50 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MONN"><path d="M3023.51,-588.00 L3010.00,-588.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MONN"><path d="M3030.84,-578.23 L3052.00,-578.23 L3052.00,-560.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MONN"><path d="M3052.81,-578.23 L3039.79,-583.93 L3039.79,-572.53 L3052.81,-578.23 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MB0P"><path d="M204.06,1157.77 L224.00,1157.77 L224.00,1176.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MB0P"><path d="M193.48,1134.57 L193.48,1161.43 L197.55,1161.43 L197.55,1134.57 L193.48,1134.57 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MB0P"><path d="M200.80,1130.50 L200.80,1165.50 L204.87,1165.50 L204.87,1130.50 L200.80,1130.50 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MB0P"><path d="M195.51,1148.00 L182.00,1148.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MB0P"><path d="M217.90,1138.03 L224.00,1138.03 L224.00,1120.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MB0P"><path d="M204.87,1138.03 L217.90,1132.33 L217.90,1143.73 L204.87,1138.03 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MB0N"><path d="M204.06,1306.23 L224.00,1306.23 L224.00,1288.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MB0N"><path d="M193.48,1302.57 L193.48,1329.43 L197.55,1329.43 L197.55,1302.57 L193.48,1302.57 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MB0N"><path d="M200.80,1298.50 L200.80,1333.50 L204.87,1333.50 L204.87,1298.50 L200.80,1298.50 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MB0N"><path d="M195.51,1316.00 L182.00,1316.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MB0N"><path d="M202.84,1325.77 L224.00,1325.77 L224.00,1344.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MB0N"><path d="M224.81,1325.77 L211.79,1320.07 L211.79,1331.47 L224.81,1325.77 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MB1P"><path d="M624.06,1157.77 L644.00,1157.77 L644.00,1176.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MB1P"><path d="M613.48,1134.57 L613.48,1161.43 L617.55,1161.43 L617.55,1134.57 L613.48,1134.57 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MB1P"><path d="M620.80,1130.50 L620.80,1165.50 L624.87,1165.50 L624.87,1130.50 L620.80,1130.50 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MB1P"><path d="M615.51,1148.00 L602.00,1148.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MB1P"><path d="M637.90,1138.03 L644.00,1138.03 L644.00,1120.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MB1P"><path d="M624.87,1138.03 L637.90,1132.33 L637.90,1143.73 L624.87,1138.03 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MB1N"><path d="M624.06,1306.23 L644.00,1306.23 L644.00,1288.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MB1N"><path d="M613.48,1302.57 L613.48,1329.43 L617.55,1329.43 L617.55,1302.57 L613.48,1302.57 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MB1N"><path d="M620.80,1298.50 L620.80,1333.50 L624.87,1333.50 L624.87,1298.50 L620.80,1298.50 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MB1N"><path d="M615.51,1316.00 L602.00,1316.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MB1N"><path d="M622.84,1325.77 L644.00,1325.77 L644.00,1344.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MB1N"><path d="M644.81,1325.77 L631.79,1320.07 L631.79,1331.47 L644.81,1325.77 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MD3P"><path d="M1044.06,1157.77 L1064.00,1157.77 L1064.00,1176.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MD3P"><path d="M1033.48,1134.57 L1033.48,1161.43 L1037.55,1161.43 L1037.55,1134.57 L1033.48,1134.57 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MD3P"><path d="M1040.80,1130.50 L1040.80,1165.50 L1044.87,1165.50 L1044.87,1130.50 L1040.80,1130.50 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MD3P"><path d="M1035.51,1148.00 L1022.00,1148.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MD3P"><path d="M1057.90,1138.03 L1064.00,1138.03 L1064.00,1120.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MD3P"><path d="M1044.87,1138.03 L1057.90,1132.33 L1057.90,1143.73 L1044.87,1138.03 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MD3N"><path d="M1044.06,1306.23 L1064.00,1306.23 L1064.00,1288.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MD3N"><path d="M1033.48,1302.57 L1033.48,1329.43 L1037.55,1329.43 L1037.55,1302.57 L1033.48,1302.57 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MD3N"><path d="M1040.80,1298.50 L1040.80,1333.50 L1044.87,1333.50 L1044.87,1298.50 L1040.80,1298.50 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MD3N"><path d="M1035.51,1316.00 L1022.00,1316.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MD3N"><path d="M1042.84,1325.77 L1064.00,1325.77 L1064.00,1344.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MD3N"><path d="M1064.81,1325.77 L1051.79,1320.07 L1051.79,1331.47 L1064.81,1325.77 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MD4P"><path d="M1464.06,1157.77 L1484.00,1157.77 L1484.00,1176.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MD4P"><path d="M1453.48,1134.57 L1453.48,1161.43 L1457.55,1161.43 L1457.55,1134.57 L1453.48,1134.57 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MD4P"><path d="M1460.80,1130.50 L1460.80,1165.50 L1464.87,1165.50 L1464.87,1130.50 L1460.80,1130.50 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MD4P"><path d="M1455.51,1148.00 L1442.00,1148.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MD4P"><path d="M1477.90,1138.03 L1484.00,1138.03 L1484.00,1120.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MD4P"><path d="M1464.87,1138.03 L1477.90,1132.33 L1477.90,1143.73 L1464.87,1138.03 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MD4N"><path d="M1464.06,1306.23 L1484.00,1306.23 L1484.00,1288.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MD4N"><path d="M1453.48,1302.57 L1453.48,1329.43 L1457.55,1329.43 L1457.55,1302.57 L1453.48,1302.57 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MD4N"><path d="M1460.80,1298.50 L1460.80,1333.50 L1464.87,1333.50 L1464.87,1298.50 L1460.80,1298.50 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MD4N"><path d="M1455.51,1316.00 L1442.00,1316.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MD4N"><path d="M1462.84,1325.77 L1484.00,1325.77 L1484.00,1344.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MD4N"><path d="M1484.81,1325.77 L1471.79,1320.07 L1471.79,1331.47 L1484.81,1325.77 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MNG1"><path d="M1954.06,1306.23 L1974.00,1306.23 L1974.00,1288.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MNG1"><path d="M1943.48,1302.57 L1943.48,1329.43 L1947.55,1329.43 L1947.55,1302.57 L1943.48,1302.57 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MNG1"><path d="M1950.80,1298.50 L1950.80,1333.50 L1954.87,1333.50 L1954.87,1298.50 L1950.80,1298.50 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MNG1"><path d="M1945.51,1316.00 L1932.00,1316.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MNG1"><path d="M1952.84,1325.77 L1974.00,1325.77 L1974.00,1344.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MNG1"><path d="M1974.81,1325.77 L1961.79,1320.07 L1961.79,1331.47 L1974.81,1325.77 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MNG2"><path d="M1954.06,1446.23 L1974.00,1446.23 L1974.00,1428.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MNG2"><path d="M1943.48,1442.57 L1943.48,1469.43 L1947.55,1469.43 L1947.55,1442.57 L1943.48,1442.57 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MNG2"><path d="M1950.80,1438.50 L1950.80,1473.50 L1954.87,1473.50 L1954.87,1438.50 L1950.80,1438.50 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MNG2"><path d="M1945.51,1456.00 L1932.00,1456.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MNG2"><path d="M1952.84,1465.77 L1974.00,1465.77 L1974.00,1484.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MNG2"><path d="M1974.81,1465.77 L1961.79,1460.07 L1961.79,1471.47 L1974.81,1465.77 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MPG1"><path d="M1856.06,1129.77 L1876.00,1129.77 L1876.00,1148.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MPG1"><path d="M1845.48,1106.57 L1845.48,1133.43 L1849.55,1133.43 L1849.55,1106.57 L1845.48,1106.57 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MPG1"><path d="M1852.80,1102.50 L1852.80,1137.50 L1856.87,1137.50 L1856.87,1102.50 L1852.80,1102.50 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MPG1"><path d="M1847.51,1120.00 L1834.00,1120.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MPG1"><path d="M1869.90,1110.03 L1876.00,1110.03 L1876.00,1092.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MPG1"><path d="M1856.87,1110.03 L1869.90,1104.33 L1869.90,1115.73 L1856.87,1110.03 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MPG2"><path d="M2105.94,1129.77 L2086.00,1129.77 L2086.00,1148.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MPG2"><path d="M2116.52,1106.57 L2116.52,1133.43 L2112.45,1133.43 L2112.45,1106.57 L2116.52,1106.57 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MPG2"><path d="M2109.20,1102.50 L2109.20,1137.50 L2105.13,1137.50 L2105.13,1102.50 L2109.20,1102.50 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MPG2"><path d="M2114.49,1120.00 L2128.00,1120.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MPG2"><path d="M2092.10,1110.03 L2086.00,1110.03 L2086.00,1092.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MPG2"><path d="M2105.13,1110.03 L2092.10,1104.33 L2092.10,1115.73 L2105.13,1110.03 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MLBP"><path d="M2416.06,1157.77 L2436.00,1157.77 L2436.00,1176.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MLBP"><path d="M2405.48,1134.57 L2405.48,1161.43 L2409.55,1161.43 L2409.55,1134.57 L2405.48,1134.57 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MLBP"><path d="M2412.80,1130.50 L2412.80,1165.50 L2416.87,1165.50 L2416.87,1130.50 L2412.80,1130.50 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MLBP"><path d="M2407.51,1148.00 L2394.00,1148.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MLBP"><path d="M2429.90,1138.03 L2436.00,1138.03 L2436.00,1120.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MLBP"><path d="M2416.87,1138.03 L2429.90,1132.33 L2429.90,1143.73 L2416.87,1138.03 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MLBN"><path d="M2416.06,1306.23 L2436.00,1306.23 L2436.00,1288.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MLBN"><path d="M2405.48,1302.57 L2405.48,1329.43 L2409.55,1329.43 L2409.55,1302.57 L2405.48,1302.57 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MLBN"><path d="M2412.80,1298.50 L2412.80,1333.50 L2416.87,1333.50 L2416.87,1298.50 L2412.80,1298.50 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MLBN"><path d="M2407.51,1316.00 L2394.00,1316.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MLBN"><path d="M2414.84,1325.77 L2436.00,1325.77 L2436.00,1344.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MLBN"><path d="M2436.81,1325.77 L2423.79,1320.07 L2423.79,1331.47 L2436.81,1325.77 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MHEP1"><path d="M2920.06,1129.77 L2940.00,1129.77 L2940.00,1148.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MHEP1"><path d="M2909.48,1106.57 L2909.48,1133.43 L2913.55,1133.43 L2913.55,1106.57 L2909.48,1106.57 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MHEP1"><path d="M2916.80,1102.50 L2916.80,1137.50 L2920.87,1137.50 L2920.87,1102.50 L2916.80,1102.50 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MHEP1"><path d="M2911.51,1120.00 L2898.00,1120.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MHEP1"><path d="M2933.90,1110.03 L2940.00,1110.03 L2940.00,1092.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MHEP1"><path d="M2920.87,1110.03 L2933.90,1104.33 L2933.90,1115.73 L2920.87,1110.03 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MHEP2"><path d="M2920.06,1269.77 L2940.00,1269.77 L2940.00,1288.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MHEP2"><path d="M2909.48,1246.57 L2909.48,1273.43 L2913.55,1273.43 L2913.55,1246.57 L2909.48,1246.57 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MHEP2"><path d="M2916.80,1242.50 L2916.80,1277.50 L2920.87,1277.50 L2920.87,1242.50 L2916.80,1242.50 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MHEP2"><path d="M2911.51,1260.00 L2898.00,1260.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MHEP2"><path d="M2933.90,1250.03 L2940.00,1250.03 L2940.00,1232.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MHEP2"><path d="M2920.87,1250.03 L2933.90,1244.33 L2933.90,1255.73 L2920.87,1250.03 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MHEN1"><path d="M2808.06,1446.23 L2828.00,1446.23 L2828.00,1428.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MHEN1"><path d="M2797.48,1442.57 L2797.48,1469.43 L2801.55,1469.43 L2801.55,1442.57 L2797.48,1442.57 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MHEN1"><path d="M2804.80,1438.50 L2804.80,1473.50 L2808.87,1473.50 L2808.87,1438.50 L2804.80,1438.50 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MHEN1"><path d="M2799.51,1456.00 L2786.00,1456.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MHEN1"><path d="M2806.84,1465.77 L2828.00,1465.77 L2828.00,1484.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MHEN1"><path d="M2828.81,1465.77 L2815.79,1460.07 L2815.79,1471.47 L2828.81,1465.77 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MHEN2"><path d="M3099.94,1446.23 L3080.00,1446.23 L3080.00,1428.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MHEN2"><path d="M3110.52,1442.57 L3110.52,1469.43 L3106.45,1469.43 L3106.45,1442.57 L3110.52,1442.57 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MHEN2"><path d="M3103.20,1438.50 L3103.20,1473.50 L3099.13,1473.50 L3099.13,1438.50 L3103.20,1438.50 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MHEN2"><path d="M3108.49,1456.00 L3122.00,1456.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MHEN2"><path d="M3101.16,1465.77 L3080.00,1465.77 L3080.00,1484.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MHEN2"><path d="M3079.19,1465.77 L3092.21,1460.07 L3092.21,1471.47 L3079.19,1465.77 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="%v1"><path d="M588.00,-406.00 L588.00,-392.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="%v1"><path d="M579.05,-392.00 L596.95,-392.00" fill="none" stroke="#1d1d1f" stroke-width="4.07"/></g>
+<g data-id="%v1"><path d="M582.30,-383.86 L593.70,-383.86" fill="none" stroke="#1d1d1f" stroke-width="4.07"/></g>
+<g data-id="%v1"><path d="M584.74,-376.53 L591.26,-376.53" fill="none" stroke="#1d1d1f" stroke-width="4.07"/></g>
+<g data-id="%v2"><path d="M224.00,-0.00 L224.00,14.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="%v2"><path d="M215.05,14.00 L232.95,14.00" fill="none" stroke="#1d1d1f" stroke-width="4.07"/></g>
+<g data-id="%v2"><path d="M218.30,22.14 L229.70,22.14" fill="none" stroke="#1d1d1f" stroke-width="4.07"/></g>
+<g data-id="%v2"><path d="M220.74,29.47 L227.26,29.47" fill="none" stroke="#1d1d1f" stroke-width="4.07"/></g>
+<g data-id="%v3"><path d="M952.00,-0.00 L952.00,14.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="%v3"><path d="M943.05,14.00 L960.95,14.00" fill="none" stroke="#1d1d1f" stroke-width="4.07"/></g>
+<g data-id="%v3"><path d="M946.30,22.14 L957.70,22.14" fill="none" stroke="#1d1d1f" stroke-width="4.07"/></g>
+<g data-id="%v3"><path d="M948.74,29.47 L955.26,29.47" fill="none" stroke="#1d1d1f" stroke-width="4.07"/></g>
+<g data-id="%v5"><path d="M1820.00,-238.00 L1820.00,-224.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="%v5"><path d="M1811.05,-224.00 L1828.95,-224.00" fill="none" stroke="#1d1d1f" stroke-width="4.07"/></g>
+<g data-id="%v5"><path d="M1814.30,-215.86 L1825.70,-215.86" fill="none" stroke="#1d1d1f" stroke-width="4.07"/></g>
+<g data-id="%v5"><path d="M1816.74,-208.53 L1823.26,-208.53" fill="none" stroke="#1d1d1f" stroke-width="4.07"/></g>
+<g data-id="%v7"><path d="M2660.00,-504.00 L2660.00,-490.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="%v7"><path d="M2651.05,-490.00 L2668.95,-490.00" fill="none" stroke="#1d1d1f" stroke-width="4.07"/></g>
+<g data-id="%v7"><path d="M2654.30,-481.86 L2665.70,-481.86" fill="none" stroke="#1d1d1f" stroke-width="4.07"/></g>
+<g data-id="%v7"><path d="M2656.74,-474.53 L2663.26,-474.53" fill="none" stroke="#1d1d1f" stroke-width="4.07"/></g>
+<g data-id="%v9"><path d="M3052.00,-504.00 L3052.00,-490.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="%v9"><path d="M3043.05,-490.00 L3060.95,-490.00" fill="none" stroke="#1d1d1f" stroke-width="4.07"/></g>
+<g data-id="%v9"><path d="M3046.30,-481.86 L3057.70,-481.86" fill="none" stroke="#1d1d1f" stroke-width="4.07"/></g>
+<g data-id="%v9"><path d="M3048.74,-474.53 L3055.26,-474.53" fill="none" stroke="#1d1d1f" stroke-width="4.07"/></g>
+<g data-id="%v11"><path d="M224.00,1400.00 L224.00,1414.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="%v11"><path d="M215.05,1414.00 L232.95,1414.00" fill="none" stroke="#1d1d1f" stroke-width="4.07"/></g>
+<g data-id="%v11"><path d="M218.30,1422.14 L229.70,1422.14" fill="none" stroke="#1d1d1f" stroke-width="4.07"/></g>
+<g data-id="%v11"><path d="M220.74,1429.47 L227.26,1429.47" fill="none" stroke="#1d1d1f" stroke-width="4.07"/></g>
+<g data-id="%v13"><path d="M644.00,1400.00 L644.00,1414.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="%v13"><path d="M635.05,1414.00 L652.95,1414.00" fill="none" stroke="#1d1d1f" stroke-width="4.07"/></g>
+<g data-id="%v13"><path d="M638.30,1422.14 L649.70,1422.14" fill="none" stroke="#1d1d1f" stroke-width="4.07"/></g>
+<g data-id="%v13"><path d="M640.74,1429.47 L647.26,1429.47" fill="none" stroke="#1d1d1f" stroke-width="4.07"/></g>
+<g data-id="%v15"><path d="M1064.00,1400.00 L1064.00,1414.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="%v15"><path d="M1055.05,1414.00 L1072.95,1414.00" fill="none" stroke="#1d1d1f" stroke-width="4.07"/></g>
+<g data-id="%v15"><path d="M1058.30,1422.14 L1069.70,1422.14" fill="none" stroke="#1d1d1f" stroke-width="4.07"/></g>
+<g data-id="%v15"><path d="M1060.74,1429.47 L1067.26,1429.47" fill="none" stroke="#1d1d1f" stroke-width="4.07"/></g>
+<g data-id="%v17"><path d="M1484.00,1400.00 L1484.00,1414.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="%v17"><path d="M1475.05,1414.00 L1492.95,1414.00" fill="none" stroke="#1d1d1f" stroke-width="4.07"/></g>
+<g data-id="%v17"><path d="M1478.30,1422.14 L1489.70,1422.14" fill="none" stroke="#1d1d1f" stroke-width="4.07"/></g>
+<g data-id="%v17"><path d="M1480.74,1429.47 L1487.26,1429.47" fill="none" stroke="#1d1d1f" stroke-width="4.07"/></g>
+<g data-id="%v19"><path d="M2436.00,1400.00 L2436.00,1414.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="%v19"><path d="M2427.05,1414.00 L2444.95,1414.00" fill="none" stroke="#1d1d1f" stroke-width="4.07"/></g>
+<g data-id="%v19"><path d="M2430.30,1422.14 L2441.70,1422.14" fill="none" stroke="#1d1d1f" stroke-width="4.07"/></g>
+<g data-id="%v19"><path d="M2432.74,1429.47 L2439.26,1429.47" fill="none" stroke="#1d1d1f" stroke-width="4.07"/></g>
+<g data-id="%v21"><path d="M1974.00,1540.00 L1974.00,1554.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="%v21"><path d="M1965.05,1554.00 L1982.95,1554.00" fill="none" stroke="#1d1d1f" stroke-width="4.07"/></g>
+<g data-id="%v21"><path d="M1968.30,1562.14 L1979.70,1562.14" fill="none" stroke="#1d1d1f" stroke-width="4.07"/></g>
+<g data-id="%v21"><path d="M1970.74,1569.47 L1977.26,1569.47" fill="none" stroke="#1d1d1f" stroke-width="4.07"/></g>
+<g data-id="%v23"><path d="M2940.00,1596.00 L2940.00,1610.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="%v23"><path d="M2931.05,1610.00 L2948.95,1610.00" fill="none" stroke="#1d1d1f" stroke-width="4.07"/></g>
+<g data-id="%v23"><path d="M2934.30,1618.14 L2945.70,1618.14" fill="none" stroke="#1d1d1f" stroke-width="4.07"/></g>
+<g data-id="%v23"><path d="M2936.74,1625.47 L2943.26,1625.47" fill="none" stroke="#1d1d1f" stroke-width="4.07"/></g>
+<g data-id="%v0"><path d="M588.00,-1260.00 L588.00,-1285.90" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="%v0"><path d="M574.00,-1289.23 L602.00,-1289.23 L602.00,-1284.70 L574.00,-1284.70 L574.00,-1289.23 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="%v4"><path d="M1820.00,-1330.00 L1820.00,-1355.90" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="%v4"><path d="M1806.00,-1359.23 L1834.00,-1359.23 L1834.00,-1354.70 L1806.00,-1354.70 L1806.00,-1359.23 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="%v6"><path d="M2660.00,-826.00 L2660.00,-851.90" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="%v6"><path d="M2646.00,-855.23 L2674.00,-855.23 L2674.00,-850.70 L2646.00,-850.70 L2646.00,-855.23 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="%v8"><path d="M3052.00,-826.00 L3052.00,-851.90" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="%v8"><path d="M3038.00,-855.23 L3066.00,-855.23 L3066.00,-850.70 L3038.00,-850.70 L3038.00,-855.23 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="%v10"><path d="M224.00,1078.00 L224.00,1052.10" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="%v10"><path d="M210.00,1048.77 L238.00,1048.77 L238.00,1053.30 L210.00,1053.30 L210.00,1048.77 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="%v12"><path d="M644.00,1078.00 L644.00,1052.10" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="%v12"><path d="M630.00,1048.77 L658.00,1048.77 L658.00,1053.30 L630.00,1053.30 L630.00,1048.77 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="%v14"><path d="M1064.00,1078.00 L1064.00,1052.10" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="%v14"><path d="M1050.00,1048.77 L1078.00,1048.77 L1078.00,1053.30 L1050.00,1053.30 L1050.00,1048.77 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="%v16"><path d="M1484.00,1078.00 L1484.00,1052.10" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="%v16"><path d="M1470.00,1048.77 L1498.00,1048.77 L1498.00,1053.30 L1470.00,1053.30 L1470.00,1048.77 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="%v18"><path d="M2436.00,1078.00 L2436.00,1052.10" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="%v18"><path d="M2422.00,1048.77 L2450.00,1048.77 L2450.00,1053.30 L2422.00,1053.30 L2422.00,1048.77 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="%v20"><path d="M1974.00,1008.00 L1974.00,982.10" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="%v20"><path d="M1960.00,978.77 L1988.00,978.77 L1988.00,983.30 L1960.00,983.30 L1960.00,978.77 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="%v22"><path d="M2940.00,1050.00 L2940.00,1024.10" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="%v22"><path d="M2926.00,1020.77 L2954.00,1020.77 L2954.00,1025.30 L2926.00,1025.30 L2926.00,1020.77 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="a usage of $JUNCTION"><circle cx="588.00" cy="-1204.00" r="5.29" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="a usage of $JUNCTION"><circle cx="336.00" cy="-952.00" r="5.29" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="a usage of $JUNCTION"><circle cx="840.00" cy="-952.00" r="5.29" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="a usage of $JUNCTION"><circle cx="490.00" cy="-700.00" r="5.29" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="a usage of $JUNCTION"><circle cx="686.00" cy="-700.00" r="5.29" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="a usage of $JUNCTION"><circle cx="588.00" cy="-448.00" r="5.29" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="a usage of $JUNCTION"><circle cx="56.00" cy="-224.00" r="5.29" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="a usage of $JUNCTION"><circle cx="140.00" cy="-224.00" r="5.29" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="a usage of $JUNCTION"><circle cx="140.00" cy="-42.00" r="5.29" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="a usage of $JUNCTION"><circle cx="224.00" cy="-224.00" r="5.29" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="a usage of $JUNCTION"><circle cx="224.00" cy="-42.00" r="5.29" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="a usage of $JUNCTION"><circle cx="308.00" cy="-224.00" r="5.29" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="a usage of $JUNCTION"><circle cx="308.00" cy="-42.00" r="5.29" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="a usage of $JUNCTION"><circle cx="868.00" cy="-224.00" r="5.29" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="a usage of $JUNCTION"><circle cx="868.00" cy="-42.00" r="5.29" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="a usage of $JUNCTION"><circle cx="952.00" cy="-224.00" r="5.29" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="a usage of $JUNCTION"><circle cx="952.00" cy="-42.00" r="5.29" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="a usage of $JUNCTION"><circle cx="1036.00" cy="-224.00" r="5.29" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="a usage of $JUNCTION"><circle cx="1036.00" cy="-42.00" r="5.29" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="a usage of $JUNCTION"><circle cx="1120.00" cy="-224.00" r="5.29" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="a usage of $JUNCTION"><circle cx="1372.00" cy="-1288.00" r="5.29" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="a usage of $JUNCTION"><circle cx="1568.00" cy="-1288.00" r="5.29" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="a usage of $JUNCTION"><circle cx="1820.00" cy="-1288.00" r="5.29" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="a usage of $JUNCTION"><circle cx="2072.00" cy="-1288.00" r="5.29" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="a usage of $JUNCTION"><circle cx="2268.00" cy="-1288.00" r="5.29" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="a usage of $JUNCTION"><circle cx="1568.00" cy="-966.00" r="5.29" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="a usage of $JUNCTION"><circle cx="2072.00" cy="-966.00" r="5.29" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="a usage of $JUNCTION"><circle cx="1568.00" cy="-728.00" r="5.29" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="a usage of $JUNCTION"><circle cx="2072.00" cy="-728.00" r="5.29" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="a usage of $JUNCTION"><circle cx="1960.00" cy="-1008.00" r="5.29" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="a usage of $JUNCTION"><circle cx="1680.00" cy="-924.00" r="5.29" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="a usage of $JUNCTION"><circle cx="1722.00" cy="-504.00" r="5.29" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="a usage of $JUNCTION"><circle cx="1918.00" cy="-504.00" r="5.29" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="a usage of $JUNCTION"><circle cx="1820.00" cy="-280.00" r="5.29" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="a usage of $JUNCTION"><circle cx="2590.00" cy="-672.00" r="5.29" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="a usage of $JUNCTION"><circle cx="2660.00" cy="-672.00" r="5.29" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="a usage of $JUNCTION"><circle cx="2982.00" cy="-672.00" r="5.29" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="a usage of $JUNCTION"><circle cx="3052.00" cy="-672.00" r="5.29" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="a usage of $JUNCTION"><circle cx="98.00" cy="448.00" r="5.29" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="a usage of $JUNCTION"><circle cx="406.00" cy="448.00" r="5.29" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="a usage of $JUNCTION"><circle cx="154.00" cy="1232.00" r="5.29" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="a usage of $JUNCTION"><circle cx="224.00" cy="1232.00" r="5.29" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="a usage of $JUNCTION"><circle cx="574.00" cy="1232.00" r="5.29" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="a usage of $JUNCTION"><circle cx="644.00" cy="1232.00" r="5.29" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="a usage of $JUNCTION"><circle cx="994.00" cy="1232.00" r="5.29" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="a usage of $JUNCTION"><circle cx="1064.00" cy="1232.00" r="5.29" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="a usage of $JUNCTION"><circle cx="1414.00" cy="1232.00" r="5.29" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="a usage of $JUNCTION"><circle cx="1484.00" cy="1232.00" r="5.29" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="a usage of $JUNCTION"><circle cx="2366.00" cy="1232.00" r="5.29" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="a usage of $JUNCTION"><circle cx="2436.00" cy="1232.00" r="5.29" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="a usage of $JUNCTION"><circle cx="1974.00" cy="1050.00" r="5.29" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="a usage of $JUNCTION"><circle cx="1974.00" cy="1218.00" r="5.29" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="a usage of $JUNCTION"><circle cx="2086.00" cy="1218.00" r="5.29" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="a usage of $JUNCTION"><circle cx="2940.00" cy="1372.00" r="5.29" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="a usage of $JUNCTION"><circle cx="3080.00" cy="1372.00" r="5.29" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="a usage of $JUNCTION"><circle cx="2940.00" cy="1554.00" r="5.29" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="a text"><text x="0.00" y="-1456.00" font-size="28.00" font-weight="bold" textLength="800.86" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">A6  |  dynamic integrator + independent regenerative latch</text></g>
+<g data-id="a text"><text x="0.00" y="-1400.00" font-size="14.70" textLength="618.80" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">All MOS L = 30 nm; W in um. NMOS bulk = VSS, PMOS bulk = AVDD (three-terminal symbols).</text></g>
+<g data-id="a text"><text x="0.00" y="-1330.00" font-size="22.40" font-weight="bold" textLength="202.36" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">1  Front integrator</text></g>
+<g data-id="a text"><text x="1316.00" y="-1400.00" font-size="22.40" font-weight="bold" textLength="231.55" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">2  Regenerative latch</text></g>
+<g data-id="a text"><text x="2478.00" y="-1330.00" font-size="22.40" font-weight="bold" textLength="158.41" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">3  RTZ outputs</text></g>
+<g data-id="#MRDP::name"><text x="350.00" y="-1089.20" font-size="14.00" textLength="38.75" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">MRDP</text></g>
+<g data-id="#MRDP::dims"><text x="350.00" y="-1038.80" font-size="12.60" textLength="25.05" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">W16</text></g>
+<g data-id="#MRDN::name"><text x="785.99" y="-1089.20" font-size="14.00" textLength="40.01" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">MRDN</text></g>
+<g data-id="#MRDN::dims"><text x="800.95" y="-1038.80" font-size="12.60" textLength="25.05" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">W16</text></g>
+<g data-id="#MINP::name"><text x="350.00" y="-837.20" font-size="14.00" textLength="34.45" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">MINP</text></g>
+<g data-id="#MINP::dims"><text x="350.00" y="-786.80" font-size="12.60" textLength="25.05" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">W56</text></g>
+<g data-id="#MINN::name"><text x="790.29" y="-837.20" font-size="14.00" textLength="35.71" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">MINN</text></g>
+<g data-id="#MINN::dims"><text x="800.95" y="-786.80" font-size="12.60" textLength="25.05" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">W56</text></g>
+<g data-id="#MFT1::name"><text x="504.00" y="-585.20" font-size="14.00" textLength="35.25" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">MFT1</text></g>
+<g data-id="#MFT1::dims"><text x="504.00" y="-534.80" font-size="12.60" textLength="18.06" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">W3</text></g>
+<g data-id="#MFT2::name"><text x="636.75" y="-585.20" font-size="14.00" textLength="35.25" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">MFT2</text></g>
+<g data-id="#MFT2::dims"><text x="653.94" y="-534.80" font-size="12.60" textLength="18.06" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">W3</text></g>
+<g data-id="%v0::name"><text x="570.09" y="-1297.63" font-size="14.00" textLength="35.83" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">AVDD</text></g>
+<g data-id="a text"><text x="350.00" y="-966.00" font-size="14.00" font-weight="bold" textLength="19.33" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">DP</text></g>
+<g data-id="a text"><text x="770.00" y="-966.00" font-size="14.00" font-weight="bold" textLength="20.48" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">DN</text></g>
+<g data-id="a text"><text x="202.57" y="-1068.90" font-size="13.30" font-weight="bold" textLength="25.63" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">CKF</text></g>
+<g data-id="a text"><text x="947.80" y="-1068.90" font-size="13.30" font-weight="bold" textLength="25.63" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">CKF</text></g>
+<g data-id="a text"><text x="176.98" y="-816.90" font-size="13.30" font-weight="bold" textLength="23.22" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">INP</text></g>
+<g data-id="a text"><text x="975.80" y="-816.90" font-size="13.30" font-weight="bold" textLength="24.31" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">INN</text></g>
+<g data-id="a text"><text x="560.00" y="-714.00" font-size="13.30" font-weight="bold" textLength="16.09" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">FT</text></g>
+<g data-id="a text"><text x="356.17" y="-564.90" font-size="13.30" font-weight="bold" textLength="26.03" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">CKE</text></g>
+<g data-id="a text"><text x="793.80" y="-564.90" font-size="13.30" font-weight="bold" textLength="26.03" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">CKE</text></g>
+<g data-id="#CDP1::name"><text x="43.68" y="-173.60" font-size="9.80" textLength="24.64" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">CDP1</text></g>
+<g data-id="#CDP2::name"><text x="127.68" y="-173.60" font-size="9.80" textLength="24.64" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">CDP2</text></g>
+<g data-id="#CDP3::name"><text x="211.68" y="-173.60" font-size="9.80" textLength="24.64" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">CDP3</text></g>
+<g data-id="#CDP4::name"><text x="295.68" y="-173.60" font-size="9.80" textLength="24.64" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">CDP4</text></g>
+<g data-id="#CDP5::name"><text x="379.68" y="-173.60" font-size="9.80" textLength="24.64" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">CDP5</text></g>
+<g data-id="a text"><text x="179.19" y="70.00" font-size="14.00" textLength="89.61" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">5 x C52 / 1 um</text></g>
+<g data-id="#CDN1::name"><text x="771.24" y="-173.60" font-size="9.80" textLength="25.52" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">CDN1</text></g>
+<g data-id="#CDN2::name"><text x="855.24" y="-173.60" font-size="9.80" textLength="25.52" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">CDN2</text></g>
+<g data-id="#CDN3::name"><text x="939.24" y="-173.60" font-size="9.80" textLength="25.52" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">CDN3</text></g>
+<g data-id="#CDN4::name"><text x="1023.24" y="-173.60" font-size="9.80" textLength="25.52" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">CDN4</text></g>
+<g data-id="#CDN5::name"><text x="1107.24" y="-173.60" font-size="9.80" textLength="25.52" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">CDN5</text></g>
+<g data-id="a text"><text x="907.19" y="70.00" font-size="14.00" textLength="89.61" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">5 x C52 / 1 um</text></g>
+<g data-id="#MSIP::name"><text x="1582.00" y="-669.20" font-size="14.00" textLength="32.68" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">MSIP</text></g>
+<g data-id="#MSIP::dims"><text x="1582.00" y="-618.80" font-size="12.60" textLength="18.06" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">W6</text></g>
+<g data-id="#MSIN::name"><text x="2024.06" y="-669.20" font-size="14.00" textLength="33.94" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">MSIN</text></g>
+<g data-id="#MSIN::dims"><text x="2039.94" y="-618.80" font-size="12.60" textLength="18.06" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">W6</text></g>
+<g data-id="#MLNP::name"><text x="1516.05" y="-865.20" font-size="14.00" textLength="37.95" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">MLNP</text></g>
+<g data-id="#MLNP::dims"><text x="1528.95" y="-814.80" font-size="12.60" textLength="25.05" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">W12</text></g>
+<g data-id="#MLNN::name"><text x="2086.00" y="-865.20" font-size="14.00" textLength="39.21" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">MLNN</text></g>
+<g data-id="#MLNN::dims"><text x="2086.00" y="-814.80" font-size="12.60" textLength="25.05" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">W12</text></g>
+<g data-id="#MLPP::name"><text x="1517.31" y="-1117.20" font-size="14.00" textLength="36.69" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">MLPP</text></g>
+<g data-id="#MLPP::dims"><text x="1535.94" y="-1066.80" font-size="12.60" textLength="18.06" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">W8</text></g>
+<g data-id="#MLPN::name"><text x="2086.00" y="-1117.20" font-size="14.00" textLength="37.95" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">MLPN</text></g>
+<g data-id="#MLPN::dims"><text x="2086.00" y="-1066.80" font-size="12.60" textLength="18.06" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">W8</text></g>
+<g data-id="#MRQP::name"><text x="1386.00" y="-1117.20" font-size="14.00" textLength="39.51" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">MRQP</text></g>
+<g data-id="#MRQP::dims"><text x="1386.00" y="-1066.80" font-size="12.60" textLength="25.05" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">W16</text></g>
+<g data-id="#MRQN::name"><text x="2213.23" y="-1117.20" font-size="14.00" textLength="40.77" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">MRQN</text></g>
+<g data-id="#MRQN::dims"><text x="2228.95" y="-1066.80" font-size="12.60" textLength="25.05" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">W16</text></g>
+<g data-id="#MRXP::name"><text x="1386.00" y="-781.20" font-size="14.00" textLength="37.14" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">MRXP</text></g>
+<g data-id="#MRXP::dims"><text x="1386.00" y="-730.80" font-size="12.60" textLength="18.06" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">W4</text></g>
+<g data-id="#MRXN::name"><text x="2215.60" y="-781.20" font-size="14.00" textLength="38.40" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">MRXN</text></g>
+<g data-id="#MRXN::dims"><text x="2235.94" y="-730.80" font-size="12.60" textLength="18.06" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">W4</text></g>
+<g data-id="#MST1::name"><text x="1736.00" y="-417.20" font-size="14.00" textLength="35.87" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">MST1</text></g>
+<g data-id="#MST1::dims"><text x="1736.00" y="-366.80" font-size="12.60" textLength="18.06" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">W3</text></g>
+<g data-id="#MST2::name"><text x="1868.13" y="-417.20" font-size="14.00" textLength="35.87" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">MST2</text></g>
+<g data-id="#MST2::dims"><text x="1885.94" y="-366.80" font-size="12.60" textLength="18.06" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">W3</text></g>
+<g data-id="%v4::name"><text x="1802.09" y="-1367.63" font-size="14.00" textLength="35.83" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">AVDD</text></g>
+<g data-id="a text"><text x="1492.89" y="-980.00" font-size="13.30" font-weight="bold" textLength="19.11" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">QP</text></g>
+<g data-id="a text"><text x="2128.00" y="-980.00" font-size="13.30" font-weight="bold" textLength="20.20" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">QN</text></g>
+<g data-id="a text"><text x="1582.00" y="-742.00" font-size="13.30" textLength="16.04" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">XP</text></g>
+<g data-id="a text"><text x="2002.00" y="-742.00" font-size="13.30" textLength="17.24" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">XN</text></g>
+<g data-id="a text"><text x="1252.66" y="-1096.90" font-size="13.30" font-weight="bold" textLength="25.54" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">CKL</text></g>
+<g data-id="a text"><text x="2361.80" y="-1096.90" font-size="13.30" font-weight="bold" textLength="25.54" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">CKL</text></g>
+<g data-id="a text"><text x="1252.66" y="-760.90" font-size="13.30" font-weight="bold" textLength="25.54" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">CKL</text></g>
+<g data-id="a text"><text x="2361.80" y="-760.90" font-size="13.30" font-weight="bold" textLength="25.54" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">CKL</text></g>
+<g data-id="a text"><text x="1440.74" y="-648.90" font-size="13.30" font-weight="bold" textLength="19.46" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">DN</text></g>
+<g data-id="a text"><text x="2179.80" y="-648.90" font-size="13.30" font-weight="bold" textLength="18.37" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">DP</text></g>
+<g data-id="a text"><text x="1792.00" y="-518.00" font-size="13.30" font-weight="bold" textLength="16.61" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">ST</text></g>
+<g data-id="a text"><text x="1588.66" y="-396.90" font-size="13.30" font-weight="bold" textLength="25.54" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">CKL</text></g>
+<g data-id="a text"><text x="2025.80" y="-396.90" font-size="13.30" font-weight="bold" textLength="25.54" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">CKL</text></g>
+<g data-id="a text"><text x="1330.00" y="-98.00" font-size="14.70" textLength="253.56" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">DN / DP drive only MSIP / MSIN gates.</text></g>
+<g data-id="a text"><text x="1330.00" y="-42.00" font-size="14.70" textLength="308.30" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">Cross-coupled QP / QN provide regeneration.</text></g>
+<g data-id="%outp"><path d="M2618.00,-1120.00 L2632.00,-1120.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="%outp"><path d="M2665.25,-1120.00 L2632.00,-1141.00 L2632.00,-1100.75 L2665.25,-1120.00 Z" fill="none" stroke="#1d1d1f" stroke-width="3.36"/></g>
+<g data-id="%outp"><circle cx="2670.53" cy="-1119.99" r="5.25" fill="none" stroke="#1d1d1f" stroke-width="3.36"/></g>
+<g data-id="%outp"><path d="M2675.78,-1120.00 L2688.00,-1120.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="%outp::name"><text x="2616.31" y="-1170.40" font-size="13.30" textLength="87.38" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">MOPP / MOPN</text></g>
+<g data-id="%outn"><path d="M3010.00,-1120.00 L3024.00,-1120.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="%outn"><path d="M3057.25,-1120.00 L3024.00,-1141.00 L3024.00,-1100.75 L3057.25,-1120.00 Z" fill="none" stroke="#1d1d1f" stroke-width="3.36"/></g>
+<g data-id="%outn"><circle cx="3062.53" cy="-1119.99" r="5.25" fill="none" stroke="#1d1d1f" stroke-width="3.36"/></g>
+<g data-id="%outn"><path d="M3067.78,-1120.00 L3080.00,-1120.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="%outn::name"><text x="3007.11" y="-1170.40" font-size="13.30" textLength="89.77" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">MONP / MONN</text></g>
+<g data-id="a text"><text x="2506.88" y="-1127.00" font-size="14.00" font-weight="bold" textLength="20.12" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">QP</text></g>
+<g data-id="a text"><text x="2779.00" y="-1127.00" font-size="14.00" font-weight="bold" textLength="39.34" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">OUTP</text></g>
+<g data-id="a text"><text x="2897.73" y="-1127.00" font-size="14.00" font-weight="bold" textLength="21.27" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">QN</text></g>
+<g data-id="a text"><text x="3171.00" y="-1127.00" font-size="14.00" font-weight="bold" textLength="40.49" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">OUTN</text></g>
+<g data-id="a text"><text x="2562.00" y="-868.00" font-size="16.10" font-weight="bold" textLength="55.34" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">P4 / N3</text></g>
+<g data-id="#MOPP::name"><text x="2674.00" y="-781.20" font-size="14.00" textLength="39.48" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">MOPP</text></g>
+<g data-id="#MOPP::dims"><text x="2674.00" y="-730.80" font-size="12.60" textLength="18.06" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">W4</text></g>
+<g data-id="#MOPN::name"><text x="2674.00" y="-613.20" font-size="14.00" textLength="40.74" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">MOPN</text></g>
+<g data-id="#MOPN::dims"><text x="2674.00" y="-562.80" font-size="12.60" textLength="18.06" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">W3</text></g>
+<g data-id="%v6::name"><text x="2642.09" y="-863.63" font-size="14.00" textLength="35.83" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">AVDD</text></g>
+<g data-id="a text"><text x="2507.89" y="-679.00" font-size="13.30" font-weight="bold" textLength="19.11" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">QP</text></g>
+<g data-id="a text"><text x="2765.00" y="-677.60" font-size="13.30" font-weight="bold" textLength="37.37" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">OUTP</text></g>
+<g data-id="a text"><text x="2954.00" y="-868.00" font-size="16.10" font-weight="bold" textLength="55.34" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">P4 / N3</text></g>
+<g data-id="#MONP::name"><text x="3066.00" y="-781.20" font-size="14.00" textLength="40.74" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">MONP</text></g>
+<g data-id="#MONP::dims"><text x="3066.00" y="-730.80" font-size="12.60" textLength="18.06" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">W4</text></g>
+<g data-id="#MONN::name"><text x="3066.00" y="-613.20" font-size="14.00" textLength="42.00" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">MONN</text></g>
+<g data-id="#MONN::dims"><text x="3066.00" y="-562.80" font-size="12.60" textLength="18.06" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">W3</text></g>
+<g data-id="%v8::name"><text x="3034.09" y="-863.63" font-size="14.00" textLength="35.83" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">AVDD</text></g>
+<g data-id="a text"><text x="2898.80" y="-679.00" font-size="13.30" font-weight="bold" textLength="20.20" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">QN</text></g>
+<g data-id="a text"><text x="3157.00" y="-677.60" font-size="13.30" font-weight="bold" textLength="38.46" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">OUTN</text></g>
+<g data-id="a text"><text x="2506.00" y="-280.00" font-size="14.70" textLength="162.86" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">OUTP / OUTN reset low.</text></g>
+<g data-id="a text"><text x="2506.00" y="-210.00" font-size="14.70" textLength="191.45" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">Gate symbols above refer to</text></g>
+<g data-id="a text"><text x="2506.00" y="-154.00" font-size="14.70" textLength="198.67" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">the same four devices below.</text></g>
+<g data-id="a text"><text x="0.00" y="238.00" font-size="22.40" font-weight="bold" textLength="823.18" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">4  Clock / evaluation logic  |  standard gate symbols; physical devices below</text></g>
+<g data-id="%b0"><path d="M182.00,448.00 L196.00,448.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="%b0"><path d="M229.25,448.00 L196.00,427.00 L196.00,467.25 L229.25,448.00 Z" fill="none" stroke="#1d1d1f" stroke-width="3.36"/></g>
+<g data-id="%b0"><circle cx="234.53" cy="448.01" r="5.25" fill="none" stroke="#1d1d1f" stroke-width="3.36"/></g>
+<g data-id="%b0"><path d="M239.78,448.00 L252.00,448.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="%b0::name"><text x="210.54" y="397.60" font-size="13.30" textLength="26.92" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">MB0</text></g>
+<g data-id="%b1"><path d="M560.00,448.00 L574.00,448.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="%b1"><path d="M607.25,448.00 L574.00,427.00 L574.00,467.25 L607.25,448.00 Z" fill="none" stroke="#1d1d1f" stroke-width="3.36"/></g>
+<g data-id="%b1"><circle cx="612.53" cy="448.01" r="5.25" fill="none" stroke="#1d1d1f" stroke-width="3.36"/></g>
+<g data-id="%b1"><path d="M617.78,448.00 L630.00,448.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="%b1::name"><text x="588.54" y="397.60" font-size="13.30" textLength="26.92" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">MB1</text></g>
+<g data-id="%d3"><path d="M938.00,448.00 L952.00,448.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="%d3"><path d="M985.25,448.00 L952.00,427.00 L952.00,467.25 L985.25,448.00 Z" fill="none" stroke="#1d1d1f" stroke-width="3.36"/></g>
+<g data-id="%d3"><circle cx="990.53" cy="448.01" r="5.25" fill="none" stroke="#1d1d1f" stroke-width="3.36"/></g>
+<g data-id="%d3"><path d="M995.78,448.00 L1008.00,448.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="%d3::name"><text x="966.33" y="397.60" font-size="13.30" textLength="27.33" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">MD3</text></g>
+<g data-id="%d4"><path d="M1316.00,448.00 L1330.00,448.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="%d4"><path d="M1363.25,448.00 L1330.00,427.00 L1330.00,467.25 L1363.25,448.00 Z" fill="none" stroke="#1d1d1f" stroke-width="3.36"/></g>
+<g data-id="%d4"><circle cx="1368.53" cy="448.01" r="5.25" fill="none" stroke="#1d1d1f" stroke-width="3.36"/></g>
+<g data-id="%d4"><path d="M1373.78,448.00 L1386.00,448.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="%d4::name"><text x="1344.33" y="397.60" font-size="13.30" textLength="27.33" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">MD4</text></g>
+<g data-id="%nand"><path d="M1862.00,427.00 L1834.00,427.00 L1834.00,469.00 L1862.00,469.00" fill="none" stroke="#1d1d1f" stroke-width="3.36"/></g>
+<g data-id="%nand"><path d="M1862.00,427.00 A21.00,21.00 0 0 1 1862.00,469.00" fill="none" stroke="#1d1d1f" stroke-width="3.36"/></g>
+<g data-id="%nand"><circle cx="1890.70" cy="448.00" r="4.73" fill="none" stroke="#1d1d1f" stroke-width="3.36"/></g>
+<g data-id="%nand"><path d="M1820.00,434.00 L1834.00,434.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="%nand"><path d="M1820.00,462.00 L1834.00,462.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="%nand"><path d="M1895.42,448.00 L1904.00,448.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="%nand::name"><text x="1827.43" y="397.60" font-size="13.30" textLength="69.13" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">MPG / MNG</text></g>
+<g data-id="%lb"><path d="M2282.00,448.00 L2296.00,448.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="%lb"><path d="M2329.25,448.00 L2296.00,427.00 L2296.00,467.25 L2329.25,448.00 Z" fill="none" stroke="#1d1d1f" stroke-width="3.36"/></g>
+<g data-id="%lb"><circle cx="2334.53" cy="448.01" r="5.25" fill="none" stroke="#1d1d1f" stroke-width="3.36"/></g>
+<g data-id="%lb"><path d="M2339.78,448.00 L2352.00,448.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="%lb::name"><text x="2310.62" y="397.60" font-size="13.30" textLength="26.76" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">MLB</text></g>
+<g data-id="%nor"><path d="M2842.00,423.08 A34.82,34.82 0 0 1 2842.00,472.92" fill="none" stroke="#1d1d1f" stroke-width="3.36" stroke-linecap="round"/></g>
+<g data-id="%nor"><path d="M2842.00,423.08 A78.76,78.76 0 0 1 2892.12,448.00" fill="none" stroke="#1d1d1f" stroke-width="3.36" stroke-linecap="round"/></g>
+<g data-id="%nor"><path d="M2842.00,472.92 A78.76,78.76 0 0 0 2892.12,448.00" fill="none" stroke="#1d1d1f" stroke-width="3.36" stroke-linecap="round"/></g>
+<g data-id="%nor"><circle cx="2898.00" cy="448.00" r="4.73" fill="none" stroke="#1d1d1f" stroke-width="3.36"/></g>
+<g data-id="%nor"><path d="M2828.00,434.00 L2849.56,434.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="%nor"><path d="M2828.00,462.00 L2849.56,462.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="%nor"><path d="M2902.72,448.00 L2912.00,448.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="%nor::name"><text x="2855.84" y="397.60" font-size="13.30" textLength="28.32" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">MHE</text></g>
+<g data-id="a text"><text x="0.00" y="434.00" font-size="14.70" font-weight="bold" textLength="37.87" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">CLKC</text></g>
+<g data-id="a text"><text x="364.55" y="420.00" font-size="13.30" font-weight="bold" textLength="26.91" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">CKB</text></g>
+<g data-id="a text"><text x="743.19" y="420.00" font-size="13.30" font-weight="bold" textLength="25.63" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">CKF</text></g>
+<g data-id="a text"><text x="1125.33" y="420.00" font-size="13.30" font-weight="bold" textLength="17.34" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">D3</text></g>
+<g data-id="a text"><text x="1512.33" y="420.00" font-size="13.30" font-weight="bold" textLength="27.34" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">CKD</text></g>
+<g data-id="a text"><text x="2082.70" y="420.00" font-size="13.30" font-weight="bold" textLength="34.59" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">CKLB</text></g>
+<g data-id="a text"><text x="2493.23" y="420.00" font-size="13.30" font-weight="bold" textLength="25.54" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">CKL</text></g>
+<g data-id="a text"><text x="3164.00" y="441.00" font-size="14.70" font-weight="bold" textLength="28.77" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">CKE</text></g>
+<g data-id="a text"><text x="0.00" y="714.00" font-size="15.40" textLength="711.19" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">CKF: front reset   |   CKL = CLKC AND CKD: latch evaluation   |   CKE = NOR(CKB, CKL): front-tail enable</text></g>
+<g data-id="a text"><text x="0.00" y="826.00" font-size="22.40" font-weight="bold" textLength="904.13" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">5  Clock transistor implementation  |  same nets and devices as the functional view</text></g>
+<g data-id="a text"><text x="126.00" y="1036.00" font-size="16.10" font-weight="bold" textLength="34.20" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">MB0</text></g>
+<g data-id="#MB0P::name"><text x="238.00" y="1122.80" font-size="14.00" textLength="37.20" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">MB0P</text></g>
+<g data-id="#MB0P::dims"><text x="238.00" y="1173.20" font-size="12.60" textLength="18.06" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">W4</text></g>
+<g data-id="#MB0N::name"><text x="238.00" y="1290.80" font-size="14.00" textLength="38.46" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">MB0N</text></g>
+<g data-id="#MB0N::dims"><text x="238.00" y="1341.20" font-size="12.60" textLength="18.06" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">W2</text></g>
+<g data-id="%v10::name"><text x="206.09" y="1040.37" font-size="14.00" textLength="35.83" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">AVDD</text></g>
+<g data-id="a text"><text x="56.74" y="1225.00" font-size="13.30" font-weight="bold" textLength="34.26" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">CLKC</text></g>
+<g data-id="a text"><text x="329.00" y="1226.40" font-size="13.30" font-weight="bold" textLength="26.91" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">CKB</text></g>
+<g data-id="a text"><text x="546.00" y="1036.00" font-size="16.10" font-weight="bold" textLength="34.20" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">MB1</text></g>
+<g data-id="#MB1P::name"><text x="658.00" y="1122.80" font-size="14.00" textLength="37.20" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">MB1P</text></g>
+<g data-id="#MB1P::dims"><text x="658.00" y="1173.20" font-size="12.60" textLength="18.06" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">W8</text></g>
+<g data-id="#MB1N::name"><text x="658.00" y="1290.80" font-size="14.00" textLength="38.46" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">MB1N</text></g>
+<g data-id="#MB1N::dims"><text x="658.00" y="1341.20" font-size="12.60" textLength="18.06" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">W4</text></g>
+<g data-id="%v12::name"><text x="626.09" y="1040.37" font-size="14.00" textLength="35.83" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">AVDD</text></g>
+<g data-id="a text"><text x="484.09" y="1225.00" font-size="13.30" font-weight="bold" textLength="26.91" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">CKB</text></g>
+<g data-id="a text"><text x="749.00" y="1226.40" font-size="13.30" font-weight="bold" textLength="25.63" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">CKF</text></g>
+<g data-id="a text"><text x="966.00" y="1036.00" font-size="16.10" font-weight="bold" textLength="34.73" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">MD3</text></g>
+<g data-id="#MD3P::name"><text x="1078.00" y="1122.80" font-size="14.00" textLength="37.63" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">MD3P</text></g>
+<g data-id="#MD3P::dims"><text x="1078.00" y="1173.20" font-size="12.60" textLength="18.06" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">W4</text></g>
+<g data-id="#MD3N::name"><text x="1078.00" y="1290.80" font-size="14.00" textLength="38.89" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">MD3N</text></g>
+<g data-id="#MD3N::dims"><text x="1078.00" y="1341.20" font-size="12.60" textLength="18.06" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">W2</text></g>
+<g data-id="%v14::name"><text x="1046.09" y="1040.37" font-size="14.00" textLength="35.83" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">AVDD</text></g>
+<g data-id="a text"><text x="905.37" y="1225.00" font-size="13.30" font-weight="bold" textLength="25.63" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">CKF</text></g>
+<g data-id="a text"><text x="1169.00" y="1226.40" font-size="13.30" font-weight="bold" textLength="17.34" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">D3</text></g>
+<g data-id="a text"><text x="1386.00" y="1036.00" font-size="16.10" font-weight="bold" textLength="34.73" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">MD4</text></g>
+<g data-id="#MD4P::name"><text x="1498.00" y="1122.80" font-size="14.00" textLength="37.63" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">MD4P</text></g>
+<g data-id="#MD4P::dims"><text x="1498.00" y="1173.20" font-size="12.60" textLength="18.06" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">W8</text></g>
+<g data-id="#MD4N::name"><text x="1498.00" y="1290.80" font-size="14.00" textLength="38.89" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">MD4N</text></g>
+<g data-id="#MD4N::dims"><text x="1498.00" y="1341.20" font-size="12.60" textLength="18.06" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">W4</text></g>
+<g data-id="%v16::name"><text x="1466.09" y="1040.37" font-size="14.00" textLength="35.83" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">AVDD</text></g>
+<g data-id="a text"><text x="1333.66" y="1225.00" font-size="13.30" font-weight="bold" textLength="17.34" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">D3</text></g>
+<g data-id="a text"><text x="1589.00" y="1226.40" font-size="13.30" font-weight="bold" textLength="27.34" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">CKD</text></g>
+<g data-id="a text"><text x="2338.00" y="1036.00" font-size="16.10" font-weight="bold" textLength="34.00" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">MLB</text></g>
+<g data-id="#MLBP::name"><text x="2450.00" y="1122.80" font-size="14.00" textLength="37.03" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">MLBP</text></g>
+<g data-id="#MLBP::dims"><text x="2450.00" y="1173.20" font-size="12.60" textLength="25.05" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">W16</text></g>
+<g data-id="#MLBN::name"><text x="2450.00" y="1290.80" font-size="14.00" textLength="38.29" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">MLBN</text></g>
+<g data-id="#MLBN::dims"><text x="2450.00" y="1341.20" font-size="12.60" textLength="18.06" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">W8</text></g>
+<g data-id="%v18::name"><text x="2418.09" y="1040.37" font-size="14.00" textLength="35.83" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">AVDD</text></g>
+<g data-id="a text"><text x="2268.41" y="1225.00" font-size="13.30" font-weight="bold" textLength="34.59" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">CKLB</text></g>
+<g data-id="a text"><text x="2541.00" y="1226.40" font-size="13.30" font-weight="bold" textLength="25.54" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">CKL</text></g>
+<g data-id="a text"><text x="1778.00" y="1008.00" font-size="16.10" font-weight="bold" textLength="55.43" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">NAND2</text></g>
+<g data-id="#MPG1::name"><text x="1890.00" y="1094.80" font-size="14.00" textLength="37.65" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">MPG1</text></g>
+<g data-id="#MPG1::dims"><text x="1890.00" y="1145.20" font-size="12.60" textLength="18.06" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">W4</text></g>
+<g data-id="#MPG2::name"><text x="2034.35" y="1094.80" font-size="14.00" textLength="37.65" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">MPG2</text></g>
+<g data-id="#MPG2::dims"><text x="2053.94" y="1145.20" font-size="12.60" textLength="18.06" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">W4</text></g>
+<g data-id="#MNG1::name"><text x="1988.00" y="1290.80" font-size="14.00" textLength="38.91" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">MNG1</text></g>
+<g data-id="#MNG1::dims"><text x="1988.00" y="1341.20" font-size="12.60" textLength="18.06" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">W4</text></g>
+<g data-id="#MNG2::name"><text x="1988.00" y="1430.80" font-size="14.00" textLength="38.91" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">MNG2</text></g>
+<g data-id="#MNG2::dims"><text x="1988.00" y="1481.20" font-size="12.60" textLength="18.06" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">W4</text></g>
+<g data-id="%v20::name"><text x="1956.09" y="970.37" font-size="14.00" textLength="35.83" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">AVDD</text></g>
+<g data-id="a text"><text x="2184.00" y="1204.00" font-size="13.30" font-weight="bold" textLength="34.59" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">CKLB</text></g>
+<g data-id="a text"><text x="1988.00" y="1386.00" font-size="11.20" textLength="15.81" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">NG</text></g>
+<g data-id="a text"><text x="1761.94" y="1115.10" font-size="13.30" font-weight="bold" textLength="34.26" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">CLKC</text></g>
+<g data-id="a text"><text x="2165.80" y="1115.10" font-size="13.30" font-weight="bold" textLength="27.34" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">CKD</text></g>
+<g data-id="a text"><text x="1838.86" y="1311.10" font-size="13.30" font-weight="bold" textLength="27.34" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">CKD</text></g>
+<g data-id="a text"><text x="1831.94" y="1451.10" font-size="13.30" font-weight="bold" textLength="34.26" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">CLKC</text></g>
+<g data-id="a text"><text x="2800.00" y="1008.00" font-size="16.10" font-weight="bold" textLength="44.94" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">NOR2</text></g>
+<g data-id="#MHEP1::name"><text x="2954.00" y="1094.80" font-size="14.00" textLength="46.44" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">MHEP1</text></g>
+<g data-id="#MHEP1::dims"><text x="2954.00" y="1145.20" font-size="12.60" textLength="18.06" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">W8</text></g>
+<g data-id="#MHEP2::name"><text x="2954.00" y="1234.80" font-size="14.00" textLength="46.44" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">MHEP2</text></g>
+<g data-id="#MHEP2::dims"><text x="2954.00" y="1285.20" font-size="12.60" textLength="18.06" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">W8</text></g>
+<g data-id="#MHEN1::name"><text x="2842.00" y="1430.80" font-size="14.00" textLength="47.70" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">MHEN1</text></g>
+<g data-id="#MHEN1::dims"><text x="2842.00" y="1481.20" font-size="12.60" textLength="18.06" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">W4</text></g>
+<g data-id="#MHEN2::name"><text x="3018.30" y="1430.80" font-size="14.00" textLength="47.70" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">MHEN2</text></g>
+<g data-id="#MHEN2::dims"><text x="3047.94" y="1481.20" font-size="12.60" textLength="18.06" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">W4</text></g>
+<g data-id="%v22::name"><text x="2922.09" y="1012.37" font-size="14.00" textLength="35.83" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">AVDD</text></g>
+<g data-id="a text"><text x="2954.00" y="1190.00" font-size="11.90" textLength="16.20" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">HP</text></g>
+<g data-id="a text"><text x="3164.00" y="1358.00" font-size="13.30" font-weight="bold" textLength="26.03" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">CKE</text></g>
+<g data-id="a text"><text x="2819.29" y="1115.10" font-size="13.30" font-weight="bold" textLength="26.91" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">CKB</text></g>
+<g data-id="a text"><text x="2820.66" y="1255.10" font-size="13.30" font-weight="bold" textLength="25.54" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">CKL</text></g>
+<g data-id="a text"><text x="2707.29" y="1451.10" font-size="13.30" font-weight="bold" textLength="26.91" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">CKB</text></g>
+<g data-id="a text"><text x="3173.80" y="1451.10" font-size="13.30" font-weight="bold" textLength="25.54" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">CKL</text></g>
+<g data-id="a text"><text x="0.00" y="1666.00" font-size="14.70" textLength="788.21" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">Equal net labels connect across panels. Dots mark only real T / cross branches; unmarked crossings do not connect.</text></g>
+<g data-id="a text"><text x="0.00" y="1736.00" font-size="14.70" textLength="775.10" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">Drawing-only logic views do not add devices. All 40 MOS and 10 MOM instances are shown once at transistor level.</text></g>
+<g data-id="a wire"><path d="M336.00,-1092.00 L336.00,-1204.00 L588.00,-1204.00 L840.00,-1204.00 L840.00,-1092.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M588.00,-1204.00 L588.00,-1260.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M336.00,-1036.00 L336.00,-952.00 L336.00,-840.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M840.00,-1036.00 L840.00,-952.00 L840.00,-840.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M294.00,-1064.00 L238.00,-1064.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M882.00,-1064.00 L938.00,-1064.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M294.00,-812.00 L210.00,-812.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M882.00,-812.00 L966.00,-812.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M336.00,-784.00 L336.00,-700.00 L490.00,-700.00 L686.00,-700.00 L840.00,-700.00 L840.00,-784.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M490.00,-700.00 L490.00,-588.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M686.00,-700.00 L686.00,-588.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M490.00,-532.00 L490.00,-448.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M686.00,-532.00 L686.00,-448.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M490.00,-448.00 L588.00,-448.00 L686.00,-448.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M588.00,-448.00 L588.00,-406.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M448.00,-560.00 L392.00,-560.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M728.00,-560.00 L784.00,-560.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M56.00,-224.00 L56.00,-154.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M56.00,-98.00 L56.00,-42.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M140.00,-224.00 L140.00,-154.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M140.00,-98.00 L140.00,-42.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M224.00,-224.00 L224.00,-154.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M224.00,-98.00 L224.00,-42.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M308.00,-224.00 L308.00,-154.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M308.00,-98.00 L308.00,-42.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M392.00,-224.00 L392.00,-154.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M392.00,-98.00 L392.00,-42.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M56.00,-224.00 L140.00,-224.00 L224.00,-224.00 L308.00,-224.00 L392.00,-224.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M56.00,-42.00 L140.00,-42.00 L224.00,-42.00 L308.00,-42.00 L392.00,-42.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M224.00,-42.00 L224.00,-0.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M784.00,-224.00 L784.00,-154.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M784.00,-98.00 L784.00,-42.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M868.00,-224.00 L868.00,-154.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M868.00,-98.00 L868.00,-42.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M952.00,-224.00 L952.00,-154.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M952.00,-98.00 L952.00,-42.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M1036.00,-224.00 L1036.00,-154.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M1036.00,-98.00 L1036.00,-42.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M1120.00,-224.00 L1120.00,-154.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M1120.00,-98.00 L1120.00,-42.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M784.00,-224.00 L868.00,-224.00 L952.00,-224.00 L1036.00,-224.00 L1120.00,-224.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M784.00,-42.00 L868.00,-42.00 L952.00,-42.00 L1036.00,-42.00 L1120.00,-42.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M952.00,-42.00 L952.00,-0.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M336.00,-952.00 L0.00,-952.00 L0.00,-224.00 L56.00,-224.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M840.00,-952.00 L1176.00,-952.00 L1176.00,-224.00 L1120.00,-224.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M1204.00,-1288.00 L1372.00,-1288.00 L1568.00,-1288.00 L1820.00,-1288.00 L2072.00,-1288.00 L2268.00,-1288.00 L2436.00,-1288.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M1820.00,-1288.00 L1820.00,-1330.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M1568.00,-1120.00 L1568.00,-1288.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M2072.00,-1120.00 L2072.00,-1288.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M1372.00,-1120.00 L1372.00,-1288.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M2268.00,-1120.00 L2268.00,-1288.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M1372.00,-784.00 L1204.00,-784.00 L1204.00,-1288.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M2268.00,-784.00 L2436.00,-784.00 L2436.00,-1288.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M1568.00,-1064.00 L1568.00,-966.00 L1568.00,-868.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M2072.00,-1064.00 L2072.00,-966.00 L2072.00,-868.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M1372.00,-1064.00 L1372.00,-966.00 L1568.00,-966.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M2268.00,-1064.00 L2268.00,-966.00 L2072.00,-966.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M1568.00,-812.00 L1568.00,-728.00 L1568.00,-672.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M2072.00,-812.00 L2072.00,-728.00 L2072.00,-672.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M1372.00,-728.00 L1568.00,-728.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M2268.00,-728.00 L2072.00,-728.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M1568.00,-966.00 L1624.00,-966.00 L1624.00,-1008.00 L1960.00,-1008.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M2030.00,-840.00 L1960.00,-840.00 L1960.00,-1008.00 L1960.00,-1092.00 L2030.00,-1092.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M2072.00,-966.00 L2016.00,-966.00 L2016.00,-924.00 L1680.00,-924.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M1610.00,-840.00 L1680.00,-840.00 L1680.00,-924.00 L1680.00,-1092.00 L1610.00,-1092.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M1330.00,-1092.00 L1288.00,-1092.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M2310.00,-1092.00 L2352.00,-1092.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M1330.00,-756.00 L1288.00,-756.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M2310.00,-756.00 L2352.00,-756.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M1526.00,-644.00 L1470.00,-644.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M2114.00,-644.00 L2170.00,-644.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M1568.00,-616.00 L1568.00,-504.00 L1722.00,-504.00 L1918.00,-504.00 L2072.00,-504.00 L2072.00,-616.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M1722.00,-504.00 L1722.00,-420.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M1722.00,-364.00 L1722.00,-280.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M1918.00,-504.00 L1918.00,-420.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M1918.00,-364.00 L1918.00,-280.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M1722.00,-280.00 L1820.00,-280.00 L1918.00,-280.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M1820.00,-280.00 L1820.00,-238.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M1680.00,-392.00 L1624.00,-392.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M1960.00,-392.00 L2016.00,-392.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M2534.00,-1120.00 L2618.00,-1120.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M2688.00,-1120.00 L2772.00,-1120.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M2926.00,-1120.00 L3010.00,-1120.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M3080.00,-1120.00 L3164.00,-1120.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M2660.00,-784.00 L2660.00,-826.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M2660.00,-560.00 L2660.00,-504.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M2618.00,-756.00 L2590.00,-756.00 L2590.00,-672.00 L2590.00,-588.00 L2618.00,-588.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M2590.00,-672.00 L2534.00,-672.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M2660.00,-728.00 L2660.00,-672.00 L2660.00,-616.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M2660.00,-672.00 L2758.00,-672.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M3052.00,-784.00 L3052.00,-826.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M3052.00,-560.00 L3052.00,-504.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M3010.00,-756.00 L2982.00,-756.00 L2982.00,-672.00 L2982.00,-588.00 L3010.00,-588.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M2982.00,-672.00 L2926.00,-672.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M3052.00,-728.00 L3052.00,-672.00 L3052.00,-616.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M3052.00,-672.00 L3150.00,-672.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M0.00,448.00 L98.00,448.00 L182.00,448.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M98.00,448.00 L98.00,308.00 L1722.00,308.00 L1722.00,434.00 L1820.00,434.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M252.00,448.00 L406.00,448.00 L560.00,448.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M630.00,448.00 L938.00,448.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M1008.00,448.00 L1316.00,448.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M1386.00,448.00 L1610.00,448.00 L1610.00,462.00 L1820.00,462.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M1904.00,448.00 L2282.00,448.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M2352.00,448.00 L2576.00,448.00 L2576.00,462.00 L2828.00,462.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M406.00,448.00 L406.00,616.00 L2730.00,616.00 L2730.00,434.00 L2828.00,434.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M2912.00,448.00 L3150.00,448.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M224.00,1120.00 L224.00,1078.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M224.00,1344.00 L224.00,1400.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M182.00,1148.00 L154.00,1148.00 L154.00,1232.00 L154.00,1316.00 L182.00,1316.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M154.00,1232.00 L98.00,1232.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M224.00,1176.00 L224.00,1232.00 L224.00,1288.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M224.00,1232.00 L322.00,1232.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M644.00,1120.00 L644.00,1078.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M644.00,1344.00 L644.00,1400.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M602.00,1148.00 L574.00,1148.00 L574.00,1232.00 L574.00,1316.00 L602.00,1316.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M574.00,1232.00 L518.00,1232.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M644.00,1176.00 L644.00,1232.00 L644.00,1288.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M644.00,1232.00 L742.00,1232.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M1064.00,1120.00 L1064.00,1078.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M1064.00,1344.00 L1064.00,1400.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M1022.00,1148.00 L994.00,1148.00 L994.00,1232.00 L994.00,1316.00 L1022.00,1316.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M994.00,1232.00 L938.00,1232.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M1064.00,1176.00 L1064.00,1232.00 L1064.00,1288.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M1064.00,1232.00 L1162.00,1232.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M1484.00,1120.00 L1484.00,1078.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M1484.00,1344.00 L1484.00,1400.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M1442.00,1148.00 L1414.00,1148.00 L1414.00,1232.00 L1414.00,1316.00 L1442.00,1316.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M1414.00,1232.00 L1358.00,1232.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M1484.00,1176.00 L1484.00,1232.00 L1484.00,1288.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M1484.00,1232.00 L1582.00,1232.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M2436.00,1120.00 L2436.00,1078.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M2436.00,1344.00 L2436.00,1400.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M2394.00,1148.00 L2366.00,1148.00 L2366.00,1232.00 L2366.00,1316.00 L2394.00,1316.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M2366.00,1232.00 L2310.00,1232.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M2436.00,1176.00 L2436.00,1232.00 L2436.00,1288.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M2436.00,1232.00 L2534.00,1232.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M1876.00,1092.00 L1876.00,1050.00 L1974.00,1050.00 L2086.00,1050.00 L2086.00,1092.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M1974.00,1050.00 L1974.00,1008.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M1876.00,1148.00 L1876.00,1218.00 L1974.00,1218.00 L2086.00,1218.00 L2086.00,1148.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M1974.00,1218.00 L1974.00,1288.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M2086.00,1218.00 L2184.00,1218.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M1974.00,1344.00 L1974.00,1428.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M1974.00,1484.00 L1974.00,1540.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M1834.00,1120.00 L1806.00,1120.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M2128.00,1120.00 L2156.00,1120.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M1932.00,1316.00 L1876.00,1316.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M1932.00,1456.00 L1876.00,1456.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M2940.00,1092.00 L2940.00,1050.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M2940.00,1148.00 L2940.00,1232.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M2940.00,1288.00 L2940.00,1372.00 L2828.00,1372.00 L2828.00,1428.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M2940.00,1372.00 L3080.00,1372.00 L3080.00,1428.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M3080.00,1372.00 L3164.00,1372.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M2828.00,1484.00 L2828.00,1554.00 L2940.00,1554.00 L3080.00,1554.00 L3080.00,1484.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M2940.00,1554.00 L2940.00,1596.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M2898.00,1120.00 L2856.00,1120.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M2898.00,1260.00 L2856.00,1260.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M2786.00,1456.00 L2744.00,1456.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M3122.00,1456.00 L3164.00,1456.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+</svg>
