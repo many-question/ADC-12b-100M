@@ -1,4 +1,4 @@
-// Split-stage comparator A2: physical integrator, independent latch and physical clock.
+// Split-stage comparator A3: physical integrator, independent latch and physical clock.
 // @RNL(type="header") {
 // @VERSION("0.3");
 // @USE-PACKAGE(name="adc28", version="0.1", path="../../../rnl/adc28.rnl")
@@ -42,12 +42,8 @@ MB0P (CKB CLKC AVDD AVDD) pch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e
 MB0N (CKB CLKC VSS VSS) nch_ulvt_mac l=3e-08 w=2e-06 nf=2 m=1 ad=1e-13 as=1.5e-13 pd=2.2e-06 ps=4.3e-06 nrd=0.185844 nrs=0.185844 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
 MB1P (CKF CKB AVDD AVDD) pch_ulvt_mac l=3e-08 w=8e-06 nf=8 m=1 ad=4e-13 as=4.5e-13 pd=8.8e-06 ps=1.09e-05 nrd=0.024976 nrs=0.024976 sa=2.95835e-07 sb=2.95835e-07 sd=1e-07
 MB1N (CKF CKB VSS VSS) nch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-13 pd=4.4e-06 ps=6.5e-06 nrd=0.108289 nrs=0.108289 sa=1.79203e-07 sb=1.79203e-07 sd=1e-07
-MD1P (D1 CKF AVDD AVDD) pch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-13 pd=4.4e-06 ps=6.5e-06 nrd=0.048530 nrs=0.048530 sa=1.79203e-07 sb=1.79203e-07 sd=1e-07
-MD1N (D1 CKF VSS VSS) nch_ulvt_mac l=3e-08 w=2e-06 nf=2 m=1 ad=1e-13 as=1.5e-13 pd=2.2e-06 ps=4.3e-06 nrd=0.185844 nrs=0.185844 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
-MD2P (D2 D1 AVDD AVDD) pch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-13 pd=4.4e-06 ps=6.5e-06 nrd=0.048530 nrs=0.048530 sa=1.79203e-07 sb=1.79203e-07 sd=1e-07
-MD2N (D2 D1 VSS VSS) nch_ulvt_mac l=3e-08 w=2e-06 nf=2 m=1 ad=1e-13 as=1.5e-13 pd=2.2e-06 ps=4.3e-06 nrd=0.185844 nrs=0.185844 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
-MD3P (D3 D2 AVDD AVDD) pch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-13 pd=4.4e-06 ps=6.5e-06 nrd=0.048530 nrs=0.048530 sa=1.79203e-07 sb=1.79203e-07 sd=1e-07
-MD3N (D3 D2 VSS VSS) nch_ulvt_mac l=3e-08 w=2e-06 nf=2 m=1 ad=1e-13 as=1.5e-13 pd=2.2e-06 ps=4.3e-06 nrd=0.185844 nrs=0.185844 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
+MD3P (D3 CKF AVDD AVDD) pch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-13 pd=4.4e-06 ps=6.5e-06 nrd=0.048530 nrs=0.048530 sa=1.79203e-07 sb=1.79203e-07 sd=1e-07
+MD3N (D3 CKF VSS VSS) nch_ulvt_mac l=3e-08 w=2e-06 nf=2 m=1 ad=1e-13 as=1.5e-13 pd=2.2e-06 ps=4.3e-06 nrd=0.185844 nrs=0.185844 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
 MD4P (CKD D3 AVDD AVDD) pch_ulvt_mac l=3e-08 w=8e-06 nf=8 m=1 ad=4e-13 as=4.5e-13 pd=8.8e-06 ps=1.09e-05 nrd=0.024976 nrs=0.024976 sa=2.95835e-07 sb=2.95835e-07 sd=1e-07
 MD4N (CKD D3 VSS VSS) nch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-13 pd=4.4e-06 ps=6.5e-06 nrd=0.108289 nrs=0.108289 sa=1.79203e-07 sb=1.79203e-07 sd=1e-07
 MNG1 (CKLB CLKC NG VSS) nch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-13 pd=4.4e-06 ps=6.5e-06 nrd=0.108289 nrs=0.108289 sa=1.79203e-07 sb=1.79203e-07 sd=1e-07
@@ -60,12 +56,12 @@ MHEP1 (HP CKB AVDD AVDD) pch_ulvt_mac l=3e-08 w=8e-06 nf=8 m=1 ad=4e-13 as=4.5e-
 MHEP2 (CKE CKL HP AVDD) pch_ulvt_mac l=3e-08 w=8e-06 nf=8 m=1 ad=4e-13 as=4.5e-13 pd=8.8e-06 ps=1.09e-05 nrd=0.024976 nrs=0.024976 sa=2.95835e-07 sb=2.95835e-07 sd=1e-07
 MHEN1 (CKE CKB VSS VSS) nch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-13 pd=4.4e-06 ps=6.5e-06 nrd=0.108289 nrs=0.108289 sa=1.79203e-07 sb=1.79203e-07 sd=1e-07
 MHEN2 (CKE CKL VSS VSS) nch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-13 pd=4.4e-06 ps=6.5e-06 nrd=0.108289 nrs=0.108289 sa=1.79203e-07 sb=1.79203e-07 sd=1e-07
-// @RNL(author="splitstage-a2") {
+// @RNL(author="splitstage-a3") {
 // # @SELECT-INSTANCE => @TEXT("",key="model");
 // # @SELECT-TERMINAL => @REMOVE-FROM $GROUND_FILL_SET;
 // # @SELECT-TERMINAL => @REMOVE-FROM $SUPPLY_FILL_SET;
 // # @SELECT-NET(port=true) => @REMOVE-FROM $PORT_FILL_SET;
-// (0,151) @TEXT("A2 front integrator | W56 pair, 2 x W3 tail, 5 x C52 per node",size=1.5,bold=true);
+// (0,151) @TEXT("A3 front integrator | W56 pair, 2 x W3 tail, 5 x C52 per node",size=1.5,bold=true);
 // (160,151) @TEXT("Independent latch | gate-only DN / DP coupling | physical RTZ buffers",size=1.5,bold=true);
 // (0,39) @TEXT("Clock: CKL = CLKC AND CKD; CKE = NOR(CKB, CKL) stops front tail; reset stays CKF",size=1.4,bold=true);
 // (0,-23) @TEXT("Every physical device and pin is shown. Wires terminate at exact net labels; equal labels are electrically connected.",size=1.1);
@@ -549,66 +545,6 @@ MHEN2 (CKE CKL VSS VSS) nch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-1
 // %p_MB1N_4 = (38,-9);
 // &VSS @WIRE(mode="horizontal-vertical") {#MB1N:4 %p_MB1N_4};
 // (38.3,-9) @TEXT("VSS",size=.75,bold=true,halign="start");
-// #MD1P @PLACE(64,20) => @ORIENT("R0");
-// #MD1P @TEXT("MD1P",key="name",size=.85,dx=2.2,dy=2.5,halign="start");
-// #MD1P @TEXT("4um/30nm nf4",key="dims",size=.7,dx=2.2,dy=.3,halign="start");
-// %p_MD1P_1 = (64,14);
-// &D1 @WIRE(mode="horizontal-vertical") {#MD1P:1 %p_MD1P_1};
-// (64,13) @TEXT("D1",size=.75,bold=true,halign="middle");
-// %p_MD1P_2 = (57,20);
-// &CKF @WIRE(mode="horizontal-vertical") {#MD1P:2 %p_MD1P_2};
-// (56.7,20) @TEXT("CKF",size=.75,bold=true,halign="end");
-// %p_MD1P_3 = (64,26);
-// &AVDD @WIRE(mode="horizontal-vertical") {#MD1P:3 %p_MD1P_3};
-// (64,27) @TEXT("AVDD",size=.75,bold=true,halign="middle");
-// %p_MD1P_4 = (70,15);
-// &AVDD @WIRE(mode="horizontal-vertical") {#MD1P:4 %p_MD1P_4};
-// (70.3,15) @TEXT("AVDD",size=.75,bold=true,halign="start");
-// #MD1N @PLACE(64,-4) => @ORIENT("R0");
-// #MD1N @TEXT("MD1N",key="name",size=.85,dx=2.2,dy=2.5,halign="start");
-// #MD1N @TEXT("2um/30nm nf2",key="dims",size=.7,dx=2.2,dy=.3,halign="start");
-// %p_MD1N_1 = (64,2);
-// &D1 @WIRE(mode="horizontal-vertical") {#MD1N:1 %p_MD1N_1};
-// (64,3) @TEXT("D1",size=.75,bold=true,halign="middle");
-// %p_MD1N_2 = (57,-4);
-// &CKF @WIRE(mode="horizontal-vertical") {#MD1N:2 %p_MD1N_2};
-// (56.7,-4) @TEXT("CKF",size=.75,bold=true,halign="end");
-// %p_MD1N_3 = (64,-10);
-// &VSS @WIRE(mode="horizontal-vertical") {#MD1N:3 %p_MD1N_3};
-// (64,-11) @TEXT("VSS",size=.75,bold=true,halign="middle");
-// %p_MD1N_4 = (70,-9);
-// &VSS @WIRE(mode="horizontal-vertical") {#MD1N:4 %p_MD1N_4};
-// (70.3,-9) @TEXT("VSS",size=.75,bold=true,halign="start");
-// #MD2P @PLACE(96,20) => @ORIENT("R0");
-// #MD2P @TEXT("MD2P",key="name",size=.85,dx=2.2,dy=2.5,halign="start");
-// #MD2P @TEXT("4um/30nm nf4",key="dims",size=.7,dx=2.2,dy=.3,halign="start");
-// %p_MD2P_1 = (96,14);
-// &D2 @WIRE(mode="horizontal-vertical") {#MD2P:1 %p_MD2P_1};
-// (96,13) @TEXT("D2",size=.75,bold=true,halign="middle");
-// %p_MD2P_2 = (89,20);
-// &D1 @WIRE(mode="horizontal-vertical") {#MD2P:2 %p_MD2P_2};
-// (88.7,20) @TEXT("D1",size=.75,bold=true,halign="end");
-// %p_MD2P_3 = (96,26);
-// &AVDD @WIRE(mode="horizontal-vertical") {#MD2P:3 %p_MD2P_3};
-// (96,27) @TEXT("AVDD",size=.75,bold=true,halign="middle");
-// %p_MD2P_4 = (102,15);
-// &AVDD @WIRE(mode="horizontal-vertical") {#MD2P:4 %p_MD2P_4};
-// (102.3,15) @TEXT("AVDD",size=.75,bold=true,halign="start");
-// #MD2N @PLACE(96,-4) => @ORIENT("R0");
-// #MD2N @TEXT("MD2N",key="name",size=.85,dx=2.2,dy=2.5,halign="start");
-// #MD2N @TEXT("2um/30nm nf2",key="dims",size=.7,dx=2.2,dy=.3,halign="start");
-// %p_MD2N_1 = (96,2);
-// &D2 @WIRE(mode="horizontal-vertical") {#MD2N:1 %p_MD2N_1};
-// (96,3) @TEXT("D2",size=.75,bold=true,halign="middle");
-// %p_MD2N_2 = (89,-4);
-// &D1 @WIRE(mode="horizontal-vertical") {#MD2N:2 %p_MD2N_2};
-// (88.7,-4) @TEXT("D1",size=.75,bold=true,halign="end");
-// %p_MD2N_3 = (96,-10);
-// &VSS @WIRE(mode="horizontal-vertical") {#MD2N:3 %p_MD2N_3};
-// (96,-11) @TEXT("VSS",size=.75,bold=true,halign="middle");
-// %p_MD2N_4 = (102,-9);
-// &VSS @WIRE(mode="horizontal-vertical") {#MD2N:4 %p_MD2N_4};
-// (102.3,-9) @TEXT("VSS",size=.75,bold=true,halign="start");
 // #MD3P @PLACE(128,20) => @ORIENT("R0");
 // #MD3P @TEXT("MD3P",key="name",size=.85,dx=2.2,dy=2.5,halign="start");
 // #MD3P @TEXT("4um/30nm nf4",key="dims",size=.7,dx=2.2,dy=.3,halign="start");
@@ -616,8 +552,8 @@ MHEN2 (CKE CKL VSS VSS) nch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-1
 // &D3 @WIRE(mode="horizontal-vertical") {#MD3P:1 %p_MD3P_1};
 // (128,13) @TEXT("D3",size=.75,bold=true,halign="middle");
 // %p_MD3P_2 = (121,20);
-// &D2 @WIRE(mode="horizontal-vertical") {#MD3P:2 %p_MD3P_2};
-// (120.7,20) @TEXT("D2",size=.75,bold=true,halign="end");
+// &CKF @WIRE(mode="horizontal-vertical") {#MD3P:2 %p_MD3P_2};
+// (120.7,20) @TEXT("CKF",size=.75,bold=true,halign="end");
 // %p_MD3P_3 = (128,26);
 // &AVDD @WIRE(mode="horizontal-vertical") {#MD3P:3 %p_MD3P_3};
 // (128,27) @TEXT("AVDD",size=.75,bold=true,halign="middle");
@@ -631,8 +567,8 @@ MHEN2 (CKE CKL VSS VSS) nch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-1
 // &D3 @WIRE(mode="horizontal-vertical") {#MD3N:1 %p_MD3N_1};
 // (128,3) @TEXT("D3",size=.75,bold=true,halign="middle");
 // %p_MD3N_2 = (121,-4);
-// &D2 @WIRE(mode="horizontal-vertical") {#MD3N:2 %p_MD3N_2};
-// (120.7,-4) @TEXT("D2",size=.75,bold=true,halign="end");
+// &CKF @WIRE(mode="horizontal-vertical") {#MD3N:2 %p_MD3N_2};
+// (120.7,-4) @TEXT("CKF",size=.75,bold=true,halign="end");
 // %p_MD3N_3 = (128,-10);
 // &VSS @WIRE(mode="horizontal-vertical") {#MD3N:3 %p_MD3N_3};
 // (128,-11) @TEXT("VSS",size=.75,bold=true,halign="middle");
@@ -832,6 +768,6 @@ MHEN2 (CKE CKL VSS VSS) nch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-1
 // #MSIP(in_p) #MSIN(in_n) @AS $DIFFERENTIAL_PAIR;
 // {#MINP #MINN #MFT1 #MFT2 #MRDP #MRDN #CDP1 #CDP2 #CDP3 #CDP4 #CDP5 #CDN1 #CDN2 #CDN3 #CDN4 #CDN5} @GROUP;
 // {#MSIP #MSIN #MST1 #MST2 #MLNP #MLNN #MLPP #MLPN #MRXP #MRXN #MRQP #MRQN #MOPP #MOPN #MONP #MONN} @GROUP;
-// {#MB0P #MB0N #MB1P #MB1N #MD1P #MD1N #MD2P #MD2N #MD3P #MD3N #MD4P #MD4N #MNG1 #MNG2 #MPG1 #MPG2 #MLBP #MLBN #MHEP1 #MHEP2 #MHEN1 #MHEN2} @GROUP;
+// {#MB0P #MB0N #MB1P #MB1N #MD3P #MD3N #MD4P #MD4N #MNG1 #MNG2 #MPG1 #MPG2 #MLBP #MLBN #MHEP1 #MHEP2 #MHEN1 #MHEN2} @GROUP;
 // }
 ends adc_comp
