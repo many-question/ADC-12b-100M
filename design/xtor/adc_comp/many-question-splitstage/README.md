@@ -1,5 +1,7 @@
 # Split-stage comparator A3
 
+**A3 fails the subsequent representative-corner gate.** SF high voltage at -40 C has eight CMP-15 violations (loser peak 34.2195% VDD) and MNG1 Vds=1.116376 V against 1.1 V. SS and FF pass the bounded gate; a separate tighter TT diagnostic also passes but retains narrow margins. See [the failure measurements and mechanism](A3-GATES.md). CM endpoints and all noise testing stopped before dispatch. Status remains `wip`.
+
 **A3 passes the initial TT/FS deterministic and TT loading screen, with narrow TT timing/validity margins.** TT30mV=49.5278ps, TT loser peak=27.2491% VDD; see [A3 measurements and remaining gates](A3-SCREEN.md). No noise or qualification claim is made. It removes MD1P/MD1N/MD2P/MD2N, connects MD3P/MD3N gates to CKF, and preserves every other A2 instance. The current clock chain has two inverters, MD3 and MD4. [A2 remains frozen at 7fa8baf4](https://github.com/many-question/ADC-12b-100M/tree/7fa8baf44200b05e2e4da2d501600f1c0aa6c588/design/xtor/adc_comp/many-question-splitstage).
 
 **A2 restores 36/36 deterministic decisions at TT and FS, but TT 30 mV delay is 56.7251 ps and still fails 50 ps.** See [A2 measurements and hold limitations](A2-SCREEN.md). Only two delay jobs were run; no A2 loading or noise result is available. A1 source and results remain frozen at [d948f9af](https://github.com/many-question/ADC-12b-100M/tree/d948f9af607cb669d18d37c2175624e726b4f7e3/design/xtor/adc_comp/many-question-splitstage). A2 adds only a four-MOS NOR2, CKE=NOT(CKB OR CKL), and connects the two front-tail gates to CKE. Front resets stay on CKF; all analog geometries, MOMs, four delay stages and the second latch are unchanged. The old TT loading record belongs to A1 and is stale for A2.
@@ -17,7 +19,7 @@ CLKC drives two physical inverters to CKF. CKF passes through two further invert
 - At a separate fixed FS diagnostic point, the unchanged W56 input geometry gave gm 21.68 mS and gds 4.23 mS at 1.75 mA per branch. This does not support the original 25.36–38.04 mS planning assumption. It is not a bound on all possible transient operating points.
 - The old source released its front resets approximately 10–12 ps after CLKC 50%. The added physical clock path may consume much of the TT 50 ps budget. Neither timing nor noise feasibility is established.
 - The 0.3–0.8 pJ energy range is planning context only. CMP-10 is reported without an acceptance limit. The official CMP-14 limit is 16 fF; 15 fF is only an optional margin target.
-- Only TT and FS official 36-cycle noise-off delay tests and TT loading are authorized initially. Noise, mismatch, remaining corners and common-mode endpoints are untested. Any TT 30 mV delay failure or absence of a useful gain interval stops expansion.
+- The initial TT/FS and TT loading screen passed on A3. The subsequent SS/FF/SF gate failed at SF; noise, mismatch, remaining corners and common-mode endpoints remain untested. Expansion is stopped.
 - Simplified 4kTγ/∫gm and weighted variants, and any RSS allocation, are assumptions rather than hard bounds or proof that reset/front/latch noise are independent.
 
 ## History
