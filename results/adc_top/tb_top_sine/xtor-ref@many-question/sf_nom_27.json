@@ -23,63 +23,63 @@
  "metrics": {
   "n_samples": 2049,
   "missing_rdy": 0,
-  "t_conv_max_ns": 2.8374989999999998,
-  "t_conv_mean_ns": 2.7360599794921874,
+  "t_conv_max_ns": 2.800954,
+  "t_conv_mean_ns": 2.735928086914063,
   "cal_independent": true,
   "weights_cal": [
-   1960.458,
-   1120.266,
-   636.158,
-   360.114,
-   204.008,
-   114.017,
-   63.953,
-   35.957,
-   19.942,
-   11.876,
-   5.96,
-   3.635,
-   1.773,
-   0.883
+   1960.452,
+   1120.264,
+   636.148,
+   360.141,
+   204.018,
+   114.029,
+   63.932,
+   35.983,
+   19.904,
+   11.874,
+   5.963,
+   3.631,
+   1.75,
+   0.911
   ],
-  "enob": 10.85161878966652,
-  "sndr_dBc": 67.08674511379246,
-  "sfdr_dBc": 84.92308977398595,
-  "snr_dBc": 67.18829714105945,
-  "thd_dBc": -83.53415383797709,
-  "enob_nom": 10.801514915600801,
-  "sndr_nom_dBc": 66.78511979191683,
-  "sfdr_nom_dBc": 84.96946677289264,
-  "snr_nom_dBc": 66.9041514275011,
-  "thd_nom_dBc": -82.53725830523635,
-  "amp_codes": 2019.837781742001,
-  "fs_peak_V": 0.9943793579777211,
+  "enob": 10.891944893465203,
+  "sndr_dBc": 67.32950825866052,
+  "sfdr_dBc": 83.31747799479068,
+  "snr_dBc": 67.45594007141678,
+  "thd_dBc": -82.75185026919843,
+  "enob_nom": 10.837543182267936,
+  "sndr_nom_dBc": 67.00200995725298,
+  "sfdr_nom_dBc": 83.21748156051599,
+  "snr_nom_dBc": 67.14753248826811,
+  "thd_nom_dBc": -81.82310876888741,
+  "amp_codes": 2019.80769539228,
+  "fs_peak_V": 0.994394169905207,
   "code_min": 249,
-  "code_max": 4289,
+  "code_max": 4290,
   "spike_count": 0,
-  "spike_max_lsb": 2.122680718279298,
+  "spike_max_lsb": 2.169619308738902,
   "spike_index": [],
-  "p_avdd_mW": 0.27686497338,
-  "p_dvdd_mW": 0.21049147962,
-  "p_avdd18_mW": 35.096122098,
-  "power_mW": 35.583478551
+  "p_avdd_mW": 0.2774679525,
+  "p_dvdd_mW": 0.21162947265,
+  "p_avdd18_mW": 35.096179392,
+  "power_mW": 35.58527681715
  },
  "specs": {
   "TOP-01": {
    "metric": "enob",
-   "value": 10.85161878966652,
+   "value": 10.891944893465203,
    "limit": ">= 10.5",
    "pass": true
   },
   "TOP-03": {
    "metric": "sfdr_dBc",
-   "value": 84.92308977398595,
+   "value": 83.31747799479068,
    "limit": ">= 75",
    "pass": true
   },
   "TOP-04": {
    "metric": "fs_peak_V",
-   "value": 0.9943793579777211,
+   "value": 0.994394169905207,
    "limit": ">= 0.95",
    "pass": true
   },
@@ -91,7 +91,7 @@
   },
   "TOP-06": {
    "metric": "t_conv_max_ns",
-   "value": 2.8374989999999998,
+   "value": 2.800954,
    "limit": "<= 4.4",
    "pass": true
   },
@@ -105,7 +105,7 @@
  "specs_na": {
   "TOP-02": {
    "metric": "enob",
-   "value": 10.85161878966652,
+   "value": 10.891944893465203,
    "limit": ">= 10.75",
    "corners": "typ"
   }
@@ -121,29 +121,30 @@
   }
  ],
  "meta": {
-  "date": "2026-10-30T15:04:19",
-  "git": "98497ac",
+  "date": "2026-10-31T15:51:04",
+  "git": "c6152d2",
   "git_clean": true,
   "mode": "aps",
   "pdk": true,
   "mc": null,
-  "wall_s": 1767.5,
+  "wall_s": 2496.6,
   "rc": "0",
-  "sim_s": "748",
+  "sim_s": "1017",
   "numerics": {
    "source": "spectre.log",
-   "reltol": 0.001,
-   "maxstep_ps": 410520.0,
-   "method": "traponly",
-   "errpreset": "moderate",
-   "lteratio": 3.5,
+   "reltol": 0.0001,
+   "maxstep_ps": 205260.0,
+   "method": "gear2only",
+   "errpreset": "conservative",
+   "lteratio": 10.0,
+   "relref": "alllocal",
    "abstol_V": 1e-06,
-   "steps_accepted": 3593597,
-   "step_mean_ps": 5.71183,
+   "steps_accepted": 5075117,
+   "step_mean_ps": 4.04444,
    "step_max_ps": null
   },
   "files": {
-   "tb/top/tb_top_sine.scs": "d131f9666cdb9650",
+   "tb/top/tb_top_sine.scs": "3a685ccced0de8ea",
    "tb/common/veriloga/tb_imeter_va.va": "d4be49aca417ad61",
    "tb/common/veriloga/tb_capture_va.va": "1a05df990a1ef806",
    "tb/common/veriloga/tb_rsrc_va.va": "66b85ead5a038eb0",
@@ -178,10 +179,9 @@
   },
   "provenance": {
    "spectrum": {
-    "estimator": "adcflow.spectrum v1",
-    "adctoolbox": "0.6.4",
-    "sfdr": "plotspec definition: peak bin of the fundamental / largest other single bin (DC and signal bins excluded, Nyquist included)",
-    "enob_sndr_snr_thd": "adctoolbox 0.6.4 compute_spectrum"
+    "estimator": "adctoolbox 0.9.1 @ cd72061 compute_spectrum",
+    "adctoolbox": "0.9.1",
+    "adctoolbox_commit": "cd72061"
    }
   }
  }
