@@ -1,0 +1,66 @@
+"""Independent audit: reads both files itself; does not use construction maps or adcflow parser."""
+from pathlib import Path
+import re,json,hashlib,sys,collections
+assert len(sys.argv)==3, 'Usage: python hierarchy-check.txt BEFORE.scs AFTER.scs'
+BEFORE=Path(sys.argv[1]); F=Path(sys.argv[2])
+def read(path):
+    scopes={};scope=None
+    for raw in path.read_text().splitlines():
+        t=raw.split('//',1)[0].strip()
+        if not t or t.startswith('*'):continue
+        assert not t.endswith('\\'), 'Independent parser does not support continuations'
+        if t.startswith('subckt '):
+            m=re.fullmatch(r'subckt (\w+) \(([^()]*)\)',t);assert m,t
+            scope={'ports':m[2].split(),'devices':[]};scopes[m[1]]=scope
+        elif t.startswith('ends '):scope=None
+        elif scope is not None:
+            m=re.fullmatch(r'(\w+) \(([^()]*)\) (\w+)(.*)',t);assert m,t
+            scope['devices'].append({'name':m[1],'nodes':m[2].split(),'model':m[3],'params':dict(re.findall(r'(\w+)=([^\s]+)',m[4]))})
+            assert ' '.join(k+'='+v for k,v in scope['devices'][-1]['params'].items())==m[4].strip(),t
+    return scopes
+def flat(scopes):
+    leaves={};nets=set()
+    def descend(name,prefix,bind):
+        for d in scopes[name]['devices']:
+            name2=prefix+d['name'];nodes=[bind.get(n,'0' if n=='0' else prefix+n) for n in d['nodes']]
+            if d['model'] in scopes:
+                ports=scopes[d['model']]['ports'];assert len(ports)==len(nodes)
+                descend(d['model'],name2+'.',dict(zip(ports,nodes)))
+            else:
+                assert name2 not in leaves
+                leaves[name2]={'model':d['model'],'params':d['params'],'nodes':nodes};nets.update(nodes)
+    descend('adc_cdac','',{p:p for p in scopes['adc_cdac']['ports']})
+    return leaves,nets
+a=read(BEFORE);b=read(F)
+assert a['adc_cdac']['ports']==b['adc_cdac']['ports']
+fa,na=flat(a);fb,nb=flat(b)
+devmap={};netmap={p:p for p in a['adc_cdac']['ports']};reverse={p:p for p in a['adc_cdac']['ports']}
+for name,d in fa.items():
+    m=re.match(r'XB(\d+)\.(.+)',name)
+    if m:
+        j,tail=m.groups()
+        newname='XCAP.B'+j+'_'+tail if d['model'] in ['cfmom_2t','capacitor'] else 'XSW.XSW'+j+'.'+tail
+    elif name.startswith(('XEN.','XAPULSE.')):newname='XSW.'+name
+    else:newname=name
+    devmap[name]=newname;other=fb[newname]
+    assert d['model']==other['model'],name
+    assert d['params']==other['params'],name
+    assert len(d['nodes'])==len(other['nodes']),name
+    for oldn,newn in zip(d['nodes'],other['nodes']):
+        assert oldn not in netmap or netmap[oldn]==newn,(name,oldn,newn,netmap.get(oldn))
+        assert newn not in reverse or reverse[newn]==oldn,(name,newn)
+        netmap[oldn]=newn;reverse[newn]=oldn
+assert set(devmap.values())==set(fb) and len(devmap)==len(fb)
+assert set(netmap)==na and set(reverse)==nb
+for j in range(13):
+    for s in 'HL':assert netmap[f'XB{j}.B{s}']==f'BP{s}{j}'
+for j in [7,2,0]:
+    for s in 'HL':assert netmap[f'XB{j}.MID{s}']==f'MID{s}{j}'
+assert {d['model'] for d in b['mq_cdac_cap_array']['devices']}=={'cfmom_2t','capacitor'}
+assert all(n.startswith('XCAP.') for n,d in fb.items() if d['model'] in ['cfmom_2t','capacitor'])
+assert len(b['mq_cdac_cap_array']['devices'])==72
+for j in [9,6]:
+    inst=next(d for d in b['mq_cdac_switch_array']['devices'] if d['name']==f'XSW{j}')
+    bind=dict(zip(b[inst['model']]['ports'],inst['nodes']));assert bind['EN']=='DVDD' and bind['ENB']=='VREFN'
+
+print('PASS:',len(fa),'leaf devices;',len(netmap),'bijective nets;',len(a['adc_cdac']['ports']),'ordered ports; models, parameters and terminal order including bulk equal.')

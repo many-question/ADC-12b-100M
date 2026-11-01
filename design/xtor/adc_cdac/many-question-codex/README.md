@@ -1,6 +1,6 @@
 # CDAC candidate
 
-Current status (2026-11-01): new electrical changes and further simulations are
+Current status (2026-11-01): electrical optimization and further simulations are
 stopped at the user's request pending the coordinated DAC-12 budget issue.
 V29 TT fails Qref at 1.269059280 pC against 1.2 pC. Two already launched
 supply-allocation trials completed: V32 still fails at 1.227138535 pC;
@@ -9,14 +9,22 @@ V33 passes all ten applicable TT settle/charge/loading metrics at
 1.1 V terminal screen. V33 moves about 77 fC of reference load to DVDD;
 the measured two-supply energy is essentially unchanged. It has no new
 SS/FF/FFT validation and is not promoted. There are zero active jobs.
-The formal N4 electrical source and 1.2 pC limit remain unchanged. See the final
+The formal N4 device parameters/connectivity and 1.2 pC limit remain unchanged. See the final
 sections of the [evidence ledger](sampling-entry-diagnosis.md).
 
-Drawing update (2026-11-01): the [schematic review](schematic-review.md)
-provides before/after previews, readable array details and V29/V33 diagnostic
-supply diagrams. All 31 N4 hierarchy views are in the RNL source. Only RNL comments changed;
-all non-RNL bytes and the status of all 397 recorded results are unchanged.
-No simulations or result rehashing were performed for this update.
+Hierarchy update (2026-11-01): the user requested a layout-oriented partition.
+The formal source now has a pure capacitor array (`XCAP`) and a separate bottom
+switch/driver array (`XSW`), connected by 26 bottom plates and six series midpoints.
+The wrapper retains the TOP reset/dummy devices and all 37 external ports in order.
+All 33 hierarchy views are in the [RNL source](adc_cdac.scs); see the
+[new top-level drawing](schematic-array.png) and [equivalence report](schematic-review.md).
+Independent flattening confirms all 612 devices and 271 nets are equivalent,
+including bulk terminals, MOM multiplicities and every 5% Cp.
+This is an electrical hierarchy edit: the dependency hash changes from
+`e51ec096bda93b5c` to `4dbb1486ab9992ae`. All 397 recorded results are byte-identical;
+five already-stale N4 results acquire an additional source-hash stale reason.
+Static equivalence is not current acceptance. No simulations or result rehashing
+were performed; V29/V33 source and evidence remain unchanged.
 
 Evidence-retention update (2026-10-31): superseded large raw waveforms and
 duplicate caches/archives have been released under the user's retention policy.
