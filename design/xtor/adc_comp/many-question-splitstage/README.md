@@ -1,6 +1,6 @@
 # Split-stage comparator A6
 
-**A6 is an independent W6 second-input-pair experiment; qualification is pending.** Only MSIP/MSIN change W4/nf4 to W6/nf6 with complete verified callback parameters. All connections, tail devices and other geometries remain A5. See [A6 scope and evidence](A6-SCREEN.md). A5 results below are historical and cannot be inherited by A6; unchanged old result records remain stale until rerun.
+**A6 passes its four-job TT/SF/FS deterministic and TT loading screen; physical noise is untested.** Only MSIP/MSIN change W4/nf4 to W6/nf6 using complete callback geometry; all connections and remaining devices stay A5. TT d30=47.149668074361 ps (2.850331925639 ps margin); all three delay corners are36/36 correct/reset with CMP-15 and120-pair SOA passing. See [A6 measurements and mechanism](A6-SCREEN.md). A5 results below are historical and cannot qualify A6; old SS/FF/noise records remain stale.
 
 **A5 fails the full FS physical-noise gate:** 341.8605253429254 uV rms (95% CI 330.4249508199212–353.8682080578653 uV), above the 240 uV limit. See [the retained FS noise result](A5-NOISE.md). TT noise was not dispatched. Status remains `wip`, with deterministic passes and all earlier failures preserved.
 
