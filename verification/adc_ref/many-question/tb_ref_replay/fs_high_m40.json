@@ -10,8 +10,8 @@
   "result": "results/adc_ref/tb_ref_replay/xtor-many-question/fs_high_m40.json",
   "netlist": "design/xtor/adc_ref/many-question/adc_ref.scs",
   "netlist_hash": "2b1163f0eb481376",
-  "date": "2026-10-30T02:27:47",
-  "git": "8ac9c9f",
+  "date": "2026-10-31T13:19:21",
+  "git": "c6152d2",
   "mode": "aps"
  },
  "params": {
@@ -32,52 +32,52 @@
  },
  "metrics": {
   "n_samples": 15840,
-  "enob_ideal_ref": 10.913433133790065,
-  "enob_ref": 10.872214921920278,
-  "sfdr_ref_dBc": 84.20489858793655,
-  "enob_loss_bit": 0.04121821186978636,
-  "tail_dev_uV": 46.728842300058915,
-  "env_ratio": 0.6305469856917846,
+  "enob_ideal_ref": 10.913568381131862,
+  "enob_ref": 10.868238842147953,
+  "sfdr_ref_dBc": 83.69265650301097,
+  "enob_loss_bit": 0.04532953898390879,
+  "tail_dev_uV": 46.40074660000604,
+  "env_ratio": 0.6309830760158771,
   "env_ratio_per_decision": [
-   0.0477,
-   0.3778,
-   0.6305,
-   0.5638,
-   0.3355,
-   0.3455,
-   0.3431,
-   0.2887,
-   0.2675,
-   0.1552,
-   0.2448
+   0.0462,
+   0.3779,
+   0.631,
+   0.5625,
+   0.3275,
+   0.3374,
+   0.3345,
+   0.2801,
+   0.2606,
+   0.1253,
+   0.2397
   ],
   "env_ratio_decision": 3,
-  "start_pp_uV": 14.808521200060376,
-  "droop_max_mV": 25.332082312538695,
-  "vrefp_V": 0.9005741956752387
+  "start_pp_uV": 26.202898899985172,
+  "droop_max_mV": 25.374707998313873,
+  "vrefp_V": 0.9005879004115138
  },
  "specs": {
   "REF-12": {
    "metric": "enob_loss_bit",
-   "value": 0.04121821186978636,
+   "value": 0.04532953898390879,
    "limit": "<= 0.1",
    "pass": true
   },
   "REF-13": {
    "metric": "tail_dev_uV",
-   "value": 46.728842300058915,
+   "value": 46.40074660000604,
    "limit": "<= 200",
    "pass": true
   },
   "REF-14": {
    "metric": "start_pp_uV",
-   "value": 14.808521200060376,
+   "value": 26.202898899985172,
    "limit": "<= 100",
    "pass": true
   },
   "REF-21": {
    "metric": "env_ratio",
-   "value": 0.6305469856917846,
+   "value": 0.6309830760158771,
    "limit": "<= 1",
    "pass": true
   }
@@ -110,38 +110,38 @@
   },
   "metrics": {
    "droop_max_mV": {
-    "self": 25.332082312538695,
-    "rerun": 25.332082312538695,
+    "self": 25.374707998313873,
+    "rerun": 25.374707998313873,
     "diff": 0.0,
-    "tol": 0.5066416462507739,
+    "tol": 0.5074941599662774,
     "ok": true
    },
    "enob_ideal_ref": {
-    "self": 10.913433133790065,
-    "rerun": 10.913433133790065,
+    "self": 10.913568381131862,
+    "rerun": 10.913568381131862,
     "diff": 0.0,
     "tol": 0.05,
     "ok": true
    },
    "enob_loss_bit": {
-    "self": 0.04121821186978636,
-    "rerun": 0.04121821186978636,
+    "self": 0.04532953898390879,
+    "rerun": 0.04532953898390879,
     "diff": 0.0,
     "tol": 0.05,
     "ok": true
    },
    "enob_ref": {
-    "self": 10.872214921920278,
-    "rerun": 10.872214921920278,
+    "self": 10.868238842147953,
+    "rerun": 10.868238842147953,
     "diff": 0.0,
     "tol": 0.05,
     "ok": true
    },
    "env_ratio": {
-    "self": 0.6305469856917846,
-    "rerun": 0.6305469856917846,
+    "self": 0.6309830760158771,
+    "rerun": 0.6309830760158771,
     "diff": 0.0,
-    "tol": 0.012610939713835692,
+    "tol": 0.012619661520317543,
     "ok": true
    },
    "env_ratio_decision": {
@@ -161,31 +161,31 @@
     "ok": true
    },
    "sfdr_ref_dBc": {
-    "self": 84.20489858793655,
-    "rerun": 84.20489858793655,
+    "self": 83.69265650301097,
+    "rerun": 83.69265650301097,
     "diff": 0.0,
     "tol": 0.5,
     "ok": true
    },
    "start_pp_uV": {
-    "self": 14.808521200060376,
-    "rerun": 14.808521200060376,
+    "self": 26.202898899985172,
+    "rerun": 26.202898899985172,
     "diff": 0.0,
     "tol": 5.0,
     "ok": true
    },
    "tail_dev_uV": {
-    "self": 46.728842300058915,
-    "rerun": 46.728842300058915,
+    "self": 46.40074660000604,
+    "rerun": 46.40074660000604,
     "diff": 0.0,
     "tol": 5.0,
     "ok": true
    },
    "vrefp_V": {
-    "self": 0.9005741956752387,
-    "rerun": 0.9005741956752387,
+    "self": 0.9005879004115138,
+    "rerun": 0.9005879004115138,
     "diff": 0.0,
-    "tol": 0.009005741956752387,
+    "tol": 0.009005879004115138,
     "ok": true
    }
   },
@@ -193,29 +193,30 @@
   "notes": []
  },
  "meta": {
-  "date": "2026-10-30T14:55:14",
-  "git": "98497ac",
+  "date": "2026-11-01T12:02:33",
+  "git": "88654d6",
   "git_clean": true,
   "mode": "aps",
   "pdk": true,
   "mc": null,
-  "wall_s": 421.8,
+  "wall_s": 273.9,
   "rc": "0",
-  "sim_s": "32",
+  "sim_s": "58",
   "numerics": {
    "source": "spectre.log",
-   "reltol": 0.001,
-   "maxstep_ps": 211600.0,
-   "method": "traponly",
-   "errpreset": "moderate",
-   "lteratio": 3.5,
+   "reltol": 0.0001,
+   "maxstep_ps": 105800.0,
+   "method": "gear2only",
+   "errpreset": "conservative",
+   "lteratio": 10.0,
+   "relref": "alllocal",
    "abstol_V": 1e-06,
-   "steps_accepted": 565673,
-   "step_mean_ps": 18.7034,
+   "steps_accepted": 575636,
+   "step_mean_ps": 18.3797,
    "step_max_ps": null
   },
   "files": {
-   "tb/ref/tb_ref_replay.scs": "2ea234d4ebabeece",
+   "tb/ref/tb_ref_replay.scs": "6fcd7d9fae89b7de",
    "tb/common/veriloga/tb_sampler_va.va": "4092bc16170c588d",
    "design/xtor/adc_ref/many-question/adc_ref.scs": "2b1163f0eb481376"
   },
@@ -239,10 +240,9 @@
   },
   "provenance": {
    "spectrum": {
-    "estimator": "adcflow.spectrum v1",
-    "adctoolbox": "0.6.4",
-    "sfdr": "plotspec definition: peak bin of the fundamental / largest other single bin (DC and signal bins excluded, Nyquist included)",
-    "enob_sndr_snr_thd": "adctoolbox 0.6.4 compute_spectrum"
+    "estimator": "adctoolbox 0.9.1 @ cd72061 compute_spectrum",
+    "adctoolbox": "0.9.1",
+    "adctoolbox_commit": "cd72061"
    }
   }
  }

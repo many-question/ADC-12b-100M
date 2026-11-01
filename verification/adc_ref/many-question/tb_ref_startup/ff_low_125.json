@@ -10,8 +10,8 @@
   "result": "results/adc_ref/tb_ref_startup/xtor-many-question/ff_low_125.json",
   "netlist": "design/xtor/adc_ref/many-question/adc_ref.scs",
   "netlist_hash": "2b1163f0eb481376",
-  "date": "2026-10-30T01:18:33",
-  "git": "177831a",
+  "date": "2026-11-01T05:18:58",
+  "git": "17b3a0c",
   "mode": "aps"
  },
  "params": {},
@@ -27,56 +27,56 @@
   "comp_behav": 1
  },
  "metrics": {
-  "vrefp_max_V": 0.9015582700587735,
-  "vrefp_min_V": -4.817137230024058e-44,
-  "vcm_max_V": 0.4507812323377514,
-  "vcm_min_V": -9.95233415628589e-45,
-  "vrefp_max_t_us": 16.13778550054137,
-  "vcm_max_t_us": 16.13778550054137,
-  "vrefp_dwell_max_V": 0.4255552076870674,
-  "vcm_dwell_max_V": 0.212777598764344,
-  "ready_err_mV": 1.0416692077697132,
-  "vcm_ready_V": 0.4505217697280997,
-  "ready_dev_mV": 8.870681966755001e-11,
-  "vrefp_final_err_mV": 1.0416692076810063,
-  "vcm_final_V": 0.4505217697280992,
-  "ramp_lag_mV": 425.4622758817691,
+  "vrefp_max_V": 0.9015609069624559,
+  "vrefp_min_V": -3.018336098096962e-18,
+  "vcm_max_V": 0.4507805131907485,
+  "vcm_min_V": -9.927333095136258e-20,
+  "vrefp_max_t_us": 16.13809248841037,
+  "vcm_max_t_us": 16.13809248841037,
+  "vrefp_dwell_max_V": 0.4255556299507826,
+  "vcm_dwell_max_V": 0.2127778011875194,
+  "ready_err_mV": 1.0460419382178898,
+  "vcm_ready_V": 0.450523052718709,
+  "ready_dev_mV": 2.220446049250313e-13,
+  "vrefp_final_err_mV": 1.0460419382178898,
+  "vcm_final_V": 0.450523052718709,
+  "ramp_lag_mV": 425.47976448822146,
   "t_settle_us": 0.0
  },
  "specs": {
   "REF-15": {
    "metric": "vrefp_max_V",
-   "value": 0.9015582700587735,
-   "limit": "<= 1.0",
+   "value": 0.9015609069624559,
+   "limit": "<= 1.1",
    "pass": true
   },
   "REF-16": {
    "metric": "vrefp_min_V",
-   "value": -4.817137230024058e-44,
+   "value": -3.018336098096962e-18,
    "limit": ">= -0.1",
    "pass": true
   },
   "REF-17": {
    "metric": "vcm_max_V",
-   "value": 0.4507812323377514,
-   "limit": "<= 1.0",
+   "value": 0.4507805131907485,
+   "limit": "<= 1.1",
    "pass": true
   },
   "REF-18": {
    "metric": "vcm_min_V",
-   "value": -9.95233415628589e-45,
+   "value": -9.927333095136258e-20,
    "limit": ">= -0.1",
    "pass": true
   },
   "REF-19": {
    "metric": "ready_err_mV",
-   "value": 1.0416692077697132,
+   "value": 1.0460419382178898,
    "limit": "<= 5",
    "pass": true
   },
   "REF-20": {
    "metric": "vcm_ready_V",
-   "value": 0.4505217697280997,
+   "value": 0.450523052718709,
    "limit": "0.44 .. 0.46",
    "pass": true
   }
@@ -119,22 +119,22 @@
   },
   "metrics": {
    "ramp_lag_mV": {
-    "self": 425.4622758817691,
-    "rerun": 425.4622758817691,
+    "self": 425.47976448822146,
+    "rerun": 425.47976448822146,
     "diff": 0.0,
-    "tol": 8.509245517635382,
+    "tol": 8.50959528976443,
     "ok": true
    },
    "ready_dev_mV": {
-    "self": 8.870681966755001e-11,
-    "rerun": 8.870681966755001e-11,
+    "self": 2.220446049250313e-13,
+    "rerun": 2.220446049250313e-13,
     "diff": 0.0,
     "tol": 0.5,
     "ok": true
    },
    "ready_err_mV": {
-    "self": 1.0416692077697132,
-    "rerun": 1.0416692077697132,
+    "self": 1.0460419382178898,
+    "rerun": 1.0460419382178898,
     "diff": 0.0,
     "tol": 0.5,
     "ok": true
@@ -147,78 +147,78 @@
     "ok": true
    },
    "vcm_dwell_max_V": {
-    "self": 0.212777598764344,
-    "rerun": 0.212777598764344,
+    "self": 0.2127778011875194,
+    "rerun": 0.2127778011875194,
     "diff": 0.0,
-    "tol": 0.00212777598764344,
+    "tol": 0.0021277780118751943,
     "ok": true
    },
    "vcm_final_V": {
-    "self": 0.4505217697280992,
-    "rerun": 0.4505217697280992,
+    "self": 0.450523052718709,
+    "rerun": 0.450523052718709,
     "diff": 0.0,
-    "tol": 0.004505217697280992,
+    "tol": 0.004505230527187091,
     "ok": true
    },
    "vcm_max_V": {
-    "self": 0.4507812323377514,
-    "rerun": 0.4507812323377514,
+    "self": 0.4507805131907485,
+    "rerun": 0.4507805131907485,
     "diff": 0.0,
-    "tol": 0.004507812323377514,
+    "tol": 0.004507805131907485,
     "ok": true
    },
    "vcm_max_t_us": {
-    "self": 16.13778550054137,
-    "rerun": 16.13778550054137,
+    "self": 16.13809248841037,
+    "rerun": 16.13809248841037,
     "diff": 0.0,
-    "tol": 0.32275571001082737,
+    "tol": 0.3227618497682074,
     "ok": true
    },
    "vcm_min_V": {
-    "self": -9.95233415628589e-45,
-    "rerun": -9.95233415628589e-45,
+    "self": -9.927333095136258e-20,
+    "rerun": -9.927333095136258e-20,
     "diff": 0.0,
     "tol": 0.001,
     "ok": true
    },
    "vcm_ready_V": {
-    "self": 0.4505217697280997,
-    "rerun": 0.4505217697280997,
+    "self": 0.450523052718709,
+    "rerun": 0.450523052718709,
     "diff": 0.0,
-    "tol": 0.004505217697280997,
+    "tol": 0.004505230527187091,
     "ok": true
    },
    "vrefp_dwell_max_V": {
-    "self": 0.4255552076870674,
-    "rerun": 0.4255552076870674,
+    "self": 0.4255556299507826,
+    "rerun": 0.4255556299507826,
     "diff": 0.0,
-    "tol": 0.004255552076870674,
+    "tol": 0.004255556299507826,
     "ok": true
    },
    "vrefp_final_err_mV": {
-    "self": 1.0416692076810063,
-    "rerun": 1.0416692076810063,
+    "self": 1.0460419382178898,
+    "rerun": 1.0460419382178898,
     "diff": 0.0,
     "tol": 0.5,
     "ok": true
    },
    "vrefp_max_V": {
-    "self": 0.9015582700587735,
-    "rerun": 0.9015582700587735,
+    "self": 0.9015609069624559,
+    "rerun": 0.9015609069624559,
     "diff": 0.0,
-    "tol": 0.009015582700587735,
+    "tol": 0.00901560906962456,
     "ok": true
    },
    "vrefp_max_t_us": {
-    "self": 16.13778550054137,
-    "rerun": 16.13778550054137,
+    "self": 16.13809248841037,
+    "rerun": 16.13809248841037,
     "diff": 0.0,
-    "tol": 0.32275571001082737,
+    "tol": 0.3227618497682074,
     "ok": true
    },
    "vrefp_min_V": {
-    "self": -4.817137230024058e-44,
-    "rerun": -4.817137230024058e-44,
+    "self": -3.018336098096962e-18,
+    "rerun": -3.018336098096962e-18,
     "diff": 0.0,
     "tol": 0.001,
     "ok": true
@@ -228,29 +228,30 @@
   "notes": []
  },
  "meta": {
-  "date": "2026-10-30T14:47:07",
-  "git": "98497ac",
+  "date": "2026-11-01T11:56:45",
+  "git": "88654d6",
   "git_clean": true,
   "mode": "aps",
   "pdk": true,
   "mc": null,
-  "wall_s": 281.9,
+  "wall_s": 208.8,
   "rc": "0",
-  "sim_s": "17",
+  "sim_s": "39",
   "numerics": {
    "source": "spectre.log",
-   "reltol": 0.001,
+   "reltol": 0.0001,
    "maxstep_ps": 1000.0,
-   "method": "traponly",
-   "errpreset": "moderate",
-   "lteratio": 3.5,
+   "method": "gear2only",
+   "errpreset": "conservative",
+   "lteratio": 10.0,
+   "relref": "alllocal",
    "abstol_V": 1e-06,
-   "steps_accepted": 25112,
-   "step_mean_ps": 999.522,
+   "steps_accepted": 25117,
+   "step_mean_ps": 999.323,
    "step_max_ps": 1000.0
   },
   "files": {
-   "tb/ref/tb_ref_startup.scs": "d0842a4224af4dfb",
+   "tb/ref/tb_ref_startup.scs": "b50cc979863f8109",
    "design/xtor/adc_ref/many-question/adc_ref.scs": "2b1163f0eb481376"
   },
   "arch": {
