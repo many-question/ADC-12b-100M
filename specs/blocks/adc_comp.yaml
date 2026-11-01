@@ -37,8 +37,9 @@ specs:
   - {id: CMP-06, name: "delay CLKC->OUT at 30 mV",                   metric: tdelay_30mV_ps, unit: ps,    max: 50,  corners: typ, test: tb_comp_delay}
   - {id: CMP-07, name: "regeneration time constant",                 metric: tau_reg_ps,     unit: ps,    max: 15,  corners: all, test: tb_comp_delay}
   # CMP-08 45 ps (0.10.0, was 35): a loop budget. Behavioral TT CLKC low is about 43 ps (t_bit 35 + t_dac_fast 48
-  # - t_rst 40) and t_conv has about 1.5 ns of margin. The x1.6 slow-corner scaling of that window is an
-  # assumption until adc_sarlogic exists at transistor level.
+  # - t_rst 40). t_conv has about 1.5 ns of margin at x1.0 and none in simulation at x1.6 (4.40..4.46 ns), so 45 ps
+  # relies on the reset finishing inside the CLKC low window, not on stretching the loop. The x1.6 scaling of that
+  # window is an assumption until adc_sarlogic exists at transistor level.
   - {id: CMP-08, name: "reset time CLKC fall -> both outputs < 10 %", metric: treset_ps,      unit: ps,    max: 45,  corners: all, test: tb_comp_delay}
   - {id: CMP-09, name: "wrong decisions for |vd| >= 100 uV (noise off)", metric: wrong_decisions, unit: count, max: 0, corners: all, test: tb_comp_delay}
   # reported only (#75): power has no acceptance limit, lower is better; docs/architecture.md §8 keeps the budget
