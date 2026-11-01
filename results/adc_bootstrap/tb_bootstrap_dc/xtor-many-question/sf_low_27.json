@@ -30,7 +30,7 @@
   "t_off_ps": 51.10304989466899,
   "t_on_ps": 174.7159055217221,
   "soa_scope": "device",
-  "soa_limit_V": 1.0,
+  "soa_limit_V": 1.1,
   "soa_devices": 21,
   "soa_devices_dut": 20,
   "soa_pairs": 63,
@@ -863,11 +863,11 @@
  "figures": [
   {
    "file": "sf_low_27.switch.png",
-   "caption": "Boosted gate voltage over the input range, the worst turn-off and turn-on edge with their delays and limits, the three terminal voltages of the reference switch against the +/-1.0 V SOA limit, and the specification table."
+   "caption": "Boosted gate voltage over the input range, the worst turn-off and turn-on edge with their delays and limits, the three terminal voltages of the reference switch against the +/-1.1 V SOA limit, and the specification table."
   },
   {
    "file": "sf_low_27.soa.png",
-   "caption": "Largest |Vgs|, |Vgd|, |Vds| of every checked device against the 1.0 V limit (scope: device), the worst pair over the whole run, and the saved time points around the time of its maximum, which set the time resolution."
+   "caption": "Largest |Vgs|, |Vgd|, |Vds| of every checked device against the 1.1 V limit (scope: device), the worst pair over the whole run, and the saved time points around the time of its maximum, which set the time resolution."
   },
   {
    "file": "sf_low_27.cin.png",
@@ -875,13 +875,13 @@
   }
  ],
  "meta": {
-  "date": "2026-10-31T12:51:07",
-  "git": "c6152d2",
+  "date": "2026-11-01T04:55:47",
+  "git": "17b3a0c",
   "git_clean": true,
   "mode": "aps",
   "pdk": true,
   "mc": null,
-  "wall_s": 288.1,
+  "wall_s": 284.5,
   "rc": "0",
   "sim_s": "23",
   "numerics": {
@@ -898,13 +898,13 @@
    "step_max_ps": 1530.0
   },
   "files": {
-   "tb/bootstrap/tb_bootstrap_dc.scs": "074d57d14d3299e2",
+   "tb/bootstrap/tb_bootstrap_dc.scs": "24fe285a2b029ec3",
    "tb/common/veriloga/tb_imeter_va.va": "d4be49aca417ad61",
    "design/behav/veriloga/adc_clkgen_va.va": "7fff1b9368bc1a20",
    "tb/common/veriloga/tb_sampler_va.va": "4092bc16170c588d",
    "tb/common/veriloga/tb_qmeter_va.va": "fed84d572a912b39",
    "design/xtor/adc_bootstrap/many-question/adc_bootstrap.scs": "f9330137569bdf81",
-   "specs/soa.yaml": "df574d3582df9b2c"
+   "specs/soa.yaml": "b6213fc39b550c11"
   },
   "arch": {
    "keys": [],
