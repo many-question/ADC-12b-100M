@@ -69,11 +69,11 @@ ends adc_sarlogic_inv
 
 // Parallel pull-up, series pull-down; full static CMOS.
 subckt adc_sarlogic_nand2 (A B Y VDD VSS)
-parameters wn=800n wp=600n
-MPA (Y A VDD VDD) pch_ulvt_mac w=wp l=30n nf=2
-MNA (Y A nx1 VSS) nch_ulvt_mac w=wn l=30n nf=2
-MPB (Y B VDD VDD) pch_ulvt_mac w=wp l=30n nf=2
-MNB (nx1 B VSS VSS) nch_ulvt_mac w=wn l=30n nf=2
+parameters wn=800n wp=600n drive=1
+MPA (Y A VDD VDD) pch_ulvt_mac w=wp l=30n nf=2 m=drive
+MNA (Y A nx1 VSS) nch_ulvt_mac w=wn l=30n nf=2 m=drive
+MPB (Y B VDD VDD) pch_ulvt_mac w=wp l=30n nf=2 m=drive
+MNB (nx1 B VSS VSS) nch_ulvt_mac w=wn l=30n nf=2 m=drive
 // @RNL {
 //   %symbol = @DEFINE-SYMBOL(box=[-9,-4.0,9,4.0]) {
 //     @LINE {(-7,-3.0) (7,-3.0) (7,3.0) (-7,3.0) (-7,-3.0)};
@@ -94,7 +94,7 @@ MNB (nx1 B VSS VSS) nch_ulvt_mac w=wn l=30n nf=2
 //   &VDD @ADD-TO $SUPPLY_NET_SET;
 //   &VSS @ADD-TO $GROUND_NET_SET;
 //   $LABEL_TERMINAL_SET @TEXT("${net}", key="netname", size=0.6);
-//   #MPA @TEXT("W=${w}, L=${l}, nf=${nf}", key="wl", dx=5, dy=4, size=0.7, halign="start");
+//   #MPA @TEXT("W=${w}, L=${l}, nf=${nf}, m=${m}", key="wl", dx=5, dy=4, size=0.7, halign="start");
 //   #MPA @PLACE(0,6) => @ORIENT("R0");
 //   %p_MPA_d=(0,1);
 //   &Y @WIRE(mode="straight") {#MPA:d %p_MPA_d};
@@ -108,7 +108,7 @@ MNB (nx1 B VSS VSS) nch_ulvt_mac w=wn l=30n nf=2
 //   %p_MPA_b=(4,6);
 //   &VDD @WIRE(mode="straight") {#MPA:b %p_MPA_b};
 //   %p_MPA_b @TEXT("VDD", size=0.8, halign="start", dy=0);
-//   #MNA @TEXT("W=${w}, L=${l}, nf=${nf}", key="wl", dx=5, dy=-4, size=0.7, halign="start");
+//   #MNA @TEXT("W=${w}, L=${l}, nf=${nf}, m=${m}", key="wl", dx=5, dy=-4, size=0.7, halign="start");
 //   #MNA @PLACE(0,-8) => @ORIENT("R0");
 //   %p_MNA_d=(0,-3);
 //   &Y @WIRE(mode="straight") {#MNA:d %p_MNA_d};
@@ -122,7 +122,7 @@ MNB (nx1 B VSS VSS) nch_ulvt_mac w=wn l=30n nf=2
 //   %p_MNA_b=(4,-8);
 //   &VSS @WIRE(mode="straight") {#MNA:b %p_MNA_b};
 //   %p_MNA_b @TEXT("VSS", size=0.8, halign="start", dy=0);
-//   #MPB @TEXT("W=${w}, L=${l}, nf=${nf}", key="wl", dx=5, dy=4, size=0.7, halign="start");
+//   #MPB @TEXT("W=${w}, L=${l}, nf=${nf}, m=${m}", key="wl", dx=5, dy=4, size=0.7, halign="start");
 //   #MPB @PLACE(18,6) => @ORIENT("R0");
 //   %p_MPB_d=(18,1);
 //   &Y @WIRE(mode="straight") {#MPB:d %p_MPB_d};
@@ -136,7 +136,7 @@ MNB (nx1 B VSS VSS) nch_ulvt_mac w=wn l=30n nf=2
 //   %p_MPB_b=(22,6);
 //   &VDD @WIRE(mode="straight") {#MPB:b %p_MPB_b};
 //   %p_MPB_b @TEXT("VDD", size=0.8, halign="start", dy=0);
-//   #MNB @TEXT("W=${w}, L=${l}, nf=${nf}", key="wl", dx=5, dy=-4, size=0.7, halign="start");
+//   #MNB @TEXT("W=${w}, L=${l}, nf=${nf}, m=${m}", key="wl", dx=5, dy=-4, size=0.7, halign="start");
 //   #MNB @PLACE(18,-8) => @ORIENT("R0");
 //   %p_MNB_d=(18,-3);
 //   &nx1 @WIRE(mode="straight") {#MNB:d %p_MNB_d};
@@ -161,19 +161,19 @@ MNB (nx1 B VSS VSS) nch_ulvt_mac w=wn l=30n nf=2
 //   %port4=$IO_PORT @ATTACH &VSS => @PLACE(-28,-12) => @ORIENT("R0");
 //   (-28,24) @TEXT("adc_sarlogic_nand2", size=1.2, bold=true);
 //   (-28,20) @TEXT("Parallel pull-up, series pull-down; full static CMOS.", size=0.7);
-//   (-28,16) @TEXT("Defaults: wn=800n wp=600n", size=0.8);
+//   (-28,16) @TEXT("Defaults: wn=800n wp=600n drive=1", size=0.8);
 // }
 ends adc_sarlogic_nand2
 
 // Parallel pull-up, series pull-down; full static CMOS.
 subckt adc_sarlogic_nand3 (A B C Y VDD VSS)
-parameters wn=1200n wp=600n
-MPA (Y A VDD VDD) pch_ulvt_mac w=wp l=30n nf=2
-MNA (Y A nx1 VSS) nch_ulvt_mac w=wn l=30n nf=2
-MPB (Y B VDD VDD) pch_ulvt_mac w=wp l=30n nf=2
-MNB (nx1 B nx2 VSS) nch_ulvt_mac w=wn l=30n nf=2
-MPC (Y C VDD VDD) pch_ulvt_mac w=wp l=30n nf=2
-MNC (nx2 C VSS VSS) nch_ulvt_mac w=wn l=30n nf=2
+parameters wn=1200n wp=600n drive=1
+MPA (Y A VDD VDD) pch_ulvt_mac w=wp l=30n nf=2 m=drive
+MNA (Y A nx1 VSS) nch_ulvt_mac w=wn l=30n nf=2 m=drive
+MPB (Y B VDD VDD) pch_ulvt_mac w=wp l=30n nf=2 m=drive
+MNB (nx1 B nx2 VSS) nch_ulvt_mac w=wn l=30n nf=2 m=drive
+MPC (Y C VDD VDD) pch_ulvt_mac w=wp l=30n nf=2 m=drive
+MNC (nx2 C VSS VSS) nch_ulvt_mac w=wn l=30n nf=2 m=drive
 // @RNL {
 //   %symbol = @DEFINE-SYMBOL(box=[-9,-5.0,9,5.0]) {
 //     @LINE {(-7,-4.0) (7,-4.0) (7,4.0) (-7,4.0) (-7,-4.0)};
@@ -197,7 +197,7 @@ MNC (nx2 C VSS VSS) nch_ulvt_mac w=wn l=30n nf=2
 //   &VDD @ADD-TO $SUPPLY_NET_SET;
 //   &VSS @ADD-TO $GROUND_NET_SET;
 //   $LABEL_TERMINAL_SET @TEXT("${net}", key="netname", size=0.6);
-//   #MPA @TEXT("W=${w}, L=${l}, nf=${nf}", key="wl", dx=5, dy=4, size=0.7, halign="start");
+//   #MPA @TEXT("W=${w}, L=${l}, nf=${nf}, m=${m}", key="wl", dx=5, dy=4, size=0.7, halign="start");
 //   #MPA @PLACE(0,6) => @ORIENT("R0");
 //   %p_MPA_d=(0,1);
 //   &Y @WIRE(mode="straight") {#MPA:d %p_MPA_d};
@@ -211,7 +211,7 @@ MNC (nx2 C VSS VSS) nch_ulvt_mac w=wn l=30n nf=2
 //   %p_MPA_b=(4,6);
 //   &VDD @WIRE(mode="straight") {#MPA:b %p_MPA_b};
 //   %p_MPA_b @TEXT("VDD", size=0.8, halign="start", dy=0);
-//   #MNA @TEXT("W=${w}, L=${l}, nf=${nf}", key="wl", dx=5, dy=-4, size=0.7, halign="start");
+//   #MNA @TEXT("W=${w}, L=${l}, nf=${nf}, m=${m}", key="wl", dx=5, dy=-4, size=0.7, halign="start");
 //   #MNA @PLACE(0,-8) => @ORIENT("R0");
 //   %p_MNA_d=(0,-3);
 //   &Y @WIRE(mode="straight") {#MNA:d %p_MNA_d};
@@ -225,7 +225,7 @@ MNC (nx2 C VSS VSS) nch_ulvt_mac w=wn l=30n nf=2
 //   %p_MNA_b=(4,-8);
 //   &VSS @WIRE(mode="straight") {#MNA:b %p_MNA_b};
 //   %p_MNA_b @TEXT("VSS", size=0.8, halign="start", dy=0);
-//   #MPB @TEXT("W=${w}, L=${l}, nf=${nf}", key="wl", dx=5, dy=4, size=0.7, halign="start");
+//   #MPB @TEXT("W=${w}, L=${l}, nf=${nf}, m=${m}", key="wl", dx=5, dy=4, size=0.7, halign="start");
 //   #MPB @PLACE(18,6) => @ORIENT("R0");
 //   %p_MPB_d=(18,1);
 //   &Y @WIRE(mode="straight") {#MPB:d %p_MPB_d};
@@ -239,7 +239,7 @@ MNC (nx2 C VSS VSS) nch_ulvt_mac w=wn l=30n nf=2
 //   %p_MPB_b=(22,6);
 //   &VDD @WIRE(mode="straight") {#MPB:b %p_MPB_b};
 //   %p_MPB_b @TEXT("VDD", size=0.8, halign="start", dy=0);
-//   #MNB @TEXT("W=${w}, L=${l}, nf=${nf}", key="wl", dx=5, dy=-4, size=0.7, halign="start");
+//   #MNB @TEXT("W=${w}, L=${l}, nf=${nf}, m=${m}", key="wl", dx=5, dy=-4, size=0.7, halign="start");
 //   #MNB @PLACE(18,-8) => @ORIENT("R0");
 //   %p_MNB_d=(18,-3);
 //   &nx1 @WIRE(mode="straight") {#MNB:d %p_MNB_d};
@@ -253,7 +253,7 @@ MNC (nx2 C VSS VSS) nch_ulvt_mac w=wn l=30n nf=2
 //   %p_MNB_b=(22,-8);
 //   &VSS @WIRE(mode="straight") {#MNB:b %p_MNB_b};
 //   %p_MNB_b @TEXT("VSS", size=0.8, halign="start", dy=0);
-//   #MPC @TEXT("W=${w}, L=${l}, nf=${nf}", key="wl", dx=5, dy=4, size=0.7, halign="start");
+//   #MPC @TEXT("W=${w}, L=${l}, nf=${nf}, m=${m}", key="wl", dx=5, dy=4, size=0.7, halign="start");
 //   #MPC @PLACE(36,6) => @ORIENT("R0");
 //   %p_MPC_d=(36,1);
 //   &Y @WIRE(mode="straight") {#MPC:d %p_MPC_d};
@@ -267,7 +267,7 @@ MNC (nx2 C VSS VSS) nch_ulvt_mac w=wn l=30n nf=2
 //   %p_MPC_b=(40,6);
 //   &VDD @WIRE(mode="straight") {#MPC:b %p_MPC_b};
 //   %p_MPC_b @TEXT("VDD", size=0.8, halign="start", dy=0);
-//   #MNC @TEXT("W=${w}, L=${l}, nf=${nf}", key="wl", dx=5, dy=-4, size=0.7, halign="start");
+//   #MNC @TEXT("W=${w}, L=${l}, nf=${nf}, m=${m}", key="wl", dx=5, dy=-4, size=0.7, halign="start");
 //   #MNC @PLACE(36,-8) => @ORIENT("R0");
 //   %p_MNC_d=(36,-3);
 //   &nx2 @WIRE(mode="straight") {#MNC:d %p_MNC_d};
@@ -293,21 +293,21 @@ MNC (nx2 C VSS VSS) nch_ulvt_mac w=wn l=30n nf=2
 //   %port5=$IO_PORT @ATTACH &VSS => @PLACE(-28,-15) => @ORIENT("R0");
 //   (-28,24) @TEXT("adc_sarlogic_nand3", size=1.2, bold=true);
 //   (-28,20) @TEXT("Parallel pull-up, series pull-down; full static CMOS.", size=0.7);
-//   (-28,16) @TEXT("Defaults: wn=1200n wp=600n", size=0.8);
+//   (-28,16) @TEXT("Defaults: wn=1200n wp=600n drive=1", size=0.8);
 // }
 ends adc_sarlogic_nand3
 
 // Parallel pull-up, series pull-down; full static CMOS.
 subckt adc_sarlogic_nand4 (A B C D Y VDD VSS)
-parameters wn=1600n wp=600n
-MPA (Y A VDD VDD) pch_ulvt_mac w=wp l=30n nf=2
-MNA (Y A nx1 VSS) nch_ulvt_mac w=wn l=30n nf=2
-MPB (Y B VDD VDD) pch_ulvt_mac w=wp l=30n nf=2
-MNB (nx1 B nx2 VSS) nch_ulvt_mac w=wn l=30n nf=2
-MPC (Y C VDD VDD) pch_ulvt_mac w=wp l=30n nf=2
-MNC (nx2 C nx3 VSS) nch_ulvt_mac w=wn l=30n nf=2
-MPD (Y D VDD VDD) pch_ulvt_mac w=wp l=30n nf=2
-MND (nx3 D VSS VSS) nch_ulvt_mac w=wn l=30n nf=2
+parameters wn=1600n wp=600n drive=1
+MPA (Y A VDD VDD) pch_ulvt_mac w=wp l=30n nf=2 m=drive
+MNA (Y A nx1 VSS) nch_ulvt_mac w=wn l=30n nf=2 m=drive
+MPB (Y B VDD VDD) pch_ulvt_mac w=wp l=30n nf=2 m=drive
+MNB (nx1 B nx2 VSS) nch_ulvt_mac w=wn l=30n nf=2 m=drive
+MPC (Y C VDD VDD) pch_ulvt_mac w=wp l=30n nf=2 m=drive
+MNC (nx2 C nx3 VSS) nch_ulvt_mac w=wn l=30n nf=2 m=drive
+MPD (Y D VDD VDD) pch_ulvt_mac w=wp l=30n nf=2 m=drive
+MND (nx3 D VSS VSS) nch_ulvt_mac w=wn l=30n nf=2 m=drive
 // @RNL {
 //   %symbol = @DEFINE-SYMBOL(box=[-9,-6.0,9,6.0]) {
 //     @LINE {(-7,-5.0) (7,-5.0) (7,5.0) (-7,5.0) (-7,-5.0)};
@@ -334,7 +334,7 @@ MND (nx3 D VSS VSS) nch_ulvt_mac w=wn l=30n nf=2
 //   &VDD @ADD-TO $SUPPLY_NET_SET;
 //   &VSS @ADD-TO $GROUND_NET_SET;
 //   $LABEL_TERMINAL_SET @TEXT("${net}", key="netname", size=0.6);
-//   #MPA @TEXT("W=${w}, L=${l}, nf=${nf}", key="wl", dx=5, dy=4, size=0.7, halign="start");
+//   #MPA @TEXT("W=${w}, L=${l}, nf=${nf}, m=${m}", key="wl", dx=5, dy=4, size=0.7, halign="start");
 //   #MPA @PLACE(0,6) => @ORIENT("R0");
 //   %p_MPA_d=(0,1);
 //   &Y @WIRE(mode="straight") {#MPA:d %p_MPA_d};
@@ -348,7 +348,7 @@ MND (nx3 D VSS VSS) nch_ulvt_mac w=wn l=30n nf=2
 //   %p_MPA_b=(4,6);
 //   &VDD @WIRE(mode="straight") {#MPA:b %p_MPA_b};
 //   %p_MPA_b @TEXT("VDD", size=0.8, halign="start", dy=0);
-//   #MNA @TEXT("W=${w}, L=${l}, nf=${nf}", key="wl", dx=5, dy=-4, size=0.7, halign="start");
+//   #MNA @TEXT("W=${w}, L=${l}, nf=${nf}, m=${m}", key="wl", dx=5, dy=-4, size=0.7, halign="start");
 //   #MNA @PLACE(0,-8) => @ORIENT("R0");
 //   %p_MNA_d=(0,-3);
 //   &Y @WIRE(mode="straight") {#MNA:d %p_MNA_d};
@@ -362,7 +362,7 @@ MND (nx3 D VSS VSS) nch_ulvt_mac w=wn l=30n nf=2
 //   %p_MNA_b=(4,-8);
 //   &VSS @WIRE(mode="straight") {#MNA:b %p_MNA_b};
 //   %p_MNA_b @TEXT("VSS", size=0.8, halign="start", dy=0);
-//   #MPB @TEXT("W=${w}, L=${l}, nf=${nf}", key="wl", dx=5, dy=4, size=0.7, halign="start");
+//   #MPB @TEXT("W=${w}, L=${l}, nf=${nf}, m=${m}", key="wl", dx=5, dy=4, size=0.7, halign="start");
 //   #MPB @PLACE(18,6) => @ORIENT("R0");
 //   %p_MPB_d=(18,1);
 //   &Y @WIRE(mode="straight") {#MPB:d %p_MPB_d};
@@ -376,7 +376,7 @@ MND (nx3 D VSS VSS) nch_ulvt_mac w=wn l=30n nf=2
 //   %p_MPB_b=(22,6);
 //   &VDD @WIRE(mode="straight") {#MPB:b %p_MPB_b};
 //   %p_MPB_b @TEXT("VDD", size=0.8, halign="start", dy=0);
-//   #MNB @TEXT("W=${w}, L=${l}, nf=${nf}", key="wl", dx=5, dy=-4, size=0.7, halign="start");
+//   #MNB @TEXT("W=${w}, L=${l}, nf=${nf}, m=${m}", key="wl", dx=5, dy=-4, size=0.7, halign="start");
 //   #MNB @PLACE(18,-8) => @ORIENT("R0");
 //   %p_MNB_d=(18,-3);
 //   &nx1 @WIRE(mode="straight") {#MNB:d %p_MNB_d};
@@ -390,7 +390,7 @@ MND (nx3 D VSS VSS) nch_ulvt_mac w=wn l=30n nf=2
 //   %p_MNB_b=(22,-8);
 //   &VSS @WIRE(mode="straight") {#MNB:b %p_MNB_b};
 //   %p_MNB_b @TEXT("VSS", size=0.8, halign="start", dy=0);
-//   #MPC @TEXT("W=${w}, L=${l}, nf=${nf}", key="wl", dx=5, dy=4, size=0.7, halign="start");
+//   #MPC @TEXT("W=${w}, L=${l}, nf=${nf}, m=${m}", key="wl", dx=5, dy=4, size=0.7, halign="start");
 //   #MPC @PLACE(36,6) => @ORIENT("R0");
 //   %p_MPC_d=(36,1);
 //   &Y @WIRE(mode="straight") {#MPC:d %p_MPC_d};
@@ -404,7 +404,7 @@ MND (nx3 D VSS VSS) nch_ulvt_mac w=wn l=30n nf=2
 //   %p_MPC_b=(40,6);
 //   &VDD @WIRE(mode="straight") {#MPC:b %p_MPC_b};
 //   %p_MPC_b @TEXT("VDD", size=0.8, halign="start", dy=0);
-//   #MNC @TEXT("W=${w}, L=${l}, nf=${nf}", key="wl", dx=5, dy=-4, size=0.7, halign="start");
+//   #MNC @TEXT("W=${w}, L=${l}, nf=${nf}, m=${m}", key="wl", dx=5, dy=-4, size=0.7, halign="start");
 //   #MNC @PLACE(36,-8) => @ORIENT("R0");
 //   %p_MNC_d=(36,-3);
 //   &nx2 @WIRE(mode="straight") {#MNC:d %p_MNC_d};
@@ -418,7 +418,7 @@ MND (nx3 D VSS VSS) nch_ulvt_mac w=wn l=30n nf=2
 //   %p_MNC_b=(40,-8);
 //   &VSS @WIRE(mode="straight") {#MNC:b %p_MNC_b};
 //   %p_MNC_b @TEXT("VSS", size=0.8, halign="start", dy=0);
-//   #MPD @TEXT("W=${w}, L=${l}, nf=${nf}", key="wl", dx=5, dy=4, size=0.7, halign="start");
+//   #MPD @TEXT("W=${w}, L=${l}, nf=${nf}, m=${m}", key="wl", dx=5, dy=4, size=0.7, halign="start");
 //   #MPD @PLACE(54,6) => @ORIENT("R0");
 //   %p_MPD_d=(54,1);
 //   &Y @WIRE(mode="straight") {#MPD:d %p_MPD_d};
@@ -432,7 +432,7 @@ MND (nx3 D VSS VSS) nch_ulvt_mac w=wn l=30n nf=2
 //   %p_MPD_b=(58,6);
 //   &VDD @WIRE(mode="straight") {#MPD:b %p_MPD_b};
 //   %p_MPD_b @TEXT("VDD", size=0.8, halign="start", dy=0);
-//   #MND @TEXT("W=${w}, L=${l}, nf=${nf}", key="wl", dx=5, dy=-4, size=0.7, halign="start");
+//   #MND @TEXT("W=${w}, L=${l}, nf=${nf}, m=${m}", key="wl", dx=5, dy=-4, size=0.7, halign="start");
 //   #MND @PLACE(54,-8) => @ORIENT("R0");
 //   %p_MND_d=(54,-3);
 //   &nx3 @WIRE(mode="straight") {#MND:d %p_MND_d};
@@ -459,209 +459,9 @@ MND (nx3 D VSS VSS) nch_ulvt_mac w=wn l=30n nf=2
 //   %port6=$IO_PORT @ATTACH &VSS => @PLACE(-28,-18) => @ORIENT("R0");
 //   (-28,24) @TEXT("adc_sarlogic_nand4", size=1.2, bold=true);
 //   (-28,20) @TEXT("Parallel pull-up, series pull-down; full static CMOS.", size=0.7);
-//   (-28,16) @TEXT("Defaults: wn=1600n wp=600n", size=0.8);
+//   (-28,16) @TEXT("Defaults: wn=1600n wp=600n drive=1", size=0.8);
 // }
 ends adc_sarlogic_nand4
-
-// Parallel pull-up, series pull-down; full static CMOS.
-subckt adc_sarlogic_nand5 (A B C D E Y VDD VSS)
-parameters wn=16u wp=2400n
-MPA (Y A VDD VDD) pch_ulvt_mac w=wp l=30n nf=2
-MNA (Y A nx1 VSS) nch_ulvt_mac w=wn l=30n nf=8
-MPB (Y B VDD VDD) pch_ulvt_mac w=wp l=30n nf=2
-MNB (nx1 B nx2 VSS) nch_ulvt_mac w=wn l=30n nf=8
-MPC (Y C VDD VDD) pch_ulvt_mac w=wp l=30n nf=2
-MNC (nx2 C nx3 VSS) nch_ulvt_mac w=wn l=30n nf=8
-MPD (Y D VDD VDD) pch_ulvt_mac w=wp l=30n nf=2
-MND (nx3 D nx4 VSS) nch_ulvt_mac w=wn l=30n nf=8
-MPE (Y E VDD VDD) pch_ulvt_mac w=wp l=30n nf=2
-MNE (nx4 E VSS VSS) nch_ulvt_mac w=wn l=30n nf=8
-// @RNL {
-//   %symbol = @DEFINE-SYMBOL(box=[-9,-7.0,9,7.0]) {
-//     @LINE {(-7,-6.0) (7,-6.0) (7,6.0) (-7,6.0) (-7,-6.0)};
-//     (-9,4) @PIN(terminal="A", direction="left");
-//     @LINE {(-9,4) (-7,4)};
-//     (-6.5,4) @TEXT("A", size=0.7, halign="start");
-//     (-9,2) @PIN(terminal="B", direction="left");
-//     @LINE {(-9,2) (-7,2)};
-//     (-6.5,2) @TEXT("B", size=0.7, halign="start");
-//     (-9,0) @PIN(terminal="C", direction="left");
-//     @LINE {(-9,0) (-7,0)};
-//     (-6.5,0) @TEXT("C", size=0.7, halign="start");
-//     (-9,-2) @PIN(terminal="D", direction="left");
-//     @LINE {(-9,-2) (-7,-2)};
-//     (-6.5,-2) @TEXT("D", size=0.7, halign="start");
-//     (-9,-4) @PIN(terminal="E", direction="left");
-//     @LINE {(-9,-4) (-7,-4)};
-//     (-6.5,-4) @TEXT("E", size=0.7, halign="start");
-//     (9,0) @PIN(terminal="Y", direction="right");
-//     @LINE {(9,0) (7,0)};
-//     (6.5,0) @TEXT("Y", size=0.7, halign="end");
-//     (0,7.0) @PIN(terminal="VDD", direction="up");
-//     (0,-7.0) @PIN(terminal="VSS", direction="down");
-//     ? @TEXT("${name}", key="name", dx=-6, dy=9.0, size=1, halign="start");
-//   };
-//   # @SET-SYMBOL %symbol;
-//   &VDD @ADD-TO $SUPPLY_NET_SET;
-//   &VSS @ADD-TO $GROUND_NET_SET;
-//   $LABEL_TERMINAL_SET @TEXT("${net}", key="netname", size=0.6);
-//   #MPA @TEXT("W=${w}, L=${l}, nf=${nf}", key="wl", dx=5, dy=4, size=0.7, halign="start");
-//   #MPA @PLACE(0,6) => @ORIENT("R0");
-//   %p_MPA_d=(0,1);
-//   &Y @WIRE(mode="straight") {#MPA:d %p_MPA_d};
-//   %p_MPA_d @TEXT("Y", size=0.8, halign="start", dy=0.5);
-//   %p_MPA_g=(-6,6);
-//   &A @WIRE(mode="straight") {#MPA:g %p_MPA_g};
-//   %p_MPA_g @TEXT("A", size=0.8, halign="end", dy=0);
-//   %p_MPA_s=(0,11);
-//   &VDD @WIRE(mode="straight") {#MPA:s %p_MPA_s};
-//   %p_MPA_s @TEXT("VDD", size=0.8, halign="start", dy=0.5);
-//   %p_MPA_b=(4,6);
-//   &VDD @WIRE(mode="straight") {#MPA:b %p_MPA_b};
-//   %p_MPA_b @TEXT("VDD", size=0.8, halign="start", dy=0);
-//   #MNA @TEXT("W=${w}, L=${l}, nf=${nf}", key="wl", dx=5, dy=-4, size=0.7, halign="start");
-//   #MNA @PLACE(0,-8) => @ORIENT("R0");
-//   %p_MNA_d=(0,-3);
-//   &Y @WIRE(mode="straight") {#MNA:d %p_MNA_d};
-//   %p_MNA_d @TEXT("Y", size=0.8, halign="start", dy=0.5);
-//   %p_MNA_g=(-6,-8);
-//   &A @WIRE(mode="straight") {#MNA:g %p_MNA_g};
-//   %p_MNA_g @TEXT("A", size=0.8, halign="end", dy=0);
-//   %p_MNA_s=(0,-13);
-//   &nx1 @WIRE(mode="straight") {#MNA:s %p_MNA_s};
-//   %p_MNA_s @TEXT("nx1", size=0.8, halign="start", dy=0.5);
-//   %p_MNA_b=(4,-8);
-//   &VSS @WIRE(mode="straight") {#MNA:b %p_MNA_b};
-//   %p_MNA_b @TEXT("VSS", size=0.8, halign="start", dy=0);
-//   #MPB @TEXT("W=${w}, L=${l}, nf=${nf}", key="wl", dx=5, dy=4, size=0.7, halign="start");
-//   #MPB @PLACE(18,6) => @ORIENT("R0");
-//   %p_MPB_d=(18,1);
-//   &Y @WIRE(mode="straight") {#MPB:d %p_MPB_d};
-//   %p_MPB_d @TEXT("Y", size=0.8, halign="start", dy=0.5);
-//   %p_MPB_g=(12,6);
-//   &B @WIRE(mode="straight") {#MPB:g %p_MPB_g};
-//   %p_MPB_g @TEXT("B", size=0.8, halign="end", dy=0);
-//   %p_MPB_s=(18,11);
-//   &VDD @WIRE(mode="straight") {#MPB:s %p_MPB_s};
-//   %p_MPB_s @TEXT("VDD", size=0.8, halign="start", dy=0.5);
-//   %p_MPB_b=(22,6);
-//   &VDD @WIRE(mode="straight") {#MPB:b %p_MPB_b};
-//   %p_MPB_b @TEXT("VDD", size=0.8, halign="start", dy=0);
-//   #MNB @TEXT("W=${w}, L=${l}, nf=${nf}", key="wl", dx=5, dy=-4, size=0.7, halign="start");
-//   #MNB @PLACE(18,-8) => @ORIENT("R0");
-//   %p_MNB_d=(18,-3);
-//   &nx1 @WIRE(mode="straight") {#MNB:d %p_MNB_d};
-//   %p_MNB_d @TEXT("nx1", size=0.8, halign="start", dy=0.5);
-//   %p_MNB_g=(12,-8);
-//   &B @WIRE(mode="straight") {#MNB:g %p_MNB_g};
-//   %p_MNB_g @TEXT("B", size=0.8, halign="end", dy=0);
-//   %p_MNB_s=(18,-13);
-//   &nx2 @WIRE(mode="straight") {#MNB:s %p_MNB_s};
-//   %p_MNB_s @TEXT("nx2", size=0.8, halign="start", dy=0.5);
-//   %p_MNB_b=(22,-8);
-//   &VSS @WIRE(mode="straight") {#MNB:b %p_MNB_b};
-//   %p_MNB_b @TEXT("VSS", size=0.8, halign="start", dy=0);
-//   #MPC @TEXT("W=${w}, L=${l}, nf=${nf}", key="wl", dx=5, dy=4, size=0.7, halign="start");
-//   #MPC @PLACE(36,6) => @ORIENT("R0");
-//   %p_MPC_d=(36,1);
-//   &Y @WIRE(mode="straight") {#MPC:d %p_MPC_d};
-//   %p_MPC_d @TEXT("Y", size=0.8, halign="start", dy=0.5);
-//   %p_MPC_g=(30,6);
-//   &C @WIRE(mode="straight") {#MPC:g %p_MPC_g};
-//   %p_MPC_g @TEXT("C", size=0.8, halign="end", dy=0);
-//   %p_MPC_s=(36,11);
-//   &VDD @WIRE(mode="straight") {#MPC:s %p_MPC_s};
-//   %p_MPC_s @TEXT("VDD", size=0.8, halign="start", dy=0.5);
-//   %p_MPC_b=(40,6);
-//   &VDD @WIRE(mode="straight") {#MPC:b %p_MPC_b};
-//   %p_MPC_b @TEXT("VDD", size=0.8, halign="start", dy=0);
-//   #MNC @TEXT("W=${w}, L=${l}, nf=${nf}", key="wl", dx=5, dy=-4, size=0.7, halign="start");
-//   #MNC @PLACE(36,-8) => @ORIENT("R0");
-//   %p_MNC_d=(36,-3);
-//   &nx2 @WIRE(mode="straight") {#MNC:d %p_MNC_d};
-//   %p_MNC_d @TEXT("nx2", size=0.8, halign="start", dy=0.5);
-//   %p_MNC_g=(30,-8);
-//   &C @WIRE(mode="straight") {#MNC:g %p_MNC_g};
-//   %p_MNC_g @TEXT("C", size=0.8, halign="end", dy=0);
-//   %p_MNC_s=(36,-13);
-//   &nx3 @WIRE(mode="straight") {#MNC:s %p_MNC_s};
-//   %p_MNC_s @TEXT("nx3", size=0.8, halign="start", dy=0.5);
-//   %p_MNC_b=(40,-8);
-//   &VSS @WIRE(mode="straight") {#MNC:b %p_MNC_b};
-//   %p_MNC_b @TEXT("VSS", size=0.8, halign="start", dy=0);
-//   #MPD @TEXT("W=${w}, L=${l}, nf=${nf}", key="wl", dx=5, dy=4, size=0.7, halign="start");
-//   #MPD @PLACE(54,6) => @ORIENT("R0");
-//   %p_MPD_d=(54,1);
-//   &Y @WIRE(mode="straight") {#MPD:d %p_MPD_d};
-//   %p_MPD_d @TEXT("Y", size=0.8, halign="start", dy=0.5);
-//   %p_MPD_g=(48,6);
-//   &D @WIRE(mode="straight") {#MPD:g %p_MPD_g};
-//   %p_MPD_g @TEXT("D", size=0.8, halign="end", dy=0);
-//   %p_MPD_s=(54,11);
-//   &VDD @WIRE(mode="straight") {#MPD:s %p_MPD_s};
-//   %p_MPD_s @TEXT("VDD", size=0.8, halign="start", dy=0.5);
-//   %p_MPD_b=(58,6);
-//   &VDD @WIRE(mode="straight") {#MPD:b %p_MPD_b};
-//   %p_MPD_b @TEXT("VDD", size=0.8, halign="start", dy=0);
-//   #MND @TEXT("W=${w}, L=${l}, nf=${nf}", key="wl", dx=5, dy=-4, size=0.7, halign="start");
-//   #MND @PLACE(54,-8) => @ORIENT("R0");
-//   %p_MND_d=(54,-3);
-//   &nx3 @WIRE(mode="straight") {#MND:d %p_MND_d};
-//   %p_MND_d @TEXT("nx3", size=0.8, halign="start", dy=0.5);
-//   %p_MND_g=(48,-8);
-//   &D @WIRE(mode="straight") {#MND:g %p_MND_g};
-//   %p_MND_g @TEXT("D", size=0.8, halign="end", dy=0);
-//   %p_MND_s=(54,-13);
-//   &nx4 @WIRE(mode="straight") {#MND:s %p_MND_s};
-//   %p_MND_s @TEXT("nx4", size=0.8, halign="start", dy=0.5);
-//   %p_MND_b=(58,-8);
-//   &VSS @WIRE(mode="straight") {#MND:b %p_MND_b};
-//   %p_MND_b @TEXT("VSS", size=0.8, halign="start", dy=0);
-//   #MPE @TEXT("W=${w}, L=${l}, nf=${nf}", key="wl", dx=5, dy=4, size=0.7, halign="start");
-//   #MPE @PLACE(72,6) => @ORIENT("R0");
-//   %p_MPE_d=(72,1);
-//   &Y @WIRE(mode="straight") {#MPE:d %p_MPE_d};
-//   %p_MPE_d @TEXT("Y", size=0.8, halign="start", dy=0.5);
-//   %p_MPE_g=(66,6);
-//   &E @WIRE(mode="straight") {#MPE:g %p_MPE_g};
-//   %p_MPE_g @TEXT("E", size=0.8, halign="end", dy=0);
-//   %p_MPE_s=(72,11);
-//   &VDD @WIRE(mode="straight") {#MPE:s %p_MPE_s};
-//   %p_MPE_s @TEXT("VDD", size=0.8, halign="start", dy=0.5);
-//   %p_MPE_b=(76,6);
-//   &VDD @WIRE(mode="straight") {#MPE:b %p_MPE_b};
-//   %p_MPE_b @TEXT("VDD", size=0.8, halign="start", dy=0);
-//   #MNE @TEXT("W=${w}, L=${l}, nf=${nf}", key="wl", dx=5, dy=-4, size=0.7, halign="start");
-//   #MNE @PLACE(72,-8) => @ORIENT("R0");
-//   %p_MNE_d=(72,-3);
-//   &nx4 @WIRE(mode="straight") {#MNE:d %p_MNE_d};
-//   %p_MNE_d @TEXT("nx4", size=0.8, halign="start", dy=0.5);
-//   %p_MNE_g=(66,-8);
-//   &E @WIRE(mode="straight") {#MNE:g %p_MNE_g};
-//   %p_MNE_g @TEXT("E", size=0.8, halign="end", dy=0);
-//   %p_MNE_s=(72,-13);
-//   &VSS @WIRE(mode="straight") {#MNE:s %p_MNE_s};
-//   %p_MNE_s @TEXT("VSS", size=0.8, halign="start", dy=0.5);
-//   %p_MNE_b=(76,-8);
-//   &VSS @WIRE(mode="straight") {#MNE:b %p_MNE_b};
-//   %p_MNE_b @TEXT("VSS", size=0.8, halign="start", dy=0);
-//   {#MPA #MNA #MPB #MNB #MPC #MNC #MPD #MND #MPE #MNE} @GROUP;
-//   {#MNA #MNB #MNC #MND #MNE} @AS $MATCHED;
-//   {#MPA #MPB #MPC #MPD #MPE} @AS $MATCHED;
-//   {&A &B &C &D &E &Y &VDD &VSS} @REMOVE-FROM $PORT_FILL_SET;
-//   %port0=$IO_PORT @ATTACH &A => @PLACE(-28,0) => @ORIENT("R0");
-//   %port1=$IO_PORT @ATTACH &B => @PLACE(-28,-3) => @ORIENT("R0");
-//   %port2=$IO_PORT @ATTACH &C => @PLACE(-28,-6) => @ORIENT("R0");
-//   %port3=$IO_PORT @ATTACH &D => @PLACE(-28,-9) => @ORIENT("R0");
-//   %port4=$IO_PORT @ATTACH &E => @PLACE(-28,-12) => @ORIENT("R0");
-//   %port5=$IO_PORT @ATTACH &Y => @PLACE(-28,-15) => @ORIENT("R0");
-//   %port6=$IO_PORT @ATTACH &VDD => @PLACE(-28,-18) => @ORIENT("R0");
-//   %port7=$IO_PORT @ATTACH &VSS => @PLACE(-28,-21) => @ORIENT("R0");
-//   (-28,24) @TEXT("adc_sarlogic_nand5", size=1.2, bold=true);
-//   (-28,20) @TEXT("Parallel pull-up, series pull-down; full static CMOS.", size=0.7);
-//   (-28,16) @TEXT("Defaults: wn=16u wp=2400n", size=0.8);
-// }
-ends adc_sarlogic_nand5
 
 // Series pull-up, parallel pull-down; full static CMOS.
 subckt adc_sarlogic_nor2 (A B Y VDD VSS)
@@ -970,9 +770,9 @@ ends adc_sarlogic_buf
 
 // Balanced comparator receiver. YB resets the comparator clock directly; Y drives the decision cells.
 subckt adc_sarlogic_cmpbuf (A Y YB VDD VSS)
-IPRE (A YB VDD VSS) adc_sarlogic_inv wn=2400n wp=3600n
-MNOUT (Y YB VSS VSS) nch_ulvt_mac w=800n l=30n nf=2 m=10
-MPOUT (Y YB VDD VDD) pch_ulvt_mac w=1200n l=30n nf=2 m=10
+IPRE (A YB VDD VSS) adc_sarlogic_inv wn=3200n wp=4800n
+MNOUT (Y YB VSS VSS) nch_ulvt_mac w=800n l=30n nf=2 m=12
+MPOUT (Y YB VDD VDD) pch_ulvt_mac w=1200n l=30n nf=2 m=12
 // @RNL {
 //   %symbol = @DEFINE-SYMBOL(box=[-9,-4.0,9,4.0]) {
 //     @LINE {(-7,-3.0) (7,-3.0) (7,3.0) (-7,3.0) (-7,-3.0)};
@@ -993,7 +793,7 @@ MPOUT (Y YB VDD VDD) pch_ulvt_mac w=1200n l=30n nf=2 m=10
 //   &VDD @ADD-TO $SUPPLY_NET_SET;
 //   &VSS @ADD-TO $GROUND_NET_SET;
 //   $LABEL_TERMINAL_SET @TEXT("${net}", key="netname", size=0.6);
-//   #IPRE @TEXT("wn=2400n wp=3600n", key="sizing", dy=-8.0, size=0.7);
+//   #IPRE @TEXT("wn=3200n wp=4800n", key="sizing", dy=-8.0, size=0.7);
 //   #IPRE @PLACE(0,0) => @ORIENT("R0");
 //   %p_IPRE_A=(-12,0);
 //   &A @WIRE(mode="straight") {#IPRE:A %p_IPRE_A};
@@ -1370,10 +1170,12 @@ IQB (S Q QB VDD VSS) adc_sarlogic_nor2 wn=800n wp=2400n drive=drive
 // }
 ends adc_sarlogic_sr
 
-// Clock holding latch. Reset is asserted by CV low, comparator valid or timeout. Each stage withdraws its request once ACTIVE is set.
+// Clock holding latch with window/timeout qualification separate from the direct comparator reset. Direct RTZ feedback avoids clipping small per-step extra DAC waits.
 subckt adc_sarlogic_clock (SETB CV PB NB FB CK VDD VSS)
-IQ (SETB ckbar q VDD VSS) adc_sarlogic_nand2 wn=2400n wp=4800n
-IQB (CV PB NB FB q ckbar VDD VSS) adc_sarlogic_nand5
+IWINN (CV FB winb VDD VSS) adc_sarlogic_nand2 wn=1600n wp=1200n
+IWIN (winb win VDD VSS) adc_sarlogic_inv wn=1200n wp=1800n drive=2
+IQ (SETB ckbar q VDD VSS) adc_sarlogic_nand2 wn=1200n wp=4800n drive=2
+IQB (win PB NB q ckbar VDD VSS) adc_sarlogic_nand4 wn=3200n wp=600n drive=5
 IDRV (ckbar CK VDD VSS) adc_sarlogic_inv wn=4u wp=6u drive=2
 // @RNL {
 //   %symbol = @DEFINE-SYMBOL(box=[-9,-7.0,9,7.0]) {
@@ -1404,63 +1206,92 @@ IDRV (ckbar CK VDD VSS) adc_sarlogic_inv wn=4u wp=6u drive=2
 //   &VDD @ADD-TO $SUPPLY_NET_SET;
 //   &VSS @ADD-TO $GROUND_NET_SET;
 //   $LABEL_TERMINAL_SET @TEXT("${net}", key="netname", size=0.6);
-//   #IQ @TEXT("wn=2400n wp=4800n", key="sizing", dy=-9.0, size=0.7);
-//   #IQ @PLACE(0,0) => @ORIENT("R0");
-//   %p_IQ_A=(-12,1);
+//   #IWINN @TEXT("wn=1600n wp=1200n", key="sizing", dy=-9.0, size=0.7);
+//   #IWINN @PLACE(0,0) => @ORIENT("R0");
+//   %p_IWINN_A=(-12,1);
+//   &CV @WIRE(mode="straight") {#IWINN:A %p_IWINN_A};
+//   %p_IWINN_A @TEXT("CV", size=0.8, halign="end", dy=0);
+//   %p_IWINN_B=(-12,-1);
+//   &FB @WIRE(mode="straight") {#IWINN:B %p_IWINN_B};
+//   %p_IWINN_B @TEXT("FB", size=0.8, halign="end", dy=0);
+//   %p_IWINN_Y=(12,0);
+//   &winb @WIRE(mode="straight") {#IWINN:Y %p_IWINN_Y};
+//   %p_IWINN_Y @TEXT("winb", size=0.8, halign="start", dy=0);
+//   %p_IWINN_VDD=(0,7.0);
+//   &VDD @WIRE(mode="straight") {#IWINN:VDD %p_IWINN_VDD};
+//   %p_IWINN_VDD @TEXT("VDD", size=0.8, halign="start", dy=0.5);
+//   %p_IWINN_VSS=(0,-7.0);
+//   &VSS @WIRE(mode="straight") {#IWINN:VSS %p_IWINN_VSS};
+//   %p_IWINN_VSS @TEXT("VSS", size=0.8, halign="start", dy=0.5);
+//   #IWIN @TEXT("wn=1200n wp=1800n drive=2", key="sizing", dy=-8.0, size=0.7);
+//   #IWIN @PLACE(42,0) => @ORIENT("R0");
+//   %p_IWIN_A=(30,0);
+//   &winb @WIRE(mode="straight") {#IWIN:A %p_IWIN_A};
+//   %p_IWIN_A @TEXT("winb", size=0.8, halign="end", dy=0);
+//   %p_IWIN_Y=(54,0);
+//   &win @WIRE(mode="straight") {#IWIN:Y %p_IWIN_Y};
+//   %p_IWIN_Y @TEXT("win", size=0.8, halign="start", dy=0);
+//   %p_IWIN_VDD=(42,6.0);
+//   &VDD @WIRE(mode="straight") {#IWIN:VDD %p_IWIN_VDD};
+//   %p_IWIN_VDD @TEXT("VDD", size=0.8, halign="start", dy=0.5);
+//   %p_IWIN_VSS=(42,-6.0);
+//   &VSS @WIRE(mode="straight") {#IWIN:VSS %p_IWIN_VSS};
+//   %p_IWIN_VSS @TEXT("VSS", size=0.8, halign="start", dy=0.5);
+//   #IQ @TEXT("wn=1200n wp=4800n drive=2", key="sizing", dy=-9.0, size=0.7);
+//   #IQ @PLACE(84,0) => @ORIENT("R0");
+//   %p_IQ_A=(72,1);
 //   &SETB @WIRE(mode="straight") {#IQ:A %p_IQ_A};
 //   %p_IQ_A @TEXT("SETB", size=0.8, halign="end", dy=0);
-//   %p_IQ_B=(-12,-1);
+//   %p_IQ_B=(72,-1);
 //   &ckbar @WIRE(mode="straight") {#IQ:B %p_IQ_B};
 //   %p_IQ_B @TEXT("ckbar", size=0.8, halign="end", dy=0);
-//   %p_IQ_Y=(12,0);
+//   %p_IQ_Y=(96,0);
 //   &q @WIRE(mode="straight") {#IQ:Y %p_IQ_Y};
 //   %p_IQ_Y @TEXT("q", size=0.8, halign="start", dy=0);
-//   %p_IQ_VDD=(0,7.0);
+//   %p_IQ_VDD=(84,7.0);
 //   &VDD @WIRE(mode="straight") {#IQ:VDD %p_IQ_VDD};
 //   %p_IQ_VDD @TEXT("VDD", size=0.8, halign="start", dy=0.5);
-//   %p_IQ_VSS=(0,-7.0);
+//   %p_IQ_VSS=(84,-7.0);
 //   &VSS @WIRE(mode="straight") {#IQ:VSS %p_IQ_VSS};
 //   %p_IQ_VSS @TEXT("VSS", size=0.8, halign="start", dy=0.5);
-//   #IQB @PLACE(42,0) => @ORIENT("R0");
-//   %p_IQB_A=(30,4);
-//   &CV @WIRE(mode="straight") {#IQB:A %p_IQB_A};
-//   %p_IQB_A @TEXT("CV", size=0.8, halign="end", dy=0);
-//   %p_IQB_B=(30,2);
+//   #IQB @TEXT("wn=3200n wp=600n drive=5", key="sizing", dy=-11.0, size=0.7);
+//   #IQB @PLACE(0,-24.0) => @ORIENT("R0");
+//   %p_IQB_A=(-12,-21.0);
+//   &win @WIRE(mode="straight") {#IQB:A %p_IQB_A};
+//   %p_IQB_A @TEXT("win", size=0.8, halign="end", dy=0);
+//   %p_IQB_B=(-12,-23.0);
 //   &PB @WIRE(mode="straight") {#IQB:B %p_IQB_B};
 //   %p_IQB_B @TEXT("PB", size=0.8, halign="end", dy=0);
-//   %p_IQB_C=(30,0);
+//   %p_IQB_C=(-12,-25.0);
 //   &NB @WIRE(mode="straight") {#IQB:C %p_IQB_C};
 //   %p_IQB_C @TEXT("NB", size=0.8, halign="end", dy=0);
-//   %p_IQB_D=(30,-2);
-//   &FB @WIRE(mode="straight") {#IQB:D %p_IQB_D};
-//   %p_IQB_D @TEXT("FB", size=0.8, halign="end", dy=0);
-//   %p_IQB_E=(30,-4);
-//   &q @WIRE(mode="straight") {#IQB:E %p_IQB_E};
-//   %p_IQB_E @TEXT("q", size=0.8, halign="end", dy=0);
-//   %p_IQB_Y=(54,0);
+//   %p_IQB_D=(-12,-27.0);
+//   &q @WIRE(mode="straight") {#IQB:D %p_IQB_D};
+//   %p_IQB_D @TEXT("q", size=0.8, halign="end", dy=0);
+//   %p_IQB_Y=(12,-24.0);
 //   &ckbar @WIRE(mode="straight") {#IQB:Y %p_IQB_Y};
 //   %p_IQB_Y @TEXT("ckbar", size=0.8, halign="start", dy=0);
-//   %p_IQB_VDD=(42,10.0);
+//   %p_IQB_VDD=(0,-15.0);
 //   &VDD @WIRE(mode="straight") {#IQB:VDD %p_IQB_VDD};
 //   %p_IQB_VDD @TEXT("VDD", size=0.8, halign="start", dy=0.5);
-//   %p_IQB_VSS=(42,-10.0);
+//   %p_IQB_VSS=(0,-33.0);
 //   &VSS @WIRE(mode="straight") {#IQB:VSS %p_IQB_VSS};
 //   %p_IQB_VSS @TEXT("VSS", size=0.8, halign="start", dy=0.5);
 //   #IDRV @TEXT("wn=4u wp=6u drive=2", key="sizing", dy=-8.0, size=0.7);
-//   #IDRV @PLACE(84,0) => @ORIENT("R0");
-//   %p_IDRV_A=(72,0);
+//   #IDRV @PLACE(42,-24.0) => @ORIENT("R0");
+//   %p_IDRV_A=(30,-24.0);
 //   &ckbar @WIRE(mode="straight") {#IDRV:A %p_IDRV_A};
 //   %p_IDRV_A @TEXT("ckbar", size=0.8, halign="end", dy=0);
-//   %p_IDRV_Y=(96,0);
+//   %p_IDRV_Y=(54,-24.0);
 //   &CK @WIRE(mode="straight") {#IDRV:Y %p_IDRV_Y};
 //   %p_IDRV_Y @TEXT("CK", size=0.8, halign="start", dy=0);
-//   %p_IDRV_VDD=(84,6.0);
+//   %p_IDRV_VDD=(42,-18.0);
 //   &VDD @WIRE(mode="straight") {#IDRV:VDD %p_IDRV_VDD};
 //   %p_IDRV_VDD @TEXT("VDD", size=0.8, halign="start", dy=0.5);
-//   %p_IDRV_VSS=(84,-6.0);
+//   %p_IDRV_VSS=(42,-30.0);
 //   &VSS @WIRE(mode="straight") {#IDRV:VSS %p_IDRV_VSS};
 //   %p_IDRV_VSS @TEXT("VSS", size=0.8, halign="start", dy=0.5);
-//   {#IQ #IQB #IDRV} @GROUP;
+//   {#IWINN #IWIN #IQ #IQB #IDRV} @GROUP;
 //   {&SETB &CV &PB &NB &FB &CK &VDD &VSS} @REMOVE-FROM $PORT_FILL_SET;
 //   %port0=$IO_PORT @ATTACH &SETB => @PLACE(-28,0) => @ORIENT("R0");
 //   %port1=$IO_PORT @ATTACH &CV => @PLACE(-28,-3) => @ORIENT("R0");
@@ -1471,7 +1302,7 @@ IDRV (ckbar CK VDD VSS) adc_sarlogic_inv wn=4u wp=6u drive=2
 //   %port6=$IO_PORT @ATTACH &VDD => @PLACE(-28,-18) => @ORIENT("R0");
 //   %port7=$IO_PORT @ATTACH &VSS => @PLACE(-28,-21) => @ORIENT("R0");
 //   (-28,24) @TEXT("adc_sarlogic_clock", size=1.2, bold=true);
-//   (-28,20) @TEXT("Clock holding latch. Reset is asserted by CV low, comparator valid or timeout. Each stage withdraws its request once ACTIVE is set.", size=0.7);
+//   (-28,20) @TEXT("Clock holding latch with window/timeout qualification separate from the direct comparator reset. Direct RTZ feedback avoids clipping small per-step extra DAC waits.", size=0.7);
 // }
 ends adc_sarlogic_clock
 
@@ -1625,17 +1456,17 @@ IASET (REQ CK aset VDD VSS) adc_sarlogic_and2
 IARESET (DONE RESET areset VDD VSS) adc_sarlogic_or2
 IACTIVE (aset areset active activeb VDD VSS) adc_sarlogic_sr drive=3
 IGRANT (active CV grant VDD VSS) adc_sarlogic_and2
-ISP (grant P spb VDD VSS) adc_sarlogic_nand2 wn=1600n wp=1200n
+ISP (grant P spb VDD VSS) adc_sarlogic_nand2 wn=2400n wp=1200n
 ISTO (grant FORCE stb VDD VSS) adc_sarlogic_nand2 wn=1600n wp=1200n
-ISPI (spb stb sp VDD VSS) adc_sarlogic_nand2 wn=1600n wp=1200n
-ISN (grant N snb VDD VSS) adc_sarlogic_nand2 wn=1600n wp=1200n
-ISNI (snb sn VDD VSS) adc_sarlogic_inv wn=1200n wp=1800n
-ILP (sp RESET BIT pb VDD VSS) adc_sarlogic_sr drive=2
-ILN (sn RESET nb nbb VDD VSS) adc_sarlogic_sr drive=2
+ISPI (spb stb sp VDD VSS) adc_sarlogic_nand2 wn=1600n wp=2400n
+ISN (grant N snb VDD VSS) adc_sarlogic_nand2 wn=2400n wp=1200n
+ISNI (snb sn VDD VSS) adc_sarlogic_inv wn=1800n wp=2700n
+ILP (sp RESET BIT pb VDD VSS) adc_sarlogic_sr drive=3
+ILN (sn RESET nb nbb VDD VSS) adc_sarlogic_sr drive=3
 ID (pb nbb DONE VDD VSS) adc_sarlogic_nand2 wn=1600n wp=1200n
 IDB (DONE doneb VDD VSS) adc_sarlogic_inv wn=800n wp=1200n
-IUP (pb CVB UP VDD VSS) adc_sarlogic_nor2 wn=1600n wp=4800n
-IDN (nbb CVB DN VDD VSS) adc_sarlogic_nor2 wn=1600n wp=4800n
+IUP (pb CVB UP VDD VSS) adc_sarlogic_nor2 wn=800n wp=4800n drive=2
+IDN (nbb CVB DN VDD VSS) adc_sarlogic_nor2 wn=800n wp=4800n drive=2
 IW (DONE NEXT VDD VSS) adc_sarlogic_delay cw=cw
 // @RNL {
 //   %symbol = @DEFINE-SYMBOL(box=[-9,-9.0,9,9.0]) {
@@ -1794,7 +1625,7 @@ IW (DONE NEXT VDD VSS) adc_sarlogic_delay cw=cw
 //   %p_IGRANT_VSS=(84,-31.0);
 //   &VSS @WIRE(mode="straight") {#IGRANT:VSS %p_IGRANT_VSS};
 //   %p_IGRANT_VSS @TEXT("VSS", size=0.8, halign="start", dy=0.5);
-//   #ISP @TEXT("wn=1600n wp=1200n", key="sizing", dy=-9.0, size=0.7);
+//   #ISP @TEXT("wn=2400n wp=1200n", key="sizing", dy=-9.0, size=0.7);
 //   #ISP @PLACE(0,-46.0) => @ORIENT("R0");
 //   %p_ISP_A=(-12,-45.0);
 //   &grant @WIRE(mode="straight") {#ISP:A %p_ISP_A};
@@ -1828,7 +1659,7 @@ IW (DONE NEXT VDD VSS) adc_sarlogic_delay cw=cw
 //   %p_ISTO_VSS=(42,-53.0);
 //   &VSS @WIRE(mode="straight") {#ISTO:VSS %p_ISTO_VSS};
 //   %p_ISTO_VSS @TEXT("VSS", size=0.8, halign="start", dy=0.5);
-//   #ISPI @TEXT("wn=1600n wp=1200n", key="sizing", dy=-9.0, size=0.7);
+//   #ISPI @TEXT("wn=1600n wp=2400n", key="sizing", dy=-9.0, size=0.7);
 //   #ISPI @PLACE(84,-46.0) => @ORIENT("R0");
 //   %p_ISPI_A=(72,-45.0);
 //   &spb @WIRE(mode="straight") {#ISPI:A %p_ISPI_A};
@@ -1845,7 +1676,7 @@ IW (DONE NEXT VDD VSS) adc_sarlogic_delay cw=cw
 //   %p_ISPI_VSS=(84,-53.0);
 //   &VSS @WIRE(mode="straight") {#ISPI:VSS %p_ISPI_VSS};
 //   %p_ISPI_VSS @TEXT("VSS", size=0.8, halign="start", dy=0.5);
-//   #ISN @TEXT("wn=1600n wp=1200n", key="sizing", dy=-9.0, size=0.7);
+//   #ISN @TEXT("wn=2400n wp=1200n", key="sizing", dy=-9.0, size=0.7);
 //   #ISN @PLACE(0,-68.0) => @ORIENT("R0");
 //   %p_ISN_A=(-12,-67.0);
 //   &grant @WIRE(mode="straight") {#ISN:A %p_ISN_A};
@@ -1862,7 +1693,7 @@ IW (DONE NEXT VDD VSS) adc_sarlogic_delay cw=cw
 //   %p_ISN_VSS=(0,-75.0);
 //   &VSS @WIRE(mode="straight") {#ISN:VSS %p_ISN_VSS};
 //   %p_ISN_VSS @TEXT("VSS", size=0.8, halign="start", dy=0.5);
-//   #ISNI @TEXT("wn=1200n wp=1800n", key="sizing", dy=-8.0, size=0.7);
+//   #ISNI @TEXT("wn=1800n wp=2700n", key="sizing", dy=-8.0, size=0.7);
 //   #ISNI @PLACE(42,-68.0) => @ORIENT("R0");
 //   %p_ISNI_A=(30,-68.0);
 //   &snb @WIRE(mode="straight") {#ISNI:A %p_ISNI_A};
@@ -1876,7 +1707,7 @@ IW (DONE NEXT VDD VSS) adc_sarlogic_delay cw=cw
 //   %p_ISNI_VSS=(42,-74.0);
 //   &VSS @WIRE(mode="straight") {#ISNI:VSS %p_ISNI_VSS};
 //   %p_ISNI_VSS @TEXT("VSS", size=0.8, halign="start", dy=0.5);
-//   #ILP @TEXT("drive=2", key="sizing", dy=-9.0, size=0.7);
+//   #ILP @TEXT("drive=3", key="sizing", dy=-9.0, size=0.7);
 //   #ILP @PLACE(84,-68.0) => @ORIENT("R0");
 //   %p_ILP_S=(72,-67.0);
 //   &sp @WIRE(mode="straight") {#ILP:S %p_ILP_S};
@@ -1896,7 +1727,7 @@ IW (DONE NEXT VDD VSS) adc_sarlogic_delay cw=cw
 //   %p_ILP_VSS=(84,-75.0);
 //   &VSS @WIRE(mode="straight") {#ILP:VSS %p_ILP_VSS};
 //   %p_ILP_VSS @TEXT("VSS", size=0.8, halign="start", dy=0.5);
-//   #ILN @TEXT("drive=2", key="sizing", dy=-9.0, size=0.7);
+//   #ILN @TEXT("drive=3", key="sizing", dy=-9.0, size=0.7);
 //   #ILN @PLACE(0,-90.0) => @ORIENT("R0");
 //   %p_ILN_S=(-12,-89.0);
 //   &sn @WIRE(mode="straight") {#ILN:S %p_ILN_S};
@@ -1947,7 +1778,7 @@ IW (DONE NEXT VDD VSS) adc_sarlogic_delay cw=cw
 //   %p_IDB_VSS=(84,-96.0);
 //   &VSS @WIRE(mode="straight") {#IDB:VSS %p_IDB_VSS};
 //   %p_IDB_VSS @TEXT("VSS", size=0.8, halign="start", dy=0.5);
-//   #IUP @TEXT("wn=1600n wp=4800n", key="sizing", dy=-9.0, size=0.7);
+//   #IUP @TEXT("wn=800n wp=4800n drive=2", key="sizing", dy=-9.0, size=0.7);
 //   #IUP @PLACE(0,-112.0) => @ORIENT("R0");
 //   %p_IUP_A=(-12,-111.0);
 //   &pb @WIRE(mode="straight") {#IUP:A %p_IUP_A};
@@ -1964,7 +1795,7 @@ IW (DONE NEXT VDD VSS) adc_sarlogic_delay cw=cw
 //   %p_IUP_VSS=(0,-119.0);
 //   &VSS @WIRE(mode="straight") {#IUP:VSS %p_IUP_VSS};
 //   %p_IUP_VSS @TEXT("VSS", size=0.8, halign="start", dy=0.5);
-//   #IDN @TEXT("wn=1600n wp=4800n", key="sizing", dy=-9.0, size=0.7);
+//   #IDN @TEXT("wn=800n wp=4800n drive=2", key="sizing", dy=-9.0, size=0.7);
 //   #IDN @PLACE(42,-112.0) => @ORIENT("R0");
 //   %p_IDN_A=(30,-111.0);
 //   &nbb @WIRE(mode="straight") {#IDN:A %p_IDN_A};
@@ -2022,7 +1853,7 @@ ends adc_sarlogic_step
 
 // 14-decision asynchronous SAR, 13 split-CDAC updates, parallel output storage and persistent RDY.
 subckt adc_sarlogic (CONV OUTP OUTN CLKC UP12 UP11 UP10 UP9 UP8 UP7 UP6 UP5 UP4 UP3 UP2 UP1 UP0 DN12 DN11 DN10 DN9 DN8 DN7 DN6 DN5 DN4 DN3 DN2 DN1 DN0 D13 D12 D11 D10 D9 D8 D7 D6 D5 D4 D3 D2 D1 D0 RDY DVDD VSS)
-parameters wait_fast=400n wait_slow=9400n extra3=1800n extra456=6u extra9=8u timer_load=4400n reset_load=3u start_load=3600n ready_load=5u
+parameters wait_fast=200n wait_slow=11400n extra3=1900n extra456=6u extra9=7600n timer_load=4400n reset_load=3u start_load=4200n ready_load=4700n
 ICV (CONV cv DVDD VSS) adc_sarlogic_buf drive=4
 ICB (cv cvb DVDD VSS) adc_sarlogic_inv wn=1600n wp=2400n drive=4
 IP (OUTP pi pib DVDD VSS) adc_sarlogic_cmpbuf
@@ -2056,15 +1887,15 @@ IS11 (next10 cv cvb reset pi ni force CLKC req11 next11 raw3 UP2 DN2 done11 DVDD
 IS12 (next11 cv cvb reset pi ni force CLKC req12 next12 raw2 UP1 DN1 done12 DVDD VSS) adc_sarlogic_step cw=wait_slow
 IS13 (next12 cv cvb reset pi ni force CLKC req13 next13 raw1 UP0 DN0 done13 DVDD VSS) adc_sarlogic_step cw=wait_slow
 IS14 (next13 cv cvb reset pi ni force CLKC req14 next14 raw0 lastup lastdn done14 DVDD VSS) adc_sarlogic_step cw=wait_slow
-IR0 (req1 req2 rq0 DVDD VSS) adc_sarlogic_nor2 wn=800n wp=2400n
-IR1 (req3 req4 rq1 DVDD VSS) adc_sarlogic_nor2 wn=800n wp=2400n
-IR2 (req5 req6 rq2 DVDD VSS) adc_sarlogic_nor2 wn=800n wp=2400n
-IR3 (req7 req8 rq3 DVDD VSS) adc_sarlogic_nor2 wn=800n wp=2400n
-IR4 (req9 req10 rq4 DVDD VSS) adc_sarlogic_nor2 wn=800n wp=2400n
-IR5 (req11 req12 rq5 DVDD VSS) adc_sarlogic_nor2 wn=800n wp=2400n
-IR6 (req13 req14 rq6 DVDD VSS) adc_sarlogic_nor2 wn=800n wp=2400n
-IRA (rq0 rq1 rq2 rq3 ra DVDD VSS) adc_sarlogic_nand4 wn=2400n wp=900n
-IRZ (rq4 rq5 rq6 rz DVDD VSS) adc_sarlogic_nand3 wn=1800n wp=900n
+IR0 (req1 req2 rq0 DVDD VSS) adc_sarlogic_nor2 wn=1200n wp=1200n
+IR1 (req3 req4 rq1 DVDD VSS) adc_sarlogic_nor2 wn=1200n wp=1200n
+IR2 (req5 req6 rq2 DVDD VSS) adc_sarlogic_nor2 wn=1200n wp=1200n
+IR3 (req7 req8 rq3 DVDD VSS) adc_sarlogic_nor2 wn=1200n wp=1200n
+IR4 (req9 req10 rq4 DVDD VSS) adc_sarlogic_nor2 wn=1200n wp=1200n
+IR5 (req11 req12 rq5 DVDD VSS) adc_sarlogic_nor2 wn=1200n wp=1200n
+IR6 (req13 req14 rq6 DVDD VSS) adc_sarlogic_nor2 wn=1200n wp=1200n
+IRA (rq0 rq1 rq2 rq3 ra DVDD VSS) adc_sarlogic_nand4 wn=2400n wp=2400n
+IRZ (rq4 rq5 rq6 rz DVDD VSS) adc_sarlogic_nand3 wn=1800n wp=2400n
 IROR (ra rz rqbar DVDD VSS) adc_sarlogic_nor2 wn=1200n wp=3600n drive=2
 IFB (force forceb DVDD VSS) adc_sarlogic_inv wn=1200n wp=1800n
 ICKH (rqbar cv pib nib forceb CLKC DVDD VSS) adc_sarlogic_clock
@@ -3231,7 +3062,7 @@ IRDB (ready RDY DVDD VSS) adc_sarlogic_buf drive=4
 //   %p_IS14_VSS=(84,-177.0);
 //   &VSS @WIRE(mode="straight") {#IS14:VSS %p_IS14_VSS};
 //   %p_IS14_VSS @TEXT("VSS", size=0.8, halign="start", dy=0.5);
-//   #IR0 @TEXT("wn=800n wp=2400n", key="sizing", dy=-9.0, size=0.7);
+//   #IR0 @TEXT("wn=1200n wp=1200n", key="sizing", dy=-9.0, size=0.7);
 //   #IR0 @PLACE(126,-165.0) => @ORIENT("R0");
 //   %p_IR0_A=(114,-164.0);
 //   &req1 @WIRE(mode="straight") {#IR0:A %p_IR0_A};
@@ -3248,7 +3079,7 @@ IRDB (ready RDY DVDD VSS) adc_sarlogic_buf drive=4
 //   %p_IR0_VSS=(126,-172.0);
 //   &VSS @WIRE(mode="straight") {#IR0:VSS %p_IR0_VSS};
 //   %p_IR0_VSS @TEXT("VSS", size=0.8, halign="start", dy=0.5);
-//   #IR1 @TEXT("wn=800n wp=2400n", key="sizing", dy=-9.0, size=0.7);
+//   #IR1 @TEXT("wn=1200n wp=1200n", key="sizing", dy=-9.0, size=0.7);
 //   #IR1 @PLACE(168,-165.0) => @ORIENT("R0");
 //   %p_IR1_A=(156,-164.0);
 //   &req3 @WIRE(mode="straight") {#IR1:A %p_IR1_A};
@@ -3265,7 +3096,7 @@ IRDB (ready RDY DVDD VSS) adc_sarlogic_buf drive=4
 //   %p_IR1_VSS=(168,-172.0);
 //   &VSS @WIRE(mode="straight") {#IR1:VSS %p_IR1_VSS};
 //   %p_IR1_VSS @TEXT("VSS", size=0.8, halign="start", dy=0.5);
-//   #IR2 @TEXT("wn=800n wp=2400n", key="sizing", dy=-9.0, size=0.7);
+//   #IR2 @TEXT("wn=1200n wp=1200n", key="sizing", dy=-9.0, size=0.7);
 //   #IR2 @PLACE(0,-192.0) => @ORIENT("R0");
 //   %p_IR2_A=(-12,-191.0);
 //   &req5 @WIRE(mode="straight") {#IR2:A %p_IR2_A};
@@ -3282,7 +3113,7 @@ IRDB (ready RDY DVDD VSS) adc_sarlogic_buf drive=4
 //   %p_IR2_VSS=(0,-199.0);
 //   &VSS @WIRE(mode="straight") {#IR2:VSS %p_IR2_VSS};
 //   %p_IR2_VSS @TEXT("VSS", size=0.8, halign="start", dy=0.5);
-//   #IR3 @TEXT("wn=800n wp=2400n", key="sizing", dy=-9.0, size=0.7);
+//   #IR3 @TEXT("wn=1200n wp=1200n", key="sizing", dy=-9.0, size=0.7);
 //   #IR3 @PLACE(42,-192.0) => @ORIENT("R0");
 //   %p_IR3_A=(30,-191.0);
 //   &req7 @WIRE(mode="straight") {#IR3:A %p_IR3_A};
@@ -3299,7 +3130,7 @@ IRDB (ready RDY DVDD VSS) adc_sarlogic_buf drive=4
 //   %p_IR3_VSS=(42,-199.0);
 //   &VSS @WIRE(mode="straight") {#IR3:VSS %p_IR3_VSS};
 //   %p_IR3_VSS @TEXT("VSS", size=0.8, halign="start", dy=0.5);
-//   #IR4 @TEXT("wn=800n wp=2400n", key="sizing", dy=-9.0, size=0.7);
+//   #IR4 @TEXT("wn=1200n wp=1200n", key="sizing", dy=-9.0, size=0.7);
 //   #IR4 @PLACE(84,-192.0) => @ORIENT("R0");
 //   %p_IR4_A=(72,-191.0);
 //   &req9 @WIRE(mode="straight") {#IR4:A %p_IR4_A};
@@ -3316,7 +3147,7 @@ IRDB (ready RDY DVDD VSS) adc_sarlogic_buf drive=4
 //   %p_IR4_VSS=(84,-199.0);
 //   &VSS @WIRE(mode="straight") {#IR4:VSS %p_IR4_VSS};
 //   %p_IR4_VSS @TEXT("VSS", size=0.8, halign="start", dy=0.5);
-//   #IR5 @TEXT("wn=800n wp=2400n", key="sizing", dy=-9.0, size=0.7);
+//   #IR5 @TEXT("wn=1200n wp=1200n", key="sizing", dy=-9.0, size=0.7);
 //   #IR5 @PLACE(126,-192.0) => @ORIENT("R0");
 //   %p_IR5_A=(114,-191.0);
 //   &req11 @WIRE(mode="straight") {#IR5:A %p_IR5_A};
@@ -3333,7 +3164,7 @@ IRDB (ready RDY DVDD VSS) adc_sarlogic_buf drive=4
 //   %p_IR5_VSS=(126,-199.0);
 //   &VSS @WIRE(mode="straight") {#IR5:VSS %p_IR5_VSS};
 //   %p_IR5_VSS @TEXT("VSS", size=0.8, halign="start", dy=0.5);
-//   #IR6 @TEXT("wn=800n wp=2400n", key="sizing", dy=-9.0, size=0.7);
+//   #IR6 @TEXT("wn=1200n wp=1200n", key="sizing", dy=-9.0, size=0.7);
 //   #IR6 @PLACE(168,-192.0) => @ORIENT("R0");
 //   %p_IR6_A=(156,-191.0);
 //   &req13 @WIRE(mode="straight") {#IR6:A %p_IR6_A};
@@ -3350,7 +3181,7 @@ IRDB (ready RDY DVDD VSS) adc_sarlogic_buf drive=4
 //   %p_IR6_VSS=(168,-199.0);
 //   &VSS @WIRE(mode="straight") {#IR6:VSS %p_IR6_VSS};
 //   %p_IR6_VSS @TEXT("VSS", size=0.8, halign="start", dy=0.5);
-//   #IRA @TEXT("wn=2400n wp=900n", key="sizing", dy=-11.0, size=0.7);
+//   #IRA @TEXT("wn=2400n wp=2400n", key="sizing", dy=-11.0, size=0.7);
 //   #IRA @PLACE(0,-217.0) => @ORIENT("R0");
 //   %p_IRA_A=(-12,-214.0);
 //   &rq0 @WIRE(mode="straight") {#IRA:A %p_IRA_A};
@@ -3373,7 +3204,7 @@ IRDB (ready RDY DVDD VSS) adc_sarlogic_buf drive=4
 //   %p_IRA_VSS=(0,-226.0);
 //   &VSS @WIRE(mode="straight") {#IRA:VSS %p_IRA_VSS};
 //   %p_IRA_VSS @TEXT("VSS", size=0.8, halign="start", dy=0.5);
-//   #IRZ @TEXT("wn=1800n wp=900n", key="sizing", dy=-10.0, size=0.7);
+//   #IRZ @TEXT("wn=1800n wp=2400n", key="sizing", dy=-10.0, size=0.7);
 //   #IRZ @PLACE(42,-217.0) => @ORIENT("R0");
 //   %p_IRZ_A=(30,-215.0);
 //   &rq4 @WIRE(mode="straight") {#IRZ:A %p_IRZ_A};
@@ -4229,7 +4060,7 @@ IRDB (ready RDY DVDD VSS) adc_sarlogic_buf drive=4
 //   %port46=$IO_PORT @ATTACH &VSS => @PLACE(-28,-138) => @ORIENT("R0");
 //   (-28,24) @TEXT("adc_sarlogic", size=1.2, bold=true);
 //   (-28,20) @TEXT("14-decision asynchronous SAR, 13 split-CDAC updates, parallel output storage and persistent RDY.", size=0.7);
-//   (-28,16) @TEXT("Defaults: wait_fast=400n wait_slow=9400n extra3=1800n extra456=6u extra9=8u timer_load=4400n reset_load=3u start_load=3600n ready_load=5u", size=0.8);
+//   (-28,16) @TEXT("Defaults: wait_fast=200n wait_slow=11400n extra3=1900n extra456=6u extra9=7600n timer_load=4400n reset_load=3u start_load=4200n ready_load=4700n", size=0.8);
 // }
 ends adc_sarlogic
 

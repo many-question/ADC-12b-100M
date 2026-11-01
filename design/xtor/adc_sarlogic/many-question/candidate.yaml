@@ -2,6 +2,6 @@ name: many-question
 description: Static CMOS 14-stage RTZ completion chain, resettable timeout delay,
   per-step MOS-loaded DAC waits and separate parallel output latches.
 status: wip
-acknowledged: [61, 79, 102, 118]
+acknowledged: [61, 79, 102, 118, 130]
 authors:
   - {github: many-question, name: "Codex SAR logic"}
