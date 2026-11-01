@@ -1,6 +1,6 @@
 # Split-stage comparator A2
 
-**A2 hold mechanism is pending its bounded two-corner screen.** A1 source and results remain frozen at [d948f9af](https://github.com/many-question/ADC-12b-100M/tree/d948f9af607cb669d18d37c2175624e726b4f7e3/design/xtor/adc_comp/many-question-splitstage). A2 adds only a four-MOS NOR2, CKE=NOT(CKB OR CKL), and connects the two front-tail gates to CKE. Front resets stay on CKF; all analog geometries, MOMs, four delay stages and the second latch are unchanged. The old TT loading record belongs to A1 and is stale for A2.
+**A2 restores 36/36 deterministic decisions at TT and FS, but TT 30 mV delay is 56.7251 ps and still fails 50 ps.** See [A2 measurements and hold limitations](A2-SCREEN.md). Only two delay jobs were run; no A2 loading or noise result is available. A1 source and results remain frozen at [d948f9af](https://github.com/many-question/ADC-12b-100M/tree/d948f9af607cb669d18d37c2175624e726b4f7e3/design/xtor/adc_comp/many-question-splitstage). A2 adds only a four-MOS NOR2, CKE=NOT(CKB OR CKL), and connects the two front-tail gates to CKE. Front resets stay on CKF; all analog geometries, MOMs, four delay stages and the second latch are unchanged. The old TT loading record belongs to A1 and is stale for A2.
 
 **A1 screen failed; its expansion stopped.** TT 30 mV delay is 59.9852 ps against 50 ps, and only 8/36 TT and 4/36 FS decisions complete. See [the retained A1 screen](A1-SCREEN.md) for the three recorded tests, physical timing, signal decay and limitations. Status remains `wip`.
 
