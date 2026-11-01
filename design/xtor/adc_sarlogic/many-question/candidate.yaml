@@ -1,0 +1,11 @@
+name: many-question
+description: Static CMOS self-timed 14-step SAR controller with token-interlocked bit slices, per-step tapped DAC settling wait, parallel-reset timeout recovery, and glitch-free output register.
+status: ready
+acknowledged:
+- 61
+- 79
+- 102
+- 118
+authors:
+- github: many-question
+  name: Gemini 4 Argon adc_sarlogic
