@@ -25,10 +25,13 @@ CONV, so interruption inhibits further writes while preserving the raw bank
 for capture. Once ACTIVE is set, this stage withdraws its clock request;
 its DONE bit prevents the request from reappearing when ACTIVE is cleared.
 
-The balanced request tree sets a separate clock holding latch. Comparator
-validity, timeout or CONV low resets that latch. The comparator receivers'
-first inverter outputs reset CLKC, while their later stages drive the bit
-latches. ACTIVE retains the enabled stage long enough to store its result
+The balanced request tree sets a separate clock holding latch. The
+conversion window and timeout are combined separately, while the comparator
+receivers' first inverter outputs retain a direct four-input NAND reset
+path. This avoids clipping the small extra DAC waits with a slow reset
+qualification buffer. Receiver, storage/output and request-tree drive
+strengths are matched using approved device geometries and multiplicities.
+Later receiver stages drive the bit latches. ACTIVE retains the enabled stage long enough to store its result
 after comparator reset. Because the old request was withdrawn at evaluation
 start, return-to-zero cannot reassert the clock for the previous stage.
 Only the next stage's request can restart it, after stored completion and
@@ -97,3 +100,14 @@ LOG-01's 1000-conversion requirement or all-corner coverage.
 
 Current measurements and remaining failures are recorded in
 [VALIDATION.md](VALIDATION.md). The candidate is not ready for selection.
+
+## Timing-budget decision
+
+Issue #130's maintainer decision is acknowledged: LOG-08 remains <= 2.75 ns,
+and 2.90 ns is not an approved target. The revised circuit passes its
+standard 60-conversion TT function test at 2.747012 ns with zero bit/DAC
+errors and a 14.46 percent worst extra-wait error. This is TT evidence, not
+complete qualification. The fast-corner slow wait is retained above the
+70 ps floor in short diagnostics, rather than indiscriminately shortening
+all slow waits to the TT behavioral value. Full-corner slow-comparator and
+current-circuit timeout tests are being refreshed.
