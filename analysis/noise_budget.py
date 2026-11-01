@@ -194,13 +194,13 @@ def table(c: Case) -> str:
 
 V02_WORST = Case("v0.2 limits, worst corner", k=1.0, cmp_top=80e-6)
 V02_ISSUE = Case("v0.2 sizing, comparator 240 uV (all-corner)", k=1.0, cmp_top=240e-6)
-V03_WORST = Case("v0.3, worst corner (8 mA, 6 pF reference, #35)", k=2.0, cmp_top=240e-6, i_ref=8e-3, c_dec=6e-12)
+V03_WORST = Case("v0.3, worst corner (8 mA, 6 pF reference, #35; CMP-13 280 uV)", k=2.0, cmp_top=280e-6, i_ref=8e-3, c_dec=6e-12)
 V03_TT = replace(V03_WORST, name="v0.3, TT (27 C, TT timing, comparator at its TT limit)",
                  cmp_top=200e-6, temp_c=27.0, timing=1.0)
 V03_TT_BEHAV = replace(V03_TT, name="v0.3, TT, behavioral conditions (no mismatch, no HD3, follower gamma = 2)",
                        hd3_dbc=None, mismatch=False, ref_noise=float(np.sqrt(2 * K_BOLTZMANN * 300.15 / 7.2e-12)))
 
-CMP_SWEEP = (180, 200, 220, 240, 260)
+CMP_SWEEP = (260, 280, 300, 320)
 
 
 def sweep() -> str:
@@ -209,7 +209,7 @@ def sweep() -> str:
     for k in (1.0, 1.5, 2.0, 3.0):
         cells = []
         for c in CMP_SWEEP:
-            cs = Case("", k=k, cmp_top=c * 1e-6, i_ref=2e-3 * k, c_dec=1.5e-12 * k)
+            cs = Case("", k=k, cmp_top=c * 1e-6, i_ref=4e-3 * k, c_dec=3e-12 * k)
             cells.append(f"{min(total(replace(cs, timing=s), chips=4)['mean'] for s in WORST_TIMINGS):.2f}")
         a = arch_k(k)
         out.append(f"| {a.c_s*1e12:.2f} | {k:g} | {a.ktc_noise(125)*1e6:.1f} | " + " | ".join(cells) + " |")

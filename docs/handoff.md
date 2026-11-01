@@ -13,7 +13,7 @@
 
 | 模块 | 关键指标 | 主要风险 | 依赖 / 交互 | 建议人选侧重 |
 |---|---|---|---|---|
-| `adc_comp` | 噪声 TT ≤ 200 µV、全角 ≤ 240 µV，1 mV 时延 ≤ 80 ps，τ ≤ 15 ps，Cin ≤ 20 fF，CLKC 输入 ≤ 16 fF，回踢 ≤ 40 µV/周期 | 慢角延时、回踢电荷留在浮空上极板 | 负载与时钟来自 SAR 逻辑 | 动态比较器 / 噪声 |
+| `adc_comp` | 噪声 TT ≤ 200 µV、全角 ≤ 280 µV，1 mV 时延 ≤ 80 ps，τ ≤ 15 ps，复位 ≤ 45 ps，Cin ≤ 20 fF，CLKC 输入 ≤ 16 fF，回踢 ≤ 40 µV/周期 | 慢角延时、回踢电荷留在浮空上极板 | 负载与时钟来自 SAR 逻辑 | 动态比较器 / 噪声 |
 | `adc_sarlogic` | 全角转换 ≤ 4.1 ns（70 ps 比较器），环路开销 ≤ 35/40 ps，两段 DAC 等待 | SS/0.81 V/−40 °C 慢 1.6× 以上 | 驱动 CDAC 控制（15 fF/线）；输入 CONV ≤ 40 fF、OUTP/OUTN ≤ 7 fF | 异步数字 / 定制逻辑 |
 | `adc_cdac` | C_S = 2.057 pF（cu = 1 fF，权重 980 560 318 180 102 57 32 18 10 6 3 2 1），权重误差在冗余内可校准（DAC-03），τ ≤ 15 ps，跟踪 SFDR ≥ 85 dB | 0.5 fF 半电容、驱动器 PMOS 在 0.81 V 关断不彻底、底板结电容非线性 | 栅压来自 bootstrap，控制来自 SAR 逻辑；时钟输入 PHI_S/PHI_SB ≤ 40 fF、CONV ≤ 80 fF | 电容阵列 / 开关 |
 | `adc_bootstrap` | VG−VIN ≥ 0.72 V 且波动 ≤ 40 mV，关断 ≤ 60 ps，跟踪 SFDR ≥ 82 dB | 器件耐压（≤ 1.1 V）、负载为整个输入开关栅电容 | 负载 = CDAC 输入开关（规格给出参考负载）；PHI_B/PHI_BB 输入 ≤ 16 fF | 采样开关 |
@@ -57,7 +57,7 @@ CONV 的分配：CDAC 的 CONV 使能 22 个采样半电容的三态驱动器（
 ### adc_comp
 * 输入共模约 0.49 V（0.40–0.56 V），首次比较差分输入可达 0.75 V；NMOS 输入、ulvt。
 * 建议双尾（double-tail）或带预放大的 StrongARM：预放大级隔离回踢；输出带反相器满足 RTZ。
-* 噪声主要由输入对 gm 与积分电容决定；TT ≤ 200 µV，在 125 °C、ff/ss 等全部角 ≤ 240 µV（v0.3，见 `docs/noise-budget.md` §4）。
+* 噪声主要由输入对 gm 与积分电容决定；TT ≤ 200 µV，在 125 °C、ff/ss 等全部角 ≤ 280 µV（2026-11 由 240 µV 放宽，见 `docs/noise-budget.md` §4、§10）。
 * 失调不影响线性（冗余），但 σ ≤ 5 mV（CMP-03）以免吃掉量程。它由 `tb_comp_offset_mc` 判定：TT 下只加局部器件失配，
   一次 Spectre `montecarlo` 跑 50 个样本（固定 seed），每个样本关掉瞬态噪声、在 ±25 mV 内逐次逼近搜出翻转点（约 6 µV 分辨率，
   再在 ±50 µV 复查），σ 取样本标准差（n − 1）。运行 `python -m adcflow sim tb_comp_offset_mc --view adc_comp=xtor:<name>`。
