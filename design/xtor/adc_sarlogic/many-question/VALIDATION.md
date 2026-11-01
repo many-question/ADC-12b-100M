@@ -3,70 +3,96 @@
 Specification: adc_sarlogic 0.7.0. Circuit hash: `237b05f50a71cbad`.
 Issue #130's maintainer decision is acknowledged: LOG-08 is still <= 2.75 ns;
 2.90 ns is not an approved target. No ports, specifications, testbenches or
-numerical settings were changed. Results are self-reported, not independently
-verified, and the candidate is not eligible for selection.
+numerical settings were changed. Results are self-reported; independent
+verification and selection have not been performed.
 
-## Standard TT function test
+## Formal timing progress
 
-The current circuit captures 60 conversions with zero bit and
-DAC-level errors, using APS and `errpreset=conservative`. The record is fresh.
-**All applicable bounded TT observations pass**, including LOG-08
-**2.747012 ns <= 2.75 ns** and LOG-16 **14.46% <= 20%**.
+| Requirement | Current evidence | Verdict |
+|---|---|---|
+| LOG-08: TT maximum conversion time <= 2.75 ns | 2.747012 ns, standard 60-conversion function test | pass at TT |
+| LOG-09: slow comparator, all corners <= 4.1 ns | 2.704664-3.716304 ns, 45 x 100 conversions | pass at all 45 corners |
+| LOG-11: stuck-comparator recovery errors = 0 | 45 x 40 conversions, zero errors | pass at all 45 corners |
+| LOG-12: timeout 200-350 ps | corner means 204.479-337.386 ps | pass at all 45 corners |
+| LOG-16: TT worst extra-wait error <= 20% | 14.46% | pass at TT |
 
-| TT observation | Result |
-|---|---:|
-| LOG-02 decision to UP/DN | 31.550 ps |
-| LOG-03 decision to CLKC falling | 30.721 ps |
-| LOG-04 fast wait, net of extra wait | 45.217 ps |
-| LOG-05 slow wait, net of extra wait | 92.936 ps |
-| LOG-07 first CLKC | 107.257 ps |
-| LOG-08 maximum conversion time | 2.747012 ns |
-| LOG-10 D setup before RDY | 133.366 ps |
-| LOG-13 DVDD power, reported only | 1059.47 uW |
-| LOG-14 CONV input capacitance | 2.534 fF |
-| LOG-15 larger comparator input capacitance | 6.727 fF |
-| LOG-16 worst extra-wait error | 14.46% |
+The slow test captures 4500 complete words with zero bit,
+DAC-level or decision-count errors. Every captured word has 14 emulator-logged decisions.
+Its worst corner is `ss_low_125`. The timeout test captures
+1800 words with zero recovery errors. All committed records
+match this circuit and are not stale; APS and `errpreset=conservative` are
+retained, with no sample-count overrides.
 
-The earlier circuit `df50102541da9321` measured 2.860505 ns for LOG-08.
-The current result is 113.493 ps faster without relaxing the 2.75 ns limit.
-The changed receivers, output/storage drive and request-tree matching reduce
-loop overhead. The slow-wait load is retuned to preserve the fast-corner
-70 ps floor. A rejected fully buffered reset path clipped the small extra
-DAC waits; the delivered clock retains direct comparator return-to-zero
-feedback and separately qualifies the conversion window and timeout.
+These passes do not make the whole candidate eligible: formal remaining
+function-corner coverage, 1000-conversion random, mixed top-level regression,
+SOA and independent verification remain pending. Candidate status is `wip`.
 
-## Coverage still in progress
+## Ordinary function observations
 
-The standard all-45-corner slow-comparator test is running with its original
-100 conversions per corner and 70 ps comparator condition. That pending run
-is not yet claimed to pass. The current standard all-45-corner timeout test
-is complete: 1800 captures, zero recovery errors, and corner-mean timeout
-204.479-337.386 ps. LOG-11/12 pass at all required corners on the current
-circuit, with fresh records.
+The standard TT test captures 60 words with zero bit/DAC
+errors; all applicable bounded TT observations pass. Values below use each
+specification's unit (ps/ns/fF/percent or reported uW).
 
-The current four-conversion quick-set diagnostic covers seven corners and
-28 conversions with no bit, DAC-level or clock-count errors. Its minimum
-slow wait is approximately 70.38 ps, first clock 82.18 ps and D setup
-103.37 ps. It is diagnostic only, not formal full-corner coverage for
-LOG-06/07/10. The earlier all-45-corner four-conversion diagnostic belongs
-to intermediate circuit `49ab94f9521d0865`, before the final timeout and
-ready/extra-wait correction, and does not qualify the current circuit.
+| TT spec | Measured | Requirement | TT verdict |
+|---|---:|---|---|
+| LOG-02 | 31.549660 ps | <= 40 | pass |
+| LOG-03 | 30.721130 ps | <= 45 | pass |
+| LOG-04 | 45.217264 ps | 35 .. 60 | pass |
+| LOG-05 | 92.935631 ps | 70 .. 100 | pass |
+| LOG-06 | 92.935631 ps | >= 70 | pass |
+| LOG-07 | 107.257090 ps | 80 .. 160 | pass |
+| LOG-08 | 2.747012 ns | <= 2.75 | pass |
+| LOG-10 | 133.366494 ps | >= 100 | pass |
+| LOG-13 | 1059.473644 uW | reported | info |
+| LOG-14 | 2.533733 fF | <= 40 | pass |
+| LOG-15 | 6.726849 fF | <= 7 | pass |
+| LOG-16 | 14.456266 % | <= 20 | pass |
 
-The timeout records and TIMEOUT_CORNERS.png now describe the current
-circuit. The older results of `df50102541da9321` have been replaced, not
-rehashed to claim a different circuit.
+The standard fast-corner function test (`ff_high_m40`) also captures
+60 words with zero errors. Its applicable LOG-06/07/10 pass:
+mean slow wait 70.142097 ps, first clock 82.237839 ps,
+D setup 103.330186 ps. These function requirements name all corners:
+the two formally recorded corners do not substitute for all 45.
 
-## Reproduction and remaining qualification
+The current quick-set four-conversion diagnostic covers seven corners and
+28 words with zero bit, DAC-level or decision-count errors. Its minimum
+slow wait is about 70.38 ps, first clock 82.18 ps and D setup 103.37 ps.
+It is diagnostic only. The older all-corner four-conversion diagnostic of
+intermediate circuit `49ab94f9521d0865` does not qualify this circuit.
+
+## Design changes and retained limits
+
+The earlier circuit `df50102541da9321` measured 2.860505 ns at TT. The current
+maximum is 113.493 ps shorter without relaxing LOG-08.
+Receiver, output/storage and request-tree drive are rebalanced using valid
+device geometries and multiplicities. Direct comparator return-to-zero
+feedback is retained in the four-input clock latch; the window/timeout
+qualification is separate. A rejected fully buffered reset clipped small
+extra waits and was not retained.
+
+The slow-wait load preserves the 70 ps fast-corner floor, rather than blindly
+lowering all slow waits to the TT behavioral nominal. TT extra waits after
+decisions 3/4/5/6/9 are 8.55/
+26.49/25.97/
+27.23/26.19 ps, against the unchanged
+10/30/30/30/25 ps design values and the unchanged 20 percent tolerance.
+The 12-tap EHVT NMOS-only timeout load is retuned to `timer_load=5u` after
+the clock-path change. It uses no extra reference, timing pin or ideal delay.
+
+![Current formal timeout across all corners](TIMEOUT_CORNERS.png)
+
+## Reproduction and checks
 
 ```text
 python -m adcflow sim tb_sarlogic_func --view adc_sarlogic=xtor:many-question --corners typ
+python -m adcflow sim tb_sarlogic_func --view adc_sarlogic=xtor:many-question --corners ff_high_m40
 python -m adcflow sim tb_sarlogic_func_slow --view adc_sarlogic=xtor:many-question --corners all
 python -m adcflow sim tb_sarlogic_timeout --view adc_sarlogic=xtor:many-question --corners all
 ```
 
-The candidate stays `wip`: formal remaining function-corner coverage,
-1000-conversion random, mixed top-level regression, SOA and independent
-verification remain pending. The all-corner slow test must also finish and be judged before its coverage
-can be claimed. RNL reports zero
-errors, warnings and hints. The local unit suite reports 457 passed, 2 skipped
+The full-corner executions use the standard test parameters and numerical
+settings. Only queue concurrency/resource wall-time limits were managed;
+input hashes were checked against the staged circuit before recording.
+Local checks pass without stale-result or failed-spec warnings. RNL reports
+zero errors, warnings and hints. The unit suite reports 457 passed, 2 skipped
 and 1 deselected with `pytest -q -m "not slow"`.

@@ -109,5 +109,6 @@ standard 60-conversion TT function test at 2.747012 ns with zero bit/DAC
 errors and a 14.46 percent worst extra-wait error. This is TT evidence, not
 complete qualification. The fast-corner slow wait is retained above the
 70 ps floor in short diagnostics, rather than indiscriminately shortening
-all slow waits to the TT behavioral value. Full-corner slow-comparator and
-current-circuit timeout tests are being refreshed.
+all slow waits to the TT behavioral value. The standard full-corner slow-comparator and timeout tests also pass on
+the current circuit; remaining function/random, top-level and independent
+qualification is still incomplete. See VALIDATION.md for the coverage.
