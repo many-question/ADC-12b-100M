@@ -10,6 +10,7 @@ acknowledged:
 - 80
 - 99
 - 115
+- 139
 authors:
 - github: many-question
   name: Codex adc_clkgen

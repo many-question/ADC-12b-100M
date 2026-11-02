@@ -338,6 +338,15 @@ def run_test(test_id: str, block_name: str | None = None, corners: str = "typ",
             save = soa.deck_lines(soa_plans[j.name], j.tb_text)
         decks[j.name], _ = make_deck(j, rroot, views, needs_pdk, mcset and mcset["models"], save)
     stage(run_dir, jobs, decks)
+    on_server = []                             # the SOA check runs where the waveforms are (soa_core.py)
+    if isinstance(test.get("soa"), dict) and test["soa"].get("remote"):
+        for j in jobs:
+            plan = soa.remote_plan(soa_plans[j.name], j.tb_text)
+            if plan:
+                (run_dir / "stage" / "jobs" / j.name / "soa_plan.json").write_text(json.dumps(plan), encoding="utf-8")
+                on_server.append(j.name)
+        if on_server:
+            shutil.copy2(Path(soa.__file__).with_name("soa_core.py"), run_dir / "stage" / "soa_core.py")
     print(f"[adcflow] {test_id} ({block.name}): {len(jobs)} job(s), views={views or 'behav'}, "
           f"pdk={'yes' if needs_pdk else 'no'}"
           + (f", Monte Carlo {mcset['runs']} samples (seed {mcset['seed']}, {mcset['variations']}"
@@ -351,6 +360,8 @@ def run_test(test_id: str, block_name: str | None = None, corners: str = "typ",
         remote.upload_tree(run_dir / "stage", rroot)
         remote.run_jobs(rroot, [j.name for j in jobs], mode_args, parallel,
                         timeout=timeout or float(test.get("timeout", 4 * 3600)))
+        if on_server:
+            remote.soa_reduce(rroot, on_server, parallel)
         skipped = remote.fetch(rroot, remote.cfg()["fetch"] + ["rc.txt"], run_dir,
                                float(remote.cfg()["fetch_max_mb"]))
         if skipped:

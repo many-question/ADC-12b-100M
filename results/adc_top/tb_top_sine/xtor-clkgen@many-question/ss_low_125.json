@@ -17,68 +17,69 @@
   "devnoise": 1,
   "beh_speed": 1.0,
   "vref_in": 0.9,
-  "cdac_behav": 1
+  "cdac_behav": 1,
+  "comp_behav": 1
  },
  "metrics": {
   "n_samples": 2049,
   "missing_rdy": 0,
-  "t_conv_max_ns": 2.883114,
-  "t_conv_mean_ns": 2.7888056435546877,
+  "t_conv_max_ns": 2.864265,
+  "t_conv_mean_ns": 2.78889383984375,
   "cal_independent": true,
   "weights_cal": [
-   1960.438,
-   1120.251,
-   636.11,
-   359.992,
-   203.951,
-   113.974,
-   63.977,
-   35.945,
-   19.94,
-   11.883,
+   1960.45,
+   1120.238,
+   636.134,
+   359.997,
+   203.961,
+   113.972,
+   63.972,
+   35.957,
+   19.951,
+   11.888,
    6.024,
-   3.719,
-   1.856,
-   0.94
+   3.705,
+   1.841,
+   0.912
   ],
-  "enob": 10.913983380249332,
-  "sndr_dBc": 67.46217994910099,
-  "sfdr_dBc": 85.91738226208683,
-  "snr_dBc": 67.54020845995731,
-  "thd_dBc": -85.27612206064848,
-  "enob_nom": 10.864842607901164,
-  "sndr_nom_dBc": 67.16635249956501,
-  "sfdr_nom_dBc": 85.5041642953098,
-  "snr_nom_dBc": 67.2440500827186,
-  "thd_nom_dBc": -84.86768585671928,
-  "amp_codes": 2021.0687581644322,
-  "fs_peak_V": 0.9937737093377735,
+  "enob": 10.908631147652763,
+  "sndr_dBc": 67.42995950886963,
+  "sfdr_dBc": 82.76981569913124,
+  "snr_dBc": 67.49202503290617,
+  "thd_dBc": -85.91029416020001,
+  "enob_nom": 10.86075076966003,
+  "sndr_nom_dBc": 67.14171963335338,
+  "sfdr_nom_dBc": 83.74847386454059,
+  "snr_nom_dBc": 67.49005684255427,
+  "thd_nom_dBc": -85.13181879744694,
+  "amp_codes": 2021.0893730602688,
+  "fs_peak_V": 0.9937635729520322,
   "code_min": 248,
   "code_max": 4290,
   "spike_count": 0,
-  "spike_max_lsb": 2.173486706290248,
+  "spike_max_lsb": 2.17665853467156,
   "spike_index": [],
-  "p_avdd_mW": 0.281804920452,
-  "p_dvdd_mW": 0.21059796698100003,
-  "p_avdd18_mW": 13.239959224320003,
-  "power_mW": 13.732362111753003
+  "p_avdd_mW": 0.28242648845100005,
+  "p_dvdd_mW": 0.211475128536,
+  "p_avdd18_mW": 13.23998422254,
+  "power_mW": 13.733885839527
  },
  "specs": {
   "TOP-01": {
    "metric": "enob",
-   "value": 10.913983380249332,
+   "value": 10.908631147652763,
    "limit": ">= 10.5",
    "pass": true
   },
   "TOP-03": {
    "metric": "sfdr_dBc",
-   "value": 85.91738226208683,
+   "value": 82.76981569913124,
    "limit": ">= 75",
    "pass": true
   },
   "TOP-04": {
    "metric": "fs_peak_V",
-   "value": 0.9937737093377735,
+   "value": 0.9937635729520322,
    "limit": ">= 0.95",
    "pass": true
   },
@@ -90,7 +91,7 @@
   },
   "TOP-06": {
    "metric": "t_conv_max_ns",
-   "value": 2.883114,
+   "value": 2.864265,
    "limit": "<= 4.4",
    "pass": true
   },
@@ -104,7 +105,7 @@
  "specs_na": {
   "TOP-02": {
    "metric": "enob",
-   "value": 10.913983380249332,
+   "value": 10.908631147652763,
    "limit": ">= 10.75",
    "corners": "typ"
   }
@@ -120,29 +121,30 @@
   }
  ],
  "meta": {
-  "date": "2026-10-29T23:13:21",
-  "git": "176bc60",
+  "date": "2026-10-31T14:58:46",
+  "git": "c6152d2",
   "git_clean": true,
   "mode": "aps",
   "pdk": true,
   "mc": null,
-  "wall_s": 3520.5,
+  "wall_s": 5502.9,
   "rc": "0",
-  "sim_s": "1709",
+  "sim_s": "2139",
   "numerics": {
    "source": "spectre.log",
-   "reltol": 0.001,
-   "maxstep_ps": 410520.0,
-   "method": "traponly",
-   "errpreset": "moderate",
-   "lteratio": 3.5,
+   "reltol": 0.0001,
+   "maxstep_ps": 205260.0,
+   "method": "gear2only",
+   "errpreset": "conservative",
+   "lteratio": 10.0,
+   "relref": "alllocal",
    "abstol_V": 1e-06,
-   "steps_accepted": 3863686,
-   "step_mean_ps": 5.31254,
+   "steps_accepted": 5451949,
+   "step_mean_ps": 3.76489,
    "step_max_ps": null
   },
   "files": {
-   "tb/top/tb_top_sine.scs": "d131f9666cdb9650",
+   "tb/top/tb_top_sine.scs": "3a685ccced0de8ea",
    "tb/common/veriloga/tb_imeter_va.va": "d4be49aca417ad61",
    "tb/common/veriloga/tb_capture_va.va": "1a05df990a1ef806",
    "tb/common/veriloga/tb_rsrc_va.va": "66b85ead5a038eb0",
@@ -177,10 +179,9 @@
   },
   "provenance": {
    "spectrum": {
-    "estimator": "adcflow.spectrum v1",
-    "adctoolbox": "0.6.4",
-    "sfdr": "plotspec definition: peak bin of the fundamental / largest other single bin (DC and signal bins excluded, Nyquist included)",
-    "enob_sndr_snr_thd": "adctoolbox 0.6.4 compute_spectrum"
+    "estimator": "adctoolbox 0.9.1 @ cd72061 compute_spectrum",
+    "adctoolbox": "0.9.1",
+    "adctoolbox_commit": "cd72061"
    }
   }
  }

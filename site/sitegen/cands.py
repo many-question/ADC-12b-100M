@@ -101,6 +101,7 @@ def missing_items(row: dict) -> list[str]:
         "stale": lambda: f"{f['stale']} 个结果过期",
         "error": lambda: f"{f['error']} 个结果出错",
         "soa": lambda: f"{f['soa']} 个结果有 SOA 违例",
+        "soa_unverified": lambda: f"逐管 SOA 未验证：{f['soa_unverified']} 个要求的结果缺失、只有行为级范围、出错或未复核",
         "mismatch": lambda: f"{f['mismatch']} 个结果复核不符",
         "unverified": lambda: f"{f['unverified']} 个结果未复核（自报）",
         "top": lambda: {"fail": "顶层混合回归不通过" + (f"（{'、'.join(top['failing'])}）" if top.get("failing") else ""),

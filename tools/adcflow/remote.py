@@ -163,6 +163,21 @@ tar czf fetch.tgz -T fetch.list skipped.list 2>/dev/null
     return skipped
 
 
+def soa_reduce(remote_dir: str, jobs: list[str], parallel: int) -> None:
+    """The per-device SOA check of these jobs on the server (soa_core.py). A job that fails has no
+    soa_rows.json and keeps its full waveforms, which are too large to fetch: its result reports the
+    missing transient as an error. Each job's log is soa_reduce.log, fetched with the job."""
+    joblist = "\n".join(jobs)
+    script = f"""
+cd {shlex.quote(remote_dir)} || exit 1
+cat > soa_jobs.list <<'EOF'
+{joblist}
+EOF
+xargs -P {max(int(parallel), 1)} -I J sh -c 'python3 soa_core.py jobs/J > jobs/J/soa_reduce.log 2>&1' < soa_jobs.list
+"""
+    ssh_script(script, timeout=3600, check=False)
+
+
 def run_jobs(remote_dir: str, jobs: list[str], mode_args: list[str], parallel: int,
              timeout: float, warmup: bool = True) -> None:
     """Run spectre on every jobs/<job>/deck.scs. The first job runs alone so the
