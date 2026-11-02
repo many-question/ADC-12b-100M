@@ -802,15 +802,15 @@
   }
  ],
  "meta": {
-  "date": "2026-11-03T02:29:36",
-  "git": "09f2c3c2",
+  "date": "2026-11-03T02:35:11",
+  "git": "fe227b0b",
   "git_clean": true,
   "mode": "aps",
   "pdk": true,
   "mc": null,
-  "wall_s": 197.2,
+  "wall_s": 166.6,
   "rc": "0",
-  "sim_s": "15",
+  "sim_s": "22",
   "numerics": {
    "source": "spectre.log",
    "reltol": 0.0001,
@@ -835,6 +835,46 @@
   },
   "views": {
    "adc_comp": "xtor:many-question-strongarm"
+  },
+  "crosscheck": {
+   "settings": {
+    "reltol": 1e-07,
+    "vabstol": 1e-08,
+    "maxstep": "1p",
+    "method": "traponly"
+   },
+   "numerics": {
+    "source": "spectre.log",
+    "reltol": 1e-08,
+    "maxstep_ps": 1.0,
+    "method": "traponly",
+    "errpreset": "conservative",
+    "lteratio": 10.0,
+    "relref": "alllocal",
+    "abstol_V": 1e-08,
+    "vabstol": 1e-08,
+    "steps_accepted": 94085,
+    "step_mean_ps": 0.127969,
+    "step_max_ps": 1.0
+   },
+   "rc": "0",
+   "sim_s": "32",
+   "metrics": {
+    "soa_violations": {
+     "ref": 0,
+     "xcheck": 0,
+     "diff": 0
+    }
+   },
+   "soa": {
+    "pairs": 57,
+    "max_V_diff_max_mV": 1.08,
+    "at": "XDUT.MRQP gd",
+    "violations": [
+     0,
+     0
+    ]
+   }
   }
  }
 }
