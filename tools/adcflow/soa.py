@@ -1,8 +1,8 @@
 """Per-device safe-operating-area (SOA) check of the thin-oxide MOS devices.
 
-A block spec can require |Vgs|, |Vgd|, |Vds| <= limit for every thin-oxide device over
-a whole transient, both polarities, edges included. A test enables the check in its
-block spec (docs/verification.md §5):
+A block spec can require the SOA rule for every thin-oxide device and terminal pair
+(|Vgs|, |Vgd|, |Vds|) over a whole transient, both polarities, edges included. A test
+enables the check in its block spec (docs/verification.md §5):
 
     tests:
       tb_bootstrap_dc:
@@ -19,7 +19,12 @@ block spec (docs/verification.md §5):
 ``plan`` runs when the run deck is built: it lists the devices and the nodes on their
 terminals, and the deck saves exactly those nodes (``Plan.save_lines``). ``check`` reads
 their transient waveforms and returns, per device and terminal pair, the largest |V| over
-every time point the simulator accepted, when it occurs, and pass / fail.
+every time point the simulator accepted, when it occurs, its time above the limit and
+pass / fail.
+
+For a test with ``soa: {remote: true}`` the waveforms of every device node are too large to
+fetch: the runner makes the same check on the server (soa_core.py) and fetches its rows, the
+signals the testbench saves itself and the nodes of the worst pair.
 
 A DUT whose views are all behavioral has no devices: the scope is then ``external`` (the
 boundary devices only), which is not transistor-level evidence. A behavioral DUT in a
@@ -30,13 +35,22 @@ under a transistor-level DUT, an unclassified MOS master, a node without a wavef
 waveforms that do not start at t = 0) raises ``Unverified``; a measure reports that as an
 error, never as 0 violations.
 
-Each pair also reports how long its |V| stays above the limit (``t_over_ps``, linear between
-the saved points). That is a diagnostic only: the verdict is the largest |V|, and a short
-excursion is a violation like a long one.
+The rule, a project decision (2026-11-02, #133; specs/soa_rule.yaml): a pair passes if its
+largest |V| is at most limit_V (specs/soa.yaml, 1.1 V). It also passes if its largest |V| is
+at most peak_V (1.29 V) and its time above limit_V is at most max_over_s (100 ps) in every
+window_s (10 ns) window, sliding over the whole transient, start-up included. Anything else
+is a violation. It replaces the #27 rule that a short excursion is never waived.
+
+Each pair reports its total time above the limit (``t_over_ps``) and the time in its worst
+window (``t_window_ps``), both linear between the saved points. ``violations`` applies the
+rule to the recorded table when a result is judged, so specs/soa_rule.yaml makes no result
+stale. A result recorded before the rule has no ``t_window_ps``: its total time is an upper
+bound of every window, so a pair within the rule by that bound passes.
 """
 
 from __future__ import annotations
 
+import json
 import re
 from dataclasses import dataclass, field
 from functools import lru_cache
@@ -45,15 +59,15 @@ from pathlib import Path
 import numpy as np
 import yaml
 
-from . import REPO_ROOT
+from . import REPO_ROOT, soa_core
 from .netlist import ENDS_RE, INST_RE, SUBCKT_RE, Subckt, logical_lines, parse
+from .soa_core import GROUND, PAIRS, key as _key, over_spans, worst_window  # noqa: F401
 
 SOA_YAML = REPO_ROOT / "specs" / "soa.yaml"
+RULE_YAML = REPO_ROOT / "specs" / "soa_rule.yaml"     # read when judging: not a dependency of any result
+ROWS_FILE = "soa_rows.json"                           # a job's check made on the server (soa_core.py)
 TERMINALS = {"mos": ("d", "g", "s", "b"), "moscap": ("p", "n")}
-PAIRS = {"mos": (("gs", "g", "s"), ("gd", "g", "d"), ("ds", "d", "s")), "moscap": (("pn", "p", "n"),)}
-GROUND = "0"
 MAX_DEPTH = 32
-PLATEAU_V = 1e-4            # a maximum "occurs" at the first point within this of it (start of a plateau)
 
 
 class Unverified(RuntimeError):
@@ -63,6 +77,12 @@ class Unverified(RuntimeError):
 @lru_cache
 def config() -> dict:
     with open(SOA_YAML, encoding="utf-8") as f:
+        return yaml.safe_load(f)
+
+
+@lru_cache
+def rule() -> dict:
+    with open(RULE_YAML, encoding="utf-8") as f:
         return yaml.safe_load(f)
 
 
@@ -78,11 +98,6 @@ def classify(master: str) -> str | None:
     if re.search(c["mos_pattern"], master):
         return "unknown"
     return None
-
-
-def _key(node: str) -> str:
-    """Waveform name of a node as written in a netlist (PSF names carry no escapes)."""
-    return node.replace("\\<", "<").replace("\\>", ">").replace("\\\\", "\\")
 
 
 @dataclass
@@ -239,11 +254,22 @@ def deck_lines(pl: Plan, tb_text: str) -> list[str]:
     return pl.save_lines(_saved(tb_text))
 
 
-def check(pl: Plan | None, w: dict[str, np.ndarray]) -> dict:
-    """SOA metrics from the transient waveforms `w` (psf.read of the tran results).
+def remote_plan(pl: Plan, tb_text: str) -> dict | None:
+    """soa_plan.json of a job for the check on the server (soa_core.reduce_job); None when there is
+    nothing to read there (no device, or the check cannot be made anyway)."""
+    if pl.problem or not pl.devices:
+        return None
+    return {"limit_V": pl.limit_V, "rule": rule(), "keep": sorted(_saved(tb_text)),
+            "devices": [{"name": d.name, "master": d.master, "kind": d.kind, "where": d.where, "nodes": d.nodes}
+                        for d in pl.devices]}
 
-    soa_violations is the number of device / terminal pairs whose largest |V| exceeds the
-    limit; soa_table lists every pair. Raises Unverified when the check cannot be made."""
+
+def check(pl: Plan | None, w: dict[str, np.ndarray], remote: dict | None = None) -> dict:
+    """SOA metrics from the transient waveforms `w` (psf.read of the tran results), or from the rows
+    of the check made on the server (`remote`, soa_rows.json) when `w` is only a thin part of them.
+
+    soa_violations is the number of device / terminal pairs outside the rule (module docstring);
+    soa_table lists every pair. Raises Unverified when the check cannot be made."""
     if pl is None:
         raise Unverified("no SOA plan for this run (the deck saved no device nodes)")
     if pl.problem:
@@ -251,67 +277,85 @@ def check(pl: Plan | None, w: dict[str, np.ndarray]) -> dict:
     t = w.get("time")
     if t is None or len(t) < 2:
         raise Unverified("no transient waveforms")
-    if t[0] > 1e-15:
-        raise Unverified(f"the waveforms start at {t[0] * 1e9:g} ns: the check needs the whole transient")
-    missing = [s for s in pl.signals() if _key(s) not in w or len(w[_key(s)]) != len(t)]
+    t_start = remote["t_start"] if remote else t[0]
+    if t_start > 1e-15:
+        raise Unverified(f"the waveforms start at {t_start * 1e9:g} ns: the check needs the whole transient")
+    missing = (remote["missing"] if remote else
+               [s for s in pl.signals() if _key(s) not in w or len(w[_key(s)]) != len(t)])
     if missing:
         raise Unverified(f"{len(missing)} device node(s) without a waveform: {', '.join(missing[:6])}")
-    zero = np.zeros_like(t)
     dt = np.diff(t)
-    base = {"soa_scope": pl.scope, "soa_limit_V": pl.limit_V, "soa_devices": len(pl.devices),
+    r = rule()
+    base = {"soa_scope": pl.scope, "soa_limit_V": pl.limit_V, "soa_peak_V": r["peak_V"],
+            "soa_window_ns": round(r["window_s"] * 1e9, 6), "soa_max_over_ps": round(r["max_over_s"] * 1e12, 6),
+            "soa_devices": len(pl.devices),
             "soa_devices_dut": sum(d.where == "dut" for d in pl.devices)}
     if not pl.devices:                                   # external scope without devices: said, not hidden
         return {**base, "soa_pairs": 0, "soa_violations": 0, "soa_note": pl.note or "no device in scope",
                 "soa_points": int(len(t)), "soa_dt_max_ps": round(float(dt.max()) * 1e12, 3), "soa_table": []}
-    rows = []
-    for d in pl.devices:
-        for pair, a, b in PAIRS[d.kind]:
-            na, nb = d.nodes[a], d.nodes[b]
-            x = (zero if na == GROUND else w[_key(na)]) - (zero if nb == GROUND else w[_key(nb)])
-            mag = np.abs(x)
-            vmax = float(mag.max())
-            k = int(np.argmax(mag >= vmax - PLATEAU_V))      # first point of the maximum (start of a plateau)
-            step = max(dt[k - 1] if k > 0 else 0.0, dt[k] if k < len(dt) else 0.0)
-            rows.append({"device": d.name, "master": d.master, "where": d.where, "pair": pair,
-                         "max_V": round(vmax, 5), "signed_V": round(float(x[k]), 5),
-                         "t_ns": round(float(t[k]) * 1e9, 4), "dt_ps": round(float(step) * 1e12, 3),
-                         "t_over_ps": round(time_over(t, x, pl.limit_V) * 1e12, 3),   # diagnostic only
-                         "pass": bool(vmax <= pl.limit_V)})
+    if remote:
+        rows = remote["rows"]
+        if len(rows) != sum(len(PAIRS[d.kind]) for d in pl.devices):
+            raise Unverified(f"{len(rows)} rows from the server for a plan of {len(pl.devices)} device(s)")
+    else:
+        rows = soa_core.pair_rows([{"name": d.name, "master": d.master, "kind": d.kind, "where": d.where, "nodes": d.nodes}
+                                   for d in pl.devices], t, w, pl.limit_V, r)
     worst = max(rows, key=lambda r: r["max_V"])
     out = {**base, "soa_pairs": len(rows), "soa_violations": sum(not r["pass"] for r in rows),
-           "soa_max_V": worst["max_V"],
-           "soa_worst": {k: worst[k] for k in ("device", "pair", "signed_V", "t_ns", "dt_ps", "t_over_ps")},
-           "soa_points": int(len(t)), "soa_dt_max_ps": round(float(dt.max()) * 1e12, 3)}
+           "soa_max_V": worst["max_V"], "soa_window_max_ps": max(r["t_window_ps"] for r in rows),
+           "soa_worst": {k: worst[k] for k in ("device", "pair", "signed_V", "t_ns", "dt_ps", "t_over_ps", "t_window_ps")},
+           "soa_points": remote["points"] if remote else int(len(t)),
+           "soa_dt_max_ps": remote["dt_max_ps"] if remote else round(float(dt.max()) * 1e12, 3)}
+    if remote:
+        out["soa_waveform_MB"] = round(remote["size_bytes"] / 1e6, 1)     # read on the server, not fetched
     if pl.skipped:
         out["soa_skipped"] = list(pl.skipped)
     out["soa_table"] = rows
     return out
 
 
+def passes(vmax: float, window: float, limit: float) -> bool:
+    """The rule for one pair: its largest |V| and its time above `limit` in its worst window (s)."""
+    return soa_core.passes(vmax, window, limit, rule())
+
+
 def time_over(t: np.ndarray, x: np.ndarray, limit: float) -> float:
-    """Time (s) during which |x| > limit, x linear between the saved points (both polarities)."""
-    dt = np.diff(t)
-    total = 0.0
-    for y in (x - limit, -x - limit):                    # above +limit, below -limit
-        a, b = y[:-1], y[1:]
-        total += dt[(a > 0) & (b > 0)].sum()
-        up, down = (a <= 0) & (b > 0), (a > 0) & (b <= 0)
-        total += (dt[up] * b[up] / (b[up] - a[up])).sum() + (dt[down] * a[down] / (a[down] - b[down])).sum()
-    return float(total)
+    """Total time (s) during which |x| > limit, x linear between the saved points."""
+    spans = over_spans(t, x, limit)
+    return float((spans[:, 1] - spans[:, 0]).sum())
 
 
-def measure(ctx: dict, w: dict[str, np.ndarray], m: dict) -> None:
-    """Add the SOA metrics to `m`, or the error that says why they could not be made."""
+def violations(metrics: dict) -> int | None:
+    """soa_violations by the current rule from a recorded soa_table (when a result is judged);
+    None without a table, then the recorded metric stands. A window recorded for another length,
+    or none at all, is replaced by the total time above the limit, its upper bound."""
+    table = metrics.get("soa_table")
+    limit = metrics.get("soa_limit_V")
+    if not table or limit is None:
+        return None
+    same = metrics.get("soa_window_ns") == round(rule()["window_s"] * 1e9, 6)
+    n = 0
+    for r in table:
+        window = r.get("t_window_ps") if same else None
+        over = r.get("t_over_ps") if window is None else window
+        n += not passes(r["max_V"], float("inf") if over is None else over * 1e-12, limit)
+    return n
+
+
+def measure(ctx: dict, w: dict[str, np.ndarray], m: dict, job_dir: Path | None = None) -> None:
+    """Add the SOA metrics to `m`, or the error that says why they could not be made. A job
+    in `job_dir` that was checked on the server has its rows there (ROWS_FILE)."""
     try:
-        m.update(check(ctx.get("soa"), w))
+        f = Path(job_dir) / ROWS_FILE if job_dir else None
+        m.update(check(ctx.get("soa"), w, json.loads(f.read_text(encoding="utf-8")) if f and f.exists() else None))
     except Unverified as e:
         m["error"] = f"SOA unverified: {e}"
 
 
 # ------------------------------------------------------------------ figure
 def figure(fg, ctx: dict, m: dict, w: dict[str, np.ndarray], nbars: int = 18) -> None:
-    """Largest |V| per device and terminal pair against the limit, the worst pair over the
-    whole run, and the worst peak with the saved time points (the time resolution)."""
+    """Largest |V| per device and terminal pair against both limits of the rule, the worst pair
+    over the whole run, and the worst peak with the saved time points (the time resolution)."""
     from .figures import C1, C2, C3, LIMIT, MUTED, hline, note, vline
 
     pl: Plan = ctx["soa"]
@@ -319,6 +363,8 @@ def figure(fg, ctx: dict, m: dict, w: dict[str, np.ndarray], nbars: int = 18) ->
     if not rows:                                         # nothing to check: the measure's own figure says so
         return
     lim = pl.limit_V
+    peak, over_max = m.get("soa_peak_V", rule()["peak_V"]), m.get("soa_max_over_ps", rule()["max_over_s"] * 1e12)
+    window_ns = m.get("soa_window_ns", rule()["window_s"] * 1e9)
     fig, axs = fg.new(1, 3, size=(16.0, 4.9), gridspec_kw={"width_ratios": [1.25, 1, 1]})
     ax = axs[0, 0]
     shown = rows[:nbars][::-1]
@@ -329,10 +375,14 @@ def figure(fg, ctx: dict, m: dict, w: dict[str, np.ndarray], nbars: int = 18) ->
     ax.axvline(lim, color=LIMIT, lw=1.1, ls="--")
     ax.text(lim, 0.99, f" limit {lim:.1f} V", transform=ax.get_xaxis_transform(), ha="left", va="top",
             fontsize=7.5, color=LIMIT)
-    for yi, r in zip(y, shown):                           # diagnostic: how long above the limit
+    ax.axvline(peak, color=LIMIT, lw=1.1, ls=":")
+    ax.text(peak, 0.92, f" transient {peak:.2f} V\n <= {over_max:.0f} ps in {window_ns:.0f} ns", ha="left", va="top",
+            transform=ax.get_xaxis_transform(), fontsize=7.5, color=LIMIT)
+    for yi, r in zip(y, shown):                           # how long above the limit, in the worst window
         if r.get("t_over_ps"):
-            ax.text(r["max_V"], yi, f" {r['t_over_ps']:.1f} ps over", va="center", fontsize=6.5, color=LIMIT)
-    ax.set(xlabel="largest |V| over the whole run (V)", xlim=(0, max(lim, rows[0]["max_V"]) * 1.12),
+            ax.text(r["max_V"], yi, f" {r.get('t_window_ps', r['t_over_ps']):.1f} ps in window", va="center",
+                    fontsize=6.5, color=LIMIT)
+    ax.set(xlabel="largest |V| over the whole run (V)", xlim=(0, max(peak, rows[0]["max_V"]) * 1.2),
            title=f"Per-device SOA ({len(shown)} of {len(rows)} pairs, worst first)")
     ax.grid(axis="y", visible=False)
     ndut = m.get("soa_devices_dut", 0)
@@ -353,8 +403,10 @@ def figure(fg, ctx: dict, m: dict, w: dict[str, np.ndarray], nbars: int = 18) ->
     ax.plot(t * 1e9, x, color=C1, lw=0.8, label=f"V{wr['pair']} (signed)")
     hline(ax, lim, f"+{lim:.1f} V")
     hline(ax, -lim, f"-{lim:.1f} V")
+    hline(ax, peak, f"+{peak:.2f} V", ls=":")
+    hline(ax, -peak, f"-{peak:.2f} V", ls=":")
     ax.plot([wr["t_ns"]], [wr["signed_V"]], "o", color=C2, ms=5)
-    top = max(lim * 1.25, wr["max_V"] * 1.1)
+    top = max(peak * 1.1, wr["max_V"] * 1.1)
     ax.set(xlabel="time (ns)", ylabel="voltage (V)", title=f"Worst pair: {wr['device']} V{wr['pair']}",
            ylim=(-top, top))
     ax.legend(loc="upper right")
@@ -365,13 +417,16 @@ def figure(fg, ctx: dict, m: dict, w: dict[str, np.ndarray], nbars: int = 18) ->
     ax.plot((t[sel] - tk) * 1e12, np.abs(x[sel]), "-", color=C1, lw=1.0)
     ax.plot((t[sel] - tk) * 1e12, np.abs(x[sel]), ".", color=C3, ms=3.5, label="saved time points")
     hline(ax, lim, f"limit {lim:.1f} V", x=0.7)
+    hline(ax, peak, f"transient {peak:.2f} V", x=0.7, ls=":")
     vline(ax, 0.0, None, color=MUTED, ls=":")
     ax.set(xlabel=f"time from the maximum at {wr['t_ns']:.3f} ns (ps)", ylabel="|V| (V)",
            title="Worst maximum and the time resolution", xlim=(-150, 150), ylim=(0, top))
     ax.legend(loc="lower right")
     note(ax, f"max |V{wr['pair']}| = {wr['max_V']:.4f} V\nlocal step {wr['dt_ps']:.2f} ps\n"
-         f"time above the limit {wr.get('t_over_ps', 0.0):.1f} ps (diagnostic)\n"
+         f"time above the limit: {wr.get('t_over_ps', 0.0):.1f} ps in all, "
+         f"{wr.get('t_window_ps', 0.0):.1f} ps in the worst {window_ns:.0f} ns window (max {over_max:.0f} ps)\n"
          f"{m['soa_points']} time points, largest step {m['soa_dt_max_ps']:.0f} ps", loc="lower left")
-    fg.save(fig, "soa", f"Largest |Vgs|, |Vgd|, |Vds| of every checked device against the {lim:.1f} V limit "
-            f"(scope: {pl.scope}), the worst pair over the whole run, and the saved time points around the "
+    fg.save(fig, "soa", f"Largest |Vgs|, |Vgd|, |Vds| of every checked device against the {lim:.1f} V limit and the "
+            f"{peak:.2f} V transient limit (at most {over_max:.0f} ps above {lim:.1f} V in any {window_ns:.0f} ns window; "
+            f"scope: {pl.scope}), the worst pair over the whole run, and the saved time points around the "
             "time of its maximum, which set the time resolution.")

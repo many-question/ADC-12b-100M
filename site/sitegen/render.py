@@ -516,6 +516,11 @@ def cand_flags(site: Site, c) -> str:
         out.append(chip("stale", f"过期 {f['stale']}", "输入文件自仿真后已变化，需要重跑"))
     if f["soa"]:
         out.append(chip("fail", f"SOA {f['soa']}", "有结果报告了 SOA 违例"))
+    if f.get("soa_unverified"):
+        s = r.get("soa") or {}
+        out.append(chip("none", f"SOA 未验证 {f['soa_unverified']}/{s.get('required', '?')}",
+                        f"这不是 0 违例。规格要求的逐管 SOA 结果里：缺失 {s.get('missing', 0)}，行为级范围 {s.get('behavioral', 0)}，"
+                        f"出错 {s.get('error', 0)}，未复核 {s.get('self_reported', 0)}"))
     if f["error"]:
         out.append(chip("fail", f"错误 {f['error']}", "仿真或度量出错的结果"))
     if r["problems"]:

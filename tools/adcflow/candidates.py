@@ -20,7 +20,8 @@ Views of a block in a run (``--view <block>=...``):
 Top-level runs are signed ``xtor-<blk>@<name>[+<blk>@<name>...]`` (``blk`` without ``adc_``).
 
 ``score`` gives the leaderboard row of a candidate from its results; ``migrate`` moves a legacy
-view and its ``xtor`` results into a named candidate.
+view and its ``xtor`` results into a named candidate; ``rename`` renames a candidate that is not
+merged yet, with its results.
 """
 
 from __future__ import annotations
@@ -30,6 +31,7 @@ import functools
 import json
 import re
 import shutil
+import subprocess
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -343,7 +345,7 @@ def score(c: Candidate) -> dict:
     verification record of the lead in verification/ verifies it; nothing in the result's own meta
     counts). flags.unverified counts the self-reported results at corners that a spec of their test
     requires, flags.mismatch every mismatch."""
-    from . import verify
+    from . import soa, verify
     from .checks import judge
     from .corners import corner_names
     from .specs import blocks
@@ -387,15 +389,17 @@ def score(c: Candidate) -> dict:
              "unverified": sum(s == "self-reported" and d["corner"] in required[d["test"]]
                                for (d, _), s in zip(docs, states)),
              "mismatch": states.count("mismatch"),
-             "soa": sum(1 for d, _ in docs if (d["metrics"].get("soa_violations") or 0) > 0),
+             "soa": sum(1 for d, _ in docs if (soa.violations(d["metrics"]) or d["metrics"].get("soa_violations") or 0) > 0),
              "error": sum(bool(j["error"]) for _, j in docs)}
+    soa_row = soa_evidence(b, docs, states)
+    flags["soa_unverified"] = soa_row["required"] - soa_row["verified"]
     n_rep = sum(s.reported for s in b.specs)
     row = {"block": c.block, "candidate": c.name, "status": c.status, "authors": c.authors,
            "author_text": c.author_text(), "description": c.meta.get("description", ""),
            "problems": list(c.problems), "selected": b.selected == c.name,
            "specs_passed": passed, "specs_failed": failed, "specs_incomplete": incomplete,
            "specs_total": len(b.specs) - n_rep, "specs_reported": reported, "reported_total": n_rep,
-           "specs_failing": failing, "specs_missing": missing,
+           "specs_failing": failing, "specs_missing": missing, "soa": soa_row,
            "coverage": [got, need], "mc": mc_coverage(b, docs), "results": len(docs), "verified": states.count("verified"),
            "self_reported": states.count("self-reported"), "mismatch": states.count("mismatch"), "flags": flags,
            "worst_margin": None if worst is None else {"margin": worst[0], "spec": worst[1]},
@@ -405,6 +409,35 @@ def score(c: Candidate) -> dict:
            "top_regression": top_regression(c.block, c.name)}
     row["missing"] = eligibility(row)
     row["eligible"] = not row["missing"]
+    return row
+
+
+def soa_evidence(b, docs: list[tuple[dict, dict]], states: list[str]) -> dict:
+    """How far a candidate's per-device SOA is shown: one result per spec on soa_violations and
+    corner it requires. It counts as `verified` when it is a device-level check (soa_scope device
+    with pairs) with a violation count and the lead's verification. The others are missing (no
+    result), error (no count), behavioral (a behavioral DUT is not device evidence) or
+    self_reported. A violation is flags.soa, not this. A block with no such spec requires nothing."""
+    from .corners import corner_names
+
+    row = {"required": 0, "verified": 0, "missing": 0, "error": 0, "behavioral": 0, "self_reported": 0}
+    for s in b.specs:
+        if s.metric != "soa_violations" or s.reported:
+            continue
+        for corner in corner_names(s.corners):
+            row["required"] += 1
+            k = next((i for i, (d, _) in enumerate(docs) if d["test"] == s.test and d["corner"] == corner), None)
+            m = docs[k][0]["metrics"] if k is not None else {}
+            if k is None:
+                row["missing"] += 1
+            elif "soa_violations" not in m:
+                row["error"] += 1
+            elif m.get("soa_scope") != "device" or not m.get("soa_pairs"):
+                row["behavioral"] += 1
+            elif states[k] != "verified":
+                row["self_reported"] += 1
+            else:
+                row["verified"] += 1
     return row
 
 
@@ -518,9 +551,10 @@ def eligibility(row: dict) -> list[dict]:
     Eligible (CONTRIBUTING §10): every spec passes at every corner it requires (and every
     reported-only metric is recorded there), every result is fresh and without error, every result
     at a required corner is verified by the lead (verification/) and none contradicts it, no SOA
-    violation, and the mixed top-level regression with the candidate passes (top_regression).
-    `what` is one of problems, results, failing, incomplete, stale, error, soa, mismatch,
-    unverified, top."""
+    violation, the required per-device SOA results all shown and verified (soa_evidence), and the
+    mixed top-level regression with the candidate passes (top_regression).
+    `what` is one of problems, results, failing, incomplete, stale, error, soa, soa_unverified,
+    mismatch, unverified, top."""
     f, out = row["flags"], []
 
     def add(what: str, text: str) -> None:
@@ -540,6 +574,9 @@ def eligibility(row: dict) -> list[dict]:
         add("error", f"{f['error']} result(s) with an error")
     if f["soa"]:
         add("soa", f"SOA violations in {f['soa']} result(s)")
+    if f.get("soa_unverified"):
+        add("soa_unverified", f"per-device SOA unverified: {f['soa_unverified']} required result(s) missing, "
+                              "behavioral, in error or not verified")
     if f["mismatch"]:
         add("mismatch", f"the lead's rerun contradicts {f['mismatch']} result(s)")
     if f["unverified"]:
@@ -715,6 +752,117 @@ def migrate(block: str, name: str, authors: list[dict], description: str, dry: b
             m["migrated"] = dict(stamp)
             f.write_text(json.dumps(doc, indent=1, default=float) + "\n", encoding="utf-8", newline="\n")
     return log + [f"wrote {rel(dst / 'candidate.yaml')}"]
+
+
+# ------------------------------------------------------------------ renaming before merge (§4)
+def _git_at_root(*args: str) -> subprocess.CompletedProcess:
+    return subprocess.run(["git", *args], cwd=ROOT, capture_output=True, text=True, timeout=60)
+
+
+def merged_at(block: str, name: str, base: str) -> tuple[list[str], bool]:
+    """(commits of HEAD's history that added design/xtor/<block>/<name>/candidate.yaml and that `base`
+    contains, whether `base` has a directory of that name).
+
+    The candidate is merged when its own add commit is in `base`; a directory of the same name on
+    `base` that another commit added is another candidate (two open PRs that chose the same name).
+    Raises ValueError when `base` is not a commit of the repository."""
+    tip = _git_at_root("rev-parse", "--verify", "--quiet", f"{base}^{{commit}}").stdout.strip()
+    if not tip:
+        raise ValueError(f"base {base!r} is not a commit here (fetch it, or pass --base <ref>)")
+    adds = _git_at_root("log", "--diff-filter=A", "--format=%H", "HEAD", "--",
+                        f"design/xtor/{block}/{name}/candidate.yaml").stdout.split()
+    merged = [c[:8] for c in adds if _git_at_root("merge-base", "--is-ancestor", c, tip).returncode == 0]
+    return merged, _git_at_root("cat-file", "-e", f"{tip}:design/xtor/{block}/{name}").returncode == 0
+
+
+def rename(block: str, old: str, new: str, base: str = "origin/main", dry: bool = False) -> list[str]:
+    """Rename the candidate `old` of a block to `new`, with its results, without simulating again.
+
+    Only a candidate that is not merged may be renamed (CONTRIBUTING §4): `base` must not contain the
+    commit that added its candidate.yaml (merged_at; a same-named directory that another commit added
+    is another candidate and only gives a note), and it must not be a block's selection nor have
+    verification records.
+    The new name passes validate() and starts with an author's login. design/xtor/<block>/<old>/ moves
+    to <new>/ (only `name:` in candidate.yaml changes), results/<block>/*/xtor-<old>/ to xtor-<new>/,
+    and top-level result directories that name <blk>@<old> to <blk>@<new>. In each moved result the
+    view, meta.views and the meta.files keys under the old directory follow; the content hashes stay
+    (the netlist is the same file), and meta.renamed records the rename. Returns the moves done (or
+    planned) and notes on text files that still name the old paths."""
+    from . import runner
+    from .specs import blocks
+
+    if block not in blocks() or block == "adc_top":
+        raise ValueError(f"{block}: not a block that can have candidates")
+    src, dst = candidate_dir(block, old), candidate_dir(block, new)
+    if not (src / "candidate.yaml").is_file():
+        raise FileNotFoundError(f"design/xtor/{block}/{old}/candidate.yaml: no candidate {old!r}")
+    if new == old:
+        raise ValueError(f"{old!r} is already the name")
+    if dst.exists():
+        raise FileExistsError(f"design/xtor/{block}/{new} exists")
+    ytext = (src / "candidate.yaml").read_text(encoding="utf-8")
+    ynew, n = re.subn(r"^name:[^\n]*$", f"name: {new}", ytext, count=1, flags=re.M)
+    meta = yaml.safe_load(ynew) if n else None
+    probs = validate(block, new, meta, netlist_path(block, old).exists())
+    logins = [str(a.get("github", "")).lower() for a in (meta or {}).get("authors") or [] if isinstance(a, dict)]
+    if not any(new == lg or new.startswith(lg + "-") for lg in logins):
+        probs.append(f"design/xtor/{block}/{new}: the name starts with an author's login "
+                     f"({' or '.join(f'{lg} / {lg}-<variant>' for lg in logins) or 'authors[].github'})")
+    if probs:
+        raise ValueError("; ".join(probs))
+    for nm in (old, new):
+        if (ROOT / "verification" / block / nm).exists():
+            raise ValueError(f"verification/{block}/{nm}/ exists: the lead has verified results under that "
+                             "name, so the candidate is not renamed")
+    if blocks()[block].selected == old:
+        raise ValueError(f"{block}: {old} is the block's selected candidate; a merged candidate is never renamed")
+    hits, same_name = merged_at(block, old, base)
+    if hits:
+        raise ValueError(f"design/xtor/{block}/{old}/ is merged: {base} contains the commit that added it "
+                         f"({', '.join(hits)}); a merged candidate is never renamed (CONTRIBUTING §4), "
+                         "contribute under the new name in a new candidate")
+    rel = lambda p: p.relative_to(ROOT).as_posix()  # noqa: E731
+    prefix_old, prefix_new = f"design/xtor/{block}/{old}/", f"design/xtor/{block}/{new}/"
+    short = block.replace("adc_", "")
+    result_moves = [(d, d.with_name(f"xtor-{new}"), f"xtor-{new}")
+                    for d in sorted((ROOT / "results" / block).glob(f"*/xtor-{old}"))]
+    for d in sorted((ROOT / "results" / "adc_top").glob("*/xtor-*")):
+        terms = d.name[5:].split("+")
+        if f"{short}@{old}" in terms:
+            sig = "xtor-" + "+".join(f"{short}@{new}" if t == f"{short}@{old}" else t for t in terms)
+            result_moves.append((d, d.with_name(sig), sig))
+    for _, b, _ in result_moves:
+        if b.exists():
+            raise FileExistsError(f"{rel(b)} exists")
+    n_json = sum(len(list(a.glob("*.json"))) for a, _, _ in result_moves)
+    log = [f"move {rel(src)}/ -> {rel(dst)}/"] + [f"move {rel(a)}/ -> {rel(b)}/" for a, b, _ in result_moves]
+    log.append(f"set name: {new} in {rel(dst / 'candidate.yaml')}")
+    log.append(f"rewrite {n_json} result JSONs (view, meta.views, meta.files keys; add meta.renamed)")
+    o = re.escape(old)
+    named = re.compile(rf"design/xtor/{block}/{o}/|(?:xtor-|{short}@){o}(?![a-z0-9-])")
+    notes = [f"note: {block}/{old} on {base} is another candidate (another commit added it); renaming this one"
+             ] if same_name else []
+    notes += [f"note: {rel(p)} still names the old paths; update it by hand" for p in sorted(src.iterdir())
+              if p.suffix in {".md", ".txt"} and named.search(p.read_text(encoding="utf-8", errors="replace"))]
+    if dry:
+        return log + notes
+    shutil.move(str(src), str(dst))
+    (dst / "candidate.yaml").write_text(ynew, encoding="utf-8", newline="\n")
+    stamp = {"date": _dt.datetime.now().isoformat(timespec="seconds"),
+             "git": runner._git("rev-parse", "--short", "HEAD"), "from": old, "to": new}
+    for a, b, view in result_moves:
+        shutil.move(str(a), str(b))
+        for f in sorted(b.glob("*.json")):
+            doc = json.loads(f.read_text(encoding="utf-8"))
+            doc["view"] = view
+            m = doc.setdefault("meta", {})
+            m["files"] = {prefix_new + k[len(prefix_old):] if k.startswith(prefix_old) else k: v
+                          for k, v in (m.get("files") or {}).items()}
+            if "views" in m:
+                m["views"] = {k: f"xtor:{new}" if k == block and v == f"xtor:{old}" else v for k, v in m["views"].items()}
+            m["renamed"] = dict(stamp)
+            f.write_text(json.dumps(doc, indent=1, default=float) + "\n", encoding="utf-8", newline="\n")
+    return log + notes
 
 
 # ------------------------------------------------------------------ CI rules (§2): check candidates

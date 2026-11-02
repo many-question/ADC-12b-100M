@@ -1,0 +1,15 @@
+# Transient allowance of the per-device SOA check (tools/adcflow/soa.py, docs/verification.md §5).
+# A project decision (2026-11-02, #133), with no device or PDK source behind it.
+#
+# For every thin-oxide device and terminal pair, with limit_V from specs/soa.yaml:
+#   passes if its largest |V| <= limit_V, or
+#   passes if its largest |V| <= peak_V and its time above limit_V is at most max_over_s
+#          in every window_s window, sliding over the whole transient, start-up included;
+#   anything else is a violation.
+#
+# Like a block limit, this file is read when a result is judged and no result depends on it:
+# changing it re-judges the recorded results and makes none of them stale. Only limit_V
+# (specs/soa.yaml) is part of what a result's simulation records.
+peak_V: 1.29          # 0.99 V x 1.3
+window_s: 10.0e-9
+max_over_s: 100.0e-12

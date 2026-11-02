@@ -233,7 +233,7 @@ def test_score(root):
     assert row["top_enob_margin"] == pytest.approx(10.9 - 10.75)  # TOP-02 is the tightest ENOB limit
     assert "self-reported" in cand.table([row])
     # not eligible: a failing and incomplete specs, self-reported results, no complete mixed top-level regression
-    assert not row["eligible"] and [m["what"] for m in row["missing"]] == ["failing", "incomplete", "unverified", "top"]
+    assert not row["eligible"] and [m["what"] for m in row["missing"]] == ["failing", "incomplete", "soa_unverified", "unverified", "top"]
     assert row["top_regression"]["status"] == "fail" and row["top_regression"]["results"] == 1     # only enob recorded
     text = cand.table([row])
     assert "adc_comp -- not eligible" in text and "missing: fails CMP-05;" in text and "eligible, ranked" not in text
@@ -287,6 +287,52 @@ def test_mixed_top_level_regression(root):
     assert cand.top_regression(BLOCK, "alice")["status"] == "fail"
 
 
+def _soa_evidence(block, kinds):
+    """soa_evidence of one required result per kind, for the first SOA spec of `block` at TT."""
+    from adcflow.candidates import soa_evidence
+
+    b = blocks()[block]
+    s = next(x for x in b.specs if x.metric == "soa_violations")
+    device = {"soa_violations": 0, "soa_scope": "device", "soa_pairs": 3}
+    docs, states = [], []
+    for corner, kind in zip(("c1", "c2", "c3", "c4"), kinds):
+        m = {"verified": device, "self_reported": device, "behavioral": {"soa_violations": 0, "soa_scope": "external", "soa_pairs": 0},
+             "error": {"error": "SOA unverified: no waveforms"}}[kind]
+        docs.append(({"test": s.test, "corner": corner, "metrics": m}, {}))
+        states.append("verified" if kind == "verified" else "self-reported")
+    return soa_evidence(b, docs, states)
+
+
+def test_soa_evidence_counts_every_required_result(monkeypatch):
+    import adcflow.corners as corners
+
+    monkeypatch.setattr(corners, "corner_names", lambda s: {"c1", "c2", "c3", "c4", "c5"} if s == "all" else {"c1"})
+    r = _soa_evidence("adc_comp", ["verified", "self_reported", "behavioral", "error"])
+    assert r == {"required": 5, "verified": 1, "self_reported": 1, "behavioral": 1, "error": 1, "missing": 1}
+
+
+def test_a_block_without_soa_specs_requires_no_evidence():
+    from adcflow.candidates import soa_evidence
+
+    r = soa_evidence(blocks()["adc_ref"], [], [])
+    assert r["required"] == 0 and r["verified"] == 0
+
+
+def test_candidate_without_soa_data_is_not_eligible_and_says_so(root):
+    """No SOA result at all: unverified, not 0 violations."""
+    _make(root)
+    (row,) = cand.leaderboard(BLOCK)
+    assert row["flags"]["soa"] == 0 and row["flags"]["soa_unverified"] == row["soa"]["required"] > 0
+    assert row["soa"]["missing"] == row["soa"]["required"] and "soa_unverified" in [m["what"] for m in row["missing"]]
+
+
+def test_behavioral_scope_soa_result_of_a_candidate_is_no_evidence(root):
+    _make(root)
+    _result(root, "tb_comp_soa", "xtor-alice", soa_violations=0, soa_scope="external", soa_pairs=0)
+    (row,) = cand.leaderboard(BLOCK)
+    assert row["soa"]["behavioral"] == 1 and row["flags"]["soa_unverified"] == row["soa"]["required"]
+
+
 def test_eligibility_of_a_scored_candidate(root, monkeypatch):
     """Every spec passes at every required corner (the reported CMP-10 recorded), verified, top-level regression passed."""
     from adcflow import verify
@@ -300,6 +346,8 @@ def test_eligibility_of_a_scored_candidate(root, monkeypatch):
     for test in ("tb_comp_delay", "tb_comp_noise", "tb_comp_kickback"):
         for c in sorted(corner_names("all")):
             _result(root, test, "xtor-alice", c, **good)
+    for c in sorted(corner_names("all")):
+        _result(root, "tb_comp_soa", "xtor-alice", c, soa_violations=0, soa_scope="device", soa_pairs=3)
     p = _result(root, "tb_comp_offset_mc", "xtor-alice", **good)
     doc = json.loads(p.read_text())
     doc["meta"]["mc"] = mc
