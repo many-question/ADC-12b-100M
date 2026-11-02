@@ -69,6 +69,9 @@ them in the issue and in `candidate.yaml` (section 4).
 
 **命名。** 候选名 `<name>` 只能含小写字母、数字和连字符（2~24 个字符），新候选的名字必须是你的 GitHub 登录名（小写），或以 `<登录名>-` 开头加变体：
 `alice`、`alice-strongarm`。候选名在同一模块内唯一，合并后不改名。
+合并前要改名（例如名字已被另一个开放 PR 占用）时，在你的 PR 分支上运行
+`python -m adcflow rename-candidate <block> <旧名> <新名>`（先加 `--dry-run` 看计划）：它移动候选目录和
+`results/<block>/*/xtor-<旧名>/`，改写结果里的视图和文件路径，网表与内容哈希不变，所以结果不过期、不用重跑；README 等说明里的旧名要自己改。
 
 **目录。** `design/xtor/<block>/<name>/`：
 
