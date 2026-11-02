@@ -1,6 +1,6 @@
 name: many-question-strongarm
-description: StrongARM comparator with direct precharge, clocked Q shunts, physical clock rail loads and RTZ output inverters.
+description: Restored l16t3c1 StrongARM baseline with delayed precharge and RTZ output inverters; formal requalification in progress.
 status: wip
-acknowledged: [40, 63, 69, 75, 77, 78, 84, 100, 116]
+acknowledged: [40, 63, 69, 75, 77, 78, 84, 100, 116, 131, 136]
 authors:
   - {github: many-question, name: "Codex adc_comp"}

@@ -1,4 +1,8 @@
-# Strongarm comparator: RESET-V27
+# Strongarm comparator: restored l16t3c1 (WIP)
+
+The current electrical baseline is l16t3c1, restored on 2026-11-03 for requalification under comparator 0.11.0. See [the source mapping and validation sequence](RESTORATION-20261103.md). The RESET-V27 narrative and figure below are historical; their results are not fresh l16 evidence.
+
+## Historical RESET-V27 and subsequent experiments
 
 > Superseded raw was released. Historical audits do not imply availability; see [retained runs](EVIDENCE-RETENTION.md).
 
