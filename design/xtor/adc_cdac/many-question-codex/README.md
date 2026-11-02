@@ -285,3 +285,12 @@ completed V32/V33 tests confirm supply-load transfer while preserving
 all physical capacitors and 5% parasitics. Further electrical optimization
 and SS/FF expansion are stopped pending the budget decision. The candidate
 remains draft and unqualified.
+
+First measurements (2026-11-03, frozen source d701032d, APS): TT settle
+passes all 10 applicable metrics: Qref 1.269059280 pC <=1.35 pC,
+RL12 30.2 ps <=40 ps, conversion-start 70.1 ps <=100 ps.
+FF high-temperature dedicated SOA: 596 devices / 1788 pairs, zero violations;
+peak 1.21415 V (XSW.XSW0.MMIDPH |Vgd|), worst 10 ns window 21.638 ps
+above 1.1 V. Primary conservative effective reltol 1e-4 / vabstol 1 uV.
+SOA convergence cross-check and remaining corners are not yet complete.
+These first results do not qualify the candidate. TT weights/track follow.
