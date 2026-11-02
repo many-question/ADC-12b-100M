@@ -28,3 +28,27 @@ The official current test returns **175.29518977435197 uV rms**, 95% profile int
 The original formal JSON and noise figure are in the candidate's official result path. The fetched stage and outputs match remote SHA256; archive CRC and each member SHA256 are verified. Archive `20261103-021407-4984-tb_comp_noise` SHA256 `cc41241f39650a891f8abc5fccbbcd53cf96c36dac668175f1f10682123ec648`. Remote absence is confirmed after verified retention.
 
 Validation at this checkpoint: `adcflow check all` passes (96 existing stale/failing historical warnings); 507 non-slow tests pass, 1 deselected. Required CI contracts/drawings/results and slow budget jobs pass. Short-reset and official SOA are the next gates; one TT pass does not establish readiness or all-corner qualification.
+
+## p56 FS screen: fail; expansion stopped
+
+The independent source at `5089a93549d84f5bf26207670343df6a6ceb544a` returns **297.73131716270746 uV rms** at FS/low/125, with 95% profile interval **287.58–308.36 uV**, above 280 uV. Offset is +0.008206734022012252 mV. All 8,704 rows are finite with 512 decisions at each level. The actual official TB and complete deck were frozen in the independent stage; APS/conservative gear2only, reltol 1e-4, voltage abstol 1e-6 V, seed 1, 50 GHz, all physical noise enabled. Solver return code 0, 460 s. No p56 result is written into l16 result paths. No further p56 corners are launched.
+
+Archive `20261103-021638-p56-fs-noise` SHA256 `80ed1577fec828d4f211a229c42683a6c3267f9e31e74963b0495d8d842c7615`: remote file hashes, CRC and all member hashes verified; remote absence confirmed.
+
+## l16 short reset support: pass
+
+The private support TB retains the official differential amplitude sequence, 10 fF outputs, 10 ps clock edges, 200 ps high phase (50% crossings), physical source and conservative numerics. It changes the period to 200 ps plus the required low window; each 10 ps input transition ends 10 ps before the next clock rising ramp. Metrics below are supporting evidence, not substituted official records.
+
+| Corner | Low window (ps) | Correct decisions / completed resets | Max reset (ps) | Mean delay 1mV / 30mV (ps) | CMP-15 violations |
+|---|---:|---:|---:|---:|---:|
+| TT/nom/27 | 43 | 36 / 36 | 22.2498503461 | 60.8316055492 / 46.9327366502 | 0 |
+| FF/high/-40 | 38 | 36 / 36 | 17.2700689332 | 47.0264240095 / 36.3448641786 | 0 |
+| SS/low/125 | 69 | 36 / 36 | 29.1216801215 | 78.4467481117 / 60.2089009705 | 0 |
+
+Every polarity, including 10 uV, is correct. Every reset completes before the next evaluation; the last cycle is checked to the simulation end, 5 ps before its hypothetical next 50% rising crossing. Worst residual at that boundary is 0.0102883%, 0.00407049%, 0.0563123% VDD respectively. Worst loser peaks are 15.4799%, 17.1376%, 14.6631% VDD. The complete per-cycle audit, actual deck and waveforms are retained. Archive `20261103-022331-l16-short-reset` SHA256 `fec076e6ad964d4e198dee6d196d5b97ab7c283ebce88908ec5c25a56ff72c0f`: remote hashes, CRC/member hashes and remote absence confirmed.
+
+## Initial official device SOA: five corners pass
+
+Official `tb_comp_soa` at source checkpoint `09f2c3c2` checks 19 MOS devices / 57 terminal pairs per corner, including startup, full differential range and the 40 ps low phase. TT, FF/high/-40, SS/low/125, FS/low/125 and SF/high/-40 all return zero CMP-17 violations. Peak absolute terminal voltages are respectively 0.99288, 1.09130, 0.88563, 0.88879 and 1.09578 V; all have zero accumulated time above 1.1 V. Device scope is verified, not external scope. Formal JSON, SOA figures and stimulus figures are committed. Remote reduction uses the official code.
+
+The initial gates support proceeding with l16. Next: representative worst-corner SOA numerical cross-check, remaining official corners, full noise coverage, mismatch and kickback. All-corner eligibility and mixed-top acceptance remain unproven; status remains WIP.
