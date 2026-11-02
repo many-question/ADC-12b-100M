@@ -3,10 +3,10 @@ description: Self-timed SAR loop without a shift register. Each step's UP/DN lat
   are its token; the next step is enabled once CLKC is low and both strobes are closed,
   and CLKC rises again only after that enable is being set, so one decision per CLKC
   pulse is structural at every corner. CLKC and UP/DN are latch nodes driven directly.
-  Every delay is made of transistors only, with no capacitor devices. The DAC-wait chain
-  uses resettable inverter pairs (two plain inverters with a reset device on each node),
-  whose timing edge passes no series stack and so spreads less over PVT; start, timeout
-  and RDY use resettable ulvt NAND/NOR pairs.
+  Every delay is made of transistors only, with no capacitor devices. The DAC-wait, start
+  and RDY chains use resettable inverter pairs (two plain inverters with a reset device on
+  each node), whose timing edge passes no series stack and so spreads less over PVT; the
+  timeout and the step clear use resettable ulvt NAND/NOR pairs.
 status: wip
 acknowledged: [39, 61, 79]
 authors:
