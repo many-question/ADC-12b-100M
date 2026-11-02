@@ -44,7 +44,10 @@ The two formerly failing corners have now completed **fresh formal**
 Both are standard APS/errpreset=conservative results with five captures,
 all measured pairs retained and no stale dependencies. This is **2/45 fresh
 SOA corners**, not all-corner acceptance. Tight numerical crosschecks remain
-outstanding. The fresh formal TT function run is currently in progress.
+running. The fresh formal TT function run has also completed: **60 full
+conversions, zero bit/DAC errors**, and every applicable bound passes.
+LOG-08 is **2.743338 ns**; LOG-16 is **15.300468%**. The other 44 saved-waveform
+function corners and all 45 random corners still need fresh results.
 
 A guarded queue runs the unchanged standard tests against only the new hash:
 
