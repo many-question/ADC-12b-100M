@@ -66,3 +66,20 @@ Official FS/low/125 noise is **274.20498833482293 uV**, 95% profile interval **2
 Official SOA now covers **45/45 required corners**: every corner has device scope, 19 MOS, 57 terminal pairs, zero violations and zero accumulated time above 1.1 V. The new worst peak is 1.09961 V at SS/high/-40. This corner receives a separate numerical cross-check before final acceptance. The original SF cross-check remains retained. Full coverage is candidate evidence, not lead verification.
 
 Official TT kickback/loading also passes: net differential kickback 0.0001097096001285297 uV, input capacitance 19.311701639827493 fF and CLKC capacitance 7.256641126623195 fF. These are the official metrics; the net end-of-cycle kickback is not the maximum instantaneous switching disturbance. Remaining all-corner noise, delay and kickback are next. Archive receipts for the newly completed batches are pending at this checkpoint.
+
+## New worst-corner cross-check and completed archive receipts
+
+SS/high/-40 also passes the official numerical cross-check: 57 terminal pairs, zero violations in both runs, maximum pair-peak change 1.62 mV at MRQP gd. The tighter run's overall peak is 1.09890 V and accumulated time above 1.1 V remains zero. The effective tighter settings are conservative, traponly, maxstep 1 ps, reltol 1e-8 and voltage abstol 1e-8 V, as retained in the formal JSON.
+
+The following formerly pending archive audits are complete. Every archive has verified remote file SHA256, ZIP CRC and member SHA256, and confirmed remote absence after retention.
+
+| Run | Archive SHA256 |
+|---|---|
+| SF SOA cross-check, 023203-b4e3 | `24b2be81553511d4c8d7b107d965d2a43e68cf05a2b4152d24543d5a9f700cc3` |
+| TT mismatch, 023250-5bfc | `56662ff7c63580d9c364c47f3b8057d634204c481cf684269adc2ca02f9e5c4c` |
+| FS/SS formal noise, 023203-ab18 | `3e14eab9fd39641d49454961a6304c9970a9730f396b27b568979e22f0d7793b` |
+| Remaining 40 SOA corners, 023737-0f15 | `681d7819d868f3fb4cfef9ebc7c389466cf79ee69f11cbc6e24fa8f16a2313e4` |
+| TT kickback/loading, 024452-e2b1 | `8b86dfb816267102a818de30eca68a3f30fd6db8f111e9c2a42352cc4b9c5e8b` |
+| SS SOA cross-check, 025153-4ebc | `459c885f2499ac530c27d8cc0797bba542ea012b469c07518bcd957b31ca1e84` |
+
+All run IDs above have date prefix 20261103. The earlier archive receipts in this report remain retained. The ongoing 42-corner noise and full delay/kickback runs use unchanged l16 electrical content, frozen at `d0474920`; they do not imply a pass before measurement completes.

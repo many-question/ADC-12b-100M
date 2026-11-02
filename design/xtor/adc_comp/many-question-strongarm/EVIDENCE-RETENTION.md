@@ -28,3 +28,5 @@ Artificial noise-suppression trials remain ineligible for qualification. Retenti
 Future owned runs explicitly select DUT/SOA and measurement signals. Continuous noise/MC traces remain disabled where the existing protocol uses monitor files. Wildcard/global waveform expansion is rejected. Stimuli, numerical tolerances, measurements and acceptance limits are preserved; shared qualification save-policy changes are coordinated separately in PR #111. Original runs are not relabeled as if they used the new wrapper.
 
 - `20261031-170208-strongarm-reset-v34-spec08-delay-baseline-screen` — archive SHA-256 `bd2afe8e272e1c07b5700d9054cd38c77ce85972c34ab9ed805d067d83f694b7`; recovered and verified on 2026-11-01.
+
+New 2026-11-03 l16 restoration and isolated p56 evidence is retained with explicit SHA256 receipts in [RESTORATION-20261103](RESTORATION-20261103.md); these new archives are distinct from previously released raw data.
