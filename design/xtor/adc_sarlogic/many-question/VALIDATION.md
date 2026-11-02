@@ -33,6 +33,19 @@ trials and explains why weakening drivers alone was insufficient.
 
 ## Fresh formal regression required
 
+The two formerly failing corners have now completed **fresh formal**
+`tb_sarlogic_soa` runs on the committed candidate path and hash:
+
+| Corner | Devices / pairs | Violations | Worst sliding 10 ns over-limit time |
+|---|---:|---:|---:|
+| `ss_high_m40` | 1770 / 5310 | **0** | **71.479 ps** |
+| `fs_high_m40` | 1770 / 5310 | **0** | **54.809 ps** |
+
+Both are standard APS/errpreset=conservative results with five captures,
+all measured pairs retained and no stale dependencies. This is **2/45 fresh
+SOA corners**, not all-corner acceptance. Tight numerical crosschecks remain
+outstanding. The fresh formal TT function run is currently in progress.
+
 A guarded queue runs the unchanged standard tests against only the new hash:
 
 - Formal SOA at the two previously failing corners and a fresh TT function
@@ -45,7 +58,7 @@ A guarded queue runs the unchanged standard tests against only the new hash:
 - Mixed reference runs: high-frequency sine at quick (7 corners), low-
   frequency sine at TT, duty 45% and 55% at quick (14 variant jobs).
 
-At this source checkpoint the new formal queue is starting; the private
+The new formal queue is running; the private
 prechecks above must not be read as all-corner formal acceptance. Existing
 baseline result files remain historical/stale until replaced by freshly
 simulated records. **No old data is rehashed to the new circuit.** Source
