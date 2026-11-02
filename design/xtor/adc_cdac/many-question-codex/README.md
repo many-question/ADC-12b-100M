@@ -1,30 +1,28 @@
 # CDAC candidate
 
-Current status (2026-11-01): electrical optimization and further simulations are
-stopped at the user's request pending the coordinated DAC-12 budget issue.
-V29 TT fails Qref at 1.269059280 pC against 1.2 pC. Two already launched
-supply-allocation trials completed: V32 still fails at 1.227138535 pC;
-V33 passes all ten applicable TT settle/charge/loading metrics at
-1.191673910 pC, with 8.326090 fC charge margin. Both pass the full 70 ns
-1.1 V terminal screen. V33 moves about 77 fC of reference load to DVDD;
-the measured two-supply energy is essentially unchanged. It has no new
-SS/FF/FFT validation and is not promoted. There are zero active jobs.
-The formal N4 device parameters/connectivity and 1.2 pC limit remain unchanged. See the final
-sections of the [evidence ledger](sampling-entry-diagnosis.md).
+Current status (2026-11-03): resumed after the project resolved issue #125.
+DAC-12 is now 1.35 pC (#132); the new all-corner DAC-18 SOA test and
+transient-overvoltage rule (#137) apply. Candidate remains WIP.
 
-Hierarchy update (2026-11-01): the user requested a layout-oriented partition.
-The formal source now has a pure capacitor array (`XCAP`) and a separate bottom
-switch/driver array (`XSW`), connected by 26 bottom plates and six series midpoints.
-The wrapper retains the TOP reset/dummy devices and all 37 external ports in order.
-All 33 hierarchy views are in the [RNL source](adc_cdac.scs); see the
-[new top-level drawing](schematic-array.png) and [equivalence report](schematic-review.md).
-Independent flattening confirms all 612 devices and 271 nets are equivalent,
-including bulk terminals, MOM multiplicities and every 5% Cp.
-This is an electrical hierarchy edit: the dependency hash changes from
-`e51ec096bda93b5c` to `4dbb1486ab9992ae`. All 397 recorded results are byte-identical;
-five already-stale N4 results acquire an additional source-hash stale reason.
-Static equivalence is not current acceptance. No simulations or result rehashing
-were performed; V29/V33 source and evidence remain unchanged.
+V29 is the new pending-test baseline, migrated into the accepted XCAP/XSW
+functional partition. XCAP holds the 36 array MOM and 36 associated 5% Cp;
+the 26 AP delay loads and one SAMP_ON control load, with their own 5% Cp,
+remain inside the corresponding XSW control functions. There are still
+32 array connections and 37 unchanged external ports. No sizing, model,
+parameter or electrical connection has changed from historical V29.
+Independent flattening compares all 722 leaves (596 MOS, 63 MOM, 63 Cp),
+273 bijective nets and ordered terminals including bulk. Dependency hash:
+`9b00f07143da7cc5`. Historical V29 source SHA-256:
+`29d867d5bf07d79b3514cb49af0ad7c572ae1e929df88f33990a723bccfa0626`.
+N4 remains preserved at f578badee155449a905ff6d63c22088e48a623f7.
+
+First gate: TT weights/settle/track and ff_high_125 dedicated SOA, with at
+most two jobs at once initially. Only after this gate passes will full corners
+and real-reference mixed-top validation proceed. N4's reported FF midpoint
+PMOS violation is not evidence about V29, which uses a different gate signal.
+No historical result is rehashed or treated as fresh evidence for this source.
+
+See [schematic review](schematic-review.md) and [source](adc_cdac.scs).
 
 Evidence-retention update (2026-10-31): superseded large raw waveforms and
 duplicate caches/archives have been released under the user's retention policy.

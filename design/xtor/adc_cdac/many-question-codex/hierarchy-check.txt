@@ -39,7 +39,8 @@ for name,d in fa.items():
     m=re.match(r'XB(\d+)\.(.+)',name)
     if m:
         j,tail=m.groups()
-        newname='XCAP.B'+j+'_'+tail if d['model'] in ['cfmom_2t','capacitor'] else 'XSW.XSW'+j+'.'+tail
+        newname='XCAP.B'+j+'_'+tail if d['model'] in ['cfmom_2t','capacitor'] and '.' not in tail else 'XSW.XSW'+j+'.'+tail
+    elif name in ['MSHBN','MSHBP','C_SAMPLOAD','CP_SAMPLOAD']:newname='XSW.'+name
     elif name.startswith(('XEN.','XAPULSE.')):newname='XSW.'+name
     else:newname=name
     devmap[name]=newname;other=fb[newname]
@@ -57,7 +58,8 @@ for j in range(13):
 for j in [7,2,0]:
     for s in 'HL':assert netmap[f'XB{j}.MID{s}']==f'MID{s}{j}'
 assert {d['model'] for d in b['mq_cdac_cap_array']['devices']}=={'cfmom_2t','capacitor'}
-assert all(n.startswith('XCAP.') for n,d in fb.items() if d['model'] in ['cfmom_2t','capacitor'])
+assert sum(d['model'] in ['cfmom_2t','capacitor'] for n,d in fb.items() if n.startswith('XCAP.'))==72
+assert sum(d['model'] in ['cfmom_2t','capacitor'] for n,d in fb.items() if n.startswith('XSW.'))==54
 assert len(b['mq_cdac_cap_array']['devices'])==72
 for j in [9,6]:
     inst=next(d for d in b['mq_cdac_switch_array']['devices'] if d['name']==f'XSW{j}')
