@@ -83,3 +83,15 @@ The following formerly pending archive audits are complete. Every archive has ve
 | SS SOA cross-check, 025153-4ebc | `459c885f2499ac530c27d8cc0797bba542ea012b469c07518bcd957b31ca1e84` |
 
 All run IDs above have date prefix 20261103. The earlier archive receipts in this report remain retained. The ongoing 42-corner noise and full delay/kickback runs use unchanged l16 electrical content, frozen at `d0474920`; they do not imply a pass before measurement completes.
+
+## Formal delay: 45/45 corners pass
+
+All required delay, regeneration, reset, decision and output-validity specifications pass at all 45 corners. A separate audit of every fetched waveform confirms **1,620 correct decisions and 1,620 completed resets**, including the 10 uV decisions; no missing cycle is dropped. Maximum output residue at the next evaluation boundary is 0.402298% VDD.
+
+- Worst 1 mV delay: 101.05730969653212 ps at SS/low/-40 (limit 120 ps).
+- Worst reset: 29.29568722477588 ps at SS/low/27 (limit 45 ps).
+- Worst regeneration constant: 6.243990715687595 ps at SS/low/-40 (limit 15 ps).
+- Worst losing-output peak: 22.77930509765373% VDD at SF/low/-40; all CMP-15 counts are zero.
+- TT 1 mV / 30 mV delay: 61.56277345045652 / 47.71403968897317 ps (limits 80 / 50 ps). TT mixed-amplitude AVDD energy: 203.492731932 fJ, reported only.
+
+All results use the unchanged frozen l16 electrical source; current official JSON and figures replace stale historical records without rehashing them. The per-cycle audit is retained with run `20261103-025502-a01b-tb_comp_delay`; archive verification is pending at this checkpoint. Remaining all-corner noise and kickback are still running. No mixed-top or lead-verification claim is made.

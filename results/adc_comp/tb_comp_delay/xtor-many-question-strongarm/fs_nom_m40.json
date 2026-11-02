@@ -17,83 +17,83 @@
  },
  "metrics": {
   "wrong_decisions": 0,
-  "tdelay_1mV_ps": 55.02575733454685,
-  "tdelay_30mV_ps": 43.374501589458966,
-  "tau_reg_ps": 2.2104443522291755,
-  "treset_ps": 27.485822874801407,
+  "tdelay_1mV_ps": 58.91132053464192,
+  "tdelay_30mV_ps": 45.9916610011311,
+  "tau_reg_ps": 2.892707286772572,
+  "treset_ps": 21.405293516956213,
   "validity_violations": 0,
-  "loser_peak_pct": 10.524743401997037,
+  "loser_peak_pct": 12.077910660875188,
   "validity": {
    "rule": "each CLKC rise .. fall: exactly one output >= 0.5 VDD, the other < 0.3 VDD",
-   "dt_max_ps": 28.35,
+   "dt_max_ps": 20.015,
    "cycles": 36,
    "decided": 36,
    "worst": {
-    "cycle": 18,
+    "cycle": 36,
     "vd_uV": -10.0,
     "output": "OUTP",
-    "t_ps": 59.882
+    "t_ps": 64.476
    },
    "violations": [],
    "undecided": [],
    "loser_peaks_pct": [
-    0.48,
-    0.46,
-    0.409,
-    0.412,
-    0.568,
-    0.56,
-    1.006,
-    1.008,
-    2.237,
-    2.236,
-    3.92,
-    3.843,
-    6.244,
-    6.376,
-    8.293,
-    8.293,
-    10.516,
-    10.525,
-    0.458,
-    0.447,
-    0.409,
-    0.412,
-    0.568,
-    0.56,
-    1.006,
-    1.008,
-    2.237,
-    2.236,
-    3.92,
-    3.843,
-    6.244,
-    6.376,
-    8.293,
-    8.293,
-    10.516,
-    10.525
+    0.371,
+    0.368,
+    0.379,
+    0.38,
+    0.383,
+    0.382,
+    0.796,
+    0.802,
+    1.57,
+    1.621,
+    3.939,
+    3.944,
+    6.563,
+    6.51,
+    9.493,
+    9.363,
+    11.93,
+    12.078,
+    0.368,
+    0.368,
+    0.38,
+    0.379,
+    0.383,
+    0.382,
+    0.796,
+    0.802,
+    1.57,
+    1.622,
+    3.94,
+    3.944,
+    6.564,
+    6.51,
+    9.494,
+    9.388,
+    11.931,
+    12.078
    ]
   },
-  "energy_fJ": 171.853311924
+  "energy_fJ": 186.52452969600006
  },
  "specs": {
   "CMP-05": {
    "metric": "tdelay_1mV_ps",
-   "value": 55.02575733454685,
+   "value": 58.91132053464192,
    "limit": "<= 120",
    "pass": true
   },
   "CMP-07": {
    "metric": "tau_reg_ps",
-   "value": 2.2104443522291755,
+   "value": 2.892707286772572,
    "limit": "<= 15",
    "pass": true
   },
   "CMP-08": {
    "metric": "treset_ps",
-   "value": 27.485822874801407,
-   "limit": "<= 35",
+   "value": 21.405293516956213,
+   "limit": "<= 45",
    "pass": true
   },
   "CMP-09": {
@@ -110,7 +110,7 @@
   },
   "CMP-16": {
    "metric": "loser_peak_pct",
-   "value": 10.524743401997037,
+   "value": 12.077910660875188,
    "limit": "reported",
    "pass": null
   }
@@ -118,19 +118,19 @@
  "specs_na": {
   "CMP-04": {
    "metric": "tdelay_1mV_ps",
-   "value": 55.02575733454685,
+   "value": 58.91132053464192,
    "limit": "<= 80",
    "corners": "typ"
   },
   "CMP-06": {
    "metric": "tdelay_30mV_ps",
-   "value": 43.374501589458966,
+   "value": 45.9916610011311,
    "limit": "<= 50",
    "corners": "typ"
   },
   "CMP-10": {
    "metric": "energy_fJ",
-   "value": 171.853311924,
+   "value": 186.52452969600006,
    "limit": "reported",
    "corners": "typ"
   }
@@ -146,31 +146,32 @@
   }
  ],
  "meta": {
-  "date": "2026-10-30T19:28:47",
-  "git": "424d10a",
+  "date": "2026-11-03T03:08:49",
+  "git": "59997e19",
   "git_clean": true,
   "mode": "aps",
   "pdk": true,
   "mc": null,
-  "wall_s": 777.5,
+  "wall_s": 825.6,
   "rc": "0",
-  "sim_s": "14",
+  "sim_s": "15",
   "numerics": {
    "source": "spectre.log",
-   "reltol": 0.001,
-   "maxstep_ps": 290.0,
-   "method": "traponly",
-   "errpreset": "moderate",
-   "lteratio": 3.5,
+   "reltol": 0.0001,
+   "maxstep_ps": 145.0,
+   "method": "gear2only",
+   "errpreset": "conservative",
+   "lteratio": 10.0,
+   "relref": "alllocal",
    "abstol_V": 1e-06,
-   "steps_accepted": 3865,
-   "step_mean_ps": 3.75162,
+   "steps_accepted": 6966,
+   "step_mean_ps": 2.08154,
    "step_max_ps": 56.5
   },
   "files": {
-   "tb/comp/tb_comp_delay.scs": "ca754d0b9373b04c",
+   "tb/comp/tb_comp_delay.scs": "d2d5d695c2a3ce22",
    "tb/common/veriloga/tb_imeter_va.va": "d4be49aca417ad61",
-   "design/xtor/adc_comp/many-question-strongarm/adc_comp.scs": "150dd81755a64d66"
+   "design/xtor/adc_comp/many-question-strongarm/adc_comp.scs": "56e3dddc5148fa35"
   },
   "arch": {
    "keys": [],
