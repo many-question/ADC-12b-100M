@@ -53,7 +53,8 @@ The standard fast-corner function test (`ff_high_m40`) also captures
 60 words with zero errors. Its applicable LOG-06/07/10 pass:
 mean slow wait 70.142097 ps, first clock 82.237839 ps,
 D setup 103.330186 ps. These function requirements name all corners:
-the two formally recorded corners do not substitute for all 45.
+the seven formally recorded corners at this update do not substitute for
+all 45. The five additional standard 60-conversion corners are listed below.
 
 The current quick-set four-conversion diagnostic covers seven corners and
 28 words with zero bit, DAC-level or decision-count errors. Its minimum
@@ -63,12 +64,28 @@ intermediate circuit `49ab94f9521d0865` does not qualify this circuit.
 
 ## Additional verification started on 2026-11-02
 
-The remaining **43 ordinary-function corners**, each with the standard
-60 conversions and saved waveforms, and the standard **1000-conversion TT
-random test** are running on this unchanged circuit. They are not yet claimed
-as completed or passing. The existing two fresh ordinary-function corners
-are reused; slow/random `nowave=1` data cannot substitute for LOG-06/07/10
-waveform coverage. LOG-01 still requires all 45 corners, not only TT.
+A completion batch for the **43 missing ordinary-function corners**, each
+with the standard 60 conversions and saved waveforms, and the standard
+**1000-conversion TT random test** were started on this unchanged circuit.
+Five additional function jobs have now been retrieved, measured by the
+standard function measure and recorded; their staged dependencies and exact
+raw-waveform copies were checked. All five capture 60 correct complete
+14-decision words with zero bit/DAC errors and pass applicable LOG-06/07/10.
+
+| Newly recorded corner | LOG-06 slow wait (ps) | LOG-07 first clock (ps) | LOG-10 D setup (ps) |
+|---|---:|---:|---:|
+| `tt_high_m40` | 78.840839 | 93.493688 | 114.507699 |
+| `tt_low_125` | 110.677070 | 125.032135 | 157.675947 |
+| `tt_low_27` | 103.800451 | 119.966536 | 146.304109 |
+| `tt_low_m40` | 99.766636 | 117.716384 | 139.299821 |
+| `tt_nom_125` | 101.353379 | 114.250786 | 146.362100 |
+
+Together with TT and `ff_high_m40`, ordinary-function formal coverage is
+**7/45 corners, 420 completed words**, not full-corner qualification. The
+remaining 38 corners and the TT random result are not yet claimed as passing.
+Existing fresh corners are reused; slow/random `nowave=1` data cannot
+substitute for LOG-06/07/10 waveform coverage. LOG-01 still requires all
+45 corners, not only TT; its remaining-corner runs have not been started.
 
 A separate two-corner, four-conversion diagnostic saved all thin-oxide
 terminal nodes and checked 1772 devices / 5316 terminal pairs. **SOA fails
@@ -111,6 +128,8 @@ the clock-path change. It uses no extra reference, timing pin or ideal delay.
 ```text
 python -m adcflow sim tb_sarlogic_func --view adc_sarlogic=xtor:many-question --corners typ
 python -m adcflow sim tb_sarlogic_func --view adc_sarlogic=xtor:many-question --corners ff_high_m40
+python -m adcflow sim tb_sarlogic_func --view adc_sarlogic=xtor:many-question --corners all
+python -m adcflow sim tb_sarlogic_rand --view adc_sarlogic=xtor:many-question --corners typ
 python -m adcflow sim tb_sarlogic_func_slow --view adc_sarlogic=xtor:many-question --corners all
 python -m adcflow sim tb_sarlogic_timeout --view adc_sarlogic=xtor:many-question --corners all
 ```
