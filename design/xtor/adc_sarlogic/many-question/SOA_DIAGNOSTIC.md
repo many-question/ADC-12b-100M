@@ -67,8 +67,8 @@ in particular, the existing TT conversion-time margin is only 2.988 ps.
 No electrical change is made while the current frozen-circuit formal
 function and random runs finish.
 
-The public SAR logic tests currently have **no `soa:` instrumentation or
-SOA acceptance metric**. The absence of `soa_violations` in their JSONs must
+At the time of this historical diagnostic, SAR logic had no `soa:`
+instrumentation or SOA acceptance metric; version 0.8.0 has added LOG-17. The absence of `soa_violations` in their JSONs must
 not be read as zero violations. Reproducing this diagnostic requires a
 separate deck: build the standard functional test with `nconv=4`, use
 `adcflow.soa.plan` for `XDUT` with no external MOS devices, add its terminal
