@@ -107,3 +107,23 @@ This is a private read-only check of completed jobs; the official runner writes 
 All 45 current official kickback records pass CMP-11. Worst net end-of-cycle differential change is 0.0002549126998895035 uV at SS/high/-40; this metric does not bound the instantaneous switching disturbance. TT input/clock capacitances remain 19.311701639827493 / 7.256641126623195 fF, passing CMP-12/14 (TT requirements). Across all corners the reported capacitance ranges are 17.13844089190766–20.677410206499047 fF at the input and 6.449975150518292–7.89160981293955 fF at CLKC. All newly measured records have clean source metadata at bb016f17 and unchanged l16 electrical identity.
 
 Archive 20261103-030948-2dfc-tb_comp_kickback SHA256 `1e6f787297c1fe95101a03ede90faf8ff394d17d1bb55801f5da414f6a450567` has verified remote file hashes, ZIP CRC/member hashes, retained local copy and confirmed remote absence. Full-corner noise remains in progress with the FF/low/125 failure above; mixed-top remains deferred.
+
+## Final formal noise coverage: 44/45 pass, one blocker
+
+The official 42-corner batch has completed and written its formal records at clean checkpoint `2321d8a2`. Together with the earlier TT and FS/SS runs, all **45 corners / 391,680 decisions** are present: 17 levels x 512 finite decisions at every corner. All three staged source files match canonical SHA256 `8104b210e324bc4d870d4a582d6ba16e7bccb69581502c5b10194ced497d46f4`. Every completed-job probe exactly matches its eventual formal metric and decisions hash. All simulations return zero and all formal dependency records are fresh.
+
+**CMP-13 fails only at FF/low/125: 284.57485867742884 uV**, 4.57485867742884 uV (1.63388%) above 280 uV. Its interval remains 274.72–294.90 uV. TT CMP-01 passes at 175.29518977435197 uV; CMP-02 passes everywhere. This supersedes the provisional completed-job checkpoint above.
+
+| Process | Worst corner | Noise (uV) | 95% interval (uV) | CMP-13 |
+|---|---|---:|---:|---|
+| TT | low/125 | 264.301338 | 254.89–274.15 | pass |
+| FF | low/125 | 284.574859 | 274.72–294.90 | **fail** |
+| SS | low/125 | 240.278861 | 231.37–249.60 | pass |
+| FS | low/125 | 274.204988 | 264.57–284.29 | pass |
+| SF | low/125 | 250.596356 | 241.48–260.13 | pass |
+
+Across all five unit tests, all 181 formal records are fresh with zero execution/measurement errors. Delay, SOA, kickback and mismatch pass their applicable requirements; FF noise is the sole specification failure. No seed selection, numerical override or source change was used to remove it. Mixed-top expansion and lead verification are not started for this failed baseline. The candidate remains WIP, unqualified and unselected; the complete distribution is retained for the next design decision.
+
+The final 42-corner noise archive `20261103-025105-8754-tb_comp_noise` SHA256 is `ef9e64b3e9002aa5c9fdd58d26d54395a46af1393a2630895d1cdc9e972e9e8e`. It includes the full 45-corner sample audit and completed-job comparison. Remote file hashes, ZIP CRC/member hashes, retained-copy hashes and remote absence are verified. All 13 restoration-run archives are retained locally. No comparator simulation remains active at this checkpoint.
+
+Final local `check all` passes with the known CMP-13 failure and three unrelated SAR-logic SOA failures reported as warnings. RNL and candidate-content checks pass; the unchanged-source non-slow suite remains 507 passed / 1 deselected. These tooling checks do not override the failed circuit requirement.

@@ -1,8 +1,8 @@
 # Strongarm comparator: restored l16t3c1 (WIP)
 
-**Current blocker:** completed FF/low/125 physical-noise data measure 284.57485867742884 uV against 280 uV (95% interval 274.72–294.90). All 17 x 512 samples are present. The ongoing batch has not yet written its formal records; mixed-top expansion is deferred. See the failure checkpoint in [RESTORATION-20261103](RESTORATION-20261103.md).
+**Current blocker:** complete official 45-corner physical noise has one failure: FF/low/125 measures **284.57485867742884 uV > 280 uV**, 95% interval 274.72–294.90 uV. All 391,680 decisions are present (17 x 512 per corner); 44/45 noise corners pass. The interval crossing the limit does not make the failed point estimate pass.
 
-The current electrical baseline is l16t3c1, restored on 2026-11-03 for requalification under comparator 0.11.0. Formal current-settings TT 17 x 512 physical noise passes at 175.29518977435197 uV rms (95% interval 167.73–183.26 uV); short-reset TT/fast/slow support and all 45 official device-SOA corners pass. Independent p56 FS noise fails at 297.7313 uV and stops. Formal all-corner delay now passes with 1,620 correct decisions/resets, and TT 50-sample mismatch passes. All 45 kickback corners pass. Remaining noise coverage, mixed-top and verification are open. See [the source mapping and validation sequence](RESTORATION-20261103.md). The RESET-V27 narrative and figure below are historical; their results are not fresh l16 evidence.
+The frozen l16t3c1 source is unchanged. All 45 delay, device-SOA and kickback corners pass; waveform audits confirm 1,620 correct decisions/resets, and TT mismatch passes all 50 samples. All 181 current unit records are fresh and error-free, with only the FF noise specification failing. Independent p56 FS noise also fails at 297.7313 uV. Mixed-top expansion is deferred; status remains WIP, unqualified and unselected. See [source identity, complete results and archive receipts](RESTORATION-20261103.md). RESET-V27 and other narratives below are historical evidence with their original source identities.
 
 ## Historical RESET-V27 and subsequent experiments
 
