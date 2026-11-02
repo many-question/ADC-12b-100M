@@ -1093,6 +1093,76 @@ I1 (nb Y VDD VSS) adc_sarlogic_inv
 // }
 ends adc_sarlogic_resetdelay
 
+// First timeout tap: CLK and enable were the same signal; a matched-drive inverter removes the floating series node.
+subckt adc_sarlogic_timer_start (A Y VDD VSS)
+parameters cw=1u
+I0 (A nb VDD VSS) adc_sarlogic_inv wn=400n wp=1200n
+ILOAD (nb VSS) adc_sarlogic_timerload cw=cw
+I1 (nb Y VDD VSS) adc_sarlogic_inv
+// @RNL {
+//   %symbol = @DEFINE-SYMBOL(box=[-9,-3.0,9,3.0]) {
+//     @LINE {(-7,-2.0) (7,-2.0) (7,2.0) (-7,2.0) (-7,-2.0)};
+//     (-9,0) @PIN(terminal="A", direction="left");
+//     @LINE {(-9,0) (-7,0)};
+//     (-6.5,0) @TEXT("A", size=0.7, halign="start");
+//     (9,0) @PIN(terminal="Y", direction="right");
+//     @LINE {(9,0) (7,0)};
+//     (6.5,0) @TEXT("Y", size=0.7, halign="end");
+//     (0,3.0) @PIN(terminal="VDD", direction="up");
+//     (0,-3.0) @PIN(terminal="VSS", direction="down");
+//     ? @TEXT("${name}", key="name", dx=-6, dy=5.0, size=1, halign="start");
+//   };
+//   # @SET-SYMBOL %symbol;
+//   &VDD @ADD-TO $SUPPLY_NET_SET;
+//   &VSS @ADD-TO $GROUND_NET_SET;
+//   $LABEL_TERMINAL_SET @TEXT("${net}", key="netname", size=0.6);
+//   #I0 @TEXT("wn=400n wp=1200n", key="sizing", dy=-8.0, size=0.7);
+//   #I0 @PLACE(0,0) => @ORIENT("R0");
+//   %p_I0_A=(-12,0);
+//   &A @WIRE(mode="straight") {#I0:A %p_I0_A};
+//   %p_I0_A @TEXT("A", size=0.8, halign="end", dy=0);
+//   %p_I0_Y=(12,0);
+//   &nb @WIRE(mode="straight") {#I0:Y %p_I0_Y};
+//   %p_I0_Y @TEXT("nb", size=0.8, halign="start", dy=0);
+//   %p_I0_VDD=(0,6.0);
+//   &VDD @WIRE(mode="straight") {#I0:VDD %p_I0_VDD};
+//   %p_I0_VDD @TEXT("VDD", size=0.8, halign="start", dy=0.5);
+//   %p_I0_VSS=(0,-6.0);
+//   &VSS @WIRE(mode="straight") {#I0:VSS %p_I0_VSS};
+//   %p_I0_VSS @TEXT("VSS", size=0.8, halign="start", dy=0.5);
+//   #ILOAD @TEXT("cw=cw", key="sizing", dy=-8.0, size=0.7);
+//   #ILOAD @PLACE(42,0) => @ORIENT("R0");
+//   %p_ILOAD_A=(30,0);
+//   &nb @WIRE(mode="straight") {#ILOAD:A %p_ILOAD_A};
+//   %p_ILOAD_A @TEXT("nb", size=0.8, halign="end", dy=0);
+//   %p_ILOAD_VSS=(42,-6.0);
+//   &VSS @WIRE(mode="straight") {#ILOAD:VSS %p_ILOAD_VSS};
+//   %p_ILOAD_VSS @TEXT("VSS", size=0.8, halign="start", dy=0.5);
+//   #I1 @PLACE(84,0) => @ORIENT("R0");
+//   %p_I1_A=(72,0);
+//   &nb @WIRE(mode="straight") {#I1:A %p_I1_A};
+//   %p_I1_A @TEXT("nb", size=0.8, halign="end", dy=0);
+//   %p_I1_Y=(96,0);
+//   &Y @WIRE(mode="straight") {#I1:Y %p_I1_Y};
+//   %p_I1_Y @TEXT("Y", size=0.8, halign="start", dy=0);
+//   %p_I1_VDD=(84,6.0);
+//   &VDD @WIRE(mode="straight") {#I1:VDD %p_I1_VDD};
+//   %p_I1_VDD @TEXT("VDD", size=0.8, halign="start", dy=0.5);
+//   %p_I1_VSS=(84,-6.0);
+//   &VSS @WIRE(mode="straight") {#I1:VSS %p_I1_VSS};
+//   %p_I1_VSS @TEXT("VSS", size=0.8, halign="start", dy=0.5);
+//   {#I0 #ILOAD #I1} @GROUP;
+//   {&A &Y &VDD &VSS} @REMOVE-FROM $PORT_FILL_SET;
+//   %port0=$IO_PORT @ATTACH &A => @PLACE(-28,0) => @ORIENT("R0");
+//   %port1=$IO_PORT @ATTACH &Y => @PLACE(-28,-3) => @ORIENT("R0");
+//   %port2=$IO_PORT @ATTACH &VDD => @PLACE(-28,-6) => @ORIENT("R0");
+//   %port3=$IO_PORT @ATTACH &VSS => @PLACE(-28,-9) => @ORIENT("R0");
+//   (-28,24) @TEXT("adc_sarlogic_timer_start", size=1.2, bold=true);
+//   (-28,20) @TEXT("First timeout tap: CLK and enable were the same signal; a matched-drive inverter removes the floating series node.", size=0.7);
+//   (-28,16) @TEXT("Defaults: cw=1u", size=0.8);
+// }
+ends adc_sarlogic_timer_start
+
 // Cross-coupled NOR storage; S and R are kept mutually exclusive by the enclosing logic.
 subckt adc_sarlogic_sr (S R Q QB VDD VSS)
 parameters drive=1
@@ -1465,8 +1535,8 @@ ILP (sp RESET BIT pb VDD VSS) adc_sarlogic_sr drive=3
 ILN (sn RESET nb nbb VDD VSS) adc_sarlogic_sr drive=3
 ID (pb nbb DONE VDD VSS) adc_sarlogic_nand2 wn=1600n wp=1200n
 IDB (DONE doneb VDD VSS) adc_sarlogic_inv wn=800n wp=1200n
-IUP (pb CVB UP VDD VSS) adc_sarlogic_nor2 wn=800n wp=4800n drive=2
-IDN (nbb CVB DN VDD VSS) adc_sarlogic_nor2 wn=800n wp=4800n drive=2
+IUP (CVB pb UP VDD VSS) adc_sarlogic_nor2 wn=800n wp=4800n drive=2
+IDN (CVB nbb DN VDD VSS) adc_sarlogic_nor2 wn=800n wp=4800n drive=2
 IW (DONE NEXT VDD VSS) adc_sarlogic_delay cw=cw
 // @RNL {
 //   %symbol = @DEFINE-SYMBOL(box=[-9,-9.0,9,9.0]) {
@@ -1781,11 +1851,11 @@ IW (DONE NEXT VDD VSS) adc_sarlogic_delay cw=cw
 //   #IUP @TEXT("wn=800n wp=4800n drive=2", key="sizing", dy=-9.0, size=0.7);
 //   #IUP @PLACE(0,-112.0) => @ORIENT("R0");
 //   %p_IUP_A=(-12,-111.0);
-//   &pb @WIRE(mode="straight") {#IUP:A %p_IUP_A};
-//   %p_IUP_A @TEXT("pb", size=0.8, halign="end", dy=0);
+//   &CVB @WIRE(mode="straight") {#IUP:A %p_IUP_A};
+//   %p_IUP_A @TEXT("CVB", size=0.8, halign="end", dy=0);
 //   %p_IUP_B=(-12,-113.0);
-//   &CVB @WIRE(mode="straight") {#IUP:B %p_IUP_B};
-//   %p_IUP_B @TEXT("CVB", size=0.8, halign="end", dy=0);
+//   &pb @WIRE(mode="straight") {#IUP:B %p_IUP_B};
+//   %p_IUP_B @TEXT("pb", size=0.8, halign="end", dy=0);
 //   %p_IUP_Y=(12,-112.0);
 //   &UP @WIRE(mode="straight") {#IUP:Y %p_IUP_Y};
 //   %p_IUP_Y @TEXT("UP", size=0.8, halign="start", dy=0);
@@ -1798,11 +1868,11 @@ IW (DONE NEXT VDD VSS) adc_sarlogic_delay cw=cw
 //   #IDN @TEXT("wn=800n wp=4800n drive=2", key="sizing", dy=-9.0, size=0.7);
 //   #IDN @PLACE(42,-112.0) => @ORIENT("R0");
 //   %p_IDN_A=(30,-111.0);
-//   &nbb @WIRE(mode="straight") {#IDN:A %p_IDN_A};
-//   %p_IDN_A @TEXT("nbb", size=0.8, halign="end", dy=0);
+//   &CVB @WIRE(mode="straight") {#IDN:A %p_IDN_A};
+//   %p_IDN_A @TEXT("CVB", size=0.8, halign="end", dy=0);
 //   %p_IDN_B=(30,-113.0);
-//   &CVB @WIRE(mode="straight") {#IDN:B %p_IDN_B};
-//   %p_IDN_B @TEXT("CVB", size=0.8, halign="end", dy=0);
+//   &nbb @WIRE(mode="straight") {#IDN:B %p_IDN_B};
+//   %p_IDN_B @TEXT("nbb", size=0.8, halign="end", dy=0);
 //   %p_IDN_Y=(54,-112.0);
 //   &DN @WIRE(mode="straight") {#IDN:Y %p_IDN_Y};
 //   %p_IDN_Y @TEXT("DN", size=0.8, halign="start", dy=0);
@@ -1855,7 +1925,7 @@ ends adc_sarlogic_step
 subckt adc_sarlogic (CONV OUTP OUTN CLKC UP12 UP11 UP10 UP9 UP8 UP7 UP6 UP5 UP4 UP3 UP2 UP1 UP0 DN12 DN11 DN10 DN9 DN8 DN7 DN6 DN5 DN4 DN3 DN2 DN1 DN0 D13 D12 D11 D10 D9 D8 D7 D6 D5 D4 D3 D2 D1 D0 RDY DVDD VSS)
 parameters wait_fast=200n wait_slow=11400n extra3=2150n extra456=6u extra9=7600n timer_load=5u reset_load=3u start_load=4200n ready_load=4650n
 ICV (CONV cv DVDD VSS) adc_sarlogic_buf drive=4
-ICB (cv cvb DVDD VSS) adc_sarlogic_inv wn=1600n wp=2400n drive=4
+ICB (cv cvb DVDD VSS) adc_sarlogic_inv wn=1600n wp=2400n drive=3
 IP (OUTP pi pib DVDD VSS) adc_sarlogic_cmpbuf
 IN (OUTN ni nib DVDD VSS) adc_sarlogic_cmpbuf
 IAB0 (cv ab0 DVDD VSS) adc_sarlogic_delay cw=2u
@@ -1899,7 +1969,7 @@ IRZ (rq4 rq5 rq6 rz DVDD VSS) adc_sarlogic_nand3 wn=1800n wp=2400n
 IROR (ra rz rqbar DVDD VSS) adc_sarlogic_nor2 wn=1200n wp=3600n drive=2
 IFB (force forceb DVDD VSS) adc_sarlogic_inv wn=1200n wp=1800n
 ICKH (rqbar cv pib nib forceb CLKC DVDD VSS) adc_sarlogic_clock
-IT0 (CLKC CLKC to0 DVDD VSS) adc_sarlogic_resetdelay cw=timer_load
+IT0 (CLKC to0 DVDD VSS) adc_sarlogic_timer_start cw=timer_load
 IT1 (to0 CLKC to1 DVDD VSS) adc_sarlogic_resetdelay cw=timer_load
 IT2 (to1 CLKC to2 DVDD VSS) adc_sarlogic_resetdelay cw=timer_load
 IT3 (to2 CLKC to3 DVDD VSS) adc_sarlogic_resetdelay cw=timer_load
@@ -2102,7 +2172,7 @@ IRDB (ready RDY DVDD VSS) adc_sarlogic_buf drive=4
 //   %p_ICV_VSS=(0,-6.0);
 //   &VSS @WIRE(mode="straight") {#ICV:VSS %p_ICV_VSS};
 //   %p_ICV_VSS @TEXT("VSS", size=0.8, halign="start", dy=0.5);
-//   #ICB @TEXT("wn=1600n wp=2400n drive=4", key="sizing", dy=-8.0, size=0.7);
+//   #ICB @TEXT("wn=1600n wp=2400n drive=3", key="sizing", dy=-8.0, size=0.7);
 //   #ICB @PLACE(42,0) => @ORIENT("R0");
 //   %p_ICB_A=(30,0);
 //   &cv @WIRE(mode="straight") {#ICB:A %p_ICB_A};
@@ -3280,21 +3350,18 @@ IRDB (ready RDY DVDD VSS) adc_sarlogic_buf drive=4
 //   %p_ICKH_VSS=(168,-227.0);
 //   &VSS @WIRE(mode="straight") {#ICKH:VSS %p_ICKH_VSS};
 //   %p_ICKH_VSS @TEXT("VSS", size=0.8, halign="start", dy=0.5);
-//   #IT0 @TEXT("cw=timer_load", key="sizing", dy=-9.0, size=0.7);
+//   #IT0 @TEXT("cw=timer_load", key="sizing", dy=-8.0, size=0.7);
 //   #IT0 @PLACE(0,-242.0) => @ORIENT("R0");
-//   %p_IT0_A=(-12,-241.0);
+//   %p_IT0_A=(-12,-242.0);
 //   &CLKC @WIRE(mode="straight") {#IT0:A %p_IT0_A};
 //   %p_IT0_A @TEXT("CLKC", size=0.8, halign="end", dy=0);
-//   %p_IT0_EN=(-12,-243.0);
-//   &CLKC @WIRE(mode="straight") {#IT0:EN %p_IT0_EN};
-//   %p_IT0_EN @TEXT("CLKC", size=0.8, halign="end", dy=0);
 //   %p_IT0_Y=(12,-242.0);
 //   &to0 @WIRE(mode="straight") {#IT0:Y %p_IT0_Y};
 //   %p_IT0_Y @TEXT("to0", size=0.8, halign="start", dy=0);
-//   %p_IT0_VDD=(0,-235.0);
+//   %p_IT0_VDD=(0,-236.0);
 //   &DVDD @WIRE(mode="straight") {#IT0:VDD %p_IT0_VDD};
 //   %p_IT0_VDD @TEXT("DVDD", size=0.8, halign="start", dy=0.5);
-//   %p_IT0_VSS=(0,-249.0);
+//   %p_IT0_VSS=(0,-248.0);
 //   &VSS @WIRE(mode="straight") {#IT0:VSS %p_IT0_VSS};
 //   %p_IT0_VSS @TEXT("VSS", size=0.8, halign="start", dy=0.5);
 //   #IT1 @TEXT("cw=timer_load", key="sizing", dy=-9.0, size=0.7);

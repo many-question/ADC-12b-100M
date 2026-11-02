@@ -1,6 +1,6 @@
 name: many-question
-description: Static CMOS 14-stage RTZ completion chain, resettable timeout delay,
-  per-step MOS-loaded DAC waits and separate parallel output latches.
+description: Static CMOS 14-stage RTZ chain with ordered DAC output PMOS stacks,
+  a simplified first timeout tap and a weaker CVB reset driver.
 status: wip
 acknowledged: [61, 79, 102, 118, 130, 133, 135]
 authors:

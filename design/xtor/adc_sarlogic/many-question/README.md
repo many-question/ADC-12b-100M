@@ -49,8 +49,10 @@ decisions 3, 4, 5, 6 and 9 implement the project's nominal extra waits of
 10, 30, 30, 30 and 25 ps. These increments must be measured with LOG-16;
 they are not ideal time-delay sources.
 
-A shared 12-tap timeout chain starts on CLKC rising. Each tap is explicitly
-reset while CLKC is low. This prevents a delayed pulse from a completed
+A shared 12-tap timeout chain starts on CLKC rising. Its first tap uses an
+inverter because the former NAND's two inputs were both CLKC; all subsequent
+taps retain their explicit CLKC reset. Each tap clears while CLKC is low.
+This prevents a delayed pulse from a completed
 comparison from forcing the next comparison. A timeout sets the currently
 enabled stage's positive rail, producing the required forced decision of 1.
 
@@ -58,8 +60,10 @@ The timeout taps use a separate EHVT NMOS gate-load cell, with its drain,
 source and body tied to VSS. The falling wait node sees the load's
 bias-dependent capacitance. This reduces slow/fast delay spread compared with
 the paired ULVT MOS loads used for DAC waits. The tap count and `timer_load`
-are jointly set from PVT measurements; the reset NAND gates and output
-inverters retain their original devices. No extra timing pin, reference
+are jointly set from PVT measurements. The first tap's inverter has the
+equivalent pull-up/pull-down drive without the floating NMOS series node;
+later reset NAND gates and the output inverters retain their devices.
+No extra timing pin, reference
 voltage, calibration interval or ideal delay element is introduced.
 
 ## Output capture and interruption
@@ -93,7 +97,8 @@ are shown and tied to their supply rails. No PDK models or ideal behavioral
 devices are included in the candidate.
 
 Acceptance uses the unchanged project tests `tb_sarlogic_func`,
-`tb_sarlogic_rand`, `tb_sarlogic_func_slow` and `tb_sarlogic_timeout`, with
+`tb_sarlogic_rand`, `tb_sarlogic_func_slow`, `tb_sarlogic_timeout` and
+`tb_sarlogic_soa`, with
 `--view adc_sarlogic=xtor:many-question --mode aps`. Official results belong
 under this candidate's result view. Short diagnostic runs do not establish
 LOG-01's 1000-conversion requirement or all-corner coverage.
@@ -104,11 +109,17 @@ Current measurements and remaining failures are recorded in
 ## Timing-budget decision
 
 Issue #130's maintainer decision is acknowledged: LOG-08 remains <= 2.75 ns,
-and 2.90 ns is not an approved target. The revised circuit passes its
-standard 60-conversion TT function test at 2.747012 ns with zero bit/DAC
-errors and a 14.46 percent worst extra-wait error. This is TT evidence, not
-complete qualification. The fast-corner slow wait is retained above the
-70 ps floor in short diagnostics, rather than indiscriminately shortening
-all slow waits to the TT behavioral value. The standard full-corner slow-comparator and timeout tests also pass on
-the current circuit; remaining function/random, top-level and independent
-qualification is still incomplete. See VALIDATION.md for the coverage.
+and 2.90 ns is not an approved target. The SOA repair changes the circuit
+hash, so the baseline's all-corner timing data cannot qualify this revision.
+All applicable tests are being rerun without changing the specified waits,
+test lengths or numerical settings. See VALIDATION.md for current coverage.
+
+## SOA repair
+
+Simple 25% driver reductions alone still failed both high-supply cold corners.
+The current revision puts CVB on the upper DAC-output NOR PMOS, uses the
+equivalent first-tap inverter and reduces only CVB reset drive from 4 to 3.
+Comparator-clock and per-bit output drive remain unchanged. The correction
+removes two MOS devices and addresses floating internal series nodes rather
+than relaxing the SOA rule. [SOA_REPAIR.md](SOA_REPAIR.md) distinguishes the
+A/B experiments from formal candidate acceptance.
