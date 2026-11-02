@@ -48,9 +48,12 @@ Neither failure is a peak above 1.29 V. The **time** above 1.1 V exceeds
 intermediate NMOS stack node. DAC-output NOR PMOS intermediate `px` nodes
 also cause failures at both corners around reset/interrupt events.
 
-The representative failing corners are being rerun with the specification's
-crosscheck (`traponly`, maxstep 1 ps, reltol 1e-7, vabstol 1e-8). Pending
-crosschecks are not claimed as complete or passing.
+The representative failing corners have completed the specification's
+crosscheck (`traponly`, maxstep 1 ps, reltol 1e-7, vabstol 1e-8). The tighter
+runs still fail with **25 / 24 violating pairs** at `ss_high_m40` /
+`fs_high_m40`; worst-window times are **730.935 / 230.593 ps**. The primary
+results above retain their actual settings and carry the separate crosscheck
+in metadata. Thus the two failures are not dismissed as numerical artifacts.
 
 SOA reduction uses the unchanged upstream `soa_core.py` on the server.
 The large result JSONs use compact formatting; a redundant constant `where:
