@@ -94,4 +94,10 @@ All required delay, regeneration, reset, decision and output-validity specificat
 - Worst losing-output peak: 22.77930509765373% VDD at SF/low/-40; all CMP-15 counts are zero.
 - TT 1 mV / 30 mV delay: 61.56277345045652 / 47.71403968897317 ps (limits 80 / 50 ps). TT mixed-amplitude AVDD energy: 203.492731932 fJ, reported only.
 
-All results use the unchanged frozen l16 electrical source; current official JSON and figures replace stale historical records without rehashing them. The per-cycle audit is retained with run `20261103-025502-a01b-tb_comp_delay`; archive verification is pending at this checkpoint. Remaining all-corner noise and kickback are still running. No mixed-top or lead-verification claim is made.
+All results use the unchanged frozen l16 electrical source; current official JSON and figures replace stale historical records without rehashing them. The per-cycle audit is retained with run `20261103-025502-a01b-tb_comp_delay`; archive SHA256 `809e71c76842c1061eb35fb48e24168082307d34891bd4a196aef1947d48896b` has remote hashes, CRC/member hashes and remote absence verified. Remaining all-corner noise and kickback are still running. No mixed-top or lead-verification claim is made.
+
+## Blocking FF noise: completed-job checkpoint
+
+The ongoing 42-corner batch `20261103-025105-8754-tb_comp_noise`, frozen at `d0474920`, exposes a failure at **FF/low/125: 284.57485867742884 uV > 280 uV**, 95% interval **274.72–294.90 uV**. Every one of the 17 levels has 512 finite decisions (8,704 total). Decisions SHA256 is `66d2d231381e1cbb006c4d89a1c10830d2252d7762d8eae1e48cd85b580b203c`. Source, staged deck, testbench and downloaded raw hashes match remote files. The official noise measurement is applied without changing defaults: conservative, gear2only, reltol 1e-4 and voltage abstol 1e-6 V. A confidence interval crossing the limit does not turn the failed point estimate into a pass.
+
+This is a private read-only check of completed jobs; the official runner writes formal records after the entire batch completes. Eleven of the 42 jobs have been audited at this checkpoint. The current batch continues to retain full coverage and failures; source, seeds and numerical settings remain unchanged. TT mixed-top expansion is deferred, and l16 remains WIP and unqualified.
