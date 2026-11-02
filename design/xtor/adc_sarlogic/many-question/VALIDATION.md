@@ -24,8 +24,9 @@ match this circuit and are not stale; APS and `errpreset=conservative` are
 retained, with no sample-count overrides.
 
 These passes do not make the whole candidate eligible: formal remaining
-function-corner coverage, 1000-conversion random, mixed top-level regression,
-SOA and independent verification remain pending. Candidate status is `wip`.
+function-corner coverage, 1000-conversion random, mixed top-level regression
+and independent verification remain pending. **Additional SOA diagnostics
+have found violations**, as described below. Candidate status is `wip`.
 
 ## Ordinary function observations
 
@@ -59,6 +60,30 @@ The current quick-set four-conversion diagnostic covers seven corners and
 slow wait is about 70.38 ps, first clock 82.18 ps and D setup 103.37 ps.
 It is diagnostic only. The older all-corner four-conversion diagnostic of
 intermediate circuit `49ab94f9521d0865` does not qualify this circuit.
+
+## Additional verification started on 2026-11-02
+
+The remaining **43 ordinary-function corners**, each with the standard
+60 conversions and saved waveforms, and the standard **1000-conversion TT
+random test** are running on this unchanged circuit. They are not yet claimed
+as completed or passing. The existing two fresh ordinary-function corners
+are reused; slow/random `nowave=1` data cannot substitute for LOG-06/07/10
+waveform coverage. LOG-01 still requires all 45 corners, not only TT.
+
+A separate two-corner, four-conversion diagnostic saved all thin-oxide
+terminal nodes and checked 1772 devices / 5316 terminal pairs. **SOA fails
+in both diagnostic corners:** `ff_high_m40` has 16 violating pairs, maximum
+1.22751 V; `ss_high_125` has 16 violating pairs, maximum 1.22896 V against
+the unchanged 1.1 V project limit. Four completed words in each corner
+are bit/DAC correct; this does not excuse the voltage violations.
+
+See [SOA_DIAGNOSTIC.md](SOA_DIAGNOSTIC.md) for scope, full-transient evidence,
+node undershoots and reproduction requirements; issue #133 requests the
+project lead's decision on formal instrumentation. These diagnostics are not
+standard acceptance results or independent verification. The public SAR
+logic tests do not enable SOA, so their missing SOA fields are not a pass.
+No netlist change was made; the circuit hash and existing formal timing
+results remain unchanged.
 
 ## Design changes and retained limits
 
