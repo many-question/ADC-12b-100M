@@ -10,7 +10,7 @@ from .. import psf
 from ..arch import Arch
 from ..figures import (C1, C2, C3, C4, C7, GRID, INK2, LIMIT, MUTED, hline, limits, note, sink_of, stack_traces,
                        vline)
-from .common import fig_cin, pin_cins, read_capture, read_meters, tran
+from .common import fig_cin, pin_cins, read_capture, read_meters, soa_test, tran
 
 
 def read_emu(path: Path) -> dict[int, dict]:
@@ -25,6 +25,11 @@ def read_emu(path: Path) -> dict[int, dict]:
             c = conv.setdefault(int(f[1]), {"vin": np.nan, "k": []})
             c["k"].append((int(f[2]), int(f[3]), float(f[4]), float(f[5])))
     return conv
+
+
+# tb_sarlogic_soa: CONV high time of each cycle. Full windows (the emulator leaves decision 5 of every odd
+# conversion unanswered) and two interrupts: CONV falls mid-conversion, then just after the start.
+SOA_CONV_WIDTHS = [4.78e-9, 4.78e-9, 1.2e-9, 4.78e-9, 0.3e-9]
 
 
 def _check(job_dir: Path, ctx: dict) -> tuple[int, int, dict, dict]:
@@ -324,3 +329,10 @@ def _fig_timeout(fg, ctx, w, vdd, tr, highs, stuck, m) -> None:
     note(ax, f"mean {highs.mean():.1f} ps, {len(highs)} stuck decisions", loc="lower right")
     fg.save(fig, "timeout", "Comparator clock of a decision the emulator never answers, forced low by the "
             "timeout, and the timeout time of every stuck decision against its window.")
+
+
+def soa(job_dir: Path, ctx: dict) -> dict:
+    """tb_sarlogic_soa: per-device SOA (LOG-17), and how many conversions the stimulus completed."""
+    m = soa_test(job_dir, ctx, ["CONV", "CLKC", "OUTP", "OUTN", "RDY"])
+    m["n_conversions"] = int(read_capture(Path(job_dir) / "capture.txt")["rdy_rises"] or 0)
+    return m

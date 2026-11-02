@@ -343,7 +343,7 @@ def score(c: Candidate) -> dict:
     verification record of the lead in verification/ verifies it; nothing in the result's own meta
     counts). flags.unverified counts the self-reported results at corners that a spec of their test
     requires, flags.mismatch every mismatch."""
-    from . import verify
+    from . import soa, verify
     from .checks import judge
     from .corners import corner_names
     from .specs import blocks
@@ -387,15 +387,17 @@ def score(c: Candidate) -> dict:
              "unverified": sum(s == "self-reported" and d["corner"] in required[d["test"]]
                                for (d, _), s in zip(docs, states)),
              "mismatch": states.count("mismatch"),
-             "soa": sum(1 for d, _ in docs if (d["metrics"].get("soa_violations") or 0) > 0),
+             "soa": sum(1 for d, _ in docs if (soa.violations(d["metrics"]) or d["metrics"].get("soa_violations") or 0) > 0),
              "error": sum(bool(j["error"]) for _, j in docs)}
+    soa_row = soa_evidence(b, docs, states)
+    flags["soa_unverified"] = soa_row["required"] - soa_row["verified"]
     n_rep = sum(s.reported for s in b.specs)
     row = {"block": c.block, "candidate": c.name, "status": c.status, "authors": c.authors,
            "author_text": c.author_text(), "description": c.meta.get("description", ""),
            "problems": list(c.problems), "selected": b.selected == c.name,
            "specs_passed": passed, "specs_failed": failed, "specs_incomplete": incomplete,
            "specs_total": len(b.specs) - n_rep, "specs_reported": reported, "reported_total": n_rep,
-           "specs_failing": failing, "specs_missing": missing,
+           "specs_failing": failing, "specs_missing": missing, "soa": soa_row,
            "coverage": [got, need], "mc": mc_coverage(b, docs), "results": len(docs), "verified": states.count("verified"),
            "self_reported": states.count("self-reported"), "mismatch": states.count("mismatch"), "flags": flags,
            "worst_margin": None if worst is None else {"margin": worst[0], "spec": worst[1]},
@@ -405,6 +407,35 @@ def score(c: Candidate) -> dict:
            "top_regression": top_regression(c.block, c.name)}
     row["missing"] = eligibility(row)
     row["eligible"] = not row["missing"]
+    return row
+
+
+def soa_evidence(b, docs: list[tuple[dict, dict]], states: list[str]) -> dict:
+    """How far a candidate's per-device SOA is shown: one result per spec on soa_violations and
+    corner it requires. It counts as `verified` when it is a device-level check (soa_scope device
+    with pairs) with a violation count and the lead's verification. The others are missing (no
+    result), error (no count), behavioral (a behavioral DUT is not device evidence) or
+    self_reported. A violation is flags.soa, not this. A block with no such spec requires nothing."""
+    from .corners import corner_names
+
+    row = {"required": 0, "verified": 0, "missing": 0, "error": 0, "behavioral": 0, "self_reported": 0}
+    for s in b.specs:
+        if s.metric != "soa_violations" or s.reported:
+            continue
+        for corner in corner_names(s.corners):
+            row["required"] += 1
+            k = next((i for i, (d, _) in enumerate(docs) if d["test"] == s.test and d["corner"] == corner), None)
+            m = docs[k][0]["metrics"] if k is not None else {}
+            if k is None:
+                row["missing"] += 1
+            elif "soa_violations" not in m:
+                row["error"] += 1
+            elif m.get("soa_scope") != "device" or not m.get("soa_pairs"):
+                row["behavioral"] += 1
+            elif states[k] != "verified":
+                row["self_reported"] += 1
+            else:
+                row["verified"] += 1
     return row
 
 
@@ -518,9 +549,10 @@ def eligibility(row: dict) -> list[dict]:
     Eligible (CONTRIBUTING §10): every spec passes at every corner it requires (and every
     reported-only metric is recorded there), every result is fresh and without error, every result
     at a required corner is verified by the lead (verification/) and none contradicts it, no SOA
-    violation, and the mixed top-level regression with the candidate passes (top_regression).
-    `what` is one of problems, results, failing, incomplete, stale, error, soa, mismatch,
-    unverified, top."""
+    violation, the required per-device SOA results all shown and verified (soa_evidence), and the
+    mixed top-level regression with the candidate passes (top_regression).
+    `what` is one of problems, results, failing, incomplete, stale, error, soa, soa_unverified,
+    mismatch, unverified, top."""
     f, out = row["flags"], []
 
     def add(what: str, text: str) -> None:
@@ -540,6 +572,9 @@ def eligibility(row: dict) -> list[dict]:
         add("error", f"{f['error']} result(s) with an error")
     if f["soa"]:
         add("soa", f"SOA violations in {f['soa']} result(s)")
+    if f.get("soa_unverified"):
+        add("soa_unverified", f"per-device SOA unverified: {f['soa_unverified']} required result(s) missing, "
+                              "behavioral, in error or not verified")
     if f["mismatch"]:
         add("mismatch", f"the lead's rerun contradicts {f['mismatch']} result(s)")
     if f["unverified"]:

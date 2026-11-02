@@ -144,7 +144,12 @@ class Block:
         never judged: they count for no worst value, failure or coverage. A Monte Carlo spec is
         left out of a nominal run altogether; on a Monte Carlo run its verdict also needs every
         sample (Spec.judge) and gives the sample coverage as `samples`."""
+        from . import soa
+
         judged, na = {}, {}
+        n = soa.violations(metrics)                      # the SOA rule applies now, as a limit does
+        if n is not None:
+            metrics = {**metrics, "soa_violations": n}
         for s in self.specs:
             if s.test != test:
                 continue
