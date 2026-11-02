@@ -1,0 +1,82 @@
+{
+ "block": "adc_comp",
+ "test": "tb_comp_soa",
+ "view": "behav",
+ "corner": "tt_nom_27",
+ "params": {},
+ "globals": {
+  "vdd": 0.9,
+  "vdd18": 1.8,
+  "tempc": 27.0,
+  "noise_en": 0,
+  "devnoise": 0,
+  "beh_speed": 1.0,
+  "vref_in": 0.9,
+  "cdac_behav": 1,
+  "comp_behav": 1
+ },
+ "metrics": {
+  "soa_scope": "external",
+  "soa_limit_V": 1.1,
+  "soa_peak_V": 1.29,
+  "soa_window_ns": 10.0,
+  "soa_max_over_ps": 100.0,
+  "soa_devices": 0,
+  "soa_devices_dut": 0,
+  "soa_pairs": 0,
+  "soa_violations": 0,
+  "soa_note": "nothing to check: XDUT uses behavioral views (no devices) and the testbench has no thin-oxide device at its top level; not transistor-level evidence",
+  "soa_points": 3281,
+  "soa_dt_max_ps": 64.946,
+  "soa_table": []
+ },
+ "specs": {
+  "CMP-17": {
+   "metric": "soa_violations",
+   "value": 0,
+   "limit": "<= 0",
+   "pass": true
+  }
+ },
+ "figures": [
+  {
+   "file": "tt_nom_27.stimulus.png",
+   "caption": "Stimulus of the SOA test over the whole transient (scope external, 0 pairs)."
+  }
+ ],
+ "meta": {
+  "date": "2026-11-02T14:59:50",
+  "git": "3629b56c",
+  "git_clean": true,
+  "mode": "aps",
+  "pdk": false,
+  "mc": null,
+  "wall_s": 130.0,
+  "rc": "0",
+  "sim_s": "20",
+  "numerics": {
+   "source": "spectre.log",
+   "reltol": 0.0001,
+   "maxstep_ps": 120.4,
+   "method": "gear2only",
+   "errpreset": "conservative",
+   "lteratio": 10.0,
+   "relref": "alllocal",
+   "abstol_V": 1e-06,
+   "steps_accepted": 3280,
+   "step_mean_ps": 3.67073,
+   "step_max_ps": 64.9459
+  },
+  "files": {
+   "tb/comp/tb_comp_soa.scs": "8f4b84b8526b6d05",
+   "design/behav/adc_comp.scs": "c0da9398b6e09fc2",
+   "design/behav/veriloga/adc_comp_va.va": "ab8a6bf210351e31",
+   "specs/soa.yaml": "b6213fc39b550c11"
+  },
+  "arch": {
+   "keys": [],
+   "sha": "44136fa355b3678a"
+  },
+  "views": {}
+ }
+}
