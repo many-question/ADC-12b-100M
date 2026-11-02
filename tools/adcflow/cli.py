@@ -74,6 +74,16 @@ def main(argv: list[str] | None = None) -> int:
     mg.add_argument("--description", required=True)
     mg.add_argument("--dry-run", action="store_true")
 
+    rn = sub.add_parser("rename-candidate", help="rename a candidate that is not merged yet, with its results "
+                                                 "(no rerun: the netlist and the content hashes stay)")
+    rn.add_argument("block")
+    rn.add_argument("old")
+    rn.add_argument("new")
+    rn.add_argument("--base", default="origin/main",
+                    help="git ref of the branch the candidate will merge into (default origin/main): a candidate "
+                         "that exists there or on the merge base is merged and is never renamed")
+    rn.add_argument("--dry-run", action="store_true")
+
     rm = sub.add_parser("remeasure", help="measure the fetched jobs of an earlier run again (no simulation) "
                                           "and re-record their results")
     rm.add_argument("test")
@@ -142,6 +152,15 @@ def main(argv: list[str] | None = None) -> int:
             print(("would move " if a.dry_run else "") + line)
         if not a.dry_run:
             print(f"next: in specs/blocks/{a.block}.yaml replace views.xtor by `selected: none` or `selected: {a.name}`")
+    elif a.cmd == "rename-candidate":
+        from .candidates import rename
+        try:
+            lines = rename(a.block, a.old, a.new, a.base, a.dry_run)
+        except (ValueError, OSError) as e:
+            print(f"[adcflow] rename-candidate: {e}", file=sys.stderr)
+            return 1
+        for line in lines:
+            print(line if line.startswith("note:") else ("would " if a.dry_run else "") + line)
     elif a.cmd == "remeasure":
         from pathlib import Path
 

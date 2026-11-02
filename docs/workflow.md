@@ -36,6 +36,7 @@ python -m adcflow report [--block adc_comp]     # 结果对照规格
 python -m adcflow candidates [--block adc_comp] [--json]   # 晶体管级候选的排行榜（docs/proposals/open-candidates.md §3）
 python -m adcflow verify <test> --block <block> --candidate <name> [--corners …] [--dry-run]   # 项目负责人在同一网表哈希上复跑候选的结果，写复核记录 verification/…（docs/verification.md §7）
 python -m adcflow migrate-candidate <block> <name> --author <login>[=<显示名>] --description "…"   # 旧的单一 xtor 视图迁成候选（项目负责人）
+python -m adcflow rename-candidate <block> <old> <new> [--base origin/main] [--dry-run]   # 合并前给候选改名，连同结果，不重仿真（CONTRIBUTING.md §4）
 python -m adcflow remeasure <test> --run build/runs/<run_id> [--dry-run]   # 不重仿真，用现行度量重算并重记该次运行的结果（只允许 SFDR 变化，#36）
 python -m adcflow remeasure <test> --run build/runs/<run_id> --redraw     # 只重画证据图：任何指标变化即中止，结果中写 meta.redrawn（#47）
 python -m adcflow rehash [--block <block>] [--test <test>] [--view xtor-<name>] [--dry-run] [-v]   # 不重仿真，把结果的记录换成其电路实际依赖的文件与 arch 取值（见下）
