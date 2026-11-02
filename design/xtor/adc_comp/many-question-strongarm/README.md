@@ -1,6 +1,6 @@
 # Strongarm comparator: restored l16t3c1 (WIP)
 
-The current electrical baseline is l16t3c1, restored on 2026-11-03 for requalification under comparator 0.11.0. Formal current-settings TT 17 x 512 physical noise passes at 175.29518977435197 uV rms (95% interval 167.73–183.26 uV); short-reset TT/fast/slow support and five representative official device-SOA corners pass. Independent p56 FS noise fails at 297.7313 uV and stops. Remaining formal coverage and verification are open. See [the source mapping and validation sequence](RESTORATION-20261103.md). The RESET-V27 narrative and figure below are historical; their results are not fresh l16 evidence.
+The current electrical baseline is l16t3c1, restored on 2026-11-03 for requalification under comparator 0.11.0. Formal current-settings TT 17 x 512 physical noise passes at 175.29518977435197 uV rms (95% interval 167.73–183.26 uV); short-reset TT/fast/slow support and all 45 official device-SOA corners pass. Independent p56 FS noise fails at 297.7313 uV and stops. Remaining formal coverage and verification are open. See [the source mapping and validation sequence](RESTORATION-20261103.md). The RESET-V27 narrative and figure below are historical; their results are not fresh l16 evidence.
 
 ## Historical RESET-V27 and subsequent experiments
 
@@ -16,7 +16,7 @@ Independent [V29](RESET-V29.md) doubles four output MOS devices from 4 to 8 um. 
 
 The canonical source contains 23 MOS devices and five physical MOM capacitors. Geometry and terminal parasitics come from successful callbacks or exact verified reuse. Physical shunts and rail loads carry reset current; whole-cycle AVDD energy includes that current and is report-only.
 
-![Current complete transistor schematic](schematic.png)
+![Historical RESET-V27 transistor schematic](schematic.png)
 
 [NUMERICS-94](NUMERICS-94.md) preserves the numerical migration and private checks. PR #95 is merged at c6152d236e525793ecc4809b9a6c9dfb9fd0ad77, with comp 0.8.0 and exact ADCToolbox commit cd72061ff3b7a977163dac540da126ae22f5e38d. The runtime passes the #96 self-check at 79.999999999274 dB. New evidence uses APS and actual conservative settings, with no explicit maxstep or method. No old or private result is relabeled as formal.
 
