@@ -759,24 +759,29 @@ def _git_at_root(*args: str) -> subprocess.CompletedProcess:
     return subprocess.run(["git", *args], cwd=ROOT, capture_output=True, text=True, timeout=60)
 
 
-def merged_at(block: str, name: str, base: str) -> list[str]:
-    """The commits among `base` and the merge base of HEAD with it that have design/xtor/<block>/<name>/.
+def merged_at(block: str, name: str, base: str) -> tuple[list[str], bool]:
+    """(commits of HEAD's history that added design/xtor/<block>/<name>/candidate.yaml and that `base`
+    contains, whether `base` has a directory of that name).
+
+    The candidate is merged when its own add commit is in `base`; a directory of the same name on
+    `base` that another commit added is another candidate (two open PRs that chose the same name).
     Raises ValueError when `base` is not a commit of the repository."""
     tip = _git_at_root("rev-parse", "--verify", "--quiet", f"{base}^{{commit}}").stdout.strip()
     if not tip:
         raise ValueError(f"base {base!r} is not a commit here (fetch it, or pass --base <ref>)")
-    refs = [tip]
-    mb = _git_at_root("merge-base", "HEAD", tip).stdout.strip()
-    if mb and mb != tip:
-        refs.append(mb)
-    return [r[:8] for r in refs if _git_at_root("cat-file", "-e", f"{r}:design/xtor/{block}/{name}").returncode == 0]
+    adds = _git_at_root("log", "--diff-filter=A", "--format=%H", "HEAD", "--",
+                        f"design/xtor/{block}/{name}/candidate.yaml").stdout.split()
+    merged = [c[:8] for c in adds if _git_at_root("merge-base", "--is-ancestor", c, tip).returncode == 0]
+    return merged, _git_at_root("cat-file", "-e", f"{tip}:design/xtor/{block}/{name}").returncode == 0
 
 
 def rename(block: str, old: str, new: str, base: str = "origin/main", dry: bool = False) -> list[str]:
     """Rename the candidate `old` of a block to `new`, with its results, without simulating again.
 
-    Only a candidate that is not merged may be renamed (CONTRIBUTING §4): it must not exist on `base`
-    or on the merge base of HEAD with it, nor be a block's selection, nor have verification records.
+    Only a candidate that is not merged may be renamed (CONTRIBUTING §4): `base` must not contain the
+    commit that added its candidate.yaml (merged_at; a same-named directory that another commit added
+    is another candidate and only gives a note), and it must not be a block's selection nor have
+    verification records.
     The new name passes validate() and starts with an author's login. design/xtor/<block>/<old>/ moves
     to <new>/ (only `name:` in candidate.yaml changes), results/<block>/*/xtor-<old>/ to xtor-<new>/,
     and top-level result directories that name <blk>@<old> to <blk>@<new>. In each moved result the
@@ -811,10 +816,11 @@ def rename(block: str, old: str, new: str, base: str = "origin/main", dry: bool 
                              "name, so the candidate is not renamed")
     if blocks()[block].selected == old:
         raise ValueError(f"{block}: {old} is the block's selected candidate; a merged candidate is never renamed")
-    hits = merged_at(block, old, base)
+    hits, same_name = merged_at(block, old, base)
     if hits:
-        raise ValueError(f"design/xtor/{block}/{old}/ exists on {base} ({', '.join(hits)}): a merged candidate is "
-                         "never renamed (CONTRIBUTING §4); contribute under the new name in a new candidate")
+        raise ValueError(f"design/xtor/{block}/{old}/ is merged: {base} contains the commit that added it "
+                         f"({', '.join(hits)}); a merged candidate is never renamed (CONTRIBUTING §4), "
+                         "contribute under the new name in a new candidate")
     rel = lambda p: p.relative_to(ROOT).as_posix()  # noqa: E731
     prefix_old, prefix_new = f"design/xtor/{block}/{old}/", f"design/xtor/{block}/{new}/"
     short = block.replace("adc_", "")
@@ -834,8 +840,10 @@ def rename(block: str, old: str, new: str, base: str = "origin/main", dry: bool 
     log.append(f"rewrite {n_json} result JSONs (view, meta.views, meta.files keys; add meta.renamed)")
     o = re.escape(old)
     named = re.compile(rf"design/xtor/{block}/{o}/|(?:xtor-|{short}@){o}(?![a-z0-9-])")
-    notes = [f"note: {rel(p)} still names the old paths; update it by hand" for p in sorted(src.iterdir())
-             if p.suffix in {".md", ".txt"} and named.search(p.read_text(encoding="utf-8", errors="replace"))]
+    notes = [f"note: {block}/{old} on {base} is another candidate (another commit added it); renaming this one"
+             ] if same_name else []
+    notes += [f"note: {rel(p)} still names the old paths; update it by hand" for p in sorted(src.iterdir())
+              if p.suffix in {".md", ".txt"} and named.search(p.read_text(encoding="utf-8", errors="replace"))]
     if dry:
         return log + notes
     shutil.move(str(src), str(dst))

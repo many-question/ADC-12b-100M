@@ -223,6 +223,35 @@ def test_refuses_a_candidate_on_the_merge_base(root):
         cand.rename(BLOCK, "alice", "alice-st", "base")
 
 
+def test_allows_a_same_named_candidate_that_another_commit_added_on_base(root):
+    _git(root, "switch", "-q", "base")                       # the other open PR, merged first
+    _make(root).joinpath(f"{BLOCK}.scs").write_text(_netlist().replace("m=2", "m=4"))
+    _commit(root, "other candidate alice")
+    _git(root, "switch", "-q", "main")
+    assert not (root / "design" / "xtor" / BLOCK / "alice").exists()
+    _make(root)
+    _commit(root, "this candidate alice")
+    assert cand.merged_at(BLOCK, "alice", "base")[0] == []
+    plan = cand.rename(BLOCK, "alice", "alice-st", "base", dry=True)
+    assert plan[-2].startswith(f"note: {BLOCK}/alice on base is another candidate")
+    cand.rename(BLOCK, "alice", "alice-st", "base")
+    assert (root / "design" / "xtor" / BLOCK / "alice-st" / "candidate.yaml").exists()
+
+
+def test_refuses_when_base_contains_this_candidates_add_commit(root):
+    _make(root)
+    _commit(root, "this candidate alice")
+    _git(root, "switch", "-q", "-c", "later", "base")        # base merges it later, among other work
+    _git(root, "merge", "-q", "--no-edit", "main")
+    (root / "other.txt").write_text("x\n")
+    _commit(root, "later work")
+    _git(root, "branch", "-f", "base", "later")
+    _git(root, "switch", "-q", "main")
+    assert len(cand.merged_at(BLOCK, "alice", "base")[0]) == 1
+    with pytest.raises(ValueError, match="merged candidate is never renamed"):
+        cand.rename(BLOCK, "alice", "alice-st", "base")
+
+
 def test_refuses_an_unknown_base(root):
     _make(root)
     with pytest.raises(ValueError, match="not a commit here"):
