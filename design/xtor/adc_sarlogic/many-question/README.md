@@ -27,8 +27,29 @@ A 1,426-MOS static CMOS self-timed 14-step SAR controller (`adc_sarlogic`) with 
    - At `ff_high_m40` (`VDD = 0.99 V`, low $|V_{th}|$), the varactor remains in strong inversion (`C_ox`) throughout the first half-swing, maximizing capacitance and preventing early timeout (`~204 ps >= 200 ps`). At `ss_low_125` (`VDD = 0.81 V`, high $|V_{th}|`), the varactor transitions into depletion early in the swing, reducing effective capacitance to compensate lower transistor drive current (`~344 ps <= 350 ps`), compressing the extreme corner ratio `ss_low_125 / ff_high_m40` to `1.68x`.
 
 4. **Glitch-Free Output Register (`adc_sarlogic_dlat`) & Input Capacitance (`LOG-14`, `LOG-15`)**
-   - Upon completion of step 14 (`DONE14 = 1`), `LAT_EN` pulses to transfer all 14 raw bits `Q<13:0>` into `D<13:0>` prior to raising `RDY`, guaranteeing zero mid-conversion transitions on `D<13:0>`.
-   - Compact input buffers on `CONV` (`LOG-14 = 2.53 fF <= 40 fF`) and `OP_B` / `ON_B` (`LOG-15 = 4.22 fF <= 7 fF`) minimize loading on `adc_clkgen` and `adc_comp`.
+   - Upon completion of step 14 (`DONE14 = 1`), `LAT_EN` pulses to transfer all 14 raw bits `Q<13:0>` into `D<13:0>` prior to raising `RDY`, guaranteeing zero mid-conversion transitions on `D<13:0>` (`LOG-10 = 104.0 .. 183.4 ps >= 100 ps` across all 45 corners).
+   - Compact input buffers on `CONV` (`LOG-14 = 2.53 fF <= 40 fF`) and `OUTP` / `OUTN` (`LOG-15 = 4.22 fF <= 7 fF`) minimize loading on `adc_clkgen` and `adc_comp`.
+
+## 45-Corner Verification Summary (`324 / 324` Required Corner-Specs Recorded & Passing)
+
+| Spec | Metric | Target Limit | Corner Scope | Measured (`tt_nom_27` / 45-Corner Worst) | Status | Testbench |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| `LOG-01` | `code_errors` | `<= 0` | `all` (45/45) | `0` (`0` across 45,000 conversions) | **PASS** | `tb_sarlogic_rand` |
+| `LOG-02` | `t_bitd_ps` | `<= 40 ps` | `typ` (1/1) | `27.9 ps` | **PASS** | `tb_sarlogic_func` |
+| `LOG-03` | `t_rst_ps` | `<= 45 ps` | `typ` (1/1) | `24.45 ps` | **PASS** | `tb_sarlogic_func` |
+| `LOG-04` | `t_dac_fast_ps` | `35 .. 60 ps` | `typ` (1/1) | `48.21 ps` | **PASS** | `tb_sarlogic_func` |
+| `LOG-05` | `t_dac_slow_ps` | `70 .. 100 ps` | `typ` (1/1) | `94.88 ps` | **PASS** | `tb_sarlogic_func` |
+| `LOG-06` | `t_dac_min_ps` | `>= 70 ps` | `all` (45/45) | `71.51 ps` (worst across 45 corners) | **PASS** | `tb_sarlogic_func` |
+| `LOG-07` | `t_start_ps` | `80 .. 160 ps` | `all` (45/45) | `94.9 ps` (`81.76 .. 146.1 ps` across 45 corners) | **PASS** | `tb_sarlogic_func` |
+| `LOG-08` | `t_conv_ns` | `<= 2.75 ns` | `typ` (1/1) | `2.736 ns` | **PASS** | `tb_sarlogic_func` |
+| `LOG-09` | `t_conv_slow_ns` | `<= 4.1 ns` | `all` (45/45) | `3.086 ns` (`3.712 ns` worst at `ss_low_125`) | **PASS** | `tb_sarlogic_func_slow` |
+| `LOG-10` | `t_rdy_ps` | `>= 100 ps` | `all` (45/45) | `128.4 ps` (`104.0 ps` worst across 45 corners) | **PASS** | `tb_sarlogic_func` |
+| `LOG-11` | `timeout_errors` | `<= 0` | `all` (45/45) | `0` (`0` across all 45 corners) | **PASS** | `tb_sarlogic_timeout` |
+| `LOG-12` | `t_timeout_ps` | `200 .. 350 ps` | `all` (45/45) | `258.7 ps` (`205.4 .. 344.4 ps` across 45 corners) | **PASS** | `tb_sarlogic_timeout` |
+| `LOG-13` | `power_uw` | `reported` | `typ` (1/1) | `928.1 uW` | **INFO** | `tb_sarlogic_func` |
+| `LOG-14` | `cin_conv_ff` | `<= 40 fF` | `typ` (1/1) | `2.534 fF` | **PASS** | `tb_sarlogic_func` |
+| `LOG-15` | `cin_cmp_ff` | `<= 7 fF` | `typ` (1/1) | `4.216 fF` | **PASS** | `tb_sarlogic_func` |
+| `LOG-16` | `t_dac_add_err_pct` | `<= 20 %` | `typ` (1/1) | `7.227 %` | **PASS** | `tb_sarlogic_func` |
 
 ## Acknowledged Notices
 

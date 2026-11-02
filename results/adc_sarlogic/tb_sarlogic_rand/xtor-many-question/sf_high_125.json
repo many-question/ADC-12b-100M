@@ -1,0 +1,89 @@
+{
+ "block": "adc_sarlogic",
+ "test": "tb_sarlogic_rand",
+ "view": "xtor-many-question",
+ "corner": "sf_high_125",
+ "params": {
+  "nconv": 1000,
+  "nowave": 1
+ },
+ "globals": {
+  "vdd": 0.99,
+  "vdd18": 1.98,
+  "tempc": 125.0,
+  "noise_en": 0,
+  "devnoise": 1,
+  "beh_speed": 1.0,
+  "vref_in": 0.9,
+  "cdac_behav": 1,
+  "comp_behav": 1
+ },
+ "metrics": {
+  "func_errors": 0,
+  "bit_errors": 0,
+  "level_errors": 0,
+  "n_conversions": 1000,
+  "t_conv_ns": 2.7563400000000002,
+  "t_conv_mean_ns": 2.673517608,
+  "power_uW": 5099.07469797
+ },
+ "specs": {
+  "LOG-01": {
+   "metric": "func_errors",
+   "value": 0,
+   "limit": "<= 0",
+   "pass": true
+  }
+ },
+ "figures": [
+  {
+   "file": "sf_high_125.decisions.png",
+   "caption": "Captured output word against the comparator emulator for every conversion: code against input, mismatches per decision position, and the conversion-time histogram."
+  }
+ ],
+ "meta": {
+  "date": "2026-11-02T18:02:44",
+  "git": "d9b6a579",
+  "git_clean": true,
+  "mode": "aps",
+  "pdk": true,
+  "mc": null,
+  "wall_s": 15853.1,
+  "rc": "0",
+  "sim_s": "18833",
+  "numerics": {
+   "source": "spectre.log",
+   "reltol": 0.0001,
+   "maxstep_ps": 100011.0,
+   "method": "gear2only",
+   "errpreset": "conservative",
+   "lteratio": 10.0,
+   "relref": "alllocal",
+   "abstol_V": 1e-06,
+   "steps_accepted": 5309559,
+   "step_mean_ps": 1.8836,
+   "step_max_ps": null
+  },
+  "files": {
+   "tb/sarlogic/tb_sarlogic_func.scs": "bdf916a27d3ea9ca",
+   "tb/common/veriloga/tb_imeter_va.va": "d4be49aca417ad61",
+   "tb/common/veriloga/tb_capture_va.va": "1a05df990a1ef806",
+   "tb/common/veriloga/tb_qmeter_va.va": "fed84d572a912b39",
+   "tb/common/veriloga/tb_cmp_emu_va.va": "1173f23365da8b7f",
+   "design/xtor/adc_sarlogic/many-question/adc_sarlogic.scs": "f22ea1e01c6adf51",
+   "design/behav/veriloga/adc_arch_func.vams": "8eac5dace781bffc",
+   "design/behav/veriloga/adc_arch.vams": "32d904828c5dbf67"
+  },
+  "arch": {
+   "keys": [
+    "cdac.cap_weights",
+    "conversion.n_decisions",
+    "conversion.out_weights"
+   ],
+   "sha": "caffa09d7b9d240a"
+  },
+  "views": {
+   "adc_sarlogic": "xtor:many-question"
+  }
+ }
+}
