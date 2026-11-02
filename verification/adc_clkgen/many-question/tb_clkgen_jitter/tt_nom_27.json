@@ -10,8 +10,8 @@
   "result": "results/adc_clkgen/tb_clkgen_jitter/xtor-many-question/tt_nom_27.json",
   "netlist": "design/xtor/adc_clkgen/many-question/adc_clkgen.scs",
   "netlist_hash": "878752080031c251",
-  "date": "2026-10-28T23:44:54",
-  "git": "add690e",
+  "date": "2026-10-31T13:17:46",
+  "git": "c6152d2",
   "mode": "aps"
  },
  "params": {},
@@ -23,16 +23,17 @@
   "devnoise": 1,
   "beh_speed": 1.0,
   "vref_in": 0.9,
-  "cdac_behav": 1
+  "cdac_behav": 1,
+  "comp_behav": 1
  },
  "metrics": {
-  "jitter_fs": 41.37613887775063,
+  "jitter_fs": 38.5839881583962,
   "n_edges": 200
  },
  "specs": {
   "CLK-09": {
    "metric": "jitter_fs",
-   "value": 41.37613887775063,
+   "value": 38.5839881583962,
    "limit": "<= 60",
    "pass": true
   }
@@ -50,10 +51,10 @@
   },
   "metrics": {
    "jitter_fs": {
-    "self": 41.37613887775063,
-    "rerun": 41.37613887775063,
+    "self": 38.5839881583962,
+    "rerun": 38.5839881583962,
     "diff": 0.0,
-    "tol": 4.137613887775063,
+    "tol": 3.8583988158396205,
     "ok": true
    },
    "n_edges": {
@@ -63,34 +64,33 @@
    }
   },
   "not_compared": [],
-  "notes": [
-   "global cdac_behav recorded by the rerun only"
-  ]
+  "notes": []
  },
  "meta": {
-  "date": "2026-10-29T22:18:25",
-  "git": "0f44a05",
+  "date": "2026-11-01T11:33:41",
+  "git": "88654d6",
   "git_clean": true,
   "mode": "aps",
   "pdk": true,
   "mc": null,
-  "wall_s": 227.8,
+  "wall_s": 242.7,
   "rc": "0",
-  "sim_s": "121",
+  "sim_s": "135",
   "numerics": {
    "source": "spectre.log",
-   "reltol": 0.001,
-   "maxstep_ps": 40200.0,
-   "method": "traponly",
-   "errpreset": "moderate",
-   "lteratio": 3.5,
+   "reltol": 0.0001,
+   "maxstep_ps": 20100.0,
+   "method": "gear2only",
+   "errpreset": "conservative",
+   "lteratio": 10.0,
+   "relref": "alllocal",
    "abstol_V": 1e-06,
-   "steps_accepted": 233970,
-   "step_mean_ps": 8.59084,
+   "steps_accepted": 406941,
+   "step_mean_ps": 4.93929,
    "step_max_ps": null
   },
   "files": {
-   "tb/clkgen/tb_clkgen_jitter.scs": "768a1ad5af39a71b",
+   "tb/clkgen/tb_clkgen_jitter.scs": "cbf5d2390c993f09",
    "tb/common/veriloga/tb_sampler_va.va": "4092bc16170c588d",
    "design/xtor/adc_clkgen/many-question/adc_clkgen.scs": "878752080031c251"
   },

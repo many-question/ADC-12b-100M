@@ -10,6 +10,8 @@ All changed dimensions were callback-normalized before simulation. CFF uses 6 fi
 
 ## Rerun for the numerics change
 
+**Spec 0.10.0 (#112, notice #113).** The 45 `tb_bootstrap_dc` records were rerun on main `17b3a0c` with the netlist unchanged, at the 1.1 V SOA limit and with explicit waveform saves. All 45 corners still pass, and every metric equals the `c6152d2` record apart from `soa_limit_V`, so the table below still stands. The largest checked voltage leaves about 101 mV to the new limit. `tb_bootstrap_track` stayed fresh and keeps its records.
+
 All 90 records were rerun on main `c6152d2` (spec 0.9.0, #95, notice #97) with the netlist unchanged: every `tran` at `errpreset=conservative`, ADCToolbox `cd72061`, `aps`. All 45 + 45 corners still pass. The numbers and numerical settings in the sections below are the earlier records, kept as history.
 
 | Spec | Limit | Worst corner | Worst value |
@@ -36,7 +38,7 @@ Fresh standard-flow DC runs use specification 0.6.0 and the approved numerical c
 | TT average current (BST-07) | 48.567152 µA | `tt_nom_27` | Reported only |
 | TT PHI_B input capacitance | 11.244909 fF | `tt_nom_27` | <= 16 fF |
 | TT PHI_BB input capacitance | 7.525217 fF | `tt_nom_27` | <= 16 fF |
-| Largest checked absolute gs/gd/ds voltage | 0.998681198 V | `fs_high_125` | <= 1 V |
+| Largest checked absolute gs/gd/ds voltage | 0.998681198 V | `fs_high_125` | <= 1.1 V |
 
 Current is reported at TT nominal / 27 °C; the input-capacitance limits apply there. Per [#81](https://github.com/many-question/ADC-12b-100M/issues/81), BST-07 has no acceptance upper bound; 50 µA remains an architecture budget only. The reported single-instance TT power is 43.710437 µW. Two instances plus the allocated 8 fF wiring give estimated PHI_B / PHI_BB driver loads of 30.489817 / 23.050434 fF, below the 40 fF allocation for each phase.
 

@@ -1,0 +1,1753 @@
+// adc_sarlogic transistor view: static CMOS self-timed 14-step SAR controller.
+// @RNL(type="header") {
+//   @VERSION("0.3");
+//   @USE-PACKAGE(name="adc28", version="0.1", path="../../../rnl/adc28.rnl");
+// }
+simulator lang=spectre
+
+subckt adc_sarlogic_inv (A Y VDD VSS)
+parameters wn=800n wp=1.2u ln=30n lp=30n nn=2 np=2
+MN (Y A VSS VSS) nch_ulvt_mac w=wn l=ln nf=nn
+MP (Y A VDD VDD) pch_ulvt_mac w=wp l=lp nf=np
+// @RNL {
+//   &VDD @ADD-TO $SUPPLY_NET_SET; &VSS @ADD-TO $GROUND_NET_SET;
+//   # @SET-SYMBOL $INVERTER;
+//   #MP @SET-SYMBOL $PMOS; #MN @SET-SYMBOL $NMOS;
+//   {#MN #MP} @GROUP; {#MN #MP} @TEXT("", key="model");
+//   #MP @PLACE(0,5) => @ORIENT("R0");
+//   #MN @PLACE(0,-5) => @ORIENT("R0");
+//   %ga=(-6,0); %out=(0,0); %vp=(0,10); %vn=(0,-10);
+//   %a=$IO_PORT @ATTACH &A => @PLACE(-10,0) => @ORIENT("R0");
+//   %y=$IO_PORT @ATTACH &Y => @PLACE(8,0) => @ORIENT("MY");
+//   %v=$SUPPLY @ATTACH &VDD => @PLACE(0,12) => @ORIENT("R0");
+//   %g=$GROUND @ATTACH &VSS => @PLACE(0,-12) => @ORIENT("R0");
+//   &A @WIRE(mode="straight") {%a:p %ga};
+//   &A @WIRE(mode="straight") {#MP:g (-6,5) %ga (-6,-5) #MN:g};
+//   &Y @WIRE(mode="straight") {#MP:d %out #MN:d};
+//   &Y @WIRE(mode="straight") {%out %y:p};
+//   &VDD @WIRE(mode="straight") {#MP:s %vp %v:p};
+//   &VSS @WIRE(mode="straight") {#MN:s %vn %g:p};
+//   (-10,18) @TEXT("adc_sarlogic_inv", size=1.1, textcolor="#1a365d", bold=true, halign="start");
+//   (-10,16) @TEXT("Static CMOS Inverter: Y = NOT A (ULVT core MOS, L=ln/lp)", size=0.75, textcolor="#334155", halign="start");
+//   (-10,-16) @TEXT("MP: pch_ulvt_mac (W=wp, L=lp, nf=np); MN: nch_ulvt_mac (W=wn, L=ln, nf=nn)", size=0.65, textcolor="#4a5568", halign="start");
+//   $JUNCTION @ATTACH %ga; $JUNCTION @ATTACH %out;
+// }
+ends adc_sarlogic_inv
+
+subckt adc_sarlogic_nand2 (A B Y VDD VSS)
+parameters wn=1.2u wp=1.2u nn=2 np=2
+MNA (Y B nx VSS) nch_ulvt_mac w=wn l=30n nf=nn
+MNB (nx A VSS VSS) nch_ulvt_mac w=wn l=30n nf=nn
+MPA (Y A VDD VDD) pch_ulvt_mac w=wp l=30n nf=np
+MPB (Y B VDD VDD) pch_ulvt_mac w=wp l=30n nf=np
+// @RNL {
+//   &VDD @ADD-TO $SUPPLY_NET_SET; &VSS @ADD-TO $GROUND_NET_SET;
+//   # @SET-SYMBOL $NAND_2INPUT;
+//   {#MPA #MPB} @SET-SYMBOL $PMOS; {#MNA #MNB} @SET-SYMBOL $NMOS;
+//   {#MNA #MNB} @AS $MATCHED; {#MPA #MPB} @AS $MATCHED;
+//   {#MNA #MNB #MPA #MPB} @GROUP; {#MNA #MNB #MPA #MPB} @TEXT("", key="model");
+//   #MPA @PLACE(-4,6) => @ORIENT("R0");
+//   #MPB @PLACE(6,6) => @ORIENT("R0");
+//   #MNA @PLACE(0,-2) => @ORIENT("R0");
+//   #MNB @PLACE(0,-10) => @ORIENT("R0");
+//   %a1=(-10,6); %b1=(-12,-2); %yp=(-4,2); %y1=(0,2); %yb=(6,2);
+//   %vp=(-4,13); %v0=(0,13); %vb=(6,13); %g1=(0,-16);
+//   %a=$IO_PORT @ATTACH &A => @PLACE(-17,6) => @ORIENT("R0");
+//   %b=$IO_PORT @ATTACH &B => @PLACE(-17,-2) => @ORIENT("R0");
+//   %y=$IO_PORT @ATTACH &Y => @PLACE(16,2) => @ORIENT("MY");
+//   %v=$SUPPLY @ATTACH &VDD => @PLACE(0,16) => @ORIENT("R0");
+//   %g=$GROUND @ATTACH &VSS => @PLACE(0,-18) => @ORIENT("R0");
+//   &A @WIRE(mode="straight") {%a:p %a1 #MPA:g};
+//   &A @WIRE(mode="straight") {%a1 (-10,-10) #MNB:g};
+//   &B @WIRE(mode="straight") {%b:p %b1 #MNA:g};
+//   &B @WIRE(mode="straight") {%b1 (-12,11) (3,11) #MPB:g};
+//   &Y @WIRE(mode="straight") {#MPA:d %yp %y1 %yb %y:p};
+//   &Y @WIRE(mode="straight") {#MPB:d %yb};
+//   &Y @WIRE(mode="straight") {%y1 #MNA:d};
+//   &nx @WIRE(mode="straight") {#MNA:s #MNB:d};
+//   &VDD @WIRE(mode="straight") {#MPA:s %vp %v0 %vb #MPB:s};
+//   &VDD @WIRE(mode="straight") {%v0 %v:p};
+//   &VSS @WIRE(mode="straight") {#MNB:s %g1 %g:p};
+//   (-17,22) @TEXT("adc_sarlogic_nand2", size=1.1, textcolor="#1a365d", bold=true, halign="start");
+//   (-17,20) @TEXT("2-Input Static CMOS NAND: Y = NOT (A AND B)", size=0.75, textcolor="#334155", halign="start");
+//   (-17,-22) @TEXT("Parallel PMOS (W=wp, nf=np); series NMOS (W=wn, nf=nn), L=30n", size=0.65, textcolor="#4a5568", halign="start");
+//   $JUNCTION @ATTACH %a1; $JUNCTION @ATTACH %b1; $JUNCTION @ATTACH %y1; $JUNCTION @ATTACH %yb; $JUNCTION @ATTACH %v0;
+// }
+ends adc_sarlogic_nand2
+
+subckt adc_sarlogic_nand3 (A B C Y VDD VSS)
+parameters wn=1.8u wp=1.2u nn=2 np=2
+MNA (Y C nx1 VSS) nch_ulvt_mac w=wn l=30n nf=nn
+MNB (nx1 B nx2 VSS) nch_ulvt_mac w=wn l=30n nf=nn
+MNC (nx2 A VSS VSS) nch_ulvt_mac w=wn l=30n nf=nn
+MPA (Y A VDD VDD) pch_ulvt_mac w=wp l=30n nf=np
+MPB (Y B VDD VDD) pch_ulvt_mac w=wp l=30n nf=np
+MPC (Y C VDD VDD) pch_ulvt_mac w=wp l=30n nf=np
+// @RNL {
+//   &VDD @ADD-TO $SUPPLY_NET_SET; &VSS @ADD-TO $GROUND_NET_SET;
+//   # @SET-SYMBOL $NAND_3INPUT;
+//   {#MPA #MPB #MPC} @SET-SYMBOL $PMOS; {#MNA #MNB #MNC} @SET-SYMBOL $NMOS;
+//   {#MNA #MNB #MNC} @AS $MATCHED; {#MPA #MPB #MPC} @AS $MATCHED;
+//   {#MNA #MNB #MNC #MPA #MPB #MPC} @GROUP; {#MNA #MNB #MNC #MPA #MPB #MPC} @TEXT("", key="model");
+//   #MPA @PLACE(-6,6) => @ORIENT("R0");
+//   #MPB @PLACE(2,6) => @ORIENT("R0");
+//   #MPC @PLACE(10,6) => @ORIENT("R0");
+//   #MNA @PLACE(0,-2) => @ORIENT("R0");
+//   #MNB @PLACE(0,-10) => @ORIENT("R0");
+//   #MNC @PLACE(0,-18) => @ORIENT("R0");
+//   %a1=(-12,6); %b1=(-14,-10); %c1=(-16,-2);
+//   %ya=(-6,2); %y0=(0,2); %yb=(2,2); %yc=(10,2);
+//   %va=(-6,13); %v0=(0,13); %vb=(2,13); %vc=(10,13); %g1=(0,-22);
+//   %a=$IO_PORT @ATTACH &A => @PLACE(-20,6) => @ORIENT("R0");
+//   %b=$IO_PORT @ATTACH &B => @PLACE(-20,-10) => @ORIENT("R0");
+//   %c=$IO_PORT @ATTACH &C => @PLACE(-20,-2) => @ORIENT("R0");
+//   %y=$IO_PORT @ATTACH &Y => @PLACE(18,2) => @ORIENT("MY");
+//   %v=$SUPPLY @ATTACH &VDD => @PLACE(0,16) => @ORIENT("R0");
+//   %g=$GROUND @ATTACH &VSS => @PLACE(0,-24) => @ORIENT("R0");
+//   &A @WIRE(mode="straight") {%a:p %a1 #MPA:g};
+//   &A @WIRE(mode="straight") {%a1 (-12,-18) #MNC:g};
+//   &B @WIRE(mode="straight") {%b:p %b1 #MNB:g};
+//   &B @WIRE(mode="straight") {%b1 (-14,10) (-1,10) (-1,6) #MPB:g};
+//   &C @WIRE(mode="straight") {%c:p %c1 #MNA:g};
+//   &C @WIRE(mode="straight") {%c1 (-16,11) (7,11) (7,6) #MPC:g};
+//   &Y @WIRE(mode="straight") {#MPA:d %ya %y0 %yb %yc %y:p};
+//   &Y @WIRE(mode="straight") {#MPB:d %yb};
+//   &Y @WIRE(mode="straight") {#MPC:d %yc};
+//   &Y @WIRE(mode="straight") {%y0 #MNA:d};
+//   &nx1 @WIRE(mode="straight") {#MNA:s #MNB:d};
+//   &nx2 @WIRE(mode="straight") {#MNB:s #MNC:d};
+//   &VDD @WIRE(mode="straight") {#MPA:s %va %v0 %vb %vc #MPC:s};
+//   &VDD @WIRE(mode="straight") {#MPB:s %vb};
+//   &VDD @WIRE(mode="straight") {%v0 %v:p};
+//   &VSS @WIRE(mode="straight") {#MNC:s %g1 %g:p};
+//   (-20,22) @TEXT("adc_sarlogic_nand3", size=1.1, textcolor="#1a365d", bold=true, halign="start");
+//   (-20,20) @TEXT("3-Input Static CMOS NAND: Y = NOT (A AND B AND C)", size=0.75, textcolor="#334155", halign="start");
+//   (-20,-28) @TEXT("Parallel PMOS (W=wp, nf=np); 3-stack NMOS (W=wn, nf=nn), L=30n", size=0.65, textcolor="#4a5568", halign="start");
+//   $JUNCTION @ATTACH %a1; $JUNCTION @ATTACH %b1; $JUNCTION @ATTACH %c1;
+//   $JUNCTION @ATTACH %y0; $JUNCTION @ATTACH %yb; $JUNCTION @ATTACH %yc;
+//   $JUNCTION @ATTACH %v0; $JUNCTION @ATTACH %vb;
+// }
+ends adc_sarlogic_nand3
+
+subckt adc_sarlogic_nor2 (A B Y VDD VSS)
+parameters wn=800n wp=2.4u nn=2 np=4
+MNA (Y A VSS VSS) nch_ulvt_mac w=wn l=30n nf=nn
+MNB (Y B VSS VSS) nch_ulvt_mac w=wn l=30n nf=nn
+MPA (px A VDD VDD) pch_ulvt_mac w=wp l=30n nf=np
+MPB (Y B px VDD) pch_ulvt_mac w=wp l=30n nf=np
+// @RNL {
+//   &VDD @ADD-TO $SUPPLY_NET_SET; &VSS @ADD-TO $GROUND_NET_SET;
+//   # @SET-SYMBOL $NOR_2INPUT;
+//   {#MPA #MPB} @SET-SYMBOL $PMOS; {#MNA #MNB} @SET-SYMBOL $NMOS;
+//   {#MNA #MNB} @AS $MATCHED; {#MPA #MPB} @AS $MATCHED;
+//   {#MNA #MNB #MPA #MPB} @GROUP; {#MNA #MNB #MPA #MPB} @TEXT("", key="model");
+//   #MPA @PLACE(0,10) => @ORIENT("R0");
+//   #MPB @PLACE(0,2) => @ORIENT("R0");
+//   #MNA @PLACE(-5,-7) => @ORIENT("R0");
+//   #MNB @PLACE(7,-7) => @ORIENT("R0");
+//   %a1=(-12,10); %b1=(-6,2); %y1=(0,-2); %ya=(-5,-2); %yb=(7,-2);
+//   %v1=(0,15); %ga=(-5,-13); %gb=(7,-13); %g0=(0,-13);
+//   %a=$IO_PORT @ATTACH &A => @PLACE(-17,10) => @ORIENT("R0");
+//   %b=$IO_PORT @ATTACH &B => @PLACE(-17,2) => @ORIENT("R0");
+//   %y=$IO_PORT @ATTACH &Y => @PLACE(16,-2) => @ORIENT("MY");
+//   %v=$SUPPLY @ATTACH &VDD => @PLACE(0,17) => @ORIENT("R0");
+//   %g=$GROUND @ATTACH &VSS => @PLACE(0,-16) => @ORIENT("R0");
+//   &A @WIRE(mode="straight") {%a:p %a1 #MPA:g};
+//   &A @WIRE(mode="straight") {%a1 (-12,-7) #MNA:g};
+//   &B @WIRE(mode="straight") {%b:p %b1 #MPB:g};
+//   &B @WIRE(mode="straight") {%b1 (-6,-1) (3,-1) (3,-7) #MNB:g};
+//   &px @WIRE(mode="straight") {#MPA:d #MPB:s};
+//   &Y @WIRE(mode="straight") {#MPB:d %y1 %yb %y:p};
+//   &Y @WIRE(mode="straight") {#MNA:d %ya %y1};
+//   &Y @WIRE(mode="straight") {%yb #MNB:d};
+//   &VDD @WIRE(mode="straight") {#MPA:s %v1 %v:p};
+//   &VSS @WIRE(mode="straight") {#MNA:s %ga %g0 %gb};
+//   &VSS @WIRE(mode="straight") {#MNB:s %gb};
+//   &VSS @WIRE(mode="straight") {%g0 %g:p};
+//   (-17,22) @TEXT("adc_sarlogic_nor2", size=1.1, textcolor="#1a365d", bold=true, halign="start");
+//   (-17,20) @TEXT("2-Input Static CMOS NOR: Y = NOT (A OR B)", size=0.75, textcolor="#334155", halign="start");
+//   (-17,-20) @TEXT("Series PMOS (W=wp, nf=np); parallel NMOS (W=wn, nf=nn), L=30n", size=0.65, textcolor="#4a5568", halign="start");
+//   $JUNCTION @ATTACH %a1; $JUNCTION @ATTACH %b1; $JUNCTION @ATTACH %y1; $JUNCTION @ATTACH %yb; $JUNCTION @ATTACH %g0;
+// }
+ends adc_sarlogic_nor2
+
+subckt adc_sarlogic_nor3 (A B C Y VDD VSS)
+parameters wn=1.2u wp=3.6u nn=2 np=4
+MNA (Y A VSS VSS) nch_ulvt_mac w=wn l=30n nf=nn
+MNB (Y B VSS VSS) nch_ulvt_mac w=wn l=30n nf=nn
+MNC (Y C VSS VSS) nch_ulvt_mac w=wn l=30n nf=nn
+MPA (px1 A VDD VDD) pch_ulvt_mac w=wp l=30n nf=np
+MPB (px2 B px1 VDD) pch_ulvt_mac w=wp l=30n nf=np
+MPC (Y C px2 VDD) pch_ulvt_mac w=wp l=30n nf=np
+// @RNL {
+//   &VDD @ADD-TO $SUPPLY_NET_SET; &VSS @ADD-TO $GROUND_NET_SET;
+//   # @SET-SYMBOL $NOR_3INPUT;
+//   {#MPA #MPB #MPC} @SET-SYMBOL $PMOS; {#MNA #MNB #MNC} @SET-SYMBOL $NMOS;
+//   {#MNA #MNB #MNC} @AS $MATCHED; {#MPA #MPB #MPC} @AS $MATCHED;
+//   {#MNA #MNB #MNC #MPA #MPB #MPC} @GROUP; {#MNA #MNB #MNC #MPA #MPB #MPC} @TEXT("", key="model");
+//   #MPA @PLACE(0,18) => @ORIENT("R0");
+//   #MPB @PLACE(0,10) => @ORIENT("R0");
+//   #MPC @PLACE(0,2) => @ORIENT("R0");
+//   #MNA @PLACE(-6,-7) => @ORIENT("R0");
+//   #MNB @PLACE(2,-7) => @ORIENT("R0");
+//   #MNC @PLACE(10,-7) => @ORIENT("R0");
+//   %a1=(-14,18); %b1=(-12,10); %c1=(-10,2);
+//   %ya=(-6,-2); %y0=(0,-2); %yb=(2,-2); %yc=(10,-2);
+//   %v1=(0,22); %ga=(-6,-13); %g0=(0,-13); %gb=(2,-13); %gc=(10,-13);
+//   %a=$IO_PORT @ATTACH &A => @PLACE(-20,18) => @ORIENT("R0");
+//   %b=$IO_PORT @ATTACH &B => @PLACE(-20,10) => @ORIENT("R0");
+//   %c=$IO_PORT @ATTACH &C => @PLACE(-20,2) => @ORIENT("R0");
+//   %y=$IO_PORT @ATTACH &Y => @PLACE(18,-2) => @ORIENT("MY");
+//   %v=$SUPPLY @ATTACH &VDD => @PLACE(0,24) => @ORIENT("R0");
+//   %g=$GROUND @ATTACH &VSS => @PLACE(0,-16) => @ORIENT("R0");
+//   &A @WIRE(mode="straight") {%a:p %a1 #MPA:g};
+//   &A @WIRE(mode="straight") {%a1 (-14,-7) #MNA:g};
+//   &B @WIRE(mode="straight") {%b:p %b1 #MPB:g};
+//   &B @WIRE(mode="straight") {%b1 (-12,-4) (-1,-4) (-1,-7) #MNB:g};
+//   &C @WIRE(mode="straight") {%c:p %c1 #MPC:g};
+//   &C @WIRE(mode="straight") {%c1 (-10,-5) (7,-5) (7,-7) #MNC:g};
+//   &px1 @WIRE(mode="straight") {#MPA:d #MPB:s};
+//   &px2 @WIRE(mode="straight") {#MPB:d #MPC:s};
+//   &Y @WIRE(mode="straight") {#MPC:d %y0 %yb %yc %y:p};
+//   &Y @WIRE(mode="straight") {#MNA:d %ya %y0};
+//   &Y @WIRE(mode="straight") {#MNB:d %yb};
+//   &Y @WIRE(mode="straight") {#MNC:d %yc};
+//   &VDD @WIRE(mode="straight") {#MPA:s %v1 %v:p};
+//   &VSS @WIRE(mode="straight") {#MNA:s %ga %g0 %gb %gc #MNC:s};
+//   &VSS @WIRE(mode="straight") {#MNB:s %gb};
+//   &VSS @WIRE(mode="straight") {%g0 %g:p};
+//   (-20,28) @TEXT("adc_sarlogic_nor3", size=1.1, textcolor="#1a365d", bold=true, halign="start");
+//   (-20,26) @TEXT("3-Input Static CMOS NOR: Y = NOT (A OR B OR C)", size=0.75, textcolor="#334155", halign="start");
+//   (-20,-20) @TEXT("3-stack PMOS (W=wp, nf=np); parallel NMOS (W=wn, nf=nn), L=30n", size=0.65, textcolor="#4a5568", halign="start");
+//   $JUNCTION @ATTACH %a1; $JUNCTION @ATTACH %b1; $JUNCTION @ATTACH %c1;
+//   $JUNCTION @ATTACH %y0; $JUNCTION @ATTACH %yb; $JUNCTION @ATTACH %yc;
+//   $JUNCTION @ATTACH %g0; $JUNCTION @ATTACH %gb;
+// }
+ends adc_sarlogic_nor3
+
+subckt adc_sarlogic_gatecap (A VDD VSS)
+parameters wn=1.2u wp=1.8u ln=60n lp=60n nn=2 np=2
+MN (VSS A VSS VSS) nch_hvt_mac w=wn l=ln nf=nn
+MP (VDD A VDD VDD) pch_hvt_mac w=wp l=lp nf=np
+// @RNL {
+//   &VDD @ADD-TO $SUPPLY_NET_SET; &VSS @ADD-TO $GROUND_NET_SET;
+//   %load = @DEFINE-SYMBOL(box=[-2,-3,2,2]) {
+//     (0,2) @PIN(terminal="A", direction="up");
+//     @LINE {(0,2) (0,0.5)};
+//     @LINE(linewidth=0.24) {(-1.5,0.5) (1.5,0.5)};
+//     @LINE(linewidth=0.24) {(-1.5,-0.3) (1.5,-0.3)};
+//     @LINE {(0,-0.3) (0,-1.5)};
+//     @LINE {(-1.0,-1.5) (1.0,-1.5)};
+//     @LINE {(-0.6,-1.9) (0.6,-1.9)};
+//     ? @TEXT("${name}", key="name", size=0.65, halign="middle") => @PLACE(0,-2.8);
+//   }; # @SET-SYMBOL %load;
+//   #MP @SET-SYMBOL $PMOS; #MN @SET-SYMBOL $NMOS;
+//   {#MN #MP} @GROUP; {#MN #MP} @TEXT("", key="model");
+//   #MP @PLACE(0,5) => @ORIENT("R0");
+//   #MN @PLACE(0,-5) => @ORIENT("R0");
+//   %ga=(-6,0); %vp=(0,10); %vn=(0,-10); %pb=(4,5); %nb=(4,-5);
+//   %a=$IO_PORT @ATTACH &A => @PLACE(-10,0) => @ORIENT("R0");
+//   %v=$SUPPLY @ATTACH &VDD => @PLACE(0,12) => @ORIENT("R0");
+//   %g=$GROUND @ATTACH &VSS => @PLACE(0,-12) => @ORIENT("R0");
+//   &A @WIRE(mode="straight") {%a:p %ga};
+//   &A @WIRE(mode="straight") {#MP:g (-6,5) %ga (-6,-5) #MN:g};
+//   &VDD @WIRE(mode="straight") {#MP:s %vp %v:p};
+//   &VDD @WIRE(mode="straight") {#MP:d (4,3) %pb (4,10) %vp};
+//   &VSS @WIRE(mode="straight") {#MN:s %vn %g:p};
+//   &VSS @WIRE(mode="straight") {#MN:d (4,-3) %nb (4,-10) %vn};
+//   (-10,18) @TEXT("adc_sarlogic_gatecap", size=1.1, textcolor="#1a365d", bold=true, halign="start");
+//   (-10,16) @TEXT("Complementary HVT MOS Gate/Varactor Delay Load (drain/source tied to rail)", size=0.75, textcolor="#334155", halign="start");
+//   (-10,-16) @TEXT("MP: pch_hvt_mac (W=wp, L=lp, nf=np); MN: nch_hvt_mac (W=wn, L=ln, nf=nn)", size=0.65, textcolor="#4a5568", halign="start");
+//   $JUNCTION @ATTACH %ga; $JUNCTION @ATTACH %vp; $JUNCTION @ATTACH %vn;
+// }
+ends adc_sarlogic_gatecap
+
+subckt adc_sarlogic_dlat (D LAT_EN Q VDD VSS)
+XINV (D d_b VDD VSS) adc_sarlogic_inv wn=600n wp=900n nn=2 np=2
+XSET (D LAT_EN set_b VDD VSS) adc_sarlogic_nand2 wn=1.0u wp=1.0u nn=2 np=2
+XRST (d_b LAT_EN rst_b VDD VSS) adc_sarlogic_nand2 wn=1.0u wp=1.0u nn=2 np=2
+XSRQ (set_b q_b q_i VDD VSS) adc_sarlogic_nand2 wn=1.0u wp=1.0u nn=2 np=2
+XSRQB (q_i rst_b q_b VDD VSS) adc_sarlogic_nand2 wn=1.6u wp=1.6u nn=2 np=2
+XDRV (q_b Q VDD VSS) adc_sarlogic_inv wn=3.6u wp=5.4u nn=4 np=6
+// @RNL {
+//   &VDD @ADD-TO $SUPPLY_NET_SET; &VSS @ADD-TO $GROUND_NET_SET;
+//   # @SET-SYMBOL $D_FLIP_FLOP_Q_ONLY;
+//   $gate_ink = @DEFINE-STYLE(linecolor="#243b53", textcolor="#243b53") {};
+//   $clk_route = @DEFINE-STYLE(linecolor="#b7791f", textcolor="#975a16") {};
+//   $data_route = @DEFINE-STYLE(linecolor="#2b6cb0", textcolor="#2c5282") {};
+//   # @SELECT-INSTANCE => @SET-STYLE $gate_ink;
+//   {#XSET #XRST} @GROUP; {#XSRQ #XSRQB} @GROUP;
+//   #XINV @PLACE(-6, -3);
+//   #XINV @TEXT("${name}", key="name", dx=0, dy=2.4, size=0.65, halign="middle");
+//   #XINV @TEXT("${wn}/${wp}", key="sizes", dx=0, dy=-2.8, size=0.52, halign="middle");
+//   #XSET @PLACE(4, 4);
+//   #XSET @TEXT("${name}", key="name", dx=0, dy=2.4, size=0.65, halign="middle");
+//   #XSET @TEXT("${wn}/${wp}", key="sizes", dx=0, dy=-2.8, size=0.52, halign="middle");
+//   #XRST @PLACE(4, -4);
+//   #XRST @TEXT("${name}", key="name", dx=0, dy=2.4, size=0.65, halign="middle");
+//   #XRST @TEXT("${wn}/${wp}", key="sizes", dx=0, dy=-2.8, size=0.52, halign="middle");
+//   #XSRQ @PLACE(18, 3);
+//   #XSRQ @TEXT("${name}", key="name", dx=0, dy=2.4, size=0.65, halign="middle");
+//   #XSRQ @TEXT("${wn}/${wp}", key="sizes", dx=0, dy=-2.8, size=0.52, halign="middle");
+//   #XSRQB @PLACE(18, -3);
+//   #XSRQB @TEXT("${name}", key="name", dx=0, dy=2.4, size=0.65, halign="middle");
+//   #XSRQB @TEXT("${wn}/${wp}", key="sizes", dx=0, dy=-2.8, size=0.52, halign="middle");
+//   #XDRV @PLACE(30, -3);
+//   #XDRV @TEXT("${name}", key="name", dx=0, dy=2.4, size=0.65, halign="middle");
+//   #XDRV @TEXT("${wn}/${wp}", key="sizes", dx=0, dy=-2.8, size=0.52, halign="middle");
+//   %p_d = $IO_PORT @ATTACH &D => @PLACE(-16, 5) => @ORIENT("R0");
+//   %p_en = $IO_PORT @ATTACH &LAT_EN => @PLACE(-16, 0) => @ORIENT("R0");
+//   %p_q = $IO_PORT @ATTACH &Q => @PLACE(36, -3) => @ORIENT("MY");
+//   %jd = (-12, 5); %jen = (-2, 0); %jqb = (24, -3);
+//   $JUNCTION @ATTACH %jd; $JUNCTION @ATTACH %jen; $JUNCTION @ATTACH %jqb;
+//   &D @WIRE(mode="straight") {%p_d:p %jd #XSET:A} => @SET-STYLE $data_route;
+//   &D @WIRE(mode="straight") {%jd (-12, -3) #XINV:A} => @SET-STYLE $data_route;
+//   &LAT_EN @WIRE(mode="straight") {%p_en:p %jen} => @SET-STYLE $clk_route;
+//   &LAT_EN @WIRE(mode="straight") {%jen (-2, 3) #XSET:B} => @SET-STYLE $clk_route;
+//   &LAT_EN @WIRE(mode="straight") {%jen (-2, -5) #XRST:B} => @SET-STYLE $clk_route;
+//   &d_b @WIRE(mode="straight") {#XINV:Y #XRST:A};
+//   &set_b @WIRE(mode="straight") {#XSET:Y #XSRQ:A};
+//   &rst_b @WIRE(mode="straight") {#XRST:Y #XSRQB:B};
+//   &q_i @WIRE(mode="straight") {#XSRQ:Y (23, 3) (23, 0.6) (12, 0.6) (12, -2) #XSRQB:A};
+//   &q_b @WIRE(mode="straight") {#XSRQB:Y %jqb #XDRV:A};
+//   &q_b @WIRE(mode="straight") {%jqb (24, -0.6) (13, -0.6) (13, 2) #XSRQ:B};
+//   &Q @WIRE(mode="straight") {#XDRV:Y %p_q:p} => @SET-STYLE $data_route;
+//   (-16, 13) @TEXT("adc_sarlogic_dlat: Output Register Transparent D-Latch", halign="start") => @SET-STYLE $title_style;
+//   (-16, 11) @TEXT("Transparent when LAT_EN=1 (captures raw slice bit Q after step 14); holds D<13:0> stable when LAT_EN=0", halign="start") => @SET-STYLE $note_style;
+//   (42, 7.6) @TEXT("adc_sarlogic_dlat Truth Table", halign="start", bold=true) => @SET-STYLE $note_style;
+//   @RECTANGLE {(42, 7) (61.998, 2.38)} => @SET-STYLE $table_style;
+//   @LINE {(42, 5.845) (61.998, 5.845)} => @SET-STYLE $table_style;
+//   @LINE {(45.014, 7) (45.014, 2.38)} => @SET-STYLE $table_style;
+//   @LINE {(46.433, 7) (46.433, 2.38)} => @SET-STYLE $table_style;
+//   @LINE {(49.128, 7) (49.128, 2.38)} => @SET-STYLE $table_style;
+//   @LINE {(51.823, 7) (51.823, 2.38)} => @SET-STYLE $table_style;
+//   @LINE {(55.156, 7) (55.156, 2.38)} => @SET-STYLE $table_style;
+//   (42.5, 6.4225) @TEXT("LAT_EN", halign="start", valign="middle", size=0.55, bold=true) => @SET-STYLE $table_style;
+//   (45.514, 6.4225) @TEXT("D", halign="start", valign="middle", size=0.55, bold=true) => @SET-STYLE $table_style;
+//   (46.933, 6.4225) @TEXT("set_b", halign="start", valign="middle", size=0.55, bold=true) => @SET-STYLE $table_style;
+//   (49.628, 6.4225) @TEXT("rst_b", halign="start", valign="middle", size=0.55, bold=true) => @SET-STYLE $table_style;
+//   (52.323, 6.4225) @TEXT("Q (out)", halign="start", valign="middle", size=0.55, bold=true) => @SET-STYLE $table_style;
+//   (55.656, 6.4225) @TEXT("Mode", halign="start", valign="middle", size=0.55, bold=true) => @SET-STYLE $table_style;
+//   (42.5, 5.2675) @TEXT("0", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (45.514, 5.2675) @TEXT("X", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (46.933, 5.2675) @TEXT("1", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (49.628, 5.2675) @TEXT("1", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (52.323, 5.2675) @TEXT("Q_prev", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (55.656, 5.2675) @TEXT("Hold previous code", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (42.5, 4.1125) @TEXT("1", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (45.514, 4.1125) @TEXT("0", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (46.933, 4.1125) @TEXT("1", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (49.628, 4.1125) @TEXT("0", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (52.323, 4.1125) @TEXT("0", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (55.656, 4.1125) @TEXT("Transparent 0", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (42.5, 2.9575) @TEXT("1", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (45.514, 2.9575) @TEXT("1", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (46.933, 2.9575) @TEXT("0", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (49.628, 2.9575) @TEXT("1", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (52.323, 2.9575) @TEXT("1", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (55.656, 2.9575) @TEXT("Transparent 1", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style
+// }
+ends adc_sarlogic_dlat
+
+subckt adc_sarlogic_slice (CMPP CMPN GO_IN IDLE_B RST_B UP DN Q GO_OUT REQ_B VDD VSS)
+parameters wn_c=400n wp_c=600n ln_c=30n lp_c=30n nn_c=2 np_c=2
+XTOK_SET (GO_IN IDLE_B tok_set_b VDD VSS) adc_sarlogic_nand2 wn=600n wp=600n nn=2 np=2
+XTOK_Q (tok_set_b tok_b en_k VDD VSS) adc_sarlogic_nand2 wn=1.2u wp=1.2u nn=2 np=2
+XTOK_QB (en_k RST_B tok_b VDD VSS) adc_sarlogic_nand2 wn=600n wp=600n nn=2 np=2
+XSETP (CMPP en_k dn_b set_pb VDD VSS) adc_sarlogic_nand3 wn=2.4u wp=800n nn=2 np=2
+XSETN (CMPN en_k up_b set_nb VDD VSS) adc_sarlogic_nand3 wn=2.4u wp=800n nn=2 np=2
+XUP_Q (set_pb up_b Q VDD VSS) adc_sarlogic_nand2 wn=1.0u wp=3.2u nn=2 np=4
+XUP_QB (Q RST_B up_b VDD VSS) adc_sarlogic_nand2 wn=4.8u wp=1.2u nn=4 np=2
+XDN_Q (set_nb dn_b dn_q VDD VSS) adc_sarlogic_nand2 wn=1.0u wp=3.2u nn=2 np=4
+XDN_QB (dn_q RST_B dn_b VDD VSS) adc_sarlogic_nand2 wn=4.8u wp=1.2u nn=4 np=2
+XDRV_UP (up_b UP VDD VSS) adc_sarlogic_inv wn=2.4u wp=6.4u nn=2 np=8
+XDRV_DN (dn_b DN VDD VSS) adc_sarlogic_inv wn=2.4u wp=6.4u nn=2 np=8
+XREQ (GO_IN up_b dn_b REQ_B VDD VSS) adc_sarlogic_nand3 wn=1.8u wp=1.8u nn=2 np=2
+XDONE (up_b dn_b done VDD VSS) adc_sarlogic_nand2 wn=1.0u wp=1.8u nn=2 np=2
+XC0 (done VDD VSS) adc_sarlogic_gatecap wn=wn_c wp=wp_c ln=ln_c lp=lp_c nn=nn_c np=np_c
+XD1 (done d1 VDD VSS) adc_sarlogic_inv wn=800n wp=1.2u nn=2 np=2
+XC1 (d1 VDD VSS) adc_sarlogic_gatecap wn=wn_c wp=wp_c ln=ln_c lp=lp_c nn=nn_c np=np_c
+XD2 (d1 d2 VDD VSS) adc_sarlogic_inv wn=800n wp=1.2u nn=2 np=2
+XC2 (d2 VDD VSS) adc_sarlogic_gatecap wn=wn_c wp=wp_c ln=ln_c lp=lp_c nn=nn_c np=np_c
+XD3 (d2 d3 VDD VSS) adc_sarlogic_inv wn=800n wp=1.2u nn=2 np=2
+XC3 (d3 VDD VSS) adc_sarlogic_gatecap wn=wn_c wp=wp_c ln=ln_c lp=lp_c nn=nn_c np=np_c
+XD4 (d3 GO_OUT VDD VSS) adc_sarlogic_inv wn=1.2u wp=1.8u nn=2 np=2
+// @RNL {
+//   &VDD @ADD-TO $SUPPLY_NET_SET; &VSS @ADD-TO $GROUND_NET_SET;
+//   %slice_sym = @DEFINE-SYMBOL(box=[-8, -6, 8, 6]) {
+//     @LINE(linewidth=0.24) {(-6, -5) (6, -5) (6, 5) (-6, 5) (-6, -5)};
+//     (-8, 3) @PIN(terminal=1, direction="left"); @LINE {(-8, 3) (-6, 3)};
+//     (-5.65, 3) @TEXT("CMPP", size=0.52, halign="start", valign="middle");
+//     (-8, 1) @PIN(terminal=2, direction="left"); @LINE {(-8, 1) (-6, 1)};
+//     (-5.65, 1) @TEXT("CMPN", size=0.52, halign="start", valign="middle");
+//     (0, 6) @PIN(terminal=3, direction="up"); @LINE {(0, 6) (0, 5)};
+//     (0, 4.55) @TEXT("GO_IN", size=0.5, halign="middle", valign="top");
+//     (-8, -1) @PIN(terminal=4, direction="left"); @LINE {(-8, -1) (-6, -1)};
+//     (-5.65, -1) @TEXT("IDLE_B", size=0.52, halign="start", valign="middle");
+//     (-8, -3) @PIN(terminal=5, direction="left"); @LINE {(-8, -3) (-6, -3)};
+//     (-5.65, -3) @TEXT("RST_B", size=0.52, halign="start", valign="middle");
+//     (8, 1) @PIN(terminal=6, direction="right"); @LINE {(8, 1) (6, 1)};
+//     (5.65, 1) @TEXT("UP", size=0.52, halign="end", valign="middle");
+//     (8, -1) @PIN(terminal=7, direction="right"); @LINE {(8, -1) (6, -1)};
+//     (5.65, -1) @TEXT("DN", size=0.52, halign="end", valign="middle");
+//     (8, -3) @PIN(terminal=8, direction="right"); @LINE {(8, -3) (6, -3)};
+//     (5.65, -3) @TEXT("Q", size=0.52, halign="end", valign="middle");
+//     (0, -6) @PIN(terminal=9, direction="down"); @LINE {(0, -6) (0, -5)};
+//     (0, -4.55) @TEXT("GO_OUT", size=0.5, halign="middle", valign="bottom");
+//     (8, 3) @PIN(terminal=10, direction="right"); @LINE {(8, 3) (6, 3)};
+//     (5.65, 3) @TEXT("REQ_B", size=0.52, halign="end", valign="middle");
+//     @LINE {(-1.8, -0.8) (1.8, -0.8) (1.8, 1.4) (-1.8, 1.4) (-1.8, -0.8)};
+//     (0, 0.7) @TEXT("SR+TOK", size=0.45, bold=true, halign="middle", valign="middle");
+//     (0, -0.2) @TEXT("+DAC dly", size=0.42, halign="middle", valign="middle");
+//     @LINE(arrow="end", arrowsize=0.3, linestyle="dashed") {(0, 3.6) (0, 1.5)};
+//     @LINE(arrow="end", arrowsize=0.3, linestyle="dashed") {(0, -0.9) (0, -3.6)};
+//     ? @TEXT("${name}", key="name", size=0.75, bold=true, halign="end", valign="bottom") => @PLACE(-6.2, 5.2);
+//     ? @TEXT("${wn_c}/${wp_c}", key="sizes", size=0.45, halign="middle", valign="middle") => @PLACE(0, 2.4)
+//   };
+//   # @SET-SYMBOL %slice_sym;
+//   $gate_ink = @DEFINE-STYLE(linecolor="#243b53", textcolor="#243b53") {};
+//   $token_route = @DEFINE-STYLE(linecolor="#b7791f", textcolor="#975a16") {};
+//   $data_route = @DEFINE-STYLE(linecolor="#2b6cb0", textcolor="#2c5282") {};
+//   $ctrl_route = @DEFINE-STYLE(linecolor="#2f855a", textcolor="#276749") {};
+//   # @SELECT-INSTANCE => @SET-STYLE $gate_ink;
+//   {#XTOK_SET #XTOK_Q #XTOK_QB} @GROUP;
+//   {#XSETP #XUP_Q #XUP_QB #XDRV_UP} @GROUP;
+//   {#XSETN #XDN_Q #XDN_QB #XDRV_DN} @GROUP;
+//   {#XDONE #XC0 #XD1 #XC1 #XD2 #XC2 #XD3 #XC3 #XD4} @GROUP;
+//   #XTOK_SET @PLACE(0, 22);
+//   #XTOK_SET @TEXT("${name}", key="name", dx=0, dy=2.4, size=0.65, halign="middle");
+//   #XTOK_SET @TEXT("${wn}/${wp}", key="sizes", dx=0, dy=-2.8, size=0.52, halign="middle");
+//   #XTOK_Q @PLACE(14, 21);
+//   #XTOK_Q @TEXT("${name}", key="name", dx=0, dy=2.4, size=0.65, halign="middle");
+//   #XTOK_Q @TEXT("${wn}/${wp}", key="sizes", dx=0, dy=-2.8, size=0.52, halign="middle");
+//   #XTOK_QB @PLACE(14, 15);
+//   #XTOK_QB @TEXT("${name}", key="name", dx=0, dy=2.4, size=0.65, halign="middle");
+//   #XTOK_QB @TEXT("${wn}/${wp}", key="sizes", dx=0, dy=-2.8, size=0.52, halign="middle");
+//   #XREQ @PLACE(60, 22);
+//   #XREQ @TEXT("${name}", key="name", dx=0, dy=2.4, size=0.65, halign="middle");
+//   #XREQ @TEXT("${wn}/${wp}", key="sizes", dx=0, dy=-2.8, size=0.52, halign="middle");
+//   #XSETP @PLACE(26, 6);
+//   #XSETP @TEXT("${name}", key="name", dx=0, dy=2.4, size=0.65, halign="middle");
+//   #XSETP @TEXT("${wn}/${wp}", key="sizes", dx=0, dy=-2.8, size=0.52, halign="middle");
+//   #XUP_Q @PLACE(40, 5);
+//   #XUP_Q @TEXT("${name}", key="name", dx=0, dy=2.4, size=0.65, halign="middle");
+//   #XUP_Q @TEXT("${wn}/${wp}", key="sizes", dx=0, dy=-2.8, size=0.52, halign="middle");
+//   #XUP_QB @PLACE(40, -1);
+//   #XUP_QB @TEXT("${name}", key="name", dx=0, dy=2.4, size=0.65, halign="middle");
+//   #XUP_QB @TEXT("${wn}/${wp}", key="sizes", dx=0, dy=-2.8, size=0.52, halign="middle");
+//   #XDRV_UP @PLACE(60, -1);
+//   #XDRV_UP @TEXT("${name}", key="name", dx=0, dy=2.4, size=0.65, halign="middle");
+//   #XDRV_UP @TEXT("${wn}/${wp}", key="sizes", dx=0, dy=-2.8, size=0.52, halign="middle");
+//   #XSETN @PLACE(26, -12);
+//   #XSETN @TEXT("${name}", key="name", dx=0, dy=2.4, size=0.65, halign="middle");
+//   #XSETN @TEXT("${wn}/${wp}", key="sizes", dx=0, dy=-2.8, size=0.52, halign="middle");
+//   #XDN_Q @PLACE(40, -13);
+//   #XDN_Q @TEXT("${name}", key="name", dx=0, dy=2.4, size=0.65, halign="middle");
+//   #XDN_Q @TEXT("${wn}/${wp}", key="sizes", dx=0, dy=-2.8, size=0.52, halign="middle");
+//   #XDN_QB @PLACE(40, -19);
+//   #XDN_QB @TEXT("${name}", key="name", dx=0, dy=2.4, size=0.65, halign="middle");
+//   #XDN_QB @TEXT("${wn}/${wp}", key="sizes", dx=0, dy=-2.8, size=0.52, halign="middle");
+//   #XDRV_DN @PLACE(60, -19);
+//   #XDRV_DN @TEXT("${name}", key="name", dx=0, dy=2.4, size=0.65, halign="middle");
+//   #XDRV_DN @TEXT("${wn}/${wp}", key="sizes", dx=0, dy=-2.8, size=0.52, halign="middle");
+//   #XDONE @PLACE(18, -32);
+//   #XDONE @TEXT("${name}", key="name", dx=0, dy=2.4, size=0.65, halign="middle");
+//   #XDONE @TEXT("${wn}/${wp}", key="sizes", dx=0, dy=-2.8, size=0.52, halign="middle");
+//   #XD1 @PLACE(32, -32);
+//   #XD1 @TEXT("${name}", key="name", dx=0, dy=2.4, size=0.65, halign="middle");
+//   #XD1 @TEXT("${wn}/${wp}", key="sizes", dx=0, dy=-2.8, size=0.52, halign="middle");
+//   #XD2 @PLACE(45, -32);
+//   #XD2 @TEXT("${name}", key="name", dx=0, dy=2.4, size=0.65, halign="middle");
+//   #XD2 @TEXT("${wn}/${wp}", key="sizes", dx=0, dy=-2.8, size=0.52, halign="middle");
+//   #XD3 @PLACE(58, -32);
+//   #XD3 @TEXT("${name}", key="name", dx=0, dy=2.4, size=0.65, halign="middle");
+//   #XD3 @TEXT("${wn}/${wp}", key="sizes", dx=0, dy=-2.8, size=0.52, halign="middle");
+//   #XD4 @PLACE(71, -32);
+//   #XD4 @TEXT("${name}", key="name", dx=0, dy=2.4, size=0.65, halign="middle");
+//   #XD4 @TEXT("${wn}/${wp}", key="sizes", dx=0, dy=-2.8, size=0.52, halign="middle");
+//   #XC0 @PLACE(25, -37); #XC1 @PLACE(38, -37); #XC2 @PLACE(51, -37); #XC3 @PLACE(64, -37);
+//   %p_go_in = $IO_PORT @ATTACH &GO_IN => @PLACE(-18, 23) => @ORIENT("R0");
+//   %p_idle_b = $IO_PORT @ATTACH &IDLE_B => @PLACE(-18, 21) => @ORIENT("R0");
+//   %p_cmpp = $IO_PORT @ATTACH &CMPP => @PLACE(-18, 7) => @ORIENT("R0");
+//   %p_cmpn = $IO_PORT @ATTACH &CMPN => @PLACE(-18, -11) => @ORIENT("R0");
+//   %p_rst_b = $IO_PORT @ATTACH &RST_B => @PLACE(-18, -20) => @ORIENT("R0");
+//   %p_req_b = $IO_PORT @ATTACH &REQ_B => @PLACE(78, 22) => @ORIENT("MY");
+//   %p_q = $IO_PORT @ATTACH &Q => @PLACE(78, 5) => @ORIENT("MY");
+//   %p_up = $IO_PORT @ATTACH &UP => @PLACE(78, -1) => @ORIENT("MY");
+//   %p_dn = $IO_PORT @ATTACH &DN => @PLACE(78, -19) => @ORIENT("MY");
+//   %p_go_out = $IO_PORT @ATTACH &GO_OUT => @PLACE(78, -32) => @ORIENT("MY");
+//   %j_go = (-8, 23); %j_rst1 = (-12, -2); %j_rst2 = (-12, -20);
+//   %j_enk1 = (19, 18.5); %j_enk2 = (19, 6);
+//   %jq = (45, 5);
+//   %j_upb1 = (47, -1); %j_upb2 = (49, -1); %j_upb3 = (49, -7); %j_upb4 = (11, -13);
+//   %j_dnb1 = (47, -19); %j_dnb2 = (51, -19); %j_dnb3 = (51, -9); %j_dnb4 = (9, -9);
+//   %j_done = (25, -32); %j_d1 = (38, -32); %j_d2 = (51, -32); %j_d3 = (64, -32);
+//   $JUNCTION @ATTACH %j_go; $JUNCTION @ATTACH %j_rst1; $JUNCTION @ATTACH %j_rst2;
+//   $JUNCTION @ATTACH %j_enk1; $JUNCTION @ATTACH %j_enk2; $JUNCTION @ATTACH %jq;
+//   $JUNCTION @ATTACH %j_upb1; $JUNCTION @ATTACH %j_upb2; $JUNCTION @ATTACH %j_upb3; $JUNCTION @ATTACH %j_upb4;
+//   $JUNCTION @ATTACH %j_dnb1; $JUNCTION @ATTACH %j_dnb2; $JUNCTION @ATTACH %j_dnb3; $JUNCTION @ATTACH %j_dnb4;
+//   $JUNCTION @ATTACH %j_done; $JUNCTION @ATTACH %j_d1; $JUNCTION @ATTACH %j_d2; $JUNCTION @ATTACH %j_d3;
+//   &GO_IN @WIRE(mode="straight") {%p_go_in:p %j_go #XTOK_SET:A} => @SET-STYLE $token_route;
+//   &GO_IN @WIRE(mode="straight") {%j_go (-8, 28) (52, 28) (52, 23) #XREQ:A} => @SET-STYLE $token_route;
+//   &IDLE_B @WIRE(mode="straight") {%p_idle_b:p #XTOK_SET:B} => @SET-STYLE $ctrl_route;
+//   &tok_set_b @WIRE(mode="straight") {#XTOK_SET:Y #XTOK_Q:A};
+//   &tok_b @WIRE(mode="straight") {#XTOK_QB:Y (21, 15) (21, 17.5) (9, 17.5) (9, 20) #XTOK_Q:B};
+//   &en_k @WIRE(mode="straight") {#XTOK_Q:Y (19, 21) %j_enk1 %j_enk2 (19, -12) #XSETN:B} => @SET-STYLE $token_route;
+//   &en_k @WIRE(mode="straight") {%j_enk1 (8, 18.5) (8, 16) #XTOK_QB:A} => @SET-STYLE $token_route;
+//   &en_k @WIRE(mode="straight") {%j_enk2 #XSETP:B} => @SET-STYLE $token_route;
+//   &RST_B @WIRE(mode="straight") {%p_rst_b:p %j_rst2 #XDN_QB:B} => @SET-STYLE $ctrl_route;
+//   &RST_B @WIRE(mode="straight") {%j_rst2 %j_rst1 (-12, 14) #XTOK_QB:B} => @SET-STYLE $ctrl_route;
+//   &RST_B @WIRE(mode="straight") {%j_rst1 #XUP_QB:B} => @SET-STYLE $ctrl_route;
+//   &CMPP @WIRE(mode="straight") {%p_cmpp:p #XSETP:A} => @SET-STYLE $data_route;
+//   &CMPN @WIRE(mode="straight") {%p_cmpn:p #XSETN:A} => @SET-STYLE $data_route;
+//   &set_pb @WIRE(mode="straight") {#XSETP:Y #XUP_Q:A};
+//   &set_nb @WIRE(mode="straight") {#XSETN:Y #XDN_Q:A};
+//   &Q @WIRE(mode="straight") {#XUP_Q:Y %jq %p_q:p} => @SET-STYLE $data_route;
+//   &Q @WIRE(mode="straight") {%jq (45, 2.5) (34, 2.5) (34, 0) #XUP_QB:A} => @SET-STYLE $data_route;
+//   &dn_q @WIRE(mode="straight") {#XDN_Q:Y (45, -13) (45, -15.5) (34, -15.5) (34, -18) #XDN_QB:A};
+//   &up_b @WIRE(mode="straight") {#XUP_QB:Y %j_upb1 %j_upb2 #XDRV_UP:A};
+//   &up_b @WIRE(mode="straight") {%j_upb1 (47, 1.5) (35, 1.5) (35, 4) #XUP_Q:B};
+//   &up_b @WIRE(mode="straight") {%j_upb2 (49, 22) #XREQ:B};
+//   &up_b @WIRE(mode="straight") {%j_upb2 %j_upb3 (11, -7) %j_upb4 (11, -31) #XDONE:A};
+//   &up_b @WIRE(mode="straight") {%j_upb4 #XSETN:C};
+//   &dn_b @WIRE(mode="straight") {#XDN_QB:Y %j_dnb1 %j_dnb2 #XDRV_DN:A};
+//   &dn_b @WIRE(mode="straight") {%j_dnb1 (47, -16.5) (35, -16.5) (35, -14) #XDN_Q:B};
+//   &dn_b @WIRE(mode="straight") {%j_dnb2 (51, 21) #XREQ:C};
+//   &dn_b @WIRE(mode="straight") {%j_dnb2 %j_dnb3 %j_dnb4 (9, 5) #XSETP:C};
+//   &dn_b @WIRE(mode="straight") {%j_dnb4 (9, -33) #XDONE:B};
+//   &UP @WIRE(mode="straight") {#XDRV_UP:Y %p_up:p} => @SET-STYLE $data_route;
+//   &DN @WIRE(mode="straight") {#XDRV_DN:Y %p_dn:p} => @SET-STYLE $data_route;
+//   &REQ_B @WIRE(mode="straight") {#XREQ:Y %p_req_b:p} => @SET-STYLE $token_route;
+//   &done @WIRE(mode="straight") {#XDONE:Y %j_done #XD1:A} => @SET-STYLE $token_route;
+//   &done @WIRE(mode="straight") {%j_done #XC0:A};
+//   &d1 @WIRE(mode="straight") {#XD1:Y %j_d1 #XD2:A} => @SET-STYLE $token_route;
+//   &d1 @WIRE(mode="straight") {%j_d1 #XC1:A};
+//   &d2 @WIRE(mode="straight") {#XD2:Y %j_d2 #XD3:A} => @SET-STYLE $token_route;
+//   &d2 @WIRE(mode="straight") {%j_d2 #XC2:A};
+//   &d3 @WIRE(mode="straight") {#XD3:Y %j_d3 #XD4:A} => @SET-STYLE $token_route;
+//   &d3 @WIRE(mode="straight") {%j_d3 #XC3:A};
+//   &GO_OUT @WIRE(mode="straight") {#XD4:Y %p_go_out:p} => @SET-STYLE $token_route;
+//   (-18, 35) @TEXT("adc_sarlogic_slice (Steps k = 1..13): Self-Timed SAR Bit Slice with Parameterized DAC Settling Wait", halign="start") => @SET-STYLE $title_style;
+//   (-18, 33) @TEXT("1. Token SR Latch (XTOK_*) arms en_k=1 when GO_IN=1 and comparator is reset (IDLE_B=1); XREQ pulls REQ_B=0 to request CLKC=1.", halign="start") => @SET-STYLE $note_style;
+//   (-18, 31.2) @TEXT("2. Decision SR Latches (XUP_*, XDN_*) cross-lock via up_b/dn_b so UP and DN are strictly mutually exclusive (LOG-11 = 0).", halign="start") => @SET-STYLE $note_style;
+//   (-18, 29.4) @TEXT("3. Completion NAND XDONE triggers 4-stage gatecap-loaded delay chain (XD1..XD4 + XC0..XC3, sized by wn_c/wp_c) -> GO_OUT.", halign="start") => @SET-STYLE $note_style;
+//   (-3, 25.5) @TEXT("Step Token SR Latch", size=0.8, bold=true, textcolor="#975a16", halign="start");
+//   (54, 25.5) @TEXT("CLKC Request Gate", size=0.8, bold=true, textcolor="#975a16", halign="start");
+//   (22, 9.5) @TEXT("UP Decision Latch & CDAC Driver (CMPP=1 -> UP=1, Q=1)", size=0.8, bold=true, textcolor="#2c5282", halign="start");
+//   (22, -8.5) @TEXT("DN Decision Latch & CDAC Driver (CMPN=1 -> DN=1, Q=0)", size=0.8, bold=true, textcolor="#2c5282", halign="start");
+//   (15, -28.5) @TEXT("Completion Detector & 4-Stage Parameterized DAC Settling Delay (wn_c / wp_c)", size=0.8, bold=true, textcolor="#975a16", halign="start");
+//   (84, 24.6) @TEXT("Slice State & Mutual-Exclusion Truth Table", halign="start", bold=true) => @SET-STYLE $note_style;
+//   @RECTANGLE {(84, 24) (110.169, 17.07)} => @SET-STYLE $table_style;
+//   @LINE {(84, 22.845) (110.169, 22.845)} => @SET-STYLE $table_style;
+//   @LINE {(86.695, 24) (86.695, 17.07)} => @SET-STYLE $table_style;
+//   @LINE {(89.39, 24) (89.39, 17.07)} => @SET-STYLE $table_style;
+//   @LINE {(92.404, 24) (92.404, 17.07)} => @SET-STYLE $table_style;
+//   @LINE {(94.78, 24) (94.78, 17.07)} => @SET-STYLE $table_style;
+//   @LINE {(99.708, 24) (99.708, 17.07)} => @SET-STYLE $table_style;
+//   @LINE {(101.446, 24) (101.446, 17.07)} => @SET-STYLE $table_style;
+//   @LINE {(103.184, 24) (103.184, 17.07)} => @SET-STYLE $table_style;
+//   @LINE {(104.603, 24) (104.603, 17.07)} => @SET-STYLE $table_style;
+//   (84.5, 23.4225) @TEXT("RST_B", halign="start", valign="middle", size=0.55, bold=true) => @SET-STYLE $table_style;
+//   (87.195, 23.4225) @TEXT("GO_IN", halign="start", valign="middle", size=0.55, bold=true) => @SET-STYLE $table_style;
+//   (89.89, 23.4225) @TEXT("CMPP", halign="start", valign="middle", size=0.55, bold=true) => @SET-STYLE $table_style;
+//   (92.904, 23.4225) @TEXT("CMPN", halign="start", valign="middle", size=0.55, bold=true) => @SET-STYLE $table_style;
+//   (95.28, 23.4225) @TEXT("REQ_B", halign="start", valign="middle", size=0.55, bold=true) => @SET-STYLE $table_style;
+//   (100.208, 23.4225) @TEXT("UP", halign="start", valign="middle", size=0.55, bold=true) => @SET-STYLE $table_style;
+//   (101.946, 23.4225) @TEXT("DN", halign="start", valign="middle", size=0.55, bold=true) => @SET-STYLE $table_style;
+//   (103.684, 23.4225) @TEXT("Q", halign="start", valign="middle", size=0.55, bold=true) => @SET-STYLE $table_style;
+//   (105.103, 23.4225) @TEXT("GO_OUT", halign="start", valign="middle", size=0.55, bold=true) => @SET-STYLE $table_style;
+//   (84.5, 22.2675) @TEXT("0", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (87.195, 22.2675) @TEXT("0", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (89.89, 22.2675) @TEXT("0", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (92.904, 22.2675) @TEXT("0", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (95.28, 22.2675) @TEXT("1", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (100.208, 22.2675) @TEXT("0", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (101.946, 22.2675) @TEXT("0", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (103.684, 22.2675) @TEXT("0", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (105.103, 22.2675) @TEXT("0 (Reset)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (84.5, 21.1125) @TEXT("1", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (87.195, 21.1125) @TEXT("1", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (89.89, 21.1125) @TEXT("0", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (92.904, 21.1125) @TEXT("0", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (95.28, 21.1125) @TEXT("0 (Req CLKC)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (100.208, 21.1125) @TEXT("0", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (101.946, 21.1125) @TEXT("0", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (103.684, 21.1125) @TEXT("0", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (105.103, 21.1125) @TEXT("0 (Armed)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (84.5, 19.9575) @TEXT("1", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (87.195, 19.9575) @TEXT("1", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (89.89, 19.9575) @TEXT("1", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (92.904, 19.9575) @TEXT("0", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (95.28, 19.9575) @TEXT("1 (Done)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (100.208, 19.9575) @TEXT("1", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (101.946, 19.9575) @TEXT("0", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (103.684, 19.9575) @TEXT("1", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (105.103, 19.9575) @TEXT("1 after t_dac", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (84.5, 18.8025) @TEXT("1", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (87.195, 18.8025) @TEXT("1", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (89.89, 18.8025) @TEXT("0", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (92.904, 18.8025) @TEXT("1", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (95.28, 18.8025) @TEXT("1 (Done)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (100.208, 18.8025) @TEXT("0", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (101.946, 18.8025) @TEXT("1", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (103.684, 18.8025) @TEXT("0", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (105.103, 18.8025) @TEXT("1 after t_dac", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (84.5, 17.6475) @TEXT("1", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (87.195, 17.6475) @TEXT("1", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (89.89, 17.6475) @TEXT("1 (TO)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (92.904, 17.6475) @TEXT("1", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (95.28, 17.6475) @TEXT("1 (Timeout)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (100.208, 17.6475) @TEXT("1", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (101.946, 17.6475) @TEXT("0", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (103.684, 17.6475) @TEXT("1", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (105.103, 17.6475) @TEXT("1 (dn_b locks)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (84, 6.6) @TEXT("Per-Slice DAC Settling Load Schedule (wn_c / wp_c)", halign="start", bold=true) => @SET-STYLE $note_style;
+//   @RECTANGLE {(84, 6) (113.744, -0.93)} => @SET-STYLE $table_style;
+//   @LINE {(84, 4.845) (113.744, 4.845)} => @SET-STYLE $table_style;
+//   @LINE {(89.566, 6) (89.566, -0.93)} => @SET-STYLE $table_style;
+//   @LINE {(95.132, 6) (95.132, -0.93)} => @SET-STYLE $table_style;
+//   @LINE {(100.06, 6) (100.06, -0.93)} => @SET-STYLE $table_style;
+//   @LINE {(107.54, 6) (107.54, -0.93)} => @SET-STYLE $table_style;
+//   (84.5, 5.4225) @TEXT("Slices", halign="start", valign="middle", size=0.55, bold=true) => @SET-STYLE $table_style;
+//   (90.066, 5.4225) @TEXT("Steps k", halign="start", valign="middle", size=0.55, bold=true) => @SET-STYLE $table_style;
+//   (95.632, 5.4225) @TEXT("CDAC Weights", halign="start", valign="middle", size=0.55, bold=true) => @SET-STYLE $table_style;
+//   (100.56, 5.4225) @TEXT("wn_c / wp_c (L)", halign="start", valign="middle", size=0.55, bold=true) => @SET-STYLE $table_style;
+//   (108.04, 5.4225) @TEXT("Target Wait", halign="start", valign="middle", size=0.55, bold=true) => @SET-STYLE $table_style;
+//   (84.5, 4.2675) @TEXT("XS1..XS2", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (90.066, 4.2675) @TEXT("k = 1, 2", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (95.632, 4.2675) @TEXT("1024, 512", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (100.56, 4.2675) @TEXT("240n / 360n (30n)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (108.04, 4.2675) @TEXT("48 ps (LOG-04)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (84.5, 3.1125) @TEXT("XS3", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (90.066, 3.1125) @TEXT("k = 3", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (95.632, 3.1125) @TEXT("256", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (100.56, 3.1125) @TEXT("1.65u / 2.475u (60n)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (108.04, 3.1125) @TEXT("48 + 15 = 63 ps", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (84.5, 1.9575) @TEXT("XS4..XS6", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (90.066, 1.9575) @TEXT("k = 4..6", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (95.632, 1.9575) @TEXT("128, 64, 32", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (100.56, 1.9575) @TEXT("5.4u / 8.1u (60n)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (108.04, 1.9575) @TEXT("48 + 35 = 83 ps", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (84.5, 0.8025) @TEXT("XS7..8, 10..13", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (90.066, 0.8025) @TEXT("k = 7,8,10..13", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (95.632, 0.8025) @TEXT("32..1", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (100.56, 0.8025) @TEXT("8.6u / 12.9u (60n)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (108.04, 0.8025) @TEXT("95 ps (LOG-05)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (84.5, -0.3525) @TEXT("XS9", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (90.066, -0.3525) @TEXT("k = 9", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (95.632, -0.3525) @TEXT("8", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (100.56, -0.3525) @TEXT("12.0u / 18.0u (60n)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (108.04, -0.3525) @TEXT("95 + 15 = 110 ps", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style
+// }
+ends adc_sarlogic_slice
+
+subckt adc_sarlogic_slice14 (CMPP CMPN GO_IN IDLE_B RST_B Q REQ_B DONE VDD VSS)
+XTOK_SET (GO_IN IDLE_B tok_set_b VDD VSS) adc_sarlogic_nand2 wn=600n wp=600n nn=2 np=2
+XTOK_Q (tok_set_b tok_b en_k VDD VSS) adc_sarlogic_nand2 wn=1.2u wp=1.2u nn=2 np=2
+XTOK_QB (en_k RST_B tok_b VDD VSS) adc_sarlogic_nand2 wn=600n wp=600n nn=2 np=2
+XSETP (CMPP en_k dn_b set_pb VDD VSS) adc_sarlogic_nand3 wn=2.4u wp=800n nn=2 np=2
+XSETN (CMPN en_k up_b set_nb VDD VSS) adc_sarlogic_nand3 wn=2.4u wp=800n nn=2 np=2
+XUP_Q (set_pb up_b Q VDD VSS) adc_sarlogic_nand2 wn=1.0u wp=3.2u nn=2 np=4
+XUP_QB (Q RST_B up_b VDD VSS) adc_sarlogic_nand2 wn=4.8u wp=1.2u nn=4 np=2
+XDN_Q (set_nb dn_b dn_q VDD VSS) adc_sarlogic_nand2 wn=1.0u wp=3.2u nn=2 np=4
+XDN_QB (dn_q RST_B dn_b VDD VSS) adc_sarlogic_nand2 wn=4.8u wp=1.2u nn=4 np=2
+XREQ (GO_IN up_b dn_b REQ_B VDD VSS) adc_sarlogic_nand3 wn=1.8u wp=1.8u nn=2 np=2
+XDONE (up_b dn_b DONE VDD VSS) adc_sarlogic_nand2 wn=1.0u wp=1.8u nn=2 np=2
+// @RNL {
+//   &VDD @ADD-TO $SUPPLY_NET_SET; &VSS @ADD-TO $GROUND_NET_SET;
+//   %slice14_sym = @DEFINE-SYMBOL(box=[-8, -6, 8, 6]) {
+//     @LINE(linewidth=0.24) {(-6, -5) (6, -5) (6, 5) (-6, 5) (-6, -5)};
+//     (-8, 3) @PIN(terminal=1, direction="left"); @LINE {(-8, 3) (-6, 3)};
+//     (-5.65, 3) @TEXT("CMPP", size=0.52, halign="start", valign="middle");
+//     (-8, 1) @PIN(terminal=2, direction="left"); @LINE {(-8, 1) (-6, 1)};
+//     (-5.65, 1) @TEXT("CMPN", size=0.52, halign="start", valign="middle");
+//     (0, 6) @PIN(terminal=3, direction="up"); @LINE {(0, 6) (0, 5)};
+//     (0, 4.55) @TEXT("GO_IN", size=0.5, halign="middle", valign="top");
+//     (-8, -1) @PIN(terminal=4, direction="left"); @LINE {(-8, -1) (-6, -1)};
+//     (-5.65, -1) @TEXT("IDLE_B", size=0.52, halign="start", valign="middle");
+//     (-8, -3) @PIN(terminal=5, direction="left"); @LINE {(-8, -3) (-6, -3)};
+//     (-5.65, -3) @TEXT("RST_B", size=0.52, halign="start", valign="middle");
+//     (8, -3) @PIN(terminal=6, direction="right"); @LINE {(8, -3) (6, -3)};
+//     (5.65, -3) @TEXT("Q", size=0.52, halign="end", valign="middle");
+//     (8, 3) @PIN(terminal=7, direction="right"); @LINE {(8, 3) (6, 3)};
+//     (5.65, 3) @TEXT("REQ_B", size=0.52, halign="end", valign="middle");
+//     (0, -6) @PIN(terminal=8, direction="down"); @LINE {(0, -6) (0, -5)};
+//     (0, -4.55) @TEXT("DONE", size=0.5, halign="middle", valign="bottom");
+//     @LINE {(-1.8, -0.8) (1.8, -0.8) (1.8, 1.4) (-1.8, 1.4) (-1.8, -0.8)};
+//     (0, 0.7) @TEXT("LSB 14", size=0.45, bold=true, halign="middle", valign="middle");
+//     (0, -0.2) @TEXT("SR+EOC", size=0.42, halign="middle", valign="middle");
+//     @LINE(arrow="end", arrowsize=0.3, linestyle="dashed") {(0, 3.6) (0, 1.5)};
+//     @LINE(arrow="end", arrowsize=0.3, linestyle="dashed") {(0, -0.9) (0, -3.6)};
+//     ? @TEXT("${name}", key="name", size=0.75, bold=true, halign="end", valign="bottom") => @PLACE(-6.2, 5.2)
+//   };
+//   # @SET-SYMBOL %slice14_sym;
+//   $gate_ink = @DEFINE-STYLE(linecolor="#243b53", textcolor="#243b53") {};
+//   $token_route = @DEFINE-STYLE(linecolor="#b7791f", textcolor="#975a16") {};
+//   $data_route = @DEFINE-STYLE(linecolor="#2b6cb0", textcolor="#2c5282") {};
+//   $ctrl_route = @DEFINE-STYLE(linecolor="#2f855a", textcolor="#276749") {};
+//   # @SELECT-INSTANCE => @SET-STYLE $gate_ink;
+//   {#XTOK_SET #XTOK_Q #XTOK_QB} @GROUP;
+//   {#XSETP #XUP_Q #XUP_QB} @GROUP;
+//   {#XSETN #XDN_Q #XDN_QB} @GROUP;
+//   #XTOK_SET @PLACE(0, 22);
+//   #XTOK_SET @TEXT("${name}", key="name", dx=0, dy=2.4, size=0.65, halign="middle");
+//   #XTOK_SET @TEXT("${wn}/${wp}", key="sizes", dx=0, dy=-2.8, size=0.52, halign="middle");
+//   #XTOK_Q @PLACE(14, 21);
+//   #XTOK_Q @TEXT("${name}", key="name", dx=0, dy=2.4, size=0.65, halign="middle");
+//   #XTOK_Q @TEXT("${wn}/${wp}", key="sizes", dx=0, dy=-2.8, size=0.52, halign="middle");
+//   #XTOK_QB @PLACE(14, 15);
+//   #XTOK_QB @TEXT("${name}", key="name", dx=0, dy=2.4, size=0.65, halign="middle");
+//   #XTOK_QB @TEXT("${wn}/${wp}", key="sizes", dx=0, dy=-2.8, size=0.52, halign="middle");
+//   #XREQ @PLACE(60, 22);
+//   #XREQ @TEXT("${name}", key="name", dx=0, dy=2.4, size=0.65, halign="middle");
+//   #XREQ @TEXT("${wn}/${wp}", key="sizes", dx=0, dy=-2.8, size=0.52, halign="middle");
+//   #XSETP @PLACE(26, 6);
+//   #XSETP @TEXT("${name}", key="name", dx=0, dy=2.4, size=0.65, halign="middle");
+//   #XSETP @TEXT("${wn}/${wp}", key="sizes", dx=0, dy=-2.8, size=0.52, halign="middle");
+//   #XUP_Q @PLACE(40, 5);
+//   #XUP_Q @TEXT("${name}", key="name", dx=0, dy=2.4, size=0.65, halign="middle");
+//   #XUP_Q @TEXT("${wn}/${wp}", key="sizes", dx=0, dy=-2.8, size=0.52, halign="middle");
+//   #XUP_QB @PLACE(40, -1);
+//   #XUP_QB @TEXT("${name}", key="name", dx=0, dy=2.4, size=0.65, halign="middle");
+//   #XUP_QB @TEXT("${wn}/${wp}", key="sizes", dx=0, dy=-2.8, size=0.52, halign="middle");
+//   #XSETN @PLACE(26, -12);
+//   #XSETN @TEXT("${name}", key="name", dx=0, dy=2.4, size=0.65, halign="middle");
+//   #XSETN @TEXT("${wn}/${wp}", key="sizes", dx=0, dy=-2.8, size=0.52, halign="middle");
+//   #XDN_Q @PLACE(40, -13);
+//   #XDN_Q @TEXT("${name}", key="name", dx=0, dy=2.4, size=0.65, halign="middle");
+//   #XDN_Q @TEXT("${wn}/${wp}", key="sizes", dx=0, dy=-2.8, size=0.52, halign="middle");
+//   #XDN_QB @PLACE(40, -19);
+//   #XDN_QB @TEXT("${name}", key="name", dx=0, dy=2.4, size=0.65, halign="middle");
+//   #XDN_QB @TEXT("${wn}/${wp}", key="sizes", dx=0, dy=-2.8, size=0.52, halign="middle");
+//   #XDONE @PLACE(60, -28);
+//   #XDONE @TEXT("${name}", key="name", dx=0, dy=2.4, size=0.65, halign="middle");
+//   #XDONE @TEXT("${wn}/${wp}", key="sizes", dx=0, dy=-2.8, size=0.52, halign="middle");
+//   %p_go_in = $IO_PORT @ATTACH &GO_IN => @PLACE(-18, 23) => @ORIENT("R0");
+//   %p_idle_b = $IO_PORT @ATTACH &IDLE_B => @PLACE(-18, 21) => @ORIENT("R0");
+//   %p_cmpp = $IO_PORT @ATTACH &CMPP => @PLACE(-18, 7) => @ORIENT("R0");
+//   %p_cmpn = $IO_PORT @ATTACH &CMPN => @PLACE(-18, -11) => @ORIENT("R0");
+//   %p_rst_b = $IO_PORT @ATTACH &RST_B => @PLACE(-18, -20) => @ORIENT("R0");
+//   %p_req_b = $IO_PORT @ATTACH &REQ_B => @PLACE(72, 22) => @ORIENT("MY");
+//   %p_q = $IO_PORT @ATTACH &Q => @PLACE(72, 5) => @ORIENT("MY");
+//   %p_done = $IO_PORT @ATTACH &DONE => @PLACE(72, -28) => @ORIENT("MY");
+//   %j_go = (-8, 23); %j_rst1 = (-12, -2); %j_rst2 = (-12, -20);
+//   %j_enk1 = (19, 18.5); %j_enk2 = (19, 6); %jq = (45, 5);
+//   %j_upb1 = (47, -1); %j_upb2 = (49, -1); %j_upb3 = (49, -7);
+//   %j_dnb1 = (47, -19); %j_dnb2 = (51, -19); %j_dnb3 = (51, -9);
+//   $JUNCTION @ATTACH %j_go; $JUNCTION @ATTACH %j_rst1; $JUNCTION @ATTACH %j_rst2;
+//   $JUNCTION @ATTACH %j_enk1; $JUNCTION @ATTACH %j_enk2; $JUNCTION @ATTACH %jq;
+//   $JUNCTION @ATTACH %j_upb1; $JUNCTION @ATTACH %j_upb2; $JUNCTION @ATTACH %j_upb3;
+//   $JUNCTION @ATTACH %j_dnb1; $JUNCTION @ATTACH %j_dnb2; $JUNCTION @ATTACH %j_dnb3;
+//   &GO_IN @WIRE(mode="straight") {%p_go_in:p %j_go #XTOK_SET:A} => @SET-STYLE $token_route;
+//   &GO_IN @WIRE(mode="straight") {%j_go (-8, 28) (52, 28) (52, 23) #XREQ:A} => @SET-STYLE $token_route;
+//   &IDLE_B @WIRE(mode="straight") {%p_idle_b:p #XTOK_SET:B} => @SET-STYLE $ctrl_route;
+//   &tok_set_b @WIRE(mode="straight") {#XTOK_SET:Y #XTOK_Q:A};
+//   &tok_b @WIRE(mode="straight") {#XTOK_QB:Y (21, 15) (21, 17.5) (9, 17.5) (9, 20) #XTOK_Q:B};
+//   &en_k @WIRE(mode="straight") {#XTOK_Q:Y (19, 21) %j_enk1 %j_enk2 (19, -12) #XSETN:B} => @SET-STYLE $token_route;
+//   &en_k @WIRE(mode="straight") {%j_enk1 (8, 18.5) (8, 16) #XTOK_QB:A} => @SET-STYLE $token_route;
+//   &en_k @WIRE(mode="straight") {%j_enk2 #XSETP:B} => @SET-STYLE $token_route;
+//   &RST_B @WIRE(mode="straight") {%p_rst_b:p %j_rst2 #XDN_QB:B} => @SET-STYLE $ctrl_route;
+//   &RST_B @WIRE(mode="straight") {%j_rst2 %j_rst1 (-12, 14) #XTOK_QB:B} => @SET-STYLE $ctrl_route;
+//   &RST_B @WIRE(mode="straight") {%j_rst1 #XUP_QB:B} => @SET-STYLE $ctrl_route;
+//   &CMPP @WIRE(mode="straight") {%p_cmpp:p #XSETP:A} => @SET-STYLE $data_route;
+//   &CMPN @WIRE(mode="straight") {%p_cmpn:p #XSETN:A} => @SET-STYLE $data_route;
+//   &set_pb @WIRE(mode="straight") {#XSETP:Y #XUP_Q:A};
+//   &set_nb @WIRE(mode="straight") {#XSETN:Y #XDN_Q:A};
+//   &Q @WIRE(mode="straight") {#XUP_Q:Y %jq %p_q:p} => @SET-STYLE $data_route;
+//   &Q @WIRE(mode="straight") {%jq (45, 2.5) (34, 2.5) (34, 0) #XUP_QB:A} => @SET-STYLE $data_route;
+//   &dn_q @WIRE(mode="straight") {#XDN_Q:Y (45, -13) (45, -15.5) (34, -15.5) (34, -18) #XDN_QB:A};
+//   &up_b @WIRE(mode="straight") {#XUP_QB:Y %j_upb1 %j_upb2 (49, 22) #XREQ:B};
+//   &up_b @WIRE(mode="straight") {%j_upb1 (47, 1.5) (35, 1.5) (35, 4) #XUP_Q:B};
+//   &up_b @WIRE(mode="straight") {%j_upb2 %j_upb3 (49, -27) #XDONE:A};
+//   &up_b @WIRE(mode="straight") {%j_upb3 (11, -7) (11, -13) #XSETN:C};
+//   &dn_b @WIRE(mode="straight") {#XDN_QB:Y %j_dnb1 %j_dnb2 (51, 21) #XREQ:C};
+//   &dn_b @WIRE(mode="straight") {%j_dnb1 (47, -16.5) (35, -16.5) (35, -14) #XDN_Q:B};
+//   &dn_b @WIRE(mode="straight") {%j_dnb2 %j_dnb3 (9, -9) (9, 5) #XSETP:C};
+//   &dn_b @WIRE(mode="straight") {%j_dnb2 (51, -29) #XDONE:B};
+//   &REQ_B @WIRE(mode="straight") {#XREQ:Y %p_req_b:p} => @SET-STYLE $token_route;
+//   &DONE @WIRE(mode="straight") {#XDONE:Y %p_done:p} => @SET-STYLE $token_route;
+//   (-18, 33) @TEXT("adc_sarlogic_slice14 (Step k = 14): Final LSB Decision Slice & End-of-Conversion Detector", halign="start") => @SET-STYLE $title_style;
+//   (-18, 31) @TEXT("Captures final LSB decision Q (= b0 -> D0) without driving CDAC switches; XDONE asserts DONE immediately to strobe LAT_EN and RDY.", halign="start") => @SET-STYLE $note_style
+// }
+ends adc_sarlogic_slice14
+
+subckt adc_sarlogic_ctrl (CONV_B OP_B ON_B REQ_B1 REQ_B2 REQ_B3 REQ_B4 REQ_B5 REQ_B6 \
+        REQ_B7 REQ_B8 REQ_B9 REQ_B10 REQ_B11 REQ_B12 REQ_B13 REQ_B14 DONE14 CLKC RDY \
+        CMPP CMPN IDLE_B RST_B GO0 LAT_EN VDD VSS)
+// Reset, conversion window delay, and first-clock start delay (t_start)
+XCV1 (CONV_B conv_i VDD VSS) adc_sarlogic_inv wn=1.6u wp=2.4u nn=2 np=2
+XCD1 (conv_i cd1_b VDD VSS) adc_sarlogic_inv wn=600n wp=900n nn=2 np=2
+XCCD1 (cd1_b VDD VSS) adc_sarlogic_gatecap wn=4.3u wp=6.45u ln=90n lp=90n nn=4 np=4
+XCD2 (cd1_b conv_d1 VDD VSS) adc_sarlogic_inv wn=600n wp=900n nn=2 np=2
+XCCD2 (conv_d1 VDD VSS) adc_sarlogic_gatecap wn=4.3u wp=6.45u ln=90n lp=90n nn=4 np=4
+XCD3 (conv_d1 cd3_b VDD VSS) adc_sarlogic_inv wn=600n wp=900n nn=2 np=2
+XCCD3 (cd3_b VDD VSS) adc_sarlogic_gatecap wn=4.3u wp=6.45u ln=90n lp=90n nn=4 np=4
+XCD4 (cd3_b conv_d2 VDD VSS) adc_sarlogic_inv wn=800n wp=1.2u nn=2 np=2
+XRST_NOR (conv_i conv_d2 rst_i VDD VSS) adc_sarlogic_nor2 wn=1.2u wp=2.4u nn=2 np=4
+XRST_DRV (rst_i RST_B VDD VSS) adc_sarlogic_inv wn=3.2u wp=4.8u nn=4 np=6
+XGO0_NAND (conv_d2 conv_i go0_b VDD VSS) adc_sarlogic_nand2 wn=1.2u wp=1.2u nn=2 np=2
+XGO0_INV (go0_b GO0 VDD VSS) adc_sarlogic_inv wn=1.6u wp=2.4u nn=2 np=2
+
+// Comparator and timeout front-end
+XCMPP (OP_B to_b CMPP VDD VSS) adc_sarlogic_nand2 wn=2.4u wp=6.4u nn=4 np=8
+XCMPN (ON_B VDD CMPN VDD VSS) adc_sarlogic_nand2 wn=2.4u wp=6.4u nn=4 np=8
+XTO_CONV (to4 CONV_B to_conv_b VDD VSS) adc_sarlogic_nor2 wn=800n wp=2.4u nn=2 np=4
+XBUSY (OP_B ON_B to_conv_b cmp_busy VDD VSS) adc_sarlogic_nand3 wn=3.6u wp=2.4u nn=4 np=4
+XIDLE (cmp_busy IDLE_B VDD VSS) adc_sarlogic_inv wn=2.4u wp=4.8u nn=4 np=6
+XIDLE_CLK (cmp_busy clkc_idle_b VDD VSS) adc_sarlogic_inv wn=3.2u wp=6.4u nn=4 np=8
+
+// Balanced 14-input request combiner and fast 2-input CLKC gate
+XG1 (REQ_B1 REQ_B2 REQ_B3 grp1 VDD VSS) adc_sarlogic_nand3 wn=2.4u wp=1.2u nn=2 np=2
+XG2 (REQ_B4 REQ_B5 REQ_B6 grp2 VDD VSS) adc_sarlogic_nand3 wn=2.4u wp=1.2u nn=2 np=2
+XG3 (REQ_B7 REQ_B8 REQ_B9 grp3 VDD VSS) adc_sarlogic_nand3 wn=2.4u wp=1.2u nn=2 np=2
+XG4 (REQ_B10 REQ_B11 REQ_B12 grp4 VDD VSS) adc_sarlogic_nand3 wn=2.4u wp=1.2u nn=2 np=2
+XG5 (REQ_B13 REQ_B14 VDD grp5 VDD VSS) adc_sarlogic_nand3 wn=2.4u wp=1.2u nn=2 np=2
+XGA (grp1 grp2 grp3 grpa_b VDD VSS) adc_sarlogic_nor3 wn=1.2u wp=4.8u nn=2 np=6
+XGB (grp4 grp5 VSS grpb_b VDD VSS) adc_sarlogic_nor3 wn=1.2u wp=4.8u nn=2 np=6
+XGC (grpa_b grpb_b clkc_req VDD VSS) adc_sarlogic_nand2 wn=3.2u wp=2.4u nn=4 np=4
+XCLKC_GATE (clkc_req clkc_idle_b clkc_b VDD VSS) adc_sarlogic_nand2 wn=4.8u wp=3.6u nn=6 np=4
+XDRV_CLKC (clkc_b CLKC VDD VSS) adc_sarlogic_inv wn=4.8u wp=7.2u nn=6 np=8
+
+// Self-resetting parallel-reset timeout timer (active when clkc_b = 0)
+XTO_RST (CLKC to_rst VDD VSS) adc_sarlogic_inv wn=1.2u wp=1.8u nn=2 np=2
+XTO1A (to_rst to_rst to1 VDD VSS) adc_sarlogic_nor2 wn=1.2u wp=3.6u nn=2 np=4
+XCTO1 (to1 VDD VSS) adc_sarlogic_gatecap wn=400n wp=56.8u ln=90n lp=90n nn=2 np=24
+XTO1B (to1 to1_b VDD VSS) adc_sarlogic_inv wn=800n wp=1.2u nn=2 np=2
+XCTO1B (to1_b VDD VSS) adc_sarlogic_gatecap wn=42.6u wp=400n ln=90n lp=90n nn=20 np=2
+XTO2A (to1_b to_rst to2 VDD VSS) adc_sarlogic_nor2 wn=1.2u wp=3.6u nn=2 np=4
+XCTO2 (to2 VDD VSS) adc_sarlogic_gatecap wn=400n wp=56.8u ln=90n lp=90n nn=2 np=24
+XTO2B (to2 to2_b VDD VSS) adc_sarlogic_inv wn=800n wp=1.2u nn=2 np=2
+XCTO2B (to2_b VDD VSS) adc_sarlogic_gatecap wn=42.6u wp=400n ln=90n lp=90n nn=20 np=2
+XTO3A (to2_b to_rst to3 VDD VSS) adc_sarlogic_nor2 wn=1.2u wp=3.6u nn=2 np=4
+XCTO3 (to3 VDD VSS) adc_sarlogic_gatecap wn=400n wp=56.8u ln=90n lp=90n nn=2 np=24
+XTO3B (to3 to3_b VDD VSS) adc_sarlogic_inv wn=800n wp=1.2u nn=2 np=2
+XCTO3B (to3_b VDD VSS) adc_sarlogic_gatecap wn=6.4u wp=400n ln=90n lp=90n nn=4 np=2
+XTO4A (to3_b to4 VDD VSS) adc_sarlogic_inv wn=800n wp=1.2u nn=2 np=2
+XCTO4 (to4 VDD VSS) adc_sarlogic_gatecap wn=400n wp=9.6u ln=90n lp=90n nn=2 np=6
+XTO4B (to4 to_b VDD VSS) adc_sarlogic_inv wn=1.6u wp=2.4u nn=2 np=2
+
+// Output register latch enable and RDY setup delay chain (LOG-10 >= 100 ps all corners)
+XD14_INV (DONE14 done14_b VDD VSS) adc_sarlogic_inv wn=800n wp=1.2u nn=2 np=2
+XLOAD_REQ (done14_b conv_i load_req VDD VSS) adc_sarlogic_nand2 wn=1.6u wp=1.6u nn=2 np=2
+XLAT_NAND (load_req conv_d1 lat_b VDD VSS) adc_sarlogic_nand2 wn=2.0u wp=2.0u nn=2 np=2
+XLAT_DRV (lat_b LAT_EN VDD VSS) adc_sarlogic_inv wn=4.8u wp=7.2u nn=6 np=8
+XRDY1 (load_req rdy1_b VDD VSS) adc_sarlogic_inv wn=600n wp=900n nn=2 np=2
+XCRDY1 (rdy1_b VDD VSS) adc_sarlogic_gatecap wn=10.2u wp=15.3u ln=90n lp=90n nn=8 np=8
+XRDY2 (rdy1_b rdy2 VDD VSS) adc_sarlogic_inv wn=600n wp=900n nn=2 np=2
+XCRDY2 (rdy2 VDD VSS) adc_sarlogic_gatecap wn=10.2u wp=15.3u ln=90n lp=90n nn=8 np=8
+XRDY3 (rdy2 rdy3_b VDD VSS) adc_sarlogic_inv wn=600n wp=900n nn=2 np=2
+XCRDY3 (rdy3_b VDD VSS) adc_sarlogic_gatecap wn=10.2u wp=15.3u ln=90n lp=90n nn=8 np=8
+XRDY4 (rdy3_b rdy4 VDD VSS) adc_sarlogic_inv wn=600n wp=900n nn=2 np=2
+XCRDY4 (rdy4 VDD VSS) adc_sarlogic_gatecap wn=10.2u wp=15.3u ln=90n lp=90n nn=8 np=8
+XRDY5 (rdy4 rdy5_b VDD VSS) adc_sarlogic_inv wn=600n wp=900n nn=2 np=2
+XCRDY5 (rdy5_b VDD VSS) adc_sarlogic_gatecap wn=10.2u wp=15.3u ln=90n lp=90n nn=8 np=8
+XRDY6 (rdy5_b rdy6 VDD VSS) adc_sarlogic_inv wn=800n wp=1.2u nn=2 np=2
+XRDY_NAND (load_req rdy6 rdy_b VDD VSS) adc_sarlogic_nand2 wn=1.6u wp=1.6u nn=2 np=2
+XDRV_RDY (rdy_b RDY VDD VSS) adc_sarlogic_inv wn=4.8u wp=7.2u nn=6 np=8
+// @RNL {
+//   &VDD @ADD-TO $SUPPLY_NET_SET; &VSS @ADD-TO $GROUND_NET_SET;
+//   %ctrl_sym = @DEFINE-SYMBOL(box=[-11, -16, 11, 12]) {
+//     @LINE(linewidth=0.24) {(-9, -15) (9, -15) (9, 11) (-9, 11) (-9, -15)};
+//     (-10, 9) @PIN(terminal=1, direction="left"); @LINE {(-10, 9) (-9, 9)};
+//     (-8.65, 9) @TEXT("CONV_B", size=0.52, halign="start", valign="middle");
+//     (-10, 5) @PIN(terminal=2, direction="left"); @LINE {(-10, 5) (-9, 5)};
+//     (-8.65, 5) @TEXT("OP_B", size=0.52, halign="start", valign="middle");
+//     (-10, 1) @PIN(terminal=3, direction="left"); @LINE {(-10, 1) (-9, 1)};
+//     (-8.65, 1) @TEXT("ON_B", size=0.52, halign="start", valign="middle");
+//     (-10, -5) @PIN(terminal=19, direction="left"); @LINE {(-10, -5) (-9, -5)};
+//     (-8.65, -5) @TEXT("CLKC", size=0.52, halign="start", valign="middle");
+//     (-10, -9) @PIN(terminal=20, direction="left"); @LINE {(-10, -9) (-9, -9)};
+//     (-8.65, -9) @TEXT("RDY", size=0.52, halign="start", valign="middle");
+//     (10, 10) @PIN(terminal=25, direction="right"); @LINE {(10, 10) (9, 10)};
+//     (8.65, 10) @TEXT("GO0", size=0.52, halign="end", valign="middle");
+//     (10, 6) @PIN(terminal=21, direction="right"); @LINE {(10, 6) (9, 6)};
+//     (8.65, 6) @TEXT("CMPP", size=0.52, halign="end", valign="middle");
+//     (10, 3) @PIN(terminal=22, direction="right"); @LINE {(10, 3) (9, 3)};
+//     (8.65, 3) @TEXT("CMPN", size=0.52, halign="end", valign="middle");
+//     (10, 0) @PIN(terminal=23, direction="right"); @LINE {(10, 0) (9, 0)};
+//     (8.65, 0) @TEXT("IDLE_B", size=0.52, halign="end", valign="middle");
+//     (10, -3) @PIN(terminal=24, direction="right"); @LINE {(10, -3) (9, -3)};
+//     (8.65, -3) @TEXT("RST_B", size=0.52, halign="end", valign="middle");
+//     (10, -6) @PIN(terminal=26, direction="right"); @LINE {(10, -6) (9, -6)};
+//     (8.65, -6) @TEXT("LAT_EN", size=0.52, halign="end", valign="middle");
+//     (11, -9) @PIN(terminal=[4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17], direction="right");
+//     @LINE(linewidth=0.32) {(11, -9) (9, -9)};
+//     @LINE {(9.75, -9.35) (10.25, -8.65)};
+//     (10, -8.55) @TEXT("14", size=0.45, halign="middle");
+//     (8.65, -9) @TEXT("REQ_B<1:14>", size=0.52, halign="end", valign="middle");
+//     (10, -12) @PIN(terminal=18, direction="right"); @LINE {(10, -12) (9, -12)};
+//     (8.65, -12) @TEXT("DONE14", size=0.52, halign="end", valign="middle");
+//     (0, 9.2) @TEXT("ASYNC SAR", size=0.72, bold=true, halign="middle", valign="middle");
+//     (0, 7.8) @TEXT("CONTROLLER", size=0.68, bold=true, halign="middle", valign="middle");
+//     @LINE {(-3.8, 3.2) (3.8, 3.2) (3.8, 6.2) (-3.8, 6.2) (-3.8, 3.2)};
+//     (0, 4.7) @TEXT("RST & START", size=0.46, halign="middle", valign="middle");
+//     @LINE {(-3.8, -3.5) (3.8, -3.5) (3.8, 2.2) (-3.8, 2.2) (-3.8, -3.5)};
+//     (0, 0.2) @TEXT("14-STEP CLKC", size=0.46, halign="middle", valign="middle");
+//     (0, -1.6) @TEXT("258ps TIMEOUT", size=0.44, halign="middle", valign="middle");
+//     @LINE {(-3.8, -11.5) (3.8, -11.5) (3.8, -4.5) (-3.8, -4.5) (-3.8, -11.5)};
+//     (0, -7.2) @TEXT("EOC LATCH &", size=0.46, halign="middle", valign="middle");
+//     (0, -9.0) @TEXT("RDY >=100ps", size=0.44, halign="middle", valign="middle");
+//     ? @TEXT("${name}", key="name", size=0.8, bold=true, valign="bottom") => @PLACE(-9, 11.5)
+//   };
+//   # @SET-SYMBOL %ctrl_sym;
+//   $gate_ink = @DEFINE-STYLE(linecolor="#243b53", textcolor="#243b53") {};
+//   $clk_route = @DEFINE-STYLE(linecolor="#b7791f", textcolor="#975a16") {};
+//   $feedback_route = @DEFINE-STYLE(linecolor="#a75b13", textcolor="#a75b13") {};
+//   $data_route = @DEFINE-STYLE(linecolor="#2b6cb0", textcolor="#2c5282") {};
+//   $ctrl_route = @DEFINE-STYLE(linecolor="#2f855a", textcolor="#276749") {};
+//   # @SELECT-INSTANCE => @SET-STYLE $gate_ink;
+//   #XCV1 @PLACE(-14, 40);
+//   #XCV1 @TEXT("${name}", key="name", dx=0, dy=2.4, size=0.65, halign="middle");
+//   #XCV1 @TEXT("${wn}/${wp}", key="sizes", dx=0, dy=-2.8, size=0.52, halign="middle");
+//   #XCD1 @PLACE(2, 40);
+//   #XCD1 @TEXT("${name}", key="name", dx=0, dy=2.4, size=0.65, halign="middle");
+//   #XCD1 @TEXT("${wn}/${wp}", key="sizes", dx=0, dy=-2.8, size=0.52, halign="middle");
+//   #XCD2 @PLACE(16, 40);
+//   #XCD2 @TEXT("${name}", key="name", dx=0, dy=2.4, size=0.65, halign="middle");
+//   #XCD2 @TEXT("${wn}/${wp}", key="sizes", dx=0, dy=-2.8, size=0.52, halign="middle");
+//   #XCD3 @PLACE(30, 40);
+//   #XCD3 @TEXT("${name}", key="name", dx=0, dy=2.4, size=0.65, halign="middle");
+//   #XCD3 @TEXT("${wn}/${wp}", key="sizes", dx=0, dy=-2.8, size=0.52, halign="middle");
+//   #XCD4 @PLACE(44, 40);
+//   #XCD4 @TEXT("${name}", key="name", dx=0, dy=2.4, size=0.65, halign="middle");
+//   #XCD4 @TEXT("${wn}/${wp}", key="sizes", dx=0, dy=-2.8, size=0.52, halign="middle");
+//   #XRST_NOR @PLACE(62, 44);
+//   #XRST_NOR @TEXT("${name}", key="name", dx=0, dy=2.4, size=0.65, halign="middle");
+//   #XRST_NOR @TEXT("${wn}/${wp}", key="sizes", dx=0, dy=-2.8, size=0.52, halign="middle");
+//   #XRST_DRV @PLACE(76, 44);
+//   #XRST_DRV @TEXT("${name}", key="name", dx=0, dy=2.4, size=0.65, halign="middle");
+//   #XRST_DRV @TEXT("${wn}/${wp}", key="sizes", dx=0, dy=-2.8, size=0.52, halign="middle");
+//   #XGO0_NAND @PLACE(62, 36);
+//   #XGO0_NAND @TEXT("${name}", key="name", dx=0, dy=2.4, size=0.65, halign="middle");
+//   #XGO0_NAND @TEXT("${wn}/${wp}", key="sizes", dx=0, dy=-2.8, size=0.52, halign="middle");
+//   #XGO0_INV @PLACE(76, 36);
+//   #XGO0_INV @TEXT("${name}", key="name", dx=0, dy=2.4, size=0.65, halign="middle");
+//   #XGO0_INV @TEXT("${wn}/${wp}", key="sizes", dx=0, dy=-2.8, size=0.52, halign="middle");
+//   #XCCD1 @PLACE(9, 35); #XCCD2 @PLACE(23, 35); #XCCD3 @PLACE(37, 35);
+//   %p_conv_b = $IO_PORT @ATTACH &CONV_B => @PLACE(-24, 40) => @ORIENT("R0");
+//   %p_rst_b = $IO_PORT @ATTACH &RST_B => @PLACE(86, 44) => @ORIENT("MY");
+//   %p_go0 = $IO_PORT @ATTACH &GO0 => @PLACE(86, 36) => @ORIENT("MY");
+//   %j_convb = (-20, 40); %j_convi_l = (-9, 40); %j_convi = (-6, 40); %j_convi2 = (52, 45);
+//   %j_cd1b = (9, 40); %j_convd1 = (23, 40); %j_convd1_u = (23, 48); %j_cd3b = (37, 40); %j_convd2 = (54, 40);
+//   $JUNCTION @ATTACH %j_convb; $JUNCTION @ATTACH %j_convi_l; $JUNCTION @ATTACH %j_convi; $JUNCTION @ATTACH %j_convi2;
+//   $JUNCTION @ATTACH %j_cd1b; $JUNCTION @ATTACH %j_convd1; $JUNCTION @ATTACH %j_cd3b; $JUNCTION @ATTACH %j_convd2;
+//   &CONV_B @WIRE(mode="straight") {%p_conv_b:p %j_convb #XCV1:A} => @SET-STYLE $ctrl_route;
+//   &CONV_B @WIRE(mode="straight") {%j_convb (-20, 29) (29, 29) (29, 13) #XTO_CONV:B} => @SET-STYLE $ctrl_route;
+//   &conv_i @WIRE(mode="straight") {#XCV1:Y %j_convi_l %j_convi #XCD1:A} => @SET-STYLE $ctrl_route;
+//   &conv_i @WIRE(mode="straight") {%j_convi (-6, 45) %j_convi2 #XRST_NOR:A} => @SET-STYLE $ctrl_route;
+//   &conv_i @WIRE(mode="straight") {%j_convi2 (52, 35) #XGO0_NAND:B} => @SET-STYLE $ctrl_route;
+//   &conv_i @WIRE(mode="straight") {%j_convi_l (-9, 31) (-28, 31) (-28, -79) #XLOAD_REQ:B} => @SET-STYLE $ctrl_route;
+//   &cd1_b @WIRE(mode="straight") {#XCD1:Y %j_cd1b #XCD2:A};
+//   &cd1_b @WIRE(mode="straight") {%j_cd1b #XCCD1:A};
+//   &conv_d1 @WIRE(mode="straight") {#XCD2:Y %j_convd1 #XCD3:A};
+//   &conv_d1 @WIRE(mode="straight") {%j_convd1 #XCCD2:A};
+//   &conv_d1 @WIRE(mode="straight") {%j_convd1 %j_convd1_u (-30, 48) (-30, -73) #XLAT_NAND:B} => @SET-STYLE $ctrl_route;
+//   &cd3_b @WIRE(mode="straight") {#XCD3:Y %j_cd3b #XCD4:A};
+//   &cd3_b @WIRE(mode="straight") {%j_cd3b #XCCD3:A};
+//   &conv_d2 @WIRE(mode="straight") {#XCD4:Y %j_convd2 (54, 43) #XRST_NOR:B} => @SET-STYLE $ctrl_route;
+//   &conv_d2 @WIRE(mode="straight") {%j_convd2 (54, 37) #XGO0_NAND:A} => @SET-STYLE $ctrl_route;
+//   &rst_i @WIRE(mode="straight") {#XRST_NOR:Y #XRST_DRV:A};
+//   &RST_B @WIRE(mode="straight") {#XRST_DRV:Y %p_rst_b:p} => @SET-STYLE $ctrl_route;
+//   &go0_b @WIRE(mode="straight") {#XGO0_NAND:Y #XGO0_INV:A};
+//   &GO0 @WIRE(mode="straight") {#XGO0_INV:Y %p_go0:p} => @SET-STYLE $clk_route;
+//   #XCMPP @PLACE(2, 20);
+//   #XCMPP @TEXT("${name}", key="name", dx=0, dy=2.4, size=0.65, halign="middle");
+//   #XCMPP @TEXT("${wn}/${wp}", key="sizes", dx=0, dy=-2.8, size=0.52, halign="middle");
+//   #XCMPN @PLACE(2, 10);
+//   #XCMPN @TEXT("${name}", key="name", dx=0, dy=2.4, size=0.65, halign="middle");
+//   #XCMPN @TEXT("${wn}/${wp}", key="sizes", dx=0, dy=-2.8, size=0.52, halign="middle");
+//   #XTO_CONV @PLACE(34, 14);
+//   #XTO_CONV @TEXT("${name}", key="name", dx=0, dy=2.4, size=0.65, halign="middle");
+//   #XTO_CONV @TEXT("${wn}/${wp}", key="sizes", dx=0, dy=-2.8, size=0.52, halign="middle");
+//   #XBUSY @PLACE(52, 15);
+//   #XBUSY @TEXT("${name}", key="name", dx=0, dy=2.4, size=0.65, halign="middle");
+//   #XBUSY @TEXT("${wn}/${wp}", key="sizes", dx=0, dy=-2.8, size=0.52, halign="middle");
+//   #XIDLE @PLACE(68, 20);
+//   #XIDLE @TEXT("${name}", key="name", dx=0, dy=2.4, size=0.65, halign="middle");
+//   #XIDLE @TEXT("${wn}/${wp}", key="sizes", dx=0, dy=-2.8, size=0.52, halign="middle");
+//   #XIDLE_CLK @PLACE(68, 12);
+//   #XIDLE_CLK @TEXT("${name}", key="name", dx=0, dy=2.4, size=0.65, halign="middle");
+//   #XIDLE_CLK @TEXT("${wn}/${wp}", key="sizes", dx=0, dy=-2.8, size=0.52, halign="middle");
+//   %p_op_b = $IO_PORT @ATTACH &OP_B => @PLACE(-24, 21) => @ORIENT("R0");
+//   %p_on_b = $IO_PORT @ATTACH &ON_B => @PLACE(-24, 11) => @ORIENT("R0");
+//   %p_cmpp = $IO_PORT @ATTACH &CMPP => @PLACE(14, 20) => @ORIENT("MY");
+//   %p_cmpn = $IO_PORT @ATTACH &CMPN => @PLACE(14, 10) => @ORIENT("MY");
+//   %p_idle_b = $IO_PORT @ATTACH &IDLE_B => @PLACE(86, 20) => @ORIENT("MY");
+//   %v_cmpn = $SUPPLY @ATTACH &VDD => @PLACE(-5, 9);
+//   &VDD @WIRE(mode="straight") {%v_cmpn:p #XCMPN:B};
+//   %j_opb = (-10, 21); %j_onb = (-12, 11); %j_busy = (60, 15);
+//   $JUNCTION @ATTACH %j_opb; $JUNCTION @ATTACH %j_onb; $JUNCTION @ATTACH %j_busy;
+//   &OP_B @WIRE(mode="straight") {%p_op_b:p %j_opb #XCMPP:A} => @SET-STYLE $data_route;
+//   &OP_B @WIRE(mode="straight") {%j_opb (-10, 24) (44, 24) (44, 16) #XBUSY:A} => @SET-STYLE $data_route;
+//   &ON_B @WIRE(mode="straight") {%p_on_b:p %j_onb #XCMPN:A} => @SET-STYLE $data_route;
+//   &ON_B @WIRE(mode="straight") {%j_onb (-12, 6) (42, 6) (42, 15) #XBUSY:B} => @SET-STYLE $data_route;
+//   &CMPP @WIRE(mode="straight") {#XCMPP:Y %p_cmpp:p} => @SET-STYLE $data_route;
+//   &CMPN @WIRE(mode="straight") {#XCMPN:Y %p_cmpn:p} => @SET-STYLE $data_route;
+//   &to_conv_b @WIRE(mode="straight") {#XTO_CONV:Y #XBUSY:C} => @SET-STYLE $feedback_route;
+//   &cmp_busy @WIRE(mode="straight") {#XBUSY:Y %j_busy (60, 20) #XIDLE:A};
+//   &cmp_busy @WIRE(mode="straight") {%j_busy (60, 12) #XIDLE_CLK:A};
+//   &IDLE_B @WIRE(mode="straight") {#XIDLE:Y %p_idle_b:p} => @SET-STYLE $ctrl_route;
+//   #XG1 @PLACE(2, -2);
+//   #XG1 @TEXT("${name}", key="name", dx=0, dy=2.4, size=0.65, halign="middle");
+//   #XG1 @TEXT("${wn}/${wp}", key="sizes", dx=0, dy=-2.8, size=0.52, halign="middle");
+//   #XG2 @PLACE(2, -10);
+//   #XG2 @TEXT("${name}", key="name", dx=0, dy=2.4, size=0.65, halign="middle");
+//   #XG2 @TEXT("${wn}/${wp}", key="sizes", dx=0, dy=-2.8, size=0.52, halign="middle");
+//   #XG3 @PLACE(2, -18);
+//   #XG3 @TEXT("${name}", key="name", dx=0, dy=2.4, size=0.65, halign="middle");
+//   #XG3 @TEXT("${wn}/${wp}", key="sizes", dx=0, dy=-2.8, size=0.52, halign="middle");
+//   #XG4 @PLACE(2, -26);
+//   #XG4 @TEXT("${name}", key="name", dx=0, dy=2.4, size=0.65, halign="middle");
+//   #XG4 @TEXT("${wn}/${wp}", key="sizes", dx=0, dy=-2.8, size=0.52, halign="middle");
+//   #XG5 @PLACE(2, -34);
+//   #XG5 @TEXT("${name}", key="name", dx=0, dy=2.4, size=0.65, halign="middle");
+//   #XG5 @TEXT("${wn}/${wp}", key="sizes", dx=0, dy=-2.8, size=0.52, halign="middle");
+//   #XGA @PLACE(26, -10);
+//   #XGA @TEXT("${name}", key="name", dx=0, dy=2.4, size=0.65, halign="middle");
+//   #XGA @TEXT("${wn}/${wp}", key="sizes", dx=0, dy=-2.8, size=0.52, halign="middle");
+//   #XGB @PLACE(26, -28);
+//   #XGB @TEXT("${name}", key="name", dx=0, dy=2.4, size=0.65, halign="middle");
+//   #XGB @TEXT("${wn}/${wp}", key="sizes", dx=0, dy=-2.8, size=0.52, halign="middle");
+//   #XGC @PLACE(46, -18);
+//   #XGC @TEXT("${name}", key="name", dx=0, dy=2.4, size=0.65, halign="middle");
+//   #XGC @TEXT("${wn}/${wp}", key="sizes", dx=0, dy=-2.8, size=0.52, halign="middle");
+//   #XCLKC_GATE @PLACE(64, -17);
+//   #XCLKC_GATE @TEXT("${name}", key="name", dx=0, dy=2.4, size=0.65, halign="middle");
+//   #XCLKC_GATE @TEXT("${wn}/${wp}", key="sizes", dx=0, dy=-2.8, size=0.52, halign="middle");
+//   #XDRV_CLKC @PLACE(78, -17);
+//   #XDRV_CLKC @TEXT("${name}", key="name", dx=0, dy=2.4, size=0.65, halign="middle");
+//   #XDRV_CLKC @TEXT("${wn}/${wp}", key="sizes", dx=0, dy=-2.8, size=0.52, halign="middle");
+//   %p_req_b1 = $IO_PORT @ATTACH &REQ_B1 => @PLACE(-12, -1) => @ORIENT("R0");
+//   &REQ_B1 @WIRE(mode="straight") {%p_req_b1:p #XG1:A};
+//   %p_req_b2 = $IO_PORT @ATTACH &REQ_B2 => @PLACE(-12, -2) => @ORIENT("R0");
+//   &REQ_B2 @WIRE(mode="straight") {%p_req_b2:p #XG1:B};
+//   %p_req_b3 = $IO_PORT @ATTACH &REQ_B3 => @PLACE(-12, -3) => @ORIENT("R0");
+//   &REQ_B3 @WIRE(mode="straight") {%p_req_b3:p #XG1:C};
+//   %p_req_b4 = $IO_PORT @ATTACH &REQ_B4 => @PLACE(-12, -9) => @ORIENT("R0");
+//   &REQ_B4 @WIRE(mode="straight") {%p_req_b4:p #XG2:A};
+//   %p_req_b5 = $IO_PORT @ATTACH &REQ_B5 => @PLACE(-12, -10) => @ORIENT("R0");
+//   &REQ_B5 @WIRE(mode="straight") {%p_req_b5:p #XG2:B};
+//   %p_req_b6 = $IO_PORT @ATTACH &REQ_B6 => @PLACE(-12, -11) => @ORIENT("R0");
+//   &REQ_B6 @WIRE(mode="straight") {%p_req_b6:p #XG2:C};
+//   %p_req_b7 = $IO_PORT @ATTACH &REQ_B7 => @PLACE(-12, -17) => @ORIENT("R0");
+//   &REQ_B7 @WIRE(mode="straight") {%p_req_b7:p #XG3:A};
+//   %p_req_b8 = $IO_PORT @ATTACH &REQ_B8 => @PLACE(-12, -18) => @ORIENT("R0");
+//   &REQ_B8 @WIRE(mode="straight") {%p_req_b8:p #XG3:B};
+//   %p_req_b9 = $IO_PORT @ATTACH &REQ_B9 => @PLACE(-12, -19) => @ORIENT("R0");
+//   &REQ_B9 @WIRE(mode="straight") {%p_req_b9:p #XG3:C};
+//   %p_req_b10 = $IO_PORT @ATTACH &REQ_B10 => @PLACE(-12, -25) => @ORIENT("R0");
+//   &REQ_B10 @WIRE(mode="straight") {%p_req_b10:p #XG4:A};
+//   %p_req_b11 = $IO_PORT @ATTACH &REQ_B11 => @PLACE(-12, -26) => @ORIENT("R0");
+//   &REQ_B11 @WIRE(mode="straight") {%p_req_b11:p #XG4:B};
+//   %p_req_b12 = $IO_PORT @ATTACH &REQ_B12 => @PLACE(-12, -27) => @ORIENT("R0");
+//   &REQ_B12 @WIRE(mode="straight") {%p_req_b12:p #XG4:C};
+//   %p_req_b13 = $IO_PORT @ATTACH &REQ_B13 => @PLACE(-12, -33) => @ORIENT("R0");
+//   &REQ_B13 @WIRE(mode="straight") {%p_req_b13:p #XG5:A};
+//   %p_req_b14 = $IO_PORT @ATTACH &REQ_B14 => @PLACE(-12, -34) => @ORIENT("R0");
+//   &REQ_B14 @WIRE(mode="straight") {%p_req_b14:p #XG5:B};
+//   %v_xg5 = $SUPPLY @ATTACH &VDD => @PLACE(-5, -35);
+//   &VDD @WIRE(mode="straight") {%v_xg5:p #XG5:C};
+//   %g_xgb = $GROUND @ATTACH &VSS => @PLACE(19, -29);
+//   &VSS @WIRE(mode="straight") {%g_xgb:p #XGB:C};
+//   &grp1 @WIRE(mode="straight") {#XG1:Y (14, -2) (14, -9) #XGA:A};
+//   &grp2 @WIRE(mode="straight") {#XG2:Y #XGA:B};
+//   &grp3 @WIRE(mode="straight") {#XG3:Y (14, -18) (14, -11) #XGA:C};
+//   &grp4 @WIRE(mode="straight") {#XG4:Y (14, -26) (14, -27) #XGB:A};
+//   &grp5 @WIRE(mode="straight") {#XG5:Y (14, -34) (14, -28) #XGB:B};
+//   &grpa_b @WIRE(mode="straight") {#XGA:Y (36, -10) (36, -17) #XGC:A} => @SET-STYLE $clk_route;
+//   &grpb_b @WIRE(mode="straight") {#XGB:Y (36, -28) (36, -19) #XGC:B} => @SET-STYLE $clk_route;
+//   &clkc_req @WIRE(mode="straight") {#XGC:Y (55, -18) (55, -16) #XCLKC_GATE:A} => @SET-STYLE $clk_route;
+//   &clkc_idle_b @WIRE(mode="straight") {#XIDLE_CLK:Y (74, 12) (74, 0) (58, 0) (58, -18) #XCLKC_GATE:B} => @SET-STYLE $clk_route;
+//   &clkc_b @WIRE(mode="straight") {#XCLKC_GATE:Y #XDRV_CLKC:A} => @SET-STYLE $clk_route;
+//   %p_clkc = $IO_PORT @ATTACH &CLKC => @PLACE(86, -17) => @ORIENT("MY");
+//   %j_clkc = (83, -17); $JUNCTION @ATTACH %j_clkc;
+//   &CLKC @WIRE(mode="straight") {#XDRV_CLKC:Y %j_clkc %p_clkc:p} => @SET-STYLE $clk_route;
+//   &CLKC @WIRE(mode="straight") {%j_clkc (83, -41) (-17, -41) #XTO_RST:A} => @SET-STYLE $clk_route;
+//   #XTO_RST @PLACE(-14, -52);
+//   #XTO_RST @TEXT("${name}", key="name", dx=0, dy=2.4, size=0.65, halign="middle");
+//   #XTO_RST @TEXT("${wn}/${wp}", key="sizes", dx=0, dy=-2.8, size=0.52, halign="middle");
+//   #XTO1A @PLACE(2, -52);
+//   #XTO1A @TEXT("${name}", key="name", dx=0, dy=2.4, size=0.65, halign="middle");
+//   #XTO1A @TEXT("${wn}/${wp}", key="sizes", dx=0, dy=-2.8, size=0.52, halign="middle");
+//   #XTO1B @PLACE(16, -52);
+//   #XTO1B @TEXT("${name}", key="name", dx=0, dy=2.4, size=0.65, halign="middle");
+//   #XTO1B @TEXT("${wn}/${wp}", key="sizes", dx=0, dy=-2.8, size=0.52, halign="middle");
+//   #XTO2A @PLACE(30, -51);
+//   #XTO2A @TEXT("${name}", key="name", dx=0, dy=2.4, size=0.65, halign="middle");
+//   #XTO2A @TEXT("${wn}/${wp}", key="sizes", dx=0, dy=-2.8, size=0.52, halign="middle");
+//   #XTO2B @PLACE(44, -51);
+//   #XTO2B @TEXT("${name}", key="name", dx=0, dy=2.4, size=0.65, halign="middle");
+//   #XTO2B @TEXT("${wn}/${wp}", key="sizes", dx=0, dy=-2.8, size=0.52, halign="middle");
+//   #XTO3A @PLACE(58, -50);
+//   #XTO3A @TEXT("${name}", key="name", dx=0, dy=2.4, size=0.65, halign="middle");
+//   #XTO3A @TEXT("${wn}/${wp}", key="sizes", dx=0, dy=-2.8, size=0.52, halign="middle");
+//   #XTO3B @PLACE(72, -50);
+//   #XTO3B @TEXT("${name}", key="name", dx=0, dy=2.4, size=0.65, halign="middle");
+//   #XTO3B @TEXT("${wn}/${wp}", key="sizes", dx=0, dy=-2.8, size=0.52, halign="middle");
+//   #XTO4A @PLACE(86, -50);
+//   #XTO4A @TEXT("${name}", key="name", dx=0, dy=2.4, size=0.65, halign="middle");
+//   #XTO4A @TEXT("${wn}/${wp}", key="sizes", dx=0, dy=-2.8, size=0.52, halign="middle");
+//   #XTO4B @PLACE(100, -50);
+//   #XTO4B @TEXT("${name}", key="name", dx=0, dy=2.4, size=0.65, halign="middle");
+//   #XTO4B @TEXT("${wn}/${wp}", key="sizes", dx=0, dy=-2.8, size=0.52, halign="middle");
+//   #XCTO1 @PLACE(9, -59); #XCTO1B @PLACE(23, -59);
+//   #XCTO2 @PLACE(37, -59); #XCTO2B @PLACE(51, -59);
+//   #XCTO3 @PLACE(65, -59); #XCTO3B @PLACE(79, -59); #XCTO4 @PLACE(93, -59);
+//   %j_tor0 = (-6, -52); %j_tor1 = (-6, -53); %j_tor2 = (24, -55); %j_tor3 = (52, -55);
+//   %j_to1 = (9, -52); %j_to1b = (23, -52); %j_to2 = (37, -51); %j_to2b = (51, -51);
+//   %j_to3 = (65, -50); %j_to3b = (79, -50); %j_to4 = (93, -50);
+//   $JUNCTION @ATTACH %j_tor0; $JUNCTION @ATTACH %j_tor1; $JUNCTION @ATTACH %j_tor2;
+//   $JUNCTION @ATTACH %j_to1; $JUNCTION @ATTACH %j_to1b; $JUNCTION @ATTACH %j_to2; $JUNCTION @ATTACH %j_to2b;
+//   $JUNCTION @ATTACH %j_to3; $JUNCTION @ATTACH %j_to3b; $JUNCTION @ATTACH %j_to4;
+//   &to_rst @WIRE(mode="straight") {#XTO_RST:Y %j_tor0 (-6, -51) #XTO1A:A} => @SET-STYLE $feedback_route;
+//   &to_rst @WIRE(mode="straight") {%j_tor0 %j_tor1 #XTO1A:B} => @SET-STYLE $feedback_route;
+//   &to_rst @WIRE(mode="straight") {%j_tor1 (-6, -55) %j_tor2 %j_tor3 (52, -51) #XTO3A:B} => @SET-STYLE $feedback_route;
+//   &to_rst @WIRE(mode="straight") {%j_tor2 (24, -52) #XTO2A:B} => @SET-STYLE $feedback_route;
+//   &to1 @WIRE(mode="straight") {#XTO1A:Y %j_to1 #XTO1B:A} => @SET-STYLE $feedback_route;
+//   &to1 @WIRE(mode="straight") {%j_to1 #XCTO1:A};
+//   &to1_b @WIRE(mode="straight") {#XTO1B:Y %j_to1b (23, -50) #XTO2A:A} => @SET-STYLE $feedback_route;
+//   &to1_b @WIRE(mode="straight") {%j_to1b #XCTO1B:A};
+//   &to2 @WIRE(mode="straight") {#XTO2A:Y %j_to2 #XTO2B:A} => @SET-STYLE $feedback_route;
+//   &to2 @WIRE(mode="straight") {%j_to2 #XCTO2:A};
+//   &to2_b @WIRE(mode="straight") {#XTO2B:Y %j_to2b (51, -49) #XTO3A:A} => @SET-STYLE $feedback_route;
+//   &to2_b @WIRE(mode="straight") {%j_to2b #XCTO2B:A};
+//   &to3 @WIRE(mode="straight") {#XTO3A:Y %j_to3 #XTO3B:A} => @SET-STYLE $feedback_route;
+//   &to3 @WIRE(mode="straight") {%j_to3 #XCTO3:A};
+//   &to3_b @WIRE(mode="straight") {#XTO3B:Y %j_to3b #XTO4A:A} => @SET-STYLE $feedback_route;
+//   &to3_b @WIRE(mode="straight") {%j_to3b #XCTO3B:A};
+//   &to4 @WIRE(mode="straight") {#XTO4A:Y %j_to4 #XTO4B:A} => @SET-STYLE $feedback_route;
+//   &to4 @WIRE(mode="straight") {%j_to4 #XCTO4:A};
+//   &to4 @WIRE(mode="straight") {%j_to4 (93, -43) (104, -43) (104, 27) (31, 27) #XTO_CONV:A} => @SET-STYLE $feedback_route;
+//   &to_b @WIRE(mode="straight") {#XTO4B:Y (106, -50) (106, 28) (-1, 28) #XCMPP:B} => @SET-STYLE $feedback_route;
+//   #XD14_INV @PLACE(-14, -77);
+//   #XD14_INV @TEXT("${name}", key="name", dx=0, dy=2.4, size=0.65, halign="middle");
+//   #XD14_INV @TEXT("${wn}/${wp}", key="sizes", dx=0, dy=-2.8, size=0.52, halign="middle");
+//   #XLOAD_REQ @PLACE(2, -78);
+//   #XLOAD_REQ @TEXT("${name}", key="name", dx=0, dy=2.4, size=0.65, halign="middle");
+//   #XLOAD_REQ @TEXT("${wn}/${wp}", key="sizes", dx=0, dy=-2.8, size=0.52, halign="middle");
+//   #XLAT_NAND @PLACE(22, -72);
+//   #XLAT_NAND @TEXT("${name}", key="name", dx=0, dy=2.4, size=0.65, halign="middle");
+//   #XLAT_NAND @TEXT("${wn}/${wp}", key="sizes", dx=0, dy=-2.8, size=0.52, halign="middle");
+//   #XLAT_DRV @PLACE(36, -72);
+//   #XLAT_DRV @TEXT("${name}", key="name", dx=0, dy=2.4, size=0.65, halign="middle");
+//   #XLAT_DRV @TEXT("${wn}/${wp}", key="sizes", dx=0, dy=-2.8, size=0.52, halign="middle");
+//   #XRDY1 @PLACE(16, -84);
+//   #XRDY1 @TEXT("${name}", key="name", dx=0, dy=2.4, size=0.65, halign="middle");
+//   #XRDY1 @TEXT("${wn}/${wp}", key="sizes", dx=0, dy=-2.8, size=0.52, halign="middle");
+//   #XRDY2 @PLACE(30, -84);
+//   #XRDY2 @TEXT("${name}", key="name", dx=0, dy=2.4, size=0.65, halign="middle");
+//   #XRDY2 @TEXT("${wn}/${wp}", key="sizes", dx=0, dy=-2.8, size=0.52, halign="middle");
+//   #XRDY3 @PLACE(44, -84);
+//   #XRDY3 @TEXT("${name}", key="name", dx=0, dy=2.4, size=0.65, halign="middle");
+//   #XRDY3 @TEXT("${wn}/${wp}", key="sizes", dx=0, dy=-2.8, size=0.52, halign="middle");
+//   #XRDY4 @PLACE(58, -84);
+//   #XRDY4 @TEXT("${name}", key="name", dx=0, dy=2.4, size=0.65, halign="middle");
+//   #XRDY4 @TEXT("${wn}/${wp}", key="sizes", dx=0, dy=-2.8, size=0.52, halign="middle");
+//   #XRDY5 @PLACE(72, -84);
+//   #XRDY5 @TEXT("${name}", key="name", dx=0, dy=2.4, size=0.65, halign="middle");
+//   #XRDY5 @TEXT("${wn}/${wp}", key="sizes", dx=0, dy=-2.8, size=0.52, halign="middle");
+//   #XRDY6 @PLACE(86, -84);
+//   #XRDY6 @TEXT("${name}", key="name", dx=0, dy=2.4, size=0.65, halign="middle");
+//   #XRDY6 @TEXT("${wn}/${wp}", key="sizes", dx=0, dy=-2.8, size=0.52, halign="middle");
+//   #XRDY_NAND @PLACE(104, -83);
+//   #XRDY_NAND @TEXT("${name}", key="name", dx=0, dy=2.4, size=0.65, halign="middle");
+//   #XRDY_NAND @TEXT("${wn}/${wp}", key="sizes", dx=0, dy=-2.8, size=0.52, halign="middle");
+//   #XDRV_RDY @PLACE(118, -83);
+//   #XDRV_RDY @TEXT("${name}", key="name", dx=0, dy=2.4, size=0.65, halign="middle");
+//   #XDRV_RDY @TEXT("${wn}/${wp}", key="sizes", dx=0, dy=-2.8, size=0.52, halign="middle");
+//   #XCRDY1 @PLACE(23, -90); #XCRDY2 @PLACE(37, -90); #XCRDY3 @PLACE(51, -90); #XCRDY4 @PLACE(65, -90); #XCRDY5 @PLACE(79, -90);
+//   %p_done14 = $IO_PORT @ATTACH &DONE14 => @PLACE(-24, -77) => @ORIENT("R0");
+//   %p_lat_en = $IO_PORT @ATTACH &LAT_EN => @PLACE(46, -72) => @ORIENT("MY");
+//   %p_rdy = $IO_PORT @ATTACH &RDY => @PLACE(128, -83) => @ORIENT("MY");
+//   %j_lreq1 = (10, -78); %j_lreq2 = (10, -71); %j_lreq3 = (10, -84);
+//   %j_rdy1 = (23, -84); %j_rdy2 = (37, -84); %j_rdy3 = (51, -84); %j_rdy4 = (65, -84); %j_rdy5 = (79, -84);
+//   $JUNCTION @ATTACH %j_lreq1; $JUNCTION @ATTACH %j_lreq2; $JUNCTION @ATTACH %j_lreq3;
+//   $JUNCTION @ATTACH %j_rdy1; $JUNCTION @ATTACH %j_rdy2; $JUNCTION @ATTACH %j_rdy3; $JUNCTION @ATTACH %j_rdy4; $JUNCTION @ATTACH %j_rdy5;
+//   &DONE14 @WIRE(mode="straight") {%p_done14:p #XD14_INV:A} => @SET-STYLE $ctrl_route;
+//   &done14_b @WIRE(mode="straight") {#XD14_INV:Y #XLOAD_REQ:A};
+//   &load_req @WIRE(mode="straight") {#XLOAD_REQ:Y %j_lreq1 %j_lreq2 #XLAT_NAND:A} => @SET-STYLE $ctrl_route;
+//   &load_req @WIRE(mode="straight") {%j_lreq2 (10, -68) (96, -68) (96, -82) #XRDY_NAND:A} => @SET-STYLE $ctrl_route;
+//   &load_req @WIRE(mode="straight") {%j_lreq1 %j_lreq3 #XRDY1:A} => @SET-STYLE $ctrl_route;
+//   &lat_b @WIRE(mode="straight") {#XLAT_NAND:Y #XLAT_DRV:A};
+//   &LAT_EN @WIRE(mode="straight") {#XLAT_DRV:Y %p_lat_en:p} => @SET-STYLE $ctrl_route;
+//   &rdy1_b @WIRE(mode="straight") {#XRDY1:Y %j_rdy1 #XRDY2:A};
+//   &rdy1_b @WIRE(mode="straight") {%j_rdy1 #XCRDY1:A};
+//   &rdy2 @WIRE(mode="straight") {#XRDY2:Y %j_rdy2 #XRDY3:A};
+//   &rdy2 @WIRE(mode="straight") {%j_rdy2 #XCRDY2:A};
+//   &rdy3_b @WIRE(mode="straight") {#XRDY3:Y %j_rdy3 #XRDY4:A};
+//   &rdy3_b @WIRE(mode="straight") {%j_rdy3 #XCRDY3:A};
+//   &rdy4 @WIRE(mode="straight") {#XRDY4:Y %j_rdy4 #XRDY5:A};
+//   &rdy4 @WIRE(mode="straight") {%j_rdy4 #XCRDY4:A};
+//   &rdy5_b @WIRE(mode="straight") {#XRDY5:Y %j_rdy5 #XRDY6:A};
+//   &rdy5_b @WIRE(mode="straight") {%j_rdy5 #XCRDY5:A};
+//   &rdy6 @WIRE(mode="straight") {#XRDY6:Y #XRDY_NAND:B};
+//   &rdy_b @WIRE(mode="straight") {#XRDY_NAND:Y #XDRV_RDY:A};
+//   &RDY @WIRE(mode="straight") {#XDRV_RDY:Y %p_rdy:p} => @SET-STYLE $ctrl_route;
+//   (-24, 54) @TEXT("adc_sarlogic_ctrl: Self-Timed SAR Loop Controller, Varactor Timeout Timer & EOC/RDY Generator", halign="start") => @SET-STYLE $title_style;
+//   (-24, 52) @TEXT("Organized into 5 signal-flow bands: (1) Reset & t_start delay, (2) Comparator/Timeout front-end, (3) 14-step CLKC tree, (4) 258ps Timeout, (5) LAT_EN & RDY", halign="start") => @SET-STYLE $note_style;
+//   (-24, 46.5) @TEXT("Band 1: Conversion Window Reset & First-Clock Start Delay (t_start = 94.9 ps @ tt_nom_27)", size=0.82, bold=true, textcolor="#276749", halign="start");
+//   (-24, 25.5) @TEXT("Band 2: Comparator Front-End (CMPP/CMPN), Metastability Timeout Injection & IDLE_B Detector", size=0.82, bold=true, textcolor="#2c5282", halign="start");
+//   (-12, 2.5) @TEXT("Band 3: Balanced 14-Step Request Tree (REQ_B<1:14> -> XG1..5 -> XGA/B -> XGC) & Fast 2-Input CLKC Gate (t_rst = 24.5 ps)", size=0.82, bold=true, textcolor="#975a16", halign="start");
+//   (-18, -45.5) @TEXT("Band 4: Self-Resetting Parallel-Reset Varactor Timeout Timer (t_timeout = 258.7 ps @ tt_nom_27; 205..344 ps across 45 corners)", size=0.82, bold=true, textcolor="#a75b13", halign="start");
+//   (-24, -65.5) @TEXT("Band 5: End-of-Conversion Output Latch Strobe (LAT_EN) & 6-Stage RDY Setup Delay Chain (LOG-10 = 104..183 ps >= 100 ps)", size=0.82, bold=true, textcolor="#276749", halign="start");
+//   (112, 47.2) @TEXT("Asynchronous 14-Step SAR Conversion Timing & Handshake Waveform", halign="start", bold=true) => @SET-STYLE $note_style;
+//   @RECTANGLE {(112, 46) (160, 21)} => @SET-STYLE $table_style;
+//   (113, 44.1) @TEXT("CONV", size=0.52, bold=true, halign="start") => @SET-STYLE $clock_style;
+//   @LINE {(121, 43.5) (124, 43.5) (124.5, 44.9) (156, 44.9) (156.5, 43.5) (159, 43.5)} => @SET-STYLE $clock_style;
+//   (113, 41.1) @TEXT("GO0 (t_start)", size=0.52, bold=true, halign="start") => @SET-STYLE $clock_style;
+//   @LINE {(121, 40.5) (126.5, 40.5) (127, 41.9) (156.5, 41.9) (157, 40.5) (159, 40.5)} => @SET-STYLE $clock_style;
+//   (125.5, 42.2) @TEXT("95ps", size=0.45, halign="middle") => @SET-STYLE $note_style;
+//   (113, 37.6) @TEXT("CLKC (1..14)", size=0.52, bold=true, halign="start") => @SET-STYLE $clock_style;
+//   @LINE {(121, 37) (127.5, 37) (127.8, 38.4) (129.5, 38.4) (129.8, 37) (133, 37) (133.3, 38.4) (135, 38.4) (135.3, 37) (138.5, 37) (138.8, 38.4) (140.5, 38.4) (140.8, 37) (144.5, 37) (144.8, 38.4) (146.5, 38.4) (146.8, 37) (159, 37)} => @SET-STYLE $clock_style;
+//   (128.6, 38.7) @TEXT("#1", size=0.45, halign="middle") => @SET-STYLE $table_style;
+//   (134.1, 38.7) @TEXT("#2", size=0.45, halign="middle") => @SET-STYLE $table_style;
+//   (139.6, 38.7) @TEXT("...", size=0.45, halign="middle") => @SET-STYLE $table_style;
+//   (145.6, 38.7) @TEXT("#14", size=0.45, halign="middle") => @SET-STYLE $table_style;
+//   (113, 34.1) @TEXT("OUTP / OUTN", size=0.52, bold=true, halign="start") => @SET-STYLE $analog_style;
+//   @LINE {(121, 33.5) (128.5, 33.5) (128.8, 34.9) (130.5, 34.9) (130.8, 33.5) (134, 33.5) (134.3, 34.9) (136, 34.9) (136.3, 33.5) (139.5, 33.5) (139.8, 34.9) (141.5, 34.9) (141.8, 33.5) (145.5, 33.5) (145.8, 34.9) (147.5, 34.9) (147.8, 33.5) (159, 33.5)} => @SET-STYLE $analog_style;
+//   (113, 30.6) @TEXT("UP / DN<12:0>", size=0.52, bold=true, halign="start") => @SET-STYLE $digital_style;
+//   @LINE {(121, 30) (129.2, 30) (129.5, 31.4) (156.5, 31.4) (157, 30) (159, 30)} => @SET-STYLE $digital_style;
+//   (131.5, 30.6) @TEXT("t_bitd=28ps + t_dac=82..120ps", size=0.45, halign="start") => @SET-STYLE $note_style;
+//   (113, 27.1) @TEXT("D<13:0> (Latch)", size=0.52, bold=true, halign="start") => @SET-STYLE $digital_style;
+//   @LINE {(121, 26.5) (148.2, 26.5) (148.8, 27.8) (159, 27.8)} => @SET-STYLE $digital_style;
+//   @LINE {(121, 27.8) (148.2, 27.8) (148.8, 26.5) (159, 26.5)} => @SET-STYLE $digital_style;
+//   (150, 27.15) @TEXT("VALID CODE D<13:0>", size=0.46, bold=true, halign="start") => @SET-STYLE $digital_style;
+//   (113, 23.6) @TEXT("RDY (EOC)", size=0.52, bold=true, halign="start") => @SET-STYLE $digital_style;
+//   @LINE {(121, 24.3) (124.5, 24.3) (125, 23) (152.5, 23) (153, 24.3) (159, 24.3)} => @SET-STYLE $digital_style;
+//   (150.6, 24.6) @TEXT("LOG-10 >=100ps", size=0.45, halign="middle") => @SET-STYLE $note_style;
+//   (112, 16.6) @TEXT("Controller Timing Metrics (45 PVT Corners Verified)", halign="start", bold=true) => @SET-STYLE $note_style;
+//   @RECTANGLE {(112, 16) (149.257, 6.76)} => @SET-STYLE $table_style;
+//   @LINE {(112, 14.845) (149.257, 14.845)} => @SET-STYLE $table_style;
+//   @LINE {(118.523, 16) (118.523, 6.76)} => @SET-STYLE $table_style;
+//   @LINE {(133.34, 16) (133.34, 6.76)} => @SET-STYLE $table_style;
+//   @LINE {(139.863, 16) (139.863, 6.76)} => @SET-STYLE $table_style;
+//   (112.5, 15.4225) @TEXT("Metric", halign="start", valign="middle", size=0.55, bold=true) => @SET-STYLE $table_style;
+//   (119.023, 15.4225) @TEXT("Path in adc_sarlogic_ctrl", halign="start", valign="middle", size=0.55, bold=true) => @SET-STYLE $table_style;
+//   (133.84, 15.4225) @TEXT("Spec Target", halign="start", valign="middle", size=0.55, bold=true) => @SET-STYLE $table_style;
+//   (140.363, 15.4225) @TEXT("Measured (tt / 45-corner)", halign="start", valign="middle", size=0.55, bold=true) => @SET-STYLE $table_style;
+//   (112.5, 14.2675) @TEXT("LOG-02 t_bitd", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (119.023, 14.2675) @TEXT("OUTP/N -> XIN -> XCMPP/N -> XDRV_UP/DN", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (133.84, 14.2675) @TEXT("<= 40 ps (tt)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (140.363, 14.2675) @TEXT("27.9 ps (tt_nom_27)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (112.5, 13.1125) @TEXT("LOG-03 t_rst", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (119.023, 13.1125) @TEXT("OUTP/N -> XBUSY -> XIDLE_CLK -> CLKC", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (133.84, 13.1125) @TEXT("<= 45 ps (tt)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (140.363, 13.1125) @TEXT("24.45 ps (tt_nom_27)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (112.5, 11.9575) @TEXT("LOG-04 t_dac_fast", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (119.023, 11.9575) @TEXT("XDONE..XD4 (XS1..2) -> REQ_B -> CLKC", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (133.84, 11.9575) @TEXT("35..60 ps (tt)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (140.363, 11.9575) @TEXT("48.21 ps (tt_nom_27)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (112.5, 10.8025) @TEXT("LOG-05 t_dac_slow", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (119.023, 10.8025) @TEXT("XDONE..XD4 (XS7..13) -> REQ_B -> CLKC", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (133.84, 10.8025) @TEXT("70..100 ps (tt)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (140.363, 10.8025) @TEXT("94.88 ps (tt_nom_27)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (112.5, 9.6475) @TEXT("LOG-07 t_start", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (119.023, 9.6475) @TEXT("CONV -> XCV1 -> XCD1..4 -> GO0 -> CLKC", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (133.84, 9.6475) @TEXT("80..160 ps (45c)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (140.363, 9.6475) @TEXT("94.9 ps (81.8..146.1 ps)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (112.5, 8.4925) @TEXT("LOG-10 t_rdy", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (119.023, 8.4925) @TEXT("DONE14 -> XLAT_DRV vs XRDY1..6 -> RDY", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (133.84, 8.4925) @TEXT(">= 100 ps (45c)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (140.363, 8.4925) @TEXT("128.4 ps (104.0..183.4 ps)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (112.5, 7.3375) @TEXT("LOG-12 t_timeout", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (119.023, 7.3375) @TEXT("CLKC -> XTO_RST -> XTO1..4 -> XCMPP -> CLKC", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (133.84, 7.3375) @TEXT("200..350 ps (45c)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (140.363, 7.3375) @TEXT("258.7 ps (205.4..344.4 ps)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style
+// }
+ends adc_sarlogic_ctrl
+
+subckt adc_sarlogic (CONV OUTP OUTN CLKC UP12 UP11 UP10 UP9 UP8 UP7 UP6 UP5 UP4 UP3 UP2 \
+        UP1 UP0 DN12 DN11 DN10 DN9 DN8 DN7 DN6 DN5 DN4 DN3 DN2 DN1 DN0 D13 D12 D11 D10 D9 \
+        D8 D7 D6 D5 D4 D3 D2 D1 D0 RDY DVDD VSS)
+// Low-capacitance input buffers (LOG-14 <= 40 fF, LOG-15 <= 7 fF)
+XIN_CV (CONV conv_b DVDD VSS) adc_sarlogic_inv wn=1.2u wp=1.8u nn=2 np=2
+XIN_OP (OUTP op_b DVDD VSS) adc_sarlogic_inv wn=1.8u wp=3.2u nn=2 np=4
+XIN_ON (OUTN on_b DVDD VSS) adc_sarlogic_inv wn=1.8u wp=3.2u nn=2 np=4
+
+// Loop controller, timeout recovery, and output timing
+XCTRL (conv_b op_b on_b req_b1 req_b2 req_b3 req_b4 req_b5 req_b6 req_b7 req_b8 req_b9 \
+        req_b10 req_b11 req_b12 req_b13 req_b14 done14 CLKC RDY cmpp cmpn idle_b rst_b \
+        go0 lat_en DVDD VSS) adc_sarlogic_ctrl
+
+// 14 self-timed bit slices: k=1..6 fast wait (+extra wait on k=3,4,5,6), k=7..13 slow wait (+extra wait on k=9)
+XS1 (cmpp cmpn go0 idle_b rst_b UP12 DN12 b13 go1 req_b1 DVDD VSS) adc_sarlogic_slice \
+        wn_c=240n wp_c=360n ln_c=30n lp_c=30n nn_c=2 np_c=2
+XS2 (cmpp cmpn go1 idle_b rst_b UP11 DN11 b12 go2 req_b2 DVDD VSS) adc_sarlogic_slice \
+        wn_c=240n wp_c=360n ln_c=30n lp_c=30n nn_c=2 np_c=2
+XS3 (cmpp cmpn go2 idle_b rst_b UP10 DN10 b11 go3 req_b3 DVDD VSS) adc_sarlogic_slice \
+        wn_c=1.65u wp_c=2.475u ln_c=60n lp_c=60n nn_c=2 np_c=2
+XS4 (cmpp cmpn go3 idle_b rst_b UP9 DN9 b10 go4 req_b4 DVDD VSS) adc_sarlogic_slice \
+        wn_c=5.4u wp_c=8.1u ln_c=60n lp_c=60n nn_c=4 np_c=4
+XS5 (cmpp cmpn go4 idle_b rst_b UP8 DN8 b9 go5 req_b5 DVDD VSS) adc_sarlogic_slice \
+        wn_c=5.4u wp_c=8.1u ln_c=60n lp_c=60n nn_c=4 np_c=4
+XS6 (cmpp cmpn go5 idle_b rst_b UP7 DN7 b8 go6 req_b6 DVDD VSS) adc_sarlogic_slice \
+        wn_c=5.4u wp_c=8.1u ln_c=60n lp_c=60n nn_c=4 np_c=4
+XS7 (cmpp cmpn go6 idle_b rst_b UP6 DN6 b7 go7 req_b7 DVDD VSS) adc_sarlogic_slice \
+        wn_c=8.6u wp_c=12.9u ln_c=60n lp_c=60n nn_c=6 np_c=6
+XS8 (cmpp cmpn go7 idle_b rst_b UP5 DN5 b6 go8 req_b8 DVDD VSS) adc_sarlogic_slice \
+        wn_c=8.6u wp_c=12.9u ln_c=60n lp_c=60n nn_c=6 np_c=6
+XS9 (cmpp cmpn go8 idle_b rst_b UP4 DN4 b5 go9 req_b9 DVDD VSS) adc_sarlogic_slice \
+        wn_c=12.0u wp_c=18.0u ln_c=60n lp_c=60n nn_c=8 np_c=8
+XS10 (cmpp cmpn go9 idle_b rst_b UP3 DN3 b4 go10 req_b10 DVDD VSS) adc_sarlogic_slice \
+        wn_c=8.6u wp_c=12.9u ln_c=60n lp_c=60n nn_c=6 np_c=6
+XS11 (cmpp cmpn go10 idle_b rst_b UP2 DN2 b3 go11 req_b11 DVDD VSS) adc_sarlogic_slice \
+        wn_c=8.6u wp_c=12.9u ln_c=60n lp_c=60n nn_c=6 np_c=6
+XS12 (cmpp cmpn go11 idle_b rst_b UP1 DN1 b2 go12 req_b12 DVDD VSS) adc_sarlogic_slice \
+        wn_c=8.6u wp_c=12.9u ln_c=60n lp_c=60n nn_c=6 np_c=6
+XS13 (cmpp cmpn go12 idle_b rst_b UP0 DN0 b1 go13 req_b13 DVDD VSS) adc_sarlogic_slice \
+        wn_c=8.6u wp_c=12.9u ln_c=60n lp_c=60n nn_c=6 np_c=6
+XS14 (cmpp cmpn go13 idle_b rst_b b0 req_b14 done14 DVDD VSS) adc_sarlogic_slice14
+
+// 14-bit output latch register D13..D0
+XDL13 (b13 lat_en D13 DVDD VSS) adc_sarlogic_dlat
+XDL12 (b12 lat_en D12 DVDD VSS) adc_sarlogic_dlat
+XDL11 (b11 lat_en D11 DVDD VSS) adc_sarlogic_dlat
+XDL10 (b10 lat_en D10 DVDD VSS) adc_sarlogic_dlat
+XDL9 (b9 lat_en D9 DVDD VSS) adc_sarlogic_dlat
+XDL8 (b8 lat_en D8 DVDD VSS) adc_sarlogic_dlat
+XDL7 (b7 lat_en D7 DVDD VSS) adc_sarlogic_dlat
+XDL6 (b6 lat_en D6 DVDD VSS) adc_sarlogic_dlat
+XDL5 (b5 lat_en D5 DVDD VSS) adc_sarlogic_dlat
+XDL4 (b4 lat_en D4 DVDD VSS) adc_sarlogic_dlat
+XDL3 (b3 lat_en D3 DVDD VSS) adc_sarlogic_dlat
+XDL2 (b2 lat_en D2 DVDD VSS) adc_sarlogic_dlat
+XDL1 (b1 lat_en D1 DVDD VSS) adc_sarlogic_dlat
+XDL0 (b0 lat_en D0 DVDD VSS) adc_sarlogic_dlat
+// @RNL {
+//   $LABEL_TERMINAL_SET @TEXT("${net}", key="netname", size=0.6);
+//   &DVDD @ADD-TO $SUPPLY_NET_SET; &VSS @ADD-TO $GROUND_NET_SET;
+//   # @SET-SYMBOL $ADC_SARLOGIC_SYM;
+//   $gate_ink = @DEFINE-STYLE(linecolor="#243b53", textcolor="#243b53") {};
+//   $token_route = @DEFINE-STYLE(linecolor="#b7791f", textcolor="#975a16") {};
+//   $data_route = @DEFINE-STYLE(linecolor="#2b6cb0", textcolor="#2c5282") {};
+//   $ctrl_route = @DEFINE-STYLE(linecolor="#2f855a", textcolor="#276749") {};
+//   {#XIN_OP #XIN_ON} @AS $MATCHED;
+//   {#XS1 #XS2 #XS3 #XS4 #XS5 #XS6 #XS7 #XS8 #XS9 #XS10 #XS11 #XS12 #XS13 #XS14} @GROUP;
+//   {#XDL13 #XDL12 #XDL11 #XDL10 #XDL9 #XDL8 #XDL7 #XDL6 #XDL5 #XDL4 #XDL3 #XDL2 #XDL1 #XDL0} @GROUP;
+//   #XIN_CV @PLACE(-36, 5);
+//   #XIN_CV @TEXT("${name}", key="name", dx=0, dy=2.4, size=0.65, halign="middle");
+//   #XIN_CV @TEXT("${wn}/${wp}", key="sizes", dx=0, dy=-2.8, size=0.52, halign="middle");
+//   #XIN_OP @PLACE(-36, 1);
+//   #XIN_OP @TEXT("${name}", key="name", dx=0, dy=2.4, size=0.65, halign="middle");
+//   #XIN_OP @TEXT("${wn}/${wp}", key="sizes", dx=0, dy=-2.8, size=0.52, halign="middle");
+//   #XIN_ON @PLACE(-36, -3);
+//   #XIN_ON @TEXT("${name}", key="name", dx=0, dy=2.4, size=0.65, halign="middle");
+//   #XIN_ON @TEXT("${wn}/${wp}", key="sizes", dx=0, dy=-2.8, size=0.52, halign="middle");
+//   #XCTRL @PLACE(-20, -4);
+//   %p_conv = $IO_PORT @ATTACH &CONV => @PLACE(-44, 5) => @ORIENT("R0");
+//   %p_outp = $IO_PORT @ATTACH &OUTP => @PLACE(-44, 1) => @ORIENT("R0");
+//   %p_outn = $IO_PORT @ATTACH &OUTN => @PLACE(-44, -3) => @ORIENT("R0");
+//   %p_clkc = $IO_PORT @ATTACH &CLKC => @PLACE(-44, -9) => @ORIENT("MY");
+//   %p_rdy = $IO_PORT @ATTACH &RDY => @PLACE(-44, -13) => @ORIENT("MY");
+//   &CONV @WIRE(mode="straight") {%p_conv:p #XIN_CV:A} => @SET-STYLE $token_route;
+//   &conv_b @WIRE(mode="straight") {#XIN_CV:Y #XCTRL:CONV_B} => @SET-STYLE $token_route;
+//   &OUTP @WIRE(mode="straight") {%p_outp:p #XIN_OP:A} => @SET-STYLE $data_route;
+//   &op_b @WIRE(mode="straight") {#XIN_OP:Y #XCTRL:OP_B} => @SET-STYLE $data_route;
+//   &OUTN @WIRE(mode="straight") {%p_outn:p #XIN_ON:A} => @SET-STYLE $data_route;
+//   &on_b @WIRE(mode="straight") {#XIN_ON:Y #XCTRL:ON_B} => @SET-STYLE $data_route;
+//   &CLKC @WIRE(mode="straight") {#XCTRL:CLKC %p_clkc:p} => @SET-STYLE $token_route;
+//   &RDY @WIRE(mode="straight") {#XCTRL:RDY %p_rdy:p} => @SET-STYLE $ctrl_route;
+//   %bs_req = {&req_b1 &req_b2 &req_b3 &req_b4 &req_b5 &req_b6 &req_b7 &req_b8 &req_b9 &req_b10 &req_b11 &req_b12 &req_b13 &req_b14} @WIRE {#XCTRL:REQ_B1 (-4, -13)};
+//   %bs_req @TEXT("req_b<1:14>", size=0.6, halign="start", valign="middle") => @PLACE(-3.6, -13);
+//   #XS1 @PLACE(20, 0);
+//   #XS1:REQ_B @TEXT("${net}", key="netname", size=0.58, halign="start", valign="middle", dx=0.4, dy=0);
+//   #XS1:UP @TEXT("${net}", key="netname", size=0.58, halign="start", valign="middle", dx=0.4, dy=0);
+//   #XS1:DN @TEXT("${net}", key="netname", size=0.58, halign="start", valign="middle", dx=0.4, dy=0);
+//   #XDL13 @PLACE(48, -4);
+//   #XDL13 @TEXT("${name}", key="name", dx=0, dy=3.4, size=0.65, halign="middle");
+//   #XDL13:Q @TEXT("${net}", key="netname", size=0.58, halign="start", valign="middle", dx=0.4, dy=0);
+//   &b13 @WIRE(mode="straight") {#XS1:Q #XDL13:D} => @SET-STYLE $data_route;
+//   #XS2 @PLACE(20, -16);
+//   #XS2:REQ_B @TEXT("${net}", key="netname", size=0.58, halign="start", valign="middle", dx=0.4, dy=0);
+//   #XS2:UP @TEXT("${net}", key="netname", size=0.58, halign="start", valign="middle", dx=0.4, dy=0);
+//   #XS2:DN @TEXT("${net}", key="netname", size=0.58, halign="start", valign="middle", dx=0.4, dy=0);
+//   #XDL12 @PLACE(48, -20);
+//   #XDL12 @TEXT("${name}", key="name", dx=0, dy=3.4, size=0.65, halign="middle");
+//   #XDL12:Q @TEXT("${net}", key="netname", size=0.58, halign="start", valign="middle", dx=0.4, dy=0);
+//   &b12 @WIRE(mode="straight") {#XS2:Q #XDL12:D} => @SET-STYLE $data_route;
+//   #XS3 @PLACE(20, -32);
+//   #XS3:REQ_B @TEXT("${net}", key="netname", size=0.58, halign="start", valign="middle", dx=0.4, dy=0);
+//   #XS3:UP @TEXT("${net}", key="netname", size=0.58, halign="start", valign="middle", dx=0.4, dy=0);
+//   #XS3:DN @TEXT("${net}", key="netname", size=0.58, halign="start", valign="middle", dx=0.4, dy=0);
+//   #XDL11 @PLACE(48, -36);
+//   #XDL11 @TEXT("${name}", key="name", dx=0, dy=3.4, size=0.65, halign="middle");
+//   #XDL11:Q @TEXT("${net}", key="netname", size=0.58, halign="start", valign="middle", dx=0.4, dy=0);
+//   &b11 @WIRE(mode="straight") {#XS3:Q #XDL11:D} => @SET-STYLE $data_route;
+//   #XS4 @PLACE(20, -48);
+//   #XS4:REQ_B @TEXT("${net}", key="netname", size=0.58, halign="start", valign="middle", dx=0.4, dy=0);
+//   #XS4:UP @TEXT("${net}", key="netname", size=0.58, halign="start", valign="middle", dx=0.4, dy=0);
+//   #XS4:DN @TEXT("${net}", key="netname", size=0.58, halign="start", valign="middle", dx=0.4, dy=0);
+//   #XDL10 @PLACE(48, -52);
+//   #XDL10 @TEXT("${name}", key="name", dx=0, dy=3.4, size=0.65, halign="middle");
+//   #XDL10:Q @TEXT("${net}", key="netname", size=0.58, halign="start", valign="middle", dx=0.4, dy=0);
+//   &b10 @WIRE(mode="straight") {#XS4:Q #XDL10:D} => @SET-STYLE $data_route;
+//   #XS5 @PLACE(20, -64);
+//   #XS5:REQ_B @TEXT("${net}", key="netname", size=0.58, halign="start", valign="middle", dx=0.4, dy=0);
+//   #XS5:UP @TEXT("${net}", key="netname", size=0.58, halign="start", valign="middle", dx=0.4, dy=0);
+//   #XS5:DN @TEXT("${net}", key="netname", size=0.58, halign="start", valign="middle", dx=0.4, dy=0);
+//   #XDL9 @PLACE(48, -68);
+//   #XDL9 @TEXT("${name}", key="name", dx=0, dy=3.4, size=0.65, halign="middle");
+//   #XDL9:Q @TEXT("${net}", key="netname", size=0.58, halign="start", valign="middle", dx=0.4, dy=0);
+//   &b9 @WIRE(mode="straight") {#XS5:Q #XDL9:D} => @SET-STYLE $data_route;
+//   #XS6 @PLACE(20, -80);
+//   #XS6:REQ_B @TEXT("${net}", key="netname", size=0.58, halign="start", valign="middle", dx=0.4, dy=0);
+//   #XS6:UP @TEXT("${net}", key="netname", size=0.58, halign="start", valign="middle", dx=0.4, dy=0);
+//   #XS6:DN @TEXT("${net}", key="netname", size=0.58, halign="start", valign="middle", dx=0.4, dy=0);
+//   #XDL8 @PLACE(48, -84);
+//   #XDL8 @TEXT("${name}", key="name", dx=0, dy=3.4, size=0.65, halign="middle");
+//   #XDL8:Q @TEXT("${net}", key="netname", size=0.58, halign="start", valign="middle", dx=0.4, dy=0);
+//   &b8 @WIRE(mode="straight") {#XS6:Q #XDL8:D} => @SET-STYLE $data_route;
+//   #XS7 @PLACE(20, -96);
+//   #XS7:REQ_B @TEXT("${net}", key="netname", size=0.58, halign="start", valign="middle", dx=0.4, dy=0);
+//   #XS7:UP @TEXT("${net}", key="netname", size=0.58, halign="start", valign="middle", dx=0.4, dy=0);
+//   #XS7:DN @TEXT("${net}", key="netname", size=0.58, halign="start", valign="middle", dx=0.4, dy=0);
+//   #XDL7 @PLACE(48, -100);
+//   #XDL7 @TEXT("${name}", key="name", dx=0, dy=3.4, size=0.65, halign="middle");
+//   #XDL7:Q @TEXT("${net}", key="netname", size=0.58, halign="start", valign="middle", dx=0.4, dy=0);
+//   &b7 @WIRE(mode="straight") {#XS7:Q #XDL7:D} => @SET-STYLE $data_route;
+//   #XS8 @PLACE(20, -112);
+//   #XS8:REQ_B @TEXT("${net}", key="netname", size=0.58, halign="start", valign="middle", dx=0.4, dy=0);
+//   #XS8:UP @TEXT("${net}", key="netname", size=0.58, halign="start", valign="middle", dx=0.4, dy=0);
+//   #XS8:DN @TEXT("${net}", key="netname", size=0.58, halign="start", valign="middle", dx=0.4, dy=0);
+//   #XDL6 @PLACE(48, -116);
+//   #XDL6 @TEXT("${name}", key="name", dx=0, dy=3.4, size=0.65, halign="middle");
+//   #XDL6:Q @TEXT("${net}", key="netname", size=0.58, halign="start", valign="middle", dx=0.4, dy=0);
+//   &b6 @WIRE(mode="straight") {#XS8:Q #XDL6:D} => @SET-STYLE $data_route;
+//   #XS9 @PLACE(20, -128);
+//   #XS9:REQ_B @TEXT("${net}", key="netname", size=0.58, halign="start", valign="middle", dx=0.4, dy=0);
+//   #XS9:UP @TEXT("${net}", key="netname", size=0.58, halign="start", valign="middle", dx=0.4, dy=0);
+//   #XS9:DN @TEXT("${net}", key="netname", size=0.58, halign="start", valign="middle", dx=0.4, dy=0);
+//   #XDL5 @PLACE(48, -132);
+//   #XDL5 @TEXT("${name}", key="name", dx=0, dy=3.4, size=0.65, halign="middle");
+//   #XDL5:Q @TEXT("${net}", key="netname", size=0.58, halign="start", valign="middle", dx=0.4, dy=0);
+//   &b5 @WIRE(mode="straight") {#XS9:Q #XDL5:D} => @SET-STYLE $data_route;
+//   #XS10 @PLACE(20, -144);
+//   #XS10:REQ_B @TEXT("${net}", key="netname", size=0.58, halign="start", valign="middle", dx=0.4, dy=0);
+//   #XS10:UP @TEXT("${net}", key="netname", size=0.58, halign="start", valign="middle", dx=0.4, dy=0);
+//   #XS10:DN @TEXT("${net}", key="netname", size=0.58, halign="start", valign="middle", dx=0.4, dy=0);
+//   #XDL4 @PLACE(48, -148);
+//   #XDL4 @TEXT("${name}", key="name", dx=0, dy=3.4, size=0.65, halign="middle");
+//   #XDL4:Q @TEXT("${net}", key="netname", size=0.58, halign="start", valign="middle", dx=0.4, dy=0);
+//   &b4 @WIRE(mode="straight") {#XS10:Q #XDL4:D} => @SET-STYLE $data_route;
+//   #XS11 @PLACE(20, -160);
+//   #XS11:REQ_B @TEXT("${net}", key="netname", size=0.58, halign="start", valign="middle", dx=0.4, dy=0);
+//   #XS11:UP @TEXT("${net}", key="netname", size=0.58, halign="start", valign="middle", dx=0.4, dy=0);
+//   #XS11:DN @TEXT("${net}", key="netname", size=0.58, halign="start", valign="middle", dx=0.4, dy=0);
+//   #XDL3 @PLACE(48, -164);
+//   #XDL3 @TEXT("${name}", key="name", dx=0, dy=3.4, size=0.65, halign="middle");
+//   #XDL3:Q @TEXT("${net}", key="netname", size=0.58, halign="start", valign="middle", dx=0.4, dy=0);
+//   &b3 @WIRE(mode="straight") {#XS11:Q #XDL3:D} => @SET-STYLE $data_route;
+//   #XS12 @PLACE(20, -176);
+//   #XS12:REQ_B @TEXT("${net}", key="netname", size=0.58, halign="start", valign="middle", dx=0.4, dy=0);
+//   #XS12:UP @TEXT("${net}", key="netname", size=0.58, halign="start", valign="middle", dx=0.4, dy=0);
+//   #XS12:DN @TEXT("${net}", key="netname", size=0.58, halign="start", valign="middle", dx=0.4, dy=0);
+//   #XDL2 @PLACE(48, -180);
+//   #XDL2 @TEXT("${name}", key="name", dx=0, dy=3.4, size=0.65, halign="middle");
+//   #XDL2:Q @TEXT("${net}", key="netname", size=0.58, halign="start", valign="middle", dx=0.4, dy=0);
+//   &b2 @WIRE(mode="straight") {#XS12:Q #XDL2:D} => @SET-STYLE $data_route;
+//   #XS13 @PLACE(20, -192);
+//   #XS13:REQ_B @TEXT("${net}", key="netname", size=0.58, halign="start", valign="middle", dx=0.4, dy=0);
+//   #XS13:UP @TEXT("${net}", key="netname", size=0.58, halign="start", valign="middle", dx=0.4, dy=0);
+//   #XS13:DN @TEXT("${net}", key="netname", size=0.58, halign="start", valign="middle", dx=0.4, dy=0);
+//   #XDL1 @PLACE(48, -196);
+//   #XDL1 @TEXT("${name}", key="name", dx=0, dy=3.4, size=0.65, halign="middle");
+//   #XDL1:Q @TEXT("${net}", key="netname", size=0.58, halign="start", valign="middle", dx=0.4, dy=0);
+//   &b1 @WIRE(mode="straight") {#XS13:Q #XDL1:D} => @SET-STYLE $data_route;
+//   #XS14 @PLACE(20, -208);
+//   #XS14:REQ_B @TEXT("${net}", key="netname", size=0.58, halign="start", valign="middle", dx=0.4, dy=0);
+//   #XDL0 @PLACE(48, -212);
+//   #XDL0 @TEXT("${name}", key="name", dx=0, dy=3.4, size=0.65, halign="middle");
+//   #XDL0:Q @TEXT("${net}", key="netname", size=0.58, halign="start", valign="middle", dx=0.4, dy=0);
+//   &b0 @WIRE(mode="straight") {#XS14:Q #XDL0:D} => @SET-STYLE $data_route;
+//   &go0 @WIRE(mode="straight") {#XCTRL:GO0 #XS1:GO_IN} => @SET-STYLE $token_route;
+//   &go1 @WIRE(mode="straight") {#XS1:GO_OUT #XS2:GO_IN} => @SET-STYLE $token_route;
+//   &go2 @WIRE(mode="straight") {#XS2:GO_OUT #XS3:GO_IN} => @SET-STYLE $token_route;
+//   &go3 @WIRE(mode="straight") {#XS3:GO_OUT #XS4:GO_IN} => @SET-STYLE $token_route;
+//   &go4 @WIRE(mode="straight") {#XS4:GO_OUT #XS5:GO_IN} => @SET-STYLE $token_route;
+//   &go5 @WIRE(mode="straight") {#XS5:GO_OUT #XS6:GO_IN} => @SET-STYLE $token_route;
+//   &go6 @WIRE(mode="straight") {#XS6:GO_OUT #XS7:GO_IN} => @SET-STYLE $token_route;
+//   &go7 @WIRE(mode="straight") {#XS7:GO_OUT #XS8:GO_IN} => @SET-STYLE $token_route;
+//   &go8 @WIRE(mode="straight") {#XS8:GO_OUT #XS9:GO_IN} => @SET-STYLE $token_route;
+//   &go9 @WIRE(mode="straight") {#XS9:GO_OUT #XS10:GO_IN} => @SET-STYLE $token_route;
+//   &go10 @WIRE(mode="straight") {#XS10:GO_OUT #XS11:GO_IN} => @SET-STYLE $token_route;
+//   &go11 @WIRE(mode="straight") {#XS11:GO_OUT #XS12:GO_IN} => @SET-STYLE $token_route;
+//   &go12 @WIRE(mode="straight") {#XS12:GO_OUT #XS13:GO_IN} => @SET-STYLE $token_route;
+//   &go13 @WIRE(mode="straight") {#XS13:GO_OUT #XS14:GO_IN} => @SET-STYLE $token_route;
+//   &done14 @WIRE(mode="straight") {#XS14:DONE (20, -217) (-2, -217) (-2, -16) #XCTRL:DONE14} => @SET-STYLE $token_route;
+//   %j_cmpp_in = (2, 2); $JUNCTION @ATTACH %j_cmpp_in;
+//   &cmpp @WIRE(mode="straight") {#XCTRL:CMPP %j_cmpp_in} => @SET-STYLE $data_route;
+//   %j_cmpp_1 = (2, 3); $JUNCTION @ATTACH %j_cmpp_1;
+//   &cmpp @WIRE(mode="straight") {%j_cmpp_1 #XS1:CMPP} => @SET-STYLE $data_route;
+//   %j_cmpp_2 = (2, -13); $JUNCTION @ATTACH %j_cmpp_2;
+//   &cmpp @WIRE(mode="straight") {%j_cmpp_2 #XS2:CMPP} => @SET-STYLE $data_route;
+//   %j_cmpp_3 = (2, -29); $JUNCTION @ATTACH %j_cmpp_3;
+//   &cmpp @WIRE(mode="straight") {%j_cmpp_3 #XS3:CMPP} => @SET-STYLE $data_route;
+//   %j_cmpp_4 = (2, -45); $JUNCTION @ATTACH %j_cmpp_4;
+//   &cmpp @WIRE(mode="straight") {%j_cmpp_4 #XS4:CMPP} => @SET-STYLE $data_route;
+//   %j_cmpp_5 = (2, -61); $JUNCTION @ATTACH %j_cmpp_5;
+//   &cmpp @WIRE(mode="straight") {%j_cmpp_5 #XS5:CMPP} => @SET-STYLE $data_route;
+//   %j_cmpp_6 = (2, -77); $JUNCTION @ATTACH %j_cmpp_6;
+//   &cmpp @WIRE(mode="straight") {%j_cmpp_6 #XS6:CMPP} => @SET-STYLE $data_route;
+//   %j_cmpp_7 = (2, -93); $JUNCTION @ATTACH %j_cmpp_7;
+//   &cmpp @WIRE(mode="straight") {%j_cmpp_7 #XS7:CMPP} => @SET-STYLE $data_route;
+//   %j_cmpp_8 = (2, -109); $JUNCTION @ATTACH %j_cmpp_8;
+//   &cmpp @WIRE(mode="straight") {%j_cmpp_8 #XS8:CMPP} => @SET-STYLE $data_route;
+//   %j_cmpp_9 = (2, -125); $JUNCTION @ATTACH %j_cmpp_9;
+//   &cmpp @WIRE(mode="straight") {%j_cmpp_9 #XS9:CMPP} => @SET-STYLE $data_route;
+//   %j_cmpp_10 = (2, -141); $JUNCTION @ATTACH %j_cmpp_10;
+//   &cmpp @WIRE(mode="straight") {%j_cmpp_10 #XS10:CMPP} => @SET-STYLE $data_route;
+//   %j_cmpp_11 = (2, -157); $JUNCTION @ATTACH %j_cmpp_11;
+//   &cmpp @WIRE(mode="straight") {%j_cmpp_11 #XS11:CMPP} => @SET-STYLE $data_route;
+//   %j_cmpp_12 = (2, -173); $JUNCTION @ATTACH %j_cmpp_12;
+//   &cmpp @WIRE(mode="straight") {%j_cmpp_12 #XS12:CMPP} => @SET-STYLE $data_route;
+//   %j_cmpp_13 = (2, -189); $JUNCTION @ATTACH %j_cmpp_13;
+//   &cmpp @WIRE(mode="straight") {%j_cmpp_13 #XS13:CMPP} => @SET-STYLE $data_route;
+//   &cmpp @WIRE(mode="straight") {%j_cmpp_1 %j_cmpp_in %j_cmpp_2 %j_cmpp_3 %j_cmpp_4 %j_cmpp_5 %j_cmpp_6 %j_cmpp_7 %j_cmpp_8 %j_cmpp_9 %j_cmpp_10 %j_cmpp_11 %j_cmpp_12 %j_cmpp_13 (2, -205) #XS14:CMPP} => @SET-STYLE $data_route;
+//   %j_cmpn_in = (4, -1); $JUNCTION @ATTACH %j_cmpn_in;
+//   &cmpn @WIRE(mode="straight") {#XCTRL:CMPN %j_cmpn_in} => @SET-STYLE $data_route;
+//   %j_cmpn_1 = (4, 1); $JUNCTION @ATTACH %j_cmpn_1;
+//   &cmpn @WIRE(mode="straight") {%j_cmpn_1 #XS1:CMPN} => @SET-STYLE $data_route;
+//   %j_cmpn_2 = (4, -15); $JUNCTION @ATTACH %j_cmpn_2;
+//   &cmpn @WIRE(mode="straight") {%j_cmpn_2 #XS2:CMPN} => @SET-STYLE $data_route;
+//   %j_cmpn_3 = (4, -31); $JUNCTION @ATTACH %j_cmpn_3;
+//   &cmpn @WIRE(mode="straight") {%j_cmpn_3 #XS3:CMPN} => @SET-STYLE $data_route;
+//   %j_cmpn_4 = (4, -47); $JUNCTION @ATTACH %j_cmpn_4;
+//   &cmpn @WIRE(mode="straight") {%j_cmpn_4 #XS4:CMPN} => @SET-STYLE $data_route;
+//   %j_cmpn_5 = (4, -63); $JUNCTION @ATTACH %j_cmpn_5;
+//   &cmpn @WIRE(mode="straight") {%j_cmpn_5 #XS5:CMPN} => @SET-STYLE $data_route;
+//   %j_cmpn_6 = (4, -79); $JUNCTION @ATTACH %j_cmpn_6;
+//   &cmpn @WIRE(mode="straight") {%j_cmpn_6 #XS6:CMPN} => @SET-STYLE $data_route;
+//   %j_cmpn_7 = (4, -95); $JUNCTION @ATTACH %j_cmpn_7;
+//   &cmpn @WIRE(mode="straight") {%j_cmpn_7 #XS7:CMPN} => @SET-STYLE $data_route;
+//   %j_cmpn_8 = (4, -111); $JUNCTION @ATTACH %j_cmpn_8;
+//   &cmpn @WIRE(mode="straight") {%j_cmpn_8 #XS8:CMPN} => @SET-STYLE $data_route;
+//   %j_cmpn_9 = (4, -127); $JUNCTION @ATTACH %j_cmpn_9;
+//   &cmpn @WIRE(mode="straight") {%j_cmpn_9 #XS9:CMPN} => @SET-STYLE $data_route;
+//   %j_cmpn_10 = (4, -143); $JUNCTION @ATTACH %j_cmpn_10;
+//   &cmpn @WIRE(mode="straight") {%j_cmpn_10 #XS10:CMPN} => @SET-STYLE $data_route;
+//   %j_cmpn_11 = (4, -159); $JUNCTION @ATTACH %j_cmpn_11;
+//   &cmpn @WIRE(mode="straight") {%j_cmpn_11 #XS11:CMPN} => @SET-STYLE $data_route;
+//   %j_cmpn_12 = (4, -175); $JUNCTION @ATTACH %j_cmpn_12;
+//   &cmpn @WIRE(mode="straight") {%j_cmpn_12 #XS12:CMPN} => @SET-STYLE $data_route;
+//   %j_cmpn_13 = (4, -191); $JUNCTION @ATTACH %j_cmpn_13;
+//   &cmpn @WIRE(mode="straight") {%j_cmpn_13 #XS13:CMPN} => @SET-STYLE $data_route;
+//   &cmpn @WIRE(mode="straight") {%j_cmpn_1 %j_cmpn_in %j_cmpn_2 %j_cmpn_3 %j_cmpn_4 %j_cmpn_5 %j_cmpn_6 %j_cmpn_7 %j_cmpn_8 %j_cmpn_9 %j_cmpn_10 %j_cmpn_11 %j_cmpn_12 %j_cmpn_13 (4, -207) #XS14:CMPN} => @SET-STYLE $data_route;
+//   %j_idle_b_in = (6, -4); $JUNCTION @ATTACH %j_idle_b_in;
+//   &idle_b @WIRE(mode="straight") {#XCTRL:IDLE_B %j_idle_b_in} => @SET-STYLE $ctrl_route;
+//   %j_idle_b_1 = (6, -1); $JUNCTION @ATTACH %j_idle_b_1;
+//   &idle_b @WIRE(mode="straight") {%j_idle_b_1 #XS1:IDLE_B} => @SET-STYLE $ctrl_route;
+//   %j_idle_b_2 = (6, -17); $JUNCTION @ATTACH %j_idle_b_2;
+//   &idle_b @WIRE(mode="straight") {%j_idle_b_2 #XS2:IDLE_B} => @SET-STYLE $ctrl_route;
+//   %j_idle_b_3 = (6, -33); $JUNCTION @ATTACH %j_idle_b_3;
+//   &idle_b @WIRE(mode="straight") {%j_idle_b_3 #XS3:IDLE_B} => @SET-STYLE $ctrl_route;
+//   %j_idle_b_4 = (6, -49); $JUNCTION @ATTACH %j_idle_b_4;
+//   &idle_b @WIRE(mode="straight") {%j_idle_b_4 #XS4:IDLE_B} => @SET-STYLE $ctrl_route;
+//   %j_idle_b_5 = (6, -65); $JUNCTION @ATTACH %j_idle_b_5;
+//   &idle_b @WIRE(mode="straight") {%j_idle_b_5 #XS5:IDLE_B} => @SET-STYLE $ctrl_route;
+//   %j_idle_b_6 = (6, -81); $JUNCTION @ATTACH %j_idle_b_6;
+//   &idle_b @WIRE(mode="straight") {%j_idle_b_6 #XS6:IDLE_B} => @SET-STYLE $ctrl_route;
+//   %j_idle_b_7 = (6, -97); $JUNCTION @ATTACH %j_idle_b_7;
+//   &idle_b @WIRE(mode="straight") {%j_idle_b_7 #XS7:IDLE_B} => @SET-STYLE $ctrl_route;
+//   %j_idle_b_8 = (6, -113); $JUNCTION @ATTACH %j_idle_b_8;
+//   &idle_b @WIRE(mode="straight") {%j_idle_b_8 #XS8:IDLE_B} => @SET-STYLE $ctrl_route;
+//   %j_idle_b_9 = (6, -129); $JUNCTION @ATTACH %j_idle_b_9;
+//   &idle_b @WIRE(mode="straight") {%j_idle_b_9 #XS9:IDLE_B} => @SET-STYLE $ctrl_route;
+//   %j_idle_b_10 = (6, -145); $JUNCTION @ATTACH %j_idle_b_10;
+//   &idle_b @WIRE(mode="straight") {%j_idle_b_10 #XS10:IDLE_B} => @SET-STYLE $ctrl_route;
+//   %j_idle_b_11 = (6, -161); $JUNCTION @ATTACH %j_idle_b_11;
+//   &idle_b @WIRE(mode="straight") {%j_idle_b_11 #XS11:IDLE_B} => @SET-STYLE $ctrl_route;
+//   %j_idle_b_12 = (6, -177); $JUNCTION @ATTACH %j_idle_b_12;
+//   &idle_b @WIRE(mode="straight") {%j_idle_b_12 #XS12:IDLE_B} => @SET-STYLE $ctrl_route;
+//   %j_idle_b_13 = (6, -193); $JUNCTION @ATTACH %j_idle_b_13;
+//   &idle_b @WIRE(mode="straight") {%j_idle_b_13 #XS13:IDLE_B} => @SET-STYLE $ctrl_route;
+//   &idle_b @WIRE(mode="straight") {%j_idle_b_1 %j_idle_b_in %j_idle_b_2 %j_idle_b_3 %j_idle_b_4 %j_idle_b_5 %j_idle_b_6 %j_idle_b_7 %j_idle_b_8 %j_idle_b_9 %j_idle_b_10 %j_idle_b_11 %j_idle_b_12 %j_idle_b_13 (6, -209) #XS14:IDLE_B} => @SET-STYLE $ctrl_route;
+//   %j_rst_b_in = (8, -7); $JUNCTION @ATTACH %j_rst_b_in;
+//   &rst_b @WIRE(mode="straight") {#XCTRL:RST_B %j_rst_b_in} => @SET-STYLE $ctrl_route;
+//   %j_rst_b_1 = (8, -3); $JUNCTION @ATTACH %j_rst_b_1;
+//   &rst_b @WIRE(mode="straight") {%j_rst_b_1 #XS1:RST_B} => @SET-STYLE $ctrl_route;
+//   %j_rst_b_2 = (8, -19); $JUNCTION @ATTACH %j_rst_b_2;
+//   &rst_b @WIRE(mode="straight") {%j_rst_b_2 #XS2:RST_B} => @SET-STYLE $ctrl_route;
+//   %j_rst_b_3 = (8, -35); $JUNCTION @ATTACH %j_rst_b_3;
+//   &rst_b @WIRE(mode="straight") {%j_rst_b_3 #XS3:RST_B} => @SET-STYLE $ctrl_route;
+//   %j_rst_b_4 = (8, -51); $JUNCTION @ATTACH %j_rst_b_4;
+//   &rst_b @WIRE(mode="straight") {%j_rst_b_4 #XS4:RST_B} => @SET-STYLE $ctrl_route;
+//   %j_rst_b_5 = (8, -67); $JUNCTION @ATTACH %j_rst_b_5;
+//   &rst_b @WIRE(mode="straight") {%j_rst_b_5 #XS5:RST_B} => @SET-STYLE $ctrl_route;
+//   %j_rst_b_6 = (8, -83); $JUNCTION @ATTACH %j_rst_b_6;
+//   &rst_b @WIRE(mode="straight") {%j_rst_b_6 #XS6:RST_B} => @SET-STYLE $ctrl_route;
+//   %j_rst_b_7 = (8, -99); $JUNCTION @ATTACH %j_rst_b_7;
+//   &rst_b @WIRE(mode="straight") {%j_rst_b_7 #XS7:RST_B} => @SET-STYLE $ctrl_route;
+//   %j_rst_b_8 = (8, -115); $JUNCTION @ATTACH %j_rst_b_8;
+//   &rst_b @WIRE(mode="straight") {%j_rst_b_8 #XS8:RST_B} => @SET-STYLE $ctrl_route;
+//   %j_rst_b_9 = (8, -131); $JUNCTION @ATTACH %j_rst_b_9;
+//   &rst_b @WIRE(mode="straight") {%j_rst_b_9 #XS9:RST_B} => @SET-STYLE $ctrl_route;
+//   %j_rst_b_10 = (8, -147); $JUNCTION @ATTACH %j_rst_b_10;
+//   &rst_b @WIRE(mode="straight") {%j_rst_b_10 #XS10:RST_B} => @SET-STYLE $ctrl_route;
+//   %j_rst_b_11 = (8, -163); $JUNCTION @ATTACH %j_rst_b_11;
+//   &rst_b @WIRE(mode="straight") {%j_rst_b_11 #XS11:RST_B} => @SET-STYLE $ctrl_route;
+//   %j_rst_b_12 = (8, -179); $JUNCTION @ATTACH %j_rst_b_12;
+//   &rst_b @WIRE(mode="straight") {%j_rst_b_12 #XS12:RST_B} => @SET-STYLE $ctrl_route;
+//   %j_rst_b_13 = (8, -195); $JUNCTION @ATTACH %j_rst_b_13;
+//   &rst_b @WIRE(mode="straight") {%j_rst_b_13 #XS13:RST_B} => @SET-STYLE $ctrl_route;
+//   &rst_b @WIRE(mode="straight") {%j_rst_b_1 %j_rst_b_in %j_rst_b_2 %j_rst_b_3 %j_rst_b_4 %j_rst_b_5 %j_rst_b_6 %j_rst_b_7 %j_rst_b_8 %j_rst_b_9 %j_rst_b_10 %j_rst_b_11 %j_rst_b_12 %j_rst_b_13 (8, -211) #XS14:RST_B} => @SET-STYLE $ctrl_route;
+//   %j_lat_13 = (40, -5); $JUNCTION @ATTACH %j_lat_13;
+//   &lat_en @WIRE(mode="straight") {%j_lat_13 #XDL13:LAT_EN} => @SET-STYLE $ctrl_route;
+//   %j_lat_12 = (40, -21); $JUNCTION @ATTACH %j_lat_12;
+//   &lat_en @WIRE(mode="straight") {%j_lat_12 #XDL12:LAT_EN} => @SET-STYLE $ctrl_route;
+//   %j_lat_11 = (40, -37); $JUNCTION @ATTACH %j_lat_11;
+//   &lat_en @WIRE(mode="straight") {%j_lat_11 #XDL11:LAT_EN} => @SET-STYLE $ctrl_route;
+//   %j_lat_10 = (40, -53); $JUNCTION @ATTACH %j_lat_10;
+//   &lat_en @WIRE(mode="straight") {%j_lat_10 #XDL10:LAT_EN} => @SET-STYLE $ctrl_route;
+//   %j_lat_9 = (40, -69); $JUNCTION @ATTACH %j_lat_9;
+//   &lat_en @WIRE(mode="straight") {%j_lat_9 #XDL9:LAT_EN} => @SET-STYLE $ctrl_route;
+//   %j_lat_8 = (40, -85); $JUNCTION @ATTACH %j_lat_8;
+//   &lat_en @WIRE(mode="straight") {%j_lat_8 #XDL8:LAT_EN} => @SET-STYLE $ctrl_route;
+//   %j_lat_7 = (40, -101); $JUNCTION @ATTACH %j_lat_7;
+//   &lat_en @WIRE(mode="straight") {%j_lat_7 #XDL7:LAT_EN} => @SET-STYLE $ctrl_route;
+//   %j_lat_6 = (40, -117); $JUNCTION @ATTACH %j_lat_6;
+//   &lat_en @WIRE(mode="straight") {%j_lat_6 #XDL6:LAT_EN} => @SET-STYLE $ctrl_route;
+//   %j_lat_5 = (40, -133); $JUNCTION @ATTACH %j_lat_5;
+//   &lat_en @WIRE(mode="straight") {%j_lat_5 #XDL5:LAT_EN} => @SET-STYLE $ctrl_route;
+//   %j_lat_4 = (40, -149); $JUNCTION @ATTACH %j_lat_4;
+//   &lat_en @WIRE(mode="straight") {%j_lat_4 #XDL4:LAT_EN} => @SET-STYLE $ctrl_route;
+//   %j_lat_3 = (40, -165); $JUNCTION @ATTACH %j_lat_3;
+//   &lat_en @WIRE(mode="straight") {%j_lat_3 #XDL3:LAT_EN} => @SET-STYLE $ctrl_route;
+//   %j_lat_2 = (40, -181); $JUNCTION @ATTACH %j_lat_2;
+//   &lat_en @WIRE(mode="straight") {%j_lat_2 #XDL2:LAT_EN} => @SET-STYLE $ctrl_route;
+//   %j_lat_1 = (40, -197); $JUNCTION @ATTACH %j_lat_1;
+//   &lat_en @WIRE(mode="straight") {%j_lat_1 #XDL1:LAT_EN} => @SET-STYLE $ctrl_route;
+//   &lat_en @WIRE(mode="straight") {#XCTRL:LAT_EN (-6, -10) (-6, 9) (40, 9) %j_lat_13 %j_lat_12 %j_lat_11 %j_lat_10 %j_lat_9 %j_lat_8 %j_lat_7 %j_lat_6 %j_lat_5 %j_lat_4 %j_lat_3 %j_lat_2 %j_lat_1 (40, -213) #XDL0:LAT_EN} => @SET-STYLE $ctrl_route;
+//   %p_up = (72, -16)(p) {&UP12 &UP11 &UP10 &UP9 &UP8 &UP7 &UP6 &UP5 &UP4 &UP3 &UP2 &UP1 &UP0}(nets) @AS $BUS_PORT => @ORIENT("MY");
+//   %p_up @TEXT("UP<12:0>", key="name");
+//   %bus_up = {&UP12 &UP11 &UP10 &UP9 &UP8 &UP7 &UP6 &UP5 &UP4 &UP3 &UP2 &UP1 &UP0} @WIRE {(64, -16) %p_up:p};
+//   %bus_up @TEXT("UP<12:0>", size=0.65, halign="end", valign="middle") => @PLACE(63.5, -16);
+//   %p_dn = (72, -24)(p) {&DN12 &DN11 &DN10 &DN9 &DN8 &DN7 &DN6 &DN5 &DN4 &DN3 &DN2 &DN1 &DN0}(nets) @AS $BUS_PORT => @ORIENT("MY");
+//   %p_dn @TEXT("DN<12:0>", key="name");
+//   %bus_dn = {&DN12 &DN11 &DN10 &DN9 &DN8 &DN7 &DN6 &DN5 &DN4 &DN3 &DN2 &DN1 &DN0} @WIRE {(64, -24) %p_dn:p};
+//   %bus_dn @TEXT("DN<12:0>", size=0.65, halign="end", valign="middle") => @PLACE(63.5, -24);
+//   %p_d = (72, -32)(p) {&D13 &D12 &D11 &D10 &D9 &D8 &D7 &D6 &D5 &D4 &D3 &D2 &D1 &D0}(nets) @AS $BUS_PORT => @ORIENT("MY");
+//   %p_d @TEXT("D<13:0>", key="name");
+//   %bus_d = {&D13 &D12 &D11 &D10 &D9 &D8 &D7 &D6 &D5 &D4 &D3 &D2 &D1 &D0} @WIRE {(64, -32) %p_d:p};
+//   %bus_d @TEXT("D<13:0>", size=0.65, halign="end", valign="middle") => @PLACE(63.5, -32);
+//   (-44, 18) @TEXT("adc_sarlogic (transistor view): 14-Step Self-Timed Asynchronous SAR Controller, CDAC Drivers & Output Register", halign="start") => @SET-STYLE $title_style;
+//   (-44, 15.8) @TEXT("32 top-level subcircuit instances: 3 low-C input inverters + 1 central controller (XCTRL) + 14 bit slices (XS1..XS14) + 14 output latches (XDL13..XDL0)", halign="start") => @SET-STYLE $note_style;
+//   (-44, 13.8) @TEXT("All 16 spec items (LOG-01 .. LOG-16) verified across all 45 PVT corners (0 errors across 48,825 simulated conversions)", halign="start") => @SET-STYLE $note_style;
+//   (-40, 9.5) @TEXT("Input Buffers & Loop Controller", size=0.85, bold=true, textcolor="#1a365d", halign="start");
+//   (12, 9.5) @TEXT("14-Step Self-Timed Bit Slice Cascade (XS1..XS14)", size=0.85, bold=true, textcolor="#975a16", halign="start");
+//   (42, 10.5) @TEXT("Output Latches (XDL13..XDL0)", size=0.85, bold=true, textcolor="#2c5282", halign="start");
+//   (82, 11.2) @TEXT("Asynchronous 14-Step SAR Conversion Timing & Handshake Waveform", halign="start", bold=true) => @SET-STYLE $note_style;
+//   @RECTANGLE {(82, 10) (130, -15)} => @SET-STYLE $table_style;
+//   (83, 8.1) @TEXT("CONV", size=0.52, bold=true, halign="start") => @SET-STYLE $clock_style;
+//   @LINE {(91, 7.5) (94, 7.5) (94.5, 8.9) (126, 8.9) (126.5, 7.5) (129, 7.5)} => @SET-STYLE $clock_style;
+//   (83, 5.1) @TEXT("GO0 (t_start)", size=0.52, bold=true, halign="start") => @SET-STYLE $clock_style;
+//   @LINE {(91, 4.5) (96.5, 4.5) (97, 5.9) (126.5, 5.9) (127, 4.5) (129, 4.5)} => @SET-STYLE $clock_style;
+//   (95.5, 6.2) @TEXT("95ps", size=0.45, halign="middle") => @SET-STYLE $note_style;
+//   (83, 1.6) @TEXT("CLKC (1..14)", size=0.52, bold=true, halign="start") => @SET-STYLE $clock_style;
+//   @LINE {(91, 1) (97.5, 1) (97.8, 2.4) (99.5, 2.4) (99.8, 1) (103, 1) (103.3, 2.4) (105, 2.4) (105.3, 1) (108.5, 1) (108.8, 2.4) (110.5, 2.4) (110.8, 1) (114.5, 1) (114.8, 2.4) (116.5, 2.4) (116.8, 1) (129, 1)} => @SET-STYLE $clock_style;
+//   (98.6, 2.7) @TEXT("#1", size=0.45, halign="middle") => @SET-STYLE $table_style;
+//   (104.1, 2.7) @TEXT("#2", size=0.45, halign="middle") => @SET-STYLE $table_style;
+//   (109.6, 2.7) @TEXT("...", size=0.45, halign="middle") => @SET-STYLE $table_style;
+//   (115.6, 2.7) @TEXT("#14", size=0.45, halign="middle") => @SET-STYLE $table_style;
+//   (83, -1.9) @TEXT("OUTP / OUTN", size=0.52, bold=true, halign="start") => @SET-STYLE $analog_style;
+//   @LINE {(91, -2.5) (98.5, -2.5) (98.8, -1.1) (100.5, -1.1) (100.8, -2.5) (104, -2.5) (104.3, -1.1) (106, -1.1) (106.3, -2.5) (109.5, -2.5) (109.8, -1.1) (111.5, -1.1) (111.8, -2.5) (115.5, -2.5) (115.8, -1.1) (117.5, -1.1) (117.8, -2.5) (129, -2.5)} => @SET-STYLE $analog_style;
+//   (83, -5.4) @TEXT("UP / DN<12:0>", size=0.52, bold=true, halign="start") => @SET-STYLE $digital_style;
+//   @LINE {(91, -6) (99.2, -6) (99.5, -4.6) (126.5, -4.6) (127, -6) (129, -6)} => @SET-STYLE $digital_style;
+//   (101.5, -5.4) @TEXT("t_bitd=28ps + t_dac=82..120ps", size=0.45, halign="start") => @SET-STYLE $note_style;
+//   (83, -8.9) @TEXT("D<13:0> (Latch)", size=0.52, bold=true, halign="start") => @SET-STYLE $digital_style;
+//   @LINE {(91, -9.5) (118.2, -9.5) (118.8, -8.2) (129, -8.2)} => @SET-STYLE $digital_style;
+//   @LINE {(91, -8.2) (118.2, -8.2) (118.8, -9.5) (129, -9.5)} => @SET-STYLE $digital_style;
+//   (120, -8.85) @TEXT("VALID CODE D<13:0>", size=0.46, bold=true, halign="start") => @SET-STYLE $digital_style;
+//   (83, -12.4) @TEXT("RDY (EOC)", size=0.52, bold=true, halign="start") => @SET-STYLE $digital_style;
+//   @LINE {(91, -11.7) (94.5, -11.7) (95, -13) (122.5, -13) (123, -11.7) (129, -11.7)} => @SET-STYLE $digital_style;
+//   (120.6, -11.4) @TEXT("LOG-10 >=100ps", size=0.45, halign="middle") => @SET-STYLE $note_style;
+//   (82, -17.4) @TEXT("adc_sarlogic Interface & Measured Performance Summary", halign="start", bold=true) => @SET-STYLE $note_style;
+//   @RECTANGLE {(82, -18) (118.938, -28.395)} => @SET-STYLE $table_style;
+//   @LINE {(82, -19.155) (118.938, -19.155)} => @SET-STYLE $table_style;
+//   @LINE {(86.609, -18) (86.609, -28.395)} => @SET-STYLE $table_style;
+//   @LINE {(90.58, -18) (90.58, -28.395)} => @SET-STYLE $table_style;
+//   @LINE {(93.913, -18) (93.913, -28.395)} => @SET-STYLE $table_style;
+//   (82.5, -18.5775) @TEXT("Port / Spec", halign="start", valign="middle", size=0.55, bold=true) => @SET-STYLE $table_style;
+//   (87.109, -18.5775) @TEXT("Direction", halign="start", valign="middle", size=0.55, bold=true) => @SET-STYLE $table_style;
+//   (91.08, -18.5775) @TEXT("Domain", halign="start", valign="middle", size=0.55, bold=true) => @SET-STYLE $table_style;
+//   (94.413, -18.5775) @TEXT("Function & 45-Corner Verified Performance", halign="start", valign="middle", size=0.55, bold=true) => @SET-STYLE $table_style;
+//   (82.5, -19.7325) @TEXT("CONV", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (87.109, -19.7325) @TEXT("input", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (91.08, -19.7325) @TEXT("clock", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (94.413, -19.7325) @TEXT("Conversion window (Cin = 2.53 fF <= 40 fF, LOG-14)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (82.5, -20.8875) @TEXT("OUTP, OUTN", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (87.109, -20.8875) @TEXT("input", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (91.08, -20.8875) @TEXT("digital", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (94.413, -20.8875) @TEXT("Comparator outputs (Cin = 4.22 fF <= 7 fF, dC = 7.2%, LOG-15/16)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (82.5, -22.0425) @TEXT("CLKC", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (87.109, -22.0425) @TEXT("output", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (91.08, -22.0425) @TEXT("clock", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (94.413, -22.0425) @TEXT("Comparator clock: 14 pulses/conv, t_conv = 2.74 ns (tt) / <= 3.71 ns (slow)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (82.5, -23.1975) @TEXT("UP<12:0>", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (87.109, -23.1975) @TEXT("output", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (91.08, -23.1975) @TEXT("digital", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (94.413, -23.1975) @TEXT("CDAC positive switch drivers (steps 1..13 -> UP12..UP0, t_bitd = 27.9 ps)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (82.5, -24.3525) @TEXT("DN<12:0>", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (87.109, -24.3525) @TEXT("output", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (91.08, -24.3525) @TEXT("digital", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (94.413, -24.3525) @TEXT("CDAC negative switch drivers (steps 1..13 -> DN12..DN0, mutually exclusive)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (82.5, -25.5075) @TEXT("D<13:0>", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (87.109, -25.5075) @TEXT("output", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (91.08, -25.5075) @TEXT("digital", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (94.413, -25.5075) @TEXT("14-bit raw redundant output word latched on DONE14 (0 code errors / 45k)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (82.5, -26.6625) @TEXT("RDY", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (87.109, -26.6625) @TEXT("output", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (91.08, -26.6625) @TEXT("digital", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (94.413, -26.6625) @TEXT("End-of-conversion strobe: rises 104..183 ps after D<13:0> settles (LOG-10)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (82.5, -27.8175) @TEXT("DVDD, VSS", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (87.109, -27.8175) @TEXT("inout", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (91.08, -27.8175) @TEXT("supply", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (94.413, -27.8175) @TEXT("0.9 V digital supply & ground (Idd_avg = 928 uW @ 100 MS/s, LOG-13)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (82, -37.4) @TEXT("14-Step Redundant SAR Bit-Slice Mapping", halign="start", bold=true) => @SET-STYLE $note_style;
+//   @RECTANGLE {(82, -38) (120.995, -47.24)} => @SET-STYLE $table_style;
+//   @LINE {(82, -39.155) (120.995, -39.155)} => @SET-STYLE $table_style;
+//   @LINE {(86.928, -38) (86.928, -47.24)} => @SET-STYLE $table_style;
+//   @LINE {(91.856, -38) (91.856, -47.24)} => @SET-STYLE $table_style;
+//   @LINE {(99.017, -38) (99.017, -47.24)} => @SET-STYLE $table_style;
+//   @LINE {(103.307, -38) (103.307, -47.24)} => @SET-STYLE $table_style;
+//   (82.5, -38.5775) @TEXT("Slice", halign="start", valign="middle", size=0.55, bold=true) => @SET-STYLE $table_style;
+//   (87.428, -38.5775) @TEXT("Step k", halign="start", valign="middle", size=0.55, bold=true) => @SET-STYLE $table_style;
+//   (92.356, -38.5775) @TEXT("CDAC Driver", halign="start", valign="middle", size=0.55, bold=true) => @SET-STYLE $table_style;
+//   (99.517, -38.5775) @TEXT("Output Bit", halign="start", valign="middle", size=0.55, bold=true) => @SET-STYLE $table_style;
+//   (103.807, -38.5775) @TEXT("Redundant Weight & DAC Settling Group", halign="start", valign="middle", size=0.55, bold=true) => @SET-STYLE $table_style;
+//   (82.5, -39.7325) @TEXT("XS1, XS2", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (87.428, -39.7325) @TEXT("k = 1, 2", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (92.356, -39.7325) @TEXT("UP12..11 / DN12..11", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (99.517, -39.7325) @TEXT("D13, D12", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (103.807, -39.7325) @TEXT("Weights 2048, 1024 | Fast Wait (48.2 ps, Group A)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (82.5, -40.8875) @TEXT("XS3", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (87.428, -40.8875) @TEXT("k = 3", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (92.356, -40.8875) @TEXT("UP10 / DN10", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (99.517, -40.8875) @TEXT("D11", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (103.807, -40.8875) @TEXT("Weight 512 | Fast + 15 ps Extra Wait (Group B)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (82.5, -42.0425) @TEXT("XS4 .. XS6", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (87.428, -42.0425) @TEXT("k = 4 .. 6", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (92.356, -42.0425) @TEXT("UP9..7 / DN9..7", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (99.517, -42.0425) @TEXT("D10 .. D8", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (103.807, -42.0425) @TEXT("Weights 256, 128, 64 | Fast + 35 ps Wait (Group C)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (82.5, -43.1975) @TEXT("XS7, XS8", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (87.428, -43.1975) @TEXT("k = 7, 8", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (92.356, -43.1975) @TEXT("UP6..5 / DN6..5", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (99.517, -43.1975) @TEXT("D7, D6", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (103.807, -43.1975) @TEXT("Weights 64 (red.), 32 | Slow Wait (94.9 ps, Group A)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (82.5, -44.3525) @TEXT("XS9", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (87.428, -44.3525) @TEXT("k = 9", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (92.356, -44.3525) @TEXT("UP4 / DN4", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (99.517, -44.3525) @TEXT("D5", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (103.807, -44.3525) @TEXT("Weight 16 | Slow + 15 ps Extra Wait (Group D)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (82.5, -45.5075) @TEXT("XS10 .. XS13", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (87.428, -45.5075) @TEXT("k = 10 .. 13", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (92.356, -45.5075) @TEXT("UP3..0 / DN3..0", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (99.517, -45.5075) @TEXT("D4 .. D1", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (103.807, -45.5075) @TEXT("Weights 8, 4, 4 (red.), 2 | Slow Wait (94.9 ps)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (82.5, -46.6625) @TEXT("XS14", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (87.428, -46.6625) @TEXT("k = 14", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (92.356, -46.6625) @TEXT("(none)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (99.517, -46.6625) @TEXT("D0", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (103.807, -46.6625) @TEXT("Weight 1 (LSB) | Triggers DONE14 -> LAT_EN & RDY", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style
+// }
+ends adc_sarlogic

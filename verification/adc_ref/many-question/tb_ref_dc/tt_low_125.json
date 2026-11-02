@@ -10,8 +10,8 @@
   "result": "results/adc_ref/tb_ref_dc/xtor-many-question/tt_low_125.json",
   "netlist": "design/xtor/adc_ref/many-question/adc_ref.scs",
   "netlist_hash": "2b1163f0eb481376",
-  "date": "2026-10-30T00:46:08",
-  "git": "4c61b98",
+  "date": "2026-11-01T05:24:04",
+  "git": "17b3a0c",
   "mode": "aps"
  },
  "params": {},
@@ -142,18 +142,18 @@
   "notes": []
  },
  "meta": {
-  "date": "2026-10-30T14:41:46",
-  "git": "98497ac",
+  "date": "2026-11-01T11:40:10",
+  "git": "88654d6",
   "git_clean": true,
   "mode": "aps",
   "pdk": true,
   "mc": null,
-  "wall_s": 272.1,
+  "wall_s": 209.5,
   "rc": "0",
-  "sim_s": "15",
+  "sim_s": "21",
   "numerics": {},
   "files": {
-   "tb/ref/tb_ref_dc.scs": "6c0b4787bdd7e2bb",
+   "tb/ref/tb_ref_dc.scs": "0013d586de2fc7fa",
    "design/xtor/adc_ref/many-question/adc_ref.scs": "2b1163f0eb481376"
   },
   "arch": {

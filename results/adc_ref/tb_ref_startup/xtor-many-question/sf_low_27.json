@@ -36,7 +36,7 @@
   "REF-15": {
    "metric": "vrefp_max_V",
    "value": 0.901119636284646,
-   "limit": "<= 1.0",
+   "limit": "<= 1.1",
    "pass": true
   },
   "REF-16": {
@@ -48,7 +48,7 @@
   "REF-17": {
    "metric": "vcm_max_V",
    "value": 0.4505641272511657,
-   "limit": "<= 1.0",
+   "limit": "<= 1.1",
    "pass": true
   },
   "REF-18": {
@@ -73,19 +73,19 @@
  "figures": [
   {
    "file": "sf_low_27.startup.png",
-   "caption": "Supplies, VREF_IN, VREFP and VCM over the supported power-up sequence against the -0.1 .. 1.0 V window, the outputs while the supplies are up and VREF_IN is still 0 V, the tracking error during the VREF_IN ramp, VREFP against VREF_IN and VCM against its range after the ramp with the ready instant, and the specification table."
+   "caption": "Supplies, VREF_IN, VREFP and VCM over the supported power-up sequence against the -0.1 .. 1.1 V window, the outputs while the supplies are up and VREF_IN is still 0 V, the tracking error during the VREF_IN ramp, VREFP against VREF_IN and VCM against its range after the ramp with the ready instant, and the specification table."
   }
  ],
  "meta": {
-  "date": "2026-10-31T13:11:50",
-  "git": "c6152d2",
+  "date": "2026-11-01T05:14:44",
+  "git": "17b3a0c",
   "git_clean": true,
   "mode": "aps",
   "pdk": true,
   "mc": null,
-  "wall_s": 221.5,
+  "wall_s": 218.1,
   "rc": "0",
-  "sim_s": "20",
+  "sim_s": "19",
   "numerics": {
    "source": "spectre.log",
    "reltol": 0.0001,
@@ -100,7 +100,7 @@
    "step_max_ps": 1000.0
   },
   "files": {
-   "tb/ref/tb_ref_startup.scs": "9edd45ad54f8258b",
+   "tb/ref/tb_ref_startup.scs": "b50cc979863f8109",
    "design/xtor/adc_ref/many-question/adc_ref.scs": "2b1163f0eb481376"
   },
   "arch": {

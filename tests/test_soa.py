@@ -1,11 +1,12 @@
 """Per-device SOA check (adcflow.soa): plans from netlists, verdicts from waveforms."""
 
+import json
 import re
 
 import numpy as np
 import pytest
 
-from adcflow import REPO_ROOT, psf, soa
+from adcflow import REPO_ROOT, psf, soa, soa_core
 from adcflow.corners import by_name
 from adcflow.runner import Job, make_deck, view_files
 from adcflow.specs import blocks, find_test
@@ -192,7 +193,7 @@ def test_vds_violation():
 def test_internal_device_violation(tmp_path):
     """A spike on the internal node XDUT.n1 only: the ports stay clean, devices inside fail."""
     w = _clean()
-    w["XDUT.n1"] = np.array([0.45, 0.45, 1.2, 0.45, 0.45, 0.45])
+    w["XDUT.n1"] = np.array([0.45, 0.45, 1.5, 0.45, 0.45, 0.45])       # above the transient limit too
     m = soa.check(_plan(tmp_path), w)
     assert sorted(_rows(m)) == [("XDUT.M1", "ds"), ("XDUT.X1.MN", "gs")]
     assert m["soa_violations"] == 2
@@ -202,7 +203,7 @@ def test_internal_device_violation(tmp_path):
 
 def test_violation_is_counted_per_pair_not_per_event():
     p = _one("XDUT.M1", {"d": "D", "g": "G", "s": "0", "b": "0"})
-    w = {"time": T, "D": np.array([0, 0.9, 0, 0.9, 0, 0]), "G": np.array([0, 1.1, 0, 1.1, 0, 0])}
+    w = {"time": T, "D": np.array([0, 0.9, 0, 0.9, 0, 0]), "G": np.array([0, 1.4, 0, 1.4, 0, 0])}
     m = soa.check(p, w)
     assert m["soa_violations"] == 1 and _rows(m) == [("XDUT.M1", "gs")]
 
@@ -295,8 +296,8 @@ def test_unlisted_mos_at_the_testbench_top_level_is_unverified(tmp_path):
     assert "MEXT (nch_xyz_mac)" in p.problem
 
 
-def test_time_above_the_limit_is_a_diagnostic_only():
-    """A 1.2 V triangle peak 2 ps wide is above 1.0 V for 1/3 ps. The verdict is the peak alone."""
+def test_time_above_the_limit_is_interpolated():
+    """A 1.2 V triangle peak 2 ps wide is above 1.0 V for 1/3 ps."""
     t = np.array([0.0, 1e-12, 2e-12, 3e-12, 4e-12])
     assert soa.time_over(t, np.array([0.0, 0.0, 1.2, 0.0, 0.0]), 1.0) * 1e12 == pytest.approx(1 / 3)
     assert soa.time_over(t, np.array([0.0, -1.1, -1.1, 0.0, 0.0]), 1.0) * 1e12 == pytest.approx(1 + 2 / 11)
@@ -305,6 +306,203 @@ def test_time_above_the_limit_is_a_diagnostic_only():
     w = {"time": t, "D": np.array([0.0, 0.0, 1.2, 0.0, 0.0]), "G": np.array([0.0, 0.0, 0.99, 0.99, 0.0])}
     m = soa.check(p, w)
     rows = {r["pair"]: r for r in m["soa_table"]}
-    assert rows["ds"]["t_over_ps"] == pytest.approx(1 / 3, abs=1e-3) and not rows["ds"]["pass"]
+    assert rows["ds"]["t_over_ps"] == pytest.approx(1 / 3, abs=1e-3) and rows["ds"]["pass"]            # 1.2 V for 1/3 ps: within the transient rule
     assert rows["gs"]["t_over_ps"] == 0 and rows["gs"]["pass"]
-    assert m["soa_violations"] == 1 and m["soa_worst"]["t_over_ps"] == pytest.approx(1 / 3, abs=1e-3)
+    assert m["soa_violations"] == 0 and m["soa_worst"]["t_over_ps"] == pytest.approx(1 / 3, abs=1e-3)
+
+
+# ------------------------------------------------------------------ the rule: 1.1 V, or 1.29 V for 100 ps in any 10 ns
+def _gate(t_ps, v, limit=1.1):
+    """One pair: Vgs follows (t_ps, v), the check over the waveform; returns its row."""
+    t = np.asarray(t_ps, dtype=float) * 1e-12
+    pl = soa.Plan(scope="device", limit_V=limit, duts=["XDUT"],
+                  devices=[soa.Device("XDUT.M1", "nch_ulvt_mac", "mos", "dut", {"d": "0", "g": "G", "s": "0", "b": "0"})])
+    return soa.check(pl, {"time": t, "G": np.asarray(v, dtype=float)})["soa_table"][0]
+
+
+def _pulse(start_ps, width_ps, v, edge_ps=0.001):
+    """Points of one pulse to v, 0 V around it, from a nearly square edge."""
+    return ([start_ps - edge_ps, start_ps, start_ps + width_ps, start_ps + width_ps + edge_ps], [0.0, v, v, 0.0])
+
+
+def _train(pulses, stop_ps=100000.0):
+    t, v = [0.0], [0.0]
+    for p in pulses:
+        a, b = _pulse(*p)
+        t += a
+        v += b
+    return t + [stop_ps], v + [0.0]
+
+
+def test_rule_comes_from_its_own_file_and_is_no_dependency():
+    assert soa.rule() == {"peak_V": 1.29, "window_s": 10e-9, "max_over_s": 100e-12}
+    assert soa.config()["limit_V"] == 1.1
+
+
+@pytest.mark.parametrize("v,width_ps,ok", [
+    (1.1, 100000.0, True),      # at the continuous limit, as long as it likes
+    (1.0999, 90000.0, True),
+    (1.1001, 90000.0, False),   # just above it, far too long
+    (1.29, 99.0, True),         # at the transient limit
+    (1.2901, 1.0, False),       # above it, however short
+])
+def test_rule_voltage_boundaries(v, width_ps, ok):
+    r = _gate(*_train([(5000.0, width_ps, v)], 200000.0))
+    assert r["pass"] is ok
+
+
+def test_rule_at_100_ps_in_a_window():
+    """Square pulses: a window of exactly 100 ps passes, a little more does not (the edges add under 1 fs)."""
+    assert _gate(*_train([(5000.0, 100.0 - 0.002, 1.2)]))["pass"] is True
+    assert _gate(*_train([(5000.0, 100.0 + 0.1, 1.2)]))["pass"] is False
+    r = soa.passes(1.2, 100e-12, 1.1), soa.passes(1.2, 100e-12 * 1.001, 1.1)
+    assert r == (True, False)
+
+
+def test_excursion_within_the_average_duty_fails_one_window():
+    """120 ps above 1.1 V within 5 ns, then nothing for 995 ns: 0.012 % on average, 120 ps in one window."""
+    r = _gate(*_train([(1000.0, 60.0, 1.2), (5000.0, 60.0, 1.2)], 1000000.0))
+    assert r["t_over_ps"] == pytest.approx(120.0, abs=0.01) and r["t_window_ps"] == pytest.approx(120.0, abs=0.01)
+    assert r["pass"] is False
+
+
+def test_the_same_excursions_in_separate_windows_pass():
+    """The same two pulses 10.1 ns apart: 120 ps in all, never more than 60 ps in one window."""
+    r = _gate(*_train([(1000.0, 60.0, 1.2), (11160.0, 60.0, 1.2)], 1000000.0))
+    assert r["t_over_ps"] == pytest.approx(120.0, abs=0.01) and r["t_window_ps"] == pytest.approx(60.0, abs=0.01)
+    assert r["pass"] is True
+
+
+def test_window_slides_and_can_cut_a_pulse():
+    """Two 80 ps pulses 9.91 ns apart: 160 ps in all, 90 ps in the worst window, which cuts one of them."""
+    r = _gate(*_train([(1000.0, 80.0, 1.2), (10990.0, 80.0, 1.2)]))    # the second starts 9.91 ns after the first ends
+    assert r["t_over_ps"] == pytest.approx(160.0, abs=0.01) and r["t_window_ps"] == pytest.approx(10000.0 - 9910.0, abs=0.01)
+    assert r["pass"] is True
+
+
+def test_startup_counts_and_a_run_shorter_than_the_window_is_one_window():
+    r = _gate([0.0, 110.0, 110.001, 5000.0], [1.2, 1.2, 0.0, 0.0])
+    assert r["t_window_ps"] == pytest.approx(110.0, abs=0.01) and r["pass"] is False
+
+
+def test_both_polarities_add_up_in_a_window():
+    t, v = _train([(1000.0, 60.0, 1.2), (5000.0, 60.0, -1.2)])
+    r = _gate(t, v)
+    assert r["t_window_ps"] == pytest.approx(120.0, abs=0.01) and r["pass"] is False
+
+
+def test_worst_pair_reports_its_window_and_the_metrics_carry_the_rule():
+    t = np.array([0.0, 1000.0, 1000.001, 1050.0, 1050.001, 5000.0]) * 1e-12
+    pl = soa.Plan(scope="device", limit_V=1.1, duts=["XDUT"],
+                  devices=[soa.Device("XDUT.M1", "nch_ulvt_mac", "mos", "dut", {"d": "0", "g": "G", "s": "0", "b": "0"})])
+    m = soa.check(pl, {"time": t, "G": np.array([0.0, 0.0, 1.2, 1.2, 0.0, 0.0])})
+    assert m["soa_violations"] == 0 and m["soa_max_V"] == pytest.approx(1.2)
+    assert m["soa_window_max_ps"] == pytest.approx(50.0, abs=0.01) and m["soa_worst"]["t_window_ps"] == pytest.approx(50.0, abs=0.01)
+    assert (m["soa_peak_V"], m["soa_window_ns"], m["soa_max_over_ps"]) == (1.29, 10.0, 100.0)
+
+
+def _row(**kw):
+    return {"device": "XDUT.M1", "pair": "gs", "pass": True, **kw}
+
+
+def test_violations_applies_the_rule_when_judging():
+    new = {"soa_limit_V": 1.1, "soa_window_ns": 10.0, "soa_violations": 1,
+           "soa_table": [_row(max_V=1.2, t_over_ps=500.0, t_window_ps=50.0), _row(max_V=1.0, t_over_ps=0.0, t_window_ps=0.0)]}
+    assert soa.violations(new) == 0                     # the table decides, not the recorded count
+    assert soa.violations({**new, "soa_table": [_row(max_V=1.3, t_over_ps=1.0, t_window_ps=1.0)]}) == 1
+    assert soa.violations({**new, "soa_table": [_row(max_V=1.2, t_over_ps=500.0, t_window_ps=150.0)]}) == 1
+    assert soa.violations({"soa_violations": 0, "soa_table": []}) is None
+    assert soa.violations({"noise_uV": 1.0}) is None
+
+
+def test_results_recorded_before_the_rule_are_judged_by_their_total_time():
+    old = {"soa_limit_V": 1.1, "soa_violations": 1, "soa_table": [_row(max_V=1.2, t_over_ps=40.0)]}
+    assert soa.violations(old) == 0                     # 40 ps in all is at most 40 ps in any window
+    old["soa_table"] = [_row(max_V=1.2, t_over_ps=400.0)]
+    assert soa.violations(old) == 1                     # cannot be shown: stays a violation until it is rerun
+    old["soa_table"] = [_row(max_V=1.2)]
+    assert soa.violations(old) == 1
+    # a window recorded for another length says nothing: the total time again
+    assert soa.violations({"soa_limit_V": 1.1, "soa_window_ns": 20.0,
+                           "soa_table": [_row(max_V=1.2, t_over_ps=400.0, t_window_ps=50.0)]}) == 1
+
+
+def test_block_verdict_uses_the_rule():
+    b = blocks()["adc_clkgen"]
+    m = {"soa_limit_V": 1.1, "soa_window_ns": 10.0, "soa_violations": 1, "soa_scope": "device", "soa_pairs": 1,
+         "soa_table": [_row(max_V=1.2, t_over_ps=50.0, t_window_ps=50.0)]}
+    judged, _ = b.verdicts("tb_clkgen_timing", "tt_nom_27", None, m)
+    assert judged["CLK-11"]["pass"] is True and judged["CLK-11"]["value"] == 0
+
+
+@pytest.mark.parametrize("block,test,spec", [("adc_sarlogic", "tb_sarlogic_soa", "LOG-17"),
+                                             ("adc_comp", "tb_comp_soa", "CMP-17"),
+                                             ("adc_cdac", "tb_cdac_soa", "DAC-18")])
+def test_new_soa_tests_stand_alone(block, test, spec):
+    """A judged spec at all corners, a test of its own with a crosscheck; no other test of the block has soa:."""
+    b = blocks()[block]
+    s = next(x for x in b.specs if x.id == spec)
+    assert (s.metric, s.max, s.corners, s.test, s.reported) == ("soa_violations", 0, "all", test, False)
+    assert b.tests[test]["soa"] == {"dut": ["XDUT"], "remote": True} and b.tests[test]["crosscheck"]["maxstep"] == "1p"
+    assert [t for t, d in b.tests.items() if d.get("soa")] == [test]
+    text = (REPO_ROOT / b.tests[test]["netlist"]).read_text(encoding="utf-8")
+    assert "errpreset=conservative" in text and "maxstep" not in text
+
+
+# ------------------------------------------------------------------ the check on the server (soa_core.reduce_job)
+PSF_T = [0.0, 1e-9, 1.0001e-9, 1.05e-9, 1.0501e-9, 2e-9]
+PSF_G = [0.0, 0.0, 1.2, 1.2, 0.0, 0.0]
+PSF_D = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6]
+
+
+def _psf_job(tmp_path, plan_keep=("CK",)):
+    raw = tmp_path / "deck.raw"
+    raw.mkdir()
+    vals = "".join(f'"time" {t:.15e}\n"CK" 0.5\n"XDUT.a\\<1\\>" {g:.15e}\n"D" {d:.15e}\n"OTHER" 0.25\n'
+                   for t, g, d in zip(PSF_T, PSF_G, PSF_D))
+    (raw / "tran1.tran.tran").write_text('HEADER\n"PSFversion" "1.00"\nTYPE\n"V" FLOAT DOUBLE PROP(\n"units" "V"\n)\nSWEEP\n"time" "sweep"\nTRACE\n'
+                                         '"CK" "V"\n"XDUT.a\\<1\\>" "V"\n"D" "V"\n"OTHER" "V"\nVALUE\n' + vals + "END\n", encoding="utf-8")
+    pl = soa.Plan(scope="device", limit_V=1.1, duts=["XDUT"],
+                  devices=[soa.Device("XDUT.M1", "nch_ulvt_mac", "mos", "dut", {"d": "D", "g": "XDUT.a\\<1\\>", "s": "0", "b": "0"})])
+    plan = soa.remote_plan(pl, "".join(f"save {k}\n" for k in plan_keep))
+    (tmp_path / "soa_plan.json").write_text(json.dumps(plan), encoding="utf-8")
+    return pl, raw / "tran1.tran.tran"
+
+
+def test_server_check_gives_the_rows_of_a_local_check_and_thins_the_waveform(tmp_path):
+    pl, f = _psf_job(tmp_path)
+    full = psf.read(f)
+    local = soa.check(pl, full)
+    assert soa_core.reduce_job(tmp_path)["rows"] == local["soa_table"]
+    thin = psf.read(f)
+    assert sorted(thin) == sorted(["time", "CK", "XDUT.a<1>", "D"])          # OTHER is gone, the worst pair's nodes stay
+    assert np.allclose(thin["XDUT.a<1>"], PSF_G) and np.allclose(thin["time"], PSF_T)
+    m: dict = {}
+    soa.measure({"soa": pl}, thin, m, tmp_path)
+    assert {k: v for k, v in m.items() if k != "soa_waveform_MB"} == local
+    assert m["soa_waveform_MB"] >= 0
+
+
+def test_server_check_with_a_missing_node_is_unverified_and_keeps_the_waveform(tmp_path):
+    pl, f = _psf_job(tmp_path)
+    before = f.read_bytes()
+    plan = json.loads((tmp_path / "soa_plan.json").read_text(encoding="utf-8"))
+    plan["devices"][0]["nodes"]["d"] = "NOPE"
+    (tmp_path / "soa_plan.json").write_text(json.dumps(plan), encoding="utf-8")
+    doc = soa_core.reduce_job(tmp_path)
+    assert doc["missing"] == ["NOPE"] and doc["rows"] == [] and f.read_bytes() == before
+    pl.devices[0].nodes["d"] = "NOPE"
+    m: dict = {}
+    soa.measure({"soa": pl}, psf.read(f), m, tmp_path)
+    assert "SOA unverified" in m["error"] and "soa_violations" not in m
+
+
+def test_a_behavioral_run_has_no_server_check():
+    pl = soa.Plan(scope="external", limit_V=1.1, note="nothing to check")
+    assert soa.remote_plan(pl, "") is None
+    assert soa.remote_plan(soa.Plan(scope="device", limit_V=1.1, problem="unknown"), "") is None
+
+
+def test_core_runs_with_numpy_alone():
+    text = (REPO_ROOT / "tools/adcflow/soa_core.py").read_text(encoding="utf-8")
+    assert set(re.findall(r"^(?:from|import) (\S+)", text, re.M)) <= {"__future__", "json", "sys", "array", "pathlib", "numpy"}
