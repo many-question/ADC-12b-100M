@@ -1,6 +1,6 @@
 # Strongarm comparator: restored l16t3c1 (WIP)
 
-The current electrical baseline is l16t3c1, restored on 2026-11-03 for requalification under comparator 0.11.0. See [the source mapping and validation sequence](RESTORATION-20261103.md). The RESET-V27 narrative and figure below are historical; their results are not fresh l16 evidence.
+The current electrical baseline is l16t3c1, restored on 2026-11-03 for requalification under comparator 0.11.0. Formal current-settings TT 17 x 512 physical noise passes at 175.29518977435197 uV rms (95% interval 167.73–183.26 uV); short-reset and official SOA remain pending. See [the source mapping and validation sequence](RESTORATION-20261103.md). The RESET-V27 narrative and figure below are historical; their results are not fresh l16 evidence.
 
 ## Historical RESET-V27 and subsequent experiments
 
