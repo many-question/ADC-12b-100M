@@ -1,6 +1,6 @@
 # adc_sarlogic: static CMOS completion chain
 
-This candidate targets the unchanged port contract and version 0.7.0 of
+This candidate targets the unchanged port contract and version 0.8.0 of
 `adc_sarlogic`. It is a work in progress; transistor simulations, rather than
 the delay-load parameter names, determine whether it meets the timing limits.
 

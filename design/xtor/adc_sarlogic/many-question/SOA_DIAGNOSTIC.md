@@ -1,4 +1,11 @@
-# SOA diagnostic: failed, not formal qualification
+# Historical strict-peak SOA diagnostic
+
+**Superseded criterion:** issues #133/#135 approve a transient allowance:
+|V| <= 1.1 V continuously, or peak <= 1.29 V and time above 1.1 V <= 100 ps
+in every sliding 10 ns window, startup included. The former peak-only
+failure below is historical, **not a current-rule verdict**. The new formal
+51.12 ns `tb_sarlogic_soa` / LOG-17 must be run at all 45 corners. Two
+maintainer smoke corners are not contributor or independent full coverage.
 
 Date: 2026-11-02. Circuit hash: `237b05f50a71cbad`.
 This is contributor self-reported diagnostic evidence, not independent
@@ -23,7 +30,7 @@ captures four correct words with fourteen logged decisions each, zero bit
 errors and zero DAC-level errors. The testbench also starts an unfinished
 fifth word before simulation stops; it is not counted as a completed word.
 
-## Observations
+## Historical observations under the former peak-only criterion
 
 | Corner | DVDD | Checked pairs | Pairs exceeding 1.1 V | Largest absolute terminal voltage | Saved time points |
 |---|---:|---:|---:|---:|---:|
@@ -43,10 +50,12 @@ These are negative undershoots relative to VSS: for example,
 `0.99 - (-0.238959) = 1.228959 V`. The worst pair exceeds the limit at
 multiple edges, not only startup. Its accumulated above-limit duration is
 146.325 ps at `ff_high_m40` and 196.570 ps at `ss_high_125` over this
-diagnostic. Short duration does **not** waive the project peak-voltage limit.
+diagnostic. Under the former criterion short duration did not waive a peak
+above 1.1 V; that criterion has now been replaced. These accumulated durations
+cannot be compared directly to the new 100 ps **sliding-window** limit.
 The plotted worst-edge local step is 0.13 ps / 0.356 ps, respectively.
 
-![Full-transient SOA diagnostic at the slow/hot high-supply corner](SOA_DIAGNOSTIC.png)
+![Historical plot using the former strict-peak rule, not the current LOG-17 verdict](SOA_DIAGNOSTIC.png)
 
 ## Interpretation and next work
 
@@ -67,10 +76,9 @@ saves, run the stated corners with APS/conservative, and call
 `adcflow.soa.check` on the complete saved transient. Running the ordinary
 CLI test without these additional saves does not reproduce an SOA check.
 
-Formal SOA test scope/instrumentation is raised in issue **#133** and must
-be coordinated with the project lead before changing shared specs or tools.
-These two failed diagnostic
-corners are sufficient to withhold a SOA-pass claim; they do not establish
-coverage of the other 43 corners, stuck-comparator or interrupted-conversion
-operation. Mixed top-level qualification and independent verification also
-remain incomplete.
+Issue **#133** has been resolved by the project lead; notification **#135**
+adds the standard `tb_sarlogic_soa` and new rule in version 0.8.0. Existing
+functional tests remain unchanged. We keep the circuit frozen and run that
+test rather than optimizing a superseded peak-only failure. The historical
+diagnostic does not establish current-rule or stuck/interrupt coverage.
+Mixed top-level qualification and independent verification remain incomplete.

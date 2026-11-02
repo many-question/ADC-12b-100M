@@ -1,6 +1,6 @@
 # Current validation: wip
 
-Specification: adc_sarlogic 0.7.0. Circuit hash: `237b05f50a71cbad`.
+Specification: adc_sarlogic 0.8.0. Circuit hash: `237b05f50a71cbad`.
 Issue #130's maintainer decision is acknowledged: LOG-08 is still <= 2.75 ns;
 2.90 ns is not an approved target. No ports, specifications, testbenches or
 numerical settings were changed. Results are self-reported; independent
@@ -25,8 +25,9 @@ retained, with no sample-count overrides.
 
 These passes do not make the whole candidate eligible: formal remaining
 function-corner coverage, 1000-conversion random, mixed top-level regression
-and independent verification remain pending. **Additional SOA diagnostics
-have found violations**, as described below. Candidate status is `wip`.
+and independent verification remain pending. LOG-17 full-corner SOA evidence
+under the newly approved transient rule is also pending. The former
+peak-only diagnostic is historical, as described below. Status is `wip`.
 
 ## Ordinary function observations
 
@@ -87,18 +88,23 @@ Existing fresh corners are reused; slow/random `nowave=1` data cannot
 substitute for LOG-06/07/10 waveform coverage. LOG-01 still requires all
 45 corners, not only TT; its remaining-corner runs have not been started.
 
-A separate two-corner, four-conversion diagnostic saved all thin-oxide
-terminal nodes and checked 1772 devices / 5316 terminal pairs. **SOA fails
-in both diagnostic corners:** `ff_high_m40` has 16 violating pairs, maximum
+A separate historical two-corner, four-conversion diagnostic saved all thin-oxide
+terminal nodes and checked 1772 devices / 5316 terminal pairs. Under the
+former strict-peak rule `ff_high_m40` has 16 crossing pairs, maximum
 1.22751 V; `ss_high_125` has 16 violating pairs, maximum 1.22896 V against
-the unchanged 1.1 V project limit. Four completed words in each corner
-are bit/DAC correct; this does not excuse the voltage violations.
+the 1.1 V continuous limit. Four completed words in each corner are bit/DAC
+correct; these historical peak crossings are not a current-rule verdict.
 
 See [SOA_DIAGNOSTIC.md](SOA_DIAGNOSTIC.md) for scope, full-transient evidence,
-node undershoots and reproduction requirements; issue #133 requests the
-project lead's decision on formal instrumentation. These diagnostics are not
-standard acceptance results or independent verification. The public SAR
-logic tests do not enable SOA, so their missing SOA fields are not a pass.
+node undershoots and reproduction requirements. Issue #133 is now resolved:
+notification #135 adds LOG-17 / `tb_sarlogic_soa` and allows peaks <=1.29 V
+provided time above 1.1 V is <=100 ps in every sliding 10 ns window, including
+startup. The old cumulative duration and plot are not a current-rule verdict.
+We have rebased onto current main and will run all 45 formal SOA corners plus
+representative worst-corner crosschecks. The test covers powered-up startup,
+normal conversions, comparator timeout and CONV interrupts over 51.12 ns.
+Neither the historical diagnostic nor the maintainer's two smoke corners
+replace this requirement. These are not independent verification records.
 No netlist change was made; the circuit hash and existing formal timing
 results remain unchanged.
 
