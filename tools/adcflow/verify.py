@@ -63,7 +63,8 @@ TOLERANCES: list[tuple[str, float, float]] = [
 ]
 DEFAULT_TOL = (0.02, 0.0)                        # any other number: 2 %
 # simulator time-step statistics (they follow the simulator's step control, not the circuit)
-NOT_COMPARED = {"soa_points", "soa_dt_max_ps"}
+# soa_peak_V .. soa_window_max_ps: the rule and a summary of soa_table, not in results recorded before the rule
+NOT_COMPARED = {"soa_points", "soa_dt_max_ps", "soa_peak_V", "soa_window_ns", "soa_max_over_ps", "soa_window_max_ps"}
 
 
 def tolerance(metric: str) -> tuple[float, float]:

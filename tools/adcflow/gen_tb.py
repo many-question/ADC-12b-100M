@@ -278,7 +278,7 @@ def _steps(values: list[float], period: float, edge: float = 10e-12, t0: float =
 
 def tb_comp() -> list[TBDef]:
     from .measure.comp import (DELAY_LEVELS, MC_BITS, MC_CHECK, MC_RANGE, MC_TCYC, MC_VOS_BEH, N_DELAY,
-                               NOISE_LEVELS, NOISE_REPEAT, T0, TCYC)
+                               NOISE_LEVELS, NOISE_REPEAT, SOA_HIGH, SOA_LEVELS, SOA_LOW, SOA_N_FAST, SOA_N_SLOW, T0, TCYC)
 
     comp_ports = ["INP", "INN", "CLKC", "OUTP", "OUTN", "AVDD", "0"]
     cload = _ff(_op("adc_comp")["load_per_output"])
@@ -302,6 +302,35 @@ def tb_comp() -> list[TBDef]:
         notes=[f"vd steps through +/-{', '.join(f'{v:g}' for v in DELAY_LEVELS[::2])} V (twice), CM 0.49 V, "
                f"one decision per {TCYC * 1e12:g} ps", f"transient noise off; power.txt: AVDD over the {N_DELAY} "
                f"CLKC cycles from the first rising edge ({T0 * 1e12:g} ps .. tstop)"]))
+    # per-device SOA: largest input, then the short reset
+    n = SOA_N_SLOW + SOA_N_FAST
+    starts = [T0 + i * TCYC for i in range(SOA_N_SLOW)]
+    starts += [starts[-1] + TCYC + i * (SOA_HIGH + SOA_LOW) for i in range(SOA_N_FAST)]
+    highs = [TCYC / 2 - 10e-12] * SOA_N_SLOW + [SOA_HIGH] * SOA_N_FAST
+    ck = [(0.0, "0")]
+    for t, h in zip(starts, highs):
+        ck += [(t, "0"), (t + 10e-12, "vdd"), (t + 10e-12 + h, "vdd"), (t + 20e-12 + h, "0")]
+    vds = [SOA_LEVELS[i % len(SOA_LEVELS)] for i in range(n)]
+
+    def vin(sign: int) -> str:
+        pts = [(0.0, 0.49 + sign * vds[0] / 2)]
+        for i in range(1, n):
+            pts += [(starts[i] - 20e-12, 0.49 + sign * vds[i - 1] / 2), (starts[i] - 10e-12, 0.49 + sign * vds[i] / 2)]
+        return "type=pwl " + _pwl(pts)
+
+    els = [El("XDUT", "adc_comp", comp_ports, where="dut"),
+           El("VDP", "vsource", ["INP", "0"], vin(1)),
+           El("VDN", "vsource", ["INN", "0"], vin(-1)),
+           El("VCK", "vsource", ["CLKC", "0"], "type=pwl wave=[" + " ".join(f"{_tfmt(t)} {v}" for t, v in ck) + "]"),
+           El("COP", "capacitor", ["OUTP", "0"], "c=cload", "load"),
+           El("CON", "capacitor", ["OUTN", "0"], "c=cload", "load")]
+    els += _sup("AVDD", "vdd", False)
+    out.append(TBDef(
+        "tb/comp/tb_comp_soa.scs", "tb_comp_soa: per-device SOA at the largest input and the short reset",
+        [f"parameters cload={cload}", f"parameters tstop={starts[-1] + SOA_HIGH + SOA_LOW + 100e-12:g}"],
+        els, ["tran1 tran stop=tstop", "save INP INN CLKC OUTP OUTN"],
+        notes=[f"vd cycles through +/-{', '.join(f'{v:g}' for v in SOA_LEVELS[::2])} V, CM 0.49 V: {SOA_N_SLOW} decisions per "
+               f"{TCYC * 1e12:g} ps as tb_comp_delay, then {SOA_N_FAST} with CLKC low for {SOA_LOW * 1e12:g} ps"]))
     # noise
     seq = [v for v in NOISE_LEVELS for _ in range(NOISE_REPEAT)]
     els = [El("XDUT", "adc_comp", comp_ports, where="dut"),
@@ -404,7 +433,7 @@ def tb_comp() -> list[TBDef]:
 
 
 def tb_sarlogic() -> list[TBDef]:
-    from .measure.sarlogic import WAIT_SAVES
+    from .measure.sarlogic import SOA_CONV_WIDTHS, WAIT_SAVES
 
     log_ports = ["CONV", "OUTP", "OUTN", "CLKC"] + UPS + DNS + DS + ["RDY", "DVDD", "0"]
     op = _op("adc_sarlogic")
@@ -424,7 +453,35 @@ def tb_sarlogic() -> list[TBDef]:
            El("ICAP", "tb_capture_va", ["CONVB", "RDY"] + DS + ["0"],
               'vth=vdd/2 cload=cload fname="capture.txt"', "mon")]
     els += _sup("DVDD", "vdd", True, t0="tper", t1="tstop")
+    # per-device SOA: the same emulator and loads, CONV interrupted in two of the cycles
+    tper, tdel = 10e-9, 0.12e-9
+    conv, convb = [(0.0, "0")], [(0.0, "vdd")]
+    for i, width in enumerate(SOA_CONV_WIDTHS):
+        t = tdel + i * tper
+        conv += [(t, "0"), (t + 20e-12, "vdd"), (t + 20e-12 + width, "vdd"), (t + 40e-12 + width, "0")]
+        convb += [(t, "vdd"), (t + 20e-12, "0"), (t + 20e-12 + width, "0"), (t + 40e-12 + width, "vdd")]
+
+    def wave(pts: list) -> str:
+        return "type=pwl wave=[" + " ".join(f"{_tfmt(t)} {v}" for t, v in pts) + "]"
+
+    els_soa = [El("XDUT", "adc_sarlogic", log_ports, where="dut"),
+               El("VCONV", "vsource", ["CONV", "0"], wave(conv), note="full windows and two interrupts"),
+               El("VCONVB", "vsource", ["CONVB", "0"], wave(convb)),
+               El("VDDE", "vsource", ["VDDE", "0"], "dc=vdd"),
+               El("IEMU", "tb_cmp_emu_va", ["CONV", "CLKC"] + UPS + DNS + ["OUTP", "OUTN", "VDDE", "0"],
+                  't0=t0cmp tau=8p cload=cupdn cclk=cclk stuck_k=stuck fname="emu.txt"', "mon",
+                  note="comparator emulator: decision 5 of every odd conversion is not answered"),
+               El("ICAP", "tb_capture_va", ["CONVB", "RDY"] + DS + ["0"],
+                  'vth=vdd/2 cload=cload fname="capture.txt"', "mon")] + _sup("DVDD", "vdd", False)
     return [TBDef(
+        "tb/sarlogic/tb_sarlogic_soa.scs", "tb_sarlogic_soa: per-device SOA over start-up, conversions, a stuck comparator and interrupts",
+        [f"parameters t0cmp=45p stuck=5 cupdn={_ff(op['load_updn'])} cclk={_ff(op['load_clkc'])} cload={_ff(op['load_dout'])}",
+         f"parameters tstop={len(SOA_CONV_WIDTHS) * tper + tdel + 1e-9:g}"],
+        els_soa, ["tran1 tran stop=tstop", "save CONV CLKC OUTP OUTN RDY"],
+        notes=["start-up from t = 0, then 5 conversion cycles: CONV falls after 1.2 ns in cycle 3 and after 0.3 ns in cycle 5; "
+               "the emulator leaves decision 5 of every odd conversion unanswered (timeout)",
+               "UP/DN loaded by cupdn and CLKC by cclk inside the emulator, D/RDY by cload inside the capture"]),
+            TBDef(
         "tb/sarlogic/tb_sarlogic_func.scs", "tb_sarlogic_func: SAR controller against a comparator emulator",
         ["parameters nconv=60 t0cmp=45p stuck=0 nowave=0 tper=10n tconv=4.8n tdel=0.12n "
          f"cupdn={_ff(op['load_updn'])} cclk={_ff(op['load_clkc'])} cload={_ff(op['load_dout'])}",
@@ -500,6 +557,22 @@ def tb_cdac() -> list[TBDef]:
               "save TOP CONV PHI_S PHI_SB VDH5:p QPS QPSB QCV"],
         notes=["cycle 1 has no control activity: conversion-start settling and 5 ns hold droop",
                "QMPS / QMPSB / QMCV: the charge into PHI_S, PHI_SB, CONV per rising edge / VDD (DAC-15..17)"]))
+    # per-device SOA: full-scale input of both signs, as tb_cdac_settle otherwise
+    hi, lo = 0.45 + _ARCH.fs_peak / 2, 0.45 - _ARCH.fs_peak / 2
+    els = [El("XDUT", "adc_cdac", _cdac_ports("VIN", "VG", "TOP", DHS, RLS), where="dut"),
+           El("VVIN", "vsource", ["VIN", "0"], f"type=pulse val0={hi:g} val1={lo:g} period=2*tper width=tper-100p rise=100p fall=100p",
+              note="the input extremes in turn: low in odd conversions, high in even ones"),
+           El("CTOP", "capacitor", ["TOP", "0"], "c=ctop", "load"),
+           El("IBS", "adc_bootstrap_va", ["VIN", "PHI_B", "PHI_BB", "VG", "VDDA", "0"], "kboost=1", "mon"),
+           El("ISEQ", "tb_cdac_seq_va", ["CONV"] + DHS + RLS + ["VDDA", "0"], "mode=1 n0=3 sel0=0 sel1=1 sel2=24", "mon",
+              note="conv 3 (input low): DH12, conv 4 (high): RL12, conv 5 (low): DH0 at 1 ns; conv 6 (high): RL12..RL0 every 150 ps")]
+    els += _ideal_front()
+    out.append(TBDef(
+        "tb/cdac/tb_cdac_soa.scs", "tb_cdac_soa: per-device SOA at the full-scale input and the steps that push the top plate furthest",
+        [f"parameters tper=10n ctop={_CTOP}", "parameters tstop=7*tper"],
+        els, ["tran1 tran stop=tstop", "save VIN VG TOP CONV PHI_S"],
+        notes=["conv 4 and conv 6 sample the high input and step down: conv 6 is an all-RL pattern, past any real code",
+               "conv 3 samples the low input and steps DH12 up"]))
     # tracking linearity (P and N)
     els = [El("XDACP", "adc_cdac", _cdac_ports("VINP", "VGP", "TOPP", ["LO"] * 13, ["LO"] * 13), where="dut"),
            El("XDACN", "adc_cdac", _cdac_ports("VINN", "VGN", "TOPN", ["LO"] * 13, ["LO"] * 13), where="dut"),

@@ -12,6 +12,7 @@ from .. import calib, psf
 from ..arch import Arch
 from ..figures import C1, C2, C3, C7, GRID, INK2, LIMIT, MUTED, hline, limits, note, plot_spectrum, sink_of, spec_table, vline
 from .common import fig_cin, pin_cins, read_meters, read_samples, spectrum, tran
+from .common import soa_test
 
 VIN_A, VIN_B = 0.65, 0.25
 
@@ -225,3 +226,8 @@ def _fig_track(fg, ctx, s, fs, m) -> None:
                   sndr_min=limits(ctx, "sndr_dB")[0])
     fg.save(fig, "spectrum", "Spectrum of the sampled top plate for a full-scale tracking input, with SFDR "
             "and SNDR against their limits.")
+
+
+def soa(job_dir: Path, ctx: dict) -> dict:
+    """tb_cdac_soa: per-device SOA (DAC-18)."""
+    return soa_test(job_dir, ctx, ["VIN", "VG", "CONV", "PHI_S", "TOP"])
