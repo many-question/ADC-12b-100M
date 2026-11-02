@@ -16,24 +16,24 @@
   "comp_behav": 0
  },
  "metrics": {
-  "kickback_uV": 0.5565713659999496,
+  "kickback_uV": 0.00023006960008994937,
   "vdiff_uV": [
-   1000.002,
-   1000.398,
-   1000.955,
-   1001.482,
-   1002.01,
-   1002.538,
-   1003.068,
-   1003.599
+   999.998,
+   999.845,
+   999.845,
+   999.845,
+   999.845,
+   999.846,
+   999.846,
+   999.846
   ],
-  "cin_fF": 18.66362271155729,
-  "cin_clkc_fF": 15.301833251334239
+  "cin_fF": 18.6634635566142,
+  "cin_clkc_fF": 7.1596314139722095
  },
  "specs": {
   "CMP-11": {
    "metric": "kickback_uV",
-   "value": 0.5565713659999496,
+   "value": 0.00023006960008994937,
    "limit": "<= 40",
    "pass": true
   }
@@ -41,13 +41,13 @@
  "specs_na": {
   "CMP-12": {
    "metric": "cin_fF",
-   "value": 18.66362271155729,
+   "value": 18.6634635566142,
    "limit": "<= 20",
    "corners": "typ"
   },
   "CMP-14": {
    "metric": "cin_clkc_fF",
-   "value": 15.301833251334239,
+   "value": 7.1596314139722095,
    "limit": "<= 16",
    "corners": "typ"
   }
@@ -63,30 +63,32 @@
   }
  ],
  "meta": {
-  "date": "2026-10-30T01:06:31",
-  "git": "01fcb5c",
+  "date": "2026-11-03T03:23:31",
+  "git": "bb016f17",
   "git_clean": true,
   "mode": "aps",
   "pdk": true,
   "mc": null,
-  "wall_s": 755.7,
+  "wall_s": 821.5,
   "rc": "0",
-  "sim_s": "14",
+  "sim_s": "16",
   "numerics": {
    "source": "spectre.log",
-   "reltol": 0.001,
-   "maxstep_ps": 66.0,
-   "method": "traponly",
-   "errpreset": "moderate",
-   "lteratio": 3.5,
-   "abstol_V": 1e-06,
-   "steps_accepted": 839,
-   "step_mean_ps": 3.93325,
-   "step_max_ps": 50.5
+   "reltol": 1e-06,
+   "maxstep_ps": 33.0,
+   "method": "gear2only",
+   "errpreset": "conservative",
+   "lteratio": 10.0,
+   "relref": "alllocal",
+   "abstol_V": 1e-08,
+   "vabstol": 1e-08,
+   "steps_accepted": 7569,
+   "step_mean_ps": 0.435989,
+   "step_max_ps": 31.8622
   },
   "files": {
-   "tb/comp/tb_comp_kickback.scs": "04b444f63619d31d",
-   "design/xtor/adc_comp/many-question-strongarm/adc_comp.scs": "150dd81755a64d66",
+   "tb/comp/tb_comp_kickback.scs": "505337caf7038338",
+   "design/xtor/adc_comp/many-question-strongarm/adc_comp.scs": "56e3dddc5148fa35",
    "tb/common/veriloga/tb_sampler_va.va": "4092bc16170c588d",
    "tb/common/veriloga/tb_qmeter_va.va": "fed84d572a912b39"
   },
