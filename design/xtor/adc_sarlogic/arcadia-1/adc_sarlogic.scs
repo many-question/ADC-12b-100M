@@ -439,6 +439,78 @@ subckt nor3 (a b c y vdd vss)
 // }
 ends nor3
 
+// nor3 with twice the drive: blc, read by the CLKC set gates and the enable buffer
+subckt nor3x2 (a b c y vdd vss)
+  mp1 (y a m1 vdd) pch_lvt_mac w=2.4u l=30n nf=12
+  mp2 (m1 b m2 vdd) pch_lvt_mac w=2.4u l=30n nf=12
+  mp3 (m2 c vdd vdd) pch_lvt_mac w=2.4u l=30n nf=12
+  mn1 (y a vss vss) nch_lvt_mac w=0.4u l=30n nf=2
+  mn2 (y b vss vss) nch_lvt_mac w=0.4u l=30n nf=2
+  mn3 (y c vss vss) nch_lvt_mac w=0.4u l=30n nf=2
+// @RNL {
+//   &vdd @ADD-TO $SUPPLY_NET_SET; &vss @ADD-TO $GROUND_NET_SET;
+//   # @SET-SYMBOL $NOR_3INPUT;
+//   {#mp1 #mp2 #mp3} @GROUP;
+//   {#mn1 #mn2 #mn3} @GROUP;
+//   {#mp1 #mn1 #mp2 #mn2 #mp3 #mn3} @TEXT("", key="model");
+//   #mp1 @PLACE(0,8) => @ORIENT("R0");
+//   #mn1 @PLACE(0,0) => @ORIENT("R0");
+//   #mp2 @PLACE(0,14) => @ORIENT("R0");
+//   #mn2 @PLACE(8,0) => @ORIENT("R0");
+//   #mp3 @PLACE(0,20) => @ORIENT("R0");
+//   #mn3 @PLACE(16,0) => @ORIENT("R0");
+//   &m1 @WIRE(mode="straight") {#mp1:s #mp2:d};
+//   &m2 @WIRE(mode="straight") {#mp2:s #mp3:d};
+//   %p1=$SUPPLY @ATTACH &vdd => @PLACE(0,25) => @ORIENT("R0");
+//   &vdd @WIRE(mode="straight") {#mp3:s %p1:p};
+//   &vdd @WIRE(mode="straight") {#mp1:b (3,8) (3,14) (3,20) (3,25) %p1:p};
+//   %j1=(3,14); $JUNCTION @ATTACH %j1;
+//   &vdd @WIRE(mode="straight") {#mp2:b (3,14)};
+//   %j2=(3,20); $JUNCTION @ATTACH %j2;
+//   &vdd @WIRE(mode="straight") {#mp3:b (3,20)};
+//   %p2=$IO_PORT @ATTACH &y => @PLACE(22,4) => @ORIENT("MY");
+//   %j3=(0,4); $JUNCTION @ATTACH %j3;
+//   &y @WIRE(mode="straight") {#mp1:d (0,4) #mn1:d};
+//   &y @WIRE(mode="straight") {(0,4) (8,4) (16,4) %p2:p};
+//   %j4=(8,4); $JUNCTION @ATTACH %j4;
+//   &y @WIRE(mode="straight") {#mn2:d (8,4)};
+//   %j5=(16,4); $JUNCTION @ATTACH %j5;
+//   &y @WIRE(mode="straight") {#mn3:d (16,4)};
+//   %p3=$GROUND @ATTACH &vss => @PLACE(20,-6) => @ORIENT("R0");
+//   &vss @WIRE(mode="straight") {(0,-6) (2,-6) (8,-6) (10,-6) (16,-6) (18,-6) %p3:p};
+//   &vss @WIRE(mode="straight") {#mn1:s (0,-6)};
+//   %j6=(2,-6); $JUNCTION @ATTACH %j6;
+//   &vss @WIRE(mode="straight") {#mn1:b (2,0) (2,-6)};
+//   %j7=(8,-6); $JUNCTION @ATTACH %j7;
+//   &vss @WIRE(mode="straight") {#mn2:s (8,-6)};
+//   %j8=(10,-6); $JUNCTION @ATTACH %j8;
+//   &vss @WIRE(mode="straight") {#mn2:b (10,0) (10,-6)};
+//   %j9=(16,-6); $JUNCTION @ATTACH %j9;
+//   &vss @WIRE(mode="straight") {#mn3:s (16,-6)};
+//   %j10=(18,-6); $JUNCTION @ATTACH %j10;
+//   &vss @WIRE(mode="straight") {#mn3:b (18,0) (18,-6)};
+//   %p4=$IO_PORT @ATTACH &a => @PLACE(-14,8) => @ORIENT("R0");
+//   %j11=(-6,8); $JUNCTION @ATTACH %j11;
+//   &a @WIRE(mode="straight") {%p4:p %j11 #mp1:g};
+//   &a @WIRE(mode="straight") {%j11 (-6,0) #mn1:g};
+//   %p5=$IO_PORT @ATTACH &b => @PLACE(-14,14) => @ORIENT("R0");
+//   %j12=(-8,14); $JUNCTION @ATTACH %j12;
+//   &b @WIRE(mode="straight") {%p5:p %j12 #mp2:g};
+//   &b @WIRE(mode="straight") {%j12 (-8,-3) (3,-3) (3,0) #mn2:g};
+//   %p6=$IO_PORT @ATTACH &c => @PLACE(-14,20) => @ORIENT("R0");
+//   %j13=(-10,20); $JUNCTION @ATTACH %j13;
+//   &c @WIRE(mode="straight") {%p6:p %j13 #mp3:g};
+//   &c @WIRE(mode="straight") {%j13 (-10,-3.5) (11,-3.5) (11,0) #mn3:g};
+//   (-14,29) @TEXT("nor3x2", size=1.0, textcolor="#334155", bold=true, halign="start");
+//   (24,25) @TEXT("mp1  pch_lvt  2.4u/30n  nf=12", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (24,23.6) @TEXT("mp2  pch_lvt  2.4u/30n  nf=12", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (24,22.2) @TEXT("mp3  pch_lvt  2.4u/30n  nf=12", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (24,20.8) @TEXT("mn1  nch_lvt  0.4u/30n  nf=2", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (24,19.4) @TEXT("mn2  nch_lvt  0.4u/30n  nf=2", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (24,18) @TEXT("mn3  nch_lvt  0.4u/30n  nf=2", size=0.75, textcolor="#334155", bold=false, halign="start");
+// }
+ends nor3x2
+
 subckt nand2x4 (a b y vdd vss)
   mp1 (y a vdd vdd) pch_lvt_mac w=1.2u l=30n nf=6
   mp2 (y b vdd vdd) pch_lvt_mac w=1.2u l=30n nf=6
@@ -808,6 +880,97 @@ subckt nand3x (a b c y vdd vss)
 //   (24,3) @TEXT("mn3  nch_lvt  2.4u/30n  nf=12", size=0.75, textcolor="#334155", bold=false, halign="start");
 // }
 ends nand3x
+
+// CLKC set gate: the nand3x stack made one device taller
+subckt nand4x (a b c d y vdd vss)
+  mp1 (y a vdd vdd) pch_lvt_mac w=0.8u l=30n nf=4
+  mp2 (y b vdd vdd) pch_lvt_mac w=0.8u l=30n nf=4
+  mp3 (y c vdd vdd) pch_lvt_mac w=0.8u l=30n nf=4
+  mp4 (y d vdd vdd) pch_lvt_mac w=0.8u l=30n nf=4
+  mn1 (y a m1 vss) nch_lvt_mac w=3.2u l=30n nf=16
+  mn2 (m1 b m2 vss) nch_lvt_mac w=3.2u l=30n nf=16
+  mn3 (m2 c m3 vss) nch_lvt_mac w=3.2u l=30n nf=16
+  mn4 (m3 d vss vss) nch_lvt_mac w=3.2u l=30n nf=16
+// @RNL {
+//   &vdd @ADD-TO $SUPPLY_NET_SET; &vss @ADD-TO $GROUND_NET_SET;
+//   # @SET-SYMBOL $NAND_4INPUT;
+//   {#mp1 #mp2 #mp3 #mp4} @GROUP;
+//   {#mn1 #mn2 #mn3 #mn4} @GROUP;
+//   {#mp1 #mn1 #mp2 #mn2 #mp3 #mn3 #mp4 #mn4} @TEXT("", key="model");
+//   #mp1 @PLACE(0,8) => @ORIENT("R0");
+//   #mn1 @PLACE(0,0) => @ORIENT("R0");
+//   #mp2 @PLACE(8,8) => @ORIENT("R0");
+//   #mn2 @PLACE(0,-6) => @ORIENT("R0");
+//   #mp3 @PLACE(16,8) => @ORIENT("R0");
+//   #mn3 @PLACE(0,-12) => @ORIENT("R0");
+//   #mp4 @PLACE(24,8) => @ORIENT("R0");
+//   #mn4 @PLACE(0,-18) => @ORIENT("R0");
+//   %p1=$SUPPLY @ATTACH &vdd => @PLACE(28,13) => @ORIENT("R0");
+//   &vdd @WIRE(mode="straight") {(0,13) (2,13) (8,13) (10,13) (16,13) (18,13) (24,13) (26,13) %p1:p};
+//   &vdd @WIRE(mode="straight") {#mp1:s (0,13)};
+//   %j1=(2,13); $JUNCTION @ATTACH %j1;
+//   &vdd @WIRE(mode="straight") {#mp1:b (2,8) (2,13)};
+//   %j2=(8,13); $JUNCTION @ATTACH %j2;
+//   &vdd @WIRE(mode="straight") {#mp2:s (8,13)};
+//   %j3=(10,13); $JUNCTION @ATTACH %j3;
+//   &vdd @WIRE(mode="straight") {#mp2:b (10,8) (10,13)};
+//   %j4=(16,13); $JUNCTION @ATTACH %j4;
+//   &vdd @WIRE(mode="straight") {#mp3:s (16,13)};
+//   %j5=(18,13); $JUNCTION @ATTACH %j5;
+//   &vdd @WIRE(mode="straight") {#mp3:b (18,8) (18,13)};
+//   %j6=(24,13); $JUNCTION @ATTACH %j6;
+//   &vdd @WIRE(mode="straight") {#mp4:s (24,13)};
+//   %j7=(26,13); $JUNCTION @ATTACH %j7;
+//   &vdd @WIRE(mode="straight") {#mp4:b (26,8) (26,13)};
+//   %p2=$IO_PORT @ATTACH &y => @PLACE(30,4) => @ORIENT("MY");
+//   %j8=(0,4); $JUNCTION @ATTACH %j8;
+//   &y @WIRE(mode="straight") {#mp1:d (0,4) #mn1:d};
+//   &y @WIRE(mode="straight") {(0,4) (8,4) (16,4) (24,4) %p2:p};
+//   %j9=(8,4); $JUNCTION @ATTACH %j9;
+//   &y @WIRE(mode="straight") {#mp2:d (8,4)};
+//   %j10=(16,4); $JUNCTION @ATTACH %j10;
+//   &y @WIRE(mode="straight") {#mp3:d (16,4)};
+//   %j11=(24,4); $JUNCTION @ATTACH %j11;
+//   &y @WIRE(mode="straight") {#mp4:d (24,4)};
+//   &m1 @WIRE(mode="straight") {#mn1:s #mn2:d};
+//   &m2 @WIRE(mode="straight") {#mn2:s #mn3:d};
+//   &m3 @WIRE(mode="straight") {#mn3:s #mn4:d};
+//   %p3=$GROUND @ATTACH &vss => @PLACE(0,-22) => @ORIENT("R0");
+//   &vss @WIRE(mode="straight") {#mn4:s %p3:p};
+//   &vss @WIRE(mode="straight") {#mn1:b (3,0) (3,-6) (3,-12) (3,-18) (3,-22) %p3:p};
+//   %j12=(3,-6); $JUNCTION @ATTACH %j12;
+//   &vss @WIRE(mode="straight") {#mn2:b (3,-6)};
+//   %j13=(3,-12); $JUNCTION @ATTACH %j13;
+//   &vss @WIRE(mode="straight") {#mn3:b (3,-12)};
+//   %j14=(3,-18); $JUNCTION @ATTACH %j14;
+//   &vss @WIRE(mode="straight") {#mn4:b (3,-18)};
+//   %p4=$IO_PORT @ATTACH &a => @PLACE(-14,0) => @ORIENT("R0");
+//   %j15=(-6,0); $JUNCTION @ATTACH %j15;
+//   &a @WIRE(mode="straight") {%p4:p %j15 #mn1:g};
+//   &a @WIRE(mode="straight") {%j15 (-6,8) #mp1:g};
+//   %p5=$IO_PORT @ATTACH &b => @PLACE(-14,-6) => @ORIENT("R0");
+//   %j16=(-8,-6); $JUNCTION @ATTACH %j16;
+//   &b @WIRE(mode="straight") {%p5:p %j16 #mn2:g};
+//   &b @WIRE(mode="straight") {%j16 (-8,11) (3,11) (3,8) #mp2:g};
+//   %p6=$IO_PORT @ATTACH &c => @PLACE(-14,-12) => @ORIENT("R0");
+//   %j17=(-10,-12); $JUNCTION @ATTACH %j17;
+//   &c @WIRE(mode="straight") {%p6:p %j17 #mn3:g};
+//   &c @WIRE(mode="straight") {%j17 (-10,12) (11,12) (11,8) #mp3:g};
+//   %p7=$IO_PORT @ATTACH &d => @PLACE(-14,-18) => @ORIENT("R0");
+//   %j18=(-12,-18); $JUNCTION @ATTACH %j18;
+//   &d @WIRE(mode="straight") {%p7:p %j18 #mn4:g};
+//   &d @WIRE(mode="straight") {%j18 (-12,13) (19,13) (19,8) #mp4:g};
+//   (-14,17) @TEXT("nand4x", size=1.0, textcolor="#334155", bold=true, halign="start");
+//   (32,10) @TEXT("mp1  pch_lvt  0.8u/30n  nf=4", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (32,8.6) @TEXT("mp2  pch_lvt  0.8u/30n  nf=4", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (32,7.2) @TEXT("mp3  pch_lvt  0.8u/30n  nf=4", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (32,5.8) @TEXT("mp4  pch_lvt  0.8u/30n  nf=4", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (32,4.4) @TEXT("mn1  nch_lvt  3.2u/30n  nf=16", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (32,3) @TEXT("mn2  nch_lvt  3.2u/30n  nf=16", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (32,1.6) @TEXT("mn3  nch_lvt  3.2u/30n  nf=16", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (32,0.2) @TEXT("mn4  nch_lvt  3.2u/30n  nf=16", size=0.75, textcolor="#334155", bold=false, halign="start");
+// }
+ends nand4x
 
 subckt nor4s (a b c d y vdd vss)
   mp1 (y a m1 vdd) pch_lvt_mac w=1.6u l=30n nf=8
@@ -1925,7 +2088,7 @@ subckt step (en gu gd clrb blc up dn upb dec eno vdd vss)
 //   &clrb @WIRE(mode="straight") {%j12 #ld2:a};
 //   &clrb @WIRE(mode="straight") {%j11 (45,-24) (45,-26) #le2:a};
 //   (-14,20) @TEXT("step: one SAR decision. The UP/DN latch is also the token; the next step is enabled", size=0.8, textcolor="#334155", bold=true, halign="start");
-//   (-14,18.6) @TEXT("only after this one is decided, the comparator has reset and both strobes are closed (blc).", size=0.8, textcolor="#334155", bold=true, halign="start");
+//   (-14,18.6) @TEXT("only after this one is decided, CLKC is low and both strobes are closed (blc).", size=0.8, textcolor="#334155", bold=true, halign="start");
 //   (10,16) @TEXT("UP latch", size=0.7, textcolor="#334155", bold=false, halign="start");
 //   (10,0) @TEXT("DN latch", size=0.7, textcolor="#334155", bold=false, halign="start");
 //   (46,-15) @TEXT("next-step enable latch", size=0.7, textcolor="#334155", bold=false, halign="start");
@@ -2040,18 +2203,18 @@ subckt adc_sarlogic (CONV OUTP OUTN CLKC UP12 UP11 UP10 UP9 UP8 UP7 UP6 UP5 UP4 
 
   // ---- comparator outputs
   g_bl  (OUTP OUTN bothlow DVDD VSS) nor2b
-  i_bl  (bothlow bln DVDD VSS) inv
   // CLKC itself only drives the comparator, the latch feedback and i_c1; everything
   // else hangs on c2, a buffered copy two inverters later.
   i_c1  (CLKC c1 DVDD VSS) inv
   i_c2  (c1 c2 DVDD VSS) invx4
-  i_c3  (c2 clkcb_d DVDD VSS) inv              // NOT CLKC, late: the strobes stay open until
+  i_c3  (c2 clkcb_d DVDD VSS) invx4            // NOT CLKC, late: the strobes stay open until
                                                // the step latch has flipped and holds itself
-  // The next step may be enabled only once the comparator has reset, CLKC is low
-  // and both strobes are closed. Without the strobe terms a stuck comparator (bothlow
-  // never falls) lets the enable move before gu closes, and the forced decision is
-  // also written into the next step.
-  g_blc (bln c2 gu gd blcn DVDD VSS) nor4
+  // The next step may be enabled only once CLKC is low and both strobes are closed,
+  // so the decision just taken cannot be written into the next step as well. blc
+  // stays high until the next CLKC rise, and that rise waits for blc (blcn, the
+  // active-high gate output, goes straight into the CLKC set gates), so the enable
+  // latch always gets the whole set time, whatever the corner.
+  g_blc (gu gd c2 blcn DVDD VSS) nor3x2
   i_bl1 (blcn blcb DVDD VSS) inv
   i_bl2 (blcb blc DVDD VSS) invx4
 
@@ -2092,9 +2255,10 @@ subckt adc_sarlogic (CONV OUTP OUTN CLKC UP12 UP11 UP10 UP9 UP8 UP7 UP6 UP5 UP4 
   //      handshake floor), and the extra waits of 3..6 are timed against that floor.
   i_tm  (c2 tms DVDD VSS) invx4                  // tms high while CLKC is low
   i_tn  (tms tmsb DVDD VSS) invx4
-  w1  (tms  tms tmsb w_3   DVDD VSS) mpair       // fast + 10
-  w2  (w_3  tms tmsb wx2   DVDD VSS) rpair
-  w3  (wx2  tms tmsb w_456 DVDD VSS) mpair       // fast + 30
+  w1  (tms  tms tmsb wx1   DVDD VSS) mpair
+  w1b (wx1  tms tmsb w_3   DVDD VSS) fpair       // fast + 10
+  w2  (w_3  tms tmsb wx2   DVDD VSS) fpair
+  w3  (wx2  tms tmsb w_456 DVDD VSS) fpair       // fast + 30
   w4  (w_456 tms tmsb wx4  DVDD VSS) fpair
   w5  (wx4  tms tmsb wx5   DVDD VSS) fpair
   w5b (wx5  tms tmsb w_s   DVDD VSS) fpair       // slow
@@ -2110,15 +2274,16 @@ subckt adc_sarlogic (CONV OUTP OUTN CLKC UP12 UP11 UP10 UP9 UP8 UP7 UP6 UP5 UP4 
   g_s456 (dec4b dec7  sel456 DVDD VSS) nor2      // 4, 5, 6
   g_s9   (dec9b dec10 sel9   DVDD VSS) nor2      // 9 only
   g_ss   (dec7b sel9  sels   DVDD VSS) nor2      // 7, 8, 10 .. 13
-  n_3   (w_3   sel3   wn_3   DVDD VSS) nand2h      // half width: fine step for decision 3
+  n_3   (w_3   sel3   wn_3   DVDD VSS) nand2
   n_456 (w_456 sel456 wn_456 DVDD VSS) nand2
-  n_s   (w_s   sels   wn_s   DVDD VSS) nand2
-  n_9   (w_9   sel9   wn_9   DVDD VSS) nand2
+  n_s   (w_s   sels   wn_s   DVDD VSS) nand2x4
+  n_9   (w_9   sel9   wn_9   DVDD VSS) nand2x4
   g_wa  (dec3 wn_3 wn_456 w_a DVDD VSS) nand3    // the wait has elapsed (fast side)
-  g_wb  (wn_s wn_9 w_b DVDD VSS) nand2           // the wait has elapsed (slow side)
+  g_wb  (wn_s wn_9 w_b DVDD VSS) nand2x4         // the wait has elapsed (slow side)
 
-  // ---- comparator clock. CLKC is the node of a NAND latch, so it rises three
-  //      gates after the comparator resets and falls three gates after it decides.
+  // ---- comparator clock. CLKC is the node of a NAND latch, so it rises two gates
+  //      after the comparator has reset and the next step is being enabled, and
+  //      falls three gates after the comparator decides.
   c_s1 (cv cv convb s_a DVDD VSS) rch2          // t_start
   c_s2 (s_a cv convb s_b DVDD VSS) rpair
   c_s3 (s_b cv convb s_c DVDD VSS) fpair
@@ -2126,8 +2291,8 @@ subckt adc_sarlogic (CONV OUTP OUTN CLKC UP12 UP11 UP10 UP9 UP8 UP7 UP6 UP5 UP4 
   i_eb (dec14 eocb DVDD VSS) inv
   g_en (sd cv eocb en_gon DVDD VSS) nand3
   i_en (en_gon en_go DVDD VSS) inv               // started . CONV . not EOC
-  g_sa (bothlow en_go w_a setn_a DVDD VSS) nand3x
-  g_sb (bothlow en_go w_b setn_b DVDD VSS) nand3x
+  g_sa (blcn bothlow w_a en_go setn_a DVDD VSS) nand4x
+  g_sb (blcn bothlow w_b en_go setn_b DVDD VSS) nand4x
   g_r  (OUTP OUTN TO convb rstn DVDD VSS) nor4s   // low on a decision, a timeout or CONV low
   l_q  (setn_a setn_b ckqb CLKC DVDD VSS) nand3x8
   l_qb (rstn CLKC ckqb DVDD VSS) nand2x8
@@ -2493,15 +2658,11 @@ subckt adc_sarlogic (CONV OUTP OUTN CLKC UP12 UP11 UP10 UP9 UP8 UP7 UP6 UP5 UP4 
 //   %p42=$IO_PORT @ATTACH &OUTP => @PLACE(-4,-79) => @ORIENT("R0");
 //   %p43=$IO_PORT @ATTACH &OUTN => @PLACE(-4,-81) => @ORIENT("R0");
 //   #g_bl @PLACE(10,-80) => @ORIENT("R0");
-//   #i_bl @PLACE(20,-80) => @ORIENT("R0");
 //   &OUTP @WIRE(mode="straight") {%p42:p #g_bl:a};
 //   &OUTN @WIRE(mode="straight") {%p43:p #g_bl:b};
-//   %j86=(15,-80); $JUNCTION @ATTACH %j86;
-//   &bothlow @WIRE(mode="straight") {#g_bl:y %j86 #i_bl:a};
 //   #g_blc @PLACE(30,-80) => @ORIENT("R0");
 //   #i_bl1 @PLACE(40,-80) => @ORIENT("R0");
 //   #i_bl2 @PLACE(50,-80) => @ORIENT("R0");
-//   &bln @WIRE(mode="straight") {#i_bl:y (24,-80) (24,-78) #g_blc:a};
 //   &blcn @WIRE(mode="straight") {#g_blc:y #i_bl1:a};
 //   &blcb @WIRE(mode="straight") {#i_bl1:y #i_bl2:a};
 //   &blc @WIRE(mode="straight") {#i_bl2:y (88,-80)};
@@ -2513,7 +2674,7 @@ subckt adc_sarlogic (CONV OUTP OUTN CLKC UP12 UP11 UP10 UP9 UP8 UP7 UP6 UP5 UP4 
 //   #g_gd @PLACE(22,-107) => @ORIENT("R0");
 //   &gdn @WIRE(mode="straight") {#g_dn:y (16,-106) #g_gd:a};
 //   &gd @WIRE(mode="straight") {#g_gd:y (92,-107)};
-//   (0,-114) @TEXT("CLKC: NAND latch, its node drives CLKC", size=1.0, textcolor="#334155", bold=true, halign="start");
+//   (0,-114) @TEXT("CLKC: NAND latch, its node drives CLKC; set needs blc (next step being enabled), bothlow, the wait and en_go", size=1.0, textcolor="#334155", bold=true, halign="start");
 //   #g_sa @PLACE(10,-122) => @ORIENT("R0");
 //   #g_sb @PLACE(10,-130) => @ORIENT("R0");
 //   #l_q @PLACE(24,-125) => @ORIENT("R0");
@@ -2522,18 +2683,18 @@ subckt adc_sarlogic (CONV OUTP OUTN CLKC UP12 UP11 UP10 UP9 UP8 UP7 UP6 UP5 UP4 
 //   &setn_a @WIRE(mode="straight") {#g_sa:y (17,-122) (17,-124) #l_q:a};
 //   &setn_b @WIRE(mode="straight") {#g_sb:y (18,-130) (18,-125) #l_q:b};
 //   &ckqb @WIRE(mode="straight") {#l_qb:y (29,-133) (29,-128) (19,-128) (19,-126) #l_q:c};
-//   %j87=(31,-125); $JUNCTION @ATTACH %j87;
-//   %j88=(33,-125); $JUNCTION @ATTACH %j88;
+//   %j86=(31,-125); $JUNCTION @ATTACH %j86;
+//   %j87=(33,-125); $JUNCTION @ATTACH %j87;
 //   %p44=$IO_PORT @ATTACH &CLKC => @PLACE(46,-125) => @ORIENT("MY");
-//   &CLKC @WIRE(mode="straight") {#l_q:y %j87 %j88 %p44:p};
-//   &CLKC @WIRE(mode="straight") {%j87 (31,-136) (20,-136) (20,-134) #l_qb:b};
+//   &CLKC @WIRE(mode="straight") {#l_q:y %j86 %j87 %p44:p};
+//   &CLKC @WIRE(mode="straight") {%j86 (31,-136) (20,-136) (20,-134) #l_qb:b};
 //   #i_c1 @PLACE(38,-118) => @ORIENT("R0");
 //   #i_c2 @PLACE(46,-118) => @ORIENT("R0");
 //   #i_c3 @PLACE(54,-118) => @ORIENT("R0");
-//   &CLKC @WIRE(mode="straight") {%j88 (33,-118) #i_c1:a};
+//   &CLKC @WIRE(mode="straight") {%j87 (33,-118) #i_c1:a};
 //   &c1 @WIRE(mode="straight") {#i_c1:y #i_c2:a};
-//   %j89=(50,-118); $JUNCTION @ATTACH %j89;
-//   &c2 @WIRE(mode="straight") {#i_c2:y %j89 #i_c3:a};
+//   %j88=(50,-118); $JUNCTION @ATTACH %j88;
+//   &c2 @WIRE(mode="straight") {#i_c2:y %j88 #i_c3:a};
 //   &rstn @WIRE(mode="straight") {#g_r:y (16,-140) (16,-132) #l_qb:a};
 //   (0,-150) @TEXT("t_start and run enable", size=1.0, textcolor="#334155", bold=true, halign="start");
 //   #c_s1 @PLACE(10,-158) => @ORIENT("R0");
@@ -2543,17 +2704,17 @@ subckt adc_sarlogic (CONV OUTP OUTN CLKC UP12 UP11 UP10 UP9 UP8 UP7 UP6 UP5 UP4 
 //   &s_b @WIRE(mode="straight") {#c_s2:y #c_s3:a};
 //   #c_s4 @PLACE(46,-158) => @ORIENT("R0");
 //   &s_c @WIRE(mode="straight") {#c_s3:y #c_s4:a};
-//   %j90=(9,-163); $JUNCTION @ATTACH %j90;
-//   %j91=(21,-163); $JUNCTION @ATTACH %j91;
-//   %j92=(33,-163); $JUNCTION @ATTACH %j92;
+//   %j89=(9,-163); $JUNCTION @ATTACH %j89;
+//   %j90=(21,-163); $JUNCTION @ATTACH %j90;
+//   %j91=(33,-163); $JUNCTION @ATTACH %j91;
 //   &cv @WIRE(mode="straight") {(9,-163) (21,-163) (33,-163) (45,-163)};
 //   &cv @WIRE(mode="straight") {#c_s1:s (9,-163)};
 //   &cv @WIRE(mode="straight") {#c_s2:s (21,-163)};
 //   &cv @WIRE(mode="straight") {#c_s3:s (33,-163)};
 //   &cv @WIRE(mode="straight") {#c_s4:s (45,-163)};
-//   %j93=(11,-165); $JUNCTION @ATTACH %j93;
-//   %j94=(23,-165); $JUNCTION @ATTACH %j94;
-//   %j95=(35,-165); $JUNCTION @ATTACH %j95;
+//   %j92=(11,-165); $JUNCTION @ATTACH %j92;
+//   %j93=(23,-165); $JUNCTION @ATTACH %j93;
+//   %j94=(35,-165); $JUNCTION @ATTACH %j94;
 //   &convb @WIRE(mode="straight") {(11,-165) (23,-165) (35,-165) (47,-165)};
 //   &convb @WIRE(mode="straight") {#c_s1:sb (11,-165)};
 //   &convb @WIRE(mode="straight") {#c_s2:sb (23,-165)};
@@ -2570,38 +2731,42 @@ subckt adc_sarlogic (CONV OUTP OUTN CLKC UP12 UP11 UP10 UP9 UP8 UP7 UP6 UP5 UP4 
 //   (0,-180) @TEXT("DAC-wait timers (one tapped chain started by CLKC falling) and the selection of the wait", size=1.0, textcolor="#334155", bold=true, halign="start");
 //   #i_tm @PLACE(6,-190) => @ORIENT("R0");
 //   #i_tn @PLACE(16,-196) => @ORIENT("R0");
-//   %j96=(10,-190); $JUNCTION @ATTACH %j96;
+//   %j95=(10,-190); $JUNCTION @ATTACH %j95;
 //   #w1 @PLACE(30,-190) => @ORIENT("R0");
-//   #w2 @PLACE(44,-190) => @ORIENT("R0");
-//   &w_3 @WIRE(mode="straight") {#w1:y #w2:a};
-//   #w3 @PLACE(58,-190) => @ORIENT("R0");
+//   #w1b @PLACE(44,-190) => @ORIENT("R0");
+//   &wx1 @WIRE(mode="straight") {#w1:y #w1b:a};
+//   #w2 @PLACE(58,-190) => @ORIENT("R0");
+//   &w_3 @WIRE(mode="straight") {#w1b:y #w2:a};
+//   #w3 @PLACE(72,-190) => @ORIENT("R0");
 //   &wx2 @WIRE(mode="straight") {#w2:y #w3:a};
-//   #w4 @PLACE(72,-190) => @ORIENT("R0");
+//   #w4 @PLACE(86,-190) => @ORIENT("R0");
 //   &w_456 @WIRE(mode="straight") {#w3:y #w4:a};
-//   #w5 @PLACE(86,-190) => @ORIENT("R0");
+//   #w5 @PLACE(100,-190) => @ORIENT("R0");
 //   &wx4 @WIRE(mode="straight") {#w4:y #w5:a};
-//   #w5b @PLACE(100,-190) => @ORIENT("R0");
+//   #w5b @PLACE(114,-190) => @ORIENT("R0");
 //   &wx5 @WIRE(mode="straight") {#w5:y #w5b:a};
-//   #w6 @PLACE(114,-190) => @ORIENT("R0");
+//   #w6 @PLACE(128,-190) => @ORIENT("R0");
 //   &w_s @WIRE(mode="straight") {#w5b:y #w6:a};
-//   #w7 @PLACE(128,-190) => @ORIENT("R0");
+//   #w7 @PLACE(142,-190) => @ORIENT("R0");
 //   &wx6 @WIRE(mode="straight") {#w6:y #w7:a};
-//   %j97=(29,-195); $JUNCTION @ATTACH %j97;
-//   %j98=(43,-195); $JUNCTION @ATTACH %j98;
-//   %j99=(57,-195); $JUNCTION @ATTACH %j99;
-//   %j100=(71,-195); $JUNCTION @ATTACH %j100;
-//   %j101=(85,-195); $JUNCTION @ATTACH %j101;
-//   %j102=(99,-195); $JUNCTION @ATTACH %j102;
-//   %j103=(113,-195); $JUNCTION @ATTACH %j103;
-//   &tms @WIRE(mode="straight") {(29,-195) (43,-195) (57,-195) (71,-195) (85,-195) (99,-195) (113,-195) (127,-195)};
+//   %j96=(29,-195); $JUNCTION @ATTACH %j96;
+//   %j97=(43,-195); $JUNCTION @ATTACH %j97;
+//   %j98=(57,-195); $JUNCTION @ATTACH %j98;
+//   %j99=(71,-195); $JUNCTION @ATTACH %j99;
+//   %j100=(85,-195); $JUNCTION @ATTACH %j100;
+//   %j101=(99,-195); $JUNCTION @ATTACH %j101;
+//   %j102=(113,-195); $JUNCTION @ATTACH %j102;
+//   %j103=(127,-195); $JUNCTION @ATTACH %j103;
+//   &tms @WIRE(mode="straight") {(29,-195) (43,-195) (57,-195) (71,-195) (85,-195) (99,-195) (113,-195) (127,-195) (141,-195)};
 //   &tms @WIRE(mode="straight") {#w1:s (29,-195)};
-//   &tms @WIRE(mode="straight") {#w2:s (43,-195)};
-//   &tms @WIRE(mode="straight") {#w3:s (57,-195)};
-//   &tms @WIRE(mode="straight") {#w4:s (71,-195)};
-//   &tms @WIRE(mode="straight") {#w5:s (85,-195)};
-//   &tms @WIRE(mode="straight") {#w5b:s (99,-195)};
-//   &tms @WIRE(mode="straight") {#w6:s (113,-195)};
-//   &tms @WIRE(mode="straight") {#w7:s (127,-195)};
+//   &tms @WIRE(mode="straight") {#w1b:s (43,-195)};
+//   &tms @WIRE(mode="straight") {#w2:s (57,-195)};
+//   &tms @WIRE(mode="straight") {#w3:s (71,-195)};
+//   &tms @WIRE(mode="straight") {#w4:s (85,-195)};
+//   &tms @WIRE(mode="straight") {#w5:s (99,-195)};
+//   &tms @WIRE(mode="straight") {#w5b:s (113,-195)};
+//   &tms @WIRE(mode="straight") {#w6:s (127,-195)};
+//   &tms @WIRE(mode="straight") {#w7:s (141,-195)};
 //   %j104=(31,-197); $JUNCTION @ATTACH %j104;
 //   %j105=(45,-197); $JUNCTION @ATTACH %j105;
 //   %j106=(59,-197); $JUNCTION @ATTACH %j106;
@@ -2609,19 +2774,21 @@ subckt adc_sarlogic (CONV OUTP OUTN CLKC UP12 UP11 UP10 UP9 UP8 UP7 UP6 UP5 UP4 
 //   %j108=(87,-197); $JUNCTION @ATTACH %j108;
 //   %j109=(101,-197); $JUNCTION @ATTACH %j109;
 //   %j110=(115,-197); $JUNCTION @ATTACH %j110;
-//   &tmsb @WIRE(mode="straight") {(31,-197) (45,-197) (59,-197) (73,-197) (87,-197) (101,-197) (115,-197) (129,-197)};
+//   %j111=(129,-197); $JUNCTION @ATTACH %j111;
+//   &tmsb @WIRE(mode="straight") {(31,-197) (45,-197) (59,-197) (73,-197) (87,-197) (101,-197) (115,-197) (129,-197) (143,-197)};
 //   &tmsb @WIRE(mode="straight") {#w1:sb (31,-197)};
-//   &tmsb @WIRE(mode="straight") {#w2:sb (45,-197)};
-//   &tmsb @WIRE(mode="straight") {#w3:sb (59,-197)};
-//   &tmsb @WIRE(mode="straight") {#w4:sb (73,-197)};
-//   &tmsb @WIRE(mode="straight") {#w5:sb (87,-197)};
-//   &tmsb @WIRE(mode="straight") {#w5b:sb (101,-197)};
-//   &tmsb @WIRE(mode="straight") {#w6:sb (115,-197)};
-//   &tmsb @WIRE(mode="straight") {#w7:sb (129,-197)};
-//   &tms @WIRE(mode="straight") {#i_tm:y %j96 #w1:a};
-//   &tms @WIRE(mode="straight") {%j96 (10,-196) #i_tn:a};
-//   (130,-195) @TEXT("tms (CLKC low)", size=0.6, textcolor="#334155", bold=false, halign="start");
-//   (130,-197) @TEXT("tmsb", size=0.6, textcolor="#334155", bold=false, halign="start");
+//   &tmsb @WIRE(mode="straight") {#w1b:sb (45,-197)};
+//   &tmsb @WIRE(mode="straight") {#w2:sb (59,-197)};
+//   &tmsb @WIRE(mode="straight") {#w3:sb (73,-197)};
+//   &tmsb @WIRE(mode="straight") {#w4:sb (87,-197)};
+//   &tmsb @WIRE(mode="straight") {#w5:sb (101,-197)};
+//   &tmsb @WIRE(mode="straight") {#w5b:sb (115,-197)};
+//   &tmsb @WIRE(mode="straight") {#w6:sb (129,-197)};
+//   &tmsb @WIRE(mode="straight") {#w7:sb (143,-197)};
+//   &tms @WIRE(mode="straight") {#i_tm:y %j95 #w1:a};
+//   &tms @WIRE(mode="straight") {%j95 (10,-196) #i_tn:a};
+//   (144,-195) @TEXT("tms (CLKC low)", size=0.6, textcolor="#334155", bold=false, halign="start");
+//   (144,-197) @TEXT("tmsb", size=0.6, textcolor="#334155", bold=false, halign="start");
 //   #i_d3 @PLACE(10,-212) => @ORIENT("R0");
 //   #i_d4 @PLACE(20,-212) => @ORIENT("R0");
 //   #i_d7 @PLACE(30,-212) => @ORIENT("R0");
@@ -2639,8 +2806,8 @@ subckt adc_sarlogic (CONV OUTP OUTN CLKC UP12 UP11 UP10 UP9 UP8 UP7 UP6 UP5 UP4 
 //   (0,-244) @TEXT("timeout: CLKC high for longer than the chain forces a decision of 1", size=1.0, textcolor="#334155", bold=true, halign="start");
 //   #i_tb @PLACE(6,-252) => @ORIENT("R0");
 //   #i_ta @PLACE(16,-258) => @ORIENT("R0");
-//   %j111=(10,-252); $JUNCTION @ATTACH %j111;
-//   &tsb @WIRE(mode="straight") {#i_tb:y %j111 (10,-258) #i_ta:a};
+//   %j112=(10,-252); $JUNCTION @ATTACH %j112;
+//   &tsb @WIRE(mode="straight") {#i_tb:y %j112 (10,-258) #i_ta:a};
 //   #c_t1 @PLACE(30,-252) => @ORIENT("R0");
 //   #c_t2 @PLACE(44,-252) => @ORIENT("R0");
 //   &t_a @WIRE(mode="straight") {#c_t1:y #c_t2:a};
@@ -2648,17 +2815,17 @@ subckt adc_sarlogic (CONV OUTP OUTN CLKC UP12 UP11 UP10 UP9 UP8 UP7 UP6 UP5 UP4 
 //   &t_b @WIRE(mode="straight") {#c_t2:y #c_t3:a};
 //   #c_t4 @PLACE(72,-252) => @ORIENT("R0");
 //   &t_c @WIRE(mode="straight") {#c_t3:y #c_t4:a};
-//   %j112=(29,-257); $JUNCTION @ATTACH %j112;
-//   %j113=(43,-257); $JUNCTION @ATTACH %j113;
-//   %j114=(57,-257); $JUNCTION @ATTACH %j114;
+//   %j113=(29,-257); $JUNCTION @ATTACH %j113;
+//   %j114=(43,-257); $JUNCTION @ATTACH %j114;
+//   %j115=(57,-257); $JUNCTION @ATTACH %j115;
 //   &ts @WIRE(mode="straight") {(29,-257) (43,-257) (57,-257) (71,-257)};
 //   &ts @WIRE(mode="straight") {#c_t1:s (29,-257)};
 //   &ts @WIRE(mode="straight") {#c_t2:s (43,-257)};
 //   &ts @WIRE(mode="straight") {#c_t3:s (57,-257)};
 //   &ts @WIRE(mode="straight") {#c_t4:s (71,-257)};
-//   %j115=(31,-259); $JUNCTION @ATTACH %j115;
-//   %j116=(45,-259); $JUNCTION @ATTACH %j116;
-//   %j117=(59,-259); $JUNCTION @ATTACH %j117;
+//   %j116=(31,-259); $JUNCTION @ATTACH %j116;
+//   %j117=(45,-259); $JUNCTION @ATTACH %j117;
+//   %j118=(59,-259); $JUNCTION @ATTACH %j118;
 //   &tsb @WIRE(mode="straight") {(31,-259) (45,-259) (59,-259) (73,-259)};
 //   &tsb @WIRE(mode="straight") {#c_t1:sb (31,-259)};
 //   &tsb @WIRE(mode="straight") {#c_t2:sb (45,-259)};
@@ -2670,8 +2837,8 @@ subckt adc_sarlogic (CONV OUTP OUTN CLKC UP12 UP11 UP10 UP9 UP8 UP7 UP6 UP5 UP4 
 //   #g_to @PLACE(90,-253) => @ORIENT("R0");
 //   #i_to @PLACE(100,-253) => @ORIENT("R0");
 //   &tod @WIRE(mode="straight") {#c_t4:y (84,-252) (84,-254) #g_to:b};
-//   %j118=(95,-253); $JUNCTION @ATTACH %j118;
-//   &TOB @WIRE(mode="straight") {#g_to:y %j118 #i_to:a};
+//   %j119=(95,-253); $JUNCTION @ATTACH %j119;
+//   &TOB @WIRE(mode="straight") {#g_to:y %j119 #i_to:a};
 //   (100,-50) @TEXT("output register load and RDY", size=1.0, textcolor="#334155", bold=true, halign="start");
 //   #p_e @PLACE(104,-58) => @ORIENT("R0");
 //   #p_c @PLACE(104,-66) => @ORIENT("R0");
@@ -2679,9 +2846,9 @@ subckt adc_sarlogic (CONV OUTP OUTN CLKC UP12 UP11 UP10 UP9 UP8 UP7 UP6 UP5 UP4 
 //   #b_lb @PLACE(124,-70) => @ORIENT("R0");
 //   &pen @WIRE(mode="straight") {#p_e:pn (108,-58) (108,-61) #g_ld:a};
 //   &pcn @WIRE(mode="straight") {#p_c:pn (108,-66) (108,-63) #g_ld:b};
-//   %j119=(116,-62); $JUNCTION @ATTACH %j119;
-//   &ld @WIRE(mode="straight") {#g_ld:y %j119 (116,-70) #b_lb:a};
-//   &ld @WIRE(mode="straight") {%j119 (116,-36)};
+//   %j120=(116,-62); $JUNCTION @ATTACH %j120;
+//   &ld @WIRE(mode="straight") {#g_ld:y %j120 (116,-70) #b_lb:a};
+//   &ld @WIRE(mode="straight") {%j120 (116,-36)};
 //   &ldb @WIRE(mode="straight") {#b_lb:y (128,-70) (128,-74) (118,-74) (118,-37)};
 //   &ld @WIRE(mode="straight") {(116,198) (116,180) (116,162) (116,144) (116,126) (116,108) (116,90) (116,72) (116,54) (116,36) (116,18) (116,0) (116,-18) (116,-36)};
 //   &ldb @WIRE(mode="straight") {(118,197) (118,179) (118,161) (118,143) (118,125) (118,107) (118,89) (118,71) (118,53) (118,35) (118,17) (118,-1) (118,-19) (118,-37)};
@@ -2699,11 +2866,11 @@ subckt adc_sarlogic (CONV OUTP OUTN CLKC UP12 UP11 UP10 UP9 UP8 UP7 UP6 UP5 UP4 
 //   &r_c4 @WIRE(mode="straight") {#c_r4:y #c_r5:a};
 //   #c_r6 @PLACE(230,-84) => @ORIENT("R0");
 //   &r_c5 @WIRE(mode="straight") {#c_r5:y #c_r6:a};
-//   %j120=(169,-89); $JUNCTION @ATTACH %j120;
-//   %j121=(181,-89); $JUNCTION @ATTACH %j121;
-//   %j122=(193,-89); $JUNCTION @ATTACH %j122;
-//   %j123=(205,-89); $JUNCTION @ATTACH %j123;
-//   %j124=(217,-89); $JUNCTION @ATTACH %j124;
+//   %j121=(169,-89); $JUNCTION @ATTACH %j121;
+//   %j122=(181,-89); $JUNCTION @ATTACH %j122;
+//   %j123=(193,-89); $JUNCTION @ATTACH %j123;
+//   %j124=(205,-89); $JUNCTION @ATTACH %j124;
+//   %j125=(217,-89); $JUNCTION @ATTACH %j125;
 //   &dn_q @WIRE(mode="straight") {(169,-89) (181,-89) (193,-89) (205,-89) (217,-89) (229,-89)};
 //   &dn_q @WIRE(mode="straight") {#c_r1:s (169,-89)};
 //   &dn_q @WIRE(mode="straight") {#c_r2:s (181,-89)};
@@ -2711,11 +2878,11 @@ subckt adc_sarlogic (CONV OUTP OUTN CLKC UP12 UP11 UP10 UP9 UP8 UP7 UP6 UP5 UP4 
 //   &dn_q @WIRE(mode="straight") {#c_r4:s (205,-89)};
 //   &dn_q @WIRE(mode="straight") {#c_r5:s (217,-89)};
 //   &dn_q @WIRE(mode="straight") {#c_r6:s (229,-89)};
-//   %j125=(171,-91); $JUNCTION @ATTACH %j125;
-//   %j126=(183,-91); $JUNCTION @ATTACH %j126;
-//   %j127=(195,-91); $JUNCTION @ATTACH %j127;
-//   %j128=(207,-91); $JUNCTION @ATTACH %j128;
-//   %j129=(219,-91); $JUNCTION @ATTACH %j129;
+//   %j126=(171,-91); $JUNCTION @ATTACH %j126;
+//   %j127=(183,-91); $JUNCTION @ATTACH %j127;
+//   %j128=(195,-91); $JUNCTION @ATTACH %j128;
+//   %j129=(207,-91); $JUNCTION @ATTACH %j129;
+//   %j130=(219,-91); $JUNCTION @ATTACH %j130;
 //   &dn_qb @WIRE(mode="straight") {(171,-91) (183,-91) (195,-91) (207,-91) (219,-91) (231,-91)};
 //   &dn_qb @WIRE(mode="straight") {#c_r1:sb (171,-91)};
 //   &dn_qb @WIRE(mode="straight") {#c_r2:sb (183,-91)};
@@ -2738,10 +2905,11 @@ subckt adc_sarlogic (CONV OUTP OUTN CLKC UP12 UP11 UP10 UP9 UP8 UP7 UP6 UP5 UP4 
 //   #c_cl1:sb @TEXT("cv", key="netname", size=0.55, textcolor="#9a3412", dx=0, dy=-0.4, halign="middle", valign="top");
 //   #c_cl2:s @TEXT("convb", key="netname", size=0.55, textcolor="#9a3412", dx=0, dy=-0.4, halign="middle", valign="top");
 //   #c_cl2:sb @TEXT("cv", key="netname", size=0.55, textcolor="#9a3412", dx=0, dy=-0.4, halign="middle", valign="top");
+//   #g_bl:y @TEXT("bothlow", key="netname", size=0.55, textcolor="#9a3412", dx=0.4, dy=0, halign="start", valign="middle");
 //   #i_c3:y @TEXT("clkcb_d", key="netname", size=0.55, textcolor="#9a3412", dx=0.4, dy=0, halign="start", valign="middle");
-//   #g_blc:b @TEXT("c2", key="netname", size=0.55, textcolor="#9a3412", dx=-0.4, dy=0, halign="end", valign="middle");
-//   #g_blc:c @TEXT("gu", key="netname", size=0.55, textcolor="#9a3412", dx=-0.4, dy=0, halign="end", valign="middle");
-//   #g_blc:d @TEXT("gd", key="netname", size=0.55, textcolor="#9a3412", dx=-0.4, dy=0, halign="end", valign="middle");
+//   #g_blc:a @TEXT("gu", key="netname", size=0.55, textcolor="#9a3412", dx=-0.4, dy=0, halign="end", valign="middle");
+//   #g_blc:b @TEXT("gd", key="netname", size=0.55, textcolor="#9a3412", dx=-0.4, dy=0, halign="end", valign="middle");
+//   #g_blc:c @TEXT("c2", key="netname", size=0.55, textcolor="#9a3412", dx=-0.4, dy=0, halign="end", valign="middle");
 //   #i_tb:a @TEXT("c2", key="netname", size=0.55, textcolor="#9a3412", dx=-0.4, dy=0, halign="end", valign="middle");
 //   #g_to:a @TEXT("c2", key="netname", size=0.55, textcolor="#9a3412", dx=-0.4, dy=0, halign="end", valign="middle");
 //   #i_to:y @TEXT("TO", key="netname", size=0.55, textcolor="#9a3412", dx=0.4, dy=0, halign="start", valign="middle");
@@ -2815,12 +2983,14 @@ subckt adc_sarlogic (CONV OUTP OUTN CLKC UP12 UP11 UP10 UP9 UP8 UP7 UP6 UP5 UP4 
 //   #i_eb:a @TEXT("dec14", key="netname", size=0.55, textcolor="#9a3412", dx=-0.4, dy=0, halign="end", valign="middle");
 //   #g_en:b @TEXT("cv", key="netname", size=0.55, textcolor="#9a3412", dx=-0.4, dy=0, halign="end", valign="middle");
 //   #i_en:y @TEXT("en_go", key="netname", size=0.55, textcolor="#9a3412", dx=0.4, dy=0, halign="start", valign="middle");
-//   #g_sa:a @TEXT("bothlow", key="netname", size=0.55, textcolor="#9a3412", dx=-0.4, dy=0, halign="end", valign="middle");
-//   #g_sa:b @TEXT("en_go", key="netname", size=0.55, textcolor="#9a3412", dx=-0.4, dy=0, halign="end", valign="middle");
+//   #g_sa:a @TEXT("blcn", key="netname", size=0.55, textcolor="#9a3412", dx=-0.4, dy=0, halign="end", valign="middle");
+//   #g_sa:b @TEXT("bothlow", key="netname", size=0.55, textcolor="#9a3412", dx=-0.4, dy=0, halign="end", valign="middle");
 //   #g_sa:c @TEXT("w_a", key="netname", size=0.55, textcolor="#9a3412", dx=-0.4, dy=0, halign="end", valign="middle");
-//   #g_sb:a @TEXT("bothlow", key="netname", size=0.55, textcolor="#9a3412", dx=-0.4, dy=0, halign="end", valign="middle");
-//   #g_sb:b @TEXT("en_go", key="netname", size=0.55, textcolor="#9a3412", dx=-0.4, dy=0, halign="end", valign="middle");
+//   #g_sa:d @TEXT("en_go", key="netname", size=0.55, textcolor="#9a3412", dx=-0.4, dy=0, halign="end", valign="middle");
+//   #g_sb:a @TEXT("blcn", key="netname", size=0.55, textcolor="#9a3412", dx=-0.4, dy=0, halign="end", valign="middle");
+//   #g_sb:b @TEXT("bothlow", key="netname", size=0.55, textcolor="#9a3412", dx=-0.4, dy=0, halign="end", valign="middle");
 //   #g_sb:c @TEXT("w_b", key="netname", size=0.55, textcolor="#9a3412", dx=-0.4, dy=0, halign="end", valign="middle");
+//   #g_sb:d @TEXT("en_go", key="netname", size=0.55, textcolor="#9a3412", dx=-0.4, dy=0, halign="end", valign="middle");
 //   #g_r:a @TEXT("OUTP", key="netname", size=0.55, textcolor="#9a3412", dx=-0.4, dy=0, halign="end", valign="middle");
 //   #g_r:b @TEXT("OUTN", key="netname", size=0.55, textcolor="#9a3412", dx=-0.4, dy=0, halign="end", valign="middle");
 //   #g_r:c @TEXT("TO", key="netname", size=0.55, textcolor="#9a3412", dx=-0.4, dy=0, halign="end", valign="middle");
