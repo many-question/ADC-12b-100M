@@ -14,7 +14,7 @@ The independent private screen uses the merged adc_comp 0.8.0 official testbench
 
 Electrical SHA-256: `379e31cd1bf978f5458ea12c2d011f0273dc918a4db5d1a8ea32b48fad8ee0b3`. The [source](https://github.com/many-question/ADC-12b-100M/blob/2db9f93848412c520ab08fb6218adf376ff2cd50/design/xtor/adc_comp/many-question-miyahara/BUFFER-V22.txt) contains complete RNL checked on a byte-identical mirror.
 
-![Comparator with stronger reset clock pull-up](buffer-v22.png)
+![Comparator with stronger reset clock pull-up](https://raw.githubusercontent.com/many-question/ADC-12b-100M/2579cdf3c91b81599ca5f9f74a1744495ddfc1ea/design/xtor/adc_comp/many-question-miyahara/buffer-v22.png)
 
 
 ## Completed merged-baseline deterministic checks

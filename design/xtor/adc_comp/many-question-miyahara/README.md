@@ -1,4 +1,10 @@
-# Miyahara comparator: BUFFER-V20
+# Miyahara comparator: restored original B26
+
+The canonical source is now the original physical **B26**, restored byte-for-byte from its two historical Git objects. [B26 restoration and source identity](RESTORATION-B26.md) records the current adc_comp 0.11.0 qualification plan and provenance. This is a source-freeze checkpoint, not a passing qualification result. Full fresh TT / FF-low-125 / FS-low-125 noise and present-day timing, loading, short-reset and SOA gates come first. Candidate status remains WIP; no historical result is relabeled.
+
+![Current complete B26 transistor schematic](schematic.png)
+
+## Historical B20 and subsequent experiments
 
 > Superseded raw was released. Historical audits do not imply availability; see [retained runs](EVIDENCE-RETENTION.md).
 
@@ -8,7 +14,7 @@ The independent [B22 experiment](BUFFER-V22.md) passes five merged-baseline dete
 
 The canonical source contains 43 MOS devices and nine physical MOM capacitors. All dimensions and terminal parasitics come from successful callbacks or exact verified geometry reuse. Physical rail loads carry persistent current. [ENERGY-COMPARISON](ENERGY-COMPARISON.md) and the later private reports retain whole-cycle AVDD measurements; energy is report-only.
 
-![Current complete transistor schematic](schematic.png)
+The historical B20 drawing is [preserved at its published commit](https://raw.githubusercontent.com/many-question/ADC-12b-100M/2579cdf3c91b81599ca5f9f74a1744495ddfc1ea/design/xtor/adc_comp/many-question-miyahara/schematic.png).
 
 [NUMERICS-94](NUMERICS-94.md) retains the numerical migration and every private gate. PR #95 is merged at c6152d236e525793ecc4809b9a6c9dfb9fd0ad77, with comp 0.8.0 and exact ADCToolbox commit cd72061ff3b7a977163dac540da126ae22f5e38d. The runtime passes the #96 self-check at 79.999999999274 dB. New evidence uses APS and actual conservative settings, without explicit maxstep or method. No old or private result is relabeled as formal.
 

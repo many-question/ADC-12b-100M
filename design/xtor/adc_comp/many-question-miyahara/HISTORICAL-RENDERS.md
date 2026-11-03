@@ -51,3 +51,7 @@ The complete RNL sources and experiment reports remain available in this candida
 - [buffer-v21.png](https://raw.githubusercontent.com/many-question/ADC-12b-100M/a7ade027755ab3be3793b3da4c6d6a38388d15e0/design/xtor/adc_comp/many-question-miyahara/buffer-v21.png)
 
 Historical one-hot event figure uses its immutable published image at `6214f6109214d03c56a7e523f8a209d10c96f5ed`; SHA-256 `1fd670da35b0d3fe329798aeb77378eb0c9cb4d9598f93ad948a76fc7be84fc6`, 177986 bytes, compared byte-for-byte before removing the duplicate candidate image to preserve the 2 MB budget.
+
+## B26 restoration archive
+
+The duplicate [B22 image](https://raw.githubusercontent.com/many-question/ADC-12b-100M/2579cdf3c91b81599ca5f9f74a1744495ddfc1ea/design/xtor/adc_comp/many-question-miyahara/buffer-v22.png) is preserved byte-for-byte at published commit `2579cdf3c91b81599ca5f9f74a1744495ddfc1ea`. The pre-restoration candidate and formal results were archived and every member read back with CRC and SHA-256 verification. Archive SHA-256: `8c2b5cb4233470f4e2932b1bb33d71d894119d87fdd7b582643f2d934959c794`. No historical result is deleted or relabeled.
