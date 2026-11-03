@@ -1,6 +1,6 @@
 # Original B26 restoration under adc_comp 0.11.0
 
-The current canonical source is the original physical B26: 43 MOS devices and nine MOM capacitors. No dimensions, parasitics, connections or numerical settings were changed to restore it. It remains **WIP, unqualified and unselected** pending fresh measurements.
+The current canonical source is the original physical B26: 43 MOS devices and nine MOM capacitors. No dimensions, parasitics, connections or numerical settings were changed to restore it. All required block measurements now pass with **181/181 fresh records**, zero failures, errors or stale records. It remains **WIP, unqualified and unselected** pending mixed-top reference regression and lead verification.
 
 The exact source was recovered independently from historical simulation commit `3dd17927ddcb842b4e28289270fa76436dcb4ab1` and published commit `9036f74f024088185398717989ed589784d1d151`, path `design/xtor/adc_comp/many-question-miyahara/BUFFER-V26.txt`; both Git objects are byte-identical to the restored `adc_comp.scs`.
 
@@ -15,7 +15,7 @@ The exact source was recovered independently from historical simulation commit `
 
 Historical TT baseline/tighter 30 mV delay is 48.97788988704756/48.99406817867042 ps against 50 ps. Input capacitance is 19.328731218738323 fF against 20 fF. These narrow margins are explicit first-round checks. Historical convergence failures of B25 and B27 are not attributed to B26.
 
-## Current qualification plan
+## Restoration plan and source freeze
 
 Main `ac9f7a3bd2c788345464e292a74271d7febe2f8c` is incorporated. Issues #131 and #136 are acknowledged for this candidate: CMP-13 280 uV, CMP-08 45 ps, unchanged TT CMP-01 200 uV and CMP-15, plus official per-device CMP-17 SOA including startup and the sliding-window short-overvoltage rule.
 
@@ -102,3 +102,19 @@ The worst-SOA crosscheck also passed remote SHA-256 matching, ZIP CRC/member SHA
 ## Analysis dependency update before mixed-top
 
 Main `8838a8ed` (PR #144) replaces the ADCToolbox Git pin with the PyPI release 0.9.2. It changes no comparator source, specification or testbench. The update is merged before mixed-top work; the in-flight noise process retains its original environment. A separate 0.9.2 environment keeps the same NumPy, SciPy and Matplotlib versions. All 36 spectrum tests pass, the 80 dB SFDR self-check returns 79.99999999927381 dBc, and recomputing all metrics from the first three noise raw records gives exact matches. `adcflow check all` also passes on the updated baseline. Historical provenance remains unchanged.
+
+## Complete block coverage: all 181 records pass
+
+Run `20261104-023413-0c91-tb_comp_noise` completes the remaining 42 noise corners on the original frozen B26. Together with the first three corners, all **45 corners / 391680 decisions** are complete and finite, with exactly 512 samples at each of 17 input levels. All sample IDs are sequential and timestamps increase. Recomputing every noise metric from all 45 raw records in the current 0.9.2 analysis environment exactly reproduces the official records. The smallest sampled absolute output difference is 0.9623218632731313 VDD; no sample is below half VDD. This is a sampled-output diagnostic, not a substitute for full transient CMP-15 checks.
+
+| Complete coverage | Result | Required limit |
+|---|---:|---:|
+| TT noise | 171.1689355211837 uV rms | 200 uV |
+| Worst all-corner noise, fs_low_125 | 270.61635250554104 uV rms | 280 uV |
+| Largest systematic absolute offset | 0.007260706202395702 mV | 2 mV |
+| Delay / kickback / noise / device SOA | 45 fresh passing corners each | All 45 |
+| TT local mismatch | 50 valid, 0 failed samples; sigma 1.8476284955369302 mV | 50 valid; sigma <= 5 mV |
+
+The worst-noise profile interval remains [261.07, 280.60] uV: the upper endpoint exceeds 280 uV, so this is a pass of the specified point-estimate criterion, not proof of statistical margin. The source has not changed during qualification. There are now **181 fresh / 181 total official records**, zero stale records, errors or failed criteria. Mixed-top reference regression and lead verification are still required; block-test completion does not confer eligibility or selection.
+
+The additional 42-corner noise run passed remote SHA-256 matching, all sample-count checks, local ZIP CRC/member SHA-256 readback, independent retention and exact remote absence checks. Retained archive SHA-256: `c70d84aa07e68b749ac2b90097792f2d21581a87bc7a5d1b9d5f6cb3b382d596`. All 13 completed block/support run archives remain independently retained; no active run was removed.

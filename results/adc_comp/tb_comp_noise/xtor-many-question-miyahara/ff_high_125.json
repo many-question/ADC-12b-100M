@@ -17,43 +17,43 @@
  },
  "metrics": {
   "p1": [
-   0.0059,
+   0.0,
+   0.0,
    0.0039,
-   0.0332,
-   0.043,
-   0.1074,
-   0.0996,
-   0.2422,
-   0.3066,
-   0.4941,
-   0.6035,
-   0.7441,
-   0.8105,
-   0.9023,
-   0.9473,
-   0.9766,
-   0.9805,
-   0.998
+   0.0156,
+   0.0527,
+   0.1016,
+   0.2051,
+   0.3379,
+   0.5352,
+   0.6504,
+   0.8086,
+   0.8828,
+   0.9453,
+   0.9863,
+   0.9941,
+   0.9961,
+   1.0
   ],
   "n_per_level": 512,
-  "noise_uV": 302.38621845221667,
+  "noise_uV": 239.52422824110246,
   "noise_ci95_uV": [
-   292.12,
-   313.14
+   230.65,
+   248.82
   ],
-  "offset_abs_mV": 0.0195308621232203,
-  "offset_mV": 0.0195308621232203
+  "offset_abs_mV": 0.0007252715585111542,
+  "offset_mV": -0.0007252715585111542
  },
  "specs": {
   "CMP-13": {
    "metric": "noise_uV",
-   "value": 302.38621845221667,
-   "limit": "<= 240",
-   "pass": false
+   "value": 239.52422824110246,
+   "limit": "<= 280",
+   "pass": true
   },
   "CMP-02": {
    "metric": "offset_abs_mV",
-   "value": 0.0195308621232203,
+   "value": 0.0007252715585111542,
    "limit": "<= 2",
    "pass": true
   }
@@ -61,7 +61,7 @@
  "specs_na": {
   "CMP-01": {
    "metric": "noise_uV",
-   "value": 302.38621845221667,
+   "value": 239.52422824110246,
    "limit": "<= 200",
    "corners": "typ"
   }
@@ -73,31 +73,32 @@
   }
  ],
  "meta": {
-  "date": "2026-10-31T07:41:08",
-  "git": "33c0e9c",
+  "date": "2026-11-04T04:53:30",
+  "git": "64e33893",
   "git_clean": true,
   "mode": "aps",
   "pdk": true,
   "mc": null,
-  "wall_s": 947.5,
+  "wall_s": 8330.9,
   "rc": "0",
-  "sim_s": "419",
+  "sim_s": "959",
   "numerics": {
    "source": "spectre.log",
-   "reltol": 0.001,
-   "maxstep_ps": 69634.0,
-   "method": "traponly",
-   "errpreset": "moderate",
-   "lteratio": 3.5,
+   "reltol": 0.0001,
+   "maxstep_ps": 34817.0,
+   "method": "gear2only",
+   "errpreset": "conservative",
+   "lteratio": 10.0,
+   "relref": "alllocal",
    "abstol_V": 1e-06,
-   "steps_accepted": 1002454,
-   "step_mean_ps": 3.47318,
+   "steps_accepted": 1773165,
+   "step_mean_ps": 1.96355,
    "step_max_ps": null
   },
   "files": {
-   "tb/comp/tb_comp_noise.scs": "72a48171fe4d3c2f",
+   "tb/comp/tb_comp_noise.scs": "7f1b50d1b19a5653",
    "tb/common/veriloga/tb_sampler_va.va": "4092bc16170c588d",
-   "design/xtor/adc_comp/many-question-miyahara/adc_comp.scs": "ce5b3787a38ea80e"
+   "design/xtor/adc_comp/many-question-miyahara/adc_comp.scs": "13c455d69c414b14"
   },
   "arch": {
    "keys": [],
