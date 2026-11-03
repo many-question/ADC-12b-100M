@@ -1,10 +1,10 @@
 # CDAC candidate
 
-Current status (2026-11-03): resumed after the project resolved issue #125.
+Current status (2026-11-04): resumed after the project resolved issue #125.
 DAC-12 is now 1.35 pC (#132); the new all-corner DAC-18 SOA test and
 transient-overvoltage rule (#137) apply. Candidate remains WIP.
 
-V29 is the new pending-test baseline, migrated into the accepted XCAP/XSW
+V29 is the current baseline, migrated into the accepted XCAP/XSW
 functional partition. XCAP holds the 36 array MOM and 36 associated 5% Cp;
 the 26 AP delay loads and one SAMP_ON control load, with their own 5% Cp,
 remain inside the corresponding XSW control functions. There are still
@@ -16,9 +16,10 @@ Independent flattening compares all 722 leaves (596 MOS, 63 MOM, 63 Cp),
 `29d867d5bf07d79b3514cb49af0ad7c572ae1e929df88f33990a723bccfa0626`.
 N4 remains preserved at f578badee155449a905ff6d63c22088e48a623f7.
 
-First gate: TT weights/settle/track and ff_high_125 dedicated SOA, with at
-most two jobs at once initially. Only after this gate passes will full corners
-and real-reference mixed-top validation proceed. N4's reported FF midpoint
+First gate passed: TT weights 5/5, settle 10/10, track 2/2 and
+ff_high_125 dedicated SOA. TT SFDR is 88.3724 dBc and SNDR 86.6184 dB;
+Cs is 2.065123 pF and calibration margin 0.369435 LSB. Convergence checks,
+remaining required corners and real-reference mixed-top validation are pending. N4's reported FF midpoint
 PMOS violation is not evidence about V29, which uses a different gate signal.
 No historical result is rehashed or treated as fresh evidence for this source.
 
