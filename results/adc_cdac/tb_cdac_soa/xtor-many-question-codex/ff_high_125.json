@@ -23305,15 +23305,18 @@
   }
  ],
  "meta": {
-  "date": "2026-11-03T02:17:50",
-  "git": "d701032d",
-  "git_clean": true,
+  "date": "2026-11-04T01:56:17",
+  "git": "a2145d1a",
+  "git_clean": false,
+  "git_dirty_paths": [
+   "design/xtor/adc_cdac/many-question-codex/README.md"
+  ],
   "mode": "aps",
   "pdk": true,
   "mc": null,
-  "wall_s": 165.1,
+  "wall_s": 664.0,
   "rc": "0",
-  "sim_s": "55",
+  "sim_s": "59",
   "numerics": {
    "source": "spectre.log",
    "reltol": 0.0001,
@@ -23341,6 +23344,46 @@
   },
   "views": {
    "adc_cdac": "xtor:many-question-codex"
+  },
+  "crosscheck": {
+   "settings": {
+    "reltol": 1e-07,
+    "vabstol": 1e-08,
+    "maxstep": "1p",
+    "method": "traponly"
+   },
+   "numerics": {
+    "source": "spectre.log",
+    "reltol": 1e-08,
+    "maxstep_ps": 1.0,
+    "method": "traponly",
+    "errpreset": "conservative",
+    "lteratio": 10.0,
+    "relref": "alllocal",
+    "abstol_V": 1e-08,
+    "vabstol": 1e-08,
+    "steps_accepted": 115700,
+    "step_mean_ps": 0.605013,
+    "step_max_ps": 1.0
+   },
+   "rc": "0",
+   "sim_s": "441",
+   "metrics": {
+    "soa_violations": {
+     "ref": 0,
+     "xcheck": 0,
+     "diff": 0
+    }
+   },
+   "soa": {
+    "pairs": 1788,
+    "max_V_diff_max_mV": 3.93,
+    "at": "XDUT.XSW.XSW6.XDL.MNB0 ds",
+    "violations": [
+     0,
+     0
+    ]
+   }
   }
  }
 }

@@ -19,9 +19,20 @@ N4 remains preserved at f578badee155449a905ff6d63c22088e48a623f7.
 First gate passed: TT weights 5/5, settle 10/10, track 2/2 and
 ff_high_125 dedicated SOA. TT SFDR is 88.3724 dBc and SNDR 86.6184 dB;
 Cs is 2.065123 pF and calibration margin 0.369435 LSB. Convergence checks,
-remaining required corners and real-reference mixed-top validation are pending. N4's reported FF midpoint
+remaining required corners and real-reference mixed-top validation are pending.
+FF high125 SOA crosscheck passes with 0/0 violations over 1788 pairs;
+peak 1.21415 -> 1.21343 V and worst 10 ns overvoltage window
+21.638 -> 21.690 ps. Largest pair-peak change is 3.93 mV on a
+0.63638 -> 0.64031 V pair, well below 1.1 V. N4's reported FF midpoint
 PMOS violation is not evidence about V29, which uses a different gate signal.
 No historical result is rehashed or treated as fresh evidence for this source.
+
+SS low125 primary passes its five applicable metrics. Engineering convergence
+(traponly, maxstep 1 ps, effective reltol 1e-7, vabstol 10 nV) changes RL12
+39.7 -> 39.6 ps, RL5 57.9 -> 58.3 ps and start 97.9 -> 98.4 ps.
+All remain within limits, but the 0.5 ps start difference is 24% of the
+primary margin; numerical qualification remains pending further refinement.
+This is a private numerical diagnostic, not a specification-defined crosscheck.
 
 See [schematic review](schematic-review.md) and [source](adc_cdac.scs).
 
@@ -32,10 +43,9 @@ V17/V18 retain selected decision signals, result reports and source hashes.
 Historical archive statements describe capture-time storage. Released raw data
 cannot be re-audited; selected V17/V18 signals do not support a full-DUT audit.
 
-This WIP 28 nm HPC+ candidate retains the formal N4 source and its historical
-TT reports. All 17 required TT metrics passed under the preceding protocol; the first slow-corner screen
-fails RL12 and conversion-start settling. Successor experiments remain
-independent until they earn their own validation; no old result is relabeled.
+Historical N4 baseline (superseded by V29 above): all 17 required TT metrics
+passed under the preceding protocol; its first slow-corner screen failed RL12
+and conversion-start settling. Historical reports are preserved without relabeling.
 
 Numerical-settings transition: [PR #95](https://github.com/many-question/ADC-12b-100M/pull/95)
 merged as `c6152d236e525793ecc4809b9a6c9dfb9fd0ad77`. The candidate branch
