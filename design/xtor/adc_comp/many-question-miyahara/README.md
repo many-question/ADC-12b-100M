@@ -4,7 +4,11 @@ The canonical source is now the original physical **B26**, restored byte-for-byt
 
 ![Current complete B26 transistor schematic](schematic.png)
 
+All **45 delay corners now pass**, with 1620/1620 correct decisions and complete resets in the independent raw-trace audit. Worst 1 mV delay is 95.933155 ps and worst reset 33.670680 ps. Other full-corner coverage remains in progress; [the restoration report](RESTORATION-B26.md) retains exact measurements, source identity and raw-archive receipts.
+
 ## Historical B20 and subsequent experiments
+
+The following text preserves conclusions at earlier checkpoints. References to canonical B20 and stopped qualification describe those historical states; the current source and status are stated above.
 
 > Superseded raw was released. Historical audits do not imply availability; see [retained runs](EVIDENCE-RETENTION.md).
 
@@ -38,7 +42,7 @@ Independent [B27](BUFFER-V27.md) weakens only M8/M9 N4 to N2 to test earlier lat
 
 Independent [BUFFER-V28](BUFFER-V28.md): original baseline recovered; see the report for measured failures and remaining gates.
 
-## Current 1.1 V restoration work
+## Historical B2 restoration under adc_comp 0.9.0
 
 The branch now includes main `17b3a0c` (adc_comp 0.9.0). Issue #116 is acknowledged: delay and kickback require fresh dependency evidence after their explicit save-policy change. The project terminal-voltage limit is 1.1 V at all corners; historical 1.0 V screening failures are retained as historical diagnostics and are not current rejection criteria.
 

@@ -17,252 +17,83 @@
  },
  "metrics": {
   "wrong_decisions": 0,
-  "tdelay_1mV_ps": 47.20441314675263,
-  "tdelay_30mV_ps": 39.344727977816056,
-  "tau_reg_ps": 0.5332414994124587,
-  "treset_ps": 15.252598979690836,
-  "validity_violations": 24,
-  "loser_peak_pct": 52.37751914600336,
+  "tdelay_1mV_ps": 58.041452361181044,
+  "tdelay_30mV_ps": 48.518601562140404,
+  "tau_reg_ps": 2.260227570098554,
+  "treset_ps": 22.232028120050884,
+  "validity_violations": 0,
+  "loser_peak_pct": 2.4533598647756576,
   "validity": {
    "rule": "each CLKC rise .. fall: exactly one output >= 0.5 VDD, the other < 0.3 VDD",
-   "dt_max_ps": 29.902,
+   "dt_max_ps": 16.367,
    "cycles": 36,
    "decided": 36,
    "worst": {
     "cycle": 18,
     "vd_uV": -10.0,
     "output": "OUTP",
-    "t_ps": 55.58
+    "t_ps": 62.649
    },
-   "violations": [
-    {
-     "cycle": 7,
-     "vd_uV": 3000.0,
-     "winner": "OUTP",
-     "loser_peak_pct": 35.25,
-     "both_decided": false
-    },
-    {
-     "cycle": 8,
-     "vd_uV": -3000.0,
-     "winner": "OUTN",
-     "loser_peak_pct": 35.393,
-     "both_decided": false
-    },
-    {
-     "cycle": 9,
-     "vd_uV": 1000.0,
-     "winner": "OUTP",
-     "loser_peak_pct": 43.75,
-     "both_decided": false
-    },
-    {
-     "cycle": 10,
-     "vd_uV": -1000.0,
-     "winner": "OUTN",
-     "loser_peak_pct": 43.735,
-     "both_decided": false
-    },
-    {
-     "cycle": 11,
-     "vd_uV": 300.0,
-     "winner": "OUTP",
-     "loser_peak_pct": 48.479,
-     "both_decided": false
-    },
-    {
-     "cycle": 12,
-     "vd_uV": -300.0,
-     "winner": "OUTN",
-     "loser_peak_pct": 48.507,
-     "both_decided": false
-    },
-    {
-     "cycle": 13,
-     "vd_uV": 100.0,
-     "winner": "OUTP",
-     "loser_peak_pct": 50.612,
-     "both_decided": true
-    },
-    {
-     "cycle": 14,
-     "vd_uV": -100.0,
-     "winner": "OUTN",
-     "loser_peak_pct": 50.612,
-     "both_decided": true
-    },
-    {
-     "cycle": 15,
-     "vd_uV": 30.0,
-     "winner": "OUTP",
-     "loser_peak_pct": 51.809,
-     "both_decided": true
-    },
-    {
-     "cycle": 16,
-     "vd_uV": -30.0,
-     "winner": "OUTN",
-     "loser_peak_pct": 51.809,
-     "both_decided": true
-    },
-    {
-     "cycle": 17,
-     "vd_uV": 10.0,
-     "winner": "OUTP",
-     "loser_peak_pct": 52.378,
-     "both_decided": true
-    },
-    {
-     "cycle": 18,
-     "vd_uV": -10.0,
-     "winner": "OUTN",
-     "loser_peak_pct": 52.378,
-     "both_decided": true
-    },
-    {
-     "cycle": 25,
-     "vd_uV": 3000.0,
-     "winner": "OUTP",
-     "loser_peak_pct": 35.25,
-     "both_decided": false
-    },
-    {
-     "cycle": 26,
-     "vd_uV": -3000.0,
-     "winner": "OUTN",
-     "loser_peak_pct": 35.393,
-     "both_decided": false
-    },
-    {
-     "cycle": 27,
-     "vd_uV": 1000.0,
-     "winner": "OUTP",
-     "loser_peak_pct": 43.75,
-     "both_decided": false
-    },
-    {
-     "cycle": 28,
-     "vd_uV": -1000.0,
-     "winner": "OUTN",
-     "loser_peak_pct": 43.735,
-     "both_decided": false
-    },
-    {
-     "cycle": 29,
-     "vd_uV": 300.0,
-     "winner": "OUTP",
-     "loser_peak_pct": 48.479,
-     "both_decided": false
-    },
-    {
-     "cycle": 30,
-     "vd_uV": -300.0,
-     "winner": "OUTN",
-     "loser_peak_pct": 48.507,
-     "both_decided": false
-    },
-    {
-     "cycle": 31,
-     "vd_uV": 100.0,
-     "winner": "OUTP",
-     "loser_peak_pct": 50.612,
-     "both_decided": true
-    },
-    {
-     "cycle": 32,
-     "vd_uV": -100.0,
-     "winner": "OUTN",
-     "loser_peak_pct": 50.612,
-     "both_decided": true
-    },
-    {
-     "cycle": 33,
-     "vd_uV": 30.0,
-     "winner": "OUTP",
-     "loser_peak_pct": 51.809,
-     "both_decided": true
-    },
-    {
-     "cycle": 34,
-     "vd_uV": -30.0,
-     "winner": "OUTN",
-     "loser_peak_pct": 51.809,
-     "both_decided": true
-    },
-    {
-     "cycle": 35,
-     "vd_uV": 10.0,
-     "winner": "OUTP",
-     "loser_peak_pct": 52.378,
-     "both_decided": true
-    },
-    {
-     "cycle": 36,
-     "vd_uV": -10.0,
-     "winner": "OUTN",
-     "loser_peak_pct": 52.378,
-     "both_decided": true
-    }
-   ],
+   "violations": [],
    "undecided": [],
    "loser_peaks_pct": [
-    3.274,
-    3.297,
-    4.501,
-    4.499,
-    16.868,
-    16.754,
-    35.25,
-    35.393,
-    43.75,
-    43.735,
-    48.479,
-    48.507,
-    50.612,
-    50.612,
-    51.809,
-    51.809,
-    52.378,
-    52.378,
-    3.236,
-    3.297,
-    4.501,
-    4.499,
-    16.868,
-    16.754,
-    35.25,
-    35.393,
-    43.75,
-    43.735,
-    48.479,
-    48.507,
-    50.612,
-    50.612,
-    51.809,
-    51.809,
-    52.378,
-    52.378
+    2.091,
+    2.091,
+    2.09,
+    2.09,
+    2.091,
+    2.091,
+    2.106,
+    2.106,
+    2.125,
+    2.125,
+    2.19,
+    2.19,
+    2.275,
+    2.276,
+    2.37,
+    2.37,
+    2.453,
+    2.453,
+    2.091,
+    2.091,
+    2.09,
+    2.09,
+    2.091,
+    2.091,
+    2.106,
+    2.106,
+    2.125,
+    2.125,
+    2.19,
+    2.19,
+    2.275,
+    2.275,
+    2.369,
+    2.37,
+    2.453,
+    2.453
    ]
   },
-  "energy_fJ": 211.62109129920003
+  "energy_fJ": 958.6698378839999
  },
  "specs": {
   "CMP-05": {
    "metric": "tdelay_1mV_ps",
-   "value": 47.20441314675263,
+   "value": 58.041452361181044,
    "limit": "<= 120",
    "pass": true
   },
   "CMP-07": {
    "metric": "tau_reg_ps",
-   "value": 0.5332414994124587,
+   "value": 2.260227570098554,
    "limit": "<= 15",
    "pass": true
   },
   "CMP-08": {
    "metric": "treset_ps",
-   "value": 15.252598979690836,
-   "limit": "<= 35",
+   "value": 22.232028120050884,
+   "limit": "<= 45",
    "pass": true
   },
   "CMP-09": {
@@ -273,13 +104,13 @@
   },
   "CMP-15": {
    "metric": "validity_violations",
-   "value": 24,
+   "value": 0,
    "limit": "<= 0",
-   "pass": false
+   "pass": true
   },
   "CMP-16": {
    "metric": "loser_peak_pct",
-   "value": 52.37751914600336,
+   "value": 2.4533598647756576,
    "limit": "reported",
    "pass": null
   }
@@ -287,19 +118,19 @@
  "specs_na": {
   "CMP-04": {
    "metric": "tdelay_1mV_ps",
-   "value": 47.20441314675263,
+   "value": 58.041452361181044,
    "limit": "<= 80",
    "corners": "typ"
   },
   "CMP-06": {
    "metric": "tdelay_30mV_ps",
-   "value": 39.344727977816056,
+   "value": 48.518601562140404,
    "limit": "<= 50",
    "corners": "typ"
   },
   "CMP-10": {
    "metric": "energy_fJ",
-   "value": 211.62109129920003,
+   "value": 958.6698378839999,
    "limit": "reported",
    "corners": "typ"
   }
@@ -315,31 +146,38 @@
   }
  ],
  "meta": {
-  "date": "2026-10-30T19:12:40",
-  "git": "a2e3509",
-  "git_clean": true,
+  "date": "2026-11-04T02:51:35",
+  "git": "f86742b6",
+  "git_clean": false,
+  "git_dirty_paths": [
+   "design/xtor/adc_comp/many-question-miyahara/BUFFER-V12.md",
+   "design/xtor/adc_comp/many-question-miyahara/BUFFER-V12.txt",
+   "design/xtor/adc_comp/many-question-miyahara/HISTORICAL-RENDERS.md",
+   "design/xtor/adc_comp/many-question-miyahara/README.md"
+  ],
   "mode": "aps",
   "pdk": true,
   "mc": null,
-  "wall_s": 1602.7,
+  "wall_s": 1005.9,
   "rc": "0",
-  "sim_s": "14",
+  "sim_s": "22",
   "numerics": {
    "source": "spectre.log",
-   "reltol": 0.001,
-   "maxstep_ps": 290.0,
-   "method": "traponly",
-   "errpreset": "moderate",
-   "lteratio": 3.5,
+   "reltol": 0.0001,
+   "maxstep_ps": 145.0,
+   "method": "gear2only",
+   "errpreset": "conservative",
+   "lteratio": 10.0,
+   "relref": "alllocal",
    "abstol_V": 1e-06,
-   "steps_accepted": 3923,
-   "step_mean_ps": 3.69615,
+   "steps_accepted": 7157,
+   "step_mean_ps": 2.02599,
    "step_max_ps": 56.5
   },
   "files": {
-   "tb/comp/tb_comp_delay.scs": "ca754d0b9373b04c",
+   "tb/comp/tb_comp_delay.scs": "d2d5d695c2a3ce22",
    "tb/common/veriloga/tb_imeter_va.va": "d4be49aca417ad61",
-   "design/xtor/adc_comp/many-question-miyahara/adc_comp.scs": "e8a0e3d3dc1366cd"
+   "design/xtor/adc_comp/many-question-miyahara/adc_comp.scs": "13c455d69c414b14"
   },
   "arch": {
    "keys": [],
@@ -347,16 +185,6 @@
   },
   "views": {
    "adc_comp": "xtor:many-question-miyahara"
-  },
-  "execution": {
-   "run": "20261030-184558-6b10-tb_comp_delay",
-   "job": "sf_high_m40",
-   "source_git": "a2e3509597563d607d2a873ed9cc5e9d667ccfff",
-   "segment": "continued_server_serial_dispatch",
-   "deck_sha256": "b2d38fbdd995c1f2ee55830fa32d723b3397cd096f8fafc300b4c5eafb11cb6c",
-   "waveform_sha256": "56aa6bab7c912f78b06fd92cd32c07ed5860720585e6abbcfbbb33de3368cd4e",
-   "rc_sha256": "3268e7162f782da62b632757c920371a00fd5841c4f00636e61f7d7e118b70dc",
-   "continuation_note": "Same originally staged source/deck; only uncompleted corners dispatched; no completed corner rerun."
   }
  }
 }

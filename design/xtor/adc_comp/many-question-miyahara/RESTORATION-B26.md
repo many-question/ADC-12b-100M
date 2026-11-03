@@ -64,4 +64,19 @@ The fresh FS point estimate exactly matches historical B26. Its confidence-inter
 
 The noise run passed remote file SHA-256, local ZIP CRC/member SHA-256 and all per-level sample-count checks before exact remote removal and absence confirmation. Retained archive SHA-256: `b4d20a0aea22c7158326e919904485035627a85efa720ba6e30e92a0b754d612`.
 
-All first-round gates pass. The new official records are 9 fresh / 101 total, with zero fresh errors or failures; the other 92 remain historical and stale. Full coverage has started on the same unchanged source: remaining 42 noise, 44 delay, 44 kickback and 41 SOA corners, followed by TT 50-sample mismatch. Mixed-top reference regression and lead verification are still outstanding. No full-corner qualification or eligibility is claimed.
+All first-round gates pass. At that checkpoint the official records are 9 fresh / 101 total, with zero fresh errors or failures; the other 92 remain historical and stale. Full coverage has started on the same unchanged source: remaining 42 noise, 44 delay, 44 kickback and 41 SOA corners, followed by TT 50-sample mismatch. Mixed-top reference regression and lead verification are still outstanding. No full-corner qualification or eligibility is claimed.
+
+## Full-corner progress
+
+**All 45 delay corners pass.** Run `20261104-023424-9635-tb_comp_delay` adds the other 44 corners to the first-round TT record. The independent raw-trace audit checks all 1584 additional decisions, including 10 uV, and 1584 resets: all correct and complete. Combined with TT this is 1620/1620 correct decisions and complete resets; CMP-15 is zero at every corner.
+
+| All-corner delay metric | Worst value | Corner | Limit |
+|---|---:|---|---:|
+| 1 mV delay | 95.93315453604286 ps | ss_low_m40 | 120 ps |
+| Regeneration time constant | 5.956538105471581 ps | ss_low_m40 | 15 ps |
+| Reset | 33.67068023981794 ps | ss_low_m40 | 45 ps |
+| Losing-output peak | 3.3991580192599535 % VDD | ff_high_125 | Reported |
+
+The current checkpoint has 53 fresh / 101 total records, zero fresh errors or failures. Remaining noise, kickback, SOA and mismatch coverage is still running. Passing delay does not substitute for those missing results.
+
+The additional 44-corner delay run passed remote SHA-256 matching, ZIP CRC/member SHA-256 readback and exact remote absence checks. Retained archive SHA-256: `f077cc085ac97641740a316f36b6af6d471b5f59d5c4572cf332f3c444beb62c`. Together with the first-round archive, all 45 delay raw traces remain retained.

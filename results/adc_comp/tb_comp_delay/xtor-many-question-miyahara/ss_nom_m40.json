@@ -17,252 +17,83 @@
  },
  "metrics": {
   "wrong_decisions": 0,
-  "tdelay_1mV_ps": 65.27774702676331,
-  "tdelay_30mV_ps": 52.748541930203245,
-  "tau_reg_ps": 4.286005171940998,
-  "treset_ps": 19.797280620778945,
-  "validity_violations": 24,
-  "loser_peak_pct": 47.96551565902708,
+  "tdelay_1mV_ps": 79.81941369546496,
+  "tdelay_30mV_ps": 66.20500587982164,
+  "tau_reg_ps": 3.6537867429036655,
+  "treset_ps": 28.845722633527146,
+  "validity_violations": 0,
+  "loser_peak_pct": 1.940304618382721,
   "validity": {
    "rule": "each CLKC rise .. fall: exactly one output >= 0.5 VDD, the other < 0.3 VDD",
-   "dt_max_ps": 26.4836,
+   "dt_max_ps": 14.6184,
    "cycles": 36,
    "decided": 36,
    "worst": {
     "cycle": 18,
     "vd_uV": -10.0,
     "output": "OUTP",
-    "t_ps": 76.4
+    "t_ps": 86.422
    },
-   "violations": [
-    {
-     "cycle": 7,
-     "vd_uV": 3000.0,
-     "winner": "OUTP",
-     "loser_peak_pct": 31.732,
-     "both_decided": false
-    },
-    {
-     "cycle": 8,
-     "vd_uV": -3000.0,
-     "winner": "OUTN",
-     "loser_peak_pct": 31.73,
-     "both_decided": false
-    },
-    {
-     "cycle": 9,
-     "vd_uV": 1000.0,
-     "winner": "OUTP",
-     "loser_peak_pct": 40.007,
-     "both_decided": false
-    },
-    {
-     "cycle": 10,
-     "vd_uV": -1000.0,
-     "winner": "OUTN",
-     "loser_peak_pct": 39.985,
-     "both_decided": false
-    },
-    {
-     "cycle": 11,
-     "vd_uV": 300.0,
-     "winner": "OUTP",
-     "loser_peak_pct": 44.335,
-     "both_decided": false
-    },
-    {
-     "cycle": 12,
-     "vd_uV": -300.0,
-     "winner": "OUTN",
-     "loser_peak_pct": 44.288,
-     "both_decided": false
-    },
-    {
-     "cycle": 13,
-     "vd_uV": 100.0,
-     "winner": "OUTP",
-     "loser_peak_pct": 46.392,
-     "both_decided": false
-    },
-    {
-     "cycle": 14,
-     "vd_uV": -100.0,
-     "winner": "OUTN",
-     "loser_peak_pct": 46.391,
-     "both_decided": false
-    },
-    {
-     "cycle": 15,
-     "vd_uV": 30.0,
-     "winner": "OUTP",
-     "loser_peak_pct": 47.467,
-     "both_decided": false
-    },
-    {
-     "cycle": 16,
-     "vd_uV": -30.0,
-     "winner": "OUTN",
-     "loser_peak_pct": 47.467,
-     "both_decided": false
-    },
-    {
-     "cycle": 17,
-     "vd_uV": 10.0,
-     "winner": "OUTP",
-     "loser_peak_pct": 47.926,
-     "both_decided": false
-    },
-    {
-     "cycle": 18,
-     "vd_uV": -10.0,
-     "winner": "OUTN",
-     "loser_peak_pct": 47.966,
-     "both_decided": false
-    },
-    {
-     "cycle": 25,
-     "vd_uV": 3000.0,
-     "winner": "OUTP",
-     "loser_peak_pct": 31.733,
-     "both_decided": false
-    },
-    {
-     "cycle": 26,
-     "vd_uV": -3000.0,
-     "winner": "OUTN",
-     "loser_peak_pct": 31.732,
-     "both_decided": false
-    },
-    {
-     "cycle": 27,
-     "vd_uV": 1000.0,
-     "winner": "OUTP",
-     "loser_peak_pct": 40.002,
-     "both_decided": false
-    },
-    {
-     "cycle": 28,
-     "vd_uV": -1000.0,
-     "winner": "OUTN",
-     "loser_peak_pct": 39.981,
-     "both_decided": false
-    },
-    {
-     "cycle": 29,
-     "vd_uV": 300.0,
-     "winner": "OUTP",
-     "loser_peak_pct": 44.18,
-     "both_decided": false
-    },
-    {
-     "cycle": 30,
-     "vd_uV": -300.0,
-     "winner": "OUTN",
-     "loser_peak_pct": 44.303,
-     "both_decided": false
-    },
-    {
-     "cycle": 31,
-     "vd_uV": 100.0,
-     "winner": "OUTP",
-     "loser_peak_pct": 46.393,
-     "both_decided": false
-    },
-    {
-     "cycle": 32,
-     "vd_uV": -100.0,
-     "winner": "OUTN",
-     "loser_peak_pct": 46.393,
-     "both_decided": false
-    },
-    {
-     "cycle": 33,
-     "vd_uV": 30.0,
-     "winner": "OUTP",
-     "loser_peak_pct": 47.417,
-     "both_decided": false
-    },
-    {
-     "cycle": 34,
-     "vd_uV": -30.0,
-     "winner": "OUTN",
-     "loser_peak_pct": 47.417,
-     "both_decided": false
-    },
-    {
-     "cycle": 35,
-     "vd_uV": 10.0,
-     "winner": "OUTP",
-     "loser_peak_pct": 47.965,
-     "both_decided": false
-    },
-    {
-     "cycle": 36,
-     "vd_uV": -10.0,
-     "winner": "OUTN",
-     "loser_peak_pct": 47.965,
-     "both_decided": false
-    }
-   ],
+   "violations": [],
    "undecided": [],
    "loser_peaks_pct": [
-    2.806,
-    2.787,
-    5.804,
-    5.785,
-    14.768,
-    15.018,
-    31.732,
-    31.73,
-    40.007,
-    39.985,
-    44.335,
-    44.288,
-    46.392,
-    46.391,
-    47.467,
-    47.467,
-    47.926,
-    47.966,
-    2.803,
-    2.787,
-    5.77,
-    5.792,
-    14.751,
-    15.02,
-    31.733,
-    31.732,
-    40.002,
-    39.981,
-    44.18,
-    44.303,
-    46.393,
-    46.393,
-    47.417,
-    47.417,
-    47.965,
-    47.965
+    1.614,
+    1.614,
+    1.615,
+    1.615,
+    1.619,
+    1.619,
+    1.629,
+    1.629,
+    1.644,
+    1.644,
+    1.698,
+    1.698,
+    1.782,
+    1.782,
+    1.868,
+    1.868,
+    1.94,
+    1.94,
+    1.614,
+    1.614,
+    1.615,
+    1.615,
+    1.619,
+    1.619,
+    1.629,
+    1.629,
+    1.644,
+    1.644,
+    1.698,
+    1.698,
+    1.782,
+    1.782,
+    1.868,
+    1.868,
+    1.94,
+    1.94
    ]
   },
-  "energy_fJ": 169.747139088
+  "energy_fJ": 613.3573047600001
  },
  "specs": {
   "CMP-05": {
    "metric": "tdelay_1mV_ps",
-   "value": 65.27774702676331,
+   "value": 79.81941369546496,
    "limit": "<= 120",
    "pass": true
   },
   "CMP-07": {
    "metric": "tau_reg_ps",
-   "value": 4.286005171940998,
+   "value": 3.6537867429036655,
    "limit": "<= 15",
    "pass": true
   },
   "CMP-08": {
    "metric": "treset_ps",
-   "value": 19.797280620778945,
-   "limit": "<= 35",
+   "value": 28.845722633527146,
+   "limit": "<= 45",
    "pass": true
   },
   "CMP-09": {
@@ -273,13 +104,13 @@
   },
   "CMP-15": {
    "metric": "validity_violations",
-   "value": 24,
+   "value": 0,
    "limit": "<= 0",
-   "pass": false
+   "pass": true
   },
   "CMP-16": {
    "metric": "loser_peak_pct",
-   "value": 47.96551565902708,
+   "value": 1.940304618382721,
    "limit": "reported",
    "pass": null
   }
@@ -287,19 +118,19 @@
  "specs_na": {
   "CMP-04": {
    "metric": "tdelay_1mV_ps",
-   "value": 65.27774702676331,
+   "value": 79.81941369546496,
    "limit": "<= 80",
    "corners": "typ"
   },
   "CMP-06": {
    "metric": "tdelay_30mV_ps",
-   "value": 52.748541930203245,
+   "value": 66.20500587982164,
    "limit": "<= 50",
    "corners": "typ"
   },
   "CMP-10": {
    "metric": "energy_fJ",
-   "value": 169.747139088,
+   "value": 613.3573047600001,
    "limit": "reported",
    "corners": "typ"
   }
@@ -315,31 +146,38 @@
   }
  ],
  "meta": {
-  "date": "2026-10-30T19:12:40",
-  "git": "a2e3509",
-  "git_clean": true,
+  "date": "2026-11-04T02:51:35",
+  "git": "f86742b6",
+  "git_clean": false,
+  "git_dirty_paths": [
+   "design/xtor/adc_comp/many-question-miyahara/BUFFER-V12.md",
+   "design/xtor/adc_comp/many-question-miyahara/BUFFER-V12.txt",
+   "design/xtor/adc_comp/many-question-miyahara/HISTORICAL-RENDERS.md",
+   "design/xtor/adc_comp/many-question-miyahara/README.md"
+  ],
   "mode": "aps",
   "pdk": true,
   "mc": null,
-  "wall_s": 1602.7,
+  "wall_s": 1005.9,
   "rc": "0",
-  "sim_s": "14",
+  "sim_s": "24",
   "numerics": {
    "source": "spectre.log",
-   "reltol": 0.001,
-   "maxstep_ps": 290.0,
-   "method": "traponly",
-   "errpreset": "moderate",
-   "lteratio": 3.5,
+   "reltol": 0.0001,
+   "maxstep_ps": 145.0,
+   "method": "gear2only",
+   "errpreset": "conservative",
+   "lteratio": 10.0,
+   "relref": "alllocal",
    "abstol_V": 1e-06,
-   "steps_accepted": 4116,
-   "step_mean_ps": 3.52284,
+   "steps_accepted": 7333,
+   "step_mean_ps": 1.97736,
    "step_max_ps": 56.5
   },
   "files": {
-   "tb/comp/tb_comp_delay.scs": "ca754d0b9373b04c",
+   "tb/comp/tb_comp_delay.scs": "d2d5d695c2a3ce22",
    "tb/common/veriloga/tb_imeter_va.va": "d4be49aca417ad61",
-   "design/xtor/adc_comp/many-question-miyahara/adc_comp.scs": "e8a0e3d3dc1366cd"
+   "design/xtor/adc_comp/many-question-miyahara/adc_comp.scs": "13c455d69c414b14"
   },
   "arch": {
    "keys": [],
@@ -347,16 +185,6 @@
   },
   "views": {
    "adc_comp": "xtor:many-question-miyahara"
-  },
-  "execution": {
-   "run": "20261030-184558-6b10-tb_comp_delay",
-   "job": "ss_nom_m40",
-   "source_git": "a2e3509597563d607d2a873ed9cc5e9d667ccfff",
-   "segment": "continued_server_serial_dispatch",
-   "deck_sha256": "f5cc67625a98bc58bdf35855c23f8c8eb6016582f6049a0fadf0f7c14fcf35eb",
-   "waveform_sha256": "f623f0b2009513d9385ca8f57c29ccdcbf56c4006f670dd4c5cdd3ff1d04a486",
-   "rc_sha256": "3268e7162f782da62b632757c920371a00fd5841c4f00636e61f7d7e118b70dc",
-   "continuation_note": "Same originally staged source/deck; only uncompleted corners dispatched; no completed corner rerun."
   }
  }
 }

@@ -55,3 +55,7 @@ Historical one-hot event figure uses its immutable published image at `6214f6109
 ## B26 restoration archive
 
 The duplicate [B22 image](https://raw.githubusercontent.com/many-question/ADC-12b-100M/2579cdf3c91b81599ca5f9f74a1744495ddfc1ea/design/xtor/adc_comp/many-question-miyahara/buffer-v22.png) is preserved byte-for-byte at published commit `2579cdf3c91b81599ca5f9f74a1744495ddfc1ea`. The pre-restoration candidate and formal results were archived and every member read back with CRC and SHA-256 verification. Archive SHA-256: `8c2b5cb4233470f4e2932b1bb33d71d894119d87fdd7b582643f2d934959c794`. No historical result is deleted or relabeled.
+
+## Immutable historical source link
+
+To keep room for complete B26 qualification reports within 2 MB, the historical [B12 complete RNL source](https://github.com/many-question/ADC-12b-100M/blob/2579cdf3c91b81599ca5f9f74a1744495ddfc1ea/design/xtor/adc_comp/many-question-miyahara/BUFFER-V12.txt) now uses its fixed published commit. Its working-tree copy matches the Git object after CRLF/LF normalization and matches the previously CRC/SHA-verified 367-member restoration archive byte-for-byte. Published source SHA-256: `203b27be845cce5cb3187a217bab1c8ea81a27404b643245ac0fcc9b9e90ea99`. The B12 report, electrical identity, historical failure and original source remain preserved; current B26 electrical source and every result are unchanged by this storage adjustment.

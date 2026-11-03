@@ -6,7 +6,7 @@ B11 removes the clock-rail stress failure but retains the two M14/M15 Vds failur
 
 This experiment adds one P0.5um/100nm weak pull-up to each XP/XN node. Its complete geometry and terminal parasitics are identical to the existing callback-validated MUPRP1 device. All earlier electrical statements remain unchanged. Each of the resulting 43 MOS and 9 MOM capacitors is represented physically; the new devices' persistent current and AVDD energy are included.
 
-The [independent source](BUFFER-V12.txt) has electrical SHA-256 `e64f215d6bd941a8c48d56a5cf4582d6459c4a31981ff85973a2e4915d96bc65`. Full RNL on a byte-identical Spectre mirror passes core 0.5.2 with 0 errors, 0 warnings and 0 hints; the rendered schematic was inspected.
+The [independent source](https://github.com/many-question/ADC-12b-100M/blob/2579cdf3c91b81599ca5f9f74a1744495ddfc1ea/design/xtor/adc_comp/many-question-miyahara/BUFFER-V12.txt) has electrical SHA-256 `e64f215d6bd941a8c48d56a5cf4582d6459c4a31981ff85973a2e4915d96bc65`. Full RNL on a byte-identical Spectre mirror passes core 0.5.2 with 0 errors, 0 warnings and 0 hints; the rendered schematic was inspected.
 
 ![XP and XN physical weak pull-ups](https://raw.githubusercontent.com/many-question/ADC-12b-100M/0c799462e700c1f74a9448031e14abdd56ec18e7/design/xtor/adc_comp/many-question-miyahara/buffer-v12.png)
 

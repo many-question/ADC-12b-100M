@@ -17,252 +17,83 @@
  },
  "metrics": {
   "wrong_decisions": 0,
-  "tdelay_1mV_ps": 38.45945995875229,
-  "tdelay_30mV_ps": 31.54522169098319,
-  "tau_reg_ps": 2.530402033410117,
-  "treset_ps": 14.236163032048735,
-  "validity_violations": 24,
-  "loser_peak_pct": 48.646369942652036,
+  "tdelay_1mV_ps": 46.99443394476369,
+  "tdelay_30mV_ps": 39.289322406306425,
+  "tau_reg_ps": 2.1837939859075015,
+  "treset_ps": 19.45778724656305,
+  "validity_violations": 0,
+  "loser_peak_pct": 2.288035885817248,
   "validity": {
    "rule": "each CLKC rise .. fall: exactly one output >= 0.5 VDD, the other < 0.3 VDD",
-   "dt_max_ps": 32.232,
+   "dt_max_ps": 22.0186,
    "cycles": 36,
    "decided": 36,
    "worst": {
-    "cycle": 35,
-    "vd_uV": 10.0,
-    "output": "OUTN",
-    "t_ps": 46.359
+    "cycle": 36,
+    "vd_uV": -10.0,
+    "output": "OUTP",
+    "t_ps": 52.457
    },
-   "violations": [
-    {
-     "cycle": 7,
-     "vd_uV": 3000.0,
-     "winner": "OUTP",
-     "loser_peak_pct": 35.973,
-     "both_decided": false
-    },
-    {
-     "cycle": 8,
-     "vd_uV": -3000.0,
-     "winner": "OUTN",
-     "loser_peak_pct": 35.978,
-     "both_decided": false
-    },
-    {
-     "cycle": 9,
-     "vd_uV": 1000.0,
-     "winner": "OUTP",
-     "loser_peak_pct": 42.494,
-     "both_decided": false
-    },
-    {
-     "cycle": 10,
-     "vd_uV": -1000.0,
-     "winner": "OUTN",
-     "loser_peak_pct": 42.494,
-     "both_decided": false
-    },
-    {
-     "cycle": 11,
-     "vd_uV": 300.0,
-     "winner": "OUTP",
-     "loser_peak_pct": 45.793,
-     "both_decided": false
-    },
-    {
-     "cycle": 12,
-     "vd_uV": -300.0,
-     "winner": "OUTN",
-     "loser_peak_pct": 45.842,
-     "both_decided": false
-    },
-    {
-     "cycle": 13,
-     "vd_uV": 100.0,
-     "winner": "OUTP",
-     "loser_peak_pct": 47.377,
-     "both_decided": false
-    },
-    {
-     "cycle": 14,
-     "vd_uV": -100.0,
-     "winner": "OUTN",
-     "loser_peak_pct": 47.377,
-     "both_decided": false
-    },
-    {
-     "cycle": 15,
-     "vd_uV": 30.0,
-     "winner": "OUTP",
-     "loser_peak_pct": 48.241,
-     "both_decided": false
-    },
-    {
-     "cycle": 16,
-     "vd_uV": -30.0,
-     "winner": "OUTN",
-     "loser_peak_pct": 48.241,
-     "both_decided": false
-    },
-    {
-     "cycle": 17,
-     "vd_uV": 10.0,
-     "winner": "OUTP",
-     "loser_peak_pct": 48.646,
-     "both_decided": false
-    },
-    {
-     "cycle": 18,
-     "vd_uV": -10.0,
-     "winner": "OUTN",
-     "loser_peak_pct": 48.646,
-     "both_decided": false
-    },
-    {
-     "cycle": 25,
-     "vd_uV": 3000.0,
-     "winner": "OUTP",
-     "loser_peak_pct": 35.973,
-     "both_decided": false
-    },
-    {
-     "cycle": 26,
-     "vd_uV": -3000.0,
-     "winner": "OUTN",
-     "loser_peak_pct": 35.978,
-     "both_decided": false
-    },
-    {
-     "cycle": 27,
-     "vd_uV": 1000.0,
-     "winner": "OUTP",
-     "loser_peak_pct": 42.494,
-     "both_decided": false
-    },
-    {
-     "cycle": 28,
-     "vd_uV": -1000.0,
-     "winner": "OUTN",
-     "loser_peak_pct": 42.494,
-     "both_decided": false
-    },
-    {
-     "cycle": 29,
-     "vd_uV": 300.0,
-     "winner": "OUTP",
-     "loser_peak_pct": 45.793,
-     "both_decided": false
-    },
-    {
-     "cycle": 30,
-     "vd_uV": -300.0,
-     "winner": "OUTN",
-     "loser_peak_pct": 45.842,
-     "both_decided": false
-    },
-    {
-     "cycle": 31,
-     "vd_uV": 100.0,
-     "winner": "OUTP",
-     "loser_peak_pct": 47.377,
-     "both_decided": false
-    },
-    {
-     "cycle": 32,
-     "vd_uV": -100.0,
-     "winner": "OUTN",
-     "loser_peak_pct": 47.377,
-     "both_decided": false
-    },
-    {
-     "cycle": 33,
-     "vd_uV": 30.0,
-     "winner": "OUTP",
-     "loser_peak_pct": 48.241,
-     "both_decided": false
-    },
-    {
-     "cycle": 34,
-     "vd_uV": -30.0,
-     "winner": "OUTN",
-     "loser_peak_pct": 48.241,
-     "both_decided": false
-    },
-    {
-     "cycle": 35,
-     "vd_uV": 10.0,
-     "winner": "OUTP",
-     "loser_peak_pct": 48.646,
-     "both_decided": false
-    },
-    {
-     "cycle": 36,
-     "vd_uV": -10.0,
-     "winner": "OUTN",
-     "loser_peak_pct": 48.646,
-     "both_decided": false
-    }
-   ],
+   "violations": [],
    "undecided": [],
    "loser_peaks_pct": [
-    3.206,
-    3.232,
-    5.589,
-    5.549,
-    21.995,
-    21.745,
-    35.973,
-    35.978,
-    42.494,
-    42.494,
-    45.793,
-    45.842,
-    47.377,
-    47.377,
-    48.241,
-    48.241,
-    48.646,
-    48.646,
-    3.191,
-    3.232,
-    5.589,
-    5.549,
-    21.995,
-    21.745,
-    35.973,
-    35.978,
-    42.494,
-    42.494,
-    45.793,
-    45.842,
-    47.377,
-    47.377,
-    48.241,
-    48.241,
-    48.646,
-    48.646
+    1.715,
+    1.715,
+    1.715,
+    1.715,
+    1.719,
+    1.719,
+    1.743,
+    1.743,
+    1.813,
+    1.813,
+    1.93,
+    1.932,
+    2.045,
+    2.045,
+    2.17,
+    2.17,
+    2.288,
+    2.288,
+    1.715,
+    1.715,
+    1.715,
+    1.715,
+    1.719,
+    1.719,
+    1.743,
+    1.743,
+    1.813,
+    1.813,
+    1.93,
+    1.932,
+    2.045,
+    2.045,
+    2.17,
+    2.17,
+    2.288,
+    2.288
    ]
   },
-  "energy_fJ": 174.700172736
+  "energy_fJ": 745.05662712
  },
  "specs": {
   "CMP-05": {
    "metric": "tdelay_1mV_ps",
-   "value": 38.45945995875229,
+   "value": 46.99443394476369,
    "limit": "<= 120",
    "pass": true
   },
   "CMP-07": {
    "metric": "tau_reg_ps",
-   "value": 2.530402033410117,
+   "value": 2.1837939859075015,
    "limit": "<= 15",
    "pass": true
   },
   "CMP-08": {
    "metric": "treset_ps",
-   "value": 14.236163032048735,
-   "limit": "<= 35",
+   "value": 19.45778724656305,
+   "limit": "<= 45",
    "pass": true
   },
   "CMP-09": {
@@ -273,13 +104,13 @@
   },
   "CMP-15": {
    "metric": "validity_violations",
-   "value": 24,
+   "value": 0,
    "limit": "<= 0",
-   "pass": false
+   "pass": true
   },
   "CMP-16": {
    "metric": "loser_peak_pct",
-   "value": 48.646369942652036,
+   "value": 2.288035885817248,
    "limit": "reported",
    "pass": null
   }
@@ -287,19 +118,19 @@
  "specs_na": {
   "CMP-04": {
    "metric": "tdelay_1mV_ps",
-   "value": 38.45945995875229,
+   "value": 46.99443394476369,
    "limit": "<= 80",
    "corners": "typ"
   },
   "CMP-06": {
    "metric": "tdelay_30mV_ps",
-   "value": 31.54522169098319,
+   "value": 39.289322406306425,
    "limit": "<= 50",
    "corners": "typ"
   },
   "CMP-10": {
    "metric": "energy_fJ",
-   "value": 174.700172736,
+   "value": 745.05662712,
    "limit": "reported",
    "corners": "typ"
   }
@@ -315,31 +146,38 @@
   }
  ],
  "meta": {
-  "date": "2026-10-30T19:12:40",
-  "git": "a2e3509",
-  "git_clean": true,
+  "date": "2026-11-04T02:51:35",
+  "git": "f86742b6",
+  "git_clean": false,
+  "git_dirty_paths": [
+   "design/xtor/adc_comp/many-question-miyahara/BUFFER-V12.md",
+   "design/xtor/adc_comp/many-question-miyahara/BUFFER-V12.txt",
+   "design/xtor/adc_comp/many-question-miyahara/HISTORICAL-RENDERS.md",
+   "design/xtor/adc_comp/many-question-miyahara/README.md"
+  ],
   "mode": "aps",
   "pdk": true,
   "mc": null,
-  "wall_s": 1602.7,
+  "wall_s": 1005.9,
   "rc": "0",
-  "sim_s": "14",
+  "sim_s": "18",
   "numerics": {
    "source": "spectre.log",
-   "reltol": 0.001,
-   "maxstep_ps": 290.0,
-   "method": "traponly",
-   "errpreset": "moderate",
-   "lteratio": 3.5,
+   "reltol": 0.0001,
+   "maxstep_ps": 145.0,
+   "method": "gear2only",
+   "errpreset": "conservative",
+   "lteratio": 10.0,
+   "relref": "alllocal",
    "abstol_V": 1e-06,
-   "steps_accepted": 3956,
-   "step_mean_ps": 3.66532,
+   "steps_accepted": 7048,
+   "step_mean_ps": 2.05732,
    "step_max_ps": 56.5
   },
   "files": {
-   "tb/comp/tb_comp_delay.scs": "ca754d0b9373b04c",
+   "tb/comp/tb_comp_delay.scs": "d2d5d695c2a3ce22",
    "tb/common/veriloga/tb_imeter_va.va": "d4be49aca417ad61",
-   "design/xtor/adc_comp/many-question-miyahara/adc_comp.scs": "e8a0e3d3dc1366cd"
+   "design/xtor/adc_comp/many-question-miyahara/adc_comp.scs": "13c455d69c414b14"
   },
   "arch": {
    "keys": [],
@@ -347,16 +185,6 @@
   },
   "views": {
    "adc_comp": "xtor:many-question-miyahara"
-  },
-  "execution": {
-   "run": "20261030-184558-6b10-tb_comp_delay",
-   "job": "ff_nom_m40",
-   "source_git": "a2e3509597563d607d2a873ed9cc5e9d667ccfff",
-   "segment": "continued_server_serial_dispatch",
-   "deck_sha256": "6f3e21fabe479d7423c36773fc37f6889d58da2056187d7595ec3b6f9c74abe0",
-   "waveform_sha256": "ed47f1b825ea97505c3e6cb0704dff399326687bc79ecee3d6a8a3d9e9c6a421",
-   "rc_sha256": "3268e7162f782da62b632757c920371a00fd5841c4f00636e61f7d7e118b70dc",
-   "continuation_note": "Same originally staged source/deck; only uncompleted corners dispatched; no completed corner rerun."
   }
  }
 }

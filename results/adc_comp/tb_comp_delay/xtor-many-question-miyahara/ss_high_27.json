@@ -17,252 +17,83 @@
  },
  "metrics": {
   "wrong_decisions": 0,
-  "tdelay_1mV_ps": 54.531478714223105,
-  "tdelay_30mV_ps": 45.01669440050044,
-  "tau_reg_ps": 2.875340749604822,
-  "treset_ps": 18.619164288455295,
-  "validity_violations": 24,
-  "loser_peak_pct": 48.450020961297334,
+  "tdelay_1mV_ps": 66.54907772653563,
+  "tdelay_30mV_ps": 56.48550975536445,
+  "tau_reg_ps": 2.7263787010569502,
+  "treset_ps": 26.637414150554978,
+  "validity_violations": 0,
+  "loser_peak_pct": 2.181413184860521,
   "validity": {
    "rule": "each CLKC rise .. fall: exactly one output >= 0.5 VDD, the other < 0.3 VDD",
-   "dt_max_ps": 26.3995,
+   "dt_max_ps": 15.9038,
    "cycles": 36,
    "decided": 36,
    "worst": {
     "cycle": 17,
     "vd_uV": 10.0,
     "output": "OUTN",
-    "t_ps": 62.834
+    "t_ps": 71.07
    },
-   "violations": [
-    {
-     "cycle": 7,
-     "vd_uV": 3000.0,
-     "winner": "OUTP",
-     "loser_peak_pct": 33.277,
-     "both_decided": false
-    },
-    {
-     "cycle": 8,
-     "vd_uV": -3000.0,
-     "winner": "OUTN",
-     "loser_peak_pct": 33.239,
-     "both_decided": false
-    },
-    {
-     "cycle": 9,
-     "vd_uV": 1000.0,
-     "winner": "OUTP",
-     "loser_peak_pct": 40.489,
-     "both_decided": false
-    },
-    {
-     "cycle": 10,
-     "vd_uV": -1000.0,
-     "winner": "OUTN",
-     "loser_peak_pct": 40.642,
-     "both_decided": false
-    },
-    {
-     "cycle": 11,
-     "vd_uV": 300.0,
-     "winner": "OUTP",
-     "loser_peak_pct": 44.7,
-     "both_decided": false
-    },
-    {
-     "cycle": 12,
-     "vd_uV": -300.0,
-     "winner": "OUTN",
-     "loser_peak_pct": 44.743,
-     "both_decided": false
-    },
-    {
-     "cycle": 13,
-     "vd_uV": 100.0,
-     "winner": "OUTP",
-     "loser_peak_pct": 46.832,
-     "both_decided": false
-    },
-    {
-     "cycle": 14,
-     "vd_uV": -100.0,
-     "winner": "OUTN",
-     "loser_peak_pct": 46.797,
-     "both_decided": false
-    },
-    {
-     "cycle": 15,
-     "vd_uV": 30.0,
-     "winner": "OUTP",
-     "loser_peak_pct": 47.905,
-     "both_decided": false
-    },
-    {
-     "cycle": 16,
-     "vd_uV": -30.0,
-     "winner": "OUTN",
-     "loser_peak_pct": 47.911,
-     "both_decided": false
-    },
-    {
-     "cycle": 17,
-     "vd_uV": 10.0,
-     "winner": "OUTP",
-     "loser_peak_pct": 48.45,
-     "both_decided": false
-    },
-    {
-     "cycle": 18,
-     "vd_uV": -10.0,
-     "winner": "OUTN",
-     "loser_peak_pct": 48.443,
-     "both_decided": false
-    },
-    {
-     "cycle": 25,
-     "vd_uV": 3000.0,
-     "winner": "OUTP",
-     "loser_peak_pct": 33.277,
-     "both_decided": false
-    },
-    {
-     "cycle": 26,
-     "vd_uV": -3000.0,
-     "winner": "OUTN",
-     "loser_peak_pct": 33.239,
-     "both_decided": false
-    },
-    {
-     "cycle": 27,
-     "vd_uV": 1000.0,
-     "winner": "OUTP",
-     "loser_peak_pct": 40.489,
-     "both_decided": false
-    },
-    {
-     "cycle": 28,
-     "vd_uV": -1000.0,
-     "winner": "OUTN",
-     "loser_peak_pct": 40.642,
-     "both_decided": false
-    },
-    {
-     "cycle": 29,
-     "vd_uV": 300.0,
-     "winner": "OUTP",
-     "loser_peak_pct": 44.7,
-     "both_decided": false
-    },
-    {
-     "cycle": 30,
-     "vd_uV": -300.0,
-     "winner": "OUTN",
-     "loser_peak_pct": 44.743,
-     "both_decided": false
-    },
-    {
-     "cycle": 31,
-     "vd_uV": 100.0,
-     "winner": "OUTP",
-     "loser_peak_pct": 46.832,
-     "both_decided": false
-    },
-    {
-     "cycle": 32,
-     "vd_uV": -100.0,
-     "winner": "OUTN",
-     "loser_peak_pct": 46.797,
-     "both_decided": false
-    },
-    {
-     "cycle": 33,
-     "vd_uV": 30.0,
-     "winner": "OUTP",
-     "loser_peak_pct": 47.905,
-     "both_decided": false
-    },
-    {
-     "cycle": 34,
-     "vd_uV": -30.0,
-     "winner": "OUTN",
-     "loser_peak_pct": 47.911,
-     "both_decided": false
-    },
-    {
-     "cycle": 35,
-     "vd_uV": 10.0,
-     "winner": "OUTP",
-     "loser_peak_pct": 48.45,
-     "both_decided": false
-    },
-    {
-     "cycle": 36,
-     "vd_uV": -10.0,
-     "winner": "OUTN",
-     "loser_peak_pct": 48.443,
-     "both_decided": false
-    }
-   ],
+   "violations": [],
    "undecided": [],
    "loser_peaks_pct": [
-    2.996,
-    2.953,
-    4.547,
-    4.546,
-    17.727,
-    17.743,
-    33.277,
-    33.239,
-    40.489,
-    40.642,
-    44.7,
-    44.743,
-    46.832,
-    46.797,
-    47.905,
-    47.911,
-    48.45,
-    48.443,
-    2.94,
-    2.988,
-    4.548,
-    4.546,
-    17.727,
-    17.743,
-    33.277,
-    33.239,
-    40.489,
-    40.642,
-    44.7,
-    44.743,
-    46.832,
-    46.797,
-    47.905,
-    47.911,
-    48.45,
-    48.443
+    1.852,
+    1.852,
+    1.852,
+    1.852,
+    1.854,
+    1.854,
+    1.871,
+    1.871,
+    1.902,
+    1.902,
+    1.97,
+    1.97,
+    2.042,
+    2.042,
+    2.118,
+    2.118,
+    2.181,
+    2.181,
+    1.852,
+    1.852,
+    1.852,
+    1.852,
+    1.854,
+    1.854,
+    1.871,
+    1.871,
+    1.902,
+    1.902,
+    1.97,
+    1.97,
+    2.042,
+    2.042,
+    2.118,
+    2.118,
+    2.181,
+    2.181
    ]
   },
-  "energy_fJ": 225.2499229332
+  "energy_fJ": 868.0121853479999
  },
  "specs": {
   "CMP-05": {
    "metric": "tdelay_1mV_ps",
-   "value": 54.531478714223105,
+   "value": 66.54907772653563,
    "limit": "<= 120",
    "pass": true
   },
   "CMP-07": {
    "metric": "tau_reg_ps",
-   "value": 2.875340749604822,
+   "value": 2.7263787010569502,
    "limit": "<= 15",
    "pass": true
   },
   "CMP-08": {
    "metric": "treset_ps",
-   "value": 18.619164288455295,
-   "limit": "<= 35",
+   "value": 26.637414150554978,
+   "limit": "<= 45",
    "pass": true
   },
   "CMP-09": {
@@ -273,13 +104,13 @@
   },
   "CMP-15": {
    "metric": "validity_violations",
-   "value": 24,
+   "value": 0,
    "limit": "<= 0",
-   "pass": false
+   "pass": true
   },
   "CMP-16": {
    "metric": "loser_peak_pct",
-   "value": 48.450020961297334,
+   "value": 2.181413184860521,
    "limit": "reported",
    "pass": null
   }
@@ -287,19 +118,19 @@
  "specs_na": {
   "CMP-04": {
    "metric": "tdelay_1mV_ps",
-   "value": 54.531478714223105,
+   "value": 66.54907772653563,
    "limit": "<= 80",
    "corners": "typ"
   },
   "CMP-06": {
    "metric": "tdelay_30mV_ps",
-   "value": 45.01669440050044,
+   "value": 56.48550975536445,
    "limit": "<= 50",
    "corners": "typ"
   },
   "CMP-10": {
    "metric": "energy_fJ",
-   "value": 225.2499229332,
+   "value": 868.0121853479999,
    "limit": "reported",
    "corners": "typ"
   }
@@ -315,31 +146,38 @@
   }
  ],
  "meta": {
-  "date": "2026-10-30T19:12:40",
-  "git": "a2e3509",
-  "git_clean": true,
+  "date": "2026-11-04T02:51:35",
+  "git": "f86742b6",
+  "git_clean": false,
+  "git_dirty_paths": [
+   "design/xtor/adc_comp/many-question-miyahara/BUFFER-V12.md",
+   "design/xtor/adc_comp/many-question-miyahara/BUFFER-V12.txt",
+   "design/xtor/adc_comp/many-question-miyahara/HISTORICAL-RENDERS.md",
+   "design/xtor/adc_comp/many-question-miyahara/README.md"
+  ],
   "mode": "aps",
   "pdk": true,
   "mc": null,
-  "wall_s": 1602.7,
+  "wall_s": 1005.9,
   "rc": "0",
-  "sim_s": "15",
+  "sim_s": "18",
   "numerics": {
    "source": "spectre.log",
-   "reltol": 0.001,
-   "maxstep_ps": 290.0,
-   "method": "traponly",
-   "errpreset": "moderate",
-   "lteratio": 3.5,
+   "reltol": 0.0001,
+   "maxstep_ps": 145.0,
+   "method": "gear2only",
+   "errpreset": "conservative",
+   "lteratio": 10.0,
+   "relref": "alllocal",
    "abstol_V": 1e-06,
-   "steps_accepted": 3982,
-   "step_mean_ps": 3.64139,
+   "steps_accepted": 7173,
+   "step_mean_ps": 2.02147,
    "step_max_ps": 56.5
   },
   "files": {
-   "tb/comp/tb_comp_delay.scs": "ca754d0b9373b04c",
+   "tb/comp/tb_comp_delay.scs": "d2d5d695c2a3ce22",
    "tb/common/veriloga/tb_imeter_va.va": "d4be49aca417ad61",
-   "design/xtor/adc_comp/many-question-miyahara/adc_comp.scs": "e8a0e3d3dc1366cd"
+   "design/xtor/adc_comp/many-question-miyahara/adc_comp.scs": "13c455d69c414b14"
   },
   "arch": {
    "keys": [],
@@ -347,16 +185,6 @@
   },
   "views": {
    "adc_comp": "xtor:many-question-miyahara"
-  },
-  "execution": {
-   "run": "20261030-184558-6b10-tb_comp_delay",
-   "job": "ss_high_27",
-   "source_git": "a2e3509597563d607d2a873ed9cc5e9d667ccfff",
-   "segment": "continued_server_serial_dispatch",
-   "deck_sha256": "9657e1db8e9f68eb6156c551c5f30c6fe81135e40f3f5297c11167c68eea0b53",
-   "waveform_sha256": "ed674348fd627df7390434997d8242e07722f136b0dd5a65a1bb1995d2a8bfe4",
-   "rc_sha256": "4aee03d9c901b25a0e5188ffdf270bd9e6ad059fbbc9695b5263bb70e78824e2",
-   "continuation_note": "Same originally staged source/deck; only uncompleted corners dispatched; no completed corner rerun."
   }
  }
 }
