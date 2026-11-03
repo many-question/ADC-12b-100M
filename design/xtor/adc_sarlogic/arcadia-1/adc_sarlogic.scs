@@ -1673,6 +1673,230 @@ subckt ich4 (a s sb y vdd vss)           // two ich2 in a row
 // }
 ends ich4
 
+// Wide 60 nm inverter pair for the timeout. Of the pairs tried it spreads least over PVT
+// (about 1.79 between ss_low_125 and ff_high_m40, against 2.0 for rpair), and its reset
+// devices still win against the inverters at every corner (reset under 11 ps).
+subckt ipw (a s sb y vdd vss)            // about 10.8 ps at TT
+  mp1 (m a vdd vdd) pch_ulvt_mac w=1.6u l=60n nf=1
+  mn1 (m a vss vss) nch_ulvt_mac w=0.8u l=60n nf=1
+  mr1 (m s vdd vdd) pch_ulvt_mac w=0.8u l=30n nf=1
+  mp2 (y m vdd vdd) pch_ulvt_mac w=1.6u l=60n nf=1
+  mn2 (y m vss vss) nch_ulvt_mac w=0.8u l=60n nf=1
+  mr2 (y sb vss vss) nch_ulvt_mac w=0.4u l=30n nf=1
+// @RNL {
+//   &vdd @ADD-TO $SUPPLY_NET_SET; &vss @ADD-TO $GROUND_NET_SET;
+//   %ipw = @DEFINE-SYMBOL(box=[-4, -3, 4, 2]) {
+//     @LINE(linewidth=0.24) {(-3, -2) (3, -2) (3, 2) (-3, 2) (-3, -2)};
+//     (-4, 0) @PIN(terminal=1, direction="left");
+//     @LINE {(-4, 0) (-3, 0)};
+//     (-2.7, 0) @TEXT("in", size=0.5, halign="start", valign="middle");
+//     (-1, -3) @PIN(terminal=2, direction="down");
+//     @LINE {(-1, -3) (-1, -2)};
+//     (-1, -1.65) @TEXT("s", size=0.5, halign="middle", valign="bottom");
+//     (1, -3) @PIN(terminal=3, direction="down");
+//     @LINE {(1, -3) (1, -2)};
+//     (1, -1.65) @TEXT("sb", size=0.5, halign="middle", valign="bottom");
+//     (4, 0) @PIN(terminal=4, direction="right");
+//     @LINE {(4, 0) (3, 0)};
+//     (2.7, 0) @TEXT("out", size=0.5, halign="end", valign="middle");
+//     (0, 0.35) @TEXT("ipw", size=0.8, bold=true, halign="middle", valign="middle");
+//     (0, -0.75) @TEXT("wide inverters 60n, ~11 ps", size=0.45, halign="middle", valign="middle");
+//   };
+//   # @SET-SYMBOL %ipw;
+//   {#mp1 #mn1} @GROUP; {#mp2 #mn2} @GROUP;
+//   {#mp1 #mn1 #mr1 #mp2 #mn2 #mr2} @TEXT("", key="model");
+//   #mp1 @PLACE(0,5) => @ORIENT("R0");
+//   #mn1 @PLACE(0,-5) => @ORIENT("R0");
+//   #mr1 @PLACE(10,5) => @ORIENT("R0");
+//   #mp2 @PLACE(20,5) => @ORIENT("R0");
+//   #mn2 @PLACE(20,-5) => @ORIENT("R0");
+//   #mr2 @PLACE(28,-5) => @ORIENT("R0");
+//   %p1=$IO_PORT @ATTACH &a => @PLACE(-10,0) => @ORIENT("R0");
+//   %p2=$IO_PORT @ATTACH &s => @PLACE(-10,13) => @ORIENT("R0");
+//   %p3=$IO_PORT @ATTACH &sb => @PLACE(-10,-13) => @ORIENT("R0");
+//   %p4=$IO_PORT @ATTACH &y => @PLACE(34,0) => @ORIENT("MY");
+//   %j1=(-6,0); $JUNCTION @ATTACH %j1;
+//   &a @WIRE(mode="straight") {%p1:p %j1};
+//   &a @WIRE(mode="straight") {#mp1:g (-6,5) %j1 (-6,-5) #mn1:g};
+//   %j2=(0,0); $JUNCTION @ATTACH %j2;
+//   %j3=(10,0); $JUNCTION @ATTACH %j3;
+//   %j4=(14,0); $JUNCTION @ATTACH %j4;
+//   &m @WIRE(mode="straight") {#mp1:d %j2 #mn1:d};
+//   &m @WIRE(mode="straight") {%j2 %j3 %j4};
+//   &m @WIRE(mode="straight") {#mr1:d %j3};
+//   &m @WIRE(mode="straight") {#mp2:g (14,5) %j4 (14,-5) #mn2:g};
+//   %j5=(20,0); $JUNCTION @ATTACH %j5;
+//   %j6=(28,0); $JUNCTION @ATTACH %j6;
+//   &y @WIRE(mode="straight") {#mp2:d %j5 #mn2:d};
+//   &y @WIRE(mode="straight") {%j5 %j6 %p4:p};
+//   &y @WIRE(mode="straight") {#mr2:d %j6};
+//   &s @WIRE(mode="straight") {%p2:p (7,13) #mr1:g};
+//   &sb @WIRE(mode="straight") {%p3:p (25,-13) #mr2:g};
+//   %p5=$SUPPLY @ATTACH &vdd => @PLACE(0,9) => @ORIENT("R0");
+//   %j7=(0,8); $JUNCTION @ATTACH %j7;
+//   &vdd @WIRE(mode="straight") {#mp1:s %j7 %p5:p};
+//   &vdd @WIRE(mode="straight") {#mp1:b (2,5) (2,8) %j7};
+//   %p6=$SUPPLY @ATTACH &vdd => @PLACE(10,9) => @ORIENT("R0");
+//   %j8=(10,8); $JUNCTION @ATTACH %j8;
+//   &vdd @WIRE(mode="straight") {#mr1:s %j8 %p6:p};
+//   &vdd @WIRE(mode="straight") {#mr1:b (12,5) (12,8) %j8};
+//   %p7=$SUPPLY @ATTACH &vdd => @PLACE(20,9) => @ORIENT("R0");
+//   %j9=(20,8); $JUNCTION @ATTACH %j9;
+//   &vdd @WIRE(mode="straight") {#mp2:s %j9 %p7:p};
+//   &vdd @WIRE(mode="straight") {#mp2:b (22,5) (22,8) %j9};
+//   %p8=$GROUND @ATTACH &vss => @PLACE(0,-9) => @ORIENT("R0");
+//   %j10=(0,-8); $JUNCTION @ATTACH %j10;
+//   &vss @WIRE(mode="straight") {#mn1:s %j10 %p8:p};
+//   &vss @WIRE(mode="straight") {#mn1:b (2,-5) (2,-8) %j10};
+//   %p9=$GROUND @ATTACH &vss => @PLACE(20,-9) => @ORIENT("R0");
+//   %j11=(20,-8); $JUNCTION @ATTACH %j11;
+//   &vss @WIRE(mode="straight") {#mn2:s %j11 %p9:p};
+//   &vss @WIRE(mode="straight") {#mn2:b (22,-5) (22,-8) %j11};
+//   %p10=$GROUND @ATTACH &vss => @PLACE(28,-9) => @ORIENT("R0");
+//   %j12=(28,-8); $JUNCTION @ATTACH %j12;
+//   &vss @WIRE(mode="straight") {#mr2:s %j12 %p10:p};
+//   &vss @WIRE(mode="straight") {#mr2:b (30,-5) (30,-8) %j12};
+//   (-10,17) @TEXT("ipw: resettable inverter delay pair (wide inverters 60n, ~11 ps)", size=0.8, textcolor="#334155", bold=true, halign="start");
+//   (-10,-17) @TEXT("s high: y follows a through two plain inverters (no series stack on the timing edge).", size=0.6, textcolor="#334155", bold=false, halign="start");
+//   (-10,-18.4) @TEXT("s low, sb high: mr1 pulls m high and mr2 pulls y low.", size=0.6, textcolor="#334155", bold=false, halign="start");
+//   (38,8) @TEXT("mp1  pch_ulvt  1.6u/60n  nf=1", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (38,6.4) @TEXT("mn1  nch_ulvt  0.8u/60n  nf=1", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (38,4.8) @TEXT("mr1  pch_ulvt  0.8u/30n  nf=1", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (38,3.2) @TEXT("mp2  pch_ulvt  1.6u/60n  nf=1", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (38,1.6) @TEXT("mn2  nch_ulvt  0.8u/60n  nf=1", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (38,0) @TEXT("mr2  nch_ulvt  0.4u/30n  nf=1", size=0.75, textcolor="#334155", bold=false, halign="start");
+// }
+ends ipw
+
+subckt wch2 (a s sb y vdd vss)           // two ipw in a row
+  p1 (a  s sb y1 vdd vss) ipw
+  p2 (y1 s sb y  vdd vss) ipw
+// @RNL {
+//   &vdd @ADD-TO $SUPPLY_NET_SET; &vss @ADD-TO $GROUND_NET_SET;
+//   %wch2 = @DEFINE-SYMBOL(box=[-4, -3, 4, 2]) {
+//     @LINE(linewidth=0.24) {(-3, -2) (3, -2) (3, 2) (-3, 2) (-3, -2)};
+//     (-4, 0) @PIN(terminal=1, direction="left");
+//     @LINE {(-4, 0) (-3, 0)};
+//     (-2.7, 0) @TEXT("in", size=0.5, halign="start", valign="middle");
+//     (-1, -3) @PIN(terminal=2, direction="down");
+//     @LINE {(-1, -3) (-1, -2)};
+//     (-1, -1.65) @TEXT("s", size=0.5, halign="middle", valign="bottom");
+//     (1, -3) @PIN(terminal=3, direction="down");
+//     @LINE {(1, -3) (1, -2)};
+//     (1, -1.65) @TEXT("sb", size=0.5, halign="middle", valign="bottom");
+//     (4, 0) @PIN(terminal=4, direction="right");
+//     @LINE {(4, 0) (3, 0)};
+//     (2.7, 0) @TEXT("out", size=0.5, halign="end", valign="middle");
+//     (0, 0.35) @TEXT("wch2", size=0.8, bold=true, halign="middle", valign="middle");
+//     (0, -0.75) @TEXT("2 pairs", size=0.45, halign="middle", valign="middle");
+//   };
+//   # @SET-SYMBOL %wch2;
+//   {#p1 #p2} @GROUP;
+//   #p1 @PLACE(0,0) => @ORIENT("R0");
+//   #p2 @PLACE(10,0) => @ORIENT("R0");
+//   %p1=$IO_PORT @ATTACH &a => @PLACE(-10,0) => @ORIENT("R0");
+//   %p2=$IO_PORT @ATTACH &s => @PLACE(-10,-4) => @ORIENT("R0");
+//   %p3=$IO_PORT @ATTACH &sb => @PLACE(-10,-6) => @ORIENT("R0");
+//   %p4=$IO_PORT @ATTACH &y => @PLACE(18,0) => @ORIENT("MY");
+//   &a @WIRE(mode="straight") {%p1:p #p1:a};
+//   &y1 @WIRE(mode="straight") {#p1:y #p2:a};
+//   &y @WIRE(mode="straight") {#p2:y %p4:p};
+//   %j1=(-1,-4); $JUNCTION @ATTACH %j1;
+//   &s @WIRE(mode="straight") {%p2:p %j1 (9,-4) #p2:s};
+//   &s @WIRE(mode="straight") {#p1:s %j1};
+//   %j2=(1,-6); $JUNCTION @ATTACH %j2;
+//   &sb @WIRE(mode="straight") {%p3:p %j2 (11,-6) #p2:sb};
+//   &sb @WIRE(mode="straight") {#p1:sb %j2};
+//   (-10,4) @TEXT("wch2: two ipw in a row", size=0.8, textcolor="#334155", bold=true, halign="start");
+// }
+ends wch2
+
+subckt wch4 (a s sb y vdd vss)           // two wch2 in a row
+  p1 (a  s sb y1 vdd vss) wch2
+  p2 (y1 s sb y  vdd vss) wch2
+// @RNL {
+//   &vdd @ADD-TO $SUPPLY_NET_SET; &vss @ADD-TO $GROUND_NET_SET;
+//   %wch4 = @DEFINE-SYMBOL(box=[-4, -3, 4, 2]) {
+//     @LINE(linewidth=0.24) {(-3, -2) (3, -2) (3, 2) (-3, 2) (-3, -2)};
+//     (-4, 0) @PIN(terminal=1, direction="left");
+//     @LINE {(-4, 0) (-3, 0)};
+//     (-2.7, 0) @TEXT("in", size=0.5, halign="start", valign="middle");
+//     (-1, -3) @PIN(terminal=2, direction="down");
+//     @LINE {(-1, -3) (-1, -2)};
+//     (-1, -1.65) @TEXT("s", size=0.5, halign="middle", valign="bottom");
+//     (1, -3) @PIN(terminal=3, direction="down");
+//     @LINE {(1, -3) (1, -2)};
+//     (1, -1.65) @TEXT("sb", size=0.5, halign="middle", valign="bottom");
+//     (4, 0) @PIN(terminal=4, direction="right");
+//     @LINE {(4, 0) (3, 0)};
+//     (2.7, 0) @TEXT("out", size=0.5, halign="end", valign="middle");
+//     (0, 0.35) @TEXT("wch4", size=0.8, bold=true, halign="middle", valign="middle");
+//     (0, -0.75) @TEXT("4 pairs", size=0.45, halign="middle", valign="middle");
+//   };
+//   # @SET-SYMBOL %wch4;
+//   {#p1 #p2} @GROUP;
+//   #p1 @PLACE(0,0) => @ORIENT("R0");
+//   #p2 @PLACE(10,0) => @ORIENT("R0");
+//   %p1=$IO_PORT @ATTACH &a => @PLACE(-10,0) => @ORIENT("R0");
+//   %p2=$IO_PORT @ATTACH &s => @PLACE(-10,-4) => @ORIENT("R0");
+//   %p3=$IO_PORT @ATTACH &sb => @PLACE(-10,-6) => @ORIENT("R0");
+//   %p4=$IO_PORT @ATTACH &y => @PLACE(18,0) => @ORIENT("MY");
+//   &a @WIRE(mode="straight") {%p1:p #p1:a};
+//   &y1 @WIRE(mode="straight") {#p1:y #p2:a};
+//   &y @WIRE(mode="straight") {#p2:y %p4:p};
+//   %j1=(-1,-4); $JUNCTION @ATTACH %j1;
+//   &s @WIRE(mode="straight") {%p2:p %j1 (9,-4) #p2:s};
+//   &s @WIRE(mode="straight") {#p1:s %j1};
+//   %j2=(1,-6); $JUNCTION @ATTACH %j2;
+//   &sb @WIRE(mode="straight") {%p3:p %j2 (11,-6) #p2:sb};
+//   &sb @WIRE(mode="straight") {#p1:sb %j2};
+//   (-10,4) @TEXT("wch4: two wch2 in a row", size=0.8, textcolor="#334155", bold=true, halign="start");
+// }
+ends wch4
+
+subckt wch8 (a s sb y vdd vss)           // two wch4 in a row
+  p1 (a  s sb y1 vdd vss) wch4
+  p2 (y1 s sb y  vdd vss) wch4
+// @RNL {
+//   &vdd @ADD-TO $SUPPLY_NET_SET; &vss @ADD-TO $GROUND_NET_SET;
+//   %wch8 = @DEFINE-SYMBOL(box=[-4, -3, 4, 2]) {
+//     @LINE(linewidth=0.24) {(-3, -2) (3, -2) (3, 2) (-3, 2) (-3, -2)};
+//     (-4, 0) @PIN(terminal=1, direction="left");
+//     @LINE {(-4, 0) (-3, 0)};
+//     (-2.7, 0) @TEXT("in", size=0.5, halign="start", valign="middle");
+//     (-1, -3) @PIN(terminal=2, direction="down");
+//     @LINE {(-1, -3) (-1, -2)};
+//     (-1, -1.65) @TEXT("s", size=0.5, halign="middle", valign="bottom");
+//     (1, -3) @PIN(terminal=3, direction="down");
+//     @LINE {(1, -3) (1, -2)};
+//     (1, -1.65) @TEXT("sb", size=0.5, halign="middle", valign="bottom");
+//     (4, 0) @PIN(terminal=4, direction="right");
+//     @LINE {(4, 0) (3, 0)};
+//     (2.7, 0) @TEXT("out", size=0.5, halign="end", valign="middle");
+//     (0, 0.35) @TEXT("wch8", size=0.8, bold=true, halign="middle", valign="middle");
+//     (0, -0.75) @TEXT("8 pairs", size=0.45, halign="middle", valign="middle");
+//   };
+//   # @SET-SYMBOL %wch8;
+//   {#p1 #p2} @GROUP;
+//   #p1 @PLACE(0,0) => @ORIENT("R0");
+//   #p2 @PLACE(10,0) => @ORIENT("R0");
+//   %p1=$IO_PORT @ATTACH &a => @PLACE(-10,0) => @ORIENT("R0");
+//   %p2=$IO_PORT @ATTACH &s => @PLACE(-10,-4) => @ORIENT("R0");
+//   %p3=$IO_PORT @ATTACH &sb => @PLACE(-10,-6) => @ORIENT("R0");
+//   %p4=$IO_PORT @ATTACH &y => @PLACE(18,0) => @ORIENT("MY");
+//   &a @WIRE(mode="straight") {%p1:p #p1:a};
+//   &y1 @WIRE(mode="straight") {#p1:y #p2:a};
+//   &y @WIRE(mode="straight") {#p2:y %p4:p};
+//   %j1=(-1,-4); $JUNCTION @ATTACH %j1;
+//   &s @WIRE(mode="straight") {%p2:p %j1 (9,-4) #p2:s};
+//   &s @WIRE(mode="straight") {#p1:s %j1};
+//   %j2=(1,-6); $JUNCTION @ATTACH %j2;
+//   &sb @WIRE(mode="straight") {%p3:p %j2 (11,-6) #p2:sb};
+//   &sb @WIRE(mode="straight") {#p1:sb %j2};
+//   (-10,4) @TEXT("wch8: two wch4 in a row", size=0.8, textcolor="#334155", bold=true, halign="start");
+// }
+ends wch8
+
 subckt rch2 (a s sb y vdd vss)
   p1 (a  s sb y1 vdd vss) rpair
   p2 (y1 s sb y  vdd vss) rpair
@@ -2086,10 +2310,10 @@ subckt adc_sarlogic (CONV OUTP OUTN CLKC UP12 UP11 UP10 UP9 UP8 UP7 UP6 UP5 UP4 
   // ---- timeout: CLKC high for longer than t_timeout forces a decision of 1
   i_tb (c2 tsb DVDD VSS) invx4                  // own copies of CLKC for the chain
   i_ta (tsb ts DVDD VSS) invx4
-  c_t1 (ts  ts tsb t_a DVDD VSS) rch4
-  c_t2 (t_a ts tsb t_b DVDD VSS) rch4
-  c_t3 (t_b ts tsb t_c DVDD VSS) rch4
-  c_t4 (t_c ts tsb tod DVDD VSS) rpair           // 13 pairs, about 260 ps to TO at TT
+  c_t1 (ts  ts tsb t_a DVDD VSS) wch8
+  c_t2 (t_a ts tsb t_b DVDD VSS) wch8
+  c_t3 (t_b ts tsb t_c DVDD VSS) wch2
+  c_t4 (t_c ts tsb tod DVDD VSS) ipw             // 19 pairs
   g_to (c2 tod TOB DVDD VSS) nand2
   i_to (TOB TO DVDD VSS) inv
 
