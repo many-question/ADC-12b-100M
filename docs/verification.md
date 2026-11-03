@@ -288,6 +288,7 @@
 | `tb_clkgen_jitter` | `jitter` | 采样相位沿的直方图与高斯、各沿残差、限值处曲线 |
 | `tb_sarlogic_func` | `decisions`、`conversion`、`timing`、`cin` | 输出码对输入、各判决位置的错码数、转换时间直方图；一次异步转换的波形（14 个比较器时钟、DAC 控制沿、RDY）；各环路时间逐事件对限值；CONV、OUTP、OUTN 各上升沿的输入电容对限值（§6） |
 | `tb_sarlogic_rand`、`_func_slow` | `decisions` | 同上（无波形） |
+| `tb_sarlogic_soa`、`tb_comp_soa`、`tb_cdac_soa` | `stimulus`、`soa` | 整段激励，注明 SOA 范围与对数；有器件时另画 SOA 图（行为级没有） |
 | `tb_sarlogic_timeout` | `decisions`、`timeout` | 同上；比较器不应答时 CLKC 被超时拉低的波形与每次超时时间对窗口 |
 | `tb_ref_dc` | `dc` | VREFP 随负载、随 AVDD18、VCM 随负载（含窗口与斜率限值）、规格表 |
 | `tb_ref_noise` | `psd` | VREFP / VCM 噪声谱密度与 10 kHz 积分起点、积分噪声对 120 µV 限值 |
@@ -301,9 +302,22 @@
 
 ## 5. 逐管 SOA 检查
 
-规格中“每个薄栅器件 |Vgs|、|Vgd|、|Vds| ≤ 1.1 V，各工艺角”的要求由 `adcflow` 的通用 SOA 检查
-（`tools/adcflow/soa.py`）验收，目前用于 `adc_bootstrap` 的 BST-08（`tb_bootstrap_dc`）和 `adc_clkgen` 的 CLK-11
-（`tb_clkgen_timing`，#27）。
+每个薄栅器件的每对端口（|Vgs|、|Vgd|、|Vds|），各工艺角，由 `adcflow` 的通用 SOA 检查（`tools/adcflow/soa.py`）验收，
+用于 `adc_bootstrap` 的 BST-08（`tb_bootstrap_dc`）、`adc_clkgen` 的 CLK-11（`tb_clkgen_timing`，#27）、
+`adc_sarlogic` 的 LOG-17（`tb_sarlogic_soa`）、`adc_comp` 的 CMP-17（`tb_comp_soa`）和 `adc_cdac` 的 DAC-18（`tb_cdac_soa`）。
+`adc_ref` 的规格没有薄栅要求，它的 REF-15 / REF-17 是连续的电压窗口，不属于这条规则。
+
+**规则**（用户的决定，2026-11-02，#133；项目决定，不引用器件或 PDK 来源）。对每个薄栅器件的每对端口：
+
+* 最大 |V| ≤ 1.1 V：通过。
+* 最大 |V| ≤ 1.29 V（0.99 V × 1.3），并且超过 1.1 V 的时间在**每一个** 10 ns 窗口内都 ≤ 100 ps：通过。窗口滑过整段瞬态，包括启动。
+* 其它情况都是违例。
+
+它取代了 #27 的“超限时间短也不能豁免”。满足平均占空比不够：一个窗口内超过 100 ps 就是违例，即使整段运行的平均很低。
+1.1 V 在 `specs/soa.yaml`（`limit_V`，改它结果会过期）；1.29 V、10 ns、100 ps 在 `specs/soa_rule.yaml`，和模块限值一样在判定时读取，
+不进结果的依赖哈希，改它只会重新判定。判定时由 `soa_table` 重新计算违例数（`soa.violations`）：规则之前记录的结果没有
+`t_window_ps`，用总超限时间 `t_over_ps` 作上界，超不过规则就通过，否则仍算违例，直到重跑。main 上此前最高的是选定的
+`adc_bootstrap` 0.99868 V 和 `adc_clkgen` 0.99993 V，都低于 1.1 V，判定不变，不需要重跑。
 
 **启用**：在模块规格的用例下加 `soa:`。
 
@@ -316,9 +330,23 @@ tests:
 * `dut`：要检查其内部器件的测试台实例（缺省为本模块在测试台中的全部实例）。
 * `external`：测试台自身位于 DUT 边界上的薄栅器件，例如参考输入开关；任何视图都检查（缺省为测试台顶层的全部薄栅 MOS）。
 
-其它模块（例如由 VG 驱动的 CDAC 输入开关）启用时：在用例下加同样的 `soa:`；度量函数读入瞬态波形
+其它模块启用时：在用例下加同样的 `soa:`；度量函数读入瞬态波形
 `w = tran(job_dir)` 后调用 `soa.measure(ctx, w, m)`，画图时调用 `soa.figure(fg, ctx, m, w)`；
 规格中加一条 `metric: soa_violations, max: 0, corners: all` 的指标。测试台不必改：要保存的节点由流程加进 deck。
+**给已有用例加 `soa:` 会使它的结果过期**（依赖多了 `specs/soa.yaml`），所以 SAR 逻辑、比较器、CDAC 用独立的用例（度量函数都是
+`measure.common.soa_test`，只做 SOA 检查并画激励图）：
+
+| 用例 | 激励（全部从 t = 0 起，电源已上电） | 为什么这样选 | 时长 |
+|---|---|---|---|
+| `tb_sarlogic_soa` | 比较器仿真器与 `tb_sarlogic_func` 的负载；5 个周期：周期 1 判决 5 不应答（超时），周期 2、4 正常转换，周期 3、5 CONV 在 1.2 ns、0.3 ns 后下降（中断） | 启动、正常转换、比较器卡住、CONV 中断都在一段波形里；10 ns 窗口里只有一次转换，更多周期只增加波形（约 20 MB/ns），不会让窗口变差 | 51 ns |
+| `tb_comp_soa` | `tb_comp_delay` 的共模、负载与边沿，vd 轮流取 ±0.82 V、±100 mV、±1 mV、±10 µV；24 次判决每次 400 ps，再 16 次 CLKC 高 100 ps、低 40 ps | 0.82 V 是满量程的上极板阶跃（0.993 V × 0.824），是比较器见到的最大输入；40 ps 是行为级 TT 的复位窗口（CMP-08）；总长超过 10 ns 窗口 | 11.9 ns |
+| `tb_cdac_soa` | `tb_cdac_settle` 的理想自举栅、相位与控制；VIN 轮流取满量程两端 0.45 ∓ 0.4965 V；转换 3（低）DH12、4（高）RL12、5（低）DH0、6（高）RL12…RL0 每 150 ps | 输入开关与上极板承受的电压都在输入两端最大；高输入之后全部 RL 把上极板推过任何真实码，比真实转换更严 | 70 ns |
+
+这三个用例写 `soa: {dut: [XDUT], remote: true}`：全部器件节点的 PSF-ASCII 波形太大，取不回来（SAR 逻辑约 1 GB，`fetch_max_mb` 是 50）。
+流程在服务器上用同一份计算（`tools/adcflow/soa_core.py`，只依赖 numpy，所以服务器要有 `python3` 和 numpy）做 SOA 检查，取回各对的结果
+`soa_rows.json`、测试台自己保存的信号和最坏一对的节点；原波形大小记在 `soa_waveform_MB`。服务器上检查失败时结果报错，不会报 0。
+`crosscheck` 与 `tb_clkgen_timing` 相同（下文“时钟”），用 `--crosscheck` 在有代表性的最坏工艺角运行，结果记入设计 PR。
+行为级基线的 `soa_scope` 是 `external`、`soa_pairs` 是 0，只说明测试台能跑通，不是器件证据。
 
 **器件分类**：`specs/soa.yaml` 给出限值 `limit_V: 1.1` 与器件模型的分类。1.1 V（全部工艺角）是项目的决定；此前的 1.0 V 来自最初的架构规格，没有记录器件依据。薄栅 MOS（端口 d g s b）检查 gs、gd、ds 三对，
 薄栅 MOS 电容（p n）检查 pn；厚栅（1.8 V）器件不检查，列在结果的 `soa_skipped`。名称像 MOS 器件（`mos_pattern`）
@@ -354,13 +382,13 @@ PSF 读入器解析，器件与节点的对应关系由流程自己写出，可�
 8 ns 的瞬态只有 204 个时间点（40 kB）。
 
 **结果**：`soa_scope`（`device`：DUT 内的器件加边界器件；`external`：只有边界器件）、`soa_devices`、`soa_devices_dut`（检查的器件数）、
-`soa_pairs`、`soa_violations`、`soa_max_V`、`soa_worst`（器件、端口对、带符号的值、时刻、局部步长）、`soa_points`、
-`soa_dt_max_ps`、`soa_skipped`、`soa_table`（每个器件每对端口的 `max_V`、`signed_V`、`t_ns`、`dt_ps`、`pass`）。
+`soa_pairs`、`soa_violations`、`soa_max_V`、`soa_window_max_ps`、`soa_worst`（器件、端口对、带符号的值、时刻、局部步长、超限时间）、`soa_points`、
+`soa_dt_max_ps`、`soa_skipped`、`soa_peak_V`、`soa_window_ns`、`soa_max_over_ps`（判定用的规则）、`soa_table`（每个器件每对端口的 `max_V`、`signed_V`、`t_ns`、`dt_ps`、`t_over_ps`、`t_window_ps`、`pass`）。
 `t_ns` 是最大值首次出现的时间点（最大值是一段平台时取平台起点，容差 0.1 mV），`dt_ps` 是该点两侧较大的仿真步长，
 `signed_V` 是该点带符号的端电压。
-`t_over_ps` 是该对 |V| 超过限值的累计时间（相邻时间点之间按线性插值），**只作诊断**：判定只看最大值，
-超限时间短不能作为豁免理由（#27）。`soa_worst` 也带这一项。
-证据图 `<stem>.soa.png`：各对的最大 |V| 对限值（超限的标出超限时间）、最坏一对的全程波形、最坏峰值附近保存的时间点。
+`t_over_ps` 是该对 |V| 超过 1.1 V 的累计时间，`t_window_ps` 是它最坏的 10 ns 窗口内的时间（相邻时间点之间按线性插值，两个极性相加；
+运行短于窗口时整段算一个窗口），后者进入判定。`soa_worst` 也带这两项。
+证据图 `<stem>.soa.png`：各对的最大 |V| 对两条限值（超过 1.1 V 的标出最坏窗口内的时间）、最坏一对的全程波形、最坏峰值附近保存的时间点。
 
 **无法验证**：没有 SOA 计划、晶体管级 DUT 下找不到薄栅器件、未分类的 MOS 模型、所需节点没有波形、波形不从 t = 0 开始时，
 度量返回错误 `SOA unverified: …`，不写 `soa_violations`（相应指标判为不通过），绝不报 0。`dut`、`external` 写错则在仿真前报错。
@@ -376,7 +404,7 @@ level; not transistor-level evidence"`，`soa_violations` 为 0 个对中的 0 �
 覆盖整段瞬态，否则无法验证。晶体管级视图下找不到薄栅器件仍是错误，不会落入这一情形；测试台顶层有未分类的 MOS 模型（缺省
 `external` 时）同样无法验证。CLK-11 的签核要用 `--view adc_clkgen=xtor` 得到的 `device` 结果。
 
-**时钟（CLK-11）**：规则与 bootstrap 相同（|Vgs|、|Vgd|、|Vds| ≤ `limit_V` = 1.1 V，绝对值、两个方向、`corners: all`），
+**时钟（CLK-11）**：规则与 bootstrap 相同（绝对值、两个方向、`corners: all`），
 `soa: {dut: [XDUT]}`。覆盖的窗口就是 `tb_clkgen_timing` 的整段瞬态：t = 0 起的启动、占空比 50 % 的 8 个周期、45 % 与 55 %
 各 4 个周期，0~161 ns 的每个时间点，包括全部跳变沿；窗口之外（更长的运行、其它占空比或频率）不在 CLK-11 的范围内。
 测试台只用预设 `errpreset=conservative`（§2），保存的点就是仿真器接受的全部时间点。`meta.numerics` 记录日志报告的实际值。
@@ -467,6 +495,7 @@ python -m adcflow verify <test> --block <block> --candidate <name> [--corners <�
 | `*_lsb` | ±max(0.05 LSB, 5 %) | |
 | 其它数值 | ±2 % | |
 | `soa_points`、`soa_dt_max_ps` | 不比较 | 仿真器的时间步统计，不是电路的性质 |
+| `soa_peak_V`、`soa_window_ns`、`soa_max_over_ps`、`soa_window_max_ps` | 不比较 | 规则本身与 `soa_table` 的摘要；规则之前的结果没有这几项 |
 | 标量的列表（蒙特卡洛的逐样本 `offsets_mV`、`sample_status`，`vgs_levels_V`、`weights_*` 等） | 逐个元素，按该指标的容差 | 长度必须相同 |
 | `p1`（`tb_comp_noise` 各电平的判决概率） | ±0.1 | 每电平 512 次判决的统计量 |
 | 元素不是标量的列表与字典（`soa_table`、`soa_worst`、`mc_fail_reasons` 等） | 不比较 | 明细；它们的标量摘要（`soa_max_V`、`soa_violations`、`mc_failed` 等）参与比较 |

@@ -124,3 +124,28 @@ def spectrum(codes: np.ndarray, fs: float, full_scale: float | None, ctx: dict |
         ctx.setdefault("provenance", {})["spectrum"] = sp.PROVENANCE
     return {"enob": r["enob"], "sndr_dBc": r["sndr_dbc"], "sfdr_dBc": r["sfdr_dbc"],
             "snr_dBc": r["snr_dbc"], "thd_dBc": r.get("thd_dbc", float("nan"))}
+
+
+def soa_test(job_dir: Path, ctx: dict, sigs: list[str]) -> dict:
+    """A test that exists for the per-device SOA check alone: the check over the whole transient,
+    the stimulus `sigs` as evidence (whatever the scope) and the SOA figure when there are pairs."""
+    from .. import soa
+    from ..figures import note, sink_of
+
+    w = tran(job_dir)
+    m: dict = {}
+    soa.measure(ctx, w, m, job_dir)
+    fg = sink_of(ctx)
+    if fg:
+        fig, axs = fg.new(len(sigs), 1, size=(11.0, 1.15 * len(sigs) + 0.7), sharex=True)
+        for ax, s in zip(axs[:, 0], sigs):
+            ax.plot(w["time"] * 1e9, w[s], lw=0.7)
+            ax.set_ylabel(f"{s} (V)", fontsize=8)
+        axs[-1, 0].set_xlabel("time (ns)")
+        pairs, scope = m.get("soa_pairs"), m.get("soa_scope")
+        note(axs[0, 0], m.get("error") or f"SOA scope {scope}, {pairs} pair(s), {m.get('soa_violations')} violation(s)"
+             + ("" if pairs else ": not device evidence"))
+        fg.save(fig, "stimulus", f"Stimulus of the SOA test over the whole transient (scope {scope}, {pairs} pairs).")
+        if m.get("soa_table"):
+            soa.figure(fg, ctx, m, w)
+    return m

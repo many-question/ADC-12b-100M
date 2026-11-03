@@ -9,7 +9,7 @@ import numpy as np
 from .. import psf
 from ..figures import C1, C2, C3, INK2, LIMIT, MUTED, hline, limit_label, limits, note, sink_of, vline
 from ..figures import GRID as GRIDLINE
-from .common import fig_cin, pin_cins, read_meter_windows, read_samples, tran
+from .common import fig_cin, pin_cins, read_meter_windows, read_samples, soa_test, tran
 
 TCYC = 400e-12
 DELAY_LEVELS = [100e-3, -100e-3, 30e-3, -30e-3, 10e-3, -10e-3, 3e-3, -3e-3, 1e-3, -1e-3,
@@ -18,12 +18,18 @@ DELAY_LEVELS = [100e-3, -100e-3, 30e-3, -30e-3, 10e-3, -10e-3, 3e-3, -3e-3, 1e-3
 # T0 (the pulse delay). CMP-10 (#75): the AVDD meter integrates exactly the N_DELAY full cycles from
 # there, [T0, T0 + N_DELAY * TCYC], and energy_fJ = AVDD charge x VDD / N_DELAY.
 N_DELAY = 2 * len(DELAY_LEVELS)       # 36
+# tb_comp_soa: tb_comp_delay's conditions plus the largest input and the short reset of the loop. vd up to
+# 0.82 V: the full-scale top-plate step (0.993 V x gain 0.824). 24 cycles of TCYC, then 16 with CLKC low
+# for SOA_LOW (the behavioral TT window, CMP-08), together longer than the 10 ns of the SOA rule's window.
+SOA_LEVELS = [0.82, -0.82, 100e-3, -100e-3, 1e-3, -1e-3, 10e-6, -10e-6]
+SOA_N_SLOW, SOA_N_FAST = 24, 16
+SOA_HIGH, SOA_LOW = 100e-12, 40e-12
 T0 = 100e-12
 # CMP-15 output validity (#77): in each evaluate interval (CLKC rise .. CLKC fall, 50 % crossings) exactly one output
 # crosses DECIDE x VDD and the other stays below LOSER_MAX x VDD
 DECIDE = 0.5
 LOSER_MAX = 0.3
-NOISE_LEVELS = [round(-800e-6 + 100e-6 * i, 9) for i in range(17)]   # +/-3.3 sigma at the 240 uV limit
+NOISE_LEVELS = [round(-800e-6 + 100e-6 * i, 9) for i in range(17)]   # +/-2.9 sigma at the 280 uV limit
 NOISE_REPEAT = 512                    # 1-sigma error of sigma <= 2.7 % for 120..300 uV (binomial ML)
 # tb_comp_offset_mc: offset search per Monte Carlo sample (tb_offset_search_va)
 MC_TCYC = 1e-9                        # one decision per 1 ns: no metastable miss even within 1 uV of the offset
@@ -594,3 +600,8 @@ def _fig_kickback(fg, ctx, m) -> None:
     note(ax, "\n".join(lines), loc="upper left")
     fg.save(fig, "kickback", "Differential input of the floating top-plate-sized nodes after each evaluate and reset "
             "cycle, and the change per cycle against the kickback limit.")
+
+
+def soa(job_dir: Path, ctx: dict) -> dict:
+    """tb_comp_soa: per-device SOA (CMP-17)."""
+    return soa_test(job_dir, ctx, ["INP", "INN", "CLKC", "OUTP", "OUTN"])

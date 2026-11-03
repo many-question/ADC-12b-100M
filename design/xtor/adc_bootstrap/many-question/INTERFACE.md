@@ -28,7 +28,7 @@ The complete 45-primary / eight-alternate DC evidence covers startup and switchi
 | Turn-off, including alternates | 59.587332 ps, SS-low-hot | 0.412668 ps to 60 ps |
 | Turn-on, primary | 229.944229 ps, SS-low-cold | 70.055771 ps to 300 ps |
 | Minimum VG − VIN, primary | 0.734025962 V, FF-low-hot | 14.025962 mV above 0.72 V |
-| Largest checked DUT/reference gs/gd/ds voltage | 0.998681198 V, MPRE gate/drain, FS-high-hot | 1.318802 mV to 1.0 V |
+| Largest checked DUT/reference gs/gd/ds voltage | 0.998681198 V, MPRE gate/drain, FS-high-hot | 101.318802 mV to 1.1 V |
 
 Across all 53 jobs, the reference switch itself reaches at most |Vgs| = 0.971931033 V, |Vgd| = 0.972103642 V and |Vds| = 0.883784451 V. The internal MPRE terminal voltage is more limiting. All values above are evaluated at saved transient points. The two alternate saved-step/first-event limitations and full review are disclosed in the [README](README.md); they remain limitations, without a numerical waiver.
 

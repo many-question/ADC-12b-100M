@@ -1,6 +1,6 @@
 block: adc_sarlogic
 title: Asynchronous SAR controller, bit registers and output register
-version: 0.7.0
+version: 0.8.0
 selected: none          # the selected candidate (design/xtor/<block>/<name>/); none yet
 status: behavioral
 views:
@@ -89,6 +89,7 @@ specs:
   - {id: LOG-14, name: "CONV input capacitance (charge per rising edge / VDD)", metric: cin_conv_fF, unit: fF, max: 40, corners: typ, test: tb_sarlogic_func}
   - {id: LOG-15, name: "OUTP / OUTN input capacitance (charge per rising edge / VDD, larger of the two)", metric: cin_cmp_fF, unit: fF, max: 7, corners: typ, test: tb_sarlogic_func}
   - {id: LOG-16, name: "extra DAC wait of each step (timing.t_dac_add), worst error against nominal", metric: t_dac_add_err_pct, unit: '%', max: 20, corners: typ, test: tb_sarlogic_func}
+  - {id: LOG-17, name: "SOA violations: thin-oxide device / terminal pairs outside the SOA rule (1.1 V, or 1.29 V for at most 100 ps in any 10 ns; Vgs, Vgd, Vds; absolute, whole transient)", metric: soa_violations, unit: count, max: 0, corners: all, test: tb_sarlogic_soa}
 tests:
   tb_sarlogic_func:
     netlist: tb/sarlogic/tb_sarlogic_func.scs
@@ -132,3 +133,22 @@ tests:
       Same as func but the emulator never answers decision 5 of every other
       conversion. Checks that the decision is forced to 1 after t_timeout and
       that the conversion completes with correct remaining decisions.
+  tb_sarlogic_soa:
+    netlist: tb/sarlogic/tb_sarlogic_soa.scs
+    measure: adcflow.measure.sarlogic:soa
+    soa: {dut: [XDUT], remote: true}   # the check runs on the server (docs/verification.md §5)
+    crosscheck: {reltol: 1.0e-7, vabstol: 1.0e-8, maxstep: 1p, method: traponly}   # time resolution of the SOA peaks (docs/verification.md §5)
+    desc: >
+      Per-device SOA of every thin-oxide MOS in XDUT over the whole run: start-up
+      from t = 0 with the supply already up, then 5 cycles at 100 MHz with the
+      comparator emulator and the loads of tb_sarlogic_func. Cycle 1: decision 5
+      unanswered (timeout as tb_sarlogic_timeout); 2 and 4: normal conversions;
+      3 and 5: CONV falls after 1.2 ns and 0.3 ns, so that the output register
+      loads early (51 ns in all, n_conversions from the capture). The rule's
+      10 ns window holds one conversion, so more cycles would add waveform
+      (about 20 MB per ns), not a worse window.
+      A transistor view gives soa_scope device; a missing waveform or an
+      unlisted MOS model is an error (unverified), never 0. The behavioral view
+      has no devices: soa_scope external with soa_pairs 0, which is not device
+      evidence. Nothing else is measured here, so the existing tests stay as
+      they are.

@@ -36,6 +36,7 @@ python -m adcflow report [--block adc_comp]     # 结果对照规格
 python -m adcflow candidates [--block adc_comp] [--json]   # 晶体管级候选的排行榜（docs/proposals/open-candidates.md §3）
 python -m adcflow verify <test> --block <block> --candidate <name> [--corners …] [--dry-run]   # 项目负责人在同一网表哈希上复跑候选的结果，写复核记录 verification/…（docs/verification.md §7）
 python -m adcflow migrate-candidate <block> <name> --author <login>[=<显示名>] --description "…"   # 旧的单一 xtor 视图迁成候选（项目负责人）
+python -m adcflow rename-candidate <block> <old> <new> [--base origin/main] [--dry-run]   # 合并前给候选改名，连同结果，不重仿真（CONTRIBUTING.md §4）
 python -m adcflow remeasure <test> --run build/runs/<run_id> [--dry-run]   # 不重仿真，用现行度量重算并重记该次运行的结果（只允许 SFDR 变化，#36）
 python -m adcflow remeasure <test> --run build/runs/<run_id> --redraw     # 只重画证据图：任何指标变化即中止，结果中写 meta.redrawn（#47）
 python -m adcflow rehash [--block <block>] [--test <test>] [--view xtor-<name>] [--dry-run] [-v]   # 不重仿真，把结果的记录换成其电路实际依赖的文件与 arch 取值（见下）
@@ -86,7 +87,7 @@ python -m adcflow clean-remote --older-than-h 12   # 清理服务器上本项目
 * 第一行 `parameters` 中的参数可由规格 `params:` 或 `--param` 覆盖；`vdd vdd18 tempc noise_en devnoise
   beh_speed vref_in cdac_behav` 由 deck 提供，测试台中不要声明（`cdac_behav` = 1 表示 `adc_cdac` 用行为级视图）。
 * 监视器写小文本文件（`tb/common/veriloga/`）；只在度量需要时保存波形（`save` 列出信号）。
-* 要求逐管 SOA（每个薄栅器件 |Vgs|、|Vgd|、|Vds| ≤ `specs/soa.yaml` 的 `limit_V`，现为 1.1 V）的用例在规格中加 `soa:`：流程在 deck 中保存 DUT 内各器件的端口节点，度量函数调用 `soa.measure` / `soa.figure`，见 [`verification.md`](verification.md) §5。
+* 要求逐管 SOA（每个薄栅器件的 |Vgs|、|Vgd|、|Vds| ≤ `specs/soa.yaml` 的 `limit_V`，现为 1.1 V；或 ≤ 1.29 V 且任一 10 ns 窗口内超过 1.1 V 不到 100 ps，`specs/soa_rule.yaml`）的用例在规格中加 `soa:`：流程在 deck 中保存 DUT 内各器件的端口节点，度量函数调用 `soa.measure` / `soa.figure`，见 [`verification.md`](verification.md) §5。
 * 度量函数放在 `tools/adcflow/measure/<block>.py`，签名 `fn(job_dir, ctx) -> dict`，键名即规格中的 `metric`。
   `ctx["figs"]` 是图的接收器（`tools/adcflow/figures.py` 的 `FigureSink`）：新测试的度量函数用
   `sink_of(ctx)` 取得它，`fg.new(...)` 建图、`fg.save(fig, tag, caption)` 保存；规格线用

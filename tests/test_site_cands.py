@@ -74,6 +74,7 @@ NO_TOP = {"status": "none", "results": 0, "missing": [], "failing": [], "stale":
     ("stale", {"flags": {**FLAGS, "stale": 1}}),
     ("error", {"flags": {**FLAGS, "error": 1}}),
     ("soa", {"flags": {**FLAGS, "soa": 1}}),
+    ("soa_unverified", {"flags": {**FLAGS, "soa_unverified": 2}, "soa": {"required": 2, "verified": 0, "missing": 2}}),
     ("mismatch", {"flags": {**FLAGS, "mismatch": 1}}),
     ("unverified", {"flags": {**FLAGS, "unverified": 1}}),
     ("top", {"top_regression": NO_TOP}),
@@ -449,3 +450,18 @@ def site_stub_with_evidence():
     s = site_stub()
     s.evidence = lambda rel, label="JSON ↗", doc=None: ""
     return s
+
+
+def test_site_shows_missing_soa_as_unverified_not_zero():
+    pytest.importorskip("markdown_it")
+    from sitegen import render
+
+    c = cand("c", flags={**FLAGS, "soa_unverified": 3, "unverified": 0},
+             soa={"required": 3, "verified": 0, "missing": 2, "behavioral": 1, "error": 0, "self_reported": 0})
+    c.unacked = []
+    html = render.cand_flags(SimpleNamespace(repo="o/r"), c)
+    assert "SOA 未验证 3/3" in html and "这不是 0 违例" in html and "缺失 2" in html and "行为级范围 1" in html
+    assert "逐管 SOA 未验证" in cands.missing_items(c.row)[0]
+    ok = cand("d", power_uW=1.0)
+    ok.unacked = []
+    assert "SOA" not in render.cand_flags(SimpleNamespace(repo="o/r"), ok)     # a block without SOA specs (adc_ref) shows nothing
