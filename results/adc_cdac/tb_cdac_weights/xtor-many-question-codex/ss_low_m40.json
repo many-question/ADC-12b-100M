@@ -1,0 +1,140 @@
+{
+ "block": "adc_cdac",
+ "test": "tb_cdac_weights",
+ "view": "xtor-many-question-codex",
+ "corner": "ss_low_m40",
+ "params": {},
+ "globals": {
+  "vdd": 0.81,
+  "vdd18": 1.62,
+  "tempc": -40.0,
+  "noise_en": 0,
+  "devnoise": 1,
+  "beh_speed": 1.0,
+  "vref_in": 0.9,
+  "cdac_behav": 0,
+  "comp_behav": 1
+ },
+ "metrics": {
+  "top_gain": 0.8895553517840001,
+  "weights_lsb": [
+   987.7992,
+   564.4852,
+   320.557,
+   181.4497,
+   102.8231,
+   57.3797,
+   32.2583,
+   18.1455,
+   10.08,
+   6.0475,
+   2.9449,
+   2.0161,
+   0.9274
+  ],
+  "weight_err_max_pct": 7.9855519739637115,
+  "h_l_asym_pct": 0.060190013890193406,
+  "fs_peak_V": 1.0007970257606544,
+  "cal_margin_lsb": 0.38517046925155146,
+  "cal_margin_per_decision_lsb": [
+   309.0917,
+   169.3881,
+   93.6296,
+   51.8103,
+   27.9401,
+   16.0346,
+   9.1618,
+   5.2106,
+   3.2466,
+   1.2722,
+   1.2926,
+   0.3852,
+   0.4001
+  ],
+  "enob_loss_cal_bit": -0.00040423649642740145,
+  "enob_loss_nom_bit": 0.17745314581988048,
+  "cs_pF": 2.3313360787499997
+ },
+ "specs": {
+  "DAC-02": {
+   "metric": "fs_peak_V",
+   "value": 1.0007970257606544,
+   "limit": ">= 0.97",
+   "pass": true
+  }
+ },
+ "specs_na": {
+  "DAC-01": {
+   "metric": "cs_pF",
+   "value": 2.3313360787499997,
+   "limit": "1.98 .. 2.12",
+   "corners": "typ"
+  },
+  "DAC-03": {
+   "metric": "cal_margin_lsb",
+   "value": 0.38517046925155146,
+   "limit": ">= 0",
+   "corners": "typ"
+  },
+  "DAC-14": {
+   "metric": "enob_loss_cal_bit",
+   "value": -0.00040423649642740145,
+   "limit": "<= 0.02",
+   "corners": "typ"
+  },
+  "DAC-04": {
+   "metric": "top_gain",
+   "value": 0.8895553517840001,
+   "limit": ">= 0.78",
+   "corners": "typ"
+  }
+ },
+ "figures": [
+  {
+   "file": "ss_low_m40.weights.png",
+   "caption": "Measured weight of every DAC bit against nominal, the redundancy of every decision against the worst-case weight error it must absorb for calibration (with the ENOB loss after calibration), and the asymmetry of the rising and falling steps."
+  }
+ ],
+ "meta": {
+  "date": "2026-11-04T02:01:47",
+  "git": "8279c35f",
+  "git_clean": true,
+  "mode": "aps",
+  "pdk": true,
+  "mc": null,
+  "wall_s": 191.7,
+  "rc": "0",
+  "sim_s": "106",
+  "numerics": {
+   "source": "spectre.log",
+   "reltol": 0.0001,
+   "maxstep_ps": 2910.0,
+   "method": "gear2only",
+   "errpreset": "conservative",
+   "lteratio": 10.0,
+   "relref": "alllocal",
+   "abstol_V": 1e-06,
+   "steps_accepted": 23074,
+   "step_mean_ps": 12.6116,
+   "step_max_ps": null
+  },
+  "files": {
+   "tb/cdac/tb_cdac_weights.scs": "d5b85b9c565bf8ea",
+   "design/behav/veriloga/adc_clkgen_va.va": "7fff1b9368bc1a20",
+   "tb/common/veriloga/tb_imeter_va.va": "d4be49aca417ad61",
+   "tb/common/veriloga/tb_sampler_va.va": "4092bc16170c588d",
+   "tb/common/veriloga/tb_cdac_seq_va.va": "800f16f07345b3b9",
+   "design/behav/veriloga/adc_bootstrap_va.va": "12338aad16f4913b",
+   "design/xtor/adc_cdac/many-question-codex/adc_cdac.scs": "9b00f07143da7cc5"
+  },
+  "arch": {
+   "keys": [
+    "*"
+   ],
+   "sha": "05899cd622401f94"
+  },
+  "views": {
+   "adc_cdac": "xtor:many-question-codex"
+  }
+ }
+}

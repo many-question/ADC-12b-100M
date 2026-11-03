@@ -1,0 +1,79 @@
+{
+ "block": "adc_cdac",
+ "test": "tb_cdac_track",
+ "view": "xtor-many-question-codex",
+ "corner": "ss_low_m40",
+ "params": {
+  "npts": 256,
+  "fin": "4.882812500e+07"
+ },
+ "globals": {
+  "vdd": 0.81,
+  "vdd18": 1.62,
+  "tempc": -40.0,
+  "noise_en": 0,
+  "devnoise": 1,
+  "beh_speed": 1.0,
+  "vref_in": 0.9,
+  "cdac_behav": 0,
+  "comp_behav": 1
+ },
+ "metrics": {
+  "error": "ERROR (SPECTRE-16928): Cannot run the simulation because transient analysis has reached the maximum number of times allowed to approach minstep (within 5% of stop time or 5 us, whichever is less)."
+ },
+ "specs": {
+  "DAC-09": {
+   "metric": "sfdr_dBc",
+   "value": null,
+   "limit": ">= 85",
+   "pass": false
+  },
+  "DAC-10": {
+   "metric": "sndr_dB",
+   "value": null,
+   "limit": ">= 80",
+   "pass": false
+  }
+ },
+ "figures": [],
+ "meta": {
+  "date": "2026-11-04T01:56:18",
+  "git": "a2145d1a",
+  "git_clean": false,
+  "git_dirty_paths": [
+   "design/xtor/adc_cdac/many-question-codex/README.md"
+  ],
+  "mode": "aps",
+  "pdk": true,
+  "mc": null,
+  "wall_s": 322.6,
+  "rc": "1",
+  "sim_s": "236",
+  "numerics": {
+   "source": "spectre.log",
+   "reltol": 1e-07,
+   "maxstep_ps": 26050.0,
+   "method": "gear2only",
+   "errpreset": "conservative",
+   "lteratio": 10.0,
+   "relref": "alllocal",
+   "abstol_V": 1e-08,
+   "vabstol": 1e-08,
+   "step_max_ps": null
+  },
+  "files": {
+   "tb/cdac/tb_cdac_track.scs": "f0938d832dbd4667",
+   "design/behav/veriloga/adc_clkgen_va.va": "7fff1b9368bc1a20",
+   "tb/common/veriloga/tb_sampler_va.va": "4092bc16170c588d",
+   "design/behav/veriloga/adc_bootstrap_va.va": "12338aad16f4913b",
+   "design/xtor/adc_cdac/many-question-codex/adc_cdac.scs": "9b00f07143da7cc5"
+  },
+  "arch": {
+   "keys": [],
+   "sha": "44136fa355b3678a"
+  },
+  "views": {
+   "adc_cdac": "xtor:many-question-codex"
+  }
+ }
+}

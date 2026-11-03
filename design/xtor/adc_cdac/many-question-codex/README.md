@@ -4,6 +4,15 @@ Current status (2026-11-04): resumed after the project resolved issue #125.
 DAC-12 is now 1.35 pC (#132); the new all-corner DAC-18 SOA test and
 transient-overvoltage rule (#137) apply. Candidate remains WIP.
 
+Current blockers at ss_low_m40: official track aborts at 60.1007 ns with
+SPECTRE-16928 (minstep approach count), only 2/256 samples; no valid spectrum.
+Dedicated SOA completes but fails 3 terminal pairs: MTP Vgd and MTD Vgs/Vgd,
+all the TOP-PHI_SB stress. Peak 1.25686 V is below 1.29 V, but time above
+1.1 V reaches 127.281 ps per 10 ns window (limit 100 ps). Batch expansion
+has stopped. Observation-only track replay and SOA numerical confirmation
+are independent diagnostics; official failure records are preserved.
+
+
 V29 is the current baseline, migrated into the accepted XCAP/XSW
 functional partition. XCAP holds the 36 array MOM and 36 associated 5% Cp;
 the 26 AP delay loads and one SAMP_ON control load, with their own 5% Cp,
