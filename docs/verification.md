@@ -89,8 +89,8 @@
   TT 的参照：两种方法差 0.05 dB SFDR、0.01 dB SNDR，样本差 2.8 µV rms），否则结果不能作证据，先查明原因。
   行为级 TT 的交叉检查见 §3 后的表（#28 当时的设置）。
 * **频谱指标**：ENOB、SNDR、SFDR、SNR、THD 都由 ADCToolbox 的 `compute_spectrum` 计算（`tools/adcflow/spectrum.py`）。
-  `pyproject.toml` 把它固定到上游提交 `cd72061`：它的版本号仍是 0.9.1，而 PyPI 上的 0.9.1 没有这个修复（#36）。比较与依据见
-  [`docs/sfdr-estimator.md`](sfdr-estimator.md)；结果的 `meta.provenance.spectrum` 记录版本与提交。
+  `pyproject.toml` 把它固定到 PyPI 正式版 0.9.2，第一个含 SFDR 修复（#36）的正式版。比较与依据见
+  [`docs/sfdr-estimator.md`](sfdr-estimator.md)；结果的 `meta.provenance.spectrum` 记录版本（#96 之前的结果记录上游提交 `cd72061`，0.9.2 没有改指标的计算）。
   还有一个上游的限制：杂散碰到信号频点时 SNDR 约高 0.8 dB。注意：`compute_spectrum` 返回的 `plot_data.is_coherent`
   实际是参数 `coherent_averaging`（是否做了多次记录的相干平均），不是按频点偏差判断的相干性。不能用它判断输入频率是否相干，
   相干性看实际的 fin、N 与 k（#47）。
