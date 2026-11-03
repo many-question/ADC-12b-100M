@@ -1,10 +1,12 @@
 # Miyahara comparator: restored original B26
 
-The canonical source is now the original physical **B26**, restored byte-for-byte from its two historical Git objects. [B26 restoration and evidence](RESTORATION-B26.md) records fresh full TT / FF-low-125 / FS-low-125 noise of **171.168936 / 265.467147 / 270.616353 uV rms**, all passing current limits. First-round TT delay/loading, representative device SOA, short-reset windows and numerical crosschecks also pass. Remaining full-corner tests and TT 50-sample mismatch are running; mixed-top and lead verification remain outstanding. Candidate status is **WIP, unqualified and unselected**. Historical results retain their original identities.
+The canonical source is now the original physical **B26**, restored byte-for-byte from its two historical Git objects. [B26 restoration and evidence](RESTORATION-B26.md) records fresh full TT / FF-low-125 / FS-low-125 noise of **171.168936 / 265.467147 / 270.616353 uV rms**, all passing current limits. Full 45-corner delay, kickback and device SOA, TT 50-sample mismatch, supporting short-reset windows and the worst-SOA numerical crosscheck pass. Remaining full-corner noise is running; mixed-top and lead verification remain outstanding. Candidate status is **WIP, unqualified and unselected**. Historical results retain their original identities.
 
 ![Current complete B26 transistor schematic](schematic.png)
 
 All **45 delay and 45 kickback corners now pass**, with 1620/1620 correct decisions and complete resets in the independent delay raw-trace audit. Worst 1 mV delay is 95.933155 ps and worst reset 33.670680 ps. The largest specified net cycle kickback is 0.0001999133 uV; this is not the instantaneous disturbance peak. Other full-corner coverage remains in progress; [the restoration report](RESTORATION-B26.md) retains exact measurements, source identity and raw-archive receipts.
+
+All **45 device-SOA corners pass**, each with 43 MOS / 129 terminal pairs, zero violations and zero time above 1.1 V; worst peak is 1.06660 V at FS/high/125. **TT mismatch passes all 50 samples**, with offset sigma 1.847628 mV against 5 mV. Independent raw checks verify all 850 decisions and all range/recheck outcomes. Full-corner noise is still needed before block qualification is complete.
 
 ## Historical B20 and subsequent experiments
 
