@@ -77,6 +77,12 @@ All first-round gates pass. At that checkpoint the official records are 9 fresh 
 | Reset | 33.67068023981794 ps | ss_low_m40 | 45 ps |
 | Losing-output peak | 3.3991580192599535 % VDD | ff_high_125 | Reported |
 
-The current checkpoint has 53 fresh / 101 total records, zero fresh errors or failures. Remaining noise, kickback, SOA and mismatch coverage is still running. Passing delay does not substitute for those missing results.
+The delay checkpoint has 53 fresh / 101 total records, zero fresh errors or failures. Remaining noise, kickback, SOA and mismatch coverage is still running at that checkpoint. Passing delay does not substitute for those missing results.
 
 The additional 44-corner delay run passed remote SHA-256 matching, ZIP CRC/member SHA-256 readback and exact remote absence checks. Retained archive SHA-256: `f077cc085ac97641740a316f36b6af6d471b5f59d5c4572cf332f3c444beb62c`. Together with the first-round archive, all 45 delay raw traces remain retained.
+
+**All 45 kickback corners pass.** Run `20261104-025241-6c85-tb_comp_kickback` adds the remaining 44 corners. The maximum specified net cycle change is 0.00019991329988991446 uV at ff_high_125, against 40 uV. The independent audit checks all 360 finite samples across the two runs and exactly reproduces every formal kickback metric. These post-reset samples do not establish instantaneous differential or common-mode disturbance peaks. The largest first-to-second sample change, which is outside the formal cycle-difference calculation, is 0.21312963850001443 uV at ss_low_m40.
+
+Input and CLKC capacitance limits apply at TT only: 19.328731218738323 fF against 20 fF and 12.105038071102172 fF against 16 fF. Across all corners the maxima are 20.6920524612635 fF at ff_low_m40 and 13.188213874014059 fF at ff_high_125, respectively; these non-TT values are reported without applying the TT acceptance limit.
+
+The kickback checkpoint has **97 fresh / 101 total records**, zero fresh errors or failures. Remaining noise, SOA and mismatch coverage continues on unchanged B26. The additional kickback run passed remote SHA-256 matching, ZIP CRC/member SHA-256 readback, independent retention and exact remote absence checks. Retained archive SHA-256: `3cea078b673ce057594e89c2bf8870934d9bf950cb5aaf387bcd2b95cc524102`.

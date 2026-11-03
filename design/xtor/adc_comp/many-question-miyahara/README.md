@@ -4,7 +4,7 @@ The canonical source is now the original physical **B26**, restored byte-for-byt
 
 ![Current complete B26 transistor schematic](schematic.png)
 
-All **45 delay corners now pass**, with 1620/1620 correct decisions and complete resets in the independent raw-trace audit. Worst 1 mV delay is 95.933155 ps and worst reset 33.670680 ps. Other full-corner coverage remains in progress; [the restoration report](RESTORATION-B26.md) retains exact measurements, source identity and raw-archive receipts.
+All **45 delay and 45 kickback corners now pass**, with 1620/1620 correct decisions and complete resets in the independent delay raw-trace audit. Worst 1 mV delay is 95.933155 ps and worst reset 33.670680 ps. The largest specified net cycle kickback is 0.0001999133 uV; this is not the instantaneous disturbance peak. Other full-corner coverage remains in progress; [the restoration report](RESTORATION-B26.md) retains exact measurements, source identity and raw-archive receipts.
 
 ## Historical B20 and subsequent experiments
 

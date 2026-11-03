@@ -16,24 +16,24 @@
   "comp_behav": 0
  },
  "metrics": {
-  "kickback_uV": 0.011292934999889565,
+  "kickback_uV": 0.00018886639994997179,
   "vdiff_uV": [
-   999.952,
-   999.936,
-   999.947,
-   999.958,
-   999.969,
-   999.981,
-   999.992,
-   1000.003
+   999.95,
+   999.895,
+   999.894,
+   999.894,
+   999.894,
+   999.894,
+   999.894,
+   999.893
   ],
-  "cin_fF": 19.107028383011315,
-  "cin_clkc_fF": 16.035401006454165
+  "cin_fF": 19.18421853041088,
+  "cin_clkc_fF": 13.052285698871872
  },
  "specs": {
   "CMP-11": {
    "metric": "kickback_uV",
-   "value": 0.011292934999889565,
+   "value": 0.00018886639994997179,
    "limit": "<= 40",
    "pass": true
   }
@@ -41,13 +41,13 @@
  "specs_na": {
   "CMP-12": {
    "metric": "cin_fF",
-   "value": 19.107028383011315,
+   "value": 19.18421853041088,
    "limit": "<= 20",
    "corners": "typ"
   },
   "CMP-14": {
    "metric": "cin_clkc_fF",
-   "value": 16.035401006454165,
+   "value": 13.052285698871872,
    "limit": "<= 16",
    "corners": "typ"
   }
@@ -63,30 +63,32 @@
   }
  ],
  "meta": {
-  "date": "2026-10-30T01:52:21",
-  "git": "c41a097",
+  "date": "2026-11-04T03:10:02",
+  "git": "a76094ad",
   "git_clean": true,
   "mode": "aps",
   "pdk": true,
   "mc": null,
-  "wall_s": 756.6,
+  "wall_s": 1038.3,
   "rc": "0",
-  "sim_s": "14",
+  "sim_s": "22",
   "numerics": {
    "source": "spectre.log",
-   "reltol": 0.001,
-   "maxstep_ps": 66.0,
-   "method": "traponly",
-   "errpreset": "moderate",
-   "lteratio": 3.5,
-   "abstol_V": 1e-06,
-   "steps_accepted": 758,
-   "step_mean_ps": 4.35356,
-   "step_max_ps": 50.5
+   "reltol": 1e-06,
+   "maxstep_ps": 33.0,
+   "method": "gear2only",
+   "errpreset": "conservative",
+   "lteratio": 10.0,
+   "relref": "alllocal",
+   "abstol_V": 1e-08,
+   "vabstol": 1e-08,
+   "steps_accepted": 6175,
+   "step_mean_ps": 0.534413,
+   "step_max_ps": 33.0
   },
   "files": {
-   "tb/comp/tb_comp_kickback.scs": "04b444f63619d31d",
-   "design/xtor/adc_comp/many-question-miyahara/adc_comp.scs": "e8a0e3d3dc1366cd",
+   "tb/comp/tb_comp_kickback.scs": "505337caf7038338",
+   "design/xtor/adc_comp/many-question-miyahara/adc_comp.scs": "13c455d69c414b14",
    "tb/common/veriloga/tb_sampler_va.va": "4092bc16170c588d",
    "tb/common/veriloga/tb_qmeter_va.va": "fed84d572a912b39"
   },
