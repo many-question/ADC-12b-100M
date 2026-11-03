@@ -1,6 +1,6 @@
 # Miyahara comparator: restored original B26
 
-The canonical source is now the original physical **B26**, restored byte-for-byte from its two historical Git objects. [B26 restoration and source identity](RESTORATION-B26.md) records the current adc_comp 0.11.0 qualification plan and provenance. This is a source-freeze checkpoint, not a passing qualification result. Full fresh TT / FF-low-125 / FS-low-125 noise and present-day timing, loading, short-reset and SOA gates come first. Candidate status remains WIP; no historical result is relabeled.
+The canonical source is now the original physical **B26**, restored byte-for-byte from its two historical Git objects. [B26 restoration and evidence](RESTORATION-B26.md) records fresh full TT / FF-low-125 / FS-low-125 noise of **171.168936 / 265.467147 / 270.616353 uV rms**, all passing current limits. First-round TT delay/loading, representative device SOA, short-reset windows and numerical crosschecks also pass. Remaining full-corner tests and TT 50-sample mismatch are running; mixed-top and lead verification remain outstanding. Candidate status is **WIP, unqualified and unselected**. Historical results retain their original identities.
 
 ![Current complete B26 transistor schematic](schematic.png)
 

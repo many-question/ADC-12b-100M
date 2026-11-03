@@ -17,264 +17,95 @@
  },
  "metrics": {
   "wrong_decisions": 0,
-  "tdelay_1mV_ps": 47.51293291433307,
-  "tdelay_30mV_ps": 38.75484849515665,
-  "tau_reg_ps": 3.0779509834470624,
-  "treset_ps": 17.78695193912607,
-  "validity_violations": 24,
-  "loser_peak_pct": 48.521648881344795,
+  "tdelay_1mV_ps": 58.363019310610724,
+  "tdelay_30mV_ps": 48.97788006995525,
+  "tau_reg_ps": 2.757042580017951,
+  "treset_ps": 24.599628490454425,
+  "validity_violations": 0,
+  "loser_peak_pct": 2.2261823420424354,
   "validity": {
    "rule": "each CLKC rise .. fall: exactly one output >= 0.5 VDD, the other < 0.3 VDD",
-   "dt_max_ps": 27.8333,
+   "dt_max_ps": 16.2669,
    "cycles": 36,
    "decided": 36,
    "worst": {
-    "cycle": 35,
+    "cycle": 17,
     "vd_uV": 10.0,
     "output": "OUTN",
-    "t_ps": 56.436
+    "t_ps": 64.213
    },
-   "violations": [
-    {
-     "cycle": 7,
-     "vd_uV": 3000.0,
-     "winner": "OUTP",
-     "loser_peak_pct": 35.847,
-     "both_decided": false
-    },
-    {
-     "cycle": 8,
-     "vd_uV": -3000.0,
-     "winner": "OUTN",
-     "loser_peak_pct": 35.698,
-     "both_decided": false
-    },
-    {
-     "cycle": 9,
-     "vd_uV": 1000.0,
-     "winner": "OUTP",
-     "loser_peak_pct": 42.145,
-     "both_decided": false
-    },
-    {
-     "cycle": 10,
-     "vd_uV": -1000.0,
-     "winner": "OUTN",
-     "loser_peak_pct": 42.154,
-     "both_decided": false
-    },
-    {
-     "cycle": 11,
-     "vd_uV": 300.0,
-     "winner": "OUTP",
-     "loser_peak_pct": 45.505,
-     "both_decided": false
-    },
-    {
-     "cycle": 12,
-     "vd_uV": -300.0,
-     "winner": "OUTN",
-     "loser_peak_pct": 45.582,
-     "both_decided": false
-    },
-    {
-     "cycle": 13,
-     "vd_uV": 100.0,
-     "winner": "OUTP",
-     "loser_peak_pct": 47.132,
-     "both_decided": false
-    },
-    {
-     "cycle": 14,
-     "vd_uV": -100.0,
-     "winner": "OUTN",
-     "loser_peak_pct": 47.132,
-     "both_decided": false
-    },
-    {
-     "cycle": 15,
-     "vd_uV": 30.0,
-     "winner": "OUTP",
-     "loser_peak_pct": 48.016,
-     "both_decided": false
-    },
-    {
-     "cycle": 16,
-     "vd_uV": -30.0,
-     "winner": "OUTN",
-     "loser_peak_pct": 48.017,
-     "both_decided": false
-    },
-    {
-     "cycle": 17,
-     "vd_uV": 10.0,
-     "winner": "OUTP",
-     "loser_peak_pct": 48.522,
-     "both_decided": false
-    },
-    {
-     "cycle": 18,
-     "vd_uV": -10.0,
-     "winner": "OUTN",
-     "loser_peak_pct": 48.522,
-     "both_decided": false
-    },
-    {
-     "cycle": 25,
-     "vd_uV": 3000.0,
-     "winner": "OUTP",
-     "loser_peak_pct": 35.847,
-     "both_decided": false
-    },
-    {
-     "cycle": 26,
-     "vd_uV": -3000.0,
-     "winner": "OUTN",
-     "loser_peak_pct": 35.698,
-     "both_decided": false
-    },
-    {
-     "cycle": 27,
-     "vd_uV": 1000.0,
-     "winner": "OUTP",
-     "loser_peak_pct": 42.145,
-     "both_decided": false
-    },
-    {
-     "cycle": 28,
-     "vd_uV": -1000.0,
-     "winner": "OUTN",
-     "loser_peak_pct": 42.154,
-     "both_decided": false
-    },
-    {
-     "cycle": 29,
-     "vd_uV": 300.0,
-     "winner": "OUTP",
-     "loser_peak_pct": 45.505,
-     "both_decided": false
-    },
-    {
-     "cycle": 30,
-     "vd_uV": -300.0,
-     "winner": "OUTN",
-     "loser_peak_pct": 45.582,
-     "both_decided": false
-    },
-    {
-     "cycle": 31,
-     "vd_uV": 100.0,
-     "winner": "OUTP",
-     "loser_peak_pct": 47.132,
-     "both_decided": false
-    },
-    {
-     "cycle": 32,
-     "vd_uV": -100.0,
-     "winner": "OUTN",
-     "loser_peak_pct": 47.132,
-     "both_decided": false
-    },
-    {
-     "cycle": 33,
-     "vd_uV": 30.0,
-     "winner": "OUTP",
-     "loser_peak_pct": 48.016,
-     "both_decided": false
-    },
-    {
-     "cycle": 34,
-     "vd_uV": -30.0,
-     "winner": "OUTN",
-     "loser_peak_pct": 48.017,
-     "both_decided": false
-    },
-    {
-     "cycle": 35,
-     "vd_uV": 10.0,
-     "winner": "OUTP",
-     "loser_peak_pct": 48.522,
-     "both_decided": false
-    },
-    {
-     "cycle": 36,
-     "vd_uV": -10.0,
-     "winner": "OUTN",
-     "loser_peak_pct": 48.522,
-     "both_decided": false
-    }
-   ],
+   "violations": [],
    "undecided": [],
    "loser_peaks_pct": [
-    3.153,
-    3.116,
-    5.834,
-    5.841,
-    21.595,
-    21.61,
-    35.847,
-    35.698,
-    42.145,
-    42.154,
-    45.505,
-    45.582,
-    47.132,
-    47.132,
-    48.016,
-    48.017,
-    48.522,
-    48.522,
-    3.117,
-    3.116,
-    5.834,
-    5.841,
-    21.595,
-    21.61,
-    35.847,
-    35.698,
-    42.145,
-    42.154,
-    45.505,
-    45.582,
-    47.132,
-    47.132,
-    48.016,
-    48.017,
-    48.522,
-    48.522
+    1.759,
+    1.759,
+    1.759,
+    1.759,
+    1.765,
+    1.764,
+    1.791,
+    1.791,
+    1.852,
+    1.852,
+    1.952,
+    1.952,
+    2.047,
+    2.047,
+    2.144,
+    2.144,
+    2.226,
+    2.226,
+    1.759,
+    1.759,
+    1.759,
+    1.759,
+    1.765,
+    1.764,
+    1.791,
+    1.791,
+    1.852,
+    1.852,
+    1.952,
+    1.952,
+    2.047,
+    2.047,
+    2.144,
+    2.144,
+    2.226,
+    2.226
    ]
   },
-  "energy_fJ": 187.647444288
+  "energy_fJ": 703.83253716
  },
  "specs": {
   "CMP-04": {
    "metric": "tdelay_1mV_ps",
-   "value": 47.51293291433307,
+   "value": 58.363019310610724,
    "limit": "<= 80",
    "pass": true
   },
   "CMP-05": {
    "metric": "tdelay_1mV_ps",
-   "value": 47.51293291433307,
+   "value": 58.363019310610724,
    "limit": "<= 120",
    "pass": true
   },
   "CMP-06": {
    "metric": "tdelay_30mV_ps",
-   "value": 38.75484849515665,
+   "value": 48.97788006995525,
    "limit": "<= 50",
    "pass": true
   },
   "CMP-07": {
    "metric": "tau_reg_ps",
-   "value": 3.0779509834470624,
+   "value": 2.757042580017951,
    "limit": "<= 15",
    "pass": true
   },
   "CMP-08": {
    "metric": "treset_ps",
-   "value": 17.78695193912607,
-   "limit": "<= 35",
+   "value": 24.599628490454425,
+   "limit": "<= 45",
    "pass": true
   },
   "CMP-09": {
@@ -285,19 +116,19 @@
   },
   "CMP-10": {
    "metric": "energy_fJ",
-   "value": 187.647444288,
+   "value": 703.83253716,
    "limit": "reported",
    "pass": null
   },
   "CMP-15": {
    "metric": "validity_violations",
-   "value": 24,
+   "value": 0,
    "limit": "<= 0",
-   "pass": false
+   "pass": true
   },
   "CMP-16": {
    "metric": "loser_peak_pct",
-   "value": 48.521648881344795,
+   "value": 2.2261823420424354,
    "limit": "reported",
    "pass": null
   }
@@ -313,31 +144,32 @@
   }
  ],
  "meta": {
-  "date": "2026-10-30T19:12:40",
-  "git": "a2e3509",
+  "date": "2026-11-04T02:05:34",
+  "git": "3b2ed123",
   "git_clean": true,
   "mode": "aps",
   "pdk": true,
   "mc": null,
-  "wall_s": 1602.7,
+  "wall_s": 120.5,
   "rc": "0",
-  "sim_s": "14",
+  "sim_s": "35",
   "numerics": {
    "source": "spectre.log",
-   "reltol": 0.001,
-   "maxstep_ps": 290.0,
-   "method": "traponly",
-   "errpreset": "moderate",
-   "lteratio": 3.5,
+   "reltol": 0.0001,
+   "maxstep_ps": 145.0,
+   "method": "gear2only",
+   "errpreset": "conservative",
+   "lteratio": 10.0,
+   "relref": "alllocal",
    "abstol_V": 1e-06,
-   "steps_accepted": 3952,
-   "step_mean_ps": 3.66903,
+   "steps_accepted": 6952,
+   "step_mean_ps": 2.08573,
    "step_max_ps": 56.5
   },
   "files": {
-   "tb/comp/tb_comp_delay.scs": "ca754d0b9373b04c",
+   "tb/comp/tb_comp_delay.scs": "d2d5d695c2a3ce22",
    "tb/common/veriloga/tb_imeter_va.va": "d4be49aca417ad61",
-   "design/xtor/adc_comp/many-question-miyahara/adc_comp.scs": "e8a0e3d3dc1366cd"
+   "design/xtor/adc_comp/many-question-miyahara/adc_comp.scs": "13c455d69c414b14"
   },
   "arch": {
    "keys": [],
@@ -345,16 +177,6 @@
   },
   "views": {
    "adc_comp": "xtor:many-question-miyahara"
-  },
-  "execution": {
-   "run": "20261030-184558-6b10-tb_comp_delay",
-   "job": "tt_nom_27",
-   "source_git": "a2e3509597563d607d2a873ed9cc5e9d667ccfff",
-   "segment": "original_serial_dispatch",
-   "deck_sha256": "278c753011f1b88c1734d912b18022770e43ae8d23ee654215bebe370bedce04",
-   "waveform_sha256": "dbc1cb272f620b0319e279f8349ded7661a9e2ef80fcac2b853b25eeb6da9114",
-   "rc_sha256": "3268e7162f782da62b632757c920371a00fd5841c4f00636e61f7d7e118b70dc",
-   "continuation_note": "Same originally staged source/deck; only uncompleted corners dispatched; no completed corner rerun."
   }
  }
 }

@@ -21,4 +21,47 @@ Main `ac9f7a3bd2c788345464e292a74271d7febe2f8c` is incorporated. Issues #131 and
 
 First run fresh official full 17 x 512 physical noise at TT, FF/low/125 and FS/low/125; TT delay/loading; representative official SOA and supporting 43/38/69 ps short-reset windows. Keep exact conservative numerical settings, physical stochastic sources and selective saves. If these gates pass, continue full 45-corner noise, delay, kickback and SOA, TT 50-sample mismatch, then mixed-top reference regression. A measured failure stops qualification expansion for this source and is retained with its raw evidence; no limit adjustment is requested by this restoration.
 
-New run and archive receipts will be appended after measurement. No fresh result is claimed by this source-freeze checkpoint.
+The source freeze is commit `3b2ed12336c037a478050173fb0df1bbb0524093`. Local `check all` passes with historical stale/failure warnings retained; unit tests: 507 passed, 1 deselected. The same head passes CI contracts, drawings, results and slow model budget; its latest site build passes (an earlier overlapping site event was cancelled).
+
+## Fresh first-round support results
+
+| Check | New measurement | Result |
+|---|---|---|
+| TT delay, 1 / 30 mV | 58.363019310610724 / 48.97788006995525 ps | PASS |
+| TT reset / validity | 24.599628490454425 ps / zero violations | PASS |
+| TT input / CLKC capacitance | 19.328731218738323 / 12.105038071102172 fF | PASS |
+| TT net cycle kickback | 8.382100005407955e-5 uV | PASS |
+| TT energy | 703.83253716 fJ | Reported only |
+
+The official TT delay trace independently gives 36/36 correct decisions, including 10 uV, and 36/36 complete resets. Supporting shortened reset windows at TT (43 ps), FF/high/-40 (38 ps) and SS/low/125 (69 ps) give 108/108 correct decisions and complete resets, zero CMP-15 violations; largest measured reset times are respectively 24.708322433830446, 18.361194795382787 and 33.1894333450634 ps.
+
+Private tighter delay repeats at TT, FS/high/-40 and SS/low/125 also give 108/108 correct decisions and complete resets. Effective reltol is 1e-6, vabstol 1e-8, conservative/gear2only, with no explicit maxstep. TT 30 mV delay is 48.99406814791336 ps, only 0.01618807795811 ps above the official baseline. These repeats do not overwrite official delay records.
+
+Official SOA at TT and FS/SS/FF high/-40 checks 43 MOS devices and 129 terminal pairs at each corner. Peaks are respectively 0.96973, 1.05447, 1.04523 and 1.05162 V; zero violations and zero time above 1.1 V. The official FS/high/-40 crosscheck uses effective reltol 1e-8, vabstol 1e-8, traponly and maxstep 1 ps: peak 1.05395 V, zero violations; maximum pair-peak change is 0.77 mV across all 129 pairs.
+
+All six completed support runs passed remote file SHA-256 matching and local ZIP CRC/member SHA-256 readback before exact owned remote-directory removal and absence confirmation. The retained archive SHA-256 values are:
+
+| Run suffix (20261104) | Archive SHA-256 |
+|---|---|
+| 020312-b3ba-tb_comp_delay | `be25423a14d0d372adf342017d4226e00d991a8df3d38f95937eef3c4eb95350` |
+| 020536-9d0e-tb_comp_kickback | `ca5a8a28efdf93333d5232b0a633fb4e76841cfbe354d96ce7458e84587a12d1` |
+| 020740-fab1-tb_comp_soa | `780201174dd1c0e04b43635e20ee8c2cc3c0e2b6e289bc225363102c027f549e` |
+| 021120-b26-short-reset | `62354e68326e2acbf30db4767b49a352ffe1edbbae549a51f798751a71d4e521` |
+| 021536-51a8-tb_comp_delay | `e71badf782e00e93417662af8dece3bb31653e20284565a4ec0796505e8af41c` |
+| 022006-81df-tb_comp_soa | `0eeeea08f4c0ee9b2495bb1bc6240f9c4113847a47a62f8b56e716cbff1f9816` |
+
+## Fresh complete first-round noise
+
+Official run `20261104-020301-0afb-tb_comp_noise`, source frozen at `3b2ed123`, completes all three corners with rc 0, 8704 finite decisions per corner and 512 at each of the 17 levels. Physical noise sources remain enabled at 50 GHz, seed 1; effective conservative/gear2only, reltol 1e-4, vabstol 1e-6.
+
+| Corner | Noise uV rms | Profile 95% interval uV | Absolute offset mV | Verdict |
+|---|---:|---|---:|---|
+| tt_nom_27 | 171.1689355211837 | [163.72, 179.02] | 0.0015589625565931731 | PASS 200 / 280 |
+| ff_low_125 | 265.46714680943654 | [256.03, 275.34] | 0.005122773432378509 | PASS 280 |
+| fs_low_125 | 270.61635250554104 | [261.07, 280.60] | 0.005423585462778105 | PASS 280 |
+
+The fresh FS point estimate exactly matches historical B26. Its confidence-interval upper bound exceeds 280 uV: passing the specified point-estimate criterion does not establish statistical margin. No historical data was reused to create these new records.
+
+The noise run passed remote file SHA-256, local ZIP CRC/member SHA-256 and all per-level sample-count checks before exact remote removal and absence confirmation. Retained archive SHA-256: `b4d20a0aea22c7158326e919904485035627a85efa720ba6e30e92a0b754d612`.
+
+All first-round gates pass. The new official records are 9 fresh / 101 total, with zero fresh errors or failures; the other 92 remain historical and stale. Full coverage has started on the same unchanged source: remaining 42 noise, 44 delay, 44 kickback and 41 SOA corners, followed by TT 50-sample mismatch. Mixed-top reference regression and lead verification are still outstanding. No full-corner qualification or eligibility is claimed.
