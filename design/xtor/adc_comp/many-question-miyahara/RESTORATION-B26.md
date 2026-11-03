@@ -98,3 +98,7 @@ The mismatch archive passed remote SHA-256 matching, ZIP CRC/member SHA-256 read
 The official fs_high_125 SOA crosscheck run `20261104-033222-7851-tb_comp_soa` repeats the unchanged baseline and tighter settings. Baseline peak is 1.06660 V; tighter peak **1.06636 V**, both with zero violations and zero time above 1.1 V. Effective tighter settings are reltol 1e-8, vabstol 1e-8, conservative/traponly, maxstep 1 ps; 84766 accepted points. The maximum peak change over all 129 terminal pairs is **0.52 mV** at XDUT.M15 ds. The original 41-corner raw batch remains retained alongside this repeat.
 
 The worst-SOA crosscheck also passed remote SHA-256 matching, ZIP CRC/member SHA-256 readback, independent retention and exact remote absence checks. Retained archive SHA-256: `eab05c211b0c8c92d285cbc9962741e9755ba53ca0c6daa3cc3ccf9834568b35`.
+
+## Analysis dependency update before mixed-top
+
+Main `8838a8ed` (PR #144) replaces the ADCToolbox Git pin with the PyPI release 0.9.2. It changes no comparator source, specification or testbench. The update is merged before mixed-top work; the in-flight noise process retains its original environment. A separate 0.9.2 environment keeps the same NumPy, SciPy and Matplotlib versions. All 36 spectrum tests pass, the 80 dB SFDR self-check returns 79.99999999927381 dBc, and recomputing all metrics from the first three noise raw records gives exact matches. `adcflow check all` also passes on the updated baseline. Historical provenance remains unchanged.
