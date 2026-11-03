@@ -118,3 +118,24 @@ Run `20261104-023413-0c91-tb_comp_noise` completes the remaining 42 noise corner
 The worst-noise profile interval remains [261.07, 280.60] uV: the upper endpoint exceeds 280 uV, so this is a pass of the specified point-estimate criterion, not proof of statistical margin. The source has not changed during qualification. There are now **181 fresh / 181 total official records**, zero stale records, errors or failed criteria. Mixed-top reference regression and lead verification are still required; block-test completion does not confer eligibility or selection.
 
 The additional 42-corner noise run passed remote SHA-256 matching, all sample-count checks, local ZIP CRC/member SHA-256 readback, independent retention and exact remote absence checks. Retained archive SHA-256: `c70d84aa07e68b749ac2b90097792f2d21581a87bc7a5d1b9d5f6cb3b382d596`. All 13 completed block/support run archives remain independently retained; no active run was removed.
+
+## Complete TT mixed-top reference
+
+Private run `20261104-050042-e8e3-tb_top_sine`, dispatched at commit `5a495da13ac7308de6744e17b11b5f3f51886d56`, passes every applicable TT top-level criterion. Only the comparator is physical; the other blocks use their behavioral views. The B26 source is unchanged. The official test uses physical noise enabled, noisefmax 20 GHz, seed 1, 100 MS/s and a coherent 49.70703125 MHz input at -1 dBFS. Actual numerics are APS, conservative/gear2only, reltol 1e-4 and vabstol 1e-6, with no explicit maxstep.
+
+| TT mixed-top metric | Complete-record result | Limit |
+|---|---:|---:|
+| Calibrated ENOB | 11.105496107814995 bit | 10.75 bit |
+| SNDR | 68.61508656904627 dBc | Reported |
+| SFDR | 84.96467972941828 dBc | 75 dBc |
+| Fitted differential full-scale peak | 0.9936242025926828 V | 0.95 V |
+| Maximum / mean conversion time | 2.591142 / 2.553408580078125 ns | Maximum 4.4 ns |
+| Missing conversions / spikes beyond 3 LSB | 0 / 0 | 0 / 0 |
+| Largest judged sine-fit deviation | 1.9025885121482133 LSB | Spike threshold 3 LSB |
+| Nominal-weight ENOB | 11.049781362784447 bit | Reported |
+
+The first 1024 conversions calibrate the bit weights; the next independent 1024 conversions form the judged record. All 2049 raw captures, including the final unused capture, have sequential IDs, binary 14-bit data and finite increasing times. The complete-record audit verifies the inferred clock intervals, the exact judged bit matrix, source and staged-file SHA-256, actual numerics and ADCToolbox 0.9.2 provenance. Remeasuring the complete raw record reproduces every reported metric exactly; the spectrum and code/error plots have also been inspected.
+
+The raw archive passes remote SHA-256 matching, ZIP CRC and every member's SHA-256. A separately retained copy is verified before exact owned remote-directory removal and confirmed absence. Archive SHA-256: `489cffa177a89ae9fe715979cb9392f8f28cc7e75069cb3d66d8cdc772a1308d`.
+
+This is candidate reference evidence with `do_record=False`; it creates no lead verification or formal top-level result. The remaining six high-frequency corners, TT low-frequency case and seven corners at both 45% and 55% duty (21 simulations) are in progress in a pool capped at six simulations. A measured failure stops new corner dispatches. WIP, qualification and selection status remain unchanged pending this coverage and lead review.
