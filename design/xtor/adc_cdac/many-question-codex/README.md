@@ -4,13 +4,14 @@ Current status (2026-11-04): resumed after the project resolved issue #125.
 DAC-12 is now 1.35 pC (#132); the new all-corner DAC-18 SOA test and
 transient-overvoltage rule (#137) apply. Candidate remains WIP.
 
-Current blockers at ss_low_m40: official track aborts at 60.1007 ns with
+Current blockers (see [validation status and bounded proposal](validation-status.md)): official track aborts at 60.1007 ns with
 SPECTRE-16928 (minstep approach count), only 2/256 samples; no valid spectrum.
 Dedicated SOA completes but fails 3 terminal pairs: MTP Vgd and MTD Vgs/Vgd,
-all the TOP-PHI_SB stress. Peak 1.25686 V is below 1.29 V, but time above
-1.1 V reaches 127.281 ps per 10 ns window (limit 100 ps). Batch expansion
-has stopped. Observation-only track replay and SOA numerical confirmation
-are independent diagnostics; official failure records are preserved.
+all the TOP-PHI_SB stress. SOA crosscheck confirms 126.906 ps above 1.1 V
+per 10 ns window (limit 100 ps), versus primary 127.281 ps. Track replay
+reproduces the same cold-corner solver failure. Complete ss_low_125 track
+also fails: SFDR/SNDR 63.137/63.061 dB, confirmed within 0.015 dB by
+crosscheck. Batch expansion has stopped; official failures are preserved.
 
 
 V29 is the current baseline, migrated into the accepted XCAP/XSW
@@ -40,7 +41,8 @@ SS low125 primary passes its five applicable metrics. Engineering convergence
 (traponly, maxstep 1 ps, effective reltol 1e-7, vabstol 10 nV) changes RL12
 39.7 -> 39.6 ps, RL5 57.9 -> 58.3 ps and start 97.9 -> 98.4 ps.
 All remain within limits, but the 0.5 ps start difference is 24% of the
-primary margin; numerical qualification remains pending further refinement.
+primary margin. A further 0.5 ps / 1e-8 / 1 nV refinement leaves all
+timing readings unchanged; the stricter result passes with narrow margin.
 This is a private numerical diagnostic, not a specification-defined crosscheck.
 
 See [schematic review](schematic-review.md) and [source](adc_cdac.scs).

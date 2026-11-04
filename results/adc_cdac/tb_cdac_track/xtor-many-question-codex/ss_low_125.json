@@ -1,0 +1,141 @@
+{
+ "block": "adc_cdac",
+ "test": "tb_cdac_track",
+ "view": "xtor-many-question-codex",
+ "corner": "ss_low_125",
+ "params": {
+  "npts": 256,
+  "fin": "4.882812500e+07"
+ },
+ "globals": {
+  "vdd": 0.81,
+  "vdd18": 1.62,
+  "tempc": 125.0,
+  "noise_en": 0,
+  "devnoise": 1,
+  "beh_speed": 1.0,
+  "vref_in": 0.9,
+  "cdac_behav": 0,
+  "comp_behav": 1
+ },
+ "metrics": {
+  "sfdr_dBc": 63.13693635648634,
+  "sndr_dB": 63.06129191895,
+  "thd_dBc": -63.06296942093444,
+  "amp_top_V": 0.7822468505805
+ },
+ "specs": {
+  "DAC-09": {
+   "metric": "sfdr_dBc",
+   "value": 63.13693635648634,
+   "limit": ">= 85",
+   "pass": false
+  },
+  "DAC-10": {
+   "metric": "sndr_dB",
+   "value": 63.06129191895,
+   "limit": ">= 80",
+   "pass": false
+  }
+ },
+ "figures": [
+  {
+   "file": "ss_low_125.spectrum.png",
+   "caption": "Spectrum of the sampled top plate for a full-scale tracking input, with SFDR and SNDR against their limits."
+  }
+ ],
+ "meta": {
+  "date": "2026-11-04T10:19:41+08:00",
+  "git": "8fedd4c7",
+  "git_clean": true,
+  "mode": "aps",
+  "pdk": true,
+  "mc": null,
+  "rc": "0",
+  "sim_s": "5287",
+  "numerics": {
+   "source": "spectre.log",
+   "reltol": 1e-07,
+   "maxstep_ps": 26050.0,
+   "method": "gear2only",
+   "errpreset": "conservative",
+   "lteratio": 10.0,
+   "relref": "alllocal",
+   "abstol_V": 1e-08,
+   "vabstol": 1e-08,
+   "steps_accepted": 1102261,
+   "step_mean_ps": 2.36332,
+   "step_max_ps": null
+  },
+  "recovery": {
+   "run": "20261104-015025-bfa7-tb_cdac_track",
+   "reason": "Completed original jobs recovered after controller interruption; no resimulation",
+   "staged_inputs_equal": true,
+   "complete_samples": 256
+  },
+  "files": {
+   "tb/cdac/tb_cdac_track.scs": "f0938d832dbd4667",
+   "design/behav/veriloga/adc_clkgen_va.va": "7fff1b9368bc1a20",
+   "tb/common/veriloga/tb_sampler_va.va": "4092bc16170c588d",
+   "design/behav/veriloga/adc_bootstrap_va.va": "12338aad16f4913b",
+   "design/xtor/adc_cdac/many-question-codex/adc_cdac.scs": "9b00f07143da7cc5"
+  },
+  "arch": {
+   "keys": [],
+   "sha": "44136fa355b3678a"
+  },
+  "views": {
+   "adc_cdac": "xtor:many-question-codex"
+  },
+  "provenance": {
+   "spectrum": {
+    "estimator": "adctoolbox 0.9.1 @ cd72061 compute_spectrum",
+    "adctoolbox": "0.9.1",
+    "adctoolbox_commit": "cd72061"
+   }
+  },
+  "crosscheck": {
+   "settings": {
+    "maxstep": "1p",
+    "method": "traponly"
+   },
+   "numerics": {
+    "source": "spectre.log",
+    "reltol": 1e-07,
+    "maxstep_ps": 1.0,
+    "method": "traponly",
+    "errpreset": "conservative",
+    "lteratio": 10.0,
+    "relref": "alllocal",
+    "abstol_V": 1e-08,
+    "vabstol": 1e-08,
+    "steps_accepted": 3396099,
+    "step_mean_ps": 0.767057,
+    "step_max_ps": null
+   },
+   "rc": "0",
+   "sim_s": "9431",
+   "metrics": {
+    "sfdr_dBc": {
+     "ref": 63.13693635648634,
+     "xcheck": 63.15042820517227,
+     "diff": 0.013491848685930563
+    },
+    "sndr_dB": {
+     "ref": 63.06129191895,
+     "xcheck": 63.07558468252367,
+     "diff": 0.014292763573671152
+    }
+   },
+   "samples": {
+    "file": "samples.txt",
+    "n": 256,
+    "n_ref": 256,
+    "n_xcheck": 256,
+    "time_diff_max_ps": 0.0009999998977483753,
+    "diff_rms_uV": 5.764904977693819,
+    "diff_max_uV": 10.840659300015432
+   }
+  }
+ }
+}
