@@ -93,6 +93,10 @@ coherent-DFT diagnostics; phase is aligned to each record's fundamental.
 Reset is the strongest intervention in this matrix, with H3 amplitude down
 79.3%, but the changed phasors are not an additive physical decomposition.
 Reference H3 phase changes 3.61 deg despite nearly unchanged SFDR.
+Reference primary also logs two SPECTRE-16780 LTE relaxations at 105.165 ns
+and 2.21517 us on XDH.GP controls, with SPECTRE-16881 warnings. Its +.031 dB
+change is not established as numerically significant. Logged tolerance and
+complete-record/model checks do not by themselves establish convergence.
 The replacement also idealizes threshold/body behavior and removes intrinsic
 charges and gate loading; it does not isolate Ron, leakage or injection.
 Even the ideal reset record remains below the 85/80 dB limits.
@@ -120,6 +124,9 @@ at the same effective 1e-7/10 nV. Four independent subcases start from V29:
 only MTN ideal, only MTP ideal, only MTD removed, and MTN/MTP ideal with MTD
 retained. The last case tests channel/dummy interaction. Their 80 ns preflights
 gate full 256-sample runs; they are in progress, with no subgroup spectra yet.
+The running reset cross logs an LTE relaxation at 200.092 ns on PHI_SB;
+its full sample/spectrum comparison remains pending. Baseline primary/cross
+and the completed reset, input and sharing primary logs contain no such warnings.
 No ideal case is a manufacturable candidate or qualification result.
 
 ## Private physical reset2x gates
