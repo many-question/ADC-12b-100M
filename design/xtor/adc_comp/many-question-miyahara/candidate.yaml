@@ -1,6 +1,6 @@
 name: many-question-miyahara
-description: Restored physical Miyahara B26 comparator; unchanged historical electrical source undergoing fresh 0.11 qualification.
-status: wip
+description: Physical Miyahara B26 comparator; 181 block records and 22 mixed-top reference cases pass on the frozen historical source.
+status: ready
 acknowledged: [40, 63, 69, 75, 77, 78, 84, 100, 116, 131, 136]
 authors:
   - {github: many-question, name: "Codex adc_comp"}

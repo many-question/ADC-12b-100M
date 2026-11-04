@@ -1,6 +1,6 @@
 # Original B26 restoration under adc_comp 0.11.0
 
-The current canonical source is the original physical B26: 43 MOS devices and nine MOM capacitors. No dimensions, parasitics, connections or numerical settings were changed to restore it. All required block measurements now pass with **181/181 fresh records**, zero failures, errors or stale records. It remains **WIP, unqualified and unselected** pending mixed-top reference regression and lead verification.
+The current canonical source is the original physical B26: 43 MOS devices and nine MOM capacitors. No dimensions, parasitics, connections or numerical settings were changed to restore it. All required block measurements now pass with **181/181 fresh records**, zero failures, errors or stale records. **All 22 required candidate mixed-top reference cases also pass**, with complete-record recomputation and retained raw evidence. The candidate is **ready** for contributor review; maintainer independent verification, eligibility and selection remain pending. The sections below preserve each checkpoint; the final section records complete mixed-top coverage.
 
 The exact source was recovered independently from historical simulation commit `3dd17927ddcb842b4e28289270fa76436dcb4ab1` and published commit `9036f74f024088185398717989ed589784d1d151`, path `design/xtor/adc_comp/many-question-miyahara/BUFFER-V26.txt`; both Git objects are byte-identical to the restored `adc_comp.scs`.
 
@@ -139,3 +139,65 @@ The first 1024 conversions calibrate the bit weights; the next independent 1024 
 The raw archive passes remote SHA-256 matching, ZIP CRC and every member's SHA-256. A separately retained copy is verified before exact owned remote-directory removal and confirmed absence. Archive SHA-256: `489cffa177a89ae9fe715979cb9392f8f28cc7e75069cb3d66d8cdc772a1308d`.
 
 This is candidate reference evidence with `do_record=False`; it creates no lead verification or formal top-level result. The remaining six high-frequency corners, TT low-frequency case and seven corners at both 45% and 55% duty (21 simulations) are in progress in a pool capped at six simulations. A measured failure stops new corner dispatches. WIP, qualification and selection status remain unchanged pending this coverage and lead review.
+
+## Complete candidate mixed-top reference: all 22 jobs pass
+
+The unchanged original B26 completes the required candidate reference coverage: seven quick corners of high-frequency sine, all seven quick corners at both 45% and 55% duty, and TT low-frequency sine. All 22 applicable verdict sets pass; every complete raw record has been audited and all 15 mixed-run archives independently retained. These are candidate reference runs with do_record=False, not lead verification or formal top-level records. The candidate is ready for contributor review; maintainer independent verification, eligibility and selection remain pending.
+
+Every job uses 1024 calibration conversions and a separate 1024-conversion judged record: 22528 calibration and 22528 judged samples in total. There are 45071 raw captures including unused end captures. Raw IDs are sequential, times are finite and monotonic, and all 14 output bits are binary. Judged bit matrices, inferred clock intervals, source and staged-file hashes, actual numerics and ADCToolbox 0.9.2 provenance pass audit. Recomputing all complete-record metrics reproduces the saved values exactly. Across all jobs, missing conversions total 0 and reported spikes total 0.
+
+Only the comparator is physical; the other blocks remain behavioral. Official physical noise is enabled at 20 GHz, seed 1. Effective numerics remain APS, conservative/gear2only, reltol 1e-4 and vabstol 1e-6, with no explicit maxstep. No source dimensions or electrical connections changed.
+
+### High-frequency sine: seven quick corners
+
+Each uses a coherent 49.70703125 MHz input at 100 MS/s. Acceptance is ENOB >= 10.5 bit (TT target >= 10.75), SFDR >= 75 dBc, differential full-scale peak >= 0.95 V, maximum conversion time <= 4.4 ns, and zero missing conversions or spikes.
+
+| Corner | ENOB bit | SFDR dBc | Full-scale peak V | Maximum conversion ns |
+|---|---:|---:|---:|---:|
+| tt_nom_27 | 11.105496108 | 84.964679729 | 0.993624203 | 2.591142000 |
+| ss_low_m40 | 11.188769425 | 85.177672240 | 0.993617718 | 3.106433000 |
+| ss_low_125 | 10.877927674 | 82.899987440 | 0.993618331 | 2.798922000 |
+| ff_high_m40 | 11.288915487 | 85.592107530 | 0.993559270 | 2.401017000 |
+| ff_high_125 | 10.892905787 | 82.229925292 | 0.993740639 | 2.423909000 |
+| fs_nom_27 | 11.102398660 | 85.170654602 | 0.993570387 | 2.556893000 |
+| sf_nom_27 | 11.094569712 | 84.910536570 | 0.993636512 | 2.631593000 |
+
+Unrounded limiting values: ENOB 10.877927674397561 bit at ss_low_125; SFDR 82.2299252917858 dBc at ff_high_125; maximum conversion time 3.106433 ns at ss_low_m40.
+
+### Duty and low-frequency coverage
+
+The duty acceptance limit is ENOB >= 10.5 bit for each variant.
+
+| Corner | 45% duty ENOB bit | 55% duty ENOB bit |
+|---|---:|---:|
+| tt_nom_27 | 11.126948827 | 11.113336574 |
+| ss_low_m40 | 11.258260620 | 11.303489512 |
+| ss_low_125 | 10.883836508 | 10.893940501 |
+| ff_high_m40 | 11.224664426 | 11.219388637 |
+| ff_high_125 | 10.888871432 | 10.893641889 |
+| fs_nom_27 | 11.145127888 | 11.195254040 |
+| sf_nom_27 | 11.086628407 | 11.121538301 |
+
+Minimum duty ENOB is 10.883836508214506 bit at ss_low_125, duty 0.45. TT low-frequency input is 1.074218750 MHz; ENOB is 11.244763346361777 bit against 10.8. Its SFDR is 86.76991379714964 dBc and maximum conversion time is 2.590921 ns (reported).
+
+### Retained original mixed-run evidence
+
+All runs passed remote file SHA-256 matching, ZIP CRC and every archive member SHA-256. A separate retained copy was verified before exact owned remote-directory removal, followed by confirmed remote absence. The 13 earlier block/support archives remain retained alongside these 15 mixed-run archives.
+
+| Run | Archive SHA-256 |
+|---|---|
+| 20261104-050042-e8e3-tb_top_sine | `489cffa177a89ae9fe715979cb9392f8f28cc7e75069cb3d66d8cdc772a1308d` |
+| 20261104-060550-1fee-tb_top_duty | `8276825b166c611b783e9e51993d1b2ccbfb6655467f9250de558a4a678cb7d5` |
+| 20261104-060550-2fe7-tb_top_duty | `b51d29098e0ac7f7243ceaa8aaa5a9564725d8005b62a4a455c5986234df4d8f` |
+| 20261104-060550-4e1e-tb_top_sine | `d465bac5ed4b7d9cd9bc970befb51b70c6dc6fd0a011e50d763e228b0562a7ce` |
+| 20261104-060550-da8f-tb_top_duty | `a82559c9e2e56b496a0a7b6977289ed96018a6b69c6497e30e80a2c1fc1ddc8f` |
+| 20261104-060550-e409-tb_top_sine | `de92c9c44666bbe1a268a36111264ac5fcc0ac3580cf7983b2eb91934f5c7fad` |
+| 20261104-060550-f9c3-tb_top_duty | `30a353b63a24b7d2e2b87285608617bba0a1986475755622466a4269667301eb` |
+| 20261104-070345-498b-tb_top_duty | `ef9814caf83f5f4eb4ae244300684baa9078b9593b2c53ea604e894e6ad5b6fd` |
+| 20261104-070806-5cac-tb_top_duty | `bdcb48b3045579c57a6740d13ac8c69f5a14f50241be8c0738d6e0dac8763749` |
+| 20261104-075912-b7e8-tb_top_duty | `887b47815dc5628aa0f5fd703f1d323ea2ed01ea8bba93fa11fadcab4510a851` |
+| 20261104-080025-6156-tb_top_sine | `5803b8198c24e92ed5ab086b75f4222efb558f8901628c61c3a13b4d060b6246` |
+| 20261104-080059-89d2-tb_top_sine | `404a1f77b37c90e7223513d030e371945c81bf5bee68a3e68198c729c9c69fd3` |
+| 20261104-080059-a8a1-tb_top_sine | `e72f9e8792dd264c0543f774d3738550bd3b3a6426bbe25550dd5d106d742af9` |
+| 20261104-090315-f2a6-tb_top_sine | `27f95cd2a63a154d7c902890e8ad40936c4cd9477532b552f81c0a237e73577a` |
+| 20261104-090447-6c9c-tb_top_sine_lf | `d74336798022b767bd715ef841ea5dbb4a11b74031f931b4681b89a67ccb448a` |
