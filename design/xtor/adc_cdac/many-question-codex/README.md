@@ -23,6 +23,10 @@ Private physical reset2x now passes all five pre-tracking gates, including
 cold SOA primary/cross (0 violations, 53.34/53.27 ps). Hot-SS droop worsens
 to .0606 LSB but passes. Full hot primary fails at 67.033/66.609 dB despite
 a 3.90/3.55 dB improvement. Crosscheck is running; expansion is stopped.
+The user now prioritizes switch-group SFDR attribution: reset, input, sharing
+and reference-output ideal replacements, independently from original V29.
+Model/control preflights precede full 256-point spectra; physical sizing and
+qualification expansion are paused. See the validation status for scope.
 The canonical source and its official failures remain unchanged.
 
 
