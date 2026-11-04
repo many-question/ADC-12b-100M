@@ -1,0 +1,150 @@
+{
+ "block": "adc_top",
+ "test": "tb_top_duty",
+ "view": "xtor-comp@many-question-miyahara",
+ "corner": "fs_nom_27",
+ "params": {
+  "amp_dbfs": -1.0,
+  "npts": 1024,
+  "ncal": 1024,
+  "duty": 0.55,
+  "fin": "4.970703125e+07"
+ },
+ "globals": {
+  "vdd": 0.9,
+  "vdd18": 1.8,
+  "tempc": 27.0,
+  "noise_en": 1,
+  "devnoise": 1,
+  "beh_speed": 1.0,
+  "vref_in": 0.9,
+  "cdac_behav": 1,
+  "comp_behav": 0
+ },
+ "metrics": {
+  "n_samples": 2049,
+  "missing_rdy": 0,
+  "t_conv_max_ns": 2.545862,
+  "t_conv_mean_ns": 2.518027317871094,
+  "cal_independent": true,
+  "weights_cal": [
+   1960.458,
+   1120.274,
+   636.188,
+   360.063,
+   204.045,
+   114.019,
+   63.979,
+   35.925,
+   19.931,
+   11.867,
+   5.919,
+   3.668,
+   1.767,
+   0.896
+  ],
+  "enob": 11.195254039506166,
+  "sndr_dBc": 69.15542931782711,
+  "sfdr_dBc": 85.20532157385449,
+  "snr_dBc": 69.27973355321,
+  "thd_dBc": -84.65041704101947,
+  "enob_nom": 11.150365720764372,
+  "sndr_nom_dBc": 68.88520163900152,
+  "sfdr_nom_dBc": 86.14607514913224,
+  "snr_nom_dBc": 68.98778660002306,
+  "thd_nom_dBc": -85.20339929009933,
+  "amp_codes": 2021.5352342828908,
+  "fs_peak_V": 0.9935443926804646,
+  "code_min": 247,
+  "code_max": 4291,
+  "spike_count": 0,
+  "spike_max_lsb": 1.5354137393405836,
+  "spike_index": [],
+  "p_avdd_mW": 1.5050824335,
+  "p_dvdd_mW": 0.21092109201,
+  "p_avdd18_mW": 14.711912366400002,
+  "power_mW": 16.42791589191
+ },
+ "specs": {
+  "TOP-09": {
+   "metric": "enob",
+   "value": 11.195254039506166,
+   "limit": ">= 10.5",
+   "pass": true
+  }
+ },
+ "figures": [
+  {
+   "file": "fs_nom_27__duty0.55.spectrum.png",
+   "caption": "Output spectrum of the judged record (fin 49.71 MHz, 1024 points, -1 dBFS) with ENOB, SNDR and SFDR against their limits, decoded with calibrated weights (weights from the preceding 1024 conversions) and, for information, with the nominal weights."
+  },
+  {
+   "file": "fs_nom_27__duty0.55.codes.png",
+   "caption": "Calibrated output codes of the judged record folded on the phase of the input sine with the fit, the error against the fit for every sample with the spikes beyond 3 LSB marked (TOP-10), and the conversion-time histogram (calibration and judged records) against its limit."
+  }
+ ],
+ "meta": {
+  "date": "2026-11-04T15:06:18",
+  "git": "3b4462bf",
+  "git_clean": true,
+  "mode": "aps",
+  "pdk": true,
+  "mc": null,
+  "wall_s": 13574.3,
+  "rc": "0",
+  "sim_s": "3774",
+  "numerics": {
+   "source": "spectre.log",
+   "reltol": 0.0001,
+   "maxstep_ps": 205260.0,
+   "method": "gear2only",
+   "errpreset": "conservative",
+   "lteratio": 10.0,
+   "relref": "alllocal",
+   "abstol_V": 1e-06,
+   "steps_accepted": 6836871,
+   "step_mean_ps": 3.00225,
+   "step_max_ps": null
+  },
+  "files": {
+   "tb/top/tb_top_sine.scs": "3a685ccced0de8ea",
+   "tb/common/veriloga/tb_imeter_va.va": "d4be49aca417ad61",
+   "tb/common/veriloga/tb_capture_va.va": "1a05df990a1ef806",
+   "tb/common/veriloga/tb_rsrc_va.va": "66b85ead5a038eb0",
+   "design/top/adc_top.scs": "362a964ffe162797",
+   "design/behav/adc_sarlogic.scs": "7982e36f6743bf80",
+   "design/behav/veriloga/adc_sarlogic_va.va": "5cd9dbd22bf395eb",
+   "design/xtor/adc_comp/many-question-miyahara/adc_comp.scs": "13c455d69c414b14",
+   "design/behav/adc_cdac.scs": "5b8837cc5d2a76bc",
+   "design/behav/veriloga/adc_ktc_va.va": "a1cf98faf5bf9b33",
+   "design/behav/veriloga/adc_cdac_sw_va.va": "25fa7719fc730a3a",
+   "design/behav/adc_bootstrap.scs": "eee3a0a78eec4c5f",
+   "design/behav/veriloga/adc_bootstrap_va.va": "12338aad16f4913b",
+   "design/behav/adc_clkgen.scs": "0e7831ed888587e6",
+   "design/behav/veriloga/adc_clkgen_va.va": "7fff1b9368bc1a20",
+   "design/behav/adc_ref.scs": "bc2eec0046129145",
+   "design/behav/veriloga/adc_ref_va.va": "746d2530d4ff6d5c",
+   "design/behav/veriloga/adc_arch_func.vams": "8eac5dace781bffc",
+   "design/behav/veriloga/adc_arch.vams": "32d904828c5dbf67"
+  },
+  "arch": {
+   "keys": [
+    "cdac.cap_sampled",
+    "cdac.cap_weights",
+    "cdac.cu",
+    "conversion.out_weights",
+    "reference.vref"
+   ],
+   "sha": "1e3a4bd6f61d85bb"
+  },
+  "views": {
+   "adc_comp": "xtor:many-question-miyahara"
+  },
+  "provenance": {
+   "spectrum": {
+    "estimator": "adctoolbox 0.9.2 compute_spectrum",
+    "adctoolbox": "0.9.2"
+   }
+  }
+ }
+}
