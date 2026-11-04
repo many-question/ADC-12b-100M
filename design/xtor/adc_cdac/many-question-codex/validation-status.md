@@ -99,7 +99,7 @@ change is not established as numerically significant. Logged tolerance and
 complete-record/model checks do not by themselves establish convergence.
 The replacement also idealizes threshold/body behavior and removes intrinsic
 charges and gate loading; it does not isolate Ron, leakage or injection.
-Even the ideal reset record remains below the 85/80 dB limits.
+The full-reset intervention remains below both 85/80 dB limits.
 
 Full runs (normal rc=0) are reset `20261105-024217-e156` (6385 s), input
 `20261105-024954-483a` (5020 s), sharing `20261105-025021-b857` (6071 s),
@@ -119,27 +119,57 @@ Frozen source SHA-256 values, respectively:
 Observed control advances reach 4.293 ps (input APGATE), 3.748 ps
 (reference GP), 2.577 ps (sharing SAMP_ON), versus .103 ps for reset.
 These comparisons cover representative controls in 40..79 ns only.
-Reset `20261105-043242-ef38` repeats the complete record with traponly/1 ps
-at the same effective 1e-7/10 nV. Four independent subcases start from V29:
-only MTN ideal, only MTP ideal, only MTD removed, and MTN/MTP ideal with MTD
-retained. The last case tests N/P-device and dummy interaction. All four
-80 ns preflights pass; three individual-device full records remain in progress.
-The MTN/MTP-ideal, MTD-real case completes 2.605 us / 256 samples, rc=0,
-5595 s, with all record/source/model/control checks valid. SFDR/SNDR are
-77.26857/76.76205 dB, up 14.13163/13.70076 dB from V29. H3/H5 are
-107.455/36.560 uV; H3 aligned phase -173.929 deg, gain/base 1.002504.
-The large primary-run improvement thus persists with the dummy retained.
-The .407 dB difference from removing MTD is not established as numerically
-resolved: this endpoint logs SPECTRE-16780/16881 at 200.092 ns on PHI_SB
-and lacks its own completed crosscheck. Individual N/P/dummy effects and
-their interactions await the remaining records.
-Run `20261105-044111-6ca9-tb_cdac_track` retains 179 remote-hash-matched
-files and a verified ZIP. Frozen source SHA-256:
-`227e23d0a02f05f1947a10a45ff040e3c19c1faef6cefc2f23f15852aa344aa1`.
-The running reset cross logs an LTE relaxation at 200.092 ns on PHI_SB;
-its full sample/spectrum comparison remains pending. Baseline primary/cross
-and the completed reset, input and sharing primary logs contain no such warnings.
-No ideal case is a manufacturable candidate or qualification result.
+Four independent reset subcases start from V29, symmetrically on P/N.
+All preflights and full 2.605 us / 256-sample primaries complete normally,
+with source/model/current/control checks valid and sample-time agreement
+within 1.01 fs. Each retains 179 remote-hash-matched files and a verified ZIP.
+
+| Reset subcase | SFDR dBc | SNDR dB | Delta SFDR dB | H3 peak uV | H5 peak uV |
+|---|---:|---:|---:|---:|---:|
+| Only MTN ideal | 70.41287 | 70.21341 | +7.27593 | 236.378 | 50.377 |
+| Only MTP ideal | 82.73995 | 80.52639 | +19.60301 | 57.163 | 45.601 |
+| Only MTD removed | 63.08386 | 63.01339 | -.05307 | 549.683 | 69.299 |
+| MTN/MTP ideal, MTD real | 77.26857 | 76.76205 | +14.13163 | 107.455 | 36.560 |
+
+MTP-only is the largest primary response, but not an independent physical
+contribution: idealizing MTN reduces H3 from 545.389 to 236.378 uV when
+MTP is real, yet increases it from 57.163 to 107.455 uV when MTP is ideal.
+Using matched samples and one original-baseline fundamental phase, the H3
+interaction yNP-yN-yP+y0 is -244.197-j355.512 uV (431.302 uV magnitude).
+N/P devices therefore cannot be assigned additive distortion percentages.
+These interventions also change intrinsic charge, leakage, gate loading and
+threshold/body behavior. The P-only primary still misses the 85 dBc SFDR target.
+
+MTD removal changes the H3 complex coefficient by 6.122 uV with real N/P,
+or 5.378 uV with ideal N/P; their interaction is .912 uV. These small terms,
+and the .053/.407 dB SFDR differences, are not numerically resolved without
+endpoint-specific crosschecks. Full archived control directions/counts for
+all seven other interventions match the 112-control full-reset primary;
+this is not a comparison against unavailable full V29 control traces.
+
+Logged LTE relaxations: MTN-only 0; MTP-only 2 (1.04009 us PHI_S,
+2.32009 us PHI_SB); MTD removal 1 (610.092 ns PHI_SB); N/P ideal 1
+(200.092 ns PHI_SB), each accompanied by SPECTRE-16881 where present.
+Complete records and logged strict tolerances do not establish convergence.
+Full-reset `20261105-043242-ef38` and P-only `20261105-065605-4385`
+crosschecks use traponly/1 ps at the same effective 1e-7/10 nV; comparisons
+remain pending. The running full-reset cross logs one LTE relaxation at
+200.092 ns PHI_SB. Baseline primary/cross and completed reset, input and
+sharing primaries contain no such warnings.
+
+Full subcase runs, all `tb_cdac_track`, are N `20261105-044133-0d85`
+(7551 s), P `20261105-044124-6e25` (7714 s), MTD `20261105-044108-360f`
+(7548 s), and N/P `20261105-044111-6ca9` (5595 s). Frozen source SHA-256,
+in that order:
+
+```text
+c3e981762d0137a38becf8e5059d4232ecf5673517468a39144f45aa745b167d
+59bebecfc5c54d35f34e565c8faa0b0486870d5c6c872bbc6630672243dee44f
+3dc4b74215df010d5f5aba2bf3085e4a4b2e21ed1bebe8e3534f0ad088cb38ae
+227e23d0a02f05f1947a10a45ff040e3c19c1faef6cefc2f23f15852aa344aa1
+```
+
+All records remain private diagnostics; canonical qualification failures persist.
 
 ## Private physical reset2x gates
 
