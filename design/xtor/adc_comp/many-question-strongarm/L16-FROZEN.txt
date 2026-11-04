@@ -1,0 +1,31 @@
+// Strongarm comparator core with return-to-zero output interface.
+// @RNL(type="header") {
+//   @VERSION("0.3");
+//   @USE-PACKAGE(name="adc28", version="0.1", path="../../../rnl/adc28.rnl")
+// }
+simulator lang=spectre
+subckt adc_comp (INP INN CLKC OUTP OUTN AVDD VSS)
+// Geometry and terminal parasitics are from successful device callbacks.
+// INP > INN asserts OUTP. CLKC low resets both external outputs to zero.
+MINP (DP INP TAIL VSS) nch_ulvt_mac l=3e-08 w=5.6e-05 nf=56 m=1 ad=2.8e-12 as=2.85e-12 pd=6.16e-05 ps=6.37e-05 nrd=0.009138 nrs=0.009138 sa=1.36619e-06 sb=1.36619e-06 sd=1e-07
+MINN (DN INN TAIL VSS) nch_ulvt_mac l=3e-08 w=5.6e-05 nf=56 m=1 ad=2.8e-12 as=2.85e-12 pd=6.16e-05 ps=6.37e-05 nrd=0.009138 nrs=0.009138 sa=1.36619e-06 sb=1.36619e-06 sd=1e-07
+MTAIL (TAIL CLKC VSS VSS) nch_ulvt_mac l=3e-08 w=3e-06 nf=3 m=1 ad=1.75e-13 as=1.75e-13 pd=4.35e-06 ps=4.35e-06 nrd=0.136842 nrs=0.136842 sa=1.47042e-07 sb=1.47042e-07 sd=1e-07
+MRDP (DP CKR AVDD AVDD) pch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-13 pd=4.4e-06 ps=6.5e-06 nrd=0.048530 nrs=0.048530 sa=1.79203e-07 sb=1.79203e-07 sd=1e-07
+MRDN (DN CKR AVDD AVDD) pch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-13 pd=4.4e-06 ps=6.5e-06 nrd=0.048530 nrs=0.048530 sa=1.79203e-07 sb=1.79203e-07 sd=1e-07
+MLNP (QP QN DP VSS) nch_ulvt_mac l=3e-08 w=1.2e-05 nf=12 m=1 ad=6e-13 as=6.5e-13 pd=1.32e-05 ps=1.53e-05 nrd=0.040569 nrs=0.040569 sa=4.01767e-07 sb=4.01767e-07 sd=1e-07
+MLNN (QN QP DN VSS) nch_ulvt_mac l=3e-08 w=1.2e-05 nf=12 m=1 ad=6e-13 as=6.5e-13 pd=1.32e-05 ps=1.53e-05 nrd=0.040569 nrs=0.040569 sa=4.01767e-07 sb=4.01767e-07 sd=1e-07
+MLPP (QP QN AVDD AVDD) pch_ulvt_mac l=3e-08 w=8e-06 nf=8 m=1 ad=4e-13 as=4.5e-13 pd=8.8e-06 ps=1.09e-05 nrd=0.024976 nrs=0.024976 sa=2.95835e-07 sb=2.95835e-07 sd=1e-07
+MLPN (QN QP AVDD AVDD) pch_ulvt_mac l=3e-08 w=8e-06 nf=8 m=1 ad=4e-13 as=4.5e-13 pd=8.8e-06 ps=1.09e-05 nrd=0.024976 nrs=0.024976 sa=2.95835e-07 sb=2.95835e-07 sd=1e-07
+MRQP (QP CKR AVDD AVDD) pch_ulvt_mac l=3e-08 w=1.6e-05 nf=16 m=1 ad=8e-13 as=8.5e-13 pd=1.76e-05 ps=1.97e-05 nrd=0.012674 nrs=0.012674 sa=5.01551e-07 sb=5.01551e-07 sd=1e-07
+MRQN (QN CKR AVDD AVDD) pch_ulvt_mac l=3e-08 w=1.6e-05 nf=16 m=1 ad=8e-13 as=8.5e-13 pd=1.76e-05 ps=1.97e-05 nrd=0.012674 nrs=0.012674 sa=5.01551e-07 sb=5.01551e-07 sd=1e-07
+MOPN (OUTP QP VSS VSS) nch_ulvt_mac l=3e-08 w=2e-06 nf=2 m=1 ad=1e-13 as=1.5e-13 pd=2.2e-06 ps=4.3e-06 nrd=0.185844 nrs=0.185844 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
+MOPP (OUTP QP AVDD AVDD) pch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-13 pd=4.4e-06 ps=6.5e-06 nrd=0.048530 nrs=0.048530 sa=1.79203e-07 sb=1.79203e-07 sd=1e-07
+MONN (OUTN QN VSS VSS) nch_ulvt_mac l=3e-08 w=2e-06 nf=2 m=1 ad=1e-13 as=1.5e-13 pd=2.2e-06 ps=4.3e-06 nrd=0.185844 nrs=0.185844 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
+MONP (OUTN QN AVDD AVDD) pch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-13 pd=4.4e-06 ps=6.5e-06 nrd=0.048530 nrs=0.048530 sa=1.79203e-07 sb=1.79203e-07 sd=1e-07
+MCKN (CKB CLKC VSS VSS) nch_ulvt_mac l=3e-08 w=2e-06 nf=2 m=1 ad=1e-13 as=1.5e-13 pd=2.2e-06 ps=4.3e-06 nrd=0.185844 nrs=0.185844 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
+MCKP (CKB CLKC AVDD AVDD) pch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-13 pd=4.4e-06 ps=6.5e-06 nrd=0.048530 nrs=0.048530 sa=1.79203e-07 sb=1.79203e-07 sd=1e-07
+MCK2N (CKR CKB VSS VSS) nch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-13 pd=4.4e-06 ps=6.5e-06 nrd=0.108289 nrs=0.108289 sa=1.79203e-07 sb=1.79203e-07 sd=1e-07
+MCK2P (CKR CKB AVDD AVDD) pch_ulvt_mac l=3e-08 w=8e-06 nf=8 m=1 ad=4e-13 as=4.5e-13 pd=8.8e-06 ps=1.09e-05 nrd=0.024976 nrs=0.024976 sa=2.95835e-07 sb=2.95835e-07 sd=1e-07
+CDP (DP VSS) cfmom_2t nr=48 lr=1e-06 w=5e-08 s=5e-08 stm=1 spm=3 multi=1
+CDN (DN VSS) cfmom_2t nr=48 lr=1e-06 w=5e-08 s=5e-08 stm=1 spm=3 multi=1
+ends adc_comp

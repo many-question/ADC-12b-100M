@@ -1,0 +1,237 @@
+// Strongarm comparator core with return-to-zero output interface.
+// @RNL(type="header") {
+//   @VERSION("0.3");
+//   @USE-PACKAGE(name="adc28", version="0.1", path="../../../rnl/adc28.rnl")
+// }
+simulator lang=spectre
+subckt adc_comp (INP INN CLKC OUTP OUTN AVDD VSS)
+// Geometry and terminal parasitics are from successful device callbacks.
+// INP > INN asserts OUTP. CLKC low resets both external outputs to zero.
+MINP (DP INP TAIL VSS) nch_ulvt_mac l=3e-08 w=5.6e-05 nf=56 m=1 ad=2.8e-12 as=2.85e-12 pd=6.16e-05 ps=6.37e-05 nrd=0.009138 nrs=0.009138 sa=1.36619e-06 sb=1.36619e-06 sd=1e-07
+MINN (DN INN TAIL VSS) nch_ulvt_mac l=3e-08 w=5.6e-05 nf=56 m=1 ad=2.8e-12 as=2.85e-12 pd=6.16e-05 ps=6.37e-05 nrd=0.009138 nrs=0.009138 sa=1.36619e-06 sb=1.36619e-06 sd=1e-07
+MTAIL (TAIL CLKC VSS VSS) nch_ulvt_mac l=3e-08 w=3e-06 nf=3 m=1 ad=1.75e-13 as=1.75e-13 pd=4.35e-06 ps=4.35e-06 nrd=0.136842 nrs=0.136842 sa=1.47042e-07 sb=1.47042e-07 sd=1e-07
+MRDP (DP CKR AVDD AVDD) pch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-13 pd=4.4e-06 ps=6.5e-06 nrd=0.048530 nrs=0.048530 sa=1.79203e-07 sb=1.79203e-07 sd=1e-07
+MRDN (DN CKR AVDD AVDD) pch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-13 pd=4.4e-06 ps=6.5e-06 nrd=0.048530 nrs=0.048530 sa=1.79203e-07 sb=1.79203e-07 sd=1e-07
+MLNP (QP QN DP VSS) nch_ulvt_mac l=3e-08 w=1.2e-05 nf=12 m=1 ad=6e-13 as=6.5e-13 pd=1.32e-05 ps=1.53e-05 nrd=0.040569 nrs=0.040569 sa=4.01767e-07 sb=4.01767e-07 sd=1e-07
+MLNN (QN QP DN VSS) nch_ulvt_mac l=3e-08 w=1.2e-05 nf=12 m=1 ad=6e-13 as=6.5e-13 pd=1.32e-05 ps=1.53e-05 nrd=0.040569 nrs=0.040569 sa=4.01767e-07 sb=4.01767e-07 sd=1e-07
+MLPP (QP QN AVDD AVDD) pch_ulvt_mac l=3e-08 w=8e-06 nf=8 m=1 ad=4e-13 as=4.5e-13 pd=8.8e-06 ps=1.09e-05 nrd=0.024976 nrs=0.024976 sa=2.95835e-07 sb=2.95835e-07 sd=1e-07
+MLPN (QN QP AVDD AVDD) pch_ulvt_mac l=3e-08 w=8e-06 nf=8 m=1 ad=4e-13 as=4.5e-13 pd=8.8e-06 ps=1.09e-05 nrd=0.024976 nrs=0.024976 sa=2.95835e-07 sb=2.95835e-07 sd=1e-07
+MRQP (QP CKR AVDD AVDD) pch_ulvt_mac l=3e-08 w=1.6e-05 nf=16 m=1 ad=8e-13 as=8.5e-13 pd=1.76e-05 ps=1.97e-05 nrd=0.012674 nrs=0.012674 sa=5.01551e-07 sb=5.01551e-07 sd=1e-07
+MRQN (QN CKR AVDD AVDD) pch_ulvt_mac l=3e-08 w=1.6e-05 nf=16 m=1 ad=8e-13 as=8.5e-13 pd=1.76e-05 ps=1.97e-05 nrd=0.012674 nrs=0.012674 sa=5.01551e-07 sb=5.01551e-07 sd=1e-07
+MOPN (OUTP QP VSS VSS) nch_ulvt_mac l=3e-08 w=2e-06 nf=2 m=1 ad=1e-13 as=1.5e-13 pd=2.2e-06 ps=4.3e-06 nrd=0.185844 nrs=0.185844 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
+MOPP (OUTP QP AVDD AVDD) pch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-13 pd=4.4e-06 ps=6.5e-06 nrd=0.048530 nrs=0.048530 sa=1.79203e-07 sb=1.79203e-07 sd=1e-07
+MONN (OUTN QN VSS VSS) nch_ulvt_mac l=3e-08 w=2e-06 nf=2 m=1 ad=1e-13 as=1.5e-13 pd=2.2e-06 ps=4.3e-06 nrd=0.185844 nrs=0.185844 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
+MONP (OUTN QN AVDD AVDD) pch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-13 pd=4.4e-06 ps=6.5e-06 nrd=0.048530 nrs=0.048530 sa=1.79203e-07 sb=1.79203e-07 sd=1e-07
+MCKN (CKB CLKC VSS VSS) nch_ulvt_mac l=3e-08 w=2e-06 nf=2 m=1 ad=1e-13 as=1.5e-13 pd=2.2e-06 ps=4.3e-06 nrd=0.185844 nrs=0.185844 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
+MCKP (CKB CLKC AVDD AVDD) pch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-13 pd=4.4e-06 ps=6.5e-06 nrd=0.048530 nrs=0.048530 sa=1.79203e-07 sb=1.79203e-07 sd=1e-07
+MCK2N (CKR CKB VSS VSS) nch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-13 pd=4.4e-06 ps=6.5e-06 nrd=0.108289 nrs=0.108289 sa=1.79203e-07 sb=1.79203e-07 sd=1e-07
+MCK2P (CKR CKB AVDD AVDD) pch_ulvt_mac l=3e-08 w=8e-06 nf=8 m=1 ad=4e-13 as=4.5e-13 pd=8.8e-06 ps=1.09e-05 nrd=0.024976 nrs=0.024976 sa=2.95835e-07 sb=2.95835e-07 sd=1e-07
+CDP (DP VSS) cfmom_2t nr=48 lr=1e-06 w=5e-08 s=5e-08 stm=1 spm=3 multi=1
+CDN (DN VSS) cfmom_2t nr=48 lr=1e-06 w=5e-08 s=5e-08 stm=1 spm=3 multi=1
+// @RNL(author="l16-restoration") {
+// &VSS @ADD-TO $GROUND_NET_SET;
+// &AVDD @ADD-TO $SUPPLY_NET_SET;
+// $LABEL_TERMINAL_SET @TEXT("${net}", key="netname", size=0.65);
+// %dp = #MINP(in_p) #MINN(in_n) {#MTAIL}(tail) @AS $DIFFERENTIAL_PAIR;
+// {#MINP #MINN} @AS $MATCHED;
+// {#MRDP #MRDN} @AS $MATCHED;
+// {#MLNP #MLNN} @AS $MATCHED;
+// {#MLPP #MLPN} @AS $MATCHED;
+// {#MRQP #MRQN} @AS $MATCHED;
+// {#CDP #CDN} @AS $MATCHED;
+// #MINP @PLACE(-16, 0) => @ORIENT("R0");
+// #MINP @TEXT("W=${w} L=${l} nf=${nf}", key="geom", size=0.55, dx=5, dy=-4);
+// #MINN @PLACE(16, 0) => @ORIENT("MY");
+// #MINN @TEXT("W=${w} L=${l} nf=${nf}", key="geom", size=0.55, dx=5, dy=-4);
+// #MTAIL @PLACE(0, -14) => @ORIENT("R0");
+// #MTAIL @TEXT("W=${w} L=${l} nf=${nf}", key="geom", size=0.55, dx=5, dy=-4);
+// #MRDP @PLACE(-40, 24) => @ORIENT("R0");
+// #MRDP @TEXT("W=${w} L=${l} nf=${nf}", key="geom", size=0.55, dx=5, dy=-4);
+// #MRDN @PLACE(40, 24) => @ORIENT("MY");
+// #MRDN @TEXT("W=${w} L=${l} nf=${nf}", key="geom", size=0.55, dx=5, dy=-4);
+// #MLNP @PLACE(-16, 24) => @ORIENT("R0");
+// #MLNP @TEXT("W=${w} L=${l} nf=${nf}", key="geom", size=0.55, dx=5, dy=-4);
+// #MLNN @PLACE(16, 24) => @ORIENT("MY");
+// #MLNN @TEXT("W=${w} L=${l} nf=${nf}", key="geom", size=0.55, dx=5, dy=-4);
+// #MLPP @PLACE(-16, 48) => @ORIENT("R0");
+// #MLPP @TEXT("W=${w} L=${l} nf=${nf}", key="geom", size=0.55, dx=5, dy=-4);
+// #MLPN @PLACE(16, 48) => @ORIENT("MY");
+// #MLPN @TEXT("W=${w} L=${l} nf=${nf}", key="geom", size=0.55, dx=5, dy=-4);
+// #MRQP @PLACE(-40, 48) => @ORIENT("R0");
+// #MRQP @TEXT("W=${w} L=${l} nf=${nf}", key="geom", size=0.55, dx=5, dy=-4);
+// #MRQN @PLACE(40, 48) => @ORIENT("MY");
+// #MRQN @TEXT("W=${w} L=${l} nf=${nf}", key="geom", size=0.55, dx=5, dy=-4);
+// #MOPP @PLACE(-70, 48) => @ORIENT("R0");
+// #MOPP @TEXT("W=${w} L=${l} nf=${nf}", key="geom", size=0.55, dx=5, dy=-4);
+// #MOPN @PLACE(-70, 24) => @ORIENT("R0");
+// #MOPN @TEXT("W=${w} L=${l} nf=${nf}", key="geom", size=0.55, dx=5, dy=-4);
+// #MONP @PLACE(70, 48) => @ORIENT("R0");
+// #MONP @TEXT("W=${w} L=${l} nf=${nf}", key="geom", size=0.55, dx=5, dy=-4);
+// #MONN @PLACE(70, 24) => @ORIENT("R0");
+// #MONN @TEXT("W=${w} L=${l} nf=${nf}", key="geom", size=0.55, dx=5, dy=-4);
+// #MCKP @PLACE(-34, -40) => @ORIENT("R0");
+// #MCKP @TEXT("W=${w} L=${l} nf=${nf}", key="geom", size=0.55, dx=5, dy=-4);
+// #MCKN @PLACE(-34, -62) => @ORIENT("R0");
+// #MCKN @TEXT("W=${w} L=${l} nf=${nf}", key="geom", size=0.55, dx=5, dy=-4);
+// #MCK2P @PLACE(34, -40) => @ORIENT("R0");
+// #MCK2P @TEXT("W=${w} L=${l} nf=${nf}", key="geom", size=0.55, dx=5, dy=-4);
+// #MCK2N @PLACE(34, -62) => @ORIENT("R0");
+// #MCK2N @TEXT("W=${w} L=${l} nf=${nf}", key="geom", size=0.55, dx=5, dy=-4);
+// #CDP @PLACE(-40, 0) => @ORIENT("R0");
+// #CDN @PLACE(40, 0) => @ORIENT("R0");
+// &TAIL @WIRE {#MINP:3 (-16, -7) (0, -7) (16, -7) #MINN:3};
+// &TAIL @WIRE {(0, -7) #MTAIL:1};
+// &DP @WIRE {#MINP:1 #MLNP:3};
+// &DN @WIRE {#MINN:1 #MLNN:3};
+// &QP @WIRE {#MLNP:1 #MLPP:1};
+// &QN @WIRE {#MLNN:1 #MLPN:1};
+// &OUTP @WIRE {#MOPN:1 #MOPP:1};
+// &OUTN @WIRE {#MONN:1 #MONP:1};
+// &CKB @WIRE {#MCKN:1 #MCKP:1};
+// &CKR @WIRE {#MCK2N:1 #MCK2P:1};
+// {#MCKN #MCKP #MCK2N #MCK2P} @GROUP;
+// (-78, 70) @TEXT("StrongARM l16t3c1 | frozen electrical baseline", size=1.5, bold=true);
+// (-78, 65) @TEXT("Delayed precharge, symmetric regenerative core and RTZ outputs", size=0.9);
+// (-50, -27) @TEXT("Two-stage reset clock buffer: CLKC -> CKB -> CKR", size=0.8);
+// }
+// @RNL(type="generated", priority="high", author="rnl-solver 0.1", hash="sig2:f0018a9d51e6b7fa.ffc36400559c2cce", numbering="ac506a3959bb3090") {
+//   %ground_stub_MINP_b = $GROUND_STUB @ATTACH(gap=2) #MINP:b;
+//   %ground_stub_MINN_b = $GROUND_STUB @ATTACH(gap=2) #MINN:b;
+//   %ground_stub_MTAIL_s = $GROUND_STUB @ATTACH(gap=2) #MTAIL:s;
+//   %ground_stub_MTAIL_b = $GROUND_STUB @ATTACH(gap=2) #MTAIL:b;
+//   %ground_stub_MLNP_b = $GROUND_STUB @ATTACH(gap=2) #MLNP:b;
+//   %ground_stub_MLNN_b = $GROUND_STUB @ATTACH(gap=2) #MLNN:b;
+//   %ground_stub_MOPN_s = $GROUND_STUB @ATTACH(gap=2) #MOPN:s;
+//   %ground_stub_MOPN_b = $GROUND_STUB @ATTACH(gap=2) #MOPN:b;
+//   %ground_stub_MONN_s = $GROUND_STUB @ATTACH(gap=2) #MONN:s;
+//   %ground_stub_MONN_b = $GROUND_STUB @ATTACH(gap=2) #MONN:b;
+//   %ground_stub_MCKN_s = $GROUND_STUB @ATTACH(gap=2) #MCKN:s;
+//   %ground_stub_MCKN_b = $GROUND_STUB @ATTACH(gap=2) #MCKN:b;
+//   %ground_stub_MCK2N_s = $GROUND_STUB @ATTACH(gap=2) #MCK2N:s;
+//   %ground_stub_MCK2N_b = $GROUND_STUB @ATTACH(gap=2) #MCK2N:b;
+//   %ground_stub_CDP_n = $GROUND_STUB @ATTACH(gap=2) #CDP:n;
+//   %ground_stub_CDN_n = $GROUND_STUB @ATTACH(gap=2) #CDN:n;
+//   %supply_stub_MRDP_s = $SUPPLY_STUB @ATTACH(gap=2) #MRDP:s;
+//   %supply_stub_MRDP_b = $SUPPLY_STUB @ATTACH(gap=2) #MRDP:b;
+//   %supply_stub_MRDN_s = $SUPPLY_STUB @ATTACH(gap=2) #MRDN:s;
+//   %supply_stub_MRDN_b = $SUPPLY_STUB @ATTACH(gap=2) #MRDN:b;
+//   %supply_stub_MLPP_s = $SUPPLY_STUB @ATTACH(gap=2) #MLPP:s;
+//   %supply_stub_MLPP_b = $SUPPLY_STUB @ATTACH(gap=2) #MLPP:b;
+//   %supply_stub_MLPN_s = $SUPPLY_STUB @ATTACH(gap=2) #MLPN:s;
+//   %supply_stub_MLPN_b = $SUPPLY_STUB @ATTACH(gap=2) #MLPN:b;
+//   %supply_stub_MRQP_s = $SUPPLY_STUB @ATTACH(gap=2) #MRQP:s;
+//   %supply_stub_MRQP_b = $SUPPLY_STUB @ATTACH(gap=2) #MRQP:b;
+//   %supply_stub_MRQN_s = $SUPPLY_STUB @ATTACH(gap=2) #MRQN:s;
+//   %supply_stub_MRQN_b = $SUPPLY_STUB @ATTACH(gap=2) #MRQN:b;
+//   %supply_stub_MOPP_s = $SUPPLY_STUB @ATTACH(gap=2) #MOPP:s;
+//   %supply_stub_MOPP_b = $SUPPLY_STUB @ATTACH(gap=2) #MOPP:b;
+//   %supply_stub_MONP_s = $SUPPLY_STUB @ATTACH(gap=2) #MONP:s;
+//   %supply_stub_MONP_b = $SUPPLY_STUB @ATTACH(gap=2) #MONP:b;
+//   %supply_stub_MCKP_s = $SUPPLY_STUB @ATTACH(gap=2) #MCKP:s;
+//   %supply_stub_MCKP_b = $SUPPLY_STUB @ATTACH(gap=2) #MCKP:b;
+//   %supply_stub_MCK2P_s = $SUPPLY_STUB @ATTACH(gap=2) #MCK2P:s;
+//   %supply_stub_MCK2P_b = $SUPPLY_STUB @ATTACH(gap=2) #MCK2P:b;
+//   %io_port_INP = $IO_PORT @ATTACH &INP;
+//   %io_port_INN = $IO_PORT @ATTACH &INN;
+//   %io_port_CLKC = $IO_PORT @ATTACH &CLKC;
+//   %io_port_OUTP = $IO_PORT @ATTACH &OUTP;
+//   %io_port_OUTN = $IO_PORT @ATTACH &OUTN;
+//   #MINP @PLACE(-16, 0) => @ORIENT("R0");
+//   #MINN @PLACE(16, 0) => @ORIENT("MY");
+//   #MTAIL @PLACE(0, -14) => @ORIENT("R0");
+//   #MRDP @PLACE(-40, 24) => @ORIENT("R0");
+//   #MRDN @PLACE(40, 24) => @ORIENT("MY");
+//   #MLNP @PLACE(-16, 24) => @ORIENT("R0");
+//   #MLNN @PLACE(16, 24) => @ORIENT("MY");
+//   #MLPP @PLACE(-16, 48) => @ORIENT("R0");
+//   #MLPN @PLACE(16, 48) => @ORIENT("MY");
+//   #MRQP @PLACE(-40, 48) => @ORIENT("R0");
+//   #MRQN @PLACE(40, 48) => @ORIENT("MY");
+//   #MOPN @PLACE(-70, 24) => @ORIENT("R0");
+//   #MOPP @PLACE(-70, 48) => @ORIENT("R0");
+//   #MONN @PLACE(70, 24) => @ORIENT("R0");
+//   #MONP @PLACE(70, 48) => @ORIENT("R0");
+//   #MCKN @PLACE(-34, -62) => @ORIENT("R0");
+//   #MCKP @PLACE(-34, -40) => @ORIENT("R0");
+//   #MCK2N @PLACE(34, -62) => @ORIENT("R0");
+//   #MCK2P @PLACE(34, -40) => @ORIENT("R0");
+//   #CDP @PLACE(-40, 0) => @ORIENT("R0");
+//   #CDN @PLACE(40, 0) => @ORIENT("R0");
+//   %ground_stub_MINP_b::g @PLACE(-15, -5) => @ORIENT("R0");
+//   %ground_stub_MINN_b::g @PLACE(15, -5) => @ORIENT("R0");
+//   %ground_stub_MTAIL_s::g @PLACE(0, -26) => @ORIENT("R0");
+//   %ground_stub_MTAIL_b::g @PLACE(1, -19) => @ORIENT("R0");
+//   %ground_stub_MLNP_b::g @PLACE(-15, 19) => @ORIENT("R0");
+//   %ground_stub_MLNN_b::g @PLACE(15, 19) => @ORIENT("R0");
+//   %ground_stub_MOPN_s::g @PLACE(-70, 12) => @ORIENT("R0");
+//   %ground_stub_MOPN_b::g @PLACE(-69, 19) => @ORIENT("R0");
+//   %ground_stub_MONN_s::g @PLACE(70, 12) => @ORIENT("R0");
+//   %ground_stub_MONN_b::g @PLACE(71, 19) => @ORIENT("R0");
+//   %ground_stub_MCKN_s::g @PLACE(-34, -74) => @ORIENT("R0");
+//   %ground_stub_MCKN_b::g @PLACE(-33, -67) => @ORIENT("R0");
+//   %ground_stub_MCK2N_s::g @PLACE(34, -74) => @ORIENT("R0");
+//   %ground_stub_MCK2N_b::g @PLACE(35, -67) => @ORIENT("R0");
+//   %ground_stub_CDP_n::g @PLACE(-40, -6) => @ORIENT("R0");
+//   %ground_stub_CDN_n::g @PLACE(40, -6) => @ORIENT("R0");
+//   %supply_stub_MRDP_s::s @PLACE(-40, 30) => @ORIENT("R0");
+//   %supply_stub_MRDP_b::s @PLACE(-39, 26) => @ORIENT("R0");
+//   %supply_stub_MRDN_s::s @PLACE(40, 30) => @ORIENT("R0");
+//   %supply_stub_MRDN_b::s @PLACE(39, 26) => @ORIENT("R0");
+//   %supply_stub_MLPP_s::s @PLACE(-16, 54) => @ORIENT("R0");
+//   %supply_stub_MLPP_b::s @PLACE(-15, 50) => @ORIENT("R0");
+//   %supply_stub_MLPN_s::s @PLACE(16, 54) => @ORIENT("R0");
+//   %supply_stub_MLPN_b::s @PLACE(15, 50) => @ORIENT("R0");
+//   %supply_stub_MRQP_s::s @PLACE(-40, 54) => @ORIENT("R0");
+//   %supply_stub_MRQP_b::s @PLACE(-39, 50) => @ORIENT("R0");
+//   %supply_stub_MRQN_s::s @PLACE(40, 54) => @ORIENT("R0");
+//   %supply_stub_MRQN_b::s @PLACE(39, 50) => @ORIENT("R0");
+//   %supply_stub_MOPP_s::s @PLACE(-70, 54) => @ORIENT("R0");
+//   %supply_stub_MOPP_b::s @PLACE(-69, 50) => @ORIENT("R0");
+//   %supply_stub_MONP_s::s @PLACE(70, 54) => @ORIENT("R0");
+//   %supply_stub_MONP_b::s @PLACE(71, 50) => @ORIENT("R0");
+//   %supply_stub_MCKP_s::s @PLACE(-34, -34) => @ORIENT("R0");
+//   %supply_stub_MCKP_b::s @PLACE(-33, -38) => @ORIENT("R0");
+//   %supply_stub_MCK2P_s::s @PLACE(34, -34) => @ORIENT("R0");
+//   %supply_stub_MCK2P_b::s @PLACE(35, -38) => @ORIENT("R0");
+//   %io_port_INP @PLACE(86, 24) => @ORIENT("R0");
+//   %io_port_INN @PLACE(92, 24) => @ORIENT("R0");
+//   %io_port_CLKC @PLACE(98, 24) => @ORIENT("R0");
+//   %io_port_OUTP @PLACE(105, 24) => @ORIENT("R0");
+//   %io_port_OUTN @PLACE(112, 24) => @ORIENT("R0");
+//   %#8 @PLACE(-16, -7);
+//   %#9 @PLACE(0, -7);
+//   %#10 @PLACE(16, -7);
+//   %#12 @PLACE(0, -7);
+//   %#21 @PLACE(-78, 70);
+//   %#23 @PLACE(-78, 65);
+//   %#25 @PLACE(-50, -27);
+//   %#22 @PLACE(-78, 70);
+//   %#24 @PLACE(-78, 65);
+//   %#26 @PLACE(-50, -27);
+//   #MINP:g::netname @PLACE(-17.8, 1.2);
+//   #MINN:g::netname @PLACE(20.2, 1.2);
+//   #MTAIL:g::netname @PLACE(-1.8, -12.8);
+//   #MRDP:d::netname @PLACE(-38.8, 23.2);
+//   #MRDP:g::netname @PLACE(-41.8, 25.2);
+//   #MRDN:d::netname @PLACE(41.2, 23.2);
+//   #MRDN:g::netname @PLACE(44.2, 25.2);
+//   #MLNP:g::netname @PLACE(-17.8, 25.2);
+//   #MLNN:g::netname @PLACE(20.2, 25.2);
+//   #MLPP:g::netname @PLACE(-17.8, 49.2);
+//   #MLPN:g::netname @PLACE(20.2, 49.2);
+//   #MRQP:d::netname @PLACE(-38.8, 47.2);
+//   #MRQP:g::netname @PLACE(-41.8, 49.2);
+//   #MRQN:d::netname @PLACE(41.2, 47.2);
+//   #MRQN:g::netname @PLACE(44.2, 49.2);
+//   #MOPN:g::netname @PLACE(-71.8, 25.2);
+//   #MOPP:g::netname @PLACE(-71.8, 49.2);
+//   #MONN:g::netname @PLACE(68.2, 25.2);
+//   #MONP:g::netname @PLACE(68.2, 49.2);
+//   #MCKN:g::netname @PLACE(-35.8, -60.8);
+//   #MCKP:g::netname @PLACE(-35.8, -38.8);
+//   #MCK2N:g::netname @PLACE(32.2, -60.8);
+//   #MCK2P:g::netname @PLACE(32.2, -38.8);
+//   #CDP:p::netname @PLACE(-38.8, 3.2);
+//   #CDN:p::netname @PLACE(41.2, 3.2)
+// }
+ends adc_comp
