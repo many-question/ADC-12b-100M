@@ -1,0 +1,208 @@
+{
+ "block": "adc_comp",
+ "test": "tb_comp_offset_mc",
+ "view": "xtor-many-question-miyahara",
+ "corner": "tt_nom_27",
+ "params": {
+  "mc_runs": 50,
+  "mc_seed": 6303
+ },
+ "globals": {
+  "vdd": 0.9,
+  "vdd18": 1.8,
+  "tempc": 27.0,
+  "noise_en": 0,
+  "devnoise": 1,
+  "beh_speed": 1.0,
+  "vref_in": 0.9,
+  "cdac_behav": 1,
+  "comp_behav": 0
+ },
+ "metrics": {
+  "mc_runs": 50,
+  "mc_ok": 50,
+  "mc_failed": 0,
+  "offset_sigma_mV": 1.8476284955369302,
+  "offset_mean_mV": -0.6240234374804,
+  "offset_max_abs_mV": 4.647827147999999,
+  "offsets_mV": [
+   -0.15564,
+   -0.656128,
+   -4.318237,
+   -2.816772,
+   0.613403,
+   -1.742554,
+   -2.059937,
+   -1.223755,
+   -1.754761,
+   -0.454712,
+   0.491333,
+   -3.244019,
+   -0.057983,
+   0.637817,
+   1.63269,
+   -2.072144,
+   0.869751,
+   -2.548218,
+   -0.094604,
+   -0.613403,
+   -1.211548,
+   0.564575,
+   -4.647827,
+   -2.877808,
+   -2.633667,
+   0.662231,
+   -0.186157,
+   -2.127075,
+   -0.997925,
+   0.05188,
+   -3.860474,
+   -4.580688,
+   0.582886,
+   3.561401,
+   3.311157,
+   0.839233,
+   0.216675,
+   0.772095,
+   -0.302124,
+   -1.657104,
+   1.779175,
+   0.717163,
+   -2.145386,
+   1.626587,
+   0.167847,
+   0.857544,
+   -0.784302,
+   0.656128,
+   -0.216675,
+   0.228882
+  ],
+  "sample_status": [
+   "ok",
+   "ok",
+   "ok",
+   "ok",
+   "ok",
+   "ok",
+   "ok",
+   "ok",
+   "ok",
+   "ok",
+   "ok",
+   "ok",
+   "ok",
+   "ok",
+   "ok",
+   "ok",
+   "ok",
+   "ok",
+   "ok",
+   "ok",
+   "ok",
+   "ok",
+   "ok",
+   "ok",
+   "ok",
+   "ok",
+   "ok",
+   "ok",
+   "ok",
+   "ok",
+   "ok",
+   "ok",
+   "ok",
+   "ok",
+   "ok",
+   "ok",
+   "ok",
+   "ok",
+   "ok",
+   "ok",
+   "ok",
+   "ok",
+   "ok",
+   "ok",
+   "ok",
+   "ok",
+   "ok",
+   "ok",
+   "ok",
+   "ok"
+  ]
+ },
+ "specs": {
+  "CMP-03": {
+   "metric": "offset_sigma_mV",
+   "value": 1.8476284955369302,
+   "limit": "<= 5",
+   "pass": true,
+   "samples": {
+    "ok": 50,
+    "failed": 0,
+    "need": 50
+   }
+  }
+ },
+ "figures": [
+  {
+   "file": "tt_nom_27.offset_mc.png",
+   "caption": "Input offset of the Monte Carlo samples: histogram with the normal curve of the sample mean and standard deviation (n - 1) and the curve at the CMP-03 limit, the offset of every iteration with failed samples marked, and the successive-approximation search of the sample nearest the mean (range checks, halvings, re-check)."
+  }
+ ],
+ "meta": {
+  "date": "2026-11-04T03:31:58",
+  "git": "8c945e14",
+  "git_clean": false,
+  "git_dirty_paths": [
+   "design/xtor/adc_comp/many-question-miyahara/RESTORATION-B26.md"
+  ],
+  "mode": "aps",
+  "pdk": true,
+  "mc": {
+   "runs": 50,
+   "seed": 6303,
+   "firstrun": 1,
+   "variations": "mismatch",
+   "models": "local_tt"
+  },
+  "wall_s": 175.6,
+  "rc": "0",
+  "sim_s": "89",
+  "numerics": {
+   "source": "spectre.log",
+   "reltol": 0.0001,
+   "maxstep_ps": 171.0,
+   "method": "gear2only",
+   "errpreset": "conservative",
+   "lteratio": 10.0,
+   "relref": "alllocal",
+   "abstol_V": 1e-06,
+   "steps_accepted": 3427,
+   "step_mean_ps": 4.98979,
+   "step_max_ps": 123.668
+  },
+  "files": {
+   "tb/comp/tb_comp_offset_mc.scs": "cc4772d114a02036",
+   "tb/common/veriloga/tb_offset_search_va.va": "7ae90446bc9f3060",
+   "design/xtor/adc_comp/many-question-miyahara/adc_comp.scs": "13c455d69c414b14"
+  },
+  "arch": {
+   "keys": [],
+   "sha": "44136fa355b3678a"
+  },
+  "views": {
+   "adc_comp": "xtor:many-question-miyahara"
+  },
+  "provenance": {
+   "offset_search": {
+    "method": "successive approximation per sample (tb_offset_search_va), transient noise off",
+    "range_mV": 25.0,
+    "bits": 13,
+    "lsb_uV": 6.104,
+    "recheck_uV": 50.0,
+    "cycle_ns": 1.0,
+    "sigma": "sample standard deviation (n - 1) of the valid samples; any failed sample fails the spec"
+   }
+  }
+ }
+}
