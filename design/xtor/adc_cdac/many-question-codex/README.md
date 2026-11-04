@@ -28,8 +28,11 @@ Four independent ideal-switch replacements from original V29 now have complete
 input improves .658 dB, reference .031 dB, and sharing worsens .302 dB.
 Reset H3 falls from 545.39 to 112.80 uV. This identifies the reset cell as
 the strongest group intervention, including its removed intrinsic charges.
-Same-source reset numerical crosscheck and independent MTN/MTP/MTD subcases
-are underway. Physical sizing and qualification expansion remain paused.
+The first reset subcase, ideal MTN/MTP with real MTD, completes at
+77.269/76.762 dB and H3 107.45 uV: the large improvement persists without
+removing the dummy. Its log has one LTE relaxation; convergence is not yet
+established. Reset crosscheck and the individual MTN/MTP/MTD subcases
+continue. Physical sizing and qualification expansion remain paused.
 See the validation status for the complete matrix and attribution limits.
 The canonical source and its official failures remain unchanged.
 

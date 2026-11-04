@@ -122,8 +122,20 @@ These comparisons cover representative controls in 40..79 ns only.
 Reset `20261105-043242-ef38` repeats the complete record with traponly/1 ps
 at the same effective 1e-7/10 nV. Four independent subcases start from V29:
 only MTN ideal, only MTP ideal, only MTD removed, and MTN/MTP ideal with MTD
-retained. The last case tests channel/dummy interaction. Their 80 ns preflights
-gate full 256-sample runs; they are in progress, with no subgroup spectra yet.
+retained. The last case tests N/P-device and dummy interaction. All four
+80 ns preflights pass; three individual-device full records remain in progress.
+The MTN/MTP-ideal, MTD-real case completes 2.605 us / 256 samples, rc=0,
+5595 s, with all record/source/model/control checks valid. SFDR/SNDR are
+77.26857/76.76205 dB, up 14.13163/13.70076 dB from V29. H3/H5 are
+107.455/36.560 uV; H3 aligned phase -173.929 deg, gain/base 1.002504.
+The large primary-run improvement thus persists with the dummy retained.
+The .407 dB difference from removing MTD is not established as numerically
+resolved: this endpoint logs SPECTRE-16780/16881 at 200.092 ns on PHI_SB
+and lacks its own completed crosscheck. Individual N/P/dummy effects and
+their interactions await the remaining records.
+Run `20261105-044111-6ca9-tb_cdac_track` retains 179 remote-hash-matched
+files and a verified ZIP. Frozen source SHA-256:
+`227e23d0a02f05f1947a10a45ff040e3c19c1faef6cefc2f23f15852aa344aa1`.
 The running reset cross logs an LTE relaxation at 200.092 ns on PHI_SB;
 its full sample/spectrum comparison remains pending. Baseline primary/cross
 and the completed reset, input and sharing primary logs contain no such warnings.
