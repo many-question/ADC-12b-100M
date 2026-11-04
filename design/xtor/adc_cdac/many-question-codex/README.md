@@ -4,7 +4,7 @@ Current status (2026-11-04): resumed after the project resolved issue #125.
 DAC-12 is now 1.35 pC (#132); the new all-corner DAC-18 SOA test and
 transient-overvoltage rule (#137) apply. Candidate remains WIP.
 
-Current blockers (see [validation status and bounded proposal](validation-status.md)): official track aborts at 60.1007 ns with
+Current blockers (see [validation status and completed diagnostics](validation-status.md)): official track aborts at 60.1007 ns with
 SPECTRE-16928 (minstep approach count), only 2/256 samples; no valid spectrum.
 Dedicated SOA completes but fails 3 terminal pairs: MTP Vgd and MTD Vgs/Vgd,
 all the TOP-PHI_SB stress. SOA crosscheck confirms 126.906 ps above 1.1 V
@@ -12,6 +12,10 @@ per 10 ns window (limit 100 ps), versus primary 127.281 ps. Track replay
 reproduces the same cold-corner solver failure. Complete ss_low_125 track
 also fails: SFDR/SNDR 63.137/63.061 dB, confirmed within 0.015 dB by
 crosscheck. Batch expansion has stopped; official failures are preserved.
+Bounded cold traponly/1 ps reaches 80.050 ns without the old step-collapse
+cluster. Hot observation reaches 100.064 ns with all requested currents;
+reset tracking impedance and off-state currents warrant further isolation.
+These partial diagnostics do not close the blockers or prove a repair.
 
 
 V29 is the current baseline, migrated into the accepted XCAP/XSW

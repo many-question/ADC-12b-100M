@@ -51,26 +51,56 @@ Its saved wave has one 1 ps interval at 5.01 ns; other intervals respect
 0.5 ps. The stricter result passes, but the primary start reading is
 optimistic by 0.5 ps; its narrow margin is explicitly retained as a caveat.
 
-## Bounded next-step proposal, not yet executed
+## Completed bounded diagnostics
 
-1. One cold-track integration-method diagnostic: retain original stimulus,
-   circuit, stop time and tolerances; use the existing traponly/1 ps
-   crosscheck settings. Capture the same switching nodes. Bound observation
-   to progress past 80 ns or a 10-minute solver budget, then stop and retain
-   partial data as diagnostic only. Compare shared sample times and the
-   failure neighborhood; calculate no truncated acceptance spectrum.
-2. One hot-track observation diagnostic with unchanged primary settings:
-   inspect the first judged cycles, selected input-switch/reset currents,
-   Vgs/Vds and residual tracking error. Bound it to 100 ns of progress or
-   10 minutes. Check its sample prefix against the already complete record.
-   This distinguishes incomplete tracking, charge injection and reset timing
-   before selecting a circuit change.
-3. Only if those measurements identify a limiting path, propose one isolated
-   internal change supported by measured charge/current or settling time.
-   Preserve all ports and external phases, validate changed PDK parameters,
-   and rerun cold SOA plus hot track before broader tests. Do not perform a
-   blind size sweep. If attribution remains unclear, report that uncertainty
-   before further experiments. No public settings or limits change is proposed.
+Both retain the original 2.605 us requested stop, source and tolerances;
+each was intentionally interrupted at its progress bound (rc=2, SPECTRE-25).
+No partial acceptance FFT was calculated. The first cold attempt stopped at
+30.086858 ns because the watchdog misread an incomplete timestamp. Its
+evidence is preserved; the parser was fixed and tested on truncated lines.
+Only that instrumentation failure was repeated.
 
-Source/deck/log/sample and reduced SOA-table archives have per-file remote
-hash checks. No incomplete samples are used for an acceptance result.
+Cold retry `20261104-103853-f4d4` reached 80.050462 ns, with 105864 points
+and four samples, using traponly/1 ps and effective 1e-7/10 nV. Near the
+old failure (60.099..60.102 ns), 33 steps have minimum 61.675 fs and no
+sub-0.01 fs cluster, versus 2209 such steps in the failed primary replay.
+The whole retry has only two isolated sub-0.01 fs steps at other times.
+Its two shared samples differ by 9.772 uV rms, 9.968 uV maximum.
+This establishes sensitivity to integrator/step settings, not a full cold
+pass or the identity of a failing device/model; those two effects are not
+separated by this experiment.
+
+Hot observation `20261104-103000-62d8` reached 100.064429 ns and contains
+all 64 requested voltages and 22 native currents. Its six sample times
+match the original complete run; values agree within 3e-13 V. The native
+source-resistor currents agree with (SRC-VIN)/50. Full-record analysis,
+not the partial trace, identifies H3 at 545.39 uV peak (98.27% of residual
+power), versus 30.05 uV in TT.
+
+On a uniform 1 ps grid at 40..99.9 ns, track phase 1..4.8 ns, per-side rms
+TOP-VCM is 39.45..39.66 mV, VIN-BH12 is 2.95..2.97 mV, and SRC-VIN is
+18.47..18.54 mV. Reset-terminal delta-V/I is about 105..131 ohm, versus
+33..36 ohm for the bit-12 input path; these include displacement current.
+VGS stays within 2.6 uV of 0.81 V. Early portions still include recovery;
+these are not DC resistance or output-distortion allocations.
+
+At the first judged sample, low-TOP MTN current is -0.749 uA and high-TOP
+MTP current +0.577 uA despite reset being off; selected bit-12 input
+branches carry about 20 uA. Differential TOP changes 22.83 uV in the final
+50 ps before that sample, whose complete-record residual is 446.18 uV.
+Thus finite reset impedance, edge injection and hold currents all remain
+plausible contributors. Partial-window harmonic fits vary with fit order
+and are rejected as a unique attribution of the complete-record H3.
+
+The reset path is the first candidate for a controlled causal experiment,
+but widening it also changes off-current and injection. No dimension change
+is yet justified as a demonstrated repair. Next isolate its on-state effect
+from edge/hold effects in one explicitly scoped diagnostic before selecting
+one internal change. Keep external ports/phases and official precision;
+validate changed PDK parameters and cold SOA/hot track before expansion.
+
+All three bounded-run directories (including the instrumentation failure)
+have 62-file remote hash matches and verified ZIP archives. Source SHA is
+unchanged. Server audit at 2026-11-04 16:54:46 +08:00 found no active owned
+CDAC processes. Original failures remain authoritative; all three blockers
+are still open.
