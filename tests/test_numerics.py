@@ -4,7 +4,7 @@ their convergence cross-check (issue #28)."""
 import numpy as np
 import pytest
 
-from adcflow import REPO_ROOT, checks, gen_tb, numerics, remote, runner, site
+from adcflow import REPO_ROOT, checks, gen_tb, numerics, remote, runner, site, soa
 from adcflow.specs import blocks, find_test
 
 TRACKING = ("tb_bootstrap_track", "tb_cdac_track")
@@ -161,10 +161,12 @@ def test_crosscheck_needs_settings_in_the_spec():
         runner.run_test("tb_comp_delay", crosscheck=True, dry=True)
 
 
-def test_compare_soa_peaks():
-    row = lambda dev, pair, v: {"device": dev, "pair": pair, "max_V": v}  # noqa: E731
+@pytest.mark.parametrize("packed", [(False, False), (True, True), (True, False)])      # (ref, alt): either form, mixed
+def test_compare_soa_peaks(packed):
+    row = lambda dev, pair, v: {"device": dev, "master": "nch_ulvt_mac", "where": "dut", "pair": pair, "max_V": v}  # noqa: E731
     ref = {"soa_violations": 1, "soa_table": [row("XDUT.MA", "ds", 1.0638), row("XDUT.MB", "gs", 0.9)]}
     alt = {"soa_violations": 1, "soa_table": [row("XDUT.MA", "ds", 1.0641), row("XDUT.MB", "gs", 0.9)]}
+    ref, alt = [{**m, "soa_table": soa.pack_table(m["soa_table"]) if p else m["soa_table"]} for m, p in zip((ref, alt), packed)]
     c = numerics.compare(ref, alt, ["soa_violations"], None, None)
     assert c["soa"] == {"pairs": 2, "max_V_diff_max_mV": pytest.approx(0.3), "at": "XDUT.MA ds", "violations": [1, 1]}
     assert c["metrics"]["soa_violations"]["diff"] == 0

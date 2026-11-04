@@ -31,6 +31,7 @@ import re
 from pathlib import Path
 
 from . import candidates as cand
+from . import jsonio
 from .deps import UNRESOLVED
 
 TOL_DOC = "docs/verification.md §7"
@@ -110,7 +111,8 @@ def compare_metrics(self_m: dict, rerun: dict) -> tuple[dict, list[str], list[st
 
     Scalars compare as _same; a list of scalars (e.g. the per-sample offsets of a Monte Carlo run)
     element by element with the tolerance of its metric, and it must have the same length. Other
-    lists and dicts (soa_table ...) are not compared, nor NOT_COMPARED."""
+    lists and dicts (soa_table, in the packed form of soa.pack_table or the list of dicts recorded before it) are
+    not compared, nor NOT_COMPARED."""
     out, problems, skipped = {}, [], []
     for k in sorted(set(self_m) | set(rerun)):
         a, b = self_m.get(k), rerun.get(k)
@@ -365,7 +367,7 @@ def record_doc(doc: dict, row: dict | None, name: str) -> dict:
 def write(rec: dict) -> Path:
     p = record_path(rec["block"], rec["candidate"], rec["test"], rec["job"])
     p.parent.mkdir(parents=True, exist_ok=True)
-    p.write_text(json.dumps(rec, indent=1, default=float) + "\n", encoding="utf-8", newline="\n")
+    p.write_text(jsonio.dumps(rec) + "\n", encoding="utf-8", newline="\n")
     return p
 
 

@@ -37,7 +37,7 @@ from pathlib import Path
 
 import yaml
 
-from . import REPO_ROOT
+from . import REPO_ROOT, jsonio
 
 ROOT = REPO_ROOT                       # repository root (tests point it at a temporary copy)
 NAME_RE = re.compile(r"^[a-z0-9-]{2,24}$")
@@ -750,7 +750,7 @@ def migrate(block: str, name: str, authors: list[dict], description: str, dry: b
             if "views" in m:                       # recorded with its dependencies (deps.py)
                 m["views"] = {k: f"xtor:{name}" if k == block and v == "xtor" else v for k, v in m["views"].items()}
             m["migrated"] = dict(stamp)
-            f.write_text(json.dumps(doc, indent=1, default=float) + "\n", encoding="utf-8", newline="\n")
+            f.write_text(jsonio.dumps(doc) + "\n", encoding="utf-8", newline="\n")
     return log + [f"wrote {rel(dst / 'candidate.yaml')}"]
 
 
@@ -861,7 +861,7 @@ def rename(block: str, old: str, new: str, base: str = "origin/main", dry: bool 
             if "views" in m:
                 m["views"] = {k: f"xtor:{new}" if k == block and v == f"xtor:{old}" else v for k, v in m["views"].items()}
             m["renamed"] = dict(stamp)
-            f.write_text(json.dumps(doc, indent=1, default=float) + "\n", encoding="utf-8", newline="\n")
+            f.write_text(jsonio.dumps(doc) + "\n", encoding="utf-8", newline="\n")
     return log + notes
 
 

@@ -42,7 +42,7 @@ import yaml
 
 from . import REPO_ROOT
 from . import arch as archmod
-from . import candidates, deps, numerics, remote, soa
+from . import candidates, deps, jsonio, numerics, remote, soa
 from .corners import Corner, by_name, corner_set, model_includes, vref_in
 from .netlist import parse, substitute_parameters
 from .specs import Block, blocks, find_test
@@ -290,7 +290,7 @@ def record(block: Block, test_id: str, viewsig: str, job: Job, metrics: dict, me
     out = result_dir(block, test_id, viewsig) / f"{job.name}.json"
     out.parent.mkdir(parents=True, exist_ok=True)
     doc = result_doc(block, test_id, viewsig, job, metrics, meta, figures)
-    out.write_text(json.dumps(doc, indent=1, default=float) + "\n", encoding="utf-8", newline="\n")
+    out.write_text(jsonio.dumps(doc) + "\n", encoding="utf-8", newline="\n")
     return out
 
 
@@ -490,6 +490,10 @@ def _same(a, b) -> bool:
     return a == b
 
 
+def _by_rows(metrics: dict) -> dict:
+    return {**metrics, "soa_table": soa.table_rows(metrics)} if "soa_table" in metrics else metrics
+
+
 def remeasure(test_id: str, run_dir: Path, block_name: str | None = None, views: dict | None = None,
               allow: tuple[str, ...] = ("sfdr",), dry: bool = False, redraw: bool = False) -> list[dict]:
     """Measure the fetched jobs of an earlier run again with the current measure code and
@@ -532,8 +536,10 @@ def remeasure(test_id: str, run_dir: Path, block_name: str | None = None, views:
                "soa": soa.plan(block.name, test, tb_text, view_files(views), views) if test.get("soa") else None}
         with archmod.track() as measure_keys:
             metrics = measure(test, jd, ctx)
-        changed = {k: [old["metrics"].get(k), v] for k, v in metrics.items() if not _same(old["metrics"].get(k), v)}
-        changed.update({k: [v, None] for k, v in old["metrics"].items() if k not in metrics})
+        was = _by_rows(old["metrics"])                # a soa_table recorded in either form compares by its pairs
+        now = _by_rows(metrics)
+        changed = {k: [was.get(k), v] for k, v in now.items() if not _same(was.get(k), v)}
+        changed.update({k: [v, None] for k, v in was.items() if k not in now})
         bad = sorted(k for k in changed if not any(a in k for a in allow))
         if bad:
             raise ValueError(f"{jd.name}: {bad} differ from the recorded result: not the same simulation data "
@@ -560,7 +566,7 @@ def remeasure(test_id: str, run_dir: Path, block_name: str | None = None, views:
         for e in figs.entries:
             shutil.copyfile(tmp / e["file"], rdir / e["file"])
         doc = result_doc(block, test_id, viewsig, job, old["metrics"] if redraw else metrics, meta, figs.entries)
-        path.write_text(json.dumps(doc, indent=1, default=float) + "\n", encoding="utf-8", newline="\n")
+        path.write_text(jsonio.dumps(doc) + "\n", encoding="utf-8", newline="\n")
     return out
 
 
