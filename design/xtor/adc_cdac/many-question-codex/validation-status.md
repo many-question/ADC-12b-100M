@@ -92,15 +92,38 @@ Thus finite reset impedance, edge injection and hold currents all remain
 plausible contributors. Partial-window harmonic fits vary with fit order
 and are rejected as a unique attribution of the complete-record H3.
 
-The reset path is the first candidate for a controlled causal experiment,
-but widening it also changes off-current and injection. No dimension change
-is yet justified as a demonstrated repair. Next isolate its on-state effect
-from edge/hold effects in one explicitly scoped diagnostic before selecting
-one internal change. Keep external ports/phases and official precision;
-validate changed PDK parameters and cold SOA/hot track before expansion.
+## Late-track reset intervention
+
+Approved private run `20261104-171150-9367` adds a symmetric ideal 1/120-ohm
+TOP-to-VCM shunt only during late track, with cosine ramps and complete
+withdrawal 34 ps before the measured PHI_S falling-edge start. Canonical
+MOS source is unchanged, but the diagnostic electrical deck is different;
+the ideal branch is not a PDK repair. It reaches 200.055719 ns and 16 samples
+before intentional interruption (393 s observed runtime); no processes remain.
+All 89 probes are present. The envelope and both currents are zero outside
+the approved window; native current matches G*a*(TOP-VCM). Pre-40-ns quiet
+voltages match within 2.4e-5 uV, and all 16 sample times match exactly.
+
+Matched track-window reset-error rms falls 37.58/37.71 -> 18.58/18.60 mV
+(P/N), while source/input-switch errors change about 1%. Removing only DC
+and the known fundamental from the 16 same-phase samples gives residual
+rms 114.122 -> 80.205 uV, a 29.72% decrease. This meets the predeclared 25%
+and 10 uV improvement thresholds; primary/cross reference error is 0.525 uV.
+It supports a causal contribution from late-track reset conduction, not a
+full-spectrum SFDR pass. Most raw sample change is gain/phase, removed by
+that projection. Physical edge/hold effects also change: first-sample final
+50 ps differential drift rises 22.83 -> 28.48 uV despite the shunt being off.
+The altered state changes injection/leakage; no unique allocation is claimed.
+
+Next proposed physical experiment is one proportional 2x reset-cell variant
+(MTN/MTP/MTD), preserving per-finger width and the compensation ratio, with
+PDK validation and phase-capacitance/cold-SOA gates before hot tracking.
+It is not implemented or proven to meet limits; increased leakage/injection
+may offset the gain. No sweep or official-settings relaxation is proposed.
+The new 63-file archive matches remote hashes and passes ZIP verification.
 
 All three bounded-run directories (including the instrumentation failure)
 have 62-file remote hash matches and verified ZIP archives. Source SHA is
 unchanged. Server audit at 2026-11-04 16:54:46 +08:00 found no active owned
-CDAC processes. Original failures remain authoritative; all three blockers
+CDAC processes before the subsequent intervention. Original failures remain authoritative; all three blockers
 are still open.

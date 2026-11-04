@@ -16,6 +16,9 @@ Bounded cold traponly/1 ps reaches 80.050 ns without the old step-collapse
 cluster. Hot observation reaches 100.064 ns with all requested currents;
 reset tracking impedance and off-state currents warrant further isolation.
 These partial diagnostics do not close the blockers or prove a repair.
+An ideal late-track reset shunt halves tracking error and reduces the
+matched 16-sample non-fundamental residual by 29.72%; hold drift worsens.
+This supports a reset-path contribution, not a full-spectrum pass.
 
 
 V29 is the current baseline, migrated into the accepted XCAP/XSW
