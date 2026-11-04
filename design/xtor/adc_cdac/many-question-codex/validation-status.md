@@ -1,129 +1,118 @@
-# V29 validation status, 2026-11-04
+# V29 validation status, 2026-11-05
 
-The unchanged V29 source (dependency `9b00f07143da7cc5`) is WIP with three
-blocking observations. Full-corner expansion and mixed-top validation remain
-incomplete. Original official failures are preserved.
+Canonical V29 (`9b00f07143da7cc5`) remains WIP. Its three official blockers
+below are preserved. The private reset2x experiment has passed its five
+pre-tracking gates; full hot tracking is running. This does not
+promote the private source or establish full-corner/mixed-top qualification.
 
-| Observation | Primary | Independent check | Conclusion |
-|---|---|---|---|
-| ss_low_m40 SOA | 3 violations; peak 1.25686 V; worst window 127.281 ps | 3 violations; 1.25631 V; 126.906 ps | Sustained overvoltage exceeds 100 ps; numerical difference 0.375 ps is much smaller than the violation. |
-| ss_low_m40 track | SPECTRE-16928 at 60.1007 ns; 2/256 samples | Observation-only replay fails at the same time | Reproducible solver failure; no valid spectrum. |
-| ss_low_125 track | SFDR 63.13694 dBc, SNDR 63.06129 dB; 256/256 samples | 63.15043 dBc, 63.07558 dB; 256/256 samples | Converged failure against 85/80 dB limits. |
+## Canonical failures
 
-SOA crosscheck uses effective reltol 1e-8, vabstol 10 nV, traponly and
-maxstep 1 ps. Tracking uses effective reltol 1e-7 and vabstol 10 nV;
-its crosscheck changes gear2only to traponly with maxstep 1 ps. Hot-track
-sample differences are 5.765 uV rms and 10.841 uV maximum. Both complete
-hot-track jobs were recovered after controller interruption; staged decks,
-testbenches and dependencies matched before official measurement and recording.
-The attempted cancellation was not executed before the jobs finished.
+| Test | Primary | Independent check |
+|---|---|---|
+| ss_low_m40 SOA | 3 violations; 1.25686 V; worst 10 ns window 127.281 ps | 3; 1.25631 V; 126.906 ps, over the 100 ps limit |
+| ss_low_m40 track | SPECTRE-16928 at 60.1007 ns; 2/256 samples | Observation-only replay fails at the same instant; no spectrum |
+| ss_low_125 track | SFDR 63.13694 dBc / SNDR 63.06129 dB | 63.15043 / 63.07558; both below 85/80 limits |
 
-## Localization and interface distinctions
+Both hot records contain 256 samples; their difference is 5.765 uV rms,
+10.841 uV maximum. They finished before attempted cancellation and were
+recovered after controller interruption, with staged TB/deck/dependency
+identity checked before official measurement. No rerun or partial FFT was
+substituted. Tracking uses effective reltol 1e-7 / vabstol 10 nV; crosscheck
+uses traponly / maxstep 1 ps. SOA cross uses effective 1e-8 / 10 nV.
 
-The three SOA rows are the same TOP-PHI_SB stress: MTP Vgd and MTD Vgs/Vgd.
-Primary continuous intervals above 1.1 V are 124.228, 127.281 and 124.338 ps
-near 10.1, 30.1 and 50.1 ns. At the largest peak, VIN=0.946488 V,
-TOP=1.256859 V, CONV=0, PHI_S=0.81 V and PHI_SB=0. It occurs during
-sampling restoration. It is not caused by summing separate periods.
+The three SOA rows are TOP-PHI_SB: MTP Vgd and MTD Vgs/Vgd. Continuous
+over-1.1-V intervals are 124.228/127.281/124.338 ps near 10.1/30.1/50.1 ns.
+At the largest peak, VIN=.946488, TOP=1.256859, PHI_S=.81 V, PHI_SB=CONV=0:
+sampling restoration, not a sum of separate intervals. Cold-track replay
+has 41588 points; its last .396 fs contains 2209 steps below .01 fs while
+SAMP_ON rises and APGATE falls. TOPP/N=.698/.232 V with PHI_SB=0, so this
+does not identify the same physical cause as SOA or a particular model.
+SOA directly drives extremes with 100 ps edges and DAC decisions; track
+uses a continuous sine through 50 ohm with neutral decisions. Both have
+ideal external phases/bootstrap/reference; those prescribed stimuli remain.
 
-The cold-track replay changes only waveform saving. Its 62 selected voltages
-contain 41588 accepted points, ending at 60.100662546 ns. The last 0.396 fs
-contains 2209 steps smaller than 0.01 fs; preceding cycles have none.
-SAMP_ON is rising and APGATE falling. At failure TOPP=0.698 V and
-TOPN=0.232 V while PHI_SB=0, so the simultaneous top-reset stress is below
-1.1 V. This does not establish a shared root cause with the SOA failure.
-The log shows a solver abort; earlier device warnings do not identify its cause.
+Canonical hot-SS RL12/RL5/start settling is 39.7/57.9/97.9 ps; private
+traponly/1 ps/effective 1e-7/10 nV gives 39.6/58.3/98.4 ps. Further
+.5 ps/1e-8/1 nV refinement agrees on the .1 ps measurement grid, though
+one saved interval is 1 ps at 5.01 ns. The narrow margin remains explicit;
+primary startup is optimistic by .5 ps. This is an engineering refinement,
+not a specification-defined settling crosscheck.
 
-The SOA bench drives the input extremes directly with 100 ps edges and
-exercises DAC decisions. Track uses a continuous sine through 50 ohm per
-side with neutral DAC decisions. Both use ideal phase/bootstrap generators
-and an ideal reference. These are existing test requirements, not grounds
-for relaxing limits or changing the public stimulus. Candidate behavior,
-source-impedance interaction and the numerical solver still need separation.
+## Completed diagnostics
 
-## Settling convergence
+Bounded diagnostics retain the original 2.605 us requested stop/tolerances
+and use intentional progress interruption (rc=2); no acceptance FFT.
+First cold attempt stopped at 30.086858 ns because its watchdog misread a
+partial timestamp; evidence is retained and only that instrumentation
+failure was repeated after parser testing. Retry `20261104-103853-f4d4`
+reaches 80.050462 ns / four samples with traponly/1 ps. Near the former
+failure, minimum step is 61.675 fs with no collapse; whole trace has two
+isolated sub-.01-fs steps elsewhere. Two shared samples differ 9.772 uV rms,
+9.968 uV maximum. This shows method/step sensitivity, not a full cold pass.
 
-At ss_low_125, primary RL12/RL5/start are 39.7/57.9/97.9 ps. Private
-traponly, 1 ps, effective reltol 1e-7 and 10 nV gives 39.6/58.3/98.4 ps.
-A further refinement (logged maxstep 0.5 ps, effective reltol 1e-8, 1 nV)
-gives exactly the same timing readings on the 0.1 ps measurement grid.
-Its saved wave has one 1 ps interval at 5.01 ns; other intervals respect
-0.5 ps. The stricter result passes, but the primary start reading is
-optimistic by 0.5 ps; its narrow margin is explicitly retained as a caveat.
+Hot observation `20261104-103000-62d8` reaches 100.064429 ns; all 64 voltage
+and 22 native-current probes are present. Six samples match the full run
+within 3e-13 V; native source currents agree with (SRC-VIN)/50. Full-record
+H3 is 545.39 uV peak (98.27% residual power), versus TT 30.05 uV.
+In track phase 1..4.8 ns over 40..99.9 ns, rms TOP-VCM is 39.45..39.66 mV,
+VIN-BH12 2.95..2.97 mV and SRC-VIN 18.47..18.54 mV. Dynamic reset V/I is
+105..131 ohm versus input 33..36 ohm; both include displacement/recovery.
+VGS error is under 2.6 uV. First held-sample reset currents are -.749/+.577
+uA, selected input currents about 20 uA; differential TOP drifts 22.83 uV
+in its final 50 ps versus full-record residual 446.18 uV. Partial harmonic
+fits vary with order and are rejected as unique H3 attribution.
 
-## Completed bounded diagnostics
+Private ideal-shunt run `20261104-171150-9367` reaches 200.055719 ns and
+16 samples, interrupted after 393 s. A symmetric 1/120-ohm TOP-VCM branch
+is active only in late track, withdrawn 34 ps before PHI_S begins falling.
+All 89 probes, envelope/current support and native G*a*V checks pass;
+pre-40-ns quiet difference is under 2.4e-5 uV and sample times are identical.
+P/N track reset error falls 37.58/37.71 -> 18.58/18.60 mV rms. Removing DC
+and the known fundamental from 16 matched samples gives 114.122 -> 80.205
+uV residual rms (-29.72%, above predeclared 25% and 10 uV thresholds;
+primary/cross floor .525 uV). This supports reset-conduction causality,
+not a full SFDR pass or a PDK repair. Final-50-ps held drift worsens to
+28.48 uV: changed state alters edge/hold currents despite the branch being off.
+Three bounded archives each have 62 remote-hash-matched files; the ideal
+intervention has 63. ZIP contents and hashes were verified.
 
-Both retain the original 2.605 us requested stop, source and tolerances;
-each was intentionally interrupted at its progress bound (rc=2, SPECTRE-25).
-No partial acceptance FFT was calculated. The first cold attempt stopped at
-30.086858 ns because the watchdog misread an incomplete timestamp. Its
-evidence is preserved; the parser was fixed and tested on truncated lines.
-Only that instrumentation failure was repeated.
+## Private physical reset2x gates
 
-Cold retry `20261104-103853-f4d4` reached 80.050462 ns, with 105864 points
-and four samples, using traponly/1 ps and effective 1e-7/10 nV. Near the
-old failure (60.099..60.102 ns), 33 steps have minimum 61.675 fs and no
-sub-0.01 fs cluster, versus 2209 such steps in the failed primary replay.
-The whole retry has only two isolated sub-0.01 fs steps at other times.
-Its two shared samples differ by 9.772 uV rms, 9.968 uV maximum.
-This establishes sensitivity to integrator/step settings, not a full cold
-pass or the identity of a failing device/model; those two effects are not
-separated by this experiment.
+Only MTN 12u/nf6 -> 24u/nf12, MTP and MTD 4u/nf2 -> 8u/nf4 change;
+L=30 nm, finger width=2 um, models, ordered terminals/bulks and ports stay
+fixed. No ideal branch. Source SHA-256
+`82ff356fa4287d74686f0697073d0dc705ded881bfa412fcb65861c80db3d013`,
+dependency `f1331c7d13f6b64f`. PDK callback validates six old/new parameter
+sets without warnings; complete geometry/parasitic outputs are retained.
+Existing MAC w/l/nf invocation style is preserved, without adding explicit
+parasitic overrides as another experimental variable. Source/patch/callback
+provenance is copied into each isolated stage; official source is untouched.
 
-Hot observation `20261104-103000-62d8` reached 100.064429 ns and contains
-all 64 requested voltages and 22 native currents. Its six sample times
-match the original complete run; values agree within 3e-13 V. The native
-source-resistor currents agree with (SRC-VIN)/50. Full-record analysis,
-not the partial trace, identifies H3 at 545.39 uV peak (98.27% of residual
-power), versus 30.05 uV in TT.
+| Gate | Primary | Strict check |
+|---|---|---|
+| TT phase Cin PHI_S/PHI_SB/CONV | 28.0319/29.0593/14.7740 fF (limits 40/40/80) | n/a |
+| TT Qref; RL12/start | 1.271747 pC; 30.2/70.1 ps | n/a |
+| Cold SOA, 596 MOS / 1788 pairs | 0 violations; 1.18702 V; 53.337 ps/window | 0; 1.18689 V; 53.265 ps/window |
+| Hot SS RL12/RL5/start | 39.7/56.8/97.9 ps | 39.6/57.3/98.4 ps |
+| Hot SS droop | .060590 LSB | .060639 LSB (limit .1) |
 
-On a uniform 1 ps grid at 40..99.9 ns, track phase 1..4.8 ns, per-side rms
-TOP-VCM is 39.45..39.66 mV, VIN-BH12 is 2.95..2.97 mV, and SRC-VIN is
-18.47..18.54 mV. Reset-terminal delta-V/I is about 105..131 ohm, versus
-33..36 ohm for the bit-12 input path; these include displacement current.
-VGS stays within 2.6 uV of 0.81 V. Early portions still include recovery;
-these are not DC resistance or output-distortion allocations.
+All five required runs exit 0 and pass applicable limits. Strict settling
+uses traponly/1 ps/effective 1e-7/10 nV; SOA cross uses 1e-8/10 nV.
+Actual staged source SHA, logged numerics and rc match records; raw settling
+remeasures exactly and all SOA pair-table rows match. Droop worsens from
+canonical .00493 LSB; startup/RL12 margins stay narrow. Gate success is
+not evidence that the hot-track 22 dB shortfall closes.
 
-At the first judged sample, low-TOP MTN current is -0.749 uA and high-TOP
-MTP current +0.577 uA despite reset being off; selected bit-12 input
-branches carry about 20 uA. Differential TOP changes 22.83 uV in the final
-50 ps before that sample, whose complete-record residual is 446.18 uV.
-Thus finite reset impedance, edge injection and hold currents all remain
-plausible contributors. Partial-window harmonic fits vary with fit order
-and are rejected as a unique attribution of the complete-record H3.
-
-## Late-track reset intervention
-
-Approved private run `20261104-171150-9367` adds a symmetric ideal 1/120-ohm
-TOP-to-VCM shunt only during late track, with cosine ramps and complete
-withdrawal 34 ps before the measured PHI_S falling-edge start. Canonical
-MOS source is unchanged, but the diagnostic electrical deck is different;
-the ideal branch is not a PDK repair. It reaches 200.055719 ns and 16 samples
-before intentional interruption (393 s observed runtime); no processes remain.
-All 89 probes are present. The envelope and both currents are zero outside
-the approved window; native current matches G*a*(TOP-VCM). Pre-40-ns quiet
-voltages match within 2.4e-5 uV, and all 16 sample times match exactly.
-
-Matched track-window reset-error rms falls 37.58/37.71 -> 18.58/18.60 mV
-(P/N), while source/input-switch errors change about 1%. Removing only DC
-and the known fundamental from the 16 same-phase samples gives residual
-rms 114.122 -> 80.205 uV, a 29.72% decrease. This meets the predeclared 25%
-and 10 uV improvement thresholds; primary/cross reference error is 0.525 uV.
-It supports a causal contribution from late-track reset conduction, not a
-full-spectrum SFDR pass. Most raw sample change is gain/phase, removed by
-that projection. Physical edge/hold effects also change: first-sample final
-50 ps differential drift rises 22.83 -> 28.48 uV despite the shunt being off.
-The altered state changes injection/leakage; no unique allocation is claimed.
-
-Next proposed physical experiment is one proportional 2x reset-cell variant
-(MTN/MTP/MTD), preserving per-finger width and the compensation ratio, with
-PDK validation and phase-capacitance/cold-SOA gates before hot tracking.
-It is not implemented or proven to meet limits; increased leakage/injection
-may offset the gain. No sweep or official-settings relaxation is proposed.
-The new 63-file archive matches remote hashes and passes ZIP verification.
-
-All three bounded-run directories (including the instrumentation failure)
-have 62-file remote hash matches and verified ZIP archives. Source SHA is
-unchanged. Server audit at 2026-11-04 16:54:46 +08:00 found no active owned
-CDAC processes before the subsequent intervention. Original failures remain authoritative; all three blockers
-are still open.
+Runs: TT `20261104-174009-02be`; cold SOA `20261104-174009-220b`, cross
+`20261104-174457-1a04`; hot SS `20261104-174457-c9be`, strict
+`20261104-174457-5186`. All reach 70 ns. No owned CDAC process remained
+at 2026-11-05 00:08:07 +08:00 before full-hot dispatch. The next test uses
+all 256 samples and the same private source for primary/cross, with original
+precision and stop. Dense current waveforms cover the first 100 ns; later
+waveform output is reduced without disabling the independent event sampler.
+Any hard failure stops further expansion; no automatic size/topology sweep.
+All five gate directories have remote/local SHA equality and verified ZIP
+archives (65 files per settling run, 68 per SOA run). Full hot primary
+`20261105-000909-56d3` and cross `20261105-000917-2235` are running in
+separate roots; two Spectre processes were verified at 00:11:19 +08:00.
+Canonical failures, remaining corners and real-reference mixed-top remain open.

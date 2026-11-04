@@ -1,6 +1,6 @@
 # CDAC candidate
 
-Current status (2026-11-04): resumed after the project resolved issue #125.
+Current status (2026-11-05): resumed after the project resolved issue #125.
 DAC-12 is now 1.35 pC (#132); the new all-corner DAC-18 SOA test and
 transient-overvoltage rule (#137) apply. Candidate remains WIP.
 
@@ -19,6 +19,10 @@ These partial diagnostics do not close the blockers or prove a repair.
 An ideal late-track reset shunt halves tracking error and reduces the
 matched 16-sample non-fundamental residual by 29.72%; hold drift worsens.
 This supports a reset-path contribution, not a full-spectrum pass.
+Private physical reset2x now passes all five pre-tracking gates, including
+cold SOA primary/cross (0 violations, 53.34/53.27 ps). Hot-SS droop worsens
+to .0606 LSB but passes. Full hot-track primary/cross validation is running;
+the canonical source and its official failures remain unchanged.
 
 
 V29 is the current baseline, migrated into the accepted XCAP/XSW
