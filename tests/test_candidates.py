@@ -155,17 +155,21 @@ def test_selected_field(monkeypatch, tmp_path):
             else:
                 assert cand.netlist_path(name, b.raw["selected"]).exists() and b.status != "behavioral"
     b = blocks()[BLOCK]
+    monkeypatch.setitem(b.raw, "selected", "none")
     assert b.selected is None
     monkeypatch.setitem(b.raw, "selected", "alice")
     assert b.selected == "alice"
-    text = b.path.read_text(encoding="utf-8")
+    sel = re.compile(r"^selected: .*$", re.M)
+    # BLOCK as an unselected block, whatever main has selected
+    text = re.sub(r"^status: .*$", "status: behavioral", sel.sub("selected: none", b.path.read_text(encoding="utf-8")),
+                  flags=re.M)
     p = tmp_path / f"{BLOCK}.yaml"
 
     def load(t):
         p.write_text(t, encoding="utf-8")
         return _load_block(p)
 
-    sel = re.compile(r"^selected: .*$", re.M)
+    assert load(text).selected is None
     assert load(sel.sub("selected: alice", text)).selected == "alice"
     for bad, msg in ((sel.sub("selected: Not_A_Name", text), "selected: must be"),
                      (sel.sub("", text), "selected: must be"),                         # required

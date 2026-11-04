@@ -7,7 +7,7 @@
 | [`adc_bootstrap`](#adc-bootstrap) | xtor-review | `many-question` | 10 | `tb_bootstrap_dc`, `tb_bootstrap_track` |
 | [`adc_cdac`](#adc-cdac) | behavioral | none | 18 | `tb_cdac_weights`, `tb_cdac_settle`, `tb_cdac_track`, `tb_cdac_soa` |
 | [`adc_clkgen`](#adc-clkgen) | xtor-review | `many-question` | 11 | `tb_clkgen_timing`, `tb_clkgen_jitter` |
-| [`adc_comp`](#adc-comp) | behavioral | none | 17 | `tb_comp_delay`, `tb_comp_noise`, `tb_comp_offset_mc`, `tb_comp_kickback`, `tb_comp_soa` |
+| [`adc_comp`](#adc-comp) | xtor-review | `many-question-miyahara` | 17 | `tb_comp_delay`, `tb_comp_noise`, `tb_comp_offset_mc`, `tb_comp_kickback`, `tb_comp_soa` |
 | [`adc_ref`](#adc-ref) | xtor-review | `many-question` | 15 | `tb_ref_dc`, `tb_ref_replay`, `tb_ref_noise`, `tb_ref_startup` |
 | [`adc_sarlogic`](#adc-sarlogic) | behavioral | none | 17 | `tb_sarlogic_func`, `tb_sarlogic_rand`, `tb_sarlogic_func_slow`, `tb_sarlogic_timeout`, `tb_sarlogic_soa` |
 | [`adc_top`](#adc-top) | behavioral | 负责人 many-question | 9 | `tb_top_sine`, `tb_top_sine_lf`, `tb_top_duty` |
@@ -167,11 +167,11 @@ Buffers the single external CLK (high = track, low = hold + convert) into the sa
 
 ## adc_comp
 
-**Dynamic latched comparator** — 规格版本 0.11.0，状态 `behavioral`。
+**Dynamic latched comparator** — 规格版本 0.11.1，状态 `xtor-review`。
 
 Single fully-dynamic comparator of the asynchronous SAR loop. CLKC low resets (OUTP = OUTN = 0); CLKC rising evaluates; exactly one of OUTP / OUTN rises and the other stays below 30 % VDD until CLKC falls (CMP-15). OUTP = 1 means V(INP) > V(INN). At the top level INP is driven by the top plate of the CDAC that samples VINN (bottom-plate sampling inverts), so OUTP = 1 means "input above the DAC level".
 
-视图：behav: `design/behav/adc_comp.scs`；选定的候选：`none`
+视图：behav: `design/behav/adc_comp.scs`；选定的候选：`many-question-miyahara`
 
 ### 端口（子电路端口顺序）
 
