@@ -23,10 +23,14 @@ Private physical reset2x now passes all five pre-tracking gates, including
 cold SOA primary/cross (0 violations, 53.34/53.27 ps). Hot-SS droop worsens
 to .0606 LSB but passes. Full hot primary fails at 67.033/66.609 dB despite
 a 3.90/3.55 dB improvement. Full cross differs by only .0083/.0052 dB.
-The user now prioritizes switch-group SFDR attribution: reset, input, sharing
-and reference-output ideal replacements, independently from original V29.
-Model/control preflights precede full 256-point spectra; physical sizing and
-qualification expansion are paused. See the validation status for scope.
+Four independent ideal-switch replacements from original V29 now have complete
+256-point hot-SS spectra. Reset improves SFDR by 13.725 dB to 76.862 dBc;
+input improves .658 dB, reference .031 dB, and sharing worsens .302 dB.
+Reset H3 falls from 545.39 to 112.80 uV. This identifies the reset cell as
+the strongest group intervention, including its removed intrinsic charges.
+Same-source reset numerical crosscheck and independent MTN/MTP/MTD subcases
+are underway. Physical sizing and qualification expansion remain paused.
+See the validation status for the complete matrix and attribution limits.
 The canonical source and its official failures remain unchanged.
 
 

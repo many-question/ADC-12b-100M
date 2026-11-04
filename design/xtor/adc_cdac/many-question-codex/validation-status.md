@@ -75,13 +75,52 @@ Private archives retain sources, inventories, patches and model hashes.
 An 80 ns preflight precedes each full 256-point spectrum at official precision.
 Zero-load edge loggers cover full duration and add numerical events.
 Baseline samples are reused; baseline control comparisons
-cover only previously observed first-100-ns representative nodes. Reset
-and the other three preflights pass (80 ns, rc=0, current-law/sample-time/
-edge checks). All four full runs are active; no ideal spectrum yet.
+cover only previously observed first-100-ns representative nodes. All four
+80 ns preflights and complete 2.605 us / 256-sample primary records now pass
+source/model/numerics, current-law/passivity, sample-count and control checks.
+Sample-time differences from baseline are at most 1.01 fs; no samples are missing.
+
+| Independent replacement | SFDR dBc | SNDR dB | Delta SFDR dB | H3 peak uV | H3 phase deg | H5 peak uV | Gain/base |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| Original V29 | 63.13694 | 63.06129 | 0 | 545.389 | -128.895 | 71.487 | 1 |
+| reset_cell | 76.86170 | 76.43856 | +13.72476 | 112.805 | -174.238 | 34.757 | 1.004204 |
+| input_sampling | 63.79531 | 63.72661 | +.65837 | 505.850 | -127.251 | 62.925 | 1.000545 |
+| sharing | 62.83525 | 62.76790 | -.30169 | 564.760 | -126.599 | 68.975 | 1.000130 |
+| reference_outputs | 63.16763 | 63.06830 | +.03070 | 544.090 | -125.285 | 82.255 | 1.001105 |
+
+SFDR/SNDR use the official pinned estimator. Harmonic peaks and phase are
+coherent-DFT diagnostics; phase is aligned to each record's fundamental.
+Reset is the strongest intervention in this matrix, with H3 amplitude down
+79.3%, but the changed phasors are not an additive physical decomposition.
+Reference H3 phase changes 3.61 deg despite nearly unchanged SFDR.
+The replacement also idealizes threshold/body behavior and removes intrinsic
+charges and gate loading; it does not isolate Ron, leakage or injection.
+Even the ideal reset record remains below the 85/80 dB limits.
+
+Full runs (normal rc=0) are reset `20261105-024217-e156` (6385 s), input
+`20261105-024954-483a` (5020 s), sharing `20261105-025021-b857` (6071 s),
+and reference `20261105-024955-f113` (5265 s), all `tb_cdac_track`.
+Each full run retains 179 files with remote/local SHA equality and verified
+ZIP contents. Common ideal-model SHA-256 is
+`d8926d245e558b264a20ae3b277019a995cb938e73299dd6fb79cc4a2fa33d06`.
+Frozen source SHA-256 values, respectively:
+
+```text
+35dd81f7c21d156d743ac87daf3a2182290bfcd6e497afb05d7e954523aff9f9
+733f67afd8e9da2b4e6a737a68a261a67e8b59d2645966c3e5f2086a4a36b0f6
+27725b56bc1329b581f37d7186e4583692666c67a89f15e5036f0fcfd5516663
+7740883c5d2980b91c97db4b1044f8d5f870617a7b780518ea01212bdb4602a3
+```
+
 Observed control advances reach 4.293 ps (input APGATE), 3.748 ps
 (reference GP), 2.577 ps (sharing SAMP_ON), versus .103 ps for reset.
 These comparisons cover representative controls in 40..79 ns only.
-Ideal success is not qualification.
+Reset `20261105-043242-ef38` repeats the complete record with traponly/1 ps
+at the same effective 1e-7/10 nV. Four independent subcases start from V29:
+only MTN ideal, only MTP ideal, only MTD removed, and MTN/MTP ideal with MTD
+retained. The last case tests channel/dummy interaction. Their 80 ns preflights
+gate full 256-sample runs; they are in progress, with no subgroup spectra yet.
+No ideal case is a manufacturable candidate or qualification result.
 
 ## Private physical reset2x gates
 
