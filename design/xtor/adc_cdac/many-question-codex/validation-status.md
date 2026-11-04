@@ -2,7 +2,7 @@
 
 Canonical V29 (`9b00f07143da7cc5`) remains WIP. Its three official blockers
 below are preserved. The private reset2x experiment has passed its five
-pre-tracking gates; full hot tracking is running. This does not
+pre-tracking gates but fails full hot primary tracking; crosscheck is running. This does not
 promote the private source or establish full-corner/mixed-top qualification.
 
 ## Canonical failures
@@ -106,13 +106,28 @@ not evidence that the hot-track 22 dB shortfall closes.
 Runs: TT `20261104-174009-02be`; cold SOA `20261104-174009-220b`, cross
 `20261104-174457-1a04`; hot SS `20261104-174457-c9be`, strict
 `20261104-174457-5186`. All reach 70 ns. No owned CDAC process remained
-at 2026-11-05 00:08:07 +08:00 before full-hot dispatch. The next test uses
+at 2026-11-05 00:08:07 +08:00 before dispatch. Hot tracking uses
 all 256 samples and the same private source for primary/cross, with original
 precision and stop. Dense current waveforms cover the first 100 ns; later
 waveform output is reduced without disabling the independent event sampler.
 Any hard failure stops further expansion; no automatic size/topology sweep.
 All five gate directories have remote/local SHA equality and verified ZIP
-archives (65 files per settling run, 68 per SOA run). Full hot primary
-`20261105-000909-56d3` and cross `20261105-000917-2235` are running in
-separate roots; two Spectre processes were verified at 00:11:19 +08:00.
+archives (65 files per settling run, 68 per SOA run).
+
+Full hot primary `20261105-000909-56d3` completes 2.605 us / 256 samples,
+rc=0, 4601 s: SFDR **67.03254 dBc**, SNDR **66.60858 dB**, both fail 85/80.
+Improvement over canonical is only 3.896/3.547 dB. H3 falls 545.39 ->
+349.23 uV peak, but H5 rises 71.49 -> 110.65 uV; residual rms falls
+389.02 -> 259.30 uV. H3 still accounts for 90.70% of residual power.
+Raw remeasurement is exact; its completed-wave prefix matches the live
+100 ns snapshot byte-for-byte. All 66 archived files match remote hashes.
+Private source and actual numerics match the frozen provenance.
+
+Matched tracking reset error is 18.63/18.70 mV rms versus 37.58/37.71;
+first-sample final-50-ps drift worsens 22.83 -> 56.90 uV (cross 56.90).
+Late-hold differential reset terminal charge grows .160 -> .399 fC;
+terminal currents include displacement. These observations do not uniquely
+allocate full-record harmonics to tracking, injection or hold leakage.
+Cross `20261105-000917-2235` is still running; full numerical agreement is
+not yet established. Expansion is stopped; no further size/topology is launched.
 Canonical failures, remaining corners and real-reference mixed-top remain open.

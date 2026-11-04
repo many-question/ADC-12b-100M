@@ -21,8 +21,9 @@ matched 16-sample non-fundamental residual by 29.72%; hold drift worsens.
 This supports a reset-path contribution, not a full-spectrum pass.
 Private physical reset2x now passes all five pre-tracking gates, including
 cold SOA primary/cross (0 violations, 53.34/53.27 ps). Hot-SS droop worsens
-to .0606 LSB but passes. Full hot-track primary/cross validation is running;
-the canonical source and its official failures remain unchanged.
+to .0606 LSB but passes. Full hot primary fails at 67.033/66.609 dB despite
+a 3.90/3.55 dB improvement. Crosscheck is running; expansion is stopped.
+The canonical source and its official failures remain unchanged.
 
 
 V29 is the current baseline, migrated into the accepted XCAP/XSW
