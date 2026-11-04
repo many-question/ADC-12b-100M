@@ -1,9 +1,9 @@
 # V29 validation status, 2026-11-05
 
 Canonical V29 (`9b00f07143da7cc5`) remains WIP. Its three official blockers
-below are preserved. The private reset2x experiment has passed its five
-pre-tracking gates but fails full hot primary tracking; crosscheck is running. This does not
-promote the private source or establish full-corner/mixed-top qualification.
+below are preserved. Private reset2x passes five pre-tracking gates but
+fails full hot tracking in both primary and crosscheck. No private source
+is promoted or full-corner/mixed-top qualification established.
 
 ## Canonical failures
 
@@ -33,11 +33,10 @@ without collapse; shared sample differences are 9.772 uV rms. The first
 attempt's timestamp-parser watchdog failure is retained. These partial
 records show method/step sensitivity, not a full cold pass.
 
-Hot observation `20261104-103000-62d8` reaches 100.064429 ns with all
-64 voltage and 22 current probes; six samples match the full baseline
-within 3e-13 V. Full hot H3 is 545.39 uV peak, 98.27% of residual power.
-Dynamic reset V/I is 105..131 ohm versus input 33..36 ohm, including
-displacement/recovery. Partial harmonic fits do not uniquely attribute H3.
+Hot observation `20261104-103000-62d8` captures 100 ns / 86 probes; six
+samples match baseline within 3e-13 V. H3 is 545.39 uV, 98.27% of residual.
+Dynamic reset/input V/I is 105..131 / 33..36 ohm, including displacement.
+Partial harmonic fits do not uniquely attribute H3.
 
 Private ideal late-track shunt `20261104-171150-9367` reaches 200.055719 ns
 and 16 samples. A symmetric 1/120-ohm TOP-VCM branch withdraws 34 ps
@@ -72,14 +71,16 @@ heuristics are reset N/P 170/430 ohm, bit12 input N/P 35/57 ohm, sharing
 are diagnostics, not exact DC calibration. Original gates/polarity remain;
 boosted gates use actual VG/(VIN+DVDD), exposing changed generator loading.
 
-Frozen sources, exact device inventories, patches and model hashes are
-retained privately. An 80 ns model/connection/control preflight precedes
-each full 256-point hot-SS spectrum at current official precision. Actual
-control edge logs cover the full duration; zero-load loggers add numerical
-events. Baseline full samples are reused; baseline control comparisons
+Private archives retain sources, inventories, patches and model hashes.
+An 80 ns preflight precedes each full 256-point spectrum at official precision.
+Zero-load edge loggers cover full duration and add numerical events.
+Baseline samples are reused; baseline control comparisons
 cover only previously observed first-100-ns representative nodes. Reset
-preflight passes (80 ns, rc=0, current-law/sample-time/edge checks); its
-full run and three other preflights are active. No ideal spectrum yet.
+and the other three preflights pass (80 ns, rc=0, current-law/sample-time/
+edge checks). All four full runs are active; no ideal spectrum yet.
+Observed control advances reach 4.293 ps (input APGATE), 3.748 ps
+(reference GP), 2.577 ps (sharing SAMP_ON), versus .103 ps for reset.
+These comparisons cover representative controls in 40..79 ns only.
 Ideal success is not qualification.
 
 ## Private physical reset2x gates
@@ -99,12 +100,9 @@ without explicit parasitic overrides. Each stage retains source provenance.
 | Hot SS RL12/RL5/start | 39.7/56.8/97.9 ps | 39.6/57.3/98.4 ps |
 | Hot SS droop | .060590 LSB | .060639 LSB (limit .1) |
 
-All five required runs exit 0 and pass applicable limits. Strict settling
-uses traponly/1 ps/effective 1e-7/10 nV; SOA cross uses 1e-8/10 nV.
-Actual staged source SHA, logged numerics and rc match records; raw settling
-remeasures exactly and all SOA pair-table rows match. Droop worsens from
-canonical .00493 LSB; startup/RL12 margins stay narrow. Gate success is
-not evidence that the hot-track 22 dB shortfall closes.
+All five runs pass. Source SHA/numerics match; settling remeasures exactly
+and every SOA row matches. Strict settling uses traponly/1 ps/1e-7/10 nV,
+SOA cross 1e-8/10 nV. Droop worsens from .00493 LSB; margins stay narrow.
 
 Five gate runs reach 70 ns, with remote/local hash equality and verified
 ZIPs (65 files per settling, 68 per SOA). Full tracking preserves original
@@ -124,6 +122,10 @@ first-sample final-50-ps drift worsens 22.83 -> 56.90 uV (cross 56.90).
 Late-hold differential reset terminal charge grows .160 -> .399 fC;
 terminal currents include displacement. These observations do not uniquely
 allocate full-record harmonics to tracking, injection or hold leakage.
-Cross `20261105-000917-2235` is still running; full numerical agreement is
-not yet established. Further physical sizing is stopped; ideal attribution continues.
+Cross `20261105-000917-2235` completes 2.605 us / 256 samples, rc=0,
+10039 s: SFDR 67.02427 dBc / SNDR 66.60338 dB. Primary differences
+are .00828/.00520 dB; sample difference 4.249 uV rms / 7.975 uV max.
+Both full records verify source/numerics, exact raw remeasurement and
+first-100-ns snapshot prefixes. Cross archive: 66 remote-hash-matched files.
+Further physical sizing is stopped; ideal attribution continues.
 Canonical failures, remaining corners and real-reference mixed-top remain open.
