@@ -67,7 +67,7 @@ until explicitly reported. A single hot-corner result cannot establish readiness
 
 | Variant | 80 ns reset SOA | Full256 SFDR / SNDR | Status |
 |---|---|---|---|
-| n6_k09 | 0 violating pairs | Not yet measured | In progress |
+| n6_k09 | 0 violating pairs | Not yet measured | Cold full-swing SOA fails; spectrum diagnostic only |
 | n12_k09 | 0 violating pairs | Not yet measured | In progress |
 | n6_k09_d3 | 0 violating pairs | Not yet measured | In progress |
 
@@ -103,3 +103,31 @@ duplicate-key error prevented summary writing. The summaries were reconstructed 
 the already-fetched rc=0 records after staged hashes were verified; no solver rerun,
 deck change or tolerance change was used. The local metadata assembler was corrected
 before launching full records.
+
+## Cold full-swing SOA
+
+The original dedicated 70 ns cold-SS stimulus checks 594 remaining real MOS /
+1782 terminal pairs. Plans are generated from the actual experimental hierarchy,
+with MTN gate on `XDUT.GBST`, MTP absent and the correct dummy configuration.
+The ideal booster has no internal physical devices to qualify.
+
+| Case / method | Violating pairs | Max terminal voltage (V) | Worst time above 1.1 V per 10 ns (ps) |
+|---|---:|---:|---:|
+| n6_k09 primary | 1 | 1.37379 | 155.315 |
+| n12_k09 primary | 0 | 1.23572 | 80.520 |
+
+The 6 um reset fails both the 1.29 V peak limit and the 100 ps duration limit.
+At the worst edge its gate is 1.17912 V and TOP is -0.19467 V. In the 12 um
+primary, the corresponding gate/TOP values are 1.17864/-0.05708 V. Thus the
+failure comes from insufficient TOP restoration during the bottom-plate transient,
+not a large overshoot of the ideal gate source. The 12 um primary passes by the
+project transient allowance; its same-source crosscheck is reported above when complete.
+Primary SOA uses the official conservative defaults (effective reltol1e-4/1uV);
+the official crosscheck uses traponly/1ps, effective reltol1e-8/10nV. Neither
+setting changes the strict effective1e-7/10nV hot tracking runs.
+
+![Cold restoration and reset stress](boosted-reset-cold-soa.png)
+
+Already-running 6 um full spectra remain diagnostic comparisons; the failed SOA
+prevents promoting that endpoint or starting its physical booster implementation.
+No further 6 um qualification expansion is launched.

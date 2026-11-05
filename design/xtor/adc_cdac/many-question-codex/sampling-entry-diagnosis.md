@@ -15,3 +15,7 @@ The canonical V29 source and its formal failures are unchanged. See
 [validation status](validation-status.md) for the completed reset attribution
 and [the independent boosted-reset experiment](boosted-reset-experiment.md)
 for the new work.
+
+Historical figures moved out of the current size-limited tree remain available:
+[fast-stress mechanisms](https://github.com/many-question/ADC-12b-100M/blob/e73442f8a456822f0ba8c313eb3afaa42cdf447d/design/xtor/adc_cdac/many-question-codex/fast-stress-mechanisms.png)
+and [early-sharing comparison](https://github.com/many-question/ADC-12b-100M/blob/e73442f8a456822f0ba8c313eb3afaa42cdf447d/design/xtor/adc_cdac/many-question-codex/early-sharing-comparison.png).
