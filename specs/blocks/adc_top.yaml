@@ -47,6 +47,7 @@ specs:
 tests:
   tb_top_sine:
     netlist: tb/top/tb_top_sine.scs
+    timeout: 172800   # s, whole batch: about 11 h per job with a transistor-level SAR logic
     measure: adcflow.measure.top:sine
     prepare: adcflow.measure.top:prepare
     tran_noise: true
@@ -69,12 +70,14 @@ tests:
       duty-cycle tests report the same metrics.
   tb_top_sine_lf:
     netlist: tb/top/tb_top_sine.scs
+    timeout: 172800   # s, whole batch: about 11 h per job with a transistor-level SAR logic
     measure: adcflow.measure.top:sine
     prepare: adcflow.measure.top:prepare
     tran_noise: true
     params: {fin_target: 1.0e6, amp_dbfs: -1.0, npts: 1024, ncal: 1024}
   tb_top_duty:
     netlist: tb/top/tb_top_sine.scs
+    timeout: 172800   # s, whole batch: about 11 h per job with a transistor-level SAR logic
     measure: adcflow.measure.top:sine
     prepare: adcflow.measure.top:prepare
     tran_noise: true
