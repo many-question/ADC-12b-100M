@@ -2,7 +2,7 @@
 
 ## Active physical repair
 
-The first hot SS DC screen found a high-threshold reset with comparable on-resistance and roughly 51 times lower maximum drain leakage at the measured hold biases. The startup preflight and full main-input restoration run have started. [Repair evidence and current status](reset-repair.md).
+The 14 um / 40 nm LVT reset with a slower 300 ps ideal-driver rise passes both cold supply SOA checks. Its hot full256 primary and crosscheck are underway. Separate main-input and sharing restorations measure control loading and distortion with the frozen N6 reset. [Repair evidence and current status](reset-repair.md)
 
 ## Completed reset mechanism isolation
 
