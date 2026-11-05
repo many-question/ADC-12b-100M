@@ -36,7 +36,7 @@ HVT12 at k=0.90 and LVT10 at k=0.75 both passed the 80 ns hot functional preflig
 
 At the high-supply worst point, TOP is near -0.179 V while the HVT12 and LVT10 gates have reached about 1.341 V and 1.192 V respectively. The project allows a peak of 1.29 V with at most 100 ps above 1.1 V in any 10 ns. LVT14 uses k=0.75 and a 300 ps rise to let TOP recover before the gate reaches full amplitude. The fall remains 10 ps. Its cold low-supply reset Vgd peak is 1.18263 V, and its high-supply reset Vgd maximum occurs during startup at 0.102 ns. Both endpoints pass the project rule with the ideal driver.
 
-![Measured gate, TOP and reset stress during cold high-supply recovery](reset-repair-cold.svg)
+[Measured gate, TOP and reset stress during cold high-supply recovery](https://github.com/many-question/ADC-12b-100M/blob/8b19e618edb7bb943f9cf639b085c9fbe18999b3/design/xtor/adc_cdac/many-question-codex/reset-repair-cold.svg)
 
 At the plotted recovery event, slow-rise LVT14 limits |Vgd| to 0.947 V while TOP reaches -0.396 V. The fast LVT10 case reaches 1.371 V and TOP about -0.179 V. At the measured LVT14 minimum TOP and 0.218 V gate, a fixed-bias check at the same cold corner gives 1.55 nA body current magnitude and 4.52 mA drain current magnitude. These are DC terminal currents at one snapshot. They show predominantly reset channel flow at that bias, while the larger negative TOP transient remains part of the design tradeoff.
 
@@ -85,6 +85,12 @@ The measured EQBUS bias spans about 0.09–0.80 V during track with a 0.8097 V s
 
 The complete calibrated replay gives **85.804 dBc SFDR and 85.190 dB SNDR** and matches the measured gate within 39 pV. The paired nonfundamental difference from B is 0.44 uV RMS, compared with 24.72 uV RMS between replay and real sharing. The latter has a 32.06 uV H3 difference. The replay retains four LTE relaxations, and the real sharing run retains one. The contrast leaves signal-dependent conductance and device charge together in the real circuit.
 
+## Reference output restoration
+
+Restoring only the 52 reference output MOS per side with N6 held gives **78.134 dBc SFDR and 77.800 dB SNDR**. The paired nonfundamental difference from B is 50.86 uV RMS, with a 70.87 uV H3 difference. Sample times and all 111 control sequences match, while the largest loaded control edge shift is 3.87 ps. The record retains two LTE relaxations. H3 is 141.58 uV before reference at +75 ps, compared with 31.66 uV for B, and reaches 97.94 uV at the official sample.
+
+The four-phase terminal capture measures bit-12 off drain flow in the last 50 ps of 0.101 fC in the H-branch NMOS and 0.163 fC in the L-branch PMOS, with nearly equal and opposite source flow and negligible gate flow. Before reference, the largest drain integrals are 0.159 fC for the NMOS and 0.229 fC for the PMOS over +15 to +75 ps. These earlier integrals include displacement as the plate voltage changes.
+
 ## Combined periphery and transistor booster
 
 The combined source restores all real peripheral switches and includes both LVT14 reset with the ideal slow drive and the LVT / 40 nm main-input change. Its 80 ns preflight has no numerical warnings, identical sample times and all 111 matching control sequences. The largest edge shift relative to B is 4.17 ps. Bit-12 late drain flow stays at or below 0.087 fC. Both cold SOA endpoints pass with zero violations across 1,782 terminal pairs each and no numerical warnings. The largest peak and longest 10 ns occupancy above 1.1 V are 1.19638 V and 40.935 ps at 0.81 V, and 1.20689 V and 62.693 ps at 0.99 V.
@@ -113,7 +119,9 @@ The transistor-driver combination passes the TT settle and loading limits. RL12,
 
 The combined high-cold same-source crosscheck also has zero violations and zero numerical warnings with traponly, 1 ps maximum step, effective reltol 1e-8 and vabstol 10 nV. The peak moves from 1.17764 to 1.17772 V and the worst 10 ns occupancy from 49.704 to 52.525 ps. Independent recomputation from all 130,388 retained waveform points matches all 1,797 server pair records exactly.
 
-The v3 combination with both main and sharing geometry changes also passes its own hot preflight and cold endpoints. Its short sampling times and all 111 control sequences match the original-sharing v3 combination, with up to 0.565 ps edge shift on `SAMP_ON`. Both cold endpoints have zero violations across 1,797 pairs and no numerical warnings. Peak and worst occupancy are 1.20151 V and 29.495 ps at 0.81 V, and 1.18834 V and 49.465 ps at 0.99 V. The TT settle and loading limits pass, with 0.01452 LSB hold droop and 1.264 pC reference charge. Its full hot tracking is underway.
+The v3 combination with both main and sharing geometry changes also passes its own hot preflight and cold endpoints. Its short sampling times and all 111 control sequences match the original-sharing v3 combination, with up to 0.565 ps edge shift on `SAMP_ON`. Both cold endpoints have zero violations across 1,797 pairs and no numerical warnings. Peak and worst occupancy are 1.20151 V and 29.495 ps at 0.81 V, and 1.18834 V and 49.465 ps at 0.99 V. The TT settle and loading limits pass, with 0.01452 LSB hold droop and 1.264 pC reference charge.
+
+The reduced-sharing v3 combination gives **84.353 dBc SFDR and 82.128 dB SNDR** in the complete hot record. Relative to original sharing, H3 drops from 44.15 to 32.67 uV and H5 rises from 45.68 to 47.93 uV. SNDR improves by 0.772 dB and SFDR drops by 0.418 dB, leaving a 0.647 dB SFDR shortfall. The two records agree on all control sequences and sample times within 1 fs. The reduced-sharing run retains five LTE relaxations.
 
 | Verified evidence | Archive SHA256 |
 |---|---|
@@ -149,6 +157,8 @@ The v3 combination with both main and sharing geometry changes also passes its o
 | Fig. 11(c) v2 hot preflight | `e412d7052ecc3ca2d12cb7c320ed29238e95ae71b4f3274b3644f39009a1f515` |
 | Sharing bias sweep and calibrated gate replay 80 ns | `b2a78d47c9cb77cfe81d595b8d034005d6e4092ca380bda23a5b33328bbcaf23` / `69262f76219cfaa3cffcdd1d89a226e3f953813004d4f5b2b4d41aac54c42825` |
 | Calibrated sharing gate replay full 256 | `64b6976d8221a7d738044626e9298002e34b838d86c4e646d8d6c393c98c7680` |
+| Reference output restoration full 256 | `1f5275fa0dd127a4b404f5322b46e8b16abf6c013c6fbeeb7605743f50aefb65` |
+| Reference output terminal capture | `6117869e77ddc4f2f2b0cb65c1986bab708ed47e60807fa82f32c0a1ffced60d` |
 | Fig. 11(c) v3 hot preflight | `254c7e07ac40b0cf1caa4aaef6c93911a7e4f5996e79dc21d43f863427bea13e` |
 | Fig. 11(c) v3 cold low / high | `776b6c1635fde392947a14db907ca5dd18590369c5cfb72a656f58cb125f7383` / `6dd3980c5e8430dffe5759336366effe7b3f36cf07efbf14a9e059eff25c514e` |
 | V3 and low-leakage main pairs hot preflight | `989f607749646215de54a1fee53003b95c070d35947a43be994381dae3f0724e` |
@@ -157,5 +167,6 @@ The v3 combination with both main and sharing geometry changes also passes its o
 | V3 and low-leakage main pairs TT settle and loads | `73d6dcdfecd0029b9cf3e77a5c4d3ba1cdebd8154337b525d741ff21f7fafb14` |
 | V3 and low-leakage main pairs high-cold numerical crosscheck | `fd09ae31df66d2c5058f9e93eb806298a7138cf3abb4baa67a1b4f8f8a72127e` |
 | V3, low-leakage main pairs and reduced sharing hot preflight | `0aa9a8f93ea09cbd6eb8014f218cdd0c328222c1550b92249c19d7ff78dfb4c5` |
+| V3, low-leakage main pairs and reduced sharing full hot primary | `e854a272668dbbbc9834118fa1983ab885505a99f0d15f17f136199ee658caa0` |
 | V3, low-leakage main pairs and reduced sharing cold low / high | `de76c3bec3b131fd692575072f46b0ee015dd64af94440d517411695ac2f6b26` / `0d5d1183d82db716600b1deb9d31acc7d9bb698b8dbe98a6adfed06d7d4c74d4` |
 | V3, low-leakage main pairs and reduced sharing TT settle and loads | `076f0f138d6e930ded5245a9ee7be5cee152274b18e17e0b6ebc8085d4b4be1f` |
