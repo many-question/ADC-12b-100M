@@ -23,6 +23,12 @@ from . import REPO_ROOT
 
 SIM_YAML = REPO_ROOT / "specs" / "sim.yaml"
 DEFAULT_JOBS = 6                                 # parallel Spectre runs without `sim.jobs` in the site config
+SERVER_MARGIN_S = 300                            # the server-side limit of a batch ends it this long before the ssh timeout
+KILL_AFTER_S = 60                                # SIGKILL this long after the SIGTERM of the server-side limit
+
+
+class RunTimeout(RuntimeError):
+    """A batch ran past its time limit; its Spectre processes were killed on the server."""
 
 
 @lru_cache
@@ -181,7 +187,11 @@ xargs -P {max(int(parallel), 1)} -I J sh -c 'python3 soa_core.py jobs/J > jobs/J
 def run_jobs(remote_dir: str, jobs: list[str], mode_args: list[str], parallel: int,
              timeout: float, warmup: bool = True) -> None:
     """Run spectre on every jobs/<job>/deck.scs. The first job runs alone so the
-    shared compiled Verilog-A library is built once."""
+    shared compiled Verilog-A library is built once.
+
+    `timeout` (s) covers the whole batch. The server ends the batch SERVER_MARGIN_S earlier with
+    coreutils `timeout`, which signals its whole process group, so no Spectre keeps running in a
+    run directory that the caller then removes; a batch ended that way raises RunTimeout."""
     c = cfg()
     spectre = c.get("spectre", "spectre")
     setup = "; ".join(f"{cmd} >& /dev/null" for cmd in c["env_setup"])
@@ -205,13 +215,30 @@ rc=$?
 echo "$rc $(( $(date +%s) - start ))" > rc.txt
 EOS
 chmod +x $R/run_one.sh
+cat > $R/batch.sh <<'EOB'
+R="$1"
 """
     if warmup and len(jobs) > 1:
         script += f'$R/run_one.sh $R {shlex.quote(jobs[0])}\n'
         script += f"tail -n +2 $R/jobs.list | xargs -P {int(parallel)} -I{{}} $R/run_one.sh $R {{}}\n"
     else:
         script += f"cat $R/jobs.list | xargs -P {int(parallel)} -I{{}} $R/run_one.sh $R {{}}\n"
-    ssh_script(script, timeout=timeout)
+    limit = server_limit(timeout)
+    script += f"""EOB
+timeout -k {KILL_AFTER_S} {limit} bash $R/batch.sh $R
+"""
+    p = ssh_script(script, timeout=timeout, check=False)
+    if p.returncode in (124, 128 + 9):            # coreutils timeout: TERM sent (124), or KILL needed too
+        raise RunTimeout(f"the jobs ran past {limit} s on the server (inside the batch limit of {timeout:.0f} s) "
+                         "and were killed there, nothing recorded; give the test a longer `timeout:` in its spec "
+                         "(docs/workflow.md §4)")
+    if p.returncode:
+        raise RuntimeError(f"remote script failed ({p.returncode}): {p.stderr.decode(errors='replace')[-2000:]}")
+
+
+def server_limit(timeout: float) -> int:
+    """Seconds the server lets a batch run: SERVER_MARGIN_S (and the KILL grace) inside the ssh timeout."""
+    return max(int(timeout) - SERVER_MARGIN_S, int(timeout) // 2)
 
 
 def remove(remote_dir: str) -> None:
