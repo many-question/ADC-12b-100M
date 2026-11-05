@@ -166,8 +166,24 @@ at 200.092 ns PHI_SB. Baseline primary/cross and completed reset, input and
 sharing primaries have none. All 179 cross files match remote hashes; ZIP
 contents verify (207755099 bytes), SHA-256:
 `1deb0f0eb1beead4b62de75a80781d642faefa87316411a1fce9f140b9ed5f12`.
-P-only cross `20261105-065605-4385` uses the same numerical settings and its
-frozen primary source; its complete comparison remains pending.
+P-only cross `20261105-065605-4385` completes 2.605 us / 256 samples, rc=0
+(11319 s), within its original 4 h bound with no termination signals. Its
+frozen primary source and the same traponly/1 ps, effective 1e-7/10 nV give
+SFDR/SNDR 82.36634/80.31794 dB, changes -.37361/-.20845 dB from primary.
+H3/H5 are 59.628/45.224 uV. Matched sample differences are 5.807 uV rms /
+11.336 uV max; DC/fundamental-removed residual is 2.093 uV rms; H3/H5
+complex differences are 2.731/.404 uV peak in one primary phase frame.
+All 112 control direction/count sequences match, max edge shift .001593 ps;
+matched sample times agree within .91 fs. Source/model/current/control checks
+pass. Cross logs no LTE relaxation; the two primary events remain recorded.
+All 179 files match remote hashes and verified ZIP contents (214135859 bytes),
+SHA-256 `2b9ddfe60502748ac38974f05b9ca4f769a7a93a325f971a1f6052dc44593ceb`.
+Primary/cross sample, log and source hashes were also checked against their
+archives. Both numerical comparisons are complete; the primary-only factorial
+matrix is unchanged. The large P-only response persists, still below 85 dBc.
+Its .208 dB SNDR change is material to the remaining .318 dB cross margin;
+that margin is not established as numerically converged or qualified. These
+endpoint differences are not universal error bounds for other interventions.
 
 Full subcase runs, all `tb_cdac_track`, are N `20261105-044133-0d85`
 (7551 s), P `20261105-044124-6e25` (7714 s), MTD `20261105-044108-360f`
@@ -227,5 +243,6 @@ Cross `20261105-000917-2235` completes 2.605 us / 256 samples, rc=0,
 are .00828/.00520 dB; sample difference 4.249 uV rms / 7.975 uV max.
 Both full records verify source/numerics, exact raw remeasurement and
 first-100-ns snapshot prefixes. Cross archive: 66 remote-hash-matched files.
-Further physical sizing is stopped; ideal attribution continues.
-Canonical failures, remaining corners and real-reference mixed-top remain open.
+Further physical sizing remains stopped; this scoped ideal-attribution study
+is complete. Canonical failures, other endpoint convergence, remaining corners
+and real-reference mixed-top qualification remain open.

@@ -32,10 +32,13 @@ All reset subcase primaries are complete. P-only idealization has the largest
 response: 82.740/80.526 dB and H3 57.16 uV, versus N-only 70.413/70.213,
 N/P ideal with real dummy 77.269/76.762, and dummy removal 63.084/63.013.
 N/P effects are strongly nonadditive; these interventions do not isolate an
-independent physical contribution. P-only logs two LTE relaxations. Full-reset
-cross agrees within .082/.068 dB SFDR/SNDR, supporting its large response;
-P-only cross continues. Physical sizing and qualification expansion remain
-paused; even P-only misses the SFDR target.
+independent physical contribution. P-only primary logs two LTE relaxations.
+Full-reset cross agrees within .082/.068 dB SFDR/SNDR. P-only cross retains
+82.366/80.318 dB, changes -.374/-.208 dB, preserving its large response.
+The SNDR change is material to the .318 dB cross margin, whose numerical
+convergence is not established. Both complete cross records are archived.
+Physical sizing and qualification expansion remain paused; even P-only
+misses the SFDR target.
 See the validation status for the complete matrix and attribution limits.
 The canonical source and its official failures remain unchanged.
 
