@@ -2,7 +2,7 @@
 
 ## Active physical repair
 
-The 14 um / 40 nm LVT reset with a slow ideal gate drive gives 91.663 dBc SFDR / 91.430 dB SNDR in the isolated hot primary. The combined candidate restores all physical peripheral switches and uses low-leakage devices for the two largest main-input pairs. It passes both cold SOA endpoints and TT settling and loading checks. The third transistor booster revision also passes hot preflight and both cold SOA endpoints with the original real periphery. Its combination with the main-input repair is under test. [Repair evidence and current status](reset-repair.md)
+The isolated 14 um / 40 nm LVT reset with a slow ideal drive gives 91.663 dBc SFDR / 91.430 dB SNDR in the hot primary and 91.155 dBc / 90.991 dB in the same-source numerical crosscheck. The low-leakage main-input repair with all physical peripheral switches passes both cold SOA endpoints and the TT settling and loading checks with either the ideal drive or the Fig. 11(c) v3 transistor booster. The combined hot spectra are underway. [Repair evidence and current status](reset-repair.md)
 
 ## Completed reset mechanism isolation
 

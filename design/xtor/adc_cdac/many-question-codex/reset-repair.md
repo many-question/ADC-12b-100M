@@ -46,7 +46,9 @@ Measured turn-on charge in the hot short records is 3.48–3.82 fC for N6, 5.57�
 
 Across the four short sine phases and both sides, the maximum absolute drain-terminal integral over the last 50 ps is 0.02573 fC for N6, 0.000502 fC for HVT12, 0.00415 fC for LVT10 and 0.00641 fC for LVT14. The integrals measure total signed terminal flow, including displacement. Their reduction agrees with the off-state DC trend. LVT14 also gives a slightly smaller pre-reset common-mode offset than N6 at these phases.
 
-The isolated LVT14 primary completes the coherent 256-point hot record at **91.663 dBc SFDR and 91.430 dB SNDR**, versus 85.802 dBc and 85.186 dB for B. H3 peak drops from 32.84 to 21.91 uV before reset and from 40.59 to 20.73 uV at the official sample. The primary retains one LTE relaxation at 625.165 ns. Its traponly / 1 ps run uses the identical source and tolerances.
+The isolated LVT14 primary completes the coherent 256-point hot record at **91.663 dBc SFDR and 91.430 dB SNDR**, versus 85.802 dBc and 85.186 dB for B. H3 peak drops from 32.84 to 21.91 uV before reset and from 40.59 to 20.73 uV at the official sample.
+
+The same-source hot crosscheck uses traponly and a 1 ps maximum step with the same effective 1e-7 and 10 nV tolerances. It gives **91.155 dBc SFDR and 90.991 dB SNDR**, 0.508 and 0.439 dB below the primary and 6.155 and 10.991 dB above the respective limits. All 111 control sequences match, with maximum edge shift 0.72 fs and sample times within 0.01 fs. The sample difference is 5.61 uV RMS raw and 1.17 uV RMS after removal of DC and the fundamental. The common-phase H3 difference is 1.20 uV. The primary retains one LTE relaxation at 625.165 ns. The crosscheck has none. The first sample after the primary warning has a 0.13 uV paired residual magnitude, against the maximum 3.42 uV.
 
 ## Main input restoration
 
@@ -97,7 +99,13 @@ The independent Fig. 11(c) driver uses five physical MOS and a callback-verified
 
 V2 reduces M3 width from 0.72 to 0.24 um and increases inverter pull-down width from 0.96 to 1.20 um. It clears the 1.0–1.18 V plateau window and recovers its precharge to 0.44994 V before each measured edge. The slowest measured fall still exceeds the 30 ps guard by 0.09 ps. Power sums the actual DVDD, bias and clock ports over three steady periods.
 
-V3 increases only the direct discharge transistor M1 from 0.72 to 0.96 um. It passes hot preflight without numerical warnings, with rise to 90% in 294–319 ps. Both dedicated cold SOA endpoints pass across 1,797 terminal pairs including the five booster MOS. At 0.81 V the peak is 1.19642 V and maximum time above 1.1 V is 28.974 ps per 10 ns. At 0.99 V these values are 1.17737 V and 49.699 ps. The largest booster-internal stress at the high endpoint is M1 Vgd at 1.01181 V. The source combining this booster with the low-leakage main pairs is tested separately.
+V3 increases only the direct discharge transistor M1 from 0.72 to 0.96 um. It passes hot preflight without numerical warnings, with rise to 90% in 294–319 ps. Both dedicated cold SOA endpoints pass across 1,797 terminal pairs including the five booster MOS. At 0.81 V the peak is 1.19642 V and maximum time above 1.1 V is 28.974 ps per 10 ns. At 0.99 V these values are 1.17737 V and 49.699 ps. The largest booster-internal stress at the high endpoint is M1 Vgd at 1.01181 V.
+
+The v3 source with the low-leakage main pairs passes its own hot preflight and cold endpoints. The low and high cold peaks are 1.19655 and 1.17764 V, with worst 10 ns occupancy of 28.782 and 49.704 ps. Both have zero violations across 1,797 pairs and no numerical warnings. In the four-phase hot preflight, all 111 control sequences match the ideal-driver combination with at most 0.104 ps shift. The bit-12 late drain integral stays at or below 0.087 fC. Raw final sample differences span -540 to +589 uV with matched sample times. Its complete 256-point hot record is underway.
+
+The transistor-driver combination passes the TT settle and loading limits. RL12, RL5 and conversion start remain at 30.1, 39.9 and 70.1 ps. Reference charge is 1.267 pC. The PHI_SB load rises from 20.27 to 21.46 fF and hold droop rises from 0.00478 to 0.01552 LSB, within limits of 40 fF and 0.1 LSB respectively.
+
+The combined high-cold same-source crosscheck also has zero violations and zero numerical warnings with traponly, 1 ps maximum step, effective reltol 1e-8 and vabstol 10 nV. The peak moves from 1.17764 to 1.17772 V and the worst 10 ns occupancy from 49.704 to 52.525 ps. Independent recomputation from all 130,388 retained waveform points matches all 1,797 server pair records exactly.
 
 | Verified evidence | Archive SHA256 |
 |---|---|
@@ -118,6 +126,7 @@ V3 increases only the direct discharge transistor M1 from 0.72 to 0.96 um. It pa
 | LVT14 cold high numerical crosscheck | `36e8e389cfa01f17dd10a02461c4b7fd2dda48a77835e7cf57f02728b17c8dae` |
 | Recovery-event fixed bias snapshots | `9781ff5d6700d6d291a986ae0e3bb65578c0981bd79c2d4083a53da081d396b2` |
 | LVT14 isolated primary full 256 | `87144f4b44b2ba397cfc2b3ab8523c71f2920e940ba95c030173f595ff7fe133` |
+| LVT14 isolated same-source crosscheck full 256 | `6b8ac1bb6ff16e9ebee28e4792f7c46a0334746e9ef0b1bec730eb2802011669` |
 | Main-input off-bias DC bank | `0037dccd4047c5126c7b62b2e8c61bbfbe9fe26f65259947329742daf2f19f06` |
 | Main-input LVT / 40 nm short with frozen N6 | `1cd4bcaf3505418631f60a5a4ac1f0e63595f110a96fc29074e2e15313e10b6c` |
 | Sharing restoration full 256 | `eb6172f7156d3dbe31a61f45d88920a3e448bddf8b4c758bb8409bb8cb3dcb48` |
@@ -131,3 +140,7 @@ V3 increases only the direct discharge transistor M1 from 0.72 to 0.96 um. It pa
 | Sharing bias sweep and calibrated gate replay 80 ns | `b2a78d47c9cb77cfe81d595b8d034005d6e4092ca380bda23a5b33328bbcaf23` / `69262f76219cfaa3cffcdd1d89a226e3f953813004d4f5b2b4d41aac54c42825` |
 | Fig. 11(c) v3 hot preflight | `254c7e07ac40b0cf1caa4aaef6c93911a7e4f5996e79dc21d43f863427bea13e` |
 | Fig. 11(c) v3 cold low / high | `776b6c1635fde392947a14db907ca5dd18590369c5cfb72a656f58cb125f7383` / `6dd3980c5e8430dffe5759336366effe7b3f36cf07efbf14a9e059eff25c514e` |
+| V3 and low-leakage main pairs hot preflight | `989f607749646215de54a1fee53003b95c070d35947a43be994381dae3f0724e` |
+| V3 and low-leakage main pairs cold low / high | `708694b429d640018edf7c4c10f9cfefdf4fd84cf866141cfd88c169ff182510` / `71446cc8d87ce57ea63231b5a15e75745b1bcea2cbb278f5b7fb2366ebeb0a37` |
+| V3 and low-leakage main pairs TT settle and loads | `73d6dcdfecd0029b9cf3e77a5c4d3ba1cdebd8154337b525d741ff21f7fafb14` |
+| V3 and low-leakage main pairs high-cold numerical crosscheck | `fd09ae31df66d2c5058f9e93eb806298a7138cf3abb4baa67a1b4f8f8a72127e` |
