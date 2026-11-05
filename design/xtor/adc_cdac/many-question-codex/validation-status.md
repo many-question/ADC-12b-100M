@@ -1,5 +1,7 @@
 # V29 validation status, 2026-11-05
 
+New authorized work: [independent ideal booster driving a real reset NMOS](boosted-reset-experiment.md). The canonical failures below remain frozen.
+
 Canonical V29 (`9b00f07143da7cc5`) remains WIP. Its three official blockers
 below are preserved. Private reset2x passes five pre-tracking gates but
 fails full hot tracking in both primary and crosscheck. No private source
@@ -46,10 +48,10 @@ Removing DC/fundamental from 16 samples reduces residual 114.122 ->
 28.48 uV. This supports reset-conduction causality, not a full SFDR pass.
 All bounded/shunt archives have remote/local hash equality and verified ZIPs.
 
-## Active priority: switch-group SFDR attribution
+## Completed switch-group SFDR attribution
 
-The user prioritizes full-spectrum distortion attribution. Further physical
-sizing, SOA/corner expansion and qualification are paused. Four independent
+This completed stage prioritized full-spectrum distortion attribution; physical
+sizing and qualification were paused during it. Four independent
 private cases start from original V29, not reset2x, and change P/N symmetrically:
 
 | Group | Idealized MOS per CDAC | Explicit exclusions/removals |

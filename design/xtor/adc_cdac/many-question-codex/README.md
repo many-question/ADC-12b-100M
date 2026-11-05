@@ -1,5 +1,13 @@
 # CDAC candidate
 
+## Active independent boosted-reset experiment
+
+The user authorized a new real-NMOS reset route, first driven by an independent
+ideal booster wrapper. See the [experiment and source patches](boosted-reset-experiment.md).
+V29 and its official failures stay frozen; the completed attribution results below
+are retained as history. This new diagnostic stage does not promote a candidate.
+
+
 Current status (2026-11-05): resumed after the project resolved issue #125.
 DAC-12 is now 1.35 pC (#132); the new all-corner DAC-18 SOA test and
 transient-overvoltage rule (#137) apply. Candidate remains WIP.
@@ -37,8 +45,8 @@ Full-reset cross agrees within .082/.068 dB SFDR/SNDR. P-only cross retains
 82.366/80.318 dB, changes -.374/-.208 dB, preserving its large response.
 The SNDR change is material to the .318 dB cross margin, whose numerical
 convergence is not established. Both complete cross records are archived.
-Physical sizing and qualification expansion remain paused; even P-only
-misses the SFDR target.
+The completed attribution stage did not qualify a physical repair; even P-only
+misses the SFDR target. The newly authorized boosted-reset experiment is separate.
 See the validation status for the complete matrix and attribution limits.
 The canonical source and its official failures remain unchanged.
 
