@@ -9,15 +9,6 @@ V29 and its official failures stay frozen; the completed attribution results bel
 are retained as history. This new diagnostic stage does not promote a candidate.
 
 
-## Completed first boosted-reset cohort
-
-The first independent finite-driver / real-NMOS cohort is complete: all three
-full256 hot spectra miss the targets, and dedicated cold SOA exposes supply/size
-limits. See the [results, mechanism and source patches](boosted-reset-experiment.md).
-V29 and its official failures stay frozen; the completed attribution results below
-are retained as history. This new diagnostic stage does not promote a candidate.
-
-
 Current status (2026-11-05): resumed after the project resolved issue #125.
 DAC-12 is now 1.35 pC (#132); the new all-corner DAC-18 SOA test and
 transient-overvoltage rule (#137) apply. Candidate remains WIP.
