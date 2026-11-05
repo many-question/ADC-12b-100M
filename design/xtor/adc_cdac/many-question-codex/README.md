@@ -1,5 +1,9 @@
 # CDAC candidate
 
+## Active physical repair
+
+The first hot SS DC screen found a high-threshold reset with comparable on-resistance and roughly 51 times lower maximum drain leakage at the measured hold biases. The startup preflight and full main-input restoration run have started. [Repair evidence and current status](reset-repair.md).
+
 ## Completed reset mechanism isolation
 
 All other signal switches are now idealized in an explicit A/B experiment.
