@@ -1,11 +1,16 @@
 # CDAC candidate
 
-## Active reset mechanism isolation
+## Completed reset mechanism isolation
 
 All other signal switches are now idealized in an explicit A/B experiment.
 The completed fixed-input controls show a nearly constant immediate reset
 offset and later input-dependent hold error; static bias checks confirm late
-off-state flow. Dynamic sine and full256 controls are in progress. See the
+off-state flow. Full256 A/B gives SFDR 112.863/85.802dBc; B's traponly/1ps
+crosscheck gives 85.554dBc, retaining a 0.247dB method difference. Dynamic H3 is
+already 32.842uV before reset turnoff and grows to 40.593uV at sampling, versus
+A's 1.308/1.800uV. On-state bias checks corroborate nonlinear clamping; late
+off-state flow adds a different-phase component during hold. All ten records
+are reviewed and archived. The canonical circuit remains WIP. See the
 [replacement boundary, measured timing and evidence](reset-mechanism.md).
 
 ## Completed first boosted-reset cohort
