@@ -2,7 +2,7 @@
 
 ## Active physical repair
 
-The 14 um / 40 nm LVT reset with a slower 300 ps ideal-driver rise passes both cold supply SOA checks. Its hot full256 primary and crosscheck are underway. Separate main-input and sharing restorations measure control loading and distortion with the frozen N6 reset. [Repair evidence and current status](reset-repair.md)
+The 14 um / 40 nm LVT reset with a slow ideal gate drive passes both cold SOA endpoints and gives 91.663 dBc SFDR / 91.430 dB SNDR in the isolated hot primary. The combined candidate restores all physical peripheral switches and uses low-leakage devices for the two largest main-input pairs. Its cold checks and the isolated hot numerical crosscheck are underway. The first independent transistor booster misses its hot gate window. [Repair evidence and current status](reset-repair.md)
 
 ## Completed reset mechanism isolation
 
