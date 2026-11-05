@@ -79,6 +79,8 @@ The 80 ns run moves `SAMP_ON` by up to 2.54 ps, with other observed edges within
 
 The sharing size intervention reduces bit 12 from six to four fingers and bit 11 from four to three, holding length and finger width. Bit-12 maximum edge drain flow falls from 4.03 to 2.72 fC and bit 11 from 2.32 to 1.75 fC. The largest raw final difference relative to B falls from 504 to 396 uV across the four phases. All 111 control sequences match with no numerical warnings, and the maximum edge shift versus B is 2.00 ps. The full tracking run uses the same sharing geometry and N6 reset.
 
+The measured EQBUS bias spans about 0.09–0.80 V during track with a 0.8097 V sharing gate. At these endpoints, the bit-12 differential DC resistance changes from 37.45 ohm to 77.48 kohm, with 176.53 ohm at 0.45 V. A replay using this center-bias resistance for each device and the measured gate changes the four final samples by up to 2.63 uV relative to B. The real sharing devices differ from that replay by up to 502 uV. A complete replay is collecting the spectral difference.
+
 ## Combined periphery and transistor booster
 
 The combined source restores all real peripheral switches and includes both LVT14 reset with the ideal slow drive and the LVT / 40 nm main-input change. Its 80 ns preflight has no numerical warnings, identical sample times and all 111 matching control sequences. The largest edge shift relative to B is 4.17 ps. Bit-12 late drain flow stays at or below 0.087 fC. Both cold SOA endpoints pass with zero violations across 1,782 terminal pairs each and no numerical warnings. The largest peak and longest 10 ns occupancy above 1.1 V are 1.19638 V and 40.935 ps at 0.81 V, and 1.20689 V and 62.693 ps at 0.99 V. Its same-source hot 256-point spectrum is underway.
@@ -91,8 +93,11 @@ The independent Fig. 11(c) driver uses five physical MOS and a callback-verified
 |---|---:|---:|---:|---:|
 | v1 | 0.963–0.975 | 30.94–31.42 | 8.58–9.23 | 4.67 |
 | v2 | 1.047–1.065 | 29.54–30.09 | 3.16–3.40 | 4.24 |
+| v3 | 1.044–1.062 | 26.52–27.00 | 3.12–3.36 | 4.30 |
 
-V2 reduces M3 width from 0.72 to 0.24 um and increases inverter pull-down width from 0.96 to 1.20 um. It clears the 1.0–1.18 V plateau window and recovers its precharge to 0.44994 V before each measured edge. The slowest measured fall still exceeds the 30 ps guard by 0.09 ps. Power sums the actual DVDD, bias and clock ports over three steady periods. The third revision increases only the direct discharge transistor M1 from 0.72 to 0.96 um. Dedicated cold SOA and full tracking remain open for the transistor driver.
+V2 reduces M3 width from 0.72 to 0.24 um and increases inverter pull-down width from 0.96 to 1.20 um. It clears the 1.0–1.18 V plateau window and recovers its precharge to 0.44994 V before each measured edge. The slowest measured fall still exceeds the 30 ps guard by 0.09 ps. Power sums the actual DVDD, bias and clock ports over three steady periods.
+
+V3 increases only the direct discharge transistor M1 from 0.72 to 0.96 um. It passes hot preflight without numerical warnings, with rise to 90% in 294–319 ps. Both dedicated cold SOA endpoints pass across 1,797 terminal pairs including the five booster MOS. At 0.81 V the peak is 1.19642 V and maximum time above 1.1 V is 28.974 ps per 10 ns. At 0.99 V these values are 1.17737 V and 49.699 ps. The largest booster-internal stress at the high endpoint is M1 Vgd at 1.01181 V. The source combining this booster with the low-leakage main pairs is tested separately.
 
 | Verified evidence | Archive SHA256 |
 |---|---|
@@ -123,3 +128,6 @@ V2 reduces M3 width from 0.72 to 0.24 um and increases inverter pull-down width 
 | Combined periphery TT settle and loads | `8a37df3b5b184b6a1fd43c9c5c6655d713f715e49639db6a767bfd02946bca0f` |
 | Reduced sharing short with frozen N6 | `d93f8a156d2c614afe83f375c1c5c8027c4fe6aabd1d7fb38e9b5ed0a0aba1f5` |
 | Fig. 11(c) v2 hot preflight | `e412d7052ecc3ca2d12cb7c320ed29238e95ae71b4f3274b3644f39009a1f515` |
+| Sharing bias sweep and calibrated gate replay 80 ns | `b2a78d47c9cb77cfe81d595b8d034005d6e4092ca380bda23a5b33328bbcaf23` / `69262f76219cfaa3cffcdd1d89a226e3f953813004d4f5b2b4d41aac54c42825` |
+| Fig. 11(c) v3 hot preflight | `254c7e07ac40b0cf1caa4aaef6c93911a7e4f5996e79dc21d43f863427bea13e` |
+| Fig. 11(c) v3 cold low / high | `776b6c1635fde392947a14db907ca5dd18590369c5cfb72a656f58cb125f7383` / `6dd3980c5e8430dffe5759336366effe7b3f36cf07efbf14a9e059eff25c514e` |
