@@ -20,7 +20,7 @@
  },
  "metrics": {
   "timeout_errors": 0,
-  "t_timeout_ps": 276.2727114213282,
+  "t_timeout_ps": 272.18782806820747,
   "n_conversions": 40
  },
  "specs": {
@@ -32,7 +32,7 @@
   },
   "LOG-12": {
    "metric": "t_timeout_ps",
-   "value": 276.2727114213282,
+   "value": 272.18782806820747,
    "limit": "200 .. 350",
    "pass": true
   }
@@ -48,15 +48,21 @@
   }
  ],
  "meta": {
-  "date": "2026-11-01T22:19:21",
-  "git": "4bd2166",
-  "git_clean": true,
+  "date": "2026-11-03T12:22:04",
+  "git": "fd5b149b",
+  "git_clean": false,
+  "git_dirty_paths": [
+   "design/xtor/adc_sarlogic/many-question-st/adc_sarlogic.scs",
+   "design/xtor/adc_sarlogic/many-question-st/schematic-ctrl.svg",
+   "design/xtor/adc_sarlogic/many-question-st/schematic-slice.svg",
+   "design/xtor/adc_sarlogic/many-question-st/schematic-top.svg"
+  ],
   "mode": "aps",
   "pdk": true,
   "mc": null,
-  "wall_s": 7365.1,
+  "wall_s": 4705.5,
   "rc": "0",
-  "sim_s": "904",
+  "sim_s": "591",
   "numerics": {
    "source": "spectre.log",
    "reltol": 0.0001,
@@ -66,9 +72,9 @@
    "lteratio": 10.0,
    "relref": "alllocal",
    "abstol_V": 1e-06,
-   "steps_accepted": 248154,
-   "step_mean_ps": 1.61642,
-   "step_max_ps": 699.355
+   "steps_accepted": 246181,
+   "step_mean_ps": 1.62937,
+   "step_max_ps": 756.778
   },
   "files": {
    "tb/sarlogic/tb_sarlogic_func.scs": "bdf916a27d3ea9ca",
@@ -76,7 +82,7 @@
    "tb/common/veriloga/tb_capture_va.va": "1a05df990a1ef806",
    "tb/common/veriloga/tb_qmeter_va.va": "fed84d572a912b39",
    "tb/common/veriloga/tb_cmp_emu_va.va": "1173f23365da8b7f",
-   "design/xtor/adc_sarlogic/many-question-st/adc_sarlogic.scs": "f22ea1e01c6adf51",
+   "design/xtor/adc_sarlogic/many-question-st/adc_sarlogic.scs": "5ed50a025fd7d687",
    "design/behav/veriloga/adc_arch_func.vams": "8eac5dace781bffc",
    "design/behav/veriloga/adc_arch.vams": "32d904828c5dbf67"
   },
@@ -90,12 +96,6 @@
   },
   "views": {
    "adc_sarlogic": "xtor:many-question-st"
-  },
-  "renamed": {
-   "date": "2026-11-02T22:53:58",
-   "git": "a4283f9a",
-   "from": "many-question",
-   "to": "many-question-st"
   }
  }
 }

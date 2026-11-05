@@ -20,54 +20,54 @@
   "bit_errors": 0,
   "level_errors": 0,
   "n_conversions": 60,
-  "t_conv_ns": 3.21642,
-  "t_conv_mean_ns": 3.15555015,
-  "t_start_ps": 136.27975783322702,
-  "t_start_max_ps": 136.421496931147,
-  "t_start_min_ps": 136.2717579316944,
-  "t_bit_ps": 38.18816201969812,
-  "t_bit_max_ps": 39.56410208127315,
-  "t_bit_min_ps": 37.43916114261168,
-  "t_rst_ps": 31.88299747586491,
-  "t_rst_max_ps": 32.46746031633273,
-  "t_rst_min_ps": 31.27283384783662,
-  "t_dac_fast_ps": 66.61155472862282,
-  "t_dac_fast_max_ps": 70.3406627671997,
-  "t_dac_fast_min_ps": 61.80954175746829,
-  "t_dac_slow_ps": 119.3360551102721,
-  "t_dac_slow_max_ps": 120.68314841319858,
-  "t_dac_slow_min_ps": 117.80760137842668,
+  "t_conv_ns": 3.1644609999999997,
+  "t_conv_mean_ns": 3.103575116666667,
+  "t_start_ps": 134.71626344670204,
+  "t_start_max_ps": 134.83956903188897,
+  "t_start_min_ps": 134.71154377946357,
+  "t_bit_ps": 37.85141331917625,
+  "t_bit_max_ps": 39.210300099483774,
+  "t_bit_min_ps": 37.16522739782859,
+  "t_rst_ps": 31.706241216855318,
+  "t_rst_max_ps": 32.30584762563656,
+  "t_rst_min_ps": 31.074152374410428,
+  "t_dac_fast_ps": 61.57575663575188,
+  "t_dac_fast_max_ps": 67.64707346745422,
+  "t_dac_fast_min_ps": 51.35815878279772,
+  "t_dac_slow_ps": 118.24255158580148,
+  "t_dac_slow_max_ps": 121.01291931273015,
+  "t_dac_slow_min_ps": 116.33299058360366,
   "t_dac_add_ps": {
-   "3": 12.88,
-   "4": 36.8,
-   "5": 34.64,
-   "6": 35.44,
-   "9": 26.41
+   "3": 22.63,
+   "4": 44.26,
+   "5": 42.9,
+   "6": 42.64,
+   "9": 27.97
   },
-  "t_dac_add_err_pct": 28.763159397925776,
-  "t_setup_ps": 148.36197941640984,
-  "power_uW": 530.8150880520001,
-  "cin_conv_fF": 2.286337162052987,
-  "cin_outp_fF": 3.8051910206935755,
-  "cin_outn_fF": 3.8055149201271004,
-  "cin_cmp_fF": 3.8055149201271004
+  "t_dac_add_err_pct": 126.33005059300348,
+  "t_setup_ps": 148.3835335829213,
+  "power_uW": 590.375251431,
+  "cin_conv_fF": 2.2876278882249927,
+  "cin_outp_fF": 3.804114641166406,
+  "cin_outn_fF": 3.8041977647238556,
+  "cin_cmp_fF": 3.8041977647238556
  },
  "specs": {
   "LOG-06": {
    "metric": "t_dac_slow_ps",
-   "value": 119.3360551102721,
+   "value": 118.24255158580148,
    "limit": ">= 70",
    "pass": true
   },
   "LOG-07": {
    "metric": "t_start_ps",
-   "value": 136.27975783322702,
+   "value": 134.71626344670204,
    "limit": "80 .. 160",
    "pass": true
   },
   "LOG-10": {
    "metric": "t_setup_ps",
-   "value": 148.36197941640984,
+   "value": 148.3835335829213,
    "limit": ">= 100",
    "pass": true
   }
@@ -75,55 +75,55 @@
  "specs_na": {
   "LOG-02": {
    "metric": "t_bit_ps",
-   "value": 38.18816201969812,
+   "value": 37.85141331917625,
    "limit": "<= 40",
    "corners": "typ"
   },
   "LOG-03": {
    "metric": "t_rst_ps",
-   "value": 31.88299747586491,
+   "value": 31.706241216855318,
    "limit": "<= 45",
    "corners": "typ"
   },
   "LOG-04": {
    "metric": "t_dac_fast_ps",
-   "value": 66.61155472862282,
+   "value": 61.57575663575188,
    "limit": "35 .. 60",
    "corners": "typ"
   },
   "LOG-05": {
    "metric": "t_dac_slow_ps",
-   "value": 119.3360551102721,
+   "value": 118.24255158580148,
    "limit": "70 .. 100",
    "corners": "typ"
   },
   "LOG-08": {
    "metric": "t_conv_ns",
-   "value": 3.21642,
+   "value": 3.1644609999999997,
    "limit": "<= 2.75",
    "corners": "typ"
   },
   "LOG-13": {
    "metric": "power_uW",
-   "value": 530.8150880520001,
+   "value": 590.375251431,
    "limit": "reported",
    "corners": "typ"
   },
   "LOG-14": {
    "metric": "cin_conv_fF",
-   "value": 2.286337162052987,
+   "value": 2.2876278882249927,
    "limit": "<= 40",
    "corners": "typ"
   },
   "LOG-15": {
    "metric": "cin_cmp_fF",
-   "value": 3.8055149201271004,
+   "value": 3.8041977647238556,
    "limit": "<= 7",
    "corners": "typ"
   },
   "LOG-16": {
    "metric": "t_dac_add_err_pct",
-   "value": 28.763159397925776,
+   "value": 126.33005059300348,
    "limit": "<= 20",
    "corners": "typ"
   }
@@ -147,15 +147,21 @@
   }
  ],
  "meta": {
-  "date": "2026-11-02T05:09:26",
-  "git": "4bd2166a",
-  "git_clean": true,
+  "date": "2026-11-03T14:23:44",
+  "git": "fd5b149b",
+  "git_clean": false,
+  "git_dirty_paths": [
+   "design/xtor/adc_sarlogic/many-question-st/adc_sarlogic.scs",
+   "design/xtor/adc_sarlogic/many-question-st/schematic-ctrl.svg",
+   "design/xtor/adc_sarlogic/many-question-st/schematic-slice.svg",
+   "design/xtor/adc_sarlogic/many-question-st/schematic-top.svg"
+  ],
   "mode": "aps",
   "pdk": true,
   "mc": null,
-  "wall_s": 11554.7,
+  "wall_s": 6692.4,
   "rc": "0",
-  "sim_s": "1481",
+  "sim_s": "747",
   "numerics": {
    "source": "spectre.log",
    "reltol": 0.0001,
@@ -165,9 +171,9 @@
    "lteratio": 10.0,
    "relref": "alllocal",
    "abstol_V": 1e-06,
-   "steps_accepted": 422567,
-   "step_mean_ps": 1.42254,
-   "step_max_ps": 810.774
+   "steps_accepted": 420200,
+   "step_mean_ps": 1.43056,
+   "step_max_ps": 890.033
   },
   "files": {
    "tb/sarlogic/tb_sarlogic_func.scs": "bdf916a27d3ea9ca",
@@ -175,7 +181,7 @@
    "tb/common/veriloga/tb_capture_va.va": "1a05df990a1ef806",
    "tb/common/veriloga/tb_qmeter_va.va": "fed84d572a912b39",
    "tb/common/veriloga/tb_cmp_emu_va.va": "1173f23365da8b7f",
-   "design/xtor/adc_sarlogic/many-question-st/adc_sarlogic.scs": "f22ea1e01c6adf51",
+   "design/xtor/adc_sarlogic/many-question-st/adc_sarlogic.scs": "5ed50a025fd7d687",
    "design/behav/veriloga/adc_arch_func.vams": "8eac5dace781bffc",
    "design/behav/veriloga/adc_arch.vams": "32d904828c5dbf67"
   },
@@ -190,12 +196,6 @@
   },
   "views": {
    "adc_sarlogic": "xtor:many-question-st"
-  },
-  "renamed": {
-   "date": "2026-11-02T22:53:58",
-   "git": "a4283f9a",
-   "from": "many-question",
-   "to": "many-question-st"
   }
  }
 }
