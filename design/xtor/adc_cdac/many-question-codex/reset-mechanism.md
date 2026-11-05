@@ -153,6 +153,21 @@ nonlinear channel injection. The full records compare fixed-time window
 harmonic vectors before reset, after reset, after input disconnect, after
 reference redistribution and at sampling, using one common phase reference.
 
+A separate nine-point DC check of the unchanged N6, with gate fixed1.179V,
+covers the observed pre-reset TOP range0.42465..0.47653V. Its secant on-resistance
+changes from72.22 to75.64ohm. Thus the real reset is a finite, nonlinear clamp
+even before turnoff. Constant resistance alone would produce linear tracking
+error, which is removed before comparing harmonics.
+
+As a limited physical consistency check, a cubic fit of that DC I-V curve and
+the observed25.926mV per-side fundamental TOP excursion give a quasistatic
+estimate of0.298mV rectified common-mode shift,0.298mV common-mode H2 and
+35.2uV differential H3. B's measured values are0.299mV,0.294mV and32.84uV.
+The estimate assumes sinusoidal forcing and omits dynamic capacitor feedback,
+source effects and charge; it supports on-state nonlinearity without uniquely
+partitioning the full transient distortion. No width or drive optimization
+was performed.
+
 The completed B full256 gives provisional SFDR85.8016dBc / SNDR85.1862dB.
 Its H3 vector is already8.309+j31.773uV before reset turnoff (32.842uV peak),
 then10.914+j29.221uV at+30ps,0.187+j29.706uV at+150ps and
@@ -186,6 +201,7 @@ sample-count field; the analysis explicitly corrects that field to0.
 | B sine80 | 20261105-165258-0532-tb_cdac_track | c53de9d082ce64a0b5fd0ef419af05ce15c108fe5d70f61d7d1b3960ee6fd63b |
 | A sine80 | 20261105-170229-632f-tb_cdac_track | 242ac65d0107376ca4fa9f9641305b6b954d5f131bd3cfcb045be7bcdeaa5ead |
 | B full256, provisional | 20261105-165258-1b38-tb_cdac_track | cc2d53a438424b8acc3764478fdb56380285308c764fadb06c48d2ecdc4d57cc |
+| Static on-bias check | 20261105-181856-aa46-tb_cdac_track | e5f3f0f31f08675343dade703eed79277e73b437ee8c38de698da8df6b1f58b4 |
 
 Each completed transient archive is checked against remote hashes and every ZIP
 member. Sources are frozen: B36e0396ee0535c1c7a8d18557b270f87e071303a7a7891239fba2390910faa93,
