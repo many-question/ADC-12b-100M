@@ -67,9 +67,9 @@ until explicitly reported. A single hot-corner result cannot establish readiness
 
 | Variant | 80 ns reset SOA | Full256 SFDR / SNDR | Status |
 |---|---|---|---|
-| n6_k09 | 0 violating pairs | Not yet measured | Cold full-swing SOA fails; spectrum diagnostic only |
-| n12_k09 | 0 violating pairs | Not yet measured | Cold full-swing SOA fails; spectrum diagnostic only |
-| n6_k09_d3 | 0 violating pairs | Not yet measured | In progress |
+| n6_k09 | 0 violating pairs | 73.99182031453526 / 73.70732371865574 | Hot tracking and cold SOA fail |
+| n12_k09 | 0 violating pairs | 70.90724555341939 / 70.70803827403607 | Hot tracking and cold SOA fail |
+| n6_k09_d3 | 0 violating pairs | 74.26757285245561 / 73.9359497675731 | Hot tracking fails; dedicated cold SOA unmeasured |
 
 Baseline full256 hot-SS SFDR/SNDR: 63.13694 / 63.06129 dB; H3/H5:
 545.389 / 71.487 uV. Targets remain 85 / 80 dB. No formal pass or source promotion
@@ -90,7 +90,7 @@ for every variant and baseline. It is not a 256-point spectral estimate.
 All completed short cases have zero logged numerical LTE relaxations. They use
 the same finite driver and true transistor gate loading. The 12 um version reduces
 tracking error but increases late drift relative to 6 um; the 3 um dummy has a small
-short-record effect, whose spectral significance must be judged from complete records.
+short-record effect, whose full-record spectral effect is reported below.
 The output current follows (VCMD-VBST)/100 ohm. Nominal 10 ps model transitions
 produce about 8 ps measured 10%-90% edges; the loaded half-amplitude delay is about
 7.3 ps for 6 um. Switching overshoot is included in the terminal SOA check.
@@ -98,11 +98,66 @@ Driver energy is split into delivered and absorbed portions because the signal c
 return charge to the ideal source; net delivered energy is not total booster power.
 Terminal-charge integrals include displacement and are not a unique channel-injection attribution.
 
-The first three controllers completed normally, but a post-fetch metadata dictionary
-duplicate-key error prevented summary writing. The summaries were reconstructed from
+The same short records measure approximately 3.53..3.71 fC rising gate charge for
+6 um and 6.85..7.62 fC for 12 um. Peak absolute driver current in the measured
+40..70 ns cycles is about 0.533 mA / 1.023 mA, respectively. At low supply,
+VB+DVDD is 1.26 V and the maintained target is 1.179 V. A simple Q/81 mV
+estimate gives optimistic CB lower bounds of about 46 / 94 fF. These are not
+chosen capacitors: booster device parasitics, CB bottom parasitics, precharge
+leakage and changing output impedance are excluded. A floating-capacitor booster
+must be evaluated directly before drawing power, clock-load or area conclusions.
+
+The first three short simulations completed normally, but their controllers hit a
+post-fetch metadata duplicate-key error that prevented summary writing. Summaries were reconstructed from
 the already-fetched rc=0 records after staged hashes were verified; no solver rerun,
 deck change or tolerance change was used. The local metadata assembler was corrected
 before launching full records.
+
+## Complete hot-SS spectra
+
+All rows below use 256 samples with matched nominal sampling times, 100 MS/s and the
+actual coherent input frequency 48.828125 MHz (bin125). The official estimator
+was rerun locally and exactly reproduced each stored metric. The maximum measured
+sample-time difference is about 1 fs. All three solvers completed normally at
+effective reltol1e-7/10nV, without numerical LTE warnings. No partial record
+or early waveform FFT is used. H3/H5 below are raw coherent-bin peak amplitudes;
+complex differences use a common fundamental-phase reference.
+
+| Case | SFDR (dBc) | SNDR (dB) | H3 (uV peak) | H5 (uV peak) |
+|---|---:|---:|---:|---:|
+| Frozen V29 | 63.13694 | 63.06129 | 545.389 | 71.487 |
+| n6_k09 | 73.99182 | 73.70732 | 157.662 | 39.621 |
+| n12_k09 | 70.90725 | 70.70804 | 225.414 | 47.091 |
+| n6_k09_d3 | 74.26757 | 73.93595 | 152.540 | 41.708 |
+
+![Complete tracking comparison](boosted-reset-full-comparison.png)
+
+The 3 um dummy changes the matched N6 record by 4.136 uV rms
+after removing DC and fundamental; the H3 difference vector has magnitude 5.144 uV.
+The N12-minus-N6 nonfundamental difference is 59.138 uV rms.
+These are circuit interventions, not independent distortion percentages.
+Small differences have not been resolved with a numerical crosscheck and should
+not be treated as established design margin. These remain diagnostic spectra:
+N6 fails low-supply cold SOA, N12 fails high-supply cold SOA, and the dummy
+variant has no dedicated full-swing cold SOA result. No source is promoted and
+no transistor booster is started from these results.
+
+The dummy changes nominal SFDR/SNDR by +0.276/+0.229 dB. Increasing
+reset width from 6 to 12 um instead changes them by -3.085/-2.999 dB,
+despite reducing the short-record tracking error. In the matched first-four-sample
+late-hold window (250..370.667 ps after PHI_S falls), the largest absolute
+MTN drain-terminal charge grows from 0.0602 to 0.1393 fC. The matched
+last-50-ps differential drift RMS grows from 6.333 to 14.517 uV. This is
+consistent with a remaining hold-period terminal-current/charge mechanism;
+it does not uniquely separate channel, junction, displacement or other contributions.
+A stronger on-state reset alone has not solved the sampling error.
+
+The first cohort is complete. Even its best nominal spectrum misses SFDR/SNDR
+by 10.732/6.064 dB, and no tested endpoint has demonstrated the combined
+performance and SOA window needed to justify a transistor booster. The next
+useful mechanism test would isolate the retained off-state reset flow and hold
+error before revising the booster hardware. No broad amplitude/size sweep or
+physical-booster implementation is inferred from these failed endpoints.
 
 ## Cold full-swing SOA
 
@@ -123,14 +178,14 @@ At the worst edge its gate is 1.17912 V and TOP is -0.19467 V. In the 12 um
 primary, the corresponding gate/TOP values are 1.17864/-0.05708 V. Thus the
 failure comes from insufficient TOP restoration during the bottom-plate transient,
 not a large overshoot of the ideal gate source. The 12 um primary passes by the
-project transient allowance; its same-source crosscheck is reported above when complete.
+project transient allowance; its completed same-source crosscheck is also reported above.
 Primary SOA uses the official conservative defaults (effective reltol1e-4/1uV);
 the official crosscheck uses traponly/1ps, effective reltol1e-8/10nV. Neither
 setting changes the strict effective1e-7/10nV hot tracking runs.
 
 ![Cold restoration and reset stress](boosted-reset-cold-soa.png)
 
-Already-running 6 um full spectra remain diagnostic comparisons; the failed SOA
+The completed 6 um full spectra remain diagnostic comparisons; the failed SOA
 prevents promoting that endpoint or starting its physical booster implementation.
 No further 6 um qualification expansion is launched.
 
@@ -140,8 +195,8 @@ The same 12 um source fails at high-supply cold SS: the command scales to
 does not establish a usable supply window for this fixed k=0.9 model. This
 73 s primary record has no numerical LTE warnings. Its failure is retained;
 no physical booster or extra qualification expansion is started for this endpoint.
-The already-running hot spectra remain useful diagnostics for deciding whether
-a bounded amplitude/width revision is justified.
+The completed hot spectra are compared above; the combined failures do not
+justify proceeding to a transistor booster from this endpoint.
 
 The completed 12 um crosscheck retains zero violations. Its critical reset
 Vgd differs from primary by +0.15 mV and its worst-window duration by -0.643 ps;
@@ -176,11 +231,14 @@ records, separate from the frozen formal results.
 
 | Case / record | Run | Files | ZIP SHA-256 |
 |---|---|---:|---|
+| n6_k09 / full | `20261105-113547-fe86-tb_cdac_track` | 66 | `146d28767a290024b75494eebde71eb83039102e7dcbd3a3efebd51ec6fb5b8b` |
 | n6_k09 / short | `20261105-112829-e53e-tb_cdac_track` | 65 | `48f7901114899d8230978a1f1d69b39274f949b20aecebe883ad4efd2dc7d881` |
 | n6_k09 / tb_cdac_soa-ss_low_m40 | `20261105-114828-091e-tb_cdac_soa` | 70 | `a6af430b61afcb25bd057352cdfe3c28599e1d49def56bb7ef2651f1c68b7278` |
+| n12_k09 / full | `20261105-114129-df31-tb_cdac_track` | 66 | `8377da61c65b18f16a930648d3bc78c7bbb13aa2a80dc707303a171e98eadc4c` |
 | n12_k09 / short | `20261105-113331-122b-tb_cdac_track` | 65 | `85aa230e797ba47658fe4b6c0286620c2d7ef0c8578553c9562958a530a38024` |
 | n12_k09 / short-ss_low_m40 | `20261105-123126-39ab-tb_cdac_track` | 65 | `8d74c87ef5861609d4e8f697ab6457168996a1fc06774630a8cf0880db9f5cf7` |
 | n12_k09 / tb_cdac_soa-ss_high_m40 | `20261105-123115-2da6-tb_cdac_soa` | 70 | `9ab1901992f6beeeef4e851f6a5c9a5f9fe9e46c7850e300e43acd237b33f70c` |
 | n12_k09 / tb_cdac_soa-ss_low_m40-cross | `20261105-115500-bd04-tb_cdac_soa` | 68 | `bf64d211dbe0c3b93068b0088e9ded2ecda2b7270ecf4e9a8c4b65672ebdc431` |
 | n12_k09 / tb_cdac_soa-ss_low_m40 | `20261105-114839-9c46-tb_cdac_soa` | 70 | `024486b90ce7400d535070938a2bd365c0c00d35c9daa291d6a4a6be74696d23` |
+| n6_k09_d3 / full | `20261105-114140-bd3a-tb_cdac_track` | 66 | `47f1bf88fc337a4727c8ea12d71a7e6a52390246afd2d89b33093b93659ac99d` |
 | n6_k09_d3 / short | `20261105-113341-80bd-tb_cdac_track` | 65 | `52ac1e2fa43bb96bc5ae8bfba5387b310f6e4581ac0523ce6920c5ce205deff7` |

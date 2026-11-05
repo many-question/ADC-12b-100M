@@ -1,9 +1,19 @@
 # CDAC candidate
 
-## Active independent boosted-reset experiment
+## Completed first boosted-reset cohort
 
-The user authorized a new real-NMOS reset route, first driven by an independent
-ideal booster wrapper. See the [experiment and source patches](boosted-reset-experiment.md).
+The first independent finite-driver / real-NMOS cohort is complete: all three
+full256 hot spectra miss the targets, and dedicated cold SOA exposes supply/size
+limits. See the [results, mechanism and source patches](boosted-reset-experiment.md).
+V29 and its official failures stay frozen; the completed attribution results below
+are retained as history. This new diagnostic stage does not promote a candidate.
+
+
+## Completed first boosted-reset cohort
+
+The first independent finite-driver / real-NMOS cohort is complete: all three
+full256 hot spectra miss the targets, and dedicated cold SOA exposes supply/size
+limits. See the [results, mechanism and source patches](boosted-reset-experiment.md).
 V29 and its official failures stay frozen; the completed attribution results below
 are retained as history. This new diagnostic stage does not promote a candidate.
 
