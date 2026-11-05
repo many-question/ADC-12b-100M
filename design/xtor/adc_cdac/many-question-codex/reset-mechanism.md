@@ -1,7 +1,7 @@
 # All-other-switches ideal: reset mechanism isolation
 
-Status: fixed-input A/B and the limited original-top-cell reference are complete;
-the dynamic sine comparison and full256 spectra are in progress. V29 and the
+Status: fixed-input A/B, the limited original-top-cell reference and short sine
+A/B are complete; full256 spectra are in progress. V29 and the
 [completed first boosted-reset cohort](boosted-reset-experiment.md) stay frozen.
 This is a mechanism experiment, not a candidate promotion or a physical booster.
 
@@ -130,6 +130,28 @@ four bias points also agree within0.102%. This is direct evidence for persistent
 off-state flow in the late hold window, rather than continued turnoff injection.
 It does not uniquely decompose the fast reference-edge displacement current.
 
+## Dynamic input is a separate condition
+
+The matched80ns sine records complete normally with four official samples each.
+Their other-control edge difference is again0.552fs, and actual gate-replay error
+is below9e-13V. They do not provide a full spectrum or enough phases for a
+reliable nonlinear fit.
+
+Before reset turnoff, B's TOP-VCM values already reach approximately
++10.947/-10.671,-12.337/+12.688,+14.365/-13.934,-15.452/+15.969mV (P/N,
+four successive cycles). A's corresponding deviations are approximately
+symmetrical +/-15.332,17.605,19.782,21.852mV; its fixed100ohm reset has a
+different linear tracking response. The B-A raw differential differences are
+9..12mV, which must not be labeled distortion before removing gain and phase.
+
+B's reset-edge drain terminal integral now varies about1.06..1.57fC with phase,
+unlike the almost identical1.306236fC in the settled-DC tests. The initial TOP
+clamp is therefore a necessary part of the dynamic mechanism investigation.
+Neither signal-dependent total Q nor pre-reset tracking error alone proves
+nonlinear channel injection. The full records compare fixed-time window
+harmonic vectors before reset, after reset, after input disconnect, after
+reference redistribution and at sampling, using one common phase reference.
+
 ## Evidence and next checks
 
 All three240ns records complete with rc0, actual reltol1e-7/vabstol10nV,
@@ -145,6 +167,8 @@ sample-count field; the analysis explicitly corrects that field to0.
 | A levels | 20261105-164235-bc24-tb_cdac_track | f25504286a28e2eb0bad73bb1b294723212e212c398342ef184c7bc56fabe258 |
 | V29 top reference | 20261105-163256-9948-tb_cdac_track | 786b25d587684bc01692931bf902b0ba1065f20ccd53febd26228f5ff08c2882 |
 | Static off-bias check | 20261105-164818-d7a5-tb_cdac_track | 51ad7092e5b3da59c9d4c823e7fc2726e6ea7293b4cd53d600b50e243e68335d |
+| B sine80 | 20261105-165258-0532-tb_cdac_track | c53de9d082ce64a0b5fd0ef419af05ce15c108fe5d70f61d7d1b3960ee6fd63b |
+| A sine80 | 20261105-170229-632f-tb_cdac_track | 242ac65d0107376ca4fa9f9641305b6b954d5f131bd3cfcb045be7bcdeaa5ead |
 
 Each completed transient archive is checked against remote hashes and every ZIP
 member. Sources are frozen: B36e0396ee0535c1c7a8d18557b270f87e071303a7a7891239fba2390910faa93,
@@ -153,6 +177,6 @@ referencef98ad8c275b82b97b88924c3aa3ce137f321de4696568ba23f37b0006a594603.
 The unchanged booster SHA isd7c6ce43d97e4946cee348eeb53b63605b93f7759a9dec071e0af8a4a441f365.
 See [normalized source patches and switch model](reset-mechanism-sources.txt).
 
-Pending: short sine A/B to identify dynamic initial-clamp error; the key matched
-full256 spectra; numerical confirmation where required. No width/amplitude
+Pending: the key matched full256 spectra and the B traponly/1ps numerical
+crosscheck. No width/amplitude
 optimization, broad Ron sweep or transistor-booster implementation is underway.
