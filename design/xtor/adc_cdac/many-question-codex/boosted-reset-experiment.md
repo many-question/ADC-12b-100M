@@ -115,6 +115,7 @@ The ideal booster has no internal physical devices to qualify.
 |---|---:|---:|---:|
 | n6_k09 primary | 1 | 1.37379 | 155.315 |
 | n12_k09 primary | 0 | 1.23572 | 80.520 |
+| n12_k09 cross | 0 | 1.23587 | 79.877 |
 
 The 6 um reset fails both the 1.29 V peak limit and the 100 ps duration limit.
 At the worst edge its gate is 1.17912 V and TOP is -0.19467 V. In the 12 um
@@ -131,3 +132,32 @@ setting changes the strict effective1e-7/10nV hot tracking runs.
 Already-running 6 um full spectra remain diagnostic comparisons; the failed SOA
 prevents promoting that endpoint or starting its physical booster implementation.
 No further 6 um qualification expansion is launched.
+
+The completed 12 um crosscheck retains zero violations. Its critical reset
+Vgd differs from primary by +0.15 mV and its worst-window duration by -0.643 ps;
+the crosscheck leaves 54.13 mV peak margin and 20.123 ps duration margin. Across
+all 1782 pairs, the largest peak change is 4.12 mV on XSW6.XDL.MNB1 Vds,
+with no verdict changes. This supports this endpoint under the dedicated cold stimulus.
+It does not establish other corners, full tracking behavior or booster-internal SOA.
+
+The original cross solver completed normally. Remote reduction wrote all device-pair
+results, then failed to export a thin wave on non-quoted TRACE metadata. The untouched
+full waveform exceeded the automatic fetch size cap. It was retrieved separately;
+all 1782 pairs were independently recomputed locally and matched the remote rows
+exactly. No simulation or source change was needed. The original failed summary
+and full wave remain in private evidence.
+
+## Completed-run archive index
+
+Each listed ZIP was checked against the original remote files and every extracted
+member hash. Full waveforms and process data remain private; these are diagnostic
+records, separate from the frozen formal results.
+
+| Case / record | Run | Files | ZIP SHA-256 |
+|---|---|---:|---|
+| n6_k09 / short | `20261105-112829-e53e-tb_cdac_track` | 65 | `48f7901114899d8230978a1f1d69b39274f949b20aecebe883ad4efd2dc7d881` |
+| n6_k09 / tb_cdac_soa-ss_low_m40 | `20261105-114828-091e-tb_cdac_soa` | 70 | `a6af430b61afcb25bd057352cdfe3c28599e1d49def56bb7ef2651f1c68b7278` |
+| n12_k09 / short | `20261105-113331-122b-tb_cdac_track` | 65 | `85aa230e797ba47658fe4b6c0286620c2d7ef0c8578553c9562958a530a38024` |
+| n12_k09 / tb_cdac_soa-ss_low_m40-cross | `20261105-115500-bd04-tb_cdac_soa` | 68 | `bf64d211dbe0c3b93068b0088e9ded2ecda2b7270ecf4e9a8c4b65672ebdc431` |
+| n12_k09 / tb_cdac_soa-ss_low_m40 | `20261105-114839-9c46-tb_cdac_soa` | 70 | `024486b90ce7400d535070938a2bd365c0c00d35c9daa291d6a4a6be74696d23` |
+| n6_k09_d3 / short | `20261105-113341-80bd-tb_cdac_track` | 65 | `52ac1e2fa43bb96bc5ae8bfba5387b310f6e4581ac0523ce6920c5ce205deff7` |
