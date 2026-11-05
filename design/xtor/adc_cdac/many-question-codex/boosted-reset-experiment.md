@@ -68,7 +68,7 @@ until explicitly reported. A single hot-corner result cannot establish readiness
 | Variant | 80 ns reset SOA | Full256 SFDR / SNDR | Status |
 |---|---|---|---|
 | n6_k09 | 0 violating pairs | Not yet measured | Cold full-swing SOA fails; spectrum diagnostic only |
-| n12_k09 | 0 violating pairs | Not yet measured | In progress |
+| n12_k09 | 0 violating pairs | Not yet measured | Cold full-swing SOA fails; spectrum diagnostic only |
 | n6_k09_d3 | 0 violating pairs | Not yet measured | In progress |
 
 Baseline full256 hot-SS SFDR/SNDR: 63.13694 / 63.06129 dB; H3/H5:
@@ -113,9 +113,10 @@ The ideal booster has no internal physical devices to qualify.
 
 | Case / method | Violating pairs | Max terminal voltage (V) | Worst time above 1.1 V per 10 ns (ps) |
 |---|---:|---:|---:|
-| n6_k09 primary | 1 | 1.37379 | 155.315 |
-| n12_k09 primary | 0 | 1.23572 | 80.520 |
-| n12_k09 cross | 0 | 1.23587 | 79.877 |
+| n6_k09 low supply primary | 1 | 1.37379 | 155.315 |
+| n12_k09 low supply primary | 0 | 1.23572 | 80.520 |
+| n12_k09 low supply cross | 0 | 1.23587 | 79.877 |
+| n12_k09 high supply primary | 1 | 1.39407 | 130.004 |
 
 The 6 um reset fails both the 1.29 V peak limit and the 100 ps duration limit.
 At the worst edge its gate is 1.17912 V and TOP is -0.19467 V. In the 12 um
@@ -133,6 +134,15 @@ Already-running 6 um full spectra remain diagnostic comparisons; the failed SOA
 prevents promoting that endpoint or starting its physical booster implementation.
 No further 6 um qualification expansion is launched.
 
+The same 12 um source fails at high-supply cold SS: the command scales to
+1.341 V, and at the worst peak the actual gate is 1.34073 V while TOP is
+-0.05333 V. Both peak and duration limits fail. The low-supply pass therefore
+does not establish a usable supply window for this fixed k=0.9 model. This
+73 s primary record has no numerical LTE warnings. Its failure is retained;
+no physical booster or extra qualification expansion is started for this endpoint.
+The already-running hot spectra remain useful diagnostics for deciding whether
+a bounded amplitude/width revision is justified.
+
 The completed 12 um crosscheck retains zero violations. Its critical reset
 Vgd differs from primary by +0.15 mV and its worst-window duration by -0.643 ps;
 the crosscheck leaves 54.13 mV peak margin and 20.123 ps duration margin. Across
@@ -147,6 +157,17 @@ all 1782 pairs were independently recomputed locally and matched the remote rows
 exactly. No simulation or source change was needed. The original failed summary
 and full wave remain in private evidence.
 
+## Cold tracking short record
+
+The unchanged 12 um source also completed the 80 ns low-supply cold-SS tracking
+preview with four matched-time samples, strict effective reltol1e-7/10nV, and no
+numerical LTE warnings (288 s). It crossed the frozen V29 failure time of
+60.1007 ns without a solver error. Reset-only stress over this saved record is
+1.02072 V with zero violating pairs.
+This is not a full256 cold spectrum or all-device/corner qualification. A hot
+baseline waveform is deliberately not used as a matched-corner comparator.
+The high-supply cold full-swing SOA failure remains binding.
+
 ## Completed-run archive index
 
 Each listed ZIP was checked against the original remote files and every extracted
@@ -158,6 +179,8 @@ records, separate from the frozen formal results.
 | n6_k09 / short | `20261105-112829-e53e-tb_cdac_track` | 65 | `48f7901114899d8230978a1f1d69b39274f949b20aecebe883ad4efd2dc7d881` |
 | n6_k09 / tb_cdac_soa-ss_low_m40 | `20261105-114828-091e-tb_cdac_soa` | 70 | `a6af430b61afcb25bd057352cdfe3c28599e1d49def56bb7ef2651f1c68b7278` |
 | n12_k09 / short | `20261105-113331-122b-tb_cdac_track` | 65 | `85aa230e797ba47658fe4b6c0286620c2d7ef0c8578553c9562958a530a38024` |
+| n12_k09 / short-ss_low_m40 | `20261105-123126-39ab-tb_cdac_track` | 65 | `8d74c87ef5861609d4e8f697ab6457168996a1fc06774630a8cf0880db9f5cf7` |
+| n12_k09 / tb_cdac_soa-ss_high_m40 | `20261105-123115-2da6-tb_cdac_soa` | 70 | `9ab1901992f6beeeef4e851f6a5c9a5f9fe9e46c7850e300e43acd237b33f70c` |
 | n12_k09 / tb_cdac_soa-ss_low_m40-cross | `20261105-115500-bd04-tb_cdac_soa` | 68 | `bf64d211dbe0c3b93068b0088e9ded2ecda2b7270ecf4e9a8c4b65672ebdc431` |
 | n12_k09 / tb_cdac_soa-ss_low_m40 | `20261105-114839-9c46-tb_cdac_soa` | 70 | `024486b90ce7400d535070938a2bd365c0c00d35c9daa291d6a4a6be74696d23` |
 | n6_k09_d3 / short | `20261105-113341-80bd-tb_cdac_track` | 65 | `52ac1e2fa43bb96bc5ae8bfba5387b310f6e4581ac0523ce6920c5ce205deff7` |
