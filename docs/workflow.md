@@ -88,7 +88,7 @@ python -m adcflow clean-remote --older-than-h 12   # 清理服务器上本项目
   beh_speed vref_in cdac_behav` 由 deck 提供，测试台中不要声明（`cdac_behav` = 1 表示 `adc_cdac` 用行为级视图）。
 * 监视器写小文本文件（`tb/common/veriloga/`）；只在度量需要时保存波形（`save` 列出信号）。
 * 要求逐管 SOA（每个薄栅器件的 |Vgs|、|Vgd|、|Vds| ≤ `specs/soa.yaml` 的 `limit_V`，现为 1.1 V；或 ≤ 1.29 V 且任一 10 ns 窗口内超过 1.1 V 不到 100 ps，`specs/soa_rule.yaml`）的用例在规格中加 `soa:`：流程在 deck 中保存 DUT 内各器件的端口节点，度量函数调用 `soa.measure` / `soa.figure`，见 [`verification.md`](verification.md) §5。
-* 一批 job（一次 `sim` / `verify` 的全部工艺角，编译步骤在内）默认最多运行 4 h，每 `--jobs` 个 job 约一个 job 的时长；更慢的用例在规格中写 `timeout:`（秒，整批，例如 `tb_sarlogic_rand`、`tb_top_*`），取值宽松：它防的是卡死的运行，不是排程。超时时服务器提前 5 min 结束这批的全部 Spectre 进程（编译步骤在内），运行以 `RunTimeout` 报错，不记录结果。
+* 每个 job（一个工艺角）默认最多运行 4 h；单个 job 更慢的用例在规格中写 `timeout:`（秒，每个 job，与工艺角数和 `--jobs` 无关，例如 `tb_sarlogic_rand`、`tb_top_*`），取值宽松：它防的是卡死的运行，不是排程。超时的 job 连同其 Spectre 被结束，记为失败（`timeout: the job ran past its timeout: ...`），同批其它 job 照常度量、记录；整批另有由它推出的后备时限（编译上限 + 批数 × 单 job 时限 + 余量）。编译步骤最多 15 min，到时即停，各 job 自行编译共享库缺的模块。
 * 度量函数放在 `tools/adcflow/measure/<block>.py`，签名 `fn(job_dir, ctx) -> dict`，键名即规格中的 `metric`。
   `ctx["figs"]` 是图的接收器（`tools/adcflow/figures.py` 的 `FigureSink`）：新测试的度量函数用
   `sink_of(ctx)` 取得它，`fg.new(...)` 建图、`fg.save(fig, tag, caption)` 保存；规格线用

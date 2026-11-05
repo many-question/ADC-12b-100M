@@ -23,12 +23,15 @@ from . import REPO_ROOT
 
 SIM_YAML = REPO_ROOT / "specs" / "sim.yaml"
 DEFAULT_JOBS = 6                                 # parallel Spectre runs without `sim.jobs` in the site config
-SERVER_MARGIN_S = 300                            # the server-side limit of a batch ends it this long before the ssh timeout
-KILL_AFTER_S = 60                                # SIGKILL this long after the SIGTERM of the server-side limit
+JOB_TIMEOUT_S = 4 * 3600                         # a job's time limit without `timeout:` in its test spec
+KILL_AFTER_S = 60                                # SIGKILL this long after the SIGTERM of a time limit
+COMPILE_CAP_S = 900                              # the compile step stops its Spectre after this at the latest
+SERVER_MARGIN_S = 300                            # slack of the batch backstops (server side, then ssh)
+TIMEOUT_RCS = ("124", "137")                     # rc of a job that coreutils `timeout` ended (TERM, or KILL too)
 
 
 class RunTimeout(RuntimeError):
-    """A batch ran past its time limit; its Spectre processes were killed on the server."""
+    """A batch ran past its backstop limit; its Spectre processes were killed on the server."""
 
 
 @lru_cache
@@ -185,20 +188,22 @@ xargs -P {max(int(parallel), 1)} -I J sh -c 'python3 soa_core.py jobs/J > jobs/J
 
 
 def run_jobs(remote_dir: str, jobs: list[str], mode_args: list[str], parallel: int,
-             timeout: float, compile_first: bool = True) -> None:
+             job_timeout: float = JOB_TIMEOUT_S, compile_first: bool = True) -> None:
     """Run spectre on every jobs/<job>/deck.scs, `parallel` at a time.
 
     The compiled Verilog-A is shared through Spectre's library sharing (-ahdlshipdbdir): with more
     than one job, a compile step first runs the first job's deck in a copy of its directory, with
     the shared library $R/ahdl_lib in create_or_update mode, and stops that Spectre once it reaches
     the analyses (every module of the deck is compiled and copied into the library by then; about
-    a minute). All jobs then start together and only read the library: a module it lacks is
-    compiled in the job's own directory, so no two Spectre runs write the same library.
+    a minute), or after COMPILE_CAP_S at the latest. All jobs then start together and only read
+    the library: a module it lacks is compiled in the job's own directory, so no two Spectre runs
+    write the same library.
 
-    `timeout` (s) covers the whole batch. The server ends the batch SERVER_MARGIN_S earlier with
-    coreutils `timeout`, which signals its whole process group (compile step included), so no
-    Spectre keeps running in a run directory that the caller then removes; a batch ended that way
-    raises RunTimeout."""
+    `job_timeout` (s) limits each job: coreutils `timeout` ends its csh and Spectre (their own
+    process group) and the job's rc.txt gets 124 or 137 (TIMEOUT_RCS); the other jobs go on. The
+    batch has a backstop derived from it (batch_limit), on the server and, later, for the ssh;
+    a batch ended by it raises RunTimeout after everything still running in the run directory is
+    killed, so no Spectre keeps running in a directory that the caller then removes."""
     c = cfg()
     spectre = c.get("spectre", "spectre")
     setup = "; ".join(f"{cmd} >& /dev/null" for cmd in c["env_setup"])
@@ -219,20 +224,25 @@ cat > $R/run_one.sh <<'EOS'
 R="$1"; J="$2"; D="$R/jobs/$J"
 cd "$D" || exit 1
 start=$(date +%s)
-csh -c "{setup}; cd $D; {run} {tail}"
+timeout -k {KILL_AFTER_S} {int(job_timeout)} csh -c "{setup}; cd $D; {run} {tail}"
 rc=$?
 echo "$rc $(( $(date +%s) - start ))" > rc.txt
 EOS
 cat > $R/compile_va.sh <<'EOS'
 #!/bin/bash
 # the shared Verilog-A library from the deck of job $2, run in a copy of its directory and stopped
-# at the analyses; a failure here only leaves the jobs to compile for themselves
+# at the analyses, or after {COMPILE_CAP_S} s; a failure here only leaves the jobs to compile for themselves
 R="$1"; J="$2"; D="$R/compile"
 cp -r "$R/jobs/$J" "$D" && cd "$D" || exit 0
+start=$(date +%s)
 csh -c "{setup}; cd $D; {run} -ahdlshipdbmode=create_or_update {tail}" &
 pid=$!
 while kill -0 $pid 2>/dev/null; do
   grep -q -e "Time for Elaboration" -e "DC simulation time" -e "Transient Analysis" spectre.log 2>/dev/null && break
+  if [ $(( $(date +%s) - start )) -ge {COMPILE_CAP_S} ]; then
+    echo "adcflow: compile step stopped at its cap of {COMPILE_CAP_S} s before the analyses; the jobs compile what the shared library lacks"
+    break
+  fi
   sleep 2
 done
 cd "$R"
@@ -240,6 +250,7 @@ for p in $(pgrep -u "$(id -un)"); do
   case "$(readlink /proc/$p/cwd 2>/dev/null)" in "$D"|"$D"/*) kill -9 $p 2>/dev/null;; esac
 done
 wait $pid
+echo "adcflow: compile step $(( $(date +%s) - start )) s"
 rm -rf "$D"
 exit 0
 EOS
@@ -247,25 +258,37 @@ chmod +x $R/run_one.sh $R/compile_va.sh
 cat > $R/batch.sh <<'EOB'
 R="$1"
 """
-    if compile_first and len(jobs) > 1:
+    compile_step = compile_first and len(jobs) > 1
+    if compile_step:
         script += f"$R/compile_va.sh $R {shlex.quote(jobs[0])}\n"
     script += f"cat $R/jobs.list | xargs -P {int(parallel)} -I{{}} $R/run_one.sh $R {{}}\n"
-    limit = server_limit(timeout)
+    limit = batch_limit(len(jobs), parallel, job_timeout, compile_step)
     script += f"""EOB
 timeout -k {KILL_AFTER_S} {limit} bash $R/batch.sh $R
+rc=$?
+if [ $rc -eq 124 ] || [ $rc -eq 137 ]; then     # the backstop: nothing may keep running in $R
+  for p in $(pgrep -u "$(id -un)"); do
+    case "$(readlink /proc/$p/cwd 2>/dev/null)" in "$R"|"$R"/*) kill -9 $p 2>/dev/null;; esac
+  done
+fi
+exit $rc
 """
-    p = ssh_script(script, timeout=timeout, check=False)
+    p = ssh_script(script, timeout=limit + KILL_AFTER_S + SERVER_MARGIN_S, check=False)
+    for line in p.stdout.decode(errors="replace").splitlines():
+        if line.startswith("adcflow: "):
+            print("[adcflow] " + line[len("adcflow: "):])
     if p.returncode in (124, 128 + 9):            # coreutils timeout: TERM sent (124), or KILL needed too
-        raise RunTimeout(f"the jobs ran past {limit} s on the server (inside the batch limit of {timeout:.0f} s) "
-                         "and were killed there, nothing recorded; give the test a longer `timeout:` in its spec "
-                         "(docs/workflow.md §4)")
+        raise RunTimeout(f"the batch ran past its backstop of {limit} s on the server (jobs limited to "
+                         f"{job_timeout:.0f} s each) and was killed there, nothing recorded")
     if p.returncode:
         raise RuntimeError(f"remote script failed ({p.returncode}): {p.stderr.decode(errors='replace')[-2000:]}")
 
 
-def server_limit(timeout: float) -> int:
-    """Seconds the server lets a batch run: SERVER_MARGIN_S (and the KILL grace) inside the ssh timeout."""
-    return max(int(timeout) - SERVER_MARGIN_S, int(timeout) // 2)
+def batch_limit(n_jobs: int, parallel: int, job_timeout: float, compile_step: bool) -> int:
+    """The server-side backstop of a batch (s): the compile cap, then every wave of `parallel` jobs at
+    its full job limit and KILL grace, plus SERVER_MARGIN_S. Normal batches end long before it."""
+    waves = -(-max(n_jobs, 1) // max(int(parallel), 1))
+    return (COMPILE_CAP_S if compile_step else 0) + waves * (int(job_timeout) + KILL_AFTER_S) + SERVER_MARGIN_S
 
 
 def remove(remote_dir: str) -> None:
