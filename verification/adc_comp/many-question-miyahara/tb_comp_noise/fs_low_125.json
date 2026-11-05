@@ -1,0 +1,175 @@
+{
+ "block": "adc_comp",
+ "candidate": "many-question-miyahara",
+ "test": "tb_comp_noise",
+ "view": "xtor-many-question-miyahara",
+ "corner": "fs_low_125",
+ "job": "fs_low_125",
+ "status": "match",
+ "verifies": {
+  "result": "results/adc_comp/tb_comp_noise/xtor-many-question-miyahara/fs_low_125.json",
+  "netlist": "design/xtor/adc_comp/many-question-miyahara/adc_comp.scs",
+  "netlist_hash": "13c455d69c414b14",
+  "date": "2026-11-04T02:33:06",
+  "git": "3b2ed123",
+  "mode": "aps"
+ },
+ "params": {},
+ "globals": {
+  "vdd": 0.81,
+  "vdd18": 1.62,
+  "tempc": 125.0,
+  "noise_en": 1,
+  "devnoise": 1,
+  "beh_speed": 1.0,
+  "vref_in": 0.9,
+  "cdac_behav": 1,
+  "comp_behav": 0
+ },
+ "metrics": {
+  "p1": [
+   0.0039,
+   0.0039,
+   0.0078,
+   0.0332,
+   0.0879,
+   0.127,
+   0.2305,
+   0.3555,
+   0.5488,
+   0.6484,
+   0.7578,
+   0.8613,
+   0.9355,
+   0.9668,
+   0.9922,
+   0.9941,
+   1.0
+  ],
+  "n_per_level": 512,
+  "noise_uV": 270.61635250554104,
+  "noise_ci95_uV": [
+   261.07,
+   280.6
+  ],
+  "offset_abs_mV": 0.005423585462778105,
+  "offset_mV": -0.005423585462778105
+ },
+ "specs": {
+  "CMP-13": {
+   "metric": "noise_uV",
+   "value": 270.61635250554104,
+   "limit": "<= 280",
+   "pass": true
+  },
+  "CMP-02": {
+   "metric": "offset_abs_mV",
+   "value": 0.005423585462778105,
+   "limit": "<= 2",
+   "pass": true
+  }
+ },
+ "specs_na": {
+  "CMP-01": {
+   "metric": "noise_uV",
+   "value": 270.61635250554104,
+   "limit": "<= 200",
+   "corners": "typ"
+  }
+ },
+ "comparison": {
+  "ok": true,
+  "tolerances": "docs/verification.md \u00a77",
+  "problems": [],
+  "verdicts": {
+   "CMP-02": {
+    "self": true,
+    "rerun": true,
+    "ok": true
+   },
+   "CMP-13": {
+    "self": true,
+    "rerun": true,
+    "ok": true
+   }
+  },
+  "metrics": {
+   "n_per_level": {
+    "self": 512,
+    "rerun": 512,
+    "ok": true
+   },
+   "noise_ci95_uV": {
+    "n": 2,
+    "bad": [],
+    "ok": true,
+    "worst_diff_per_tol": 0.0
+   },
+   "noise_uV": {
+    "self": 270.61635250554104,
+    "rerun": 270.61635250554104,
+    "diff": 0.0,
+    "tol": 21.649308200443283,
+    "ok": true
+   },
+   "offset_abs_mV": {
+    "self": 0.005423585462778105,
+    "rerun": 0.005423585462778105,
+    "diff": 0.0,
+    "tol": 0.5,
+    "ok": true
+   },
+   "offset_mV": {
+    "self": -0.005423585462778105,
+    "rerun": -0.005423585462778105,
+    "diff": 0.0,
+    "tol": 0.5,
+    "ok": true
+   },
+   "p1": {
+    "n": 17,
+    "bad": [],
+    "ok": true,
+    "worst_diff_per_tol": 0.0
+   }
+  },
+  "not_compared": [],
+  "notes": []
+ },
+ "meta": {
+  "date": "2026-11-04T12:42:15",
+  "git": "6c2eb525",
+  "git_clean": true,
+  "mode": "aps",
+  "pdk": true,
+  "mc": null,
+  "wall_s": 6394.4,
+  "rc": "0",
+  "sim_s": "895",
+  "numerics": {
+   "source": "spectre.log",
+   "reltol": 0.0001,
+   "maxstep_ps": 34817.0,
+   "method": "gear2only",
+   "errpreset": "conservative",
+   "lteratio": 10.0,
+   "relref": "alllocal",
+   "abstol_V": 1e-06,
+   "steps_accepted": 1814815,
+   "step_mean_ps": 1.91849,
+   "step_max_ps": null
+  },
+  "files": {
+   "tb/comp/tb_comp_noise.scs": "7f1b50d1b19a5653",
+   "tb/common/veriloga/tb_sampler_va.va": "4092bc16170c588d",
+   "design/xtor/adc_comp/many-question-miyahara/adc_comp.scs": "13c455d69c414b14"
+  },
+  "arch": {
+   "keys": [],
+   "sha": "44136fa355b3678a"
+  },
+  "views": {
+   "adc_comp": "xtor:many-question-miyahara"
+  }
+ }
+}

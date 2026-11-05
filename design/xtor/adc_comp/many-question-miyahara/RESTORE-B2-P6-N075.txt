@@ -1,0 +1,96 @@
+// B2-P6-N075: only transfer NMOS M12/M13 W1um -> W0.75um from frozen P6.
+// @RNL(type="header") {
+//   @VERSION("0.3");
+//   @USE-PACKAGE(name="adc28", version="0.1", path="../../../rnl/adc28.rnl")
+// }
+simulator lang=spectre
+subckt adc_comp (INP INN CLKC OUTP OUTN AVDD VSS)
+// Geometry and terminal parasitics are from successful device callbacks.
+// INP > INN asserts OUTP. CLKC low resets both external outputs to zero.
+MINP (DP INP TAIL VSS) nch_ulvt_mac l=3e-08 w=5.6e-05 nf=56 m=1 ad=2.8e-12 as=2.85e-12 pd=6.16e-05 ps=6.37e-05 nrd=0.009138 nrs=0.009138 sa=1.36619e-06 sb=1.36619e-06 sd=1e-07
+MINN (DN INN TAIL VSS) nch_ulvt_mac l=3e-08 w=5.6e-05 nf=56 m=1 ad=2.8e-12 as=2.85e-12 pd=6.16e-05 ps=6.37e-05 nrd=0.009138 nrs=0.009138 sa=1.36619e-06 sb=1.36619e-06 sd=1e-07
+MTAIL (TAIL CLKC VSS VSS) nch_ulvt_mac l=3e-08 w=3e-06 nf=3 m=1 ad=1.75e-13 as=1.75e-13 pd=4.35e-06 ps=4.35e-06 nrd=0.136842 nrs=0.136842 sa=1.47042e-07 sb=1.47042e-07 sd=1e-07
+MRDP (DP CKR AVDD AVDD) pch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-13 pd=4.4e-06 ps=6.5e-06 nrd=0.048530 nrs=0.048530 sa=1.79203e-07 sb=1.79203e-07 sd=1e-07
+MRDN (DN CKR AVDD AVDD) pch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-13 pd=4.4e-06 ps=6.5e-06 nrd=0.048530 nrs=0.048530 sa=1.79203e-07 sb=1.79203e-07 sd=1e-07
+M14 (XP DP AVDD AVDD) pch_ulvt_mac l=3e-08 w=6e-06 nf=6 m=1 ad=3e-13 as=3.5e-13 pd=6.6e-06 ps=8.7e-06 nrd=0.032979 nrs=0.032979 sa=2.39369e-07 sb=2.39369e-07 sd=1e-07
+M15 (XN DN AVDD AVDD) pch_ulvt_mac l=3e-08 w=6e-06 nf=6 m=1 ad=3e-13 as=3.5e-13 pd=6.6e-06 ps=8.7e-06 nrd=0.032979 nrs=0.032979 sa=2.39369e-07 sb=2.39369e-07 sd=1e-07
+M12 (XP DP VSS VSS) nch_ulvt_mac l=3e-08 w=7.5e-07 nf=2 m=1 ad=3.75e-14 as=5.625e-14 pd=9.5e-07 ps=1.8e-06 nrd=0.569186 nrs=0.569186 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
+M13 (XN DN VSS VSS) nch_ulvt_mac l=3e-08 w=7.5e-07 nf=2 m=1 ad=3.75e-14 as=5.625e-14 pd=9.5e-07 ps=1.8e-06 nrd=0.569186 nrs=0.569186 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
+M10 (RP RN XP AVDD) pch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-13 pd=4.4e-06 ps=6.5e-06 nrd=0.048530 nrs=0.048530 sa=1.79203e-07 sb=1.79203e-07 sd=1e-07
+M11 (RN RP XN AVDD) pch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-13 pd=4.4e-06 ps=6.5e-06 nrd=0.048530 nrs=0.048530 sa=1.79203e-07 sb=1.79203e-07 sd=1e-07
+M6 (RP RN VSS VSS) nch_ulvt_mac l=3e-08 w=2e-06 nf=2 m=1 ad=1e-13 as=1.5e-13 pd=2.2e-06 ps=4.3e-06 nrd=0.185844 nrs=0.185844 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
+M7 (RN RP VSS VSS) nch_ulvt_mac l=3e-08 w=2e-06 nf=2 m=1 ad=1e-13 as=1.5e-13 pd=2.2e-06 ps=4.3e-06 nrd=0.185844 nrs=0.185844 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
+M8 (RP DP VSS VSS) nch_ulvt_mac l=3e-08 w=2e-06 nf=2 m=1 ad=1e-13 as=1.5e-13 pd=2.2e-06 ps=4.3e-06 nrd=0.185844 nrs=0.185844 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
+M9 (RN DN VSS VSS) nch_ulvt_mac l=3e-08 w=2e-06 nf=2 m=1 ad=1e-13 as=1.5e-13 pd=2.2e-06 ps=4.3e-06 nrd=0.185844 nrs=0.185844 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
+CDP (DP VSS) cfmom_2t nr=48 lr=1e-06 w=5e-08 s=5e-08 stm=1 spm=3 multi=1
+CDN (DN VSS) cfmom_2t nr=48 lr=1e-06 w=5e-08 s=5e-08 stm=1 spm=3 multi=1
+MCKN (CKB CLKC VSS VSS) nch_ulvt_mac l=3e-08 w=3e-06 nf=3 m=1 ad=1.75e-13 as=1.75e-13 pd=4.35e-06 ps=4.35e-06 nrd=0.136842 nrs=0.136842 sa=1.47042e-07 sb=1.47042e-07 sd=1e-07
+MCKP (CKB CLKC AVDD AVDD) pch_ulvt_mac l=3e-08 w=8e-06 nf=8 m=1 ad=4e-13 as=4.5e-13 pd=8.8e-06 ps=1.09e-05 nrd=0.024976 nrs=0.024976 sa=2.95835e-07 sb=2.95835e-07 sd=1e-07
+MCK2N (CKR CKB VSS VSS) nch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-13 pd=4.4e-06 ps=6.5e-06 nrd=0.108289 nrs=0.108289 sa=1.79203e-07 sb=1.79203e-07 sd=1e-07
+MCK2P (CKR CKB AVDD AVDD) pch_ulvt_mac l=3e-08 w=8e-06 nf=8 m=1 ad=4e-13 as=4.5e-13 pd=8.8e-06 ps=1.09e-05 nrd=0.024976 nrs=0.024976 sa=2.95835e-07 sb=2.95835e-07 sd=1e-07
+MRQP (RP CKB VSS VSS) nch_ulvt_mac l=3e-08 w=2e-06 nf=2 m=1 ad=1e-13 as=1.5e-13 pd=2.2e-06 ps=4.3e-06 nrd=0.185844 nrs=0.185844 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
+MRQN (RN CKB VSS VSS) nch_ulvt_mac l=3e-08 w=2e-06 nf=2 m=1 ad=1e-13 as=1.5e-13 pd=2.2e-06 ps=4.3e-06 nrd=0.185844 nrs=0.185844 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
+MAP (DP CLKC AVDD AVDD) pch_ulvt_mac l=3e-08 w=2e-06 nf=2 m=1 ad=1e-13 as=1.5e-13 pd=2.2e-06 ps=4.3e-06 nrd=0.091833 nrs=0.091833 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
+MAN (DN CLKC AVDD AVDD) pch_ulvt_mac l=3e-08 w=2e-06 nf=2 m=1 ad=1e-13 as=1.5e-13 pd=2.2e-06 ps=4.3e-06 nrd=0.091833 nrs=0.091833 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
+CCB (CKB VSS) cfmom_2t nr=16 lr=1e-06 w=5e-08 s=5e-08 stm=1 spm=3 multi=1
+CCR (CKR VSS) cfmom_2t nr=16 lr=1e-06 w=5e-08 s=5e-08 stm=1 spm=3 multi=1
+MBPP (BP RP AVDD AVDD) pch_ulvt_mac l=3e-08 w=6e-06 nf=6 m=1 ad=3e-13 as=3.5e-13 pd=6.6e-06 ps=8.7e-06 nrd=0.032979 nrs=0.032979 sa=2.39369e-07 sb=2.39369e-07 sd=1e-07
+MBPN (BP RP VSS VSS) nch_ulvt_mac l=3e-08 w=1e-06 nf=1 m=1 ad=7.5e-14 as=7.5e-14 pd=2.15e-06 ps=2.15e-06 nrd=0.289519 nrs=0.289519 sa=7.5e-08 sb=7.5e-08 sd=1e-07
+MOPP (OUTP BP AVDD AVDD) pch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-13 pd=4.4e-06 ps=6.5e-06 nrd=0.048530 nrs=0.048530 sa=1.79203e-07 sb=1.79203e-07 sd=1e-07
+MOPN (OUTP BP VSS VSS) nch_ulvt_mac l=3e-08 w=2e-06 nf=2 m=1 ad=1e-13 as=1.5e-13 pd=2.2e-06 ps=4.3e-06 nrd=0.185844 nrs=0.185844 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
+MBNP (BN RN AVDD AVDD) pch_ulvt_mac l=3e-08 w=6e-06 nf=6 m=1 ad=3e-13 as=3.5e-13 pd=6.6e-06 ps=8.7e-06 nrd=0.032979 nrs=0.032979 sa=2.39369e-07 sb=2.39369e-07 sd=1e-07
+MBNN (BN RN VSS VSS) nch_ulvt_mac l=3e-08 w=1e-06 nf=1 m=1 ad=7.5e-14 as=7.5e-14 pd=2.15e-06 ps=2.15e-06 nrd=0.289519 nrs=0.289519 sa=7.5e-08 sb=7.5e-08 sd=1e-07
+MONP (OUTN BN AVDD AVDD) pch_ulvt_mac l=3e-08 w=4e-06 nf=4 m=1 ad=2e-13 as=2.5e-13 pd=4.4e-06 ps=6.5e-06 nrd=0.048530 nrs=0.048530 sa=1.79203e-07 sb=1.79203e-07 sd=1e-07
+MONN (OUTN BN VSS VSS) nch_ulvt_mac l=3e-08 w=2e-06 nf=2 m=1 ad=1e-13 as=1.5e-13 pd=2.2e-06 ps=4.3e-06 nrd=0.185844 nrs=0.185844 sa=1.12742e-07 sb=1.12742e-07 sd=1e-07
+// @RNL(author="n075-complete") {
+// &VSS @ADD-TO $GROUND_NET_SET; &AVDD @ADD-TO $SUPPLY_NET_SET;
+// # @SELECT-INSTANCE => @TEXT("",key="model");
+// # @SELECT-INSTANCE => @TEXT("${name}",key="name",size=.8,dx=0,dy=5);
+// # @SELECT-INSTANCE => @TEXT("${w}/${l} nf${nf}",key="dims",size=.65,dy=-4);
+// # @SELECT-TERMINAL => @REMOVE-FROM $GROUND_FILL_SET;
+// # @SELECT-TERMINAL => @REMOVE-FROM $SUPPLY_FILL_SET;
+// # @SELECT-NET(port=true) => @REMOVE-FROM $PORT_FILL_SET;
+// # @SELECT-TERMINAL(wired=false) => @TEXT("${net}",key="netname",size=.7);
+// (-40,51) @TEXT("B2-P6-N075 | only M12/M13 changed | 31 MOS + 4 MOM",size=1.3,bold=true);
+// (-40,48) @TEXT("Pins connect by the exact displayed net names; all physical devices shown.",size=.9);
+// #MINP @PLACE(-7.2,-13.5);
+// #MINN @PLACE(7.2,-13.5);
+// #MTAIL @PLACE(0,-27);
+// #MRDP @PLACE(-18,-13.5);
+// #MRDN @PLACE(18,-13.5);
+// #MAP @PLACE(-27.6,-13.5);
+// #MAN @PLACE(27.6,-13.5);
+// #CDP @PLACE(-14.4,-27);
+// #CDN @PLACE(14.4,-27);
+// #M14 @PLACE(-7.2,38.25);
+// #M15 @PLACE(7.2,38.25);
+// #M12 @PLACE(-18,38.25);
+// #M13 @PLACE(18,38.25);
+// #M10 @PLACE(-7.2,24.75);
+// #M11 @PLACE(7.2,24.75);
+// #M6 @PLACE(-7.2,11.25);
+// #M7 @PLACE(7.2,11.25);
+// #M8 @PLACE(-18,11.25);
+// #M9 @PLACE(18,11.25);
+// #MRQP @PLACE(-27.6,11.25);
+// #MRQN @PLACE(27.6,11.25);
+// #MBPP @PLACE(-36,38.25);
+// #MBPN @PLACE(-36,24.75);
+// #MOPP @PLACE(-46.8,38.25);
+// #MOPN @PLACE(-46.8,24.75);
+// #MBNP @PLACE(36,38.25);
+// #MBNN @PLACE(36,24.75);
+// #MONP @PLACE(46.8,38.25);
+// #MONN @PLACE(46.8,24.75);
+// #MCKP @PLACE(-36,-13.5);
+// #MCKN @PLACE(-36,-27);
+// #MCK2P @PLACE(-46.8,-13.5);
+// #MCK2N @PLACE(-46.8,-27);
+// #CCB @PLACE(-36,-40.5);
+// #CCR @PLACE(-46.8,-40.5);
+// #CDP @TEXT("nr=${nr} lr=${lr}",key="dims",size=.65,dy=-4);
+// #CDN @TEXT("nr=${nr} lr=${lr}",key="dims",size=.65,dy=-4);
+// #CCB @TEXT("nr=${nr} lr=${lr}",key="dims",size=.65,dy=-4);
+// #CCR @TEXT("nr=${nr} lr=${lr}",key="dims",size=.65,dy=-4);
+// }
+ends adc_comp

@@ -7,11 +7,13 @@
 ## 1. 结论
 
 * **现在**：ENOB、SNDR、SFDR、SNR、THD 全部直接取自 ADCToolbox 的 `compute_spectrum`（`tools/adcflow/spectrum.py`），
-  `pyproject.toml` 固定到上游提交 `cd72061`（Arcadia-1/ADCToolbox#100 的修复）。#36 期间的本地估计器 `adcflow.spectrum.sfdr_dbc` 已退役。
-* **固定提交，不固定版本**：这个提交的版本号仍是 0.9.1，而 PyPI 上的 0.9.1 **没有**修复（§3）。所以 `pyproject.toml` 写提交，
-  结果的 `meta.provenance.spectrum` 同时记录版本与提交，`tests/test_spectrum.py` 检查安装的正是这个提交。结果里的提交号是常量，单独看不能证明安装的版本，
-  所以 `sim`、`remeasure` 开始前和每次计算指标前都读安装记录（`direct_url.json`），装的不是这个提交就报错，提示重新安装。
-* **`cd72061` 在 §4 的全部用例上给出真值**（§8）。没有注入杂散的噪声底上，它仍对杂散频点 ±1 求和再除以 ENBW，`quantized` 用例报 88.42 dB，
+  `pyproject.toml` 固定到 PyPI 正式版 `adctoolbox==0.9.2`，这是第一个含 Arcadia-1/ADCToolbox#100 修复的正式版（#96，§9）。
+  #36 期间的本地估计器 `adcflow.spectrum.sfdr_dbc` 已退役。
+* **固定正式版**：结果的 `meta.provenance.spectrum` 记录版本，`tests/test_spectrum.py` 检查固定的版本、安装的版本与 `spectrum.ADCTOOLBOX` 一致。
+  结果里的版本号是常量，单独看不能证明装的是什么，所以 `sim`、`remeasure` 开始前和每次计算指标前都读安装记录：版本不是 0.9.2，
+  或者是从 git、本地目录装的（有 `direct_url.json`，版本号相同也可能带着正式版之后的改动），就报错并提示重新安装。
+  #96 之前的结果记录的是上游提交 `cd72061`（版本号 0.9.1，PyPI 上的 0.9.1 **没有**修复），它是 0.9.2 的祖先。0.9.2 没有改指标的计算，本地能重算的记录逐位相同，这些结果不需要重跑（§9）。
+* **`cd72061` 与 0.9.2 在 §4 的全部用例上给出真值**（§8、§9）。没有注入杂散的噪声底上，它仍对杂散频点 ±1 求和再除以 ENBW，`quantized` 用例报 88.42 dB，
   `plotspec` 的单频点定义报 88.08 dB；这个差别是定义不同，不是错误。
 * **上游还剩一个限制**：杂散碰到信号频点时，它的一部分泄漏被算作信号，**SNDR 约高 0.8 dB**（`issue36` 报 80.79 dB，真值 80.00 dB）。这是按频点划分信号的方法本身的局限，SFDR 不受影响。
 * MATLAB ADCToolbox `plotspec`（v1.32）的 SFDR 定义也是对的。它的缺陷在别处：
@@ -145,7 +147,7 @@ SFDR = 10·log10( P[f] / max(Q) )，杂散频点 = argmax(Q)
 ## 7. 复现
 
 ```bash
-python -m pytest tests/test_spectrum.py                    # 回归：真值、MATLAB 值、固定的提交、remeasure
+python -m pytest tests/test_spectrum.py                    # 回归：真值、MATLAB 值、固定的版本、remeasure
 python tests/sfdr_cases.py <dir>                           # 写出用例，供 MATLAB 运行
 matlab -batch "addpath('tests/matlab'); sfdr_plotspec('<dir>', '<ADCToolbox>/matlab/src')"
 python -m adcflow remeasure <test> --run build/runs/<run_id> [--dry-run]
@@ -181,3 +183,22 @@ python -m adcflow remeasure <test> --run build/runs/<run_id> [--dry-run]
   模型上（只换工具，同样的数据）`adcflow budget` 的标称权重 SFDR 降低 0.1~0.6 dB，校准后 ENOB 不变（差 ≤ 0.01 bit）。§6 的表与 `plotspec` 的一致性是 #36 时的事实，不再成立于噪声底主导的记录。
 * **行为级基线**（TT 与 `tb_top_sine` 的 10 个角）同时换了预设与工具，全部判定不变：顶层 SFDR 最小 82.6 dBc（限值 75），校准 ENOB 最小 10.83 bit。
 * `remeasure` 默认只允许名称含 `sfdr` 的指标变化；换工具后 SNDR、ENOB 也会变，所以旧结果应重跑，或显式加 `--allow`。
+
+## 9. 换成 PyPI 正式版 0.9.2（#96）
+
+`cd72061` 是上游 v0.9.2 的祖先（落后 24 个提交，不领先）。这期间与项目有关的改动：
+
+* `compute_spectrum`：`side_bin` 可以写 `"auto"`（等同 `None`）。自动 `side_bin` 的算法不变，只是多返回所用的理想泄漏与噪声底；
+  新增一项检查：自动信号窗口里离基波超过“窗的默认 `side_bin` + 1”个频点、又比理想泄漏加噪声底高 10 dB 以上的频点，会触发 `UserWarning`。
+  指标的计算没有改。`quick_sndr` 有同样的检查，项目没有用它；`aout/analyze_error_spectrum.py` 只改了文档字符串。
+* `calibrate_weight_sine`、`find_coherent_frequency`、`fit_sine_4param` 没有改动。`predict_spurs` 的 6 dB 修复在 `cd72061` 之前已经合入，项目也没有用它。
+
+核对（两个 venv，numpy、scipy 版本相同，同一份 adcflow 度量代码）：
+
+* 本地保存的六个正弦测试的全部运行数据（229 个 job）用 `cd72061` 与 0.9.2 分别度量，**全部指标逐位相同**。
+  其中包括 `results/` 中全部 16 个行为级频谱结果，它们的已记录指标被逐位复现。178 个晶体管级结果的原始数据不在本地，
+  没有重算；它们经过同一段没有改动的代码。
+* 新检查在这些记录上不会触发：370 次 `compute_spectrum` 调用的自动 `side_bin` 都是 1（相干 Hann），而检查跳过离基波 2 个频点以内的频点，
+  窗口里没有可查的频点。pytest 与 adcflow 都不把警告当错误。
+* 新结果的 `meta.provenance.spectrum` 记 `adctoolbox 0.9.2 compute_spectrum`；已有结果保留 `cd72061` 的记录。
+  新鲜度只看 `meta.files` 的哈希与视图，不看 provenance，所以换版本不会让任何结果变旧。

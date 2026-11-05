@@ -1,0 +1,147 @@
+{
+ "block": "adc_comp",
+ "candidate": "many-question-miyahara",
+ "test": "tb_comp_kickback",
+ "view": "xtor-many-question-miyahara",
+ "corner": "ss_nom_27",
+ "job": "ss_nom_27",
+ "status": "match",
+ "verifies": {
+  "result": "results/adc_comp/tb_comp_kickback/xtor-many-question-miyahara/ss_nom_27.json",
+  "netlist": "design/xtor/adc_comp/many-question-miyahara/adc_comp.scs",
+  "netlist_hash": "13c455d69c414b14",
+  "date": "2026-11-04T03:10:02",
+  "git": "a76094ad",
+  "mode": "aps"
+ },
+ "params": {},
+ "globals": {
+  "vdd": 0.9,
+  "vdd18": 1.8,
+  "tempc": 27.0,
+  "noise_en": 0,
+  "devnoise": 1,
+  "beh_speed": 1.0,
+  "vref_in": 0.9,
+  "cdac_behav": 1,
+  "comp_behav": 0
+ },
+ "metrics": {
+  "kickback_uV": 5.1563300070694984e-05,
+  "vdiff_uV": [
+   999.999,
+   999.808,
+   999.808,
+   999.808,
+   999.808,
+   999.808,
+   999.808,
+   999.808
+  ],
+  "cin_fF": 18.57179030939327,
+  "cin_clkc_fF": 11.432417009629173
+ },
+ "specs": {
+  "CMP-11": {
+   "metric": "kickback_uV",
+   "value": 5.1563300070694984e-05,
+   "limit": "<= 40",
+   "pass": true
+  }
+ },
+ "specs_na": {
+  "CMP-12": {
+   "metric": "cin_fF",
+   "value": 18.57179030939327,
+   "limit": "<= 20",
+   "corners": "typ"
+  },
+  "CMP-14": {
+   "metric": "cin_clkc_fF",
+   "value": 11.432417009629173,
+   "limit": "<= 16",
+   "corners": "typ"
+  }
+ },
+ "comparison": {
+  "ok": true,
+  "tolerances": "docs/verification.md \u00a77",
+  "problems": [],
+  "verdicts": {
+   "CMP-11": {
+    "self": true,
+    "rerun": true,
+    "ok": true
+   }
+  },
+  "metrics": {
+   "cin_clkc_fF": {
+    "self": 11.432417009629173,
+    "rerun": 11.432417009629173,
+    "diff": 0.0,
+    "tol": 0.22864834019258345,
+    "ok": true
+   },
+   "cin_fF": {
+    "self": 18.57179030939327,
+    "rerun": 18.57179030939327,
+    "diff": 0.0,
+    "tol": 0.37143580618786537,
+    "ok": true
+   },
+   "kickback_uV": {
+    "self": 5.1563300070694984e-05,
+    "rerun": 5.1563300070694984e-05,
+    "diff": 0.0,
+    "tol": 5.0,
+    "ok": true
+   },
+   "vdiff_uV": {
+    "n": 8,
+    "bad": [],
+    "ok": true,
+    "worst_diff_per_tol": 0.0
+   }
+  },
+  "not_compared": [],
+  "notes": []
+ },
+ "meta": {
+  "date": "2026-11-04T11:14:47",
+  "git": "6c2eb525",
+  "git_clean": true,
+  "mode": "aps",
+  "pdk": true,
+  "mc": null,
+  "wall_s": 340.0,
+  "rc": "0",
+  "sim_s": "26",
+  "numerics": {
+   "source": "spectre.log",
+   "reltol": 1e-06,
+   "maxstep_ps": 33.0,
+   "method": "gear2only",
+   "errpreset": "conservative",
+   "lteratio": 10.0,
+   "relref": "alllocal",
+   "abstol_V": 1e-08,
+   "vabstol": 1e-08,
+   "steps_accepted": 6989,
+   "step_mean_ps": 0.472171,
+   "step_max_ps": 29.9906
+  },
+  "files": {
+   "tb/comp/tb_comp_kickback.scs": "505337caf7038338",
+   "design/xtor/adc_comp/many-question-miyahara/adc_comp.scs": "13c455d69c414b14",
+   "tb/common/veriloga/tb_sampler_va.va": "4092bc16170c588d",
+   "tb/common/veriloga/tb_qmeter_va.va": "fed84d572a912b39"
+  },
+  "arch": {
+   "keys": [],
+   "sha": "44136fa355b3678a"
+  },
+  "views": {
+   "adc_comp": "xtor:many-question-miyahara"
+  }
+ }
+}

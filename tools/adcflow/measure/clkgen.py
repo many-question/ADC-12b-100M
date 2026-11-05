@@ -97,7 +97,7 @@ def timing(job_dir: Path, ctx: dict) -> dict:
     fg = sink_of(ctx)
     if fg and cyc:
         _fig_timing(fg, ctx, w, vdd, x, cyc, cov, m)
-    if fg and m.get("soa_table"):
+    if fg and soa.table_rows(m):
         soa.figure(fg, ctx, m, w)
     return m
 

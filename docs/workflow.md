@@ -3,7 +3,7 @@
 ## 1. 本地环境（一次性）
 
 ```bash
-pip install -e ".[analysis,dev]"          # adcflow 工具包 + adctoolbox（上游提交 cd72061，需要 git）+ pytest
+pip install -e ".[analysis,dev]"          # adcflow 工具包 + adctoolbox 0.9.2（PyPI）+ pytest
 git config core.hooksPath tools/hooks     # 提交前检查（hygiene / ports / 生成文件）
 ```
 

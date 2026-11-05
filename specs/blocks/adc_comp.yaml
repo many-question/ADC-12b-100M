@@ -1,8 +1,8 @@
 block: adc_comp
 title: Dynamic latched comparator
-version: 0.11.0
-selected: none          # the selected candidate (design/xtor/<block>/<name>/); none yet
-status: behavioral
+version: 0.11.1
+selected: many-question-miyahara # the selected candidate (design/xtor/<block>/<name>/); verified, mixed top level passed (#148)
+status: xtor-review
 views:
   behav: design/behav/adc_comp.scs
 summary: >

@@ -1,0 +1,111 @@
+{
+ "block": "adc_comp",
+ "test": "tb_comp_noise",
+ "view": "xtor-many-question-miyahara",
+ "corner": "ss_low_125",
+ "params": {},
+ "globals": {
+  "vdd": 0.81,
+  "vdd18": 1.62,
+  "tempc": 125.0,
+  "noise_en": 1,
+  "devnoise": 1,
+  "beh_speed": 1.0,
+  "vref_in": 0.9,
+  "cdac_behav": 1,
+  "comp_behav": 0
+ },
+ "metrics": {
+  "p1": [
+   0.0,
+   0.0,
+   0.0078,
+   0.0098,
+   0.043,
+   0.0723,
+   0.1758,
+   0.3164,
+   0.5332,
+   0.666,
+   0.7832,
+   0.9102,
+   0.9629,
+   0.9902,
+   0.9941,
+   1.0,
+   1.0
+  ],
+  "n_per_level": 512,
+  "noise_uV": 223.76568545693752,
+  "noise_ci95_uV": [
+   215.22,
+   232.71
+  ],
+  "offset_abs_mV": 0.0035489464198460246,
+  "offset_mV": 0.0035489464198460246
+ },
+ "specs": {
+  "CMP-13": {
+   "metric": "noise_uV",
+   "value": 223.76568545693752,
+   "limit": "<= 280",
+   "pass": true
+  },
+  "CMP-02": {
+   "metric": "offset_abs_mV",
+   "value": 0.0035489464198460246,
+   "limit": "<= 2",
+   "pass": true
+  }
+ },
+ "specs_na": {
+  "CMP-01": {
+   "metric": "noise_uV",
+   "value": 223.76568545693752,
+   "limit": "<= 200",
+   "corners": "typ"
+  }
+ },
+ "figures": [
+  {
+   "file": "ss_low_125.noise.png",
+   "caption": "Probability of OUTP = 1 against input difference with the binomial maximum-likelihood probit fit that gives the input-referred noise and offset, the 95 % interval of the noise and the curve at the noise limit; fit residuals against the binomial scatter."
+  }
+ ],
+ "meta": {
+  "date": "2026-11-04T04:53:30",
+  "git": "64e33893",
+  "git_clean": true,
+  "mode": "aps",
+  "pdk": true,
+  "mc": null,
+  "wall_s": 8330.9,
+  "rc": "0",
+  "sim_s": "845",
+  "numerics": {
+   "source": "spectre.log",
+   "reltol": 0.0001,
+   "maxstep_ps": 34817.0,
+   "method": "gear2only",
+   "errpreset": "conservative",
+   "lteratio": 10.0,
+   "relref": "alllocal",
+   "abstol_V": 1e-06,
+   "steps_accepted": 1809848,
+   "step_mean_ps": 1.92375,
+   "step_max_ps": null
+  },
+  "files": {
+   "tb/comp/tb_comp_noise.scs": "7f1b50d1b19a5653",
+   "tb/common/veriloga/tb_sampler_va.va": "4092bc16170c588d",
+   "design/xtor/adc_comp/many-question-miyahara/adc_comp.scs": "13c455d69c414b14"
+  },
+  "arch": {
+   "keys": [],
+   "sha": "44136fa355b3678a"
+  },
+  "views": {
+   "adc_comp": "xtor:many-question-miyahara"
+  }
+ }
+}

@@ -146,6 +146,6 @@ def soa_test(job_dir: Path, ctx: dict, sigs: list[str]) -> dict:
         note(axs[0, 0], m.get("error") or f"SOA scope {scope}, {pairs} pair(s), {m.get('soa_violations')} violation(s)"
              + ("" if pairs else ": not device evidence"))
         fg.save(fig, "stimulus", f"Stimulus of the SOA test over the whole transient (scope {scope}, {pairs} pairs).")
-        if m.get("soa_table"):
+        if soa.table_rows(m):
             soa.figure(fg, ctx, m, w)
     return m

@@ -1,0 +1,280 @@
+{
+ "block": "adc_comp",
+ "candidate": "many-question-miyahara",
+ "test": "tb_comp_delay",
+ "view": "xtor-many-question-miyahara",
+ "corner": "sf_high_m40",
+ "job": "sf_high_m40",
+ "status": "match",
+ "verifies": {
+  "result": "results/adc_comp/tb_comp_delay/xtor-many-question-miyahara/sf_high_m40.json",
+  "netlist": "design/xtor/adc_comp/many-question-miyahara/adc_comp.scs",
+  "netlist_hash": "13c455d69c414b14",
+  "date": "2026-11-04T02:51:35",
+  "git": "f86742b6",
+  "mode": "aps"
+ },
+ "params": {},
+ "globals": {
+  "vdd": 0.99,
+  "vdd18": 1.98,
+  "tempc": -40.0,
+  "noise_en": 0,
+  "devnoise": 1,
+  "beh_speed": 1.0,
+  "vref_in": 0.9,
+  "cdac_behav": 1,
+  "comp_behav": 0
+ },
+ "metrics": {
+  "wrong_decisions": 0,
+  "tdelay_1mV_ps": 58.041452361181044,
+  "tdelay_30mV_ps": 48.518601562140404,
+  "tau_reg_ps": 2.260227570098554,
+  "treset_ps": 22.232028120050884,
+  "validity_violations": 0,
+  "loser_peak_pct": 2.4533598647756576,
+  "validity": {
+   "rule": "each CLKC rise .. fall: exactly one output >= 0.5 VDD, the other < 0.3 VDD",
+   "dt_max_ps": 16.367,
+   "cycles": 36,
+   "decided": 36,
+   "worst": {
+    "cycle": 18,
+    "vd_uV": -10.0,
+    "output": "OUTP",
+    "t_ps": 62.649
+   },
+   "violations": [],
+   "undecided": [],
+   "loser_peaks_pct": [
+    2.091,
+    2.091,
+    2.09,
+    2.09,
+    2.091,
+    2.091,
+    2.106,
+    2.106,
+    2.125,
+    2.125,
+    2.19,
+    2.19,
+    2.275,
+    2.276,
+    2.37,
+    2.37,
+    2.453,
+    2.453,
+    2.091,
+    2.091,
+    2.09,
+    2.09,
+    2.091,
+    2.091,
+    2.106,
+    2.106,
+    2.125,
+    2.125,
+    2.19,
+    2.19,
+    2.275,
+    2.275,
+    2.369,
+    2.37,
+    2.453,
+    2.453
+   ]
+  },
+  "energy_fJ": 958.6698378839999
+ },
+ "specs": {
+  "CMP-05": {
+   "metric": "tdelay_1mV_ps",
+   "value": 58.041452361181044,
+   "limit": "<= 120",
+   "pass": true
+  },
+  "CMP-07": {
+   "metric": "tau_reg_ps",
+   "value": 2.260227570098554,
+   "limit": "<= 15",
+   "pass": true
+  },
+  "CMP-08": {
+   "metric": "treset_ps",
+   "value": 22.232028120050884,
+   "limit": "<= 45",
+   "pass": true
+  },
+  "CMP-09": {
+   "metric": "wrong_decisions",
+   "value": 0,
+   "limit": "<= 0",
+   "pass": true
+  },
+  "CMP-15": {
+   "metric": "validity_violations",
+   "value": 0,
+   "limit": "<= 0",
+   "pass": true
+  },
+  "CMP-16": {
+   "metric": "loser_peak_pct",
+   "value": 2.4533598647756576,
+   "limit": "reported",
+   "pass": null
+  }
+ },
+ "specs_na": {
+  "CMP-04": {
+   "metric": "tdelay_1mV_ps",
+   "value": 58.041452361181044,
+   "limit": "<= 80",
+   "corners": "typ"
+  },
+  "CMP-06": {
+   "metric": "tdelay_30mV_ps",
+   "value": 48.518601562140404,
+   "limit": "<= 50",
+   "corners": "typ"
+  },
+  "CMP-10": {
+   "metric": "energy_fJ",
+   "value": 958.6698378839999,
+   "limit": "reported",
+   "corners": "typ"
+  }
+ },
+ "comparison": {
+  "ok": true,
+  "tolerances": "docs/verification.md \u00a77",
+  "problems": [],
+  "verdicts": {
+   "CMP-05": {
+    "self": true,
+    "rerun": true,
+    "ok": true
+   },
+   "CMP-07": {
+    "self": true,
+    "rerun": true,
+    "ok": true
+   },
+   "CMP-08": {
+    "self": true,
+    "rerun": true,
+    "ok": true
+   },
+   "CMP-09": {
+    "self": true,
+    "rerun": true,
+    "ok": true
+   },
+   "CMP-15": {
+    "self": true,
+    "rerun": true,
+    "ok": true
+   },
+   "CMP-16": {
+    "self": null,
+    "rerun": null,
+    "ok": true
+   }
+  },
+  "metrics": {
+   "energy_fJ": {
+    "self": 958.6698378839999,
+    "rerun": 958.6698378839999,
+    "diff": 0.0,
+    "tol": 19.17339675768,
+    "ok": true
+   },
+   "loser_peak_pct": {
+    "self": 2.4533598647756576,
+    "rerun": 2.4533598647756576,
+    "diff": 0.0,
+    "tol": 0.1,
+    "ok": true
+   },
+   "tau_reg_ps": {
+    "self": 2.260227570098554,
+    "rerun": 2.260227570098554,
+    "diff": 0.0,
+    "tol": 1.0,
+    "ok": true
+   },
+   "tdelay_1mV_ps": {
+    "self": 58.041452361181044,
+    "rerun": 58.041452361181044,
+    "diff": 0.0,
+    "tol": 1.160829047223621,
+    "ok": true
+   },
+   "tdelay_30mV_ps": {
+    "self": 48.518601562140404,
+    "rerun": 48.518601562140404,
+    "diff": 0.0,
+    "tol": 1.0,
+    "ok": true
+   },
+   "treset_ps": {
+    "self": 22.232028120050884,
+    "rerun": 22.232028120050884,
+    "diff": 0.0,
+    "tol": 1.0,
+    "ok": true
+   },
+   "validity_violations": {
+    "self": 0,
+    "rerun": 0,
+    "ok": true
+   },
+   "wrong_decisions": {
+    "self": 0,
+    "rerun": 0,
+    "ok": true
+   }
+  },
+  "not_compared": [
+   "validity"
+  ],
+  "notes": []
+ },
+ "meta": {
+  "date": "2026-11-04T11:07:38",
+  "git": "6c2eb525",
+  "git_clean": true,
+  "mode": "aps",
+  "pdk": true,
+  "mc": null,
+  "wall_s": 295.9,
+  "rc": "0",
+  "sim_s": "24",
+  "numerics": {
+   "source": "spectre.log",
+   "reltol": 0.0001,
+   "maxstep_ps": 145.0,
+   "method": "gear2only",
+   "errpreset": "conservative",
+   "lteratio": 10.0,
+   "relref": "alllocal",
+   "abstol_V": 1e-06,
+   "steps_accepted": 7157,
+   "step_mean_ps": 2.02599,
+   "step_max_ps": 56.5
+  },
+  "files": {
+   "tb/comp/tb_comp_delay.scs": "d2d5d695c2a3ce22",
+   "tb/common/veriloga/tb_imeter_va.va": "d4be49aca417ad61",
+   "design/xtor/adc_comp/many-question-miyahara/adc_comp.scs": "13c455d69c414b14"
+  },
+  "arch": {
+   "keys": [],
+   "sha": "44136fa355b3678a"
+  },
+  "views": {
+   "adc_comp": "xtor:many-question-miyahara"
+  }
+ }
+}

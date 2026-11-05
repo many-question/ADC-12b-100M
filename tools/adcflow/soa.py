@@ -46,6 +46,12 @@ window (``t_window_ps``), both linear between the saved points. ``violations`` a
 rule to the recorded table when a result is judged, so specs/soa_rule.yaml makes no result
 stale. A result recorded before the rule has no ``t_window_ps``: its total time is an upper
 bound of every window, so a pair within the rule by that bound passes.
+
+A result records the table packed (``pack_table``: the device, master and where of each device
+once, one short row per pair), which keeps every field of every pair and is 2.5 times smaller than
+one dict per pair (a result is limited to 1 MB: about 12 900 pairs instead of 5 100). Results
+recorded before that hold the list of dicts. ``table_rows`` reads either form back as dicts:
+every consumer goes through it.
 """
 
 from __future__ import annotations
@@ -269,7 +275,7 @@ def check(pl: Plan | None, w: dict[str, np.ndarray], remote: dict | None = None)
     of the check made on the server (`remote`, soa_rows.json) when `w` is only a thin part of them.
 
     soa_violations is the number of device / terminal pairs outside the rule (module docstring);
-    soa_table lists every pair. Raises Unverified when the check cannot be made."""
+    soa_table lists every pair, packed (pack_table). Raises Unverified when the check cannot be made."""
     if pl is None:
         raise Unverified("no SOA plan for this run (the deck saved no device nodes)")
     if pl.problem:
@@ -310,8 +316,48 @@ def check(pl: Plan | None, w: dict[str, np.ndarray], remote: dict | None = None)
         out["soa_waveform_MB"] = round(remote["size_bytes"] / 1e6, 1)     # read on the server, not fetched
     if pl.skipped:
         out["soa_skipped"] = list(pl.skipped)
-    out["soa_table"] = rows
+    out["soa_table"] = pack_table(rows)
     return out
+
+
+# ------------------------------------------------------------------ the recorded table
+TABLE_DEVICE = ("device", "master", "where")             # what a pair has from its device, recorded once per device
+
+
+def pack_table(rows: list[dict]) -> dict | list:
+    """The soa_table that a result records, from the rows of pair_rows (one dict per pair), keeping every
+    field of every pair: ``devices`` lists each device's [device, master, where] once, ``columns`` names the
+    fields of a row ("device" first, the index into ``devices``) and ``rows`` has one list per pair, in
+    the order of the pairs. Empty without rows. All rows must have the same fields."""
+    if not rows:
+        return []
+    fields = [k for k in rows[0] if k not in TABLE_DEVICE]
+    index: dict[tuple, int] = {}
+    devices, out = [], []
+    for r in rows:
+        if r.keys() != rows[0].keys():
+            raise ValueError("soa_table: the rows do not all have the same fields")
+        key = tuple(r[k] for k in TABLE_DEVICE)
+        if key not in index:
+            index[key] = len(devices)
+            devices.append(list(key))
+        out.append([index[key]] + [r[k] for k in fields])
+    return {"devices": devices, "columns": ["device", *fields], "rows": out}
+
+
+def table_rows(metrics: dict) -> list[dict]:
+    """The pairs of a result's soa_table as dicts (device, master, where, pair, max_V, signed_V, t_ns, dt_ps,
+    t_over_ps, t_window_ps, pass), from either recorded form: the list of dicts of the results recorded
+    before pack_table, or the packed table. A result without a table, or with an empty one, has none."""
+    table = metrics.get("soa_table")
+    if not table:
+        return []
+    if isinstance(table, list):
+        return table
+    devices, columns = table["devices"], table["columns"]
+    if columns[0] != "device":
+        raise ValueError(f"soa_table: the first column is {columns[0]!r}, not 'device'")
+    return [{**dict(zip(TABLE_DEVICE, devices[row[0]])), **dict(zip(columns[1:], row[1:]))} for row in table["rows"]]
 
 
 def passes(vmax: float, window: float, limit: float) -> bool:
@@ -329,7 +375,7 @@ def violations(metrics: dict) -> int | None:
     """soa_violations by the current rule from a recorded soa_table (when a result is judged);
     None without a table, then the recorded metric stands. A window recorded for another length,
     or none at all, is replaced by the total time above the limit, its upper bound."""
-    table = metrics.get("soa_table")
+    table = table_rows(metrics)
     limit = metrics.get("soa_limit_V")
     if not table or limit is None:
         return None
@@ -359,7 +405,7 @@ def figure(fg, ctx: dict, m: dict, w: dict[str, np.ndarray], nbars: int = 18) ->
     from .figures import C1, C2, C3, LIMIT, MUTED, hline, note, vline
 
     pl: Plan = ctx["soa"]
-    rows = sorted(m["soa_table"], key=lambda r: -r["max_V"])
+    rows = sorted(table_rows(m), key=lambda r: -r["max_V"])
     if not rows:                                         # nothing to check: the measure's own figure says so
         return
     lim = pl.limit_V
