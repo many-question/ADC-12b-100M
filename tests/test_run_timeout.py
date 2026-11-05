@@ -1,5 +1,6 @@
-"""The batch time limit of remote.run_jobs: the server ends the batch (whole process group) before the
-local ssh timeout, and a batch ended that way is a reported failure, never a silent one."""
+"""remote.run_jobs: the batch time limit (the server ends the batch, whole process group, before the
+local ssh timeout, and a batch ended that way is a reported failure, never a silent one) and the
+compile step that builds the shared Verilog-A library before all jobs start together."""
 
 import subprocess
 
@@ -31,13 +32,39 @@ def test_the_server_limit_ends_the_batch_before_the_ssh_timeout(monkeypatch):
     assert f"timeout -k {remote.KILL_AFTER_S} {limit} bash $R/batch.sh $R" in s["script"]
 
 
-def test_every_spectre_job_runs_inside_the_limited_batch(monkeypatch):
+def _batch(script: str) -> str:
+    return script.split("<<'EOB'\n", 1)[1].split("\nEOB\n", 1)[0]
+
+
+def test_every_spectre_run_is_inside_the_limited_batch(monkeypatch):
     script = _run(monkeypatch, 0)["script"]
-    batch = script.split("<<'EOB'\n", 1)[1].split("\nEOB\n", 1)[0]
-    assert "$R/run_one.sh $R a" in batch                       # the warm-up job
-    assert "xargs -P 2" in batch and "run_one.sh" in batch     # the rest
+    batch = _batch(script)
+    assert "$R/compile_va.sh $R a" in batch                     # the compile step
+    assert "cat $R/jobs.list | xargs -P 2" in batch             # every job, the first included
     outside = script.replace(batch, "")
-    assert "xargs" not in outside and "run_one.sh $R a" not in outside
+    assert "xargs" not in outside and "compile_va.sh $R a" not in outside
+
+
+def test_jobs_only_read_the_shared_library(monkeypatch):
+    script = _run(monkeypatch, 0)["script"]
+    run_one = script.split("run_one.sh <<'EOS'\n", 1)[1].split("\nEOS\n", 1)[0]
+    compile_va = script.split("compile_va.sh <<'EOS'\n", 1)[1].split("\nEOS\n", 1)[0]
+    assert "-ahdlshipdbdir=$R/ahdl_lib" in run_one
+    assert "shipdbmode" not in run_one and "-ahdllibdir" not in run_one      # read_only, the default
+    assert "-ahdlshipdbmode=create_or_update" in compile_va
+
+
+def test_the_compile_step_stops_its_spectre_and_cleans_up(monkeypatch):
+    compile_va = _run(monkeypatch, 0)["script"].split("compile_va.sh <<'EOS'\n", 1)[1].split("\nEOS\n", 1)[0]
+    kill = compile_va.index("kill -9")
+    assert compile_va.index('cd "$R"') < kill                  # out of $D before killing what runs in it
+    assert "Time for Elaboration" in compile_va and 'rm -rf "$D"' in compile_va
+    assert compile_va.rstrip().endswith("exit 0")              # never fails the batch by itself
+
+
+@pytest.mark.parametrize("jobs,compile_step", [(("a",), False), (("a", "b"), True)])
+def test_a_single_job_needs_no_compile_step(monkeypatch, jobs, compile_step):
+    assert ("compile_va.sh $R" in _batch(_run(monkeypatch, 0, jobs=jobs)["script"])) == compile_step
 
 
 @pytest.mark.parametrize("rc", [124, 137])

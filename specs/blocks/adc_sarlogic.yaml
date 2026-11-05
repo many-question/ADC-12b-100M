@@ -115,7 +115,7 @@ tests:
     netlist: tb/sarlogic/tb_sarlogic_func.scs
     measure: adcflow.measure.sarlogic:func
     params: {nconv: 1000, nowave: 1}
-    timeout: 64800   # s, whole batch (first job alone, then the rest): 1000 conversions take up to 6.2 h per job
+    timeout: 64800   # s, whole batch, a guard against hung runs: 1000 conversions take up to 6.2 h per job
     desc: >
       1000 random conversions without waveforms: bit-exact comparison with the
       emulator (and of the DAC level the emulator reads before each decision).
@@ -123,7 +123,7 @@ tests:
     netlist: tb/sarlogic/tb_sarlogic_func.scs
     measure: adcflow.measure.sarlogic:func
     params: {t0cmp: 70.0e-12, nconv: 100, nowave: 1}
-    timeout: 28800   # s, whole batch: an all-corner batch took 2.8 h with a transistor view
+    timeout: 28800   # s, whole batch, a guard against hung runs: an all-corner batch took 2.8 h with a transistor view
     desc: >
       Same as func with a slow-corner comparator (70 ps large-signal delay)
       for the all-corner conversion-time limit.

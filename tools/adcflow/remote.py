@@ -185,19 +185,28 @@ xargs -P {max(int(parallel), 1)} -I J sh -c 'python3 soa_core.py jobs/J > jobs/J
 
 
 def run_jobs(remote_dir: str, jobs: list[str], mode_args: list[str], parallel: int,
-             timeout: float, warmup: bool = True) -> None:
-    """Run spectre on every jobs/<job>/deck.scs. The first job runs alone so the
-    shared compiled Verilog-A library is built once.
+             timeout: float, compile_first: bool = True) -> None:
+    """Run spectre on every jobs/<job>/deck.scs, `parallel` at a time.
+
+    The compiled Verilog-A is shared through Spectre's library sharing (-ahdlshipdbdir): with more
+    than one job, a compile step first runs the first job's deck in a copy of its directory, with
+    the shared library $R/ahdl_lib in create_or_update mode, and stops that Spectre once it reaches
+    the analyses (every module of the deck is compiled and copied into the library by then; about
+    a minute). All jobs then start together and only read the library: a module it lacks is
+    compiled in the job's own directory, so no two Spectre runs write the same library.
 
     `timeout` (s) covers the whole batch. The server ends the batch SERVER_MARGIN_S earlier with
-    coreutils `timeout`, which signals its whole process group, so no Spectre keeps running in a
-    run directory that the caller then removes; a batch ended that way raises RunTimeout."""
+    coreutils `timeout`, which signals its whole process group (compile step included), so no
+    Spectre keeps running in a run directory that the caller then removes; a batch ended that way
+    raises RunTimeout."""
     c = cfg()
     spectre = c.get("spectre", "spectre")
     setup = "; ".join(f"{cmd} >& /dev/null" for cmd in c["env_setup"])
     args = " ".join(shlex.quote(a) for a in mode_args)
     rd = shlex.quote(remote_dir)
     joblist = "\n".join(jobs)
+    run = f"{spectre} -64 deck.scs +escchars +log spectre.log -format psfascii -raw deck.raw -ahdlshipdbdir=$R/ahdl_lib"
+    tail = f"{args} +lqtimeout 900 -maxw 5 -maxn 5 >& spectre.stdout.log"
     script = f"""
 set -u
 R={rd}
@@ -210,19 +219,37 @@ cat > $R/run_one.sh <<'EOS'
 R="$1"; J="$2"; D="$R/jobs/$J"
 cd "$D" || exit 1
 start=$(date +%s)
-csh -c "{setup}; cd $D; {spectre} -64 deck.scs +escchars +log spectre.log -format psfascii -raw deck.raw -ahdllibdir $R/ahdl_lib {args} +lqtimeout 900 -maxw 5 -maxn 5 >& spectre.stdout.log"
+csh -c "{setup}; cd $D; {run} {tail}"
 rc=$?
 echo "$rc $(( $(date +%s) - start ))" > rc.txt
 EOS
-chmod +x $R/run_one.sh
+cat > $R/compile_va.sh <<'EOS'
+#!/bin/bash
+# the shared Verilog-A library from the deck of job $2, run in a copy of its directory and stopped
+# at the analyses; a failure here only leaves the jobs to compile for themselves
+R="$1"; J="$2"; D="$R/compile"
+cp -r "$R/jobs/$J" "$D" && cd "$D" || exit 0
+csh -c "{setup}; cd $D; {run} -ahdlshipdbmode=create_or_update {tail}" &
+pid=$!
+while kill -0 $pid 2>/dev/null; do
+  grep -q -e "Time for Elaboration" -e "DC simulation time" -e "Transient Analysis" spectre.log 2>/dev/null && break
+  sleep 2
+done
+cd "$R"
+for p in $(pgrep -u "$(id -un)"); do
+  case "$(readlink /proc/$p/cwd 2>/dev/null)" in "$D"|"$D"/*) kill -9 $p 2>/dev/null;; esac
+done
+wait $pid
+rm -rf "$D"
+exit 0
+EOS
+chmod +x $R/run_one.sh $R/compile_va.sh
 cat > $R/batch.sh <<'EOB'
 R="$1"
 """
-    if warmup and len(jobs) > 1:
-        script += f'$R/run_one.sh $R {shlex.quote(jobs[0])}\n'
-        script += f"tail -n +2 $R/jobs.list | xargs -P {int(parallel)} -I{{}} $R/run_one.sh $R {{}}\n"
-    else:
-        script += f"cat $R/jobs.list | xargs -P {int(parallel)} -I{{}} $R/run_one.sh $R {{}}\n"
+    if compile_first and len(jobs) > 1:
+        script += f"$R/compile_va.sh $R {shlex.quote(jobs[0])}\n"
+    script += f"cat $R/jobs.list | xargs -P {int(parallel)} -I{{}} $R/run_one.sh $R {{}}\n"
     limit = server_limit(timeout)
     script += f"""EOB
 timeout -k {KILL_AFTER_S} {limit} bash $R/batch.sh $R
