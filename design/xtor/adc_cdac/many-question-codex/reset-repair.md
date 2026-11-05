@@ -91,6 +91,10 @@ Restoring only the 52 reference output MOS per side with N6 held gives **78.134 
 
 The four-phase terminal capture measures bit-12 off drain flow in the last 50 ps of 0.101 fC in the H-branch NMOS and 0.163 fC in the L-branch PMOS, with nearly equal and opposite source flow and negligible gate flow. Before reference, the largest drain integrals are 0.159 fC for the NMOS and 0.229 fC for the PMOS over +15 to +75 ps. These earlier integrals include displacement as the plate voltage changes.
 
+The fixed-bias DC check reproduces the two late bit-12 off currents. Lengthening the original SVT output devices from 30 to 40 nm with width and finger count held reduces the sampled off magnitude from 2.025 to 0.549 uA for NMOS and from 3.269 to 0.783 uA for PMOS. Nominal differential Ron changes from 21.20 to 22.88 ohm and from 11.66 to 13.02 ohm respectively. Bit 11 shows the same trend.
+
+The physical length change is applied to both reference output polarities of bits 12 and 11 in the original-sharing v3 combination, which had the higher SFDR. Its hot preflight passes and bit-12 off drain flow over the last 50 ps is 0.027 fC for the H-branch NMOS and 0.039 fC for the L-branch PMOS. Both cold endpoints pass 1,797 pairs with zero violations and zero numerical warnings. Peaks and worst occupancy are 1.19649 V and 28.788 ps at 0.81 V, and 1.17754 V and 49.820 ps at 0.99 V. TT RL12 settling changes from 30.1 to 32.8 ps, and reference charge from 1.267 to 1.285 pC. Both remain within the 40 ps and 1.35 pC limits. The same-source full hot record is underway.
+
 ## Combined periphery and transistor booster
 
 The combined source restores all real peripheral switches and includes both LVT14 reset with the ideal slow drive and the LVT / 40 nm main-input change. Its 80 ns preflight has no numerical warnings, identical sample times and all 111 matching control sequences. The largest edge shift relative to B is 4.17 ps. Bit-12 late drain flow stays at or below 0.087 fC. Both cold SOA endpoints pass with zero violations across 1,782 terminal pairs each and no numerical warnings. The largest peak and longest 10 ns occupancy above 1.1 V are 1.19638 V and 40.935 ps at 0.81 V, and 1.20689 V and 62.693 ps at 0.99 V.
@@ -159,6 +163,10 @@ The reduced-sharing v3 combination gives **84.353 dBc SFDR and 82.128 dB SNDR** 
 | Calibrated sharing gate replay full 256 | `64b6976d8221a7d738044626e9298002e34b838d86c4e646d8d6c393c98c7680` |
 | Reference output restoration full 256 | `1f5275fa0dd127a4b404f5322b46e8b16abf6c013c6fbeeb7605743f50aefb65` |
 | Reference output terminal capture | `6117869e77ddc4f2f2b0cb65c1986bab708ed47e60807fa82f32c0a1ffced60d` |
+| Reference output DC screen at measured bias | `1700e0be13fda1b1986b89a62ff0c9caebdf50694588753290e888925acf44b1` |
+| V3 and reference L40 hot preflight | `ea47e3f9bcd641afa44072d3f3ce859801904d76f5d9bfd0241eb72271709ecc` |
+| V3 and reference L40 cold low / high | `17029fe5c9e46a80ca3c6876e6cbce1bc67721894afa7d35957a2a3d67f9d210` / `99041a188583108c3da69bd4eaccf812fc35033b8fb279757c33608ca89f333b` |
+| V3 and reference L40 TT settle and loads | `dec1fcdba1edbdb6c87e542c82edae4c78c333b0779e06c87b6f97c4683a334f` |
 | Fig. 11(c) v3 hot preflight | `254c7e07ac40b0cf1caa4aaef6c93911a7e4f5996e79dc21d43f863427bea13e` |
 | Fig. 11(c) v3 cold low / high | `776b6c1635fde392947a14db907ca5dd18590369c5cfb72a656f58cb125f7383` / `6dd3980c5e8430dffe5759336366effe7b3f36cf07efbf14a9e059eff25c514e` |
 | V3 and low-leakage main pairs hot preflight | `989f607749646215de54a1fee53003b95c070d35947a43be994381dae3f0724e` |
