@@ -105,7 +105,9 @@ V2 reduces M3 width from 0.72 to 0.24 um and increases inverter pull-down width 
 
 V3 increases only the direct discharge transistor M1 from 0.72 to 0.96 um. It passes hot preflight without numerical warnings, with rise to 90% in 294–319 ps. Both dedicated cold SOA endpoints pass across 1,797 terminal pairs including the five booster MOS. At 0.81 V the peak is 1.19642 V and maximum time above 1.1 V is 28.974 ps per 10 ns. At 0.99 V these values are 1.17737 V and 49.699 ps. The largest booster-internal stress at the high endpoint is M1 Vgd at 1.01181 V.
 
-The v3 source with the low-leakage main pairs passes its own hot preflight and cold endpoints. The low and high cold peaks are 1.19655 and 1.17764 V, with worst 10 ns occupancy of 28.782 and 49.704 ps. Both have zero violations across 1,797 pairs and no numerical warnings. In the four-phase hot preflight, all 111 control sequences match the ideal-driver combination with at most 0.104 ps shift. The bit-12 late drain integral stays at or below 0.087 fC. Raw final sample differences span -540 to +589 uV with matched sample times. Its complete 256-point hot record is underway.
+The v3 source with the low-leakage main pairs passes its own hot preflight and cold endpoints. The low and high cold peaks are 1.19655 and 1.17764 V, with worst 10 ns occupancy of 28.782 and 49.704 ps. Both have zero violations across 1,797 pairs and no numerical warnings. In the four-phase hot preflight, all 111 control sequences match the ideal-driver combination with at most 0.104 ps shift. The bit-12 late drain integral stays at or below 0.087 fC. Raw final sample differences span -540 to +589 uV with matched sample times.
+
+The transistor-driver combination completes the hot 256-point primary at **84.770 dBc SFDR and 81.356 dB SNDR**. This improves on the ideal-driver combination by 9.337 and 6.126 dB respectively. SFDR misses its 85 dBc limit by 0.230 dB, while SNDR clears 80 dB. Final H3 drops from 133.72 to 44.15 uV, and H5 becomes the largest spur at 45.68 uV. The larger pre-reset H3 of 150.50 uV declines through the hold phase. All 111 peripheral control sequences match the ideal-driver combination, with at most 0.104 ps shift. The transistor-driver primary has zero LTE relaxations. Its same-source traponly / 1 ps hot crosscheck is underway.
 
 The transistor-driver combination passes the TT settle and loading limits. RL12, RL5 and conversion start remain at 30.1, 39.9 and 70.1 ps. Reference charge is 1.267 pC. The PHI_SB load rises from 20.27 to 21.46 fF and hold droop rises from 0.00478 to 0.01552 LSB, within limits of 40 fF and 0.1 LSB respectively.
 
@@ -150,6 +152,7 @@ The v3 combination with both main and sharing geometry changes also passes its o
 | Fig. 11(c) v3 hot preflight | `254c7e07ac40b0cf1caa4aaef6c93911a7e4f5996e79dc21d43f863427bea13e` |
 | Fig. 11(c) v3 cold low / high | `776b6c1635fde392947a14db907ca5dd18590369c5cfb72a656f58cb125f7383` / `6dd3980c5e8430dffe5759336366effe7b3f36cf07efbf14a9e059eff25c514e` |
 | V3 and low-leakage main pairs hot preflight | `989f607749646215de54a1fee53003b95c070d35947a43be994381dae3f0724e` |
+| V3 and low-leakage main pairs full hot primary | `373ec411d8e9b33505e3ff2c0a111fd9b01ea686fece63b92fa46442bae97c70` |
 | V3 and low-leakage main pairs cold low / high | `708694b429d640018edf7c4c10f9cfefdf4fd84cf866141cfd88c169ff182510` / `71446cc8d87ce57ea63231b5a15e75745b1bcea2cbb278f5b7fb2366ebeb0a37` |
 | V3 and low-leakage main pairs TT settle and loads | `73d6dcdfecd0029b9cf3e77a5c4d3ba1cdebd8154337b525d741ff21f7fafb14` |
 | V3 and low-leakage main pairs high-cold numerical crosscheck | `fd09ae31df66d2c5058f9e93eb806298a7138cf3abb4baa67a1b4f8f8a72127e` |

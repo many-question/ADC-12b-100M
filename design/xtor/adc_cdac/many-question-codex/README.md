@@ -2,7 +2,7 @@
 
 ## Active physical repair
 
-The isolated 14 um / 40 nm LVT reset clears the hot spectrum limits in both numerical settings. With all real peripheral switches and the low-leakage main pairs, the ideal-drive combination drops to 75.433 dBc SFDR / 75.230 dB SNDR and misses both limits. The Fig. 11(c) v3 combinations with original and reduced sharing sizes pass cold SOA and TT settling and loading checks. Their full hot spectra are underway. [Repair evidence and current status](reset-repair.md)
+The isolated 14 um / 40 nm LVT reset clears the hot spectrum limits in both numerical settings. With all real peripheral switches and the low-leakage main pairs, the ideal-drive combination misses both limits at 75.433 dBc SFDR / 75.230 dB SNDR. The Fig. 11(c) v3 transistor driver improves this to 84.770 dBc / 81.356 dB, leaving a 0.230 dB SFDR shortfall. Both v3 combinations pass cold SOA and TT checks. The original-sharing numerical crosscheck and reduced-sharing hot spectrum are underway. [Repair evidence and current status](reset-repair.md)
 
 ## Completed reset mechanism isolation
 
