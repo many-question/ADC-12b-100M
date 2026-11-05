@@ -36,25 +36,47 @@ HVT12 at k=0.90 and LVT10 at k=0.75 both passed the 80 ns hot functional preflig
 
 At the high-supply worst point, TOP is near -0.179 V while the HVT12 and LVT10 gates have reached about 1.341 V and 1.192 V respectively. The project allows a peak of 1.29 V with at most 100 ps above 1.1 V in any 10 ns. LVT14 uses k=0.75 and a 300 ps rise to let TOP recover before the gate reaches full amplitude. The fall remains 10 ps. Its cold low-supply reset Vgd peak is 1.18263 V, and its high-supply reset Vgd maximum occurs during startup at 0.102 ns. Both endpoints pass the project rule with the ideal driver. The same isolated LVT14 source now runs a full 256-point primary and traponly / 1 ps crosscheck.
 
+![Measured gate, TOP and reset stress during cold high-supply recovery](reset-repair-cold.svg)
+
+At the plotted recovery event, slow-rise LVT14 limits |Vgd| to 0.947 V while TOP reaches -0.396 V. The fast LVT10 case reaches 1.371 V and TOP about -0.179 V. At the measured LVT14 minimum TOP and 0.218 V gate, a fixed-bias check at the same cold corner gives 1.55 nA body current magnitude and 4.52 mA drain current magnitude. These are DC terminal currents at one snapshot. They show predominantly reset channel flow at that bias, while the larger negative TOP transient remains part of the design tradeoff.
+
+The same-source cold high-supply crosscheck used traponly, 1 ps maximum step, effective reltol=1e-8 and vabstol=10 nV. It completed with zero violations and no numerical warnings. The peak changes by 0.41 mV to 1.21106 V, and the longest above-threshold interval changes by 0.072 ps to 63.898 ps. Independent local recomputation from the retained full waveform reproduces all 1,782 server pair records.
+
 Measured turn-on charge in the hot short records is 3.48–3.82 fC for N6, 5.57–5.96 fC for HVT12, 5.36–5.76 fC for LVT10, and 7.46–8.07 fC for LVT14. Assuming a fully charged boost capacitor and only gate charge as the load, the largest Q divided by allowable droop is 47.2, 73.6, 28.5 and 39.9 fF respectively. The lower LVT amplitude gives more droop headroom despite a larger gate. Actual booster parasitics, settling and internal SOA still need validation. DC probes emit model Vgb warnings with the body grounded. The project's acceptance checks gs, gd and ds, with body pairs treated separately under the existing rule. [Verification rule](https://github.com/many-question/ADC-12b-100M/blob/75f31c14790108d54fb7c57cbaeb461f2035a51c/docs/verification.md#L356)
 
 Across the four short sine phases and both sides, the maximum absolute drain-terminal integral over the last 50 ps is 0.02573 fC for N6, 0.000502 fC for HVT12, 0.00415 fC for LVT10 and 0.00641 fC for LVT14. The integrals measure total signed terminal flow, including displacement. Their reduction agrees with the off-state DC trend. LVT14 also gives a slightly smaller pre-reset common-mode offset than N6 at these phases.
 
 ## Main input restoration
 
-The first restoration keeps the frozen N6 reset and restores just the 22 original main input MOS per side. The remaining 108 replacements, all capacitors and digital controls keep the same source instances. The 80 ns run completed with all four expected sample times matching B, no numerical warnings and no control sequence mismatch. The positive and negative bootstrap gates shift by up to 1.78 ps. The other measured control edges shift by less than 0.04 fs. The sampled and stage voltages are used for preflight only. The complete 256-point run is in progress.
+The first restoration keeps the frozen N6 reset and restores just the 22 original main input MOS per side. The remaining 108 replacements, all capacitors and digital controls keep the same source instances. The short run completed with all four expected sample times matching B, no numerical warnings and no control sequence mismatch. The input bootstrap gates shift by up to 1.78 ps. The other measured control edges shift by less than 0.04 fs in the short record.
 
-A separate short control uses frozen B with the actual loaded input-gate voltages replayed at every accepted time. Actual replay error is below 0.95 pV. The largest final differential change from gate replay alone is 4.23 uV across four phases. Real restoration minus the replay case differs by up to 0.503 mV in the raw final samples. The comparison fixes the absolute gate trajectory and lets VIN respond to the circuit. The full record separates linear gain, phase and nonlinear residual.
+The full main-input restoration gives **78.773 dBc SFDR and 78.084 dB SNDR**, compared with B's 85.802 dBc and 85.186 dB. The coherent 256-point record uses the official estimator, 100 MS/s and 48.828125 MHz. Its sample times match within about 1 fs and all 111 control sequences match. Removing DC and the fundamental from the sample difference reduces its RMS from 319.4 to 59.91 uV. The common-phase H3 difference is -60.68 - j51.92 uV with magnitude 79.86 uV. For context the frozen all-real N6 versus B difference is 130.03 uV H3 in the same phase convention. These are separate interventions in a coupled network.
 
-The restored main-input device sizes were also tested at five source voltages with `VG=VIN+0.81 V`, grounded bulk and symmetric +/-1 mV VDS. The largest bit's differential Ron is 33.02–35.61 ohm over VIN=0.05–0.85 V and 34.32 ohm at nominal VIN. The calibrated fixed-Ron replay uses each size's own nominal slope. It completes the four-phase preflight with the measured gate trajectory. The largest raw sample difference from real main restoration is 0.575 mV. This comparison preserves on-resistance at the center point and omits signal-dependent conductance, device charge and leakage.
+| Stage after PHI_S falls | B H3 peak (uV) | Main restored H3 peak (uV) |
+|---|---:|---:|
+| Before reset, -10 ps | 32.84 | 32.65 |
+| After reset gate fall, +30 ps | 31.19 | 38.42 |
+| Before reference, +75 ps | 31.66 | 346.02 |
+| Reference settling, +150 ps | 29.71 | 61.94 |
+| Late hold, +250 ps | 32.21 | 79.51 |
+| Official sample | 40.59 | 91.07 |
+
+The fine-time coherent difference peaks at 1.100 mV H3 near +51 ps, during the main bootstrap gate fall. The early pre-reset H3 is almost identical. This localizes the large change to input disconnect and subsequent redistribution. It does not uniquely assign intrinsic charge, conductance or leakage. The primary retains five LTE relaxations with companion warnings. H3 and H5 account for 99.48% of the nonfundamental difference power and none of the first samples after a warning is the largest residual. This check does not replace same-source numerical convergence evidence.
+
+A separate short control uses frozen B with the actual loaded input-gate voltages replayed at every accepted time. Actual replay error is below 0.95 pV. The largest final differential change from gate replay alone is 4.23 uV across four phases. Real restoration minus the replay case differs by up to 0.503 mV in the raw final samples. The comparison fixes the absolute gate trajectory and lets VIN respond to the circuit.
+
+The restored main-input device sizes were also tested at five source voltages with `VG=VIN+0.81 V`, grounded bulk and symmetric +/-1 mV VDS. The largest bit's differential Ron is 33.02–35.61 ohm over VIN=0.05–0.85 V and 34.32 ohm at nominal VIN. The calibrated fixed-Ron replay uses each size's own nominal slope. It completes the four-phase preflight with the measured gate trajectory. The largest raw sample difference from real main restoration is 0.575 mV. Its full 256-point version now replays the complete measured gate record. This comparison preserves on-resistance at the center point and omits signal-dependent conductance, device charge and leakage. A targeted turnoff current capture is collecting the largest devices' terminal flow, and a first size intervention reduces the finger counts of only bits 12 and 11 to test the charge versus settling tradeoff.
 
 The first targeted additional restoration is sharing. Its 80 ns run restores only the 22 sharing devices per side and retains N6. `SAMP_ON` moves by up to 2.54 ps with the other observed edges within 0.01 fs. The largest raw final difference across four phases is 0.504 mV. A full sharing-only record is underway to quantify nonlinear error. The timing shift remains part of that intervention until a matched-control comparison separates it.
+
+The short `SAMP_ON` replay retains the original driver's two explicit load capacitors and applies the measured per-side gate voltage to the ideal sharing switches. Actual gate replay matches within 0.59 pV. The final timing-only difference is below 0.03 uV across four phases, while real sharing minus this replay remains as large as 0.504 mV in the raw samples. The complete record will establish the nonlinear part.
 
 | Verified evidence | Archive SHA256 |
 |---|---|
 | First DC screen | `8115b6efa1b8eafee34f4684751715f8d0b06ad3951174bc9ca61ac29441e0b8` |
 | Exact 40 nm DC cases | `90be65eb39f04578e6680528d6c2d860766fc4e1d47ccf921ee7264cdd8b9021` |
 | Main input restoration 80 ns | `76fc5c985f60293857547c0f359540eaca7638e29e942e40e70ac6b88b5c4ba2` |
+| Main input restoration full 256 | `a9368bd46d5443de72b68951eb8c37fa4410480f5361855cdd4c5787e9c0bcd4` |
 | Loaded input gate replay 80 ns | `f6d2db0bbcc8497e04ec32a65d299b0401af2e70db9ff185fe77ccf7bea69748` |
 | Main-input on-resistance DC | `81f0cd301f962b30c56d21473a015250cb019e55f525e3a6f3a823a8f5503297` |
 | HVT12 cold low / high | `178f60103d4a69a27028a0e470652ff452068a19998b9a00308ab5d76b812a10` / `8d1d2405a1f940da681f7f17db6b7aed4726b6693072b54cc963f70c0b4b174a` |
@@ -63,5 +85,8 @@ The first targeted additional restoration is sharing. Its 80 ns run restores onl
 | LVT14 slow-rise 80 ns | `6dd7227b41c67be3514619ab32af7784fe11b790f0b55a8ed07b6995b3baf90d` |
 | Calibrated fixed-Ron loaded-gate replay 80 ns | `0f51b4e8d0ba12356ec34b018f5589ae5fc75170ccc8cef64df81a51caad95e4` |
 | Sharing restoration 80 ns | `95f22b6969a0d96ce9831ea704c7cbcfcc627474f7aba172a48794b8689ad2c7` |
+| Sharing gate replay 80 ns | `3569624afa6c70ed60e23496fa07c3c811268c0388c8c78a7338c41c9b3ad514` |
+| LVT14 cold high numerical crosscheck | `36e8e389cfa01f17dd10a02461c4b7fd2dda48a77835e7cf57f02728b17c8dae` |
+| Recovery-event fixed bias snapshots | `9781ff5d6700d6d291a986ae0e3bb65578c0981bd79c2d4083a53da081d396b2` |
 
 The candidate is WIP. The selected ideal-driver point has passed the two cold supply gates. Complete hot SS spectra, numerical review and combined verification with real peripheral switches determine whether it is a useful repair.
