@@ -67,10 +67,39 @@ until explicitly reported. A single hot-corner result cannot establish readiness
 
 | Variant | 80 ns reset SOA | Full256 SFDR / SNDR | Status |
 |---|---|---|---|
-| n6_k09 | Not yet measured | Not yet measured | In progress |
-| n12_k09 | Not yet measured | Not yet measured | Prepared |
-| n6_k09_d3 | Not yet measured | Not yet measured | Prepared |
+| n6_k09 | 0 violating pairs | Not yet measured | In progress |
+| n12_k09 | 0 violating pairs | Not yet measured | In progress |
+| n6_k09_d3 | 0 violating pairs | Not yet measured | In progress |
 
 Baseline full256 hot-SS SFDR/SNDR: 63.13694 / 63.06129 dB; H3/H5:
 545.389 / 71.487 uV. Targets remain 85 / 80 dB. No formal pass or source promotion
 is claimed by the present stage. Raw evidence is retained privately with hashes.
+
+## Short-record comparison
+
+The table uses the same 40..79.9 ns track windows and the same first four sample times
+for every variant and baseline. It is not a 256-point spectral estimate.
+
+| Case | TOP-VCM RMS P/N (mV) | Differential last-50-ps drift RMS (uV) | Worst reset terminal (V) |
+|---|---:|---:|---:|
+| Frozen V29 | 36.648 / 36.813 | 16.212 | See separate official failures |
+| n6_k09 | 22.015 / 22.053 | 6.333 | 1.07740 |
+| n12_k09 | 10.800 / 10.812 | 14.517 | 1.03201 |
+| n6_k09_d3 | 22.016 / 22.054 | 6.221 | 1.07783 |
+
+All completed short cases have zero logged numerical LTE relaxations. They use
+the same finite driver and true transistor gate loading. The 12 um version reduces
+tracking error but increases late drift relative to 6 um; the 3 um dummy has a small
+short-record effect, whose spectral significance must be judged from complete records.
+The output current follows (VCMD-VBST)/100 ohm. Nominal 10 ps model transitions
+produce about 8 ps measured 10%-90% edges; the loaded half-amplitude delay is about
+7.3 ps for 6 um. Switching overshoot is included in the terminal SOA check.
+Driver energy is split into delivered and absorbed portions because the signal can
+return charge to the ideal source; net delivered energy is not total booster power.
+Terminal-charge integrals include displacement and are not a unique channel-injection attribution.
+
+The first three controllers completed normally, but a post-fetch metadata dictionary
+duplicate-key error prevented summary writing. The summaries were reconstructed from
+the already-fetched rc=0 records after staged hashes were verified; no solver rerun,
+deck change or tolerance change was used. The local metadata assembler was corrected
+before launching full records.
