@@ -1,5 +1,13 @@
 # CDAC candidate
 
+## Active reset mechanism isolation
+
+All other signal switches are now idealized in an explicit A/B experiment.
+The completed fixed-input controls show a nearly constant immediate reset
+offset and later input-dependent hold error; static bias checks confirm late
+off-state flow. Dynamic sine and full256 controls are in progress. See the
+[replacement boundary, measured timing and evidence](reset-mechanism.md).
+
 ## Completed first boosted-reset cohort
 
 The first independent finite-driver / real-NMOS cohort is complete: all three
