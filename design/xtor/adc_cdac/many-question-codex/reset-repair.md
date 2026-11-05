@@ -1,6 +1,6 @@
 # Reset device and sampling switch repair
 
-The DC screen found reset devices with lower leakage at comparable on-resistance. Two fast-rise variants reached their final gate voltage before TOP recovered in the cold SOA test. The wider LVT with a slower rise passes both cold supply checks and clears the hot spectrum limits in the isolated primary. The same-source numerical crosscheck and combined physical-periphery tests are underway. The frozen mechanism study supplies the comparison circuit and measured bias points. [Mechanism evidence](reset-mechanism.md)
+The DC screen found reset devices with lower leakage at comparable on-resistance. Two fast-rise variants reached their final gate voltage before TOP recovered in the cold SOA test. The wider LVT with a slower rise passes both cold supply checks and clears the hot spectrum limits in the isolated primary. The combination with physical peripheral switches also passes both cold supply checks. The frozen mechanism study supplies the comparison circuit and measured bias points. [Mechanism evidence](reset-mechanism.md)
 
 ## Hot SS reset screen
 
@@ -67,7 +67,7 @@ The fine-time coherent difference peaks at 1.100 mV H3 near +51 ps, during the m
 
 A separate short control uses frozen B with the actual loaded input-gate voltages replayed at every accepted time. Actual replay error is below 0.95 pV. The largest final differential change from gate replay alone is 4.23 uV across four phases. Real restoration minus the replay case differs by up to 0.503 mV in the raw final samples. The comparison fixes the absolute gate trajectory and lets VIN respond to the circuit.
 
-The restored main-input device sizes were also tested at five source voltages with `VG=VIN+0.81 V`, grounded bulk and symmetric +/-1 mV VDS. The largest bit's differential Ron is 33.02–35.61 ohm over VIN=0.05–0.85 V and 34.32 ohm at nominal VIN. The calibrated fixed-Ron replay uses each size's own nominal slope. It completes the four-phase preflight with the measured gate trajectory. The largest raw sample difference from real main restoration is 0.575 mV. Its full 256-point version now replays the complete measured gate record. This comparison preserves on-resistance at the center point and omits signal-dependent conductance, device charge and leakage.
+The restored main-input device sizes were also tested at five source voltages with `VG=VIN+0.81 V`, grounded bulk and symmetric +/-1 mV VDS. The largest bit's differential Ron is 33.02–35.61 ohm over VIN=0.05–0.85 V and 34.32 ohm at nominal VIN. The calibrated replay uses each size's own nominal slope and matches the measured full-record gate within 83 pV. It gives **85.634 dBc SFDR and 85.125 dB SNDR**. The nonfundamental sample difference from B is 2.17 uV RMS, compared with 61.47 uV RMS between replay and real main restoration. The latter has an 81.83 uV H3 difference. All 111 control sequences match and sample times agree within 1 fs. The replay retains three LTE relaxations, with five in the real run. The largest paired residual is sample 84, outside the first sample after any of these warnings. The remaining difference covers signal-dependent conductance, device charge and leakage together.
 
 The turnoff capture shows up to 0.849 fC drain flow in the last 50 ps for bit 12, with drain and source flow nearly equal and opposite. DC probes at two measured bias points reproduce the late transient drain current within 1.33%. A first reduction of the main-input finger counts on bits 12 and 11 reduces the short before-reference excursion but increases the pre-reset and final raw differences. The second intervention keeps width and finger count and uses LVT / 40 nm on the four main devices for these bits. At the captured full-record bias extremes, the maximum sampled off current drops from 17.29 to 1.76 uA while nominal bit-12 Ron rises from 34.32 to 40.95 ohm. With N6 held, the bit-12 peak late drain integral drops to 0.088 fC, while edge gate charge rises from 6.87 to 7.34 fC.
 
@@ -75,13 +75,24 @@ The turnoff capture shows up to 0.849 fC drain flow in the last 50 ps for bit 12
 
 Restoring just the 22 sharing devices per side with N6 gives **80.751 dBc SFDR and 80.447 dB SNDR** in the full hot record. Relative to B, the common-phase H3 difference is 32.03 uV and the nonfundamental sample difference is 24.70 uV RMS. Sharing H3 is already 362.08 uV at +30 ps and reaches 412.73 uV at +75 ps. The main-input case reaches 38.42 and 346.02 uV at those stages.
 
-The 80 ns run moves `SAMP_ON` by up to 2.54 ps, with other observed edges within 0.01 fs. The short `SAMP_ON` replay retains the driver's two explicit load capacitors and matches the measured per-side gate within 0.59 pV. Its final timing-only difference is below 0.03 uV across four phases, while real sharing minus this replay differs by up to 0.504 mV in the raw samples. The bit-12 sharing drain integral reaches 4.03 fC during the actual gate fall and 0.299 fC in the last 50 ps. Bit 11 reaches 2.32 fC at the edge and 0.173 fC late. The next short intervention reduces the finger counts on only these sharing pairs while measuring the gate trajectory and acquisition again.
+The 80 ns run moves `SAMP_ON` by up to 2.54 ps, with other observed edges within 0.01 fs. The short `SAMP_ON` replay retains the driver's two explicit load capacitors and matches the measured per-side gate within 0.59 pV. Its final timing-only difference is below 0.03 uV across four phases, while real sharing minus this replay differs by up to 0.504 mV in the raw samples. The bit-12 sharing drain integral reaches 4.03 fC during the actual gate fall and 0.299 fC in the last 50 ps. Bit 11 reaches 2.32 fC at the edge and 0.173 fC late.
+
+The sharing size intervention reduces bit 12 from six to four fingers and bit 11 from four to three, holding length and finger width. Bit-12 maximum edge drain flow falls from 4.03 to 2.72 fC and bit 11 from 2.32 to 1.75 fC. The largest raw final difference relative to B falls from 504 to 396 uV across the four phases. All 111 control sequences match with no numerical warnings, and the maximum edge shift versus B is 2.00 ps. The full tracking run uses the same sharing geometry and N6 reset.
 
 ## Combined periphery and transistor booster
 
-The combined source restores all real peripheral switches and includes both LVT14 reset with the ideal slow drive and the LVT / 40 nm main-input change. Its 80 ns preflight has no numerical warnings, identical sample times and all 111 matching control sequences. The largest edge shift relative to B is 4.17 ps. Bit-12 late drain flow stays at or below 0.087 fC. The same source is in both cold SOA tests before its full hot FFT.
+The combined source restores all real peripheral switches and includes both LVT14 reset with the ideal slow drive and the LVT / 40 nm main-input change. Its 80 ns preflight has no numerical warnings, identical sample times and all 111 matching control sequences. The largest edge shift relative to B is 4.17 ps. Bit-12 late drain flow stays at or below 0.087 fC. Both cold SOA endpoints pass with zero violations across 1,782 terminal pairs each and no numerical warnings. The largest peak and longest 10 ns occupancy above 1.1 V are 1.19638 V and 40.935 ps at 0.81 V, and 1.20689 V and 62.693 ps at 0.99 V. Its same-source hot 256-point spectrum is underway.
 
-The first independent Fig. 11(c) driver uses five physical MOS and a callback-verified 40.09 fF MOM, with a 5% bottom-plate estimate. The M2 and M3 wells connect to the boosted capacitor node. Its hot short run completes with no numerical warnings. The gate plateau is 0.963–0.975 V against the 1.0–1.18 V preflight window, and fall to 10% takes 30.94–31.42 ps against a 30 ps guard. The measured mean input power sums to 4.67 uW across both boosters and their DVDD, bias and clock ports over three steady periods. At one representative edge, M3 returns 28–36 uA to the bias port 50–200 ps after the clock crossing. The next revision targets this overlap current and the discharge delay. Dedicated cold SOA and full tracking remain open for the transistor driver.
+The combined TT settling test passes all applicable limits. Conversion start settles in 70.1 ps, RL12 in 30.1 ps and RL5 in 39.9 ps. Hold droop is 0.00478 LSB and reference charge is 1.267 pC. The DH5, PHI_S, PHI_SB and CONV input loads are 0.831, 17.72, 20.27 and 14.77 fF respectively.
+
+The independent Fig. 11(c) driver uses five physical MOS and a callback-verified 40.09 fF MOM, with a 5% bottom-plate estimate. The M2 and M3 wells connect to the boosted capacitor node. The v1 and v2 hot short runs complete with zero numerical warnings.
+
+| Driver | Gate plateau (V) | Fall to 10% (ps) | M3 bias return over first 400 ps (fC) | Two-driver input power (uW) |
+|---|---:|---:|---:|---:|
+| v1 | 0.963–0.975 | 30.94–31.42 | 8.58–9.23 | 4.67 |
+| v2 | 1.047–1.065 | 29.54–30.09 | 3.16–3.40 | 4.24 |
+
+V2 reduces M3 width from 0.72 to 0.24 um and increases inverter pull-down width from 0.96 to 1.20 um. It clears the 1.0–1.18 V plateau window and recovers its precharge to 0.44994 V before each measured edge. The slowest measured fall still exceeds the 30 ps guard by 0.09 ps. Power sums the actual DVDD, bias and clock ports over three steady periods. The third revision increases only the direct discharge transistor M1 from 0.72 to 0.96 um. Dedicated cold SOA and full tracking remain open for the transistor driver.
 
 | Verified evidence | Archive SHA256 |
 |---|---|
@@ -96,6 +107,7 @@ The first independent Fig. 11(c) driver uses five physical MOS and a callback-ve
 | LVT14 cold low / high | `8412bb82ca1cbd3d1ec8a367d0ec7d2c18467471ae2223b2f5cc68cb764c8f69` / `ec0d09c07419b6ba5789d3034b3b85c58cb1ca376a091d4357681d513042cdbf` |
 | LVT14 slow-rise 80 ns | `6dd7227b41c67be3514619ab32af7784fe11b790f0b55a8ed07b6995b3baf90d` |
 | Calibrated fixed-Ron loaded-gate replay 80 ns | `0f51b4e8d0ba12356ec34b018f5589ae5fc75170ccc8cef64df81a51caad95e4` |
+| Calibrated fixed-Ron loaded-gate replay full 256 | `fe7a66e65c0d0d47278dec9a1036fec560d477743ef88634fdddf6b4f18bd703` |
 | Sharing restoration 80 ns | `95f22b6969a0d96ce9831ea704c7cbcfcc627474f7aba172a48794b8689ad2c7` |
 | Sharing gate replay 80 ns | `3569624afa6c70ed60e23496fa07c3c811268c0388c8c78a7338c41c9b3ad514` |
 | LVT14 cold high numerical crosscheck | `36e8e389cfa01f17dd10a02461c4b7fd2dda48a77835e7cf57f02728b17c8dae` |
@@ -107,3 +119,7 @@ The first independent Fig. 11(c) driver uses five physical MOS and a callback-ve
 | Sharing terminal capture | `d5af001043eb08c10e92f7eaf1abff76da7104411df0716cba35dfc04d3f29ee` |
 | Combined periphery and reset 80 ns | `d59144c511f40381efa4a2514c4bfbc029f3236adfc32a2c5ff1b7cd0f9ac7fd` |
 | Fig. 11(c) v1 hot preflight | `5b6c75952d275193c44077ca288e32dae11a4df22eab3054f5fe122732970ee0` |
+| Combined periphery cold low / high | `b1646e755caef185ab0b890b34e3aa62d297b70bbcf2be8bf5c432be5ffd1d01` / `b46c7d45ddb628618bcf82213e49ac95ef303449cc7e66a24840e67a157279be` |
+| Combined periphery TT settle and loads | `8a37df3b5b184b6a1fd43c9c5c6655d713f715e49639db6a767bfd02946bca0f` |
+| Reduced sharing short with frozen N6 | `d93f8a156d2c614afe83f375c1c5c8027c4fe6aabd1d7fb38e9b5ed0a0aba1f5` |
+| Fig. 11(c) v2 hot preflight | `e412d7052ecc3ca2d12cb7c320ed29238e95ae71b4f3274b3644f39009a1f515` |
