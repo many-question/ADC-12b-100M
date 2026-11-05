@@ -1,7 +1,8 @@
 # All-other-switches ideal: reset mechanism isolation
 
-Status: fixed-input A/B, the limited original-top-cell reference and short sine
-A/B are complete; full256 spectra are in progress. V29 and the
+Status: fixed-input A/B, the limited original-top-cell reference, short sine
+A/B and B full256 are complete. A full256 and B numerical crosscheck are in
+progress; the full-sine conclusions remain provisional. V29 and the
 [completed first boosted-reset cohort](boosted-reset-experiment.md) stay frozen.
 This is a mechanism experiment, not a candidate promotion or a physical booster.
 
@@ -13,7 +14,7 @@ hold. Five static MOS bias snapshots reproduce the late transient drain flow to
 within 0.102%, supporting sustained off-state conduction in that late window.
 Fast-edge terminal charge still includes displacement and is not pure channel
 injection. Dynamic input may also produce an imperfect initial TOP clamp; the
-pending sine records specifically test that separate mechanism.
+full sine records specifically test that separate mechanism.
 
 ## Exact replacement boundary
 
@@ -152,6 +153,21 @@ nonlinear channel injection. The full records compare fixed-time window
 harmonic vectors before reset, after reset, after input disconnect, after
 reference redistribution and at sampling, using one common phase reference.
 
+The completed B full256 gives provisional SFDR85.8016dBc / SNDR85.1862dB.
+Its H3 vector is already8.309+j31.773uV before reset turnoff (32.842uV peak),
+then10.914+j29.221uV at+30ps,0.187+j29.706uV at+150ps and
+-27.643+j29.727uV at the official sample (40.593uV peak). These vectors share
+the final B sample fundamental phase. The gate-turnoff interval changes H3
+by only a few uV, while a different-phase component grows later in hold.
+Final H5 is15.292uV. These observations are not a unique additive physical
+source decomposition; A's complete nonlinear baseline and the numerical
+crosscheck are still required.
+
+B's primary log contains one SPECTRE-16780 LTE relaxation at1.33517us on an
+internal reference-control node, plus SPECTRE-16881. The ongoing A record also
+contains an LTE relaxation at355.165ns. Both warnings are retained. No
+zero-warning or full-sine convergence claim is made at this stage.
+
 ## Evidence and next checks
 
 All three240ns records complete with rc0, actual reltol1e-7/vabstol10nV,
@@ -169,6 +185,7 @@ sample-count field; the analysis explicitly corrects that field to0.
 | Static off-bias check | 20261105-164818-d7a5-tb_cdac_track | 51ad7092e5b3da59c9d4c823e7fc2726e6ea7293b4cd53d600b50e243e68335d |
 | B sine80 | 20261105-165258-0532-tb_cdac_track | c53de9d082ce64a0b5fd0ef419af05ce15c108fe5d70f61d7d1b3960ee6fd63b |
 | A sine80 | 20261105-170229-632f-tb_cdac_track | 242ac65d0107376ca4fa9f9641305b6b954d5f131bd3cfcb045be7bcdeaa5ead |
+| B full256, provisional | 20261105-165258-1b38-tb_cdac_track | cc2d53a438424b8acc3764478fdb56380285308c764fadb06c48d2ecdc4d57cc |
 
 Each completed transient archive is checked against remote hashes and every ZIP
 member. Sources are frozen: B36e0396ee0535c1c7a8d18557b270f87e071303a7a7891239fba2390910faa93,
