@@ -151,11 +151,23 @@ Logged LTE relaxations: MTN-only 0; MTP-only 2 (1.04009 us PHI_S,
 2.32009 us PHI_SB); MTD removal 1 (610.092 ns PHI_SB); N/P ideal 1
 (200.092 ns PHI_SB), each accompanied by SPECTRE-16881 where present.
 Complete records and logged strict tolerances do not establish convergence.
-Full-reset `20261105-043242-ef38` and P-only `20261105-065605-4385`
-crosschecks use traponly/1 ps at the same effective 1e-7/10 nV; comparisons
-remain pending. The running full-reset cross logs one LTE relaxation at
-200.092 ns PHI_SB. Baseline primary/cross and completed reset, input and
-sharing primaries contain no such warnings.
+Full-reset cross `20261105-043242-ef38` completes 2.605 us / 256 samples,
+rc=0 (13205 s), under its original 4 h bound without termination signals.
+Frozen-source traponly/1 ps, effective 1e-7/10 nV gives SFDR/SNDR
+76.77988/76.37085 dB, changes -.08182/-.06771 dB from primary. H3/H5 are
+113.873/34.280 uV. Matched sample differences are 5.920 uV rms / 10.952 uV
+max; after removing DC/fundamental, 1.898 uV rms. H3/H5 complex differences
+in one primary phase frame are 2.459/.539 uV peak. All 112 full control
+counts/directions match, maximum edge-time difference .001609 ps; sample
+times agree within 1.01 fs. Source/model/current/control checks pass.
+This supports the large reset-group response, not resolution of small MTD
+terms or convergence of other endpoints. One logged LTE relaxation remains
+at 200.092 ns PHI_SB. Baseline primary/cross and completed reset, input and
+sharing primaries have none. All 179 cross files match remote hashes; ZIP
+contents verify (207755099 bytes), SHA-256:
+`1deb0f0eb1beead4b62de75a80781d642faefa87316411a1fce9f140b9ed5f12`.
+P-only cross `20261105-065605-4385` uses the same numerical settings and its
+frozen primary source; its complete comparison remains pending.
 
 Full subcase runs, all `tb_cdac_track`, are N `20261105-044133-0d85`
 (7551 s), P `20261105-044124-6e25` (7714 s), MTD `20261105-044108-360f`
