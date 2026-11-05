@@ -2,7 +2,7 @@
 
 ## Active physical repair
 
-The isolated 14 um / 40 nm LVT reset clears the hot spectrum limits in both numerical settings. With real peripheral switches and the low-leakage main pairs, the Fig. 11(c) v3 transistor driver raises the hot SFDR from 75.433 to 84.770 dBc. Reducing the two largest sharing sizes yields 84.353 dBc SFDR and 82.128 dB SNDR, with H5 limiting both v3 combinations. Both pass cold SOA and TT checks. The original-sharing numerical crosscheck is underway. [Repair evidence and current status](reset-repair.md)
+The isolated 14 um / 40 nm LVT reset clears the hot spectrum limits in both numerical settings. With real peripheral switches and the low-leakage main pairs, the Fig. 11(c) v3 transistor driver raises hot SFDR from 75.433 to 84.770 dBc. Reducing the two largest sharing sizes yields 84.353 dBc SFDR and 82.128 dB SNDR, with H5 limiting both v3 combinations. Both pass cold SOA and TT checks. The original-sharing hot crosscheck reached 227 of 256 samples before its wall limit. The reference L40 hot primary remains underway. [Repair evidence and current status](reset-repair.md)
 
 ## Completed reset mechanism isolation
 
