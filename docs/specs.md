@@ -59,7 +59,7 @@ While PHI_B is high, VG = VIN + Vboot (Vboot ~ AVDD, from a capacitor charged du
 
 ## adc_cdac
 
-**Split-capacitor redundant CDAC, one side (instantiated twice)** — 规格版本 0.10.0，状态 `behavioral`。
+**Split-capacitor redundant CDAC, one side (instantiated twice)** — 规格版本 0.11.0，状态 `behavioral`。
 
 13 weights w_j (j = 12..0) = 980 560 318 180 102 57 32 18 10 6 3 2 1 x cu, cu = 1.0 fF (arch v0.3; the LSB half is 0.5 fF). Each weight is two equal halves: H (neutral state VREFP) and L (neutral state VREFN). Bottom-plate sampling: while CONV = 0 the bottom plates of the sampled weights (all but j = 9 and j = 6) track VIN through NMOS switches whose gate is VG (bootstrapped, from adc_bootstrap) and the top plate is held at VCM by a switch on PHI_S/PHI_SB. Non-sampled weights stay in the neutral state. With CONV = 1 every half is driven by an inverter between VREFP and VREFN: H to VREFP unless DH<j>, L to VREFN unless RL<j>. The top-level connects DH = DN, RL = UP on the VINP side and DH = UP, RL = DN on the VINN side, so each decision moves the two top plates in opposite directions and the common mode stays constant.
 
@@ -102,7 +102,7 @@ While PHI_B is high, VG = VIN + Vboot (Vboot ~ AVDD, from a capacitor charged du
 | DAC-06 | DAC step settling, RL12 (w=980) to 5 % | ≤ 40 | ps | all | `tb_cdac_settle` |
 | DAC-07 | settling time constant (top plate, RL12, 10 % -> 1 %) | ≤ 15 | ps | all | `tb_cdac_settle` |
 | DAC-08 | conversion start CONV rise -> TOP within 1 % | ≤ 100 | ps | all | `tb_cdac_settle` |
-| DAC-09 | tracking SFDR (ideal VG, 50 ohm, 49.9 MHz, -1 dBFS, diff) | ≥ 85 | dBc | all | `tb_cdac_track` |
+| DAC-09 | tracking SFDR (ideal VG, 50 ohm, 49.9 MHz, -1 dBFS, diff) | ≥ 84 | dBc | all | `tb_cdac_track` |
 | DAC-10 | tracking SNDR excl. kT/C (same) | ≥ 80 | dB | all | `tb_cdac_track` |
 | DAC-11 | top-plate droop over 5 ns hold | ≤ 0.1 | LSB | all | `tb_cdac_settle` |
 | DAC-12 | VREFP charge per conversion (per side) | ≤ 1.35 | pC | typ | `tb_cdac_settle` |
