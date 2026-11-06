@@ -470,8 +470,11 @@ verification/<block>/<candidate>/<test>/<job>.json      # <job> 与被复核结�
 **命令**（项目负责人，需要仿真环境）：
 
 ```bash
-python -m adcflow verify <test> --block <block> --candidate <name> [--corners <集合或列表>] [--dry-run]
+python -m adcflow verify <test> --block <block> --candidate <name> [--corners <集合或列表>] [--dry-run] [--detach]
 ```
+
+复跑与 `sim` 一样在服务器上独立运行（[`workflow.md`](workflow.md) §3「提交与收取」）：默认等待并写记录；`--detach` 只提交，
+`python -m adcflow collect <run_id>` 在运行结束后写记录；`--adopt <run_id>` 接管旧启动器留下的复跑。
 
 1. **前提**（不满足即拒绝，什么都不仿真）：所选工艺角（缺省为该用例各项标称指标要求的工艺角的并集）都有该候选的自报结果；
    每个结果的 `meta.files` 记录了候选网表 `design/xtor/<block>/<name>/<block>.scs`，且其哈希等于网表现在的哈希（网表不同就拒绝，

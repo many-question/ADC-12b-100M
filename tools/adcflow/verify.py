@@ -371,12 +371,27 @@ def write(rec: dict) -> Path:
     return p
 
 
+def load_docs(paths: list[str]) -> list[dict]:
+    """The self-reported results at these repository paths, as plan returns them (with `_path`)."""
+    out = []
+    for rel in paths:
+        p = cand.ROOT / rel
+        d = json.loads(p.read_text(encoding="utf-8"))
+        d["_path"] = p
+        out.append(d)
+    return out
+
+
 def verify(test_id: str, block: str | None, name: str, corners: str | None = None, mode: str = "aps",
-           parallel: int = 6, keep: bool = False, dry: bool = False, run=None) -> int:
+           parallel: int = 6, keep: bool = False, dry: bool = False, run=None, detach: bool = False,
+           adopt: str | None = None) -> int:
     """Rerun a candidate's self-reported results of a test and write their verification records.
 
     0 when every record matches; 1 when anything was refused (nothing simulated) or a record is a
-    mismatch (written with status mismatch). `run` is runner.run_test (tests replace it)."""
+    mismatch (written with status mismatch). The rerun is a run of the runner (runner.submit, or
+    runner.adopt of `adopt`, a run of a launcher of before the manifest) whose manifest names the
+    results it verifies: whoever collects it (runner.wait here, or `adcflow collect` after `detach`)
+    writes the records (finish). `run` replaces all that with a stand-in of runner.run_test (tests)."""
     from .specs import find_test
 
     b, _ = find_test(test_id, block)
@@ -389,17 +404,37 @@ def verify(test_id: str, block: str | None, name: str, corners: str | None = Non
     stems = [Path(d["_path"]).stem for d in docs]
     print(f"[adcflow] verify {test_id} {b.name}/{name}: {len(docs)} result(s) on netlist "
           f"{(docs[0]['meta']['files'][netlist_rel(b.name, name)])}: {', '.join(stems)}")
-    if dry:
+    if dry and not adopt:
         return 0
-    if run is None:
-        from .runner import run_test as run
-    t0 = _dt.datetime.now()
     mc = (docs[0].get("meta") or {}).get("mc")              # a Monte Carlo result: the same samples and seed
-    summary = run(test_id, b.name, ",".join(sorted({d["corner"] for d in docs})), {b.name: f"xtor:{name}"},
-                  {}, mode, parallel, keep, False, mc={"runs": mc["runs"], "seed": mc["seed"]} if mc else None)
+    args = (test_id, b.name, ",".join(sorted({d["corner"] for d in docs})), {b.name: f"xtor:{name}"},
+            {}, mode, parallel, keep, False)
+    mc = {"runs": mc["runs"], "seed": mc["seed"]} if mc else None
+    if run is not None:
+        t0 = _dt.datetime.now()
+        summary = run(*args, mc=mc)
+        return finish(test_id, b.name, name, docs, summary, (_dt.datetime.now() - t0).total_seconds())
+    from . import runner
+    a = runner.run_args(*args, mc=mc)
+    v = {"candidate": name, "docs": [Path(d["_path"]).relative_to(cand.ROOT).as_posix() for d in docs]}
+    run_id = runner.adopt(a, adopt, v, dry) if adopt else runner.submit(a, v)
+    if run_id is None:
+        return 0
+    if detach:
+        print(f"[adcflow] {run_id}: `python -m adcflow collect {run_id}` writes the verification records once it ended")
+        return 0
+    res = runner.wait(run_id)
+    return res["code"] if res["state"] == runner.COLLECTED else 1
+
+
+def finish(test_id: str, block: str, name: str, docs: list[dict], summary: list[dict],
+           took_s: float | None = None) -> int:
+    """Write the verification records of the self-reported results `docs` of candidate `name` from
+    the rows of their rerun (runner.run_test's); 1 when one is a mismatch."""
     rows = {r["job"]: r for r in summary}
     bad = 0
-    print(f"[adcflow] verify {test_id} {b.name}/{name}: rerun took {(_dt.datetime.now() - t0).total_seconds():.0f} s")
+    stems = [Path(d["_path"]).stem for d in docs]
+    print(f"[adcflow] verify {test_id} {block}/{name}: rerun took {took_s or 0:.0f} s")
     for d in docs:
         stem = Path(d["_path"]).stem
         rec = record_doc(d, rows.get(stem), name)
