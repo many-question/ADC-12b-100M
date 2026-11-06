@@ -23,9 +23,9 @@
   "bit_errors": 0,
   "level_errors": 0,
   "n_conversions": 1000,
-  "t_conv_ns": 2.981598,
-  "t_conv_mean_ns": 2.898600247,
-  "power_uW": 1889.35678602
+  "t_conv_ns": 2.961019,
+  "t_conv_mean_ns": 2.87887209,
+  "power_uW": 2256.96980916
  },
  "specs": {
   "LOG-01": {
@@ -42,15 +42,22 @@
   }
  ],
  "meta": {
-  "date": "2026-11-02T18:02:44",
-  "git": "d9b6a579",
-  "git_clean": true,
+  "date": "2026-11-05T02:03:22",
+  "git": "fd5b149b",
+  "git_clean": false,
+  "git_dirty_paths": [
+   "design/xtor/adc_sarlogic/many-question-st/README.md",
+   "design/xtor/adc_sarlogic/many-question-st/adc_sarlogic.scs",
+   "design/xtor/adc_sarlogic/many-question-st/schematic-ctrl.svg",
+   "design/xtor/adc_sarlogic/many-question-st/schematic-slice.svg",
+   "design/xtor/adc_sarlogic/many-question-st/schematic-top.svg"
+  ],
   "mode": "aps",
   "pdk": true,
   "mc": null,
-  "wall_s": 15853.1,
+  "wall_s": 22014.5,
   "rc": "0",
-  "sim_s": "24740",
+  "sim_s": "20155",
   "numerics": {
    "source": "spectre.log",
    "reltol": 0.0001,
@@ -60,8 +67,8 @@
    "lteratio": 10.0,
    "relref": "alllocal",
    "abstol_V": 1e-06,
-   "steps_accepted": 5688226,
-   "step_mean_ps": 1.75821,
+   "steps_accepted": 5659479,
+   "step_mean_ps": 1.76714,
    "step_max_ps": null
   },
   "files": {
@@ -70,7 +77,7 @@
    "tb/common/veriloga/tb_capture_va.va": "1a05df990a1ef806",
    "tb/common/veriloga/tb_qmeter_va.va": "fed84d572a912b39",
    "tb/common/veriloga/tb_cmp_emu_va.va": "1173f23365da8b7f",
-   "design/xtor/adc_sarlogic/many-question-st/adc_sarlogic.scs": "f22ea1e01c6adf51",
+   "design/xtor/adc_sarlogic/many-question-st/adc_sarlogic.scs": "5ed50a025fd7d687",
    "design/behav/veriloga/adc_arch_func.vams": "8eac5dace781bffc",
    "design/behav/veriloga/adc_arch.vams": "32d904828c5dbf67"
   },
@@ -84,12 +91,6 @@
   },
   "views": {
    "adc_sarlogic": "xtor:many-question-st"
-  },
-  "renamed": {
-   "date": "2026-11-02T22:53:58",
-   "git": "a4283f9a",
-   "from": "many-question",
-   "to": "many-question-st"
   }
  }
 }

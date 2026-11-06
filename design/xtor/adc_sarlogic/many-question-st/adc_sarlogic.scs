@@ -354,24 +354,24 @@ parameters wn_c=400n wp_c=600n ln_c=30n lp_c=30n nn_c=2 np_c=2
 XTOK_SET (GO_IN IDLE_B tok_set_b VDD VSS) adc_sarlogic_nand2 wn=600n wp=600n nn=2 np=2
 XTOK_Q (tok_set_b tok_b en_k VDD VSS) adc_sarlogic_nand2 wn=1.2u wp=1.2u nn=2 np=2
 XTOK_QB (en_k RST_B tok_b VDD VSS) adc_sarlogic_nand2 wn=600n wp=600n nn=2 np=2
-XSETP (CMPP en_k dn_b set_pb VDD VSS) adc_sarlogic_nand3 wn=2.4u wp=800n nn=2 np=2
-XSETN (CMPN en_k up_b set_nb VDD VSS) adc_sarlogic_nand3 wn=2.4u wp=800n nn=2 np=2
-XUP_Q (set_pb up_b Q VDD VSS) adc_sarlogic_nand2 wn=1.0u wp=3.2u nn=2 np=4
-XUP_QB (Q RST_B up_b VDD VSS) adc_sarlogic_nand2 wn=4.8u wp=1.2u nn=4 np=2
-XDN_Q (set_nb dn_b dn_q VDD VSS) adc_sarlogic_nand2 wn=1.0u wp=3.2u nn=2 np=4
-XDN_QB (dn_q RST_B dn_b VDD VSS) adc_sarlogic_nand2 wn=4.8u wp=1.2u nn=4 np=2
-XDRV_UP (up_b UP VDD VSS) adc_sarlogic_inv wn=2.4u wp=6.4u nn=2 np=8
-XDRV_DN (dn_b DN VDD VSS) adc_sarlogic_inv wn=2.4u wp=6.4u nn=2 np=8
-XREQ (GO_IN up_b dn_b REQ_B VDD VSS) adc_sarlogic_nand3 wn=1.8u wp=1.8u nn=2 np=2
-XDONE (up_b dn_b done VDD VSS) adc_sarlogic_nand2 wn=1.0u wp=1.8u nn=2 np=2
+XSETP (CMPP en_k dn_b set_pb VDD VSS) adc_sarlogic_nand3 wn=3.0u wp=800n nn=2 np=2
+XSETN (CMPN en_k up_b set_nb VDD VSS) adc_sarlogic_nand3 wn=3.0u wp=800n nn=2 np=2
+XUP_Q (set_pb up_b Q VDD VSS) adc_sarlogic_nand2 wn=800n wp=4.8u nn=2 np=6
+XUP_QB (Q RST_B up_b VDD VSS) adc_sarlogic_nand2 wn=6.0u wp=1.0u nn=6 np=2
+XDN_Q (set_nb dn_b dn_q VDD VSS) adc_sarlogic_nand2 wn=800n wp=4.8u nn=2 np=6
+XDN_QB (dn_q RST_B dn_b VDD VSS) adc_sarlogic_nand2 wn=6.0u wp=1.0u nn=6 np=2
+XDRV_UP (up_b UP VDD VSS) adc_sarlogic_inv wn=1.6u wp=8.8u nn=2 np=8
+XDRV_DN (dn_b DN VDD VSS) adc_sarlogic_inv wn=1.6u wp=8.8u nn=2 np=8
+XREQ (GO_IN up_b dn_b REQ_B VDD VSS) adc_sarlogic_nand3 wn=3.6u wp=1.8u nn=4 np=2
+XDONE (up_b dn_b done VDD VSS) adc_sarlogic_nand2 wn=3.6u wp=2.4u nn=4 np=2
 XC0 (done VDD VSS) adc_sarlogic_gatecap wn=wn_c wp=wp_c ln=ln_c lp=lp_c nn=nn_c np=np_c
-XD1 (done d1 VDD VSS) adc_sarlogic_inv wn=800n wp=1.2u nn=2 np=2
+XD1 (done d1 VDD VSS) adc_sarlogic_inv wn=1.0u wp=1.5u nn=2 np=2
 XC1 (d1 VDD VSS) adc_sarlogic_gatecap wn=wn_c wp=wp_c ln=ln_c lp=lp_c nn=nn_c np=np_c
-XD2 (d1 d2 VDD VSS) adc_sarlogic_inv wn=800n wp=1.2u nn=2 np=2
+XD2 (d1 d2 VDD VSS) adc_sarlogic_inv wn=1.0u wp=1.5u nn=2 np=2
 XC2 (d2 VDD VSS) adc_sarlogic_gatecap wn=wn_c wp=wp_c ln=ln_c lp=lp_c nn=nn_c np=np_c
-XD3 (d2 d3 VDD VSS) adc_sarlogic_inv wn=800n wp=1.2u nn=2 np=2
+XD3 (d2 d3 VDD VSS) adc_sarlogic_inv wn=1.0u wp=1.5u nn=2 np=2
 XC3 (d3 VDD VSS) adc_sarlogic_gatecap wn=wn_c wp=wp_c ln=ln_c lp=lp_c nn=nn_c np=np_c
-XD4 (d3 GO_OUT VDD VSS) adc_sarlogic_inv wn=1.2u wp=1.8u nn=2 np=2
+XD4 (d3 GO_OUT VDD VSS) adc_sarlogic_inv wn=3.6u wp=3.6u nn=4 np=4
 // @RNL {
 //   &VDD @ADD-TO $SUPPLY_NET_SET; &VSS @ADD-TO $GROUND_NET_SET;
 //   %slice_sym = @DEFINE-SYMBOL(box=[-8, -6, 8, 6]) {
@@ -602,8 +602,8 @@ XD4 (d3 GO_OUT VDD VSS) adc_sarlogic_inv wn=1.2u wp=1.8u nn=2 np=2
 //   (103.684, 17.6475) @TEXT("1", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
 //   (105.103, 17.6475) @TEXT("1 (dn_b locks)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
 //   (84, 6.6) @TEXT("Per-Slice DAC Settling Load Schedule (wn_c / wp_c)", halign="start", bold=true) => @SET-STYLE $note_style;
-//   @RECTANGLE {(84, 6) (113.744, -0.93)} => @SET-STYLE $table_style;
-//   @LINE {(84, 4.845) (113.744, 4.845)} => @SET-STYLE $table_style;
+//   @RECTANGLE {(84, 6) (115.02, -0.93)} => @SET-STYLE $table_style;
+//   @LINE {(84, 4.845) (115.02, 4.845)} => @SET-STYLE $table_style;
 //   @LINE {(89.566, 6) (89.566, -0.93)} => @SET-STYLE $table_style;
 //   @LINE {(95.132, 6) (95.132, -0.93)} => @SET-STYLE $table_style;
 //   @LINE {(100.06, 6) (100.06, -0.93)} => @SET-STYLE $table_style;
@@ -616,28 +616,28 @@ XD4 (d3 GO_OUT VDD VSS) adc_sarlogic_inv wn=1.2u wp=1.8u nn=2 np=2
 //   (84.5, 4.2675) @TEXT("XS1..XS2", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
 //   (90.066, 4.2675) @TEXT("k = 1, 2", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
 //   (95.632, 4.2675) @TEXT("1024, 512", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
-//   (100.56, 4.2675) @TEXT("240n / 360n (30n)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
-//   (108.04, 4.2675) @TEXT("48 ps (LOG-04)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (100.56, 4.2675) @TEXT("120n / 180n (30n)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (108.04, 4.2675) @TEXT("47.4 ps (LOG-04)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
 //   (84.5, 3.1125) @TEXT("XS3", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
 //   (90.066, 3.1125) @TEXT("k = 3", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
 //   (95.632, 3.1125) @TEXT("256", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
-//   (100.56, 3.1125) @TEXT("1.65u / 2.475u (60n)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
-//   (108.04, 3.1125) @TEXT("48 + 15 = 63 ps", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (100.56, 3.1125) @TEXT("3.65u / 5.475u (60n)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (108.04, 3.1125) @TEXT("47.4 + 10 = 57.4 ps", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
 //   (84.5, 1.9575) @TEXT("XS4..XS6", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
 //   (90.066, 1.9575) @TEXT("k = 4..6", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
 //   (95.632, 1.9575) @TEXT("128, 64, 32", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
-//   (100.56, 1.9575) @TEXT("5.4u / 8.1u (60n)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
-//   (108.04, 1.9575) @TEXT("48 + 35 = 83 ps", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (100.56, 1.9575) @TEXT("7.95u..8.2u / 7.25u", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (108.04, 1.9575) @TEXT("47.4 + 30 = 77.4 ps", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
 //   (84.5, 0.8025) @TEXT("XS7..8, 10..13", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
 //   (90.066, 0.8025) @TEXT("k = 7,8,10..13", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
 //   (95.632, 0.8025) @TEXT("32..1", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
-//   (100.56, 0.8025) @TEXT("8.6u / 12.9u (60n)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
-//   (108.04, 0.8025) @TEXT("95 ps (LOG-05)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (100.56, 0.8025) @TEXT("11.8u / 17.7u (60n)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (108.04, 0.8025) @TEXT("95.4 ps (LOG-05)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
 //   (84.5, -0.3525) @TEXT("XS9", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
 //   (90.066, -0.3525) @TEXT("k = 9", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
 //   (95.632, -0.3525) @TEXT("8", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
-//   (100.56, -0.3525) @TEXT("12.0u / 18.0u (60n)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
-//   (108.04, -0.3525) @TEXT("95 + 15 = 110 ps", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style
+//   (100.56, -0.3525) @TEXT("16.9u / 25.35u (60n)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (108.04, -0.3525) @TEXT("95.4 + 25 = 120.4 ps", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style
 // }
 ends adc_sarlogic_slice
 
@@ -645,14 +645,14 @@ subckt adc_sarlogic_slice14 (CMPP CMPN GO_IN IDLE_B RST_B Q REQ_B DONE VDD VSS)
 XTOK_SET (GO_IN IDLE_B tok_set_b VDD VSS) adc_sarlogic_nand2 wn=600n wp=600n nn=2 np=2
 XTOK_Q (tok_set_b tok_b en_k VDD VSS) adc_sarlogic_nand2 wn=1.2u wp=1.2u nn=2 np=2
 XTOK_QB (en_k RST_B tok_b VDD VSS) adc_sarlogic_nand2 wn=600n wp=600n nn=2 np=2
-XSETP (CMPP en_k dn_b set_pb VDD VSS) adc_sarlogic_nand3 wn=2.4u wp=800n nn=2 np=2
-XSETN (CMPN en_k up_b set_nb VDD VSS) adc_sarlogic_nand3 wn=2.4u wp=800n nn=2 np=2
-XUP_Q (set_pb up_b Q VDD VSS) adc_sarlogic_nand2 wn=1.0u wp=3.2u nn=2 np=4
-XUP_QB (Q RST_B up_b VDD VSS) adc_sarlogic_nand2 wn=4.8u wp=1.2u nn=4 np=2
-XDN_Q (set_nb dn_b dn_q VDD VSS) adc_sarlogic_nand2 wn=1.0u wp=3.2u nn=2 np=4
-XDN_QB (dn_q RST_B dn_b VDD VSS) adc_sarlogic_nand2 wn=4.8u wp=1.2u nn=4 np=2
-XREQ (GO_IN up_b dn_b REQ_B VDD VSS) adc_sarlogic_nand3 wn=1.8u wp=1.8u nn=2 np=2
-XDONE (up_b dn_b DONE VDD VSS) adc_sarlogic_nand2 wn=1.0u wp=1.8u nn=2 np=2
+XSETP (CMPP en_k dn_b set_pb VDD VSS) adc_sarlogic_nand3 wn=3.0u wp=800n nn=2 np=2
+XSETN (CMPN en_k up_b set_nb VDD VSS) adc_sarlogic_nand3 wn=3.0u wp=800n nn=2 np=2
+XUP_Q (set_pb up_b Q VDD VSS) adc_sarlogic_nand2 wn=1.0u wp=4.8u nn=2 np=6
+XUP_QB (Q RST_B up_b VDD VSS) adc_sarlogic_nand2 wn=6.0u wp=1.2u nn=6 np=2
+XDN_Q (set_nb dn_b dn_q VDD VSS) adc_sarlogic_nand2 wn=1.0u wp=4.8u nn=2 np=6
+XDN_QB (dn_q RST_B dn_b VDD VSS) adc_sarlogic_nand2 wn=6.0u wp=1.2u nn=6 np=2
+XREQ (GO_IN up_b dn_b REQ_B VDD VSS) adc_sarlogic_nand3 wn=3.6u wp=1.8u nn=4 np=2
+XDONE (up_b dn_b DONE VDD VSS) adc_sarlogic_nand2 wn=1.4u wp=2.4u nn=2 np=2
 // @RNL {
 //   &VDD @ADD-TO $SUPPLY_NET_SET; &VSS @ADD-TO $GROUND_NET_SET;
 //   %slice14_sym = @DEFINE-SYMBOL(box=[-8, -6, 8, 6]) {
@@ -777,11 +777,11 @@ subckt adc_sarlogic_ctrl (CONV_B OP_B ON_B REQ_B1 REQ_B2 REQ_B3 REQ_B4 REQ_B5 RE
 // Reset, conversion window delay, and first-clock start delay (t_start)
 XCV1 (CONV_B conv_i VDD VSS) adc_sarlogic_inv wn=1.6u wp=2.4u nn=2 np=2
 XCD1 (conv_i cd1_b VDD VSS) adc_sarlogic_inv wn=600n wp=900n nn=2 np=2
-XCCD1 (cd1_b VDD VSS) adc_sarlogic_gatecap wn=4.3u wp=6.45u ln=90n lp=90n nn=4 np=4
+XCCD1 (cd1_b VDD VSS) adc_sarlogic_gatecap wn=5.6u wp=8.4u ln=90n lp=90n nn=4 np=4
 XCD2 (cd1_b conv_d1 VDD VSS) adc_sarlogic_inv wn=600n wp=900n nn=2 np=2
-XCCD2 (conv_d1 VDD VSS) adc_sarlogic_gatecap wn=4.3u wp=6.45u ln=90n lp=90n nn=4 np=4
+XCCD2 (conv_d1 VDD VSS) adc_sarlogic_gatecap wn=5.6u wp=8.4u ln=90n lp=90n nn=4 np=4
 XCD3 (conv_d1 cd3_b VDD VSS) adc_sarlogic_inv wn=600n wp=900n nn=2 np=2
-XCCD3 (cd3_b VDD VSS) adc_sarlogic_gatecap wn=4.3u wp=6.45u ln=90n lp=90n nn=4 np=4
+XCCD3 (cd3_b VDD VSS) adc_sarlogic_gatecap wn=5.6u wp=8.4u ln=90n lp=90n nn=4 np=4
 XCD4 (cd3_b conv_d2 VDD VSS) adc_sarlogic_inv wn=800n wp=1.2u nn=2 np=2
 XRST_NOR (conv_i conv_d2 rst_i VDD VSS) adc_sarlogic_nor2 wn=1.2u wp=2.4u nn=2 np=4
 XRST_DRV (rst_i RST_B VDD VSS) adc_sarlogic_inv wn=3.2u wp=4.8u nn=4 np=6
@@ -789,42 +789,42 @@ XGO0_NAND (conv_d2 conv_i go0_b VDD VSS) adc_sarlogic_nand2 wn=1.2u wp=1.2u nn=2
 XGO0_INV (go0_b GO0 VDD VSS) adc_sarlogic_inv wn=1.6u wp=2.4u nn=2 np=2
 
 // Comparator and timeout front-end
-XCMPP (OP_B to_b CMPP VDD VSS) adc_sarlogic_nand2 wn=2.4u wp=6.4u nn=4 np=8
-XCMPN (ON_B VDD CMPN VDD VSS) adc_sarlogic_nand2 wn=2.4u wp=6.4u nn=4 np=8
+XCMPP (OP_B to_b CMPP VDD VSS) adc_sarlogic_nand2 wn=3.0u wp=6.4u nn=4 np=8
+XCMPN (ON_B VDD CMPN VDD VSS) adc_sarlogic_nand2 wn=3.0u wp=6.4u nn=4 np=8
 XTO_CONV (to4 CONV_B to_conv_b VDD VSS) adc_sarlogic_nor2 wn=800n wp=2.4u nn=2 np=4
 XBUSY (OP_B ON_B to_conv_b cmp_busy VDD VSS) adc_sarlogic_nand3 wn=3.6u wp=2.4u nn=4 np=4
-XIDLE (cmp_busy IDLE_B VDD VSS) adc_sarlogic_inv wn=2.4u wp=4.8u nn=4 np=6
+XIDLE (cmp_busy IDLE_B VDD VSS) adc_sarlogic_inv wn=3.2u wp=2.4u nn=4 np=4
 XIDLE_CLK (cmp_busy clkc_idle_b VDD VSS) adc_sarlogic_inv wn=3.2u wp=6.4u nn=4 np=8
 
 // Balanced 14-input request combiner and fast 2-input CLKC gate
-XG1 (REQ_B1 REQ_B2 REQ_B3 grp1 VDD VSS) adc_sarlogic_nand3 wn=2.4u wp=1.2u nn=2 np=2
-XG2 (REQ_B4 REQ_B5 REQ_B6 grp2 VDD VSS) adc_sarlogic_nand3 wn=2.4u wp=1.2u nn=2 np=2
-XG3 (REQ_B7 REQ_B8 REQ_B9 grp3 VDD VSS) adc_sarlogic_nand3 wn=2.4u wp=1.2u nn=2 np=2
-XG4 (REQ_B10 REQ_B11 REQ_B12 grp4 VDD VSS) adc_sarlogic_nand3 wn=2.4u wp=1.2u nn=2 np=2
-XG5 (REQ_B13 REQ_B14 VDD grp5 VDD VSS) adc_sarlogic_nand3 wn=2.4u wp=1.2u nn=2 np=2
-XGA (grp1 grp2 grp3 grpa_b VDD VSS) adc_sarlogic_nor3 wn=1.2u wp=4.8u nn=2 np=6
-XGB (grp4 grp5 VSS grpb_b VDD VSS) adc_sarlogic_nor3 wn=1.2u wp=4.8u nn=2 np=6
-XGC (grpa_b grpb_b clkc_req VDD VSS) adc_sarlogic_nand2 wn=3.2u wp=2.4u nn=4 np=4
-XCLKC_GATE (clkc_req clkc_idle_b clkc_b VDD VSS) adc_sarlogic_nand2 wn=4.8u wp=3.6u nn=6 np=4
-XDRV_CLKC (clkc_b CLKC VDD VSS) adc_sarlogic_inv wn=4.8u wp=7.2u nn=6 np=8
+XG1 (REQ_B1 REQ_B2 REQ_B3 grp1 VDD VSS) adc_sarlogic_nand3 wn=2.4u wp=1.0u nn=2 np=2
+XG2 (REQ_B4 REQ_B5 REQ_B6 grp2 VDD VSS) adc_sarlogic_nand3 wn=2.4u wp=1.0u nn=2 np=2
+XG3 (REQ_B7 REQ_B8 REQ_B9 grp3 VDD VSS) adc_sarlogic_nand3 wn=2.4u wp=1.0u nn=2 np=2
+XG4 (REQ_B10 REQ_B11 REQ_B12 grp4 VDD VSS) adc_sarlogic_nand3 wn=2.4u wp=1.0u nn=2 np=2
+XG5 (REQ_B13 REQ_B14 VDD grp5 VDD VSS) adc_sarlogic_nand3 wn=2.4u wp=1.0u nn=2 np=2
+XGA (grp1 grp3 grp2 grpa_b VDD VSS) adc_sarlogic_nor3 wn=1.8u wp=1.2u nn=2 np=2
+XGB (grp4 grp5 VSS grpb_b VDD VSS) adc_sarlogic_nor3 wn=1.8u wp=1.2u nn=2 np=2
+XGC (grpa_b grpb_b clkc_req VDD VSS) adc_sarlogic_nand2 wn=2.4u wp=4.0u nn=2 np=4
+XCLKC_GATE (clkc_req clkc_idle_b clkc_b VDD VSS) adc_sarlogic_nand2 wn=6.0u wp=4.5u nn=6 np=4
+XDRV_CLKC (clkc_b CLKC VDD VSS) adc_sarlogic_inv wn=6.0u wp=9.0u nn=6 np=10
 
 // Self-resetting parallel-reset timeout timer (active when clkc_b = 0)
-XTO_RST (CLKC to_rst VDD VSS) adc_sarlogic_inv wn=1.2u wp=1.8u nn=2 np=2
-XTO1A (to_rst to_rst to1 VDD VSS) adc_sarlogic_nor2 wn=1.2u wp=3.6u nn=2 np=4
-XCTO1 (to1 VDD VSS) adc_sarlogic_gatecap wn=400n wp=56.8u ln=90n lp=90n nn=2 np=24
-XTO1B (to1 to1_b VDD VSS) adc_sarlogic_inv wn=800n wp=1.2u nn=2 np=2
-XCTO1B (to1_b VDD VSS) adc_sarlogic_gatecap wn=42.6u wp=400n ln=90n lp=90n nn=20 np=2
-XTO2A (to1_b to_rst to2 VDD VSS) adc_sarlogic_nor2 wn=1.2u wp=3.6u nn=2 np=4
-XCTO2 (to2 VDD VSS) adc_sarlogic_gatecap wn=400n wp=56.8u ln=90n lp=90n nn=2 np=24
-XTO2B (to2 to2_b VDD VSS) adc_sarlogic_inv wn=800n wp=1.2u nn=2 np=2
-XCTO2B (to2_b VDD VSS) adc_sarlogic_gatecap wn=42.6u wp=400n ln=90n lp=90n nn=20 np=2
-XTO3A (to2_b to_rst to3 VDD VSS) adc_sarlogic_nor2 wn=1.2u wp=3.6u nn=2 np=4
-XCTO3 (to3 VDD VSS) adc_sarlogic_gatecap wn=400n wp=56.8u ln=90n lp=90n nn=2 np=24
-XTO3B (to3 to3_b VDD VSS) adc_sarlogic_inv wn=800n wp=1.2u nn=2 np=2
-XCTO3B (to3_b VDD VSS) adc_sarlogic_gatecap wn=6.4u wp=400n ln=90n lp=90n nn=4 np=2
-XTO4A (to3_b to4 VDD VSS) adc_sarlogic_inv wn=800n wp=1.2u nn=2 np=2
-XCTO4 (to4 VDD VSS) adc_sarlogic_gatecap wn=400n wp=9.6u ln=90n lp=90n nn=2 np=6
-XTO4B (to4 to_b VDD VSS) adc_sarlogic_inv wn=1.6u wp=2.4u nn=2 np=2
+XTO_RST (CLKC to_rst VDD VSS) adc_sarlogic_inv wn=1.6u wp=3.2u nn=2 np=4
+XTO1A (VSS to_rst to1 VDD VSS) adc_sarlogic_nor2 wn=3.6u wp=3.6u nn=4 np=4
+XCTO1 (to1 VDD VSS) adc_sarlogic_gatecap wn=400n wp=56.4u ln=90n lp=90n nn=2 np=24
+XTO1B (to1 to1_b VDD VSS) adc_sarlogic_inv wn=800n wp=3.0u nn=2 np=4
+XCTO1B (to1_b VDD VSS) adc_sarlogic_gatecap wn=42.0u wp=400n ln=90n lp=90n nn=18 np=2
+XTO2A (to1_b to_rst to2 VDD VSS) adc_sarlogic_nor2 wn=3.6u wp=3.6u nn=4 np=4
+XCTO2 (to2 VDD VSS) adc_sarlogic_gatecap wn=400n wp=56.4u ln=90n lp=90n nn=2 np=24
+XTO2B (to2 to2_b VDD VSS) adc_sarlogic_inv wn=800n wp=3.0u nn=2 np=4
+XCTO2B (to2_b VDD VSS) adc_sarlogic_gatecap wn=42.0u wp=400n ln=90n lp=90n nn=18 np=2
+XTO3A (to2_b to_rst to3 VDD VSS) adc_sarlogic_nor2 wn=3.6u wp=3.6u nn=4 np=4
+XCTO3 (to3 VDD VSS) adc_sarlogic_gatecap wn=400n wp=56.4u ln=90n lp=90n nn=2 np=24
+XTO3B (to3 to3_b VDD VSS) adc_sarlogic_inv wn=800n wp=3.0u nn=2 np=4
+XCTO3B (to3_b VDD VSS) adc_sarlogic_gatecap wn=400n wp=400n ln=30n lp=30n nn=2 np=2
+XTO4A (to3_b to4 VDD VSS) adc_sarlogic_inv wn=2.4u wp=1.2u nn=2 np=2
+XCTO4 (to4 VDD VSS) adc_sarlogic_gatecap wn=400n wp=600n ln=30n lp=30n nn=2 np=2
+XTO4B (to4 to_b VDD VSS) adc_sarlogic_inv wn=1.6u wp=3.2u nn=2 np=4
 
 // Output register latch enable and RDY setup delay chain (LOG-10 >= 100 ps all corners)
 XD14_INV (DONE14 done14_b VDD VSS) adc_sarlogic_inv wn=800n wp=1.2u nn=2 np=2
@@ -1050,8 +1050,8 @@ XDRV_RDY (rdy_b RDY VDD VSS) adc_sarlogic_inv wn=4.8u wp=7.2u nn=6 np=8
 //   %g_xgb = $GROUND @ATTACH &VSS => @PLACE(19, -29);
 //   &VSS @WIRE(mode="straight") {%g_xgb:p #XGB:C};
 //   &grp1 @WIRE(mode="straight") {#XG1:Y (14, -2) (14, -9) #XGA:A};
-//   &grp2 @WIRE(mode="straight") {#XG2:Y #XGA:B};
-//   &grp3 @WIRE(mode="straight") {#XG3:Y (14, -18) (14, -11) #XGA:C};
+//   &grp3 @WIRE(mode="straight") {#XG3:Y (16, -18) (16, -10) #XGA:B};
+//   &grp2 @WIRE(mode="straight") {#XG2:Y (12, -10) (12, -11) #XGA:C};
 //   &grp4 @WIRE(mode="straight") {#XG4:Y (14, -26) (14, -27) #XGB:A};
 //   &grp5 @WIRE(mode="straight") {#XG5:Y (14, -34) (14, -28) #XGB:B};
 //   &grpa_b @WIRE(mode="straight") {#XGA:Y (36, -10) (36, -17) #XGC:A} => @SET-STYLE $clk_route;
@@ -1093,15 +1093,16 @@ XDRV_RDY (rdy_b RDY VDD VSS) adc_sarlogic_inv wn=4.8u wp=7.2u nn=6 np=8
 //   #XCTO1 @PLACE(9, -59); #XCTO1B @PLACE(23, -59);
 //   #XCTO2 @PLACE(37, -59); #XCTO2B @PLACE(51, -59);
 //   #XCTO3 @PLACE(65, -59); #XCTO3B @PLACE(79, -59); #XCTO4 @PLACE(93, -59);
-//   %j_tor0 = (-6, -52); %j_tor1 = (-6, -53); %j_tor2 = (24, -55); %j_tor3 = (52, -55);
+//   %g_to1a = $GROUND @ATTACH &VSS => @PLACE(-6, -48);
+//   &VSS @WIRE(mode="straight") {%g_to1a:p (-4, -48) (-4, -51) #XTO1A:A};
+//   %j_tor1 = (-8, -53); %j_tor2 = (24, -55); %j_tor3 = (52, -55);
 //   %j_to1 = (9, -52); %j_to1b = (23, -52); %j_to2 = (37, -51); %j_to2b = (51, -51);
 //   %j_to3 = (65, -50); %j_to3b = (79, -50); %j_to4 = (93, -50);
-//   $JUNCTION @ATTACH %j_tor0; $JUNCTION @ATTACH %j_tor1; $JUNCTION @ATTACH %j_tor2;
+//   $JUNCTION @ATTACH %j_tor1; $JUNCTION @ATTACH %j_tor2;
 //   $JUNCTION @ATTACH %j_to1; $JUNCTION @ATTACH %j_to1b; $JUNCTION @ATTACH %j_to2; $JUNCTION @ATTACH %j_to2b;
 //   $JUNCTION @ATTACH %j_to3; $JUNCTION @ATTACH %j_to3b; $JUNCTION @ATTACH %j_to4;
-//   &to_rst @WIRE(mode="straight") {#XTO_RST:Y %j_tor0 (-6, -51) #XTO1A:A} => @SET-STYLE $feedback_route;
-//   &to_rst @WIRE(mode="straight") {%j_tor0 %j_tor1 #XTO1A:B} => @SET-STYLE $feedback_route;
-//   &to_rst @WIRE(mode="straight") {%j_tor1 (-6, -55) %j_tor2 %j_tor3 (52, -51) #XTO3A:B} => @SET-STYLE $feedback_route;
+//   &to_rst @WIRE(mode="straight") {#XTO_RST:Y (-8, -52) %j_tor1 #XTO1A:B} => @SET-STYLE $feedback_route;
+//   &to_rst @WIRE(mode="straight") {%j_tor1 (-8, -55) %j_tor2 %j_tor3 (52, -51) #XTO3A:B} => @SET-STYLE $feedback_route;
 //   &to_rst @WIRE(mode="straight") {%j_tor2 (24, -52) #XTO2A:B} => @SET-STYLE $feedback_route;
 //   &to1 @WIRE(mode="straight") {#XTO1A:Y %j_to1 #XTO1B:A} => @SET-STYLE $feedback_route;
 //   &to1 @WIRE(mode="straight") {%j_to1 #XCTO1:A};
@@ -1216,8 +1217,8 @@ XDRV_RDY (rdy_b RDY VDD VSS) adc_sarlogic_inv wn=4.8u wp=7.2u nn=6 np=8
 //   @LINE {(121, 24.3) (124.5, 24.3) (125, 23) (152.5, 23) (153, 24.3) (159, 24.3)} => @SET-STYLE $digital_style;
 //   (150.6, 24.6) @TEXT("LOG-10 >=100ps", size=0.45, halign="middle") => @SET-STYLE $note_style;
 //   (112, 16.6) @TEXT("Controller Timing Metrics (45 PVT Corners Verified)", halign="start", bold=true) => @SET-STYLE $note_style;
-//   @RECTANGLE {(112, 16) (149.257, 6.76)} => @SET-STYLE $table_style;
-//   @LINE {(112, 14.845) (149.257, 14.845)} => @SET-STYLE $table_style;
+//   @RECTANGLE {(112, 16) (149.895, 6.76)} => @SET-STYLE $table_style;
+//   @LINE {(112, 14.845) (149.895, 14.845)} => @SET-STYLE $table_style;
 //   @LINE {(118.523, 16) (118.523, 6.76)} => @SET-STYLE $table_style;
 //   @LINE {(133.34, 16) (133.34, 6.76)} => @SET-STYLE $table_style;
 //   @LINE {(139.863, 16) (139.863, 6.76)} => @SET-STYLE $table_style;
@@ -1228,31 +1229,31 @@ XDRV_RDY (rdy_b RDY VDD VSS) adc_sarlogic_inv wn=4.8u wp=7.2u nn=6 np=8
 //   (112.5, 14.2675) @TEXT("LOG-02 t_bitd", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
 //   (119.023, 14.2675) @TEXT("OUTP/N -> XIN -> XCMPP/N -> XDRV_UP/DN", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
 //   (133.84, 14.2675) @TEXT("<= 40 ps (tt)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
-//   (140.363, 14.2675) @TEXT("27.9 ps (tt_nom_27)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (140.363, 14.2675) @TEXT("27.55 ps (tt_nom_27)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
 //   (112.5, 13.1125) @TEXT("LOG-03 t_rst", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
 //   (119.023, 13.1125) @TEXT("OUTP/N -> XBUSY -> XIDLE_CLK -> CLKC", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
 //   (133.84, 13.1125) @TEXT("<= 45 ps (tt)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
-//   (140.363, 13.1125) @TEXT("24.45 ps (tt_nom_27)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (140.363, 13.1125) @TEXT("24.31 ps (tt_nom_27)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
 //   (112.5, 11.9575) @TEXT("LOG-04 t_dac_fast", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
 //   (119.023, 11.9575) @TEXT("XDONE..XD4 (XS1..2) -> REQ_B -> CLKC", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
 //   (133.84, 11.9575) @TEXT("35..60 ps (tt)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
-//   (140.363, 11.9575) @TEXT("48.21 ps (tt_nom_27)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (140.363, 11.9575) @TEXT("47.43 ps (tt_nom_27)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
 //   (112.5, 10.8025) @TEXT("LOG-05 t_dac_slow", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
 //   (119.023, 10.8025) @TEXT("XDONE..XD4 (XS7..13) -> REQ_B -> CLKC", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
 //   (133.84, 10.8025) @TEXT("70..100 ps (tt)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
-//   (140.363, 10.8025) @TEXT("94.88 ps (tt_nom_27)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (140.363, 10.8025) @TEXT("95.4 ps (72.9..131.0 ps 45c)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
 //   (112.5, 9.6475) @TEXT("LOG-07 t_start", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
 //   (119.023, 9.6475) @TEXT("CONV -> XCV1 -> XCD1..4 -> GO0 -> CLKC", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
 //   (133.84, 9.6475) @TEXT("80..160 ps (45c)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
-//   (140.363, 9.6475) @TEXT("94.9 ps (81.8..146.1 ps)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (140.363, 9.6475) @TEXT("106.6 ps (81.7..145.1 ps)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
 //   (112.5, 8.4925) @TEXT("LOG-10 t_rdy", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
 //   (119.023, 8.4925) @TEXT("DONE14 -> XLAT_DRV vs XRDY1..6 -> RDY", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
 //   (133.84, 8.4925) @TEXT(">= 100 ps (45c)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
-//   (140.363, 8.4925) @TEXT("128.4 ps (104.0..183.4 ps)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (140.363, 8.4925) @TEXT("134.0 ps (104.6..183.5 ps)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
 //   (112.5, 7.3375) @TEXT("LOG-12 t_timeout", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
 //   (119.023, 7.3375) @TEXT("CLKC -> XTO_RST -> XTO1..4 -> XCMPP -> CLKC", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
 //   (133.84, 7.3375) @TEXT("200..350 ps (45c)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
-//   (140.363, 7.3375) @TEXT("258.7 ps (205.4..344.4 ps)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style
+//   (140.363, 7.3375) @TEXT("255.4 ps (204.5..343.0 ps)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style
 // }
 ends adc_sarlogic_ctrl
 
@@ -1271,31 +1272,31 @@ XCTRL (conv_b op_b on_b req_b1 req_b2 req_b3 req_b4 req_b5 req_b6 req_b7 req_b8 
 
 // 14 self-timed bit slices: k=1..6 fast wait (+extra wait on k=3,4,5,6), k=7..13 slow wait (+extra wait on k=9)
 XS1 (cmpp cmpn go0 idle_b rst_b UP12 DN12 b13 go1 req_b1 DVDD VSS) adc_sarlogic_slice \
-        wn_c=240n wp_c=360n ln_c=30n lp_c=30n nn_c=2 np_c=2
+        wn_c=120n wp_c=180n ln_c=30n lp_c=30n nn_c=1 np_c=1
 XS2 (cmpp cmpn go1 idle_b rst_b UP11 DN11 b12 go2 req_b2 DVDD VSS) adc_sarlogic_slice \
-        wn_c=240n wp_c=360n ln_c=30n lp_c=30n nn_c=2 np_c=2
+        wn_c=120n wp_c=180n ln_c=30n lp_c=30n nn_c=1 np_c=1
 XS3 (cmpp cmpn go2 idle_b rst_b UP10 DN10 b11 go3 req_b3 DVDD VSS) adc_sarlogic_slice \
-        wn_c=1.65u wp_c=2.475u ln_c=60n lp_c=60n nn_c=2 np_c=2
+        wn_c=3.65u wp_c=5.475u ln_c=60n lp_c=60n nn_c=4 np_c=4
 XS4 (cmpp cmpn go3 idle_b rst_b UP9 DN9 b10 go4 req_b4 DVDD VSS) adc_sarlogic_slice \
-        wn_c=5.4u wp_c=8.1u ln_c=60n lp_c=60n nn_c=4 np_c=4
+        wn_c=7.95u wp_c=11.925u ln_c=60n lp_c=60n nn_c=6 np_c=6
 XS5 (cmpp cmpn go4 idle_b rst_b UP8 DN8 b9 go5 req_b5 DVDD VSS) adc_sarlogic_slice \
-        wn_c=5.4u wp_c=8.1u ln_c=60n lp_c=60n nn_c=4 np_c=4
+        wn_c=8.2u wp_c=12.3u ln_c=60n lp_c=60n nn_c=6 np_c=6
 XS6 (cmpp cmpn go5 idle_b rst_b UP7 DN7 b8 go6 req_b6 DVDD VSS) adc_sarlogic_slice \
-        wn_c=5.4u wp_c=8.1u ln_c=60n lp_c=60n nn_c=4 np_c=4
+        wn_c=7.25u wp_c=10.875u ln_c=60n lp_c=60n nn_c=4 np_c=4
 XS7 (cmpp cmpn go6 idle_b rst_b UP6 DN6 b7 go7 req_b7 DVDD VSS) adc_sarlogic_slice \
-        wn_c=8.6u wp_c=12.9u ln_c=60n lp_c=60n nn_c=6 np_c=6
+        wn_c=11.8u wp_c=17.7u ln_c=60n lp_c=60n nn_c=8 np_c=8
 XS8 (cmpp cmpn go7 idle_b rst_b UP5 DN5 b6 go8 req_b8 DVDD VSS) adc_sarlogic_slice \
-        wn_c=8.6u wp_c=12.9u ln_c=60n lp_c=60n nn_c=6 np_c=6
+        wn_c=11.8u wp_c=17.7u ln_c=60n lp_c=60n nn_c=8 np_c=8
 XS9 (cmpp cmpn go8 idle_b rst_b UP4 DN4 b5 go9 req_b9 DVDD VSS) adc_sarlogic_slice \
-        wn_c=12.0u wp_c=18.0u ln_c=60n lp_c=60n nn_c=8 np_c=8
+        wn_c=16.9u wp_c=25.35u ln_c=60n lp_c=60n nn_c=10 np_c=10
 XS10 (cmpp cmpn go9 idle_b rst_b UP3 DN3 b4 go10 req_b10 DVDD VSS) adc_sarlogic_slice \
-        wn_c=8.6u wp_c=12.9u ln_c=60n lp_c=60n nn_c=6 np_c=6
+        wn_c=11.8u wp_c=17.7u ln_c=60n lp_c=60n nn_c=8 np_c=8
 XS11 (cmpp cmpn go10 idle_b rst_b UP2 DN2 b3 go11 req_b11 DVDD VSS) adc_sarlogic_slice \
-        wn_c=8.6u wp_c=12.9u ln_c=60n lp_c=60n nn_c=6 np_c=6
+        wn_c=11.8u wp_c=17.7u ln_c=60n lp_c=60n nn_c=8 np_c=8
 XS12 (cmpp cmpn go11 idle_b rst_b UP1 DN1 b2 go12 req_b12 DVDD VSS) adc_sarlogic_slice \
-        wn_c=8.6u wp_c=12.9u ln_c=60n lp_c=60n nn_c=6 np_c=6
+        wn_c=11.8u wp_c=17.7u ln_c=60n lp_c=60n nn_c=8 np_c=8
 XS13 (cmpp cmpn go12 idle_b rst_b UP0 DN0 b1 go13 req_b13 DVDD VSS) adc_sarlogic_slice \
-        wn_c=8.6u wp_c=12.9u ln_c=60n lp_c=60n nn_c=6 np_c=6
+        wn_c=11.8u wp_c=17.7u ln_c=60n lp_c=60n nn_c=8 np_c=8
 XS14 (cmpp cmpn go13 idle_b rst_b b0 req_b14 done14 DVDD VSS) adc_sarlogic_slice14
 
 // 14-bit output latch register D13..D0
@@ -1631,7 +1632,7 @@ XDL0 (b0 lat_en D0 DVDD VSS) adc_sarlogic_dlat
 //   %bus_d @TEXT("D<13:0>", size=0.65, halign="end", valign="middle") => @PLACE(63.5, -32);
 //   (-44, 18) @TEXT("adc_sarlogic (transistor view): 14-Step Self-Timed Asynchronous SAR Controller, CDAC Drivers & Output Register", halign="start") => @SET-STYLE $title_style;
 //   (-44, 15.8) @TEXT("32 top-level subcircuit instances: 3 low-C input inverters + 1 central controller (XCTRL) + 14 bit slices (XS1..XS14) + 14 output latches (XDL13..XDL0)", halign="start") => @SET-STYLE $note_style;
-//   (-44, 13.8) @TEXT("All 16 spec items (LOG-01 .. LOG-16) verified across all 45 PVT corners (0 errors across 48,825 simulated conversions)", halign="start") => @SET-STYLE $note_style;
+//   (-44, 13.8) @TEXT("All 17 spec items (LOG-01 .. LOG-17) verified across all 45 PVT corners (369/369 passing, 0 SOA violations)", halign="start") => @SET-STYLE $note_style;
 //   (-40, 9.5) @TEXT("Input Buffers & Loop Controller", size=0.85, bold=true, textcolor="#1a365d", halign="start");
 //   (12, 9.5) @TEXT("14-Step Self-Timed Bit Slice Cascade (XS1..XS14)", size=0.85, bold=true, textcolor="#975a16", halign="start");
 //   (42, 10.5) @TEXT("Output Latches (XDL13..XDL0)", size=0.85, bold=true, textcolor="#2c5282", halign="start");
@@ -1677,15 +1678,15 @@ XDL0 (b0 lat_en D0 DVDD VSS) adc_sarlogic_dlat
 //   (82.5, -20.8875) @TEXT("OUTP, OUTN", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
 //   (87.109, -20.8875) @TEXT("input", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
 //   (91.08, -20.8875) @TEXT("digital", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
-//   (94.413, -20.8875) @TEXT("Comparator outputs (Cin = 4.22 fF <= 7 fF, dC = 7.2%, LOG-15/16)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (94.413, -20.8875) @TEXT("Comparator outputs (Cin = 4.22 fF <= 7 fF, dC = 11.2%, LOG-15/16)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
 //   (82.5, -22.0425) @TEXT("CLKC", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
 //   (87.109, -22.0425) @TEXT("output", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
 //   (91.08, -22.0425) @TEXT("clock", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
-//   (94.413, -22.0425) @TEXT("Comparator clock: 14 pulses/conv, t_conv = 2.74 ns (tt) / <= 3.71 ns (slow)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (94.413, -22.0425) @TEXT("Comparator clock: 14 pulses/conv, t_conv = 2.72 ns (tt) / <= 3.69 ns (slow)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
 //   (82.5, -23.1975) @TEXT("UP<12:0>", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
 //   (87.109, -23.1975) @TEXT("output", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
 //   (91.08, -23.1975) @TEXT("digital", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
-//   (94.413, -23.1975) @TEXT("CDAC positive switch drivers (steps 1..13 -> UP12..UP0, t_bitd = 27.9 ps)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (94.413, -23.1975) @TEXT("CDAC positive switch drivers (steps 1..13 -> UP12..UP0, t_bitd = 26.6 ps)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
 //   (82.5, -24.3525) @TEXT("DN<12:0>", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
 //   (87.109, -24.3525) @TEXT("output", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
 //   (91.08, -24.3525) @TEXT("digital", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
@@ -1701,7 +1702,7 @@ XDL0 (b0 lat_en D0 DVDD VSS) adc_sarlogic_dlat
 //   (82.5, -27.8175) @TEXT("DVDD, VSS", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
 //   (87.109, -27.8175) @TEXT("inout", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
 //   (91.08, -27.8175) @TEXT("supply", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
-//   (94.413, -27.8175) @TEXT("0.9 V digital supply & ground (Idd_avg = 928 uW @ 100 MS/s, LOG-13)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (94.413, -27.8175) @TEXT("0.9 V digital supply & ground (Idd_avg = 1.06 mW @ 100 MS/s, LOG-13)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
 //   (82, -37.4) @TEXT("14-Step Redundant SAR Bit-Slice Mapping", halign="start", bold=true) => @SET-STYLE $note_style;
 //   @RECTANGLE {(82, -38) (120.995, -47.24)} => @SET-STYLE $table_style;
 //   @LINE {(82, -39.155) (120.995, -39.155)} => @SET-STYLE $table_style;
@@ -1718,32 +1719,32 @@ XDL0 (b0 lat_en D0 DVDD VSS) adc_sarlogic_dlat
 //   (87.428, -39.7325) @TEXT("k = 1, 2", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
 //   (92.356, -39.7325) @TEXT("UP12..11 / DN12..11", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
 //   (99.517, -39.7325) @TEXT("D13, D12", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
-//   (103.807, -39.7325) @TEXT("Weights 2048, 1024 | Fast Wait (48.2 ps, Group A)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (103.807, -39.7325) @TEXT("Weights 2048, 1024 | Fast Wait (47.8 ps, Group A)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
 //   (82.5, -40.8875) @TEXT("XS3", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
 //   (87.428, -40.8875) @TEXT("k = 3", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
 //   (92.356, -40.8875) @TEXT("UP10 / DN10", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
 //   (99.517, -40.8875) @TEXT("D11", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
-//   (103.807, -40.8875) @TEXT("Weight 512 | Fast + 15 ps Extra Wait (Group B)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (103.807, -40.8875) @TEXT("Weight 512 | Fast + 10 ps Extra Wait (Group B)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
 //   (82.5, -42.0425) @TEXT("XS4 .. XS6", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
 //   (87.428, -42.0425) @TEXT("k = 4 .. 6", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
 //   (92.356, -42.0425) @TEXT("UP9..7 / DN9..7", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
 //   (99.517, -42.0425) @TEXT("D10 .. D8", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
-//   (103.807, -42.0425) @TEXT("Weights 256, 128, 64 | Fast + 35 ps Wait (Group C)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (103.807, -42.0425) @TEXT("Weights 256, 128, 64 | Fast + 30 ps Wait (Group C)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
 //   (82.5, -43.1975) @TEXT("XS7, XS8", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
 //   (87.428, -43.1975) @TEXT("k = 7, 8", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
 //   (92.356, -43.1975) @TEXT("UP6..5 / DN6..5", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
 //   (99.517, -43.1975) @TEXT("D7, D6", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
-//   (103.807, -43.1975) @TEXT("Weights 64 (red.), 32 | Slow Wait (94.9 ps, Group A)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (103.807, -43.1975) @TEXT("Weights 64 (red.), 32 | Slow Wait (96.2 ps, Group A)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
 //   (82.5, -44.3525) @TEXT("XS9", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
 //   (87.428, -44.3525) @TEXT("k = 9", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
 //   (92.356, -44.3525) @TEXT("UP4 / DN4", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
 //   (99.517, -44.3525) @TEXT("D5", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
-//   (103.807, -44.3525) @TEXT("Weight 16 | Slow + 15 ps Extra Wait (Group D)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (103.807, -44.3525) @TEXT("Weight 16 | Slow + 25 ps Extra Wait (Group D)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
 //   (82.5, -45.5075) @TEXT("XS10 .. XS13", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
 //   (87.428, -45.5075) @TEXT("k = 10 .. 13", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
 //   (92.356, -45.5075) @TEXT("UP3..0 / DN3..0", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
 //   (99.517, -45.5075) @TEXT("D4 .. D1", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
-//   (103.807, -45.5075) @TEXT("Weights 8, 4, 4 (red.), 2 | Slow Wait (94.9 ps)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
+//   (103.807, -45.5075) @TEXT("Weights 8, 4, 4 (red.), 2 | Slow Wait (96.2 ps)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
 //   (82.5, -46.6625) @TEXT("XS14", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
 //   (87.428, -46.6625) @TEXT("k = 14", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
 //   (92.356, -46.6625) @TEXT("(none)", halign="start", valign="middle", size=0.55) => @SET-STYLE $table_style;
