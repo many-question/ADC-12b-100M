@@ -72,7 +72,24 @@ The two cold diagnosis runs retain APS Gear2 and effective 1e-7 / 10 nV toleranc
 
 Both events occur about 100 ps into a sampling cycle, with CONV low, PHI_S and PHI_B high, and APGATE and SAMP_ON transitioning. The final step diagnostics repeatedly name bit-12 `XDL.BN`; Newton failure messages also name the supply current and ideal PHI_S branch. The diagnostic logs flag behavioral clock contributions and MOM model conductance. These observations identify the operating phase and signals for investigation. The root cause remains unresolved.
 
-For the next diagnostic, replay the formal source at cold SS with the same Gear2 tolerances and an 80 ns bound. Save `XDL.BN`, the two stack device currents and gates, the phase-source branch currents and the observed switching nodes on both sides. Compare the failing edge with the previous completed edge at the same phase. This separates a device-stack transition from a residual in the ideal stimulus or the supply branches. Qualification still requires the unmodified official 256-point Gear2 run and the prescribed convergence check. RL12 remains a separate timing gate on the same candidate.
+### Cold follow-up with stack and phase probes
+
+The 80 ns `ss_low_m40` controls used the same APS Gear2 tolerances as the formal test. Current probes include the two BN stack MOS terminal currents and the ideal phase, VDDA and VREFP source branches. The voltage-only control retains the same voltage probes. The clamp control adds ideal 0 V sources to bit-12 `XDL.BN` on both sides.
+
+| Diagnostic | Result | Archive SHA-256 |
+| --- | --- | --- |
+| Formal source, voltage only `163546-a53e` | RC1, SPECTRE-16928 at 60.098333264 ns, 2 samples | `39eed2da3807d9a22506782c7ece2ba33a77ba78302809f14c21544392885edc` |
+| Formal source, voltage and current `163014-7621` | RC1, SPECTRE-16928 at 40.098623121 ns, 0 samples | `b2130ff9c4c18b89414748cca8afb48fafbf2a4e7f007b4183a667ba8a4c2f53` |
+| Finger-count trial, voltage and current `163014-ccdc` | RC0 at 80 ns, 4 samples | `2de264b22d11bdff7b49105cda5fbc7ba0f08a9c368348ff52d69ab1d73a075e` |
+| Formal source, current probes plus BN clamps `163214-83d7` | RC0 at 80 ns, 4 samples | `74a8443c75d13295136d87434c093e7e1e678f5a7c687a36afefe89cacd68952` |
+
+The voltage-only replay matches the earlier diagnostic's stop and reproduces the two formal samples within 4 pV. Relative to the rising CLK midpoint, CONV falls at +46.00 ps, PHI_S and PHI_B rise at +76.00 ps, SAMP_ON rises at +83.79 to +83.81 ps and APGATE falls at +84.62 to +84.67 ps. Step collapse follows at +88.33 ps, before the boost gate reaches its rising threshold. The N-side bit-12 BN is 2.08 uV, with HIB at 0.809 V and EN at 0.148 mV. These gates have already settled. Both formal controls reach a minimum saved step of about `7.94e-22 s`.
+
+The current-probe run reports sub-microamp BN terminal currents at the last regular step and erratic current spikes after step collapse. At the clamp, BN holds at 0 V. KCL from the two saved MOS terminal currents gives a peak clamp current of 0.514 uA in the half-picosecond windows around the observed failing phases and 1.320 mA at a conversion edge. The clamp changes the node equation and carries switching current. Step limiters in the completed clamp and wider runs still include other BN nodes and the assist driver. The wider source had failed at 20.101283 ns with the prior voltage probe set. These results show sensitivity to the probe set and circuit constraint. They leave the physical origin of the convergence failure unresolved and provide no acceptance spectrum.
+
+The initial `162315-450e` and `162315-2e99` runs inherited an operating-system temporary directory outside job scratch. An escaping-only correction still left the `162655-f006` and `162655-c6d4` runs outside job scratch. The first formal run reproduced the current-probe failure at 40.098623121 ns. The other three were stopped after detecting the setting and their partial records were archived. The controls in the table use the corrected absolute job temporary directory, verified together with the Verilog-A build and library paths.
+
+To narrow the cause further, replay the measured gate and supply histories on the bit-12 transistor stack with the same PDK model and Gear2 tolerances. Compare the failing phase and a clean phase. Use the result to decide which reference or phase feedback path to restore next. Qualification requires the official 256-point Gear2 run, the prescribed convergence check and a separate passing RL12 result on the same source.
 
 | Diagnostic archive | Run | SHA-256 |
 | --- | --- | --- |
