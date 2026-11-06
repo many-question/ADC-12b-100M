@@ -55,6 +55,31 @@ The FF hot SOA log prints one LTE relaxation. The source-specific representative
 | TT weights | `143651-e022` | `11629791d7ce18c323e393a5abca023feb26d92a1c29933f6ec863abb99154ed` |
 | FF high hot/cold SOA | `143651-f6c7` | `65b1eca9ad072de5ff82f919cf4b686888eded9752c64012732b715a62f6be9e` |
 
+## Bounded timing repair and cold convergence diagnosis
+
+The private trial increased reference-output finger counts from 10/20 to 12/24 on bit 12 and from 6/12 to 7/14 on bit 11 (NMOS/PMOS), with the 40 nm length and finger widths held. The PDK callback returned all four requested geometries. Its source SHA-256 is `1c79a8e35c6d9c3580b67a901d19891c7aa805eb0f7461f845d95d57dbb14335`.
+
+| Metric | Formal source | Finger-count trial | Limit |
+| --- | ---: | ---: | ---: |
+| SS hot RL12 (ps) | 43.3 | 40.1 | ≤40 |
+| SS cold RL12 (ps) | 43.1 | 40.1 | ≤40 |
+| SS hot start (ps) | 103.7 | 96.5 | ≤100 |
+| TT Qref (pC) | 1.285 | 1.321 | ≤1.35 |
+
+The additional output gate load delays bit-12 GP/GN half-height by 0.3–0.4 ps. The L bottom plate reaches 95% 4.7 ps sooner at hot SS and 4.1 ps sooner at cold SS. At hot SS and VIN = 0.65 V, the steady-track off drain current magnitudes rise from 0.3935/0.2868 uA to 0.4722/0.3442 uA (H-branch NMOS/L-branch PMOS). TT control and phase loads stay within limits. Both SS RL12 failures remain, so the formal source stays at its original geometry.
+
+The two cold diagnosis runs retain APS Gear2 and effective 1e-7 / 10 nV tolerances and use an 80 ns diagnostic stop, selected probes and `+diagnose`. Both terminate with SPECTRE-16928. The formal-source diagnosis reproduces the official failure at 60.098333 ns (2 samples). The finger-count trial stops at 20.101283 ns (0 samples) and logs SPECTRE-16266 for local truncation error. The smallest saved steps are approximately 8e-22 s in both. Neither diagnostic yields an acceptance spectrum.
+
+Both events occur about 100 ps into a sampling cycle, with CONV low, PHI_S and PHI_B high, and APGATE and SAMP_ON transitioning. The final step diagnostics repeatedly name bit-12 `XDL.BN`; Newton failure messages also name the supply current and ideal PHI_S branch. The diagnostic logs flag behavioral clock contributions and MOM model conductance. These observations identify the operating phase and signals for investigation. The root cause remains unresolved.
+
+For the next diagnostic, replay the formal source at cold SS with the same Gear2 tolerances and an 80 ns bound. Save `XDL.BN`, the two stack device currents and gates, the phase-source branch currents and the observed switching nodes on both sides. Compare the failing edge with the previous completed edge at the same phase. This separates a device-stack transition from a residual in the ideal stimulus or the supply branches. Qualification still requires the unmodified official 256-point Gear2 run and the prescribed convergence check. RL12 remains a separate timing gate on the same candidate.
+
+| Diagnostic archive | Run | SHA-256 |
+| --- | --- | --- |
+| Finger-count trial settling, three corners | `145059-b2aa` | `1ccce0401596bcd4be9e945b341d8abde649a8c6cb8d9f283b5106e657f5f686` |
+| Formal source cold failure replay | `145009-b1d5` | `8b93556110d07984518cce739b2989e4736eceb71dd6060a43f0891b92e3d085` |
+| Finger-count trial cold failure | `145100-d9a7` | `e2eacc47dc62eda056374d7d080df4674519dbeb5b851dce3902fe02e20490cc` |
+
 ## PVT matrix
 
 Pass and fail refer to applicable checks on this source. Pending cells require current-source results. The V29 results use a different source hash and remain in the historical record.
