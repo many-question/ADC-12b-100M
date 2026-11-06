@@ -4,6 +4,12 @@ Everything is staged into one run directory under ``remote_root`` (a local SSD
 of the compute server, never /home), executed, the useful outputs are pulled
 back, and the directory is deleted. Model files are only referenced by their
 server path; nothing from the PDK is downloaded.
+
+The batch runs on the server by itself (launch): an ssh call starts it detached from the ssh
+session and returns, and the batch writes its rc and the done marker MARK_DONE into the run
+directory when it ends. The local side only asks short questions (status) and fetches once it is
+done; a lost connection changes nothing on the server. A run directory is deleted (remove) only
+once its files were fetched (MARK_FETCHED) and nothing runs in it.
 """
 
 from __future__ import annotations
@@ -28,10 +34,35 @@ KILL_AFTER_S = 60                                # SIGKILL this long after the S
 COMPILE_CAP_S = 900                              # the compile step stops its Spectre after this at the latest
 SERVER_MARGIN_S = 300                            # slack of the batch backstops (server side, then ssh)
 TIMEOUT_RCS = ("124", "137")                     # rc of a job that coreutils `timeout` ended (TERM, or KILL too)
+SOA_TIMEOUT_S = 3600                             # the SOA step after the batch (soa_core.py over its jobs)
+MARK_DONE = "adcflow.done"                       # "<rc> <start> <end>" (s since the epoch) of a batch that ended
+MARK_FETCHED = "adcflow.fetched"                 # the run's files were fetched (remove requires it)
+PID_FILE = "adcflow.pid"                         # the pid of the detached launch.sh
+BATCH_LOG = "batch.log"                          # what launch.sh and the batch print (the compile-step notes)
+
+# `live <dir>`: the number of processes of this account whose cwd is <dir> or below it, plus one while
+# the run's detached launch.sh lives (from the moment it is started, before it reaches $R itself)
+LIVE_FN = r"""live() {
+  local n=0 p pid
+  for p in $(pgrep -u "$(id -un)"); do
+    case "$(readlink /proc/$p/cwd 2>/dev/null)" in "$1"|"$1"/*) n=$((n+1));; esac
+  done
+  pid=$(cat "$1/adcflow.pid" 2>/dev/null)
+  if [ -n "$pid" ] && tr '\0' ' ' < /proc/$pid/cmdline 2>/dev/null | grep -qF "$1/launch.sh"; then n=$((n+1)); fi
+  echo $n
+}"""
 
 
 class RunTimeout(RuntimeError):
     """A batch ran past its backstop limit; its Spectre processes were killed on the server."""
+
+
+class RemoteError(RuntimeError):
+    """ssh or scp failed: the connection, or a command on the server."""
+
+
+class RemoteBusy(RuntimeError):
+    """A run directory was not deleted: it is not fetched yet, or something still runs in it."""
 
 
 @lru_cache
@@ -85,7 +116,7 @@ def ssh_script(script: str, timeout: float | None = None, stdin_bytes: bytes | N
     p = subprocess.run(_ssh_base() + ["bash", "-s"], input=script.encode(), capture_output=True,
                        timeout=timeout)
     if check and p.returncode != 0:
-        raise RuntimeError(f"remote script failed ({p.returncode}): {p.stderr.decode(errors='replace')[-2000:]}")
+        raise RemoteError(f"remote script failed ({p.returncode}): {p.stderr.decode(errors='replace')[-2000:]}")
     return p
 
 
@@ -98,7 +129,7 @@ def ssh_pipe(remote_cmd: str, data: bytes | None = None, timeout: float | None =
     else:   # stdin must be closed: Windows OpenSSH otherwise may never exit
         p = subprocess.run(cmd, stdin=subprocess.DEVNULL, capture_output=True, timeout=timeout)
     if p.returncode != 0:
-        raise RuntimeError(f"ssh {remote_cmd!r} failed: {p.stderr.decode(errors='replace')[-2000:]}")
+        raise RemoteError(f"ssh {remote_cmd!r} failed: {p.stderr.decode(errors='replace')[-2000:]}")
     return p.stdout
 
 
@@ -154,7 +185,7 @@ tar czf fetch.tgz -T fetch.list skipped.list 2>/dev/null
                         f"{cfg()['host']}:{remote_dir}/fetch.tgz", str(local_tgz)],
                        stdin=subprocess.DEVNULL, capture_output=True, timeout=1800)
     if p.returncode != 0:
-        raise RuntimeError(f"scp of results failed: {p.stderr.decode(errors='replace')[-1000:]}")
+        raise RemoteError(f"scp of results failed: {p.stderr.decode(errors='replace')[-1000:]}")
     blob = local_tgz.read_bytes()
     local_tgz.unlink()
     skipped: list[str] = []
@@ -172,24 +203,34 @@ tar czf fetch.tgz -T fetch.list skipped.list 2>/dev/null
     return skipped
 
 
+def _soa_step(parallel: int) -> str:
+    """The SOA check of the jobs in soa_jobs.list (soa_core.py), run in the run directory; a job that
+    has its soa_rows.json already is not reduced again (soa_core thins the transient it reads)."""
+    return (f"xargs -P {max(int(parallel), 1)} -I J sh -c '[ -f jobs/J/soa_rows.json ] || "
+            "python3 soa_core.py jobs/J > jobs/J/soa_reduce.log 2>&1' < soa_jobs.list")
+
+
 def soa_reduce(remote_dir: str, jobs: list[str], parallel: int) -> None:
     """The per-device SOA check of these jobs on the server (soa_core.py). A job that fails has no
     soa_rows.json and keeps its full waveforms, which are too large to fetch: its result reports the
-    missing transient as an error. Each job's log is soa_reduce.log, fetched with the job."""
+    missing transient as an error. Each job's log is soa_reduce.log, fetched with the job. A launched
+    batch runs this step itself (launch); this is for a run adopted from a launcher that did not."""
     joblist = "\n".join(jobs)
     script = f"""
 cd {shlex.quote(remote_dir)} || exit 1
 cat > soa_jobs.list <<'EOF'
 {joblist}
 EOF
-xargs -P {max(int(parallel), 1)} -I J sh -c 'python3 soa_core.py jobs/J > jobs/J/soa_reduce.log 2>&1' < soa_jobs.list
+{_soa_step(parallel)}
 """
-    ssh_script(script, timeout=3600, check=False)
+    ssh_script(script, timeout=SOA_TIMEOUT_S, check=False)
 
 
-def run_jobs(remote_dir: str, jobs: list[str], mode_args: list[str], parallel: int,
-             job_timeout: float = JOB_TIMEOUT_S, compile_first: bool = True) -> None:
-    """Run spectre on every jobs/<job>/deck.scs, `parallel` at a time.
+def launch(remote_dir: str, jobs: list[str], mode_args: list[str], parallel: int,
+           job_timeout: float = JOB_TIMEOUT_S, compile_first: bool = True,
+           soa_jobs: list[str] | None = None) -> int:
+    """Start Spectre on every jobs/<job>/deck.scs, `parallel` at a time, detached from the ssh session
+    (setsid nohup), and return the batch's backstop (s). The ssh call returns at once.
 
     The compiled Verilog-A is shared through Spectre's library sharing (-ahdlshipdbdir): with more
     than one job, a compile step first runs the first job's deck in a copy of its directory, with
@@ -201,9 +242,10 @@ def run_jobs(remote_dir: str, jobs: list[str], mode_args: list[str], parallel: i
 
     `job_timeout` (s) limits each job: coreutils `timeout` ends its csh and Spectre (their own
     process group) and the job's rc.txt gets 124 or 137 (TIMEOUT_RCS); the other jobs go on. The
-    batch has a backstop derived from it (batch_limit), on the server and, later, for the ssh;
-    a batch ended by it raises RunTimeout after everything still running in the run directory is
-    killed, so no Spectre keeps running in a directory that the caller then removes."""
+    batch has a backstop derived from it (batch_limit); after a batch ended by it, everything still
+    running in the run directory is killed. A batch that ended normally then runs the SOA check of
+    `soa_jobs` (soa_core.py, at most SOA_TIMEOUT_S). Last, $R/launch.sh writes MARK_DONE: the batch's
+    rc (124 or 137: the backstop), and its start and end on the server clock."""
     c = cfg()
     spectre = c.get("spectre", "spectre")
     setup = "; ".join(f"{cmd} >& /dev/null" for cmd in c["env_setup"])
@@ -263,25 +305,38 @@ R="$1"
         script += f"$R/compile_va.sh $R {shlex.quote(jobs[0])}\n"
     script += f"cat $R/jobs.list | xargs -P {int(parallel)} -I{{}} $R/run_one.sh $R {{}}\n"
     limit = batch_limit(len(jobs), parallel, job_timeout, compile_step)
-    script += f"""EOB
+    soa = ""
+    if soa_jobs:
+        script += "EOB\ncat > $R/soa_jobs.list <<'EOF'\n" + "\n".join(soa_jobs) + "\nEOF\n"
+        soa = f"""elif [ $rc -eq 0 ]; then                       # the SOA check where the waveforms are (soa_core.py)
+  (cd "$R" && timeout -k {KILL_AFTER_S} {SOA_TIMEOUT_S} {_soa_step(parallel)})
+"""
+    else:
+        script += "EOB\n"
+    script += f"""cat > $R/launch.sh <<'EOL'
+#!/bin/bash
+# the batch on its own (adcflow remote.launch): its backstop, the done marker when it ends
+R="$1"
+echo $$ > $R/{PID_FILE}
+start=$(date +%s)
 timeout -k {KILL_AFTER_S} {limit} bash $R/batch.sh $R
 rc=$?
 if [ $rc -eq 124 ] || [ $rc -eq 137 ]; then     # the backstop: nothing may keep running in $R
   for p in $(pgrep -u "$(id -un)"); do
     case "$(readlink /proc/$p/cwd 2>/dev/null)" in "$R"|"$R"/*) kill -9 $p 2>/dev/null;; esac
   done
-fi
-exit $rc
+{soa}fi
+echo "$rc $start $(date +%s)" > $R/{MARK_DONE}.tmp
+mv $R/{MARK_DONE}.tmp $R/{MARK_DONE}
+EOL
+rm -f $R/{MARK_DONE} $R/{MARK_FETCHED}
+setsid nohup bash $R/launch.sh $R > $R/{BATCH_LOG} 2>&1 < /dev/null &
+for i in $(seq 100); do [ -s $R/{PID_FILE} ] && exit 0; sleep 0.1; done
+echo "launch.sh did not start" >&2
+exit 1
 """
-    p = ssh_script(script, timeout=limit + KILL_AFTER_S + SERVER_MARGIN_S, check=False)
-    for line in p.stdout.decode(errors="replace").splitlines():
-        if line.startswith("adcflow: "):
-            print("[adcflow] " + line[len("adcflow: "):])
-    if p.returncode in (124, 128 + 9):            # coreutils timeout: TERM sent (124), or KILL needed too
-        raise RunTimeout(f"the batch ran past its backstop of {limit} s on the server (jobs limited to "
-                         f"{job_timeout:.0f} s each) and was killed there, nothing recorded")
-    if p.returncode:
-        raise RuntimeError(f"remote script failed ({p.returncode}): {p.stderr.decode(errors='replace')[-2000:]}")
+    ssh_script(script, timeout=300)
+    return limit
 
 
 def batch_limit(n_jobs: int, parallel: int, job_timeout: float, compile_step: bool) -> int:
@@ -291,20 +346,130 @@ def batch_limit(n_jobs: int, parallel: int, job_timeout: float, compile_step: bo
     return (COMPILE_CAP_S if compile_step else 0) + waves * (int(job_timeout) + KILL_AFTER_S) + SERVER_MARGIN_S
 
 
+def status(remote_dir: str) -> dict:
+    """The state of a run directory on the server, from one short ssh call (it changes nothing there).
+
+    exists; done: (rc, start, end) of MARK_DONE, None before the batch ends; fetched: MARK_FETCHED is
+    there; jobs: the names in its jobs.list; ended: how many of them have an rc.txt; start / last:
+    the server time of jobs.list (the batch's start) and of the latest rc.txt; live: processes of
+    this account running in it (LIVE_FN); job_timeout / parallel: the job limit of its run_one.sh
+    and the xargs -P of its batch.sh (None if absent); notes: the `adcflow:` lines of its batch log.
+    A directory where nothing lives while jobs are left without rc.txt is looked at once more after
+    a few seconds (the gap between two jobs of an xargs that a launcher of before launch runs)."""
+    script = f"""
+{LIVE_FN}
+R={shlex.quote(remote_dir)}
+[ -d "$R" ] || {{ echo "exists 0"; exit 0; }}
+look() {{
+  n=0; last=0; total=0
+  if [ -f "$R/jobs.list" ]; then
+    while read -r j; do
+      [ -n "$j" ] || continue
+      total=$((total+1))
+      if [ -f "$R/jobs/$j/rc.txt" ]; then n=$((n+1)); t=$(stat -c %Y "$R/jobs/$j/rc.txt"); [ $t -gt $last ] && last=$t; fi
+    done < "$R/jobs.list"
+  fi
+  l=$(live "$R")
+}}
+look
+if [ ! -f "$R/{MARK_DONE}" ] && [ "$l" -eq 0 ] && [ $n -lt $total ]; then sleep 5; look; fi
+echo "exists 1"
+echo "live $l"
+echo "ended $n $last"
+[ -f "$R/{MARK_DONE}" ] && echo "done $(cat "$R/{MARK_DONE}")"
+[ -f "$R/{MARK_FETCHED}" ] && echo "fetched 1"
+[ -f "$R/jobs.list" ] && echo "start $(stat -c %Y "$R/jobs.list")" && sed 's/^/job /' "$R/jobs.list"
+grep -o 'timeout -k [0-9]* [0-9]* csh' "$R/run_one.sh" 2>/dev/null | head -1 | sed 's/^/limit /'
+grep -o 'xargs -P [0-9]*' "$R/batch.sh" 2>/dev/null | head -1 | sed 's/^/parallel /'
+grep '^adcflow: ' "$R/{BATCH_LOG}" 2>/dev/null | sed 's/^/note /'
+exit 0
+"""
+    p = ssh_script(script, timeout=120)
+    return parse_status(p.stdout.decode(errors="replace"))
+
+
+def parse_status(text: str) -> dict:
+    st = {"exists": False, "done": None, "fetched": False, "jobs": [], "ended": 0, "start": None, "last": None,
+          "live": 0, "job_timeout": None, "parallel": None, "notes": []}
+    for line in text.splitlines():
+        key, _, rest = line.partition(" ")
+        w = rest.split()
+        if key == "exists":
+            st["exists"] = rest.strip() == "1"
+        elif key == "live":
+            st["live"] = int(w[0])
+        elif key == "ended":
+            st["ended"], st["last"] = int(w[0]), (int(w[1]) or None)
+        elif key == "done" and w:
+            st["done"] = (w[0], *(int(x) for x in w[1:3]))
+        elif key == "fetched":
+            st["fetched"] = True
+        elif key == "start":
+            st["start"] = int(w[0])
+        elif key == "job" and w:
+            st["jobs"].append(rest.strip())
+        elif key == "limit":                        # "timeout -k 60 <s> csh"
+            st["job_timeout"] = float(w[3])
+        elif key == "parallel":                     # "xargs -P <n>"
+            st["parallel"] = int(w[2])
+        elif key == "note":
+            st["notes"].append(rest[len("adcflow: "):])
+    return st
+
+
+def mark_fetched(remote_dir: str) -> None:
+    """Record on the server that the run's files are fetched (MARK_FETCHED): remove needs it."""
+    ssh_script(f"[ -d {shlex.quote(remote_dir)} ] && touch {shlex.quote(remote_dir)}/{MARK_FETCHED}", timeout=120)
+
+
 def remove(remote_dir: str) -> None:
+    """Delete a run directory on the server: only one inside remote_root, fetched (MARK_FETCHED)
+    and with nothing running in it (LIVE_FN); else RemoteBusy and the directory stays."""
     root = remote_root()
     if not remote_dir.startswith(root + "/"):
         raise RuntimeError(f"refusing to delete {remote_dir} outside {root}")
-    ssh_script(f"rm -rf {shlex.quote(remote_dir)}", timeout=600, check=False)
+    script = f"""
+{LIVE_FN}
+R={shlex.quote(remote_dir)}
+[ -d "$R" ] || exit 0
+[ -f "$R/{MARK_FETCHED}" ] || {{ echo "not fetched"; exit 3; }}
+n=$(live "$R")
+[ "$n" -eq 0 ] || {{ echo "$n process(es) still run in it"; exit 3; }}
+rm -rf "$R"
+"""
+    p = ssh_script(script, timeout=600, check=False)
+    if p.returncode == 3:
+        raise RemoteBusy(f"{remote_dir} stays on the server: {p.stdout.decode(errors='replace').strip()}")
+    if p.returncode:
+        raise RemoteError(f"remote delete failed ({p.returncode}): {p.stderr.decode(errors='replace')[-1000:]}")
 
 
-def clean_remote(older_than_h: float = 0.0) -> int:
+def clean_remote(older_than_h: float = 0.0, unfetched: bool = False) -> int:
+    """Delete this project's run directories on the server older than `older_than_h` (by the
+    directory's time). Kept: a directory where something runs (LIVE_FN), and one whose batch ended
+    but whose files were never fetched (a done marker, or an rc.txt for every job, and no
+    MARK_FETCHED): `adcflow collect` (or `sim/verify --adopt`) still needs it; `unfetched` deletes those too."""
     root = remote_root()
     mins = int(older_than_h * 60)
     script = f"""
+{LIVE_FN}
 [ -d {shlex.quote(root)} ] || exit 0
 cd {shlex.quote(root)}
-find . -mindepth 1 -maxdepth 1 -type d -mmin +{mins} -print -exec rm -rf {{}} +
+for d in $(find . -mindepth 1 -maxdepth 1 -type d -mmin +{mins}); do
+  R="$PWD/${{d#./}}"
+  if [ "$(live "$R")" -gt 0 ]; then echo "kept (running): $d"; continue; fi
+  if [ {1 if unfetched else 0} -eq 0 ] && [ ! -f "$R/{MARK_FETCHED}" ]; then
+    ended=0
+    if [ -f "$R/{MARK_DONE}" ]; then ended=1
+    elif [ -s "$R/jobs.list" ]; then
+      ended=1
+      while read -r j; do [ -z "$j" ] || [ -f "$R/jobs/$j/rc.txt" ] || ended=0; done < "$R/jobs.list"
+    fi
+    if [ $ended -eq 1 ]; then echo "kept (ended, not fetched; collect it, or --unfetched): $d"; continue; fi
+  fi
+  echo "$d"
+  rm -rf "$R"
+done
 du -sh {shlex.quote(root)} 2>/dev/null
 """
     p = ssh_script(script, timeout=1800)

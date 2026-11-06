@@ -210,6 +210,37 @@ def test_a_mismatch_is_written_as_failed(root, capsys):
     assert rec["status"] == "mismatch" and "error: not self-reported" in rec["comparison"]["problems"]
 
 
+def test_a_detached_rerun_is_compared_when_collected(root, monkeypatch):
+    """verify --detach submits a run whose manifest names the results it verifies; whoever collects
+    it (runner.collect) writes the records from them (load_docs, finish)."""
+    from adcflow import runner
+
+    result(root)
+    got = {}
+    monkeypatch.setattr(runner, "submit", lambda a, v=None, dry=False: got.update(a=a, v=v) or "RID")
+    assert verify.verify(TEST, B, NAME, "tt_nom_27", detach=True) == 0
+    assert got["v"] == {"candidate": NAME, "docs": [f"results/{B}/{TEST}/xtor-{NAME}/tt_nom_27.json"]}
+    assert got["a"] == runner.run_args(TEST, B, "tt_nom_27", {B: f"xtor:{NAME}"}, {}, "aps", 6, False, False)
+    assert not (root / "verification").exists()
+    rows = fake_run(root)(TEST, B, "tt_nom_27", {B: f"xtor:{NAME}"}, {}, "aps", 6, False, False)
+    assert verify.finish(TEST, B, NAME, verify.load_docs(got["v"]["docs"]), rows, 12.0) == 0
+    rec = json.loads((root / "verification" / B / NAME / TEST / "tt_nom_27.json").read_text())
+    assert rec["status"] == "match" and rec["verifies"]["result"] == got["v"]["docs"][0]
+
+
+def test_verify_adopts_a_rerun_of_an_old_launcher(root, monkeypatch):
+    from adcflow import runner
+
+    result(root)
+    got = {}
+    monkeypatch.setattr(runner, "adopt", lambda a, rid, v=None, dry=False: got.update(rid=rid, v=v, dry=dry) or rid)
+    monkeypatch.setattr(runner, "wait", lambda rid: {"state": "collected", "code": 0})
+    assert verify.verify(TEST, B, NAME, "tt_nom_27", adopt="R1") == 0
+    assert got["rid"] == "R1" and not got["dry"] and got["v"]["candidate"] == NAME
+    monkeypatch.setattr(runner, "wait", lambda rid: {"state": "dead", "code": 1})
+    assert verify.verify(TEST, B, NAME, "tt_nom_27", adopt="R1") == 1
+
+
 def test_what_does_not_verify(root):
     doc = result(root, verified_by="many-question")             # the result's own meta never counts
     assert verify.state(doc) == {"state": "self-reported", "why": "no verification record"}
