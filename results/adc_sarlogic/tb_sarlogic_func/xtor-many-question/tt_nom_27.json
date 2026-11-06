@@ -1,0 +1,193 @@
+{
+ "block": "adc_sarlogic",
+ "test": "tb_sarlogic_func",
+ "view": "xtor-many-question",
+ "corner": "tt_nom_27",
+ "params": {},
+ "globals": {
+  "vdd": 0.9,
+  "vdd18": 1.8,
+  "tempc": 27.0,
+  "noise_en": 0,
+  "devnoise": 1,
+  "beh_speed": 1.0,
+  "vref_in": 0.9,
+  "cdac_behav": 1,
+  "comp_behav": 1
+ },
+ "metrics": {
+  "func_errors": 0,
+  "bit_errors": 0,
+  "level_errors": 0,
+  "n_conversions": 60,
+  "t_conv_ns": 2.743338,
+  "t_conv_mean_ns": 2.681390616666667,
+  "t_start_ps": 106.66154153257656,
+  "t_start_max_ps": 106.66737290297141,
+  "t_start_min_ps": 106.47862458231296,
+  "t_bit_ps": 30.38215886090646,
+  "t_bit_max_ps": 30.726170421037885,
+  "t_bit_min_ps": 30.043155254851374,
+  "t_rst_ps": 30.642368551916572,
+  "t_rst_max_ps": 32.548390057043534,
+  "t_rst_min_ps": 28.818660537217966,
+  "t_dac_fast_ps": 46.154592172773405,
+  "t_dac_fast_max_ps": 50.967064307128894,
+  "t_dac_fast_min_ps": 43.35765504599604,
+  "t_dac_slow_ps": 93.85862249034183,
+  "t_dac_slow_max_ps": 95.91842382807256,
+  "t_dac_slow_min_ps": 91.00112582875695,
+  "t_dac_add_ps": {
+   "3": 8.47,
+   "4": 26.42,
+   "5": 25.9,
+   "6": 27.16,
+   "9": 26.19
+  },
+  "t_dac_add_err_pct": 15.300467789753203,
+  "t_setup_ps": 133.3756151564627,
+  "power_uW": 1065.5278686,
+  "cin_conv_fF": 2.533768769086645,
+  "cin_outp_fF": 6.715516784062504,
+  "cin_outn_fF": 6.726814581288286,
+  "cin_cmp_fF": 6.726814581288286
+ },
+ "specs": {
+  "LOG-02": {
+   "metric": "t_bit_ps",
+   "value": 30.38215886090646,
+   "limit": "<= 40",
+   "pass": true
+  },
+  "LOG-03": {
+   "metric": "t_rst_ps",
+   "value": 30.642368551916572,
+   "limit": "<= 45",
+   "pass": true
+  },
+  "LOG-04": {
+   "metric": "t_dac_fast_ps",
+   "value": 46.154592172773405,
+   "limit": "35 .. 60",
+   "pass": true
+  },
+  "LOG-05": {
+   "metric": "t_dac_slow_ps",
+   "value": 93.85862249034183,
+   "limit": "70 .. 100",
+   "pass": true
+  },
+  "LOG-06": {
+   "metric": "t_dac_slow_ps",
+   "value": 93.85862249034183,
+   "limit": ">= 70",
+   "pass": true
+  },
+  "LOG-07": {
+   "metric": "t_start_ps",
+   "value": 106.66154153257656,
+   "limit": "80 .. 160",
+   "pass": true
+  },
+  "LOG-08": {
+   "metric": "t_conv_ns",
+   "value": 2.743338,
+   "limit": "<= 2.75",
+   "pass": true
+  },
+  "LOG-10": {
+   "metric": "t_setup_ps",
+   "value": 133.3756151564627,
+   "limit": ">= 100",
+   "pass": true
+  },
+  "LOG-13": {
+   "metric": "power_uW",
+   "value": 1065.5278686,
+   "limit": "reported",
+   "pass": null
+  },
+  "LOG-14": {
+   "metric": "cin_conv_fF",
+   "value": 2.533768769086645,
+   "limit": "<= 40",
+   "pass": true
+  },
+  "LOG-15": {
+   "metric": "cin_cmp_fF",
+   "value": 6.726814581288286,
+   "limit": "<= 7",
+   "pass": true
+  },
+  "LOG-16": {
+   "metric": "t_dac_add_err_pct",
+   "value": 15.300467789753203,
+   "limit": "<= 20",
+   "pass": true
+  }
+ },
+ "figures": [
+  {
+   "file": "tt_nom_27.decisions.png",
+   "caption": "Captured output word against the comparator emulator for every conversion: code against input, mismatches per decision position, and the conversion-time histogram."
+  },
+  {
+   "file": "tt_nom_27.cin.png",
+   "caption": "Input capacitance of the clock and digital inputs: the charge each pin draws over every rising edge (charge meter in series with it) divided by the voltage step, against the limit; the metric is the mean over the edges."
+  },
+  {
+   "file": "tt_nom_27.conversion.png",
+   "caption": "Waveforms of one asynchronous conversion: CONV, the 14 comparator clocks (numbered), the comparator outputs, the DAC control edges after decisions 1, 7 and 13, and RDY."
+  },
+  {
+   "file": "tt_nom_27.timing.png",
+   "caption": "Loop timing of every recorded event (start, output to DAC edge, reset, DAC wait after fast and slow bits, register setup) against its limit."
+  }
+ ],
+ "meta": {
+  "date": "2026-11-02T19:12:50",
+  "git": "d340659",
+  "git_clean": true,
+  "mode": "aps",
+  "pdk": true,
+  "mc": null,
+  "wall_s": 615.3,
+  "rc": "0",
+  "sim_s": "591",
+  "numerics": {
+   "source": "spectre.log",
+   "reltol": 0.0001,
+   "maxstep_ps": 6011.2,
+   "method": "gear2only",
+   "errpreset": "conservative",
+   "lteratio": 10.0,
+   "relref": "alllocal",
+   "abstol_V": 1e-06,
+   "steps_accepted": 455852,
+   "step_mean_ps": 1.31867,
+   "step_max_ps": 626.093
+  },
+  "files": {
+   "tb/sarlogic/tb_sarlogic_func.scs": "bdf916a27d3ea9ca",
+   "tb/common/veriloga/tb_imeter_va.va": "d4be49aca417ad61",
+   "tb/common/veriloga/tb_capture_va.va": "1a05df990a1ef806",
+   "tb/common/veriloga/tb_qmeter_va.va": "fed84d572a912b39",
+   "tb/common/veriloga/tb_cmp_emu_va.va": "1173f23365da8b7f",
+   "design/xtor/adc_sarlogic/many-question/adc_sarlogic.scs": "700f1fc44e737b6f",
+   "design/behav/veriloga/adc_arch_func.vams": "8eac5dace781bffc",
+   "design/behav/veriloga/adc_arch.vams": "32d904828c5dbf67"
+  },
+  "arch": {
+   "keys": [
+    "cdac.cap_weights",
+    "conversion.n_decisions",
+    "conversion.out_weights",
+    "timing.t_dac_add"
+   ],
+   "sha": "57134622f32b5830"
+  },
+  "views": {
+   "adc_sarlogic": "xtor:many-question"
+  }
+ }
+}
