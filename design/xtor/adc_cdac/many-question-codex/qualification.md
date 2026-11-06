@@ -101,7 +101,22 @@ Three paired replays used the original PDK sections, device geometries, bulk con
 
 All six diagnostic jobs return RC0. The full driver reproduces the failing-history BN voltage within 0.012 uV RMS over the last 13.3 ps of recorded drive. With the bottom-plate feedback restored, BN and BPL12 reproduce that window within 0.010 uV and 0.774 uV RMS respectively. The minimum time steps are about five orders of magnitude above the formal collapse. These are trajectory comparisons before the cutoff. The later output is a response to held boundary values. The ideal replay boundaries omit the full circuit feedback, including VIN through the 50 ohm source, the phase generator and the two-sided array. PWL drive also changes the solver breakpoints and produces LTE warnings. The necessary reproduction conditions remain unresolved.
 
-The unmodified Gear2 failure and full-circuit voltage-only replay are the reproducible cases for lead and model review. A short same-source traponly run at the prescribed 1 ps maximum step could collect a diagnostic trajectory across the event with the original physical feedback intact. Its different integrator limits the comparison. Qualification requires the official 256-point Gear2 run, the prescribed convergence check and a separate passing RL12 result on the same source.
+### Full-circuit Traponly observation
+
+The unmodified Gear2 failure and full-circuit voltage-only replay are the reproducible cases for lead and model review. The archive audit found the two previous cold tracking Traponly decks on V29. The exact formal source had no equivalent full-circuit cold record.
+
+The single same-source `ss_low_m40` diagnostic `170814-3c36` runs from normal initialization to 61 ns with APS Traponly, 1 ps maximum step and effective reltol `1e-7` and vabstol `10 nV`. The original phase generator, 50 ohm inputs, references and both CDACs are connected as on the formal bench. The diagnostic changes the method, maximum step, stop time and voltage output window. Its 62-file archive has SHA-256 `7e057ff30c3869c69ecc357edaf46ff7439b2ee3e83bbd5560280a90a31f34e6`.
+
+The solver returns RC0, with 2,664 saved points from 59.75 to 61 ns spanning the Gear2 stop at 60.098333264 ns. The minimum saved interval within 1 ps on either side of that stop is 29.8 fs, versus the Gear2 collapse at `7.94e-22 s`. The Traponly log prints model range and setup warnings. Its printed log has zero LTE relaxation messages. VDDA, VREFP and VCM hold at the ideal 0.81, 0.90 and 0.45 V values.
+
+| Compared before the Gear2 collapse | Traponly vs Gear2 |
+| --- | --- |
+| CLK, CONV, PHI_S, PHI_B, SAMP_ON and APGATE threshold crossings | Largest shift 0.085 fs |
+| Bit-12 XDL.BN, P / N sides | 0.040 / 0.041 uV RMS |
+| Bit-12 L bottom plate, P / N sides | 0.744 / 0.725 uV RMS |
+| TOPP / TOPN | 1.60 / 3.53 uV RMS |
+
+The voltage comparisons use 60.085 to 60.098317928 ns, through the last regular Gear2 step. Near the stop, Gear2 records 41 P-side BN zero crossings from -0.75 to -0.55 ps relative to its stop, spanning about -156 to +165 nV. Traponly resolves one crossing in that interval with six interior samples. On the N side Gear2 resolves three crossings near -0.39 ps and Traponly resolves one. The coarser Traponly sampling limits a comparison of the short-period alternation. The logs show the preceding clock-generator breakpoint and provide no evidence of a new ideal-drive breakpoint at the stop. In Traponly the N bottom plate continues from 30.57 mV at the Gear2 stop to 190.63 mV 20 ps later, while the boost gate is still rising. These results establish sensitivity to the transient setup and provide a full-feedback post-event trajectory for model review. The two sampler records are diagnostic only. The official Gear2 256-point requirement and the separate RL12 gate remain open.
 
 | Diagnostic archive | Run | SHA-256 |
 | --- | --- | --- |
