@@ -1,6 +1,6 @@
 block: adc_cdac
 title: Split-capacitor redundant CDAC, one side (instantiated twice)
-version: 0.10.0
+version: 0.11.0
 selected: none          # the selected candidate (design/xtor/<block>/<name>/); none yet
 status: behavioral
 views:
@@ -73,7 +73,9 @@ specs:
   - {id: DAC-06, name: "DAC step settling, RL12 (w=980) to 5 %",       metric: t_settle_rl12_ps, unit: ps, max: 40, corners: all, test: tb_cdac_settle}
   - {id: DAC-07, name: "settling time constant (top plate, RL12, 10 % -> 1 %)", metric: tau_ps, unit: ps, max: 15, corners: all, test: tb_cdac_settle}
   - {id: DAC-08, name: "conversion start CONV rise -> TOP within 1 %", metric: t_start_settle_ps, unit: ps, max: 100, corners: all, test: tb_cdac_settle}
-  - {id: DAC-09, name: "tracking SFDR (ideal VG, 50 ohm, 49.9 MHz, -1 dBFS, diff)", metric: sfdr_dBc, unit: dBc, min: 85, corners: all, test: tb_cdac_track}
+  # DAC-09 84 dBc (0.11.0, was 85): an allocation under TOP-03 (75 dBc). In phase with BST-05 at its limit it gives
+  # -76.9 dBc (85: -77.4), see docs/noise-budget.md section 11 (#154).
+  - {id: DAC-09, name: "tracking SFDR (ideal VG, 50 ohm, 49.9 MHz, -1 dBFS, diff)", metric: sfdr_dBc, unit: dBc, min: 84, corners: all, test: tb_cdac_track}
   - {id: DAC-10, name: "tracking SNDR excl. kT/C (same)",               metric: sndr_dB,       unit: dB, min: 80, corners: all, test: tb_cdac_track}
   - {id: DAC-11, name: "top-plate droop over 5 ns hold",                metric: droop_lsb,     unit: LSB, max: 0.1, corners: all, test: tb_cdac_settle}
   # DAC-12 1.35 pC (0.9.0, was 1.2): an allocation. 1.2 pC was only 0.6 pC doubled with C_S and was not derived
