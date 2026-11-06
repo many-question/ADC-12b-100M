@@ -16,50 +16,50 @@
   "comp_behav": 1
  },
  "metrics": {
-  "start_step_mV": -159.80419157374942,
-  "t_start_settle_ps": 97.89999999999984,
-  "droop_lsb": 0.004927716949820922,
-  "t_settle_rl12_ps": 39.699999999999356,
-  "step_rl12_mV": 192.09576238929793,
-  "tau_ps": 11.291656529484417,
-  "t_settle_rl5_ps": 57.9000000000008,
-  "step_rl5_mV": 3.5329269244028794,
-  "t_settle_rl0_ps": 25.500000000002444,
-  "step_rl0_mV": 0.18517868473338917,
-  "qref_pC": 1.9888034209999998,
+  "start_step_mV": -158.30307622934075,
+  "t_start_settle_ps": 103.69999999999996,
+  "droop_lsb": 0.06578230889459398,
+  "t_settle_rl12_ps": 43.2999999999988,
+  "step_rl12_mV": 192.62223887666613,
+  "tau_ps": 10.640214806628801,
+  "t_settle_rl5_ps": 60.29999999999823,
+  "step_rl5_mV": 3.5345120655059237,
+  "t_settle_rl0_ps": 26.299999999999383,
+  "step_rl0_mV": 0.1777344406085346,
+  "qref_pC": 1.9762567,
   "cin_ctrl_fF": 0.8072911671416063,
-  "cin_phs_fF": 22.636983597788795,
-  "cin_phsb_fF": 23.805943257118194,
-  "cin_conv_fF": 14.340770975811097
+  "cin_phs_fF": 17.88905067051283,
+  "cin_phsb_fF": 20.6610408187603,
+  "cin_conv_fF": 14.34076925794761
  },
  "specs": {
   "DAC-05": {
    "metric": "t_settle_rl5_ps",
-   "value": 57.9000000000008,
+   "value": 60.29999999999823,
    "limit": "<= 75",
    "pass": true
   },
   "DAC-06": {
    "metric": "t_settle_rl12_ps",
-   "value": 39.699999999999356,
+   "value": 43.2999999999988,
    "limit": "<= 40",
-   "pass": true
+   "pass": false
   },
   "DAC-07": {
    "metric": "tau_ps",
-   "value": 11.291656529484417,
+   "value": 10.640214806628801,
    "limit": "<= 15",
    "pass": true
   },
   "DAC-08": {
    "metric": "t_start_settle_ps",
-   "value": 97.89999999999984,
+   "value": 103.69999999999996,
    "limit": "<= 100",
-   "pass": true
+   "pass": false
   },
   "DAC-11": {
    "metric": "droop_lsb",
-   "value": 0.004927716949820922,
+   "value": 0.06578230889459398,
    "limit": "<= 0.1",
    "pass": true
   }
@@ -67,7 +67,7 @@
  "specs_na": {
   "DAC-12": {
    "metric": "qref_pC",
-   "value": 1.9888034209999998,
+   "value": 1.9762567,
    "limit": "<= 1.35",
    "corners": "typ"
   },
@@ -79,43 +79,46 @@
   },
   "DAC-15": {
    "metric": "cin_phs_fF",
-   "value": 22.636983597788795,
+   "value": 17.88905067051283,
    "limit": "<= 40",
    "corners": "typ"
   },
   "DAC-16": {
    "metric": "cin_phsb_fF",
-   "value": 23.805943257118194,
+   "value": 20.6610408187603,
    "limit": "<= 40",
    "corners": "typ"
   },
   "DAC-17": {
    "metric": "cin_conv_fF",
-   "value": 14.340770975811097,
+   "value": 14.34076925794761,
    "limit": "<= 80",
    "corners": "typ"
   }
  },
  "figures": [
   {
-   "file": "ss_low_125.settle.png",
-   "caption": "Top plate over the test sequence and the error to the final value after the start of conversion and after the RL12, RL5 and RL0 edges, with the tolerance band, the settle time and its limit marked."
+   "file": "ss_low_125.cin.png",
+   "caption": "tb_cdac_settle evidence for ss_low_125 (cin)."
   },
   {
-   "file": "ss_low_125.cin.png",
-   "caption": "Input capacitance of the clock and digital inputs: the charge each pin draws over every rising edge (charge meter in series with it) divided by the voltage step, against the limit; the metric is the mean over the edges."
+   "file": "ss_low_125.settle.png",
+   "caption": "tb_cdac_settle evidence for ss_low_125 (settle)."
   }
  ],
  "meta": {
-  "date": "2026-11-04T01:48:00",
-  "git": "a2145d1a",
-  "git_clean": true,
+  "date": "2026-11-06T14:37:39",
+  "git": "82fa1098",
+  "git_clean": false,
+  "git_dirty_paths": [
+   "design/xtor/adc_cdac/many-question-codex/adc_cdac.scs"
+  ],
   "mode": "aps",
   "pdk": true,
   "mc": null,
-  "wall_s": 157.1,
+  "wall_s": 46.7,
   "rc": "0",
-  "sim_s": "71",
+  "sim_s": "21",
   "numerics": {
    "source": "spectre.log",
    "reltol": 0.0001,
@@ -125,8 +128,8 @@
    "lteratio": 10.0,
    "relref": "alllocal",
    "abstol_V": 1e-06,
-   "steps_accepted": 5614,
-   "step_mean_ps": 12.4688,
+   "steps_accepted": 5701,
+   "step_mean_ps": 12.2785,
    "step_max_ps": 700.0
   },
   "files": {
@@ -136,7 +139,7 @@
    "tb/common/veriloga/tb_cdac_seq_va.va": "800f16f07345b3b9",
    "design/behav/veriloga/adc_bootstrap_va.va": "12338aad16f4913b",
    "tb/common/veriloga/tb_qmeter_va.va": "fed84d572a912b39",
-   "design/xtor/adc_cdac/many-question-codex/adc_cdac.scs": "9b00f07143da7cc5"
+   "design/xtor/adc_cdac/many-question-codex/adc_cdac.scs": "13f9ef85f31580d6"
   },
   "arch": {
    "keys": [
@@ -150,6 +153,18 @@
   },
   "views": {
    "adc_cdac": "xtor:many-question-codex"
+  },
+  "evidence": {
+   "run": "20261106-143651-ec47-tb_cdac_settle",
+   "archive_sha256": "f217b313a81a4ad6923c8c4b9a61d7791b5d1123dfa1927bf2cc5ca0675d5c4a",
+   "source_sha256": "42645fb6930b8f673c29fd3b62c26a79159669f27249987c21e2a6288b5cf281",
+   "staged_tb_sha256": "b98cfa3a8ad01450dc3221711dc00d23b1e7bfcbfcd72927bdee2b7a6b8f3c0e",
+   "warnings_printed": {
+    "CMI-2753": 10,
+    "CMI-2755": 5,
+    "SFE-1131": 5,
+    "VACOMP-2435": 1
+   }
   }
  }
 }

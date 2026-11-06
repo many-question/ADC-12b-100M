@@ -1,5 +1,7 @@
 # Reset device and sampling switch repair
 
+[Current candidate and qualification matrix](qualification.md). The experiments below were originally evaluated against the 85 dBc DAC-09 limit in spec 0.10.0. Spec 0.11.0 sets 84 dBc for every PVT corner.
+
 The DC screen found reset devices with lower leakage at comparable on-resistance. Two fast-rise variants reached their final gate voltage before TOP recovered in the cold SOA test. The wider LVT with a slower rise passes both cold supply checks and clears the hot spectrum limits in the isolated primary. The combination with physical peripheral switches also passes both cold supply checks. The frozen mechanism study supplies the comparison circuit and measured bias points. [Mechanism evidence](reset-mechanism.md)
 
 ## Hot SS reset screen
@@ -101,7 +103,7 @@ The same-source hot crosscheck completes in 4 h 15 min with all 256 samples and 
 
 Relative to the primary, SFDR changes by +0.043 dB and SNDR by +0.095 dB. All 111 control sequences match, with at most 1.62 fs edge shift and sample times within 1.01 fs. The paired nonfundamental difference is 1.16 uV RMS. H5 remains the largest spur at 45.14 uV in the crosscheck, versus 45.41 uV in the primary. The crosscheck is 0.127 dB below the SFDR limit. It logs five LTE relaxation messages with companion warnings at the same reported 2.41517 us control event. The next sample's paired residual magnitude is 0.46 uV, compared with a maximum of 5.02 uV.
 
-The repair remains WIP. The best physical combination clears the hot SNDR, two cold SOA endpoints and TT settling and loading checks. Its H5 exceeds the SFDR limit in both complete hot numerical runs. Model-range warnings for main-switch Vgb and booster M1 Vbd remain in both logs.
+The reference L40 combination became the formal WIP candidate. Both complete hot records pass DAC-09 and DAC-10 under spec 0.11.0. Model-range warnings for main-switch Vgb and booster M1 Vbd remain in both logs. See the [qualification matrix](qualification.md) for the current settling failures and PVT coverage.
 
 ## Combined periphery and transistor booster
 

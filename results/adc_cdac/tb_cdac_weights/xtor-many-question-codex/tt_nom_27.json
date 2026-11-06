@@ -16,73 +16,73 @@
   "comp_behav": 1
  },
  "metrics": {
-  "top_gain": 0.8938358056987498,
+  "top_gain": 0.8958462594057499,
   "weights_lsb": [
-   980.1944,
-   560.0903,
-   318.0472,
-   180.03,
-   102.0141,
-   56.9118,
-   32.0047,
-   18.0024,
-   10.0012,
-   6.0009,
-   2.9043,
-   2.0001,
-   0.9041
+   980.853,
+   560.4884,
+   318.2714,
+   180.158,
+   102.0869,
+   56.9524,
+   32.0282,
+   18.0155,
+   10.0085,
+   6.0051,
+   2.906,
+   2.0015,
+   0.9046
   ],
-  "weight_err_max_pct": 9.59115991186722,
-  "h_l_asym_pct": 0.32764097142312654,
-  "fs_peak_V": 0.9930004164861591,
-  "cal_margin_lsb": 0.36943534562763786,
+  "weight_err_max_pct": 9.609419301460198,
+  "h_l_asym_pct": 0.5163899034343222,
+  "fs_peak_V": 0.9936891054697262,
+  "cal_margin_lsb": 0.36925073409620507,
   "cal_margin_per_decision_lsb": [
-   308.9821,
-   169.3655,
-   93.6079,
-   51.7749,
-   27.898,
-   15.9841,
-   9.1325,
-   5.1789,
-   3.2131,
-   1.2384,
-   1.2593,
-   0.3694,
-   0.3841
+   308.9835,
+   169.3457,
+   93.5977,
+   51.7682,
+   27.8944,
+   15.9826,
+   9.1297,
+   5.1774,
+   3.2122,
+   1.2378,
+   1.2588,
+   0.3693,
+   0.3839
   ],
-  "enob_loss_cal_bit": -0.0001946908409475867,
-  "enob_loss_nom_bit": 0.24030272799109653,
-  "cs_pF": 2.0651229705
+  "enob_loss_cal_bit": 0.0006991620525269582,
+  "enob_loss_nom_bit": 0.23961705762095775,
+  "cs_pF": 2.06513483775
  },
  "specs": {
   "DAC-01": {
    "metric": "cs_pF",
-   "value": 2.0651229705,
+   "value": 2.06513483775,
    "limit": "1.98 .. 2.12",
    "pass": true
   },
   "DAC-02": {
    "metric": "fs_peak_V",
-   "value": 0.9930004164861591,
+   "value": 0.9936891054697262,
    "limit": ">= 0.97",
    "pass": true
   },
   "DAC-03": {
    "metric": "cal_margin_lsb",
-   "value": 0.36943534562763786,
+   "value": 0.36925073409620507,
    "limit": ">= 0",
    "pass": true
   },
   "DAC-14": {
    "metric": "enob_loss_cal_bit",
-   "value": -0.0001946908409475867,
+   "value": 0.0006991620525269582,
    "limit": "<= 0.02",
    "pass": true
   },
   "DAC-04": {
    "metric": "top_gain",
-   "value": 0.8938358056987498,
+   "value": 0.8958462594057499,
    "limit": ">= 0.78",
    "pass": true
   }
@@ -90,19 +90,22 @@
  "figures": [
   {
    "file": "tt_nom_27.weights.png",
-   "caption": "Measured weight of every DAC bit against nominal, the redundancy of every decision against the worst-case weight error it must absorb for calibration (with the ENOB loss after calibration), and the asymmetry of the rising and falling steps."
+   "caption": "tb_cdac_weights evidence for tt_nom_27 (weights)."
   }
  ],
  "meta": {
-  "date": "2026-11-03T02:23:19",
-  "git": "b3dedbd2",
-  "git_clean": true,
+  "date": "2026-11-06T14:37:50",
+  "git": "82fa1098",
+  "git_clean": false,
+  "git_dirty_paths": [
+   "design/xtor/adc_cdac/many-question-codex/adc_cdac.scs"
+  ],
   "mode": "aps",
   "pdk": true,
   "mc": null,
-  "wall_s": 174.8,
+  "wall_s": 57.1,
   "rc": "0",
-  "sim_s": "88",
+  "sim_s": "51",
   "numerics": {
    "source": "spectre.log",
    "reltol": 0.0001,
@@ -112,8 +115,8 @@
    "lteratio": 10.0,
    "relref": "alllocal",
    "abstol_V": 1e-06,
-   "steps_accepted": 21637,
-   "step_mean_ps": 13.4492,
+   "steps_accepted": 22021,
+   "step_mean_ps": 13.2147,
    "step_max_ps": null
   },
   "files": {
@@ -123,7 +126,7 @@
    "tb/common/veriloga/tb_sampler_va.va": "4092bc16170c588d",
    "tb/common/veriloga/tb_cdac_seq_va.va": "800f16f07345b3b9",
    "design/behav/veriloga/adc_bootstrap_va.va": "12338aad16f4913b",
-   "design/xtor/adc_cdac/many-question-codex/adc_cdac.scs": "9b00f07143da7cc5"
+   "design/xtor/adc_cdac/many-question-codex/adc_cdac.scs": "13f9ef85f31580d6"
   },
   "arch": {
    "keys": [
@@ -133,6 +136,20 @@
   },
   "views": {
    "adc_cdac": "xtor:many-question-codex"
+  },
+  "evidence": {
+   "run": "20261106-143651-e022-tb_cdac_weights",
+   "archive_sha256": "11629791d7ce18c323e393a5abca023feb26d92a1c29933f6ec863abb99154ed",
+   "source_sha256": "42645fb6930b8f673c29fd3b62c26a79159669f27249987c21e2a6288b5cf281",
+   "staged_tb_sha256": "d134720a53789cc86ea29e598470551661ba05414ed09e3ab4abac67db8da22f",
+   "warnings_printed": {
+    "CMI-2751": 5,
+    "CMI-2753": 5,
+    "CMI-2754": 5,
+    "CMI-2755": 5,
+    "SFE-1131": 5,
+    "VACOMP-2435": 1
+   }
   }
  }
 }

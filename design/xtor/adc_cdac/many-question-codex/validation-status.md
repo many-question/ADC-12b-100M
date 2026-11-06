@@ -1,5 +1,7 @@
 # V29 validation status, 2026-11-05
 
+This is the V29 baseline record. The [qualification matrix](qualification.md) follows the current formal source.
+
 New authorized work: [independent ideal booster driving a real reset NMOS](boosted-reset-experiment.md). The canonical failures below remain frozen.
 
 Canonical V29 (`9b00f07143da7cc5`) remains WIP. Its three official blockers

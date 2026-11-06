@@ -16,56 +16,56 @@
   "comp_behav": 1
  },
  "metrics": {
-  "start_step_mV": -158.55021445903205,
-  "t_start_settle_ps": 70.09999999999958,
-  "droop_lsb": 0.0033585913838695323,
-  "t_settle_rl12_ps": 30.19999999999851,
-  "step_rl12_mV": 191.62561570474867,
-  "tau_ps": 6.905282262261486,
-  "t_settle_rl5_ps": 39.800000000001454,
-  "step_rl5_mV": 3.518645132293663,
-  "t_settle_rl0_ps": 17.599999999998783,
-  "step_rl0_mV": 0.1761826612873829,
-  "qref_pC": 1.26905928,
+  "start_step_mV": -156.57305110776053,
+  "t_start_settle_ps": 74.39999999999966,
+  "droop_lsb": 0.015845066719745976,
+  "t_settle_rl12_ps": 32.80000000000013,
+  "step_rl12_mV": 192.2178382519829,
+  "tau_ps": 6.514417228548979,
+  "t_settle_rl5_ps": 40.69999999999718,
+  "step_rl5_mV": 3.5291974183650487,
+  "t_settle_rl0_ps": 17.900000000001768,
+  "step_rl0_mV": 0.17624156932377621,
+  "qref_pC": 1.284725673,
   "cin_ctrl_fF": 0.8308651973123778,
-  "cin_phs_fF": 22.861136020454452,
-  "cin_phsb_fF": 24.666183623855318,
-  "cin_conv_fF": 14.773951623458535
+  "cin_phs_fF": 17.71722818260239,
+  "cin_phsb_fF": 21.456217063226255,
+  "cin_conv_fF": 14.773979489147274
  },
  "specs": {
   "DAC-05": {
    "metric": "t_settle_rl5_ps",
-   "value": 39.800000000001454,
+   "value": 40.69999999999718,
    "limit": "<= 75",
    "pass": true
   },
   "DAC-06": {
    "metric": "t_settle_rl12_ps",
-   "value": 30.19999999999851,
+   "value": 32.80000000000013,
    "limit": "<= 40",
    "pass": true
   },
   "DAC-07": {
    "metric": "tau_ps",
-   "value": 6.905282262261486,
+   "value": 6.514417228548979,
    "limit": "<= 15",
    "pass": true
   },
   "DAC-08": {
    "metric": "t_start_settle_ps",
-   "value": 70.09999999999958,
+   "value": 74.39999999999966,
    "limit": "<= 100",
    "pass": true
   },
   "DAC-11": {
    "metric": "droop_lsb",
-   "value": 0.0033585913838695323,
+   "value": 0.015845066719745976,
    "limit": "<= 0.1",
    "pass": true
   },
   "DAC-12": {
    "metric": "qref_pC",
-   "value": 1.26905928,
+   "value": 1.284725673,
    "limit": "<= 1.35",
    "pass": true
   },
@@ -77,19 +77,19 @@
   },
   "DAC-15": {
    "metric": "cin_phs_fF",
-   "value": 22.861136020454452,
+   "value": 17.71722818260239,
    "limit": "<= 40",
    "pass": true
   },
   "DAC-16": {
    "metric": "cin_phsb_fF",
-   "value": 24.666183623855318,
+   "value": 21.456217063226255,
    "limit": "<= 40",
    "pass": true
   },
   "DAC-17": {
    "metric": "cin_conv_fF",
-   "value": 14.773951623458535,
+   "value": 14.773979489147274,
    "limit": "<= 80",
    "pass": true
   }
@@ -105,15 +105,15 @@
   }
  ],
  "meta": {
-  "date": "2026-11-03T02:17:37",
-  "git": "d701032d",
+  "date": "2026-11-06T03:51:34",
+  "git": "7db63530",
   "git_clean": true,
   "mode": "aps",
   "pdk": true,
   "mc": null,
-  "wall_s": 151.3,
+  "wall_s": 241.7,
   "rc": "0",
-  "sim_s": "65",
+  "sim_s": "93",
   "numerics": {
    "source": "spectre.log",
    "reltol": 0.0001,
@@ -123,8 +123,8 @@
    "lteratio": 10.0,
    "relref": "alllocal",
    "abstol_V": 1e-06,
-   "steps_accepted": 5891,
-   "step_mean_ps": 11.8825,
+   "steps_accepted": 5986,
+   "step_mean_ps": 11.694,
    "step_max_ps": 700.0
   },
   "files": {
@@ -134,7 +134,7 @@
    "tb/common/veriloga/tb_cdac_seq_va.va": "800f16f07345b3b9",
    "design/behav/veriloga/adc_bootstrap_va.va": "12338aad16f4913b",
    "tb/common/veriloga/tb_qmeter_va.va": "fed84d572a912b39",
-   "design/xtor/adc_cdac/many-question-codex/adc_cdac.scs": "9b00f07143da7cc5"
+   "design/xtor/adc_cdac/many-question-codex/adc_cdac.scs": "13f9ef85f31580d6"
   },
   "arch": {
    "keys": [
@@ -148,6 +148,21 @@
   },
   "views": {
    "adc_cdac": "xtor:many-question-codex"
+  },
+  "evidence": {
+   "run": "20261106-034711-f2f2-tb_cdac_settle",
+   "archive_sha256": "dec1fcdba1edbdb6c87e542c82edae4c78c333b0779e06c87b6f97c4683a334f",
+   "source_sha256": "42645fb6930b8f673c29fd3b62c26a79159669f27249987c21e2a6288b5cf281",
+   "staged_tb_sha256": "d04e84ee0e364ea7d87a0d66475a1ae3c82e004de9d9dfdd32c9974bbad89838",
+   "overlay": "Three additional saved booster nodes.",
+   "warnings_printed": {
+    "CMI-2751": 5,
+    "CMI-2753": 10,
+    "CMI-2754": 5,
+    "CMI-2755": 5,
+    "SFE-1131": 5,
+    "VACOMP-2435": 1
+   }
   }
  }
 }

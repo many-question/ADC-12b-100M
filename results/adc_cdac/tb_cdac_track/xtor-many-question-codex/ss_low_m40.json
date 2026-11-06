@@ -25,7 +25,7 @@
   "DAC-09": {
    "metric": "sfdr_dBc",
    "value": null,
-   "limit": ">= 85",
+   "limit": ">= 84",
    "pass": false
   },
   "DAC-10": {
@@ -37,18 +37,18 @@
  },
  "figures": [],
  "meta": {
-  "date": "2026-11-04T01:56:18",
-  "git": "a2145d1a",
+  "date": "2026-11-06T14:41:10",
+  "git": "82fa1098",
   "git_clean": false,
   "git_dirty_paths": [
-   "design/xtor/adc_cdac/many-question-codex/README.md"
+   "design/xtor/adc_cdac/many-question-codex/adc_cdac.scs"
   ],
   "mode": "aps",
   "pdk": true,
   "mc": null,
-  "wall_s": 322.6,
+  "wall_s": 236.3,
   "rc": "1",
-  "sim_s": "236",
+  "sim_s": "150",
   "numerics": {
    "source": "spectre.log",
    "reltol": 1e-07,
@@ -66,7 +66,7 @@
    "design/behav/veriloga/adc_clkgen_va.va": "7fff1b9368bc1a20",
    "tb/common/veriloga/tb_sampler_va.va": "4092bc16170c588d",
    "design/behav/veriloga/adc_bootstrap_va.va": "12338aad16f4913b",
-   "design/xtor/adc_cdac/many-question-codex/adc_cdac.scs": "9b00f07143da7cc5"
+   "design/xtor/adc_cdac/many-question-codex/adc_cdac.scs": "13f9ef85f31580d6"
   },
   "arch": {
    "keys": [],
@@ -74,6 +74,19 @@
   },
   "views": {
    "adc_cdac": "xtor:many-question-codex"
+  },
+  "evidence": {
+   "run": "20261106-143652-4a0d-tb_cdac_track",
+   "archive_sha256": "5ba3b8dd3abbe07da2d2b55b48bfe1b525245ea7b699bc1fff60ec756d23e666",
+   "source_sha256": "42645fb6930b8f673c29fd3b62c26a79159669f27249987c21e2a6288b5cf281",
+   "staged_tb_sha256": "bce6bfef1c8d5d11aa4efded8d9e15d9e22208d55f96cfc30708f75433585785",
+   "warnings_printed": {
+    "CMI-2751": 5,
+    "CMI-2753": 5,
+    "CMI-2755": 5,
+    "SFE-1131": 5,
+    "VACOMP-2435": 1
+   }
   }
  }
 }

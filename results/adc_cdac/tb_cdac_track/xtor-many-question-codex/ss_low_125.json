@@ -19,23 +19,23 @@
   "comp_behav": 1
  },
  "metrics": {
-  "sfdr_dBc": 63.13693635648634,
-  "sndr_dB": 63.06129191895,
-  "thd_dBc": -63.06296942093444,
-  "amp_top_V": 0.7822468505805
+  "sfdr_dBc": 84.83006191384193,
+  "sndr_dB": 82.97096596126921,
+  "thd_dBc": -83.78976559486973,
+  "amp_top_V": 0.7910835292786
  },
  "specs": {
   "DAC-09": {
    "metric": "sfdr_dBc",
-   "value": 63.13693635648634,
-   "limit": ">= 85",
-   "pass": false
+   "value": 84.83006191384193,
+   "limit": ">= 84",
+   "pass": true
   },
   "DAC-10": {
    "metric": "sndr_dB",
-   "value": 63.06129191895,
+   "value": 82.97096596126921,
    "limit": ">= 80",
-   "pass": false
+   "pass": true
   }
  },
  "figures": [
@@ -45,14 +45,15 @@
   }
  ],
  "meta": {
-  "date": "2026-11-04T10:19:41+08:00",
-  "git": "8fedd4c7",
+  "date": "2026-11-06T07:11:56",
+  "git": "4fc3d2ae",
   "git_clean": true,
   "mode": "aps",
   "pdk": true,
   "mc": null,
+  "wall_s": 11889.6,
   "rc": "0",
-  "sim_s": "5287",
+  "sim_s": "11661",
   "numerics": {
    "source": "spectre.log",
    "reltol": 1e-07,
@@ -63,22 +64,16 @@
    "relref": "alllocal",
    "abstol_V": 1e-08,
    "vabstol": 1e-08,
-   "steps_accepted": 1102261,
-   "step_mean_ps": 2.36332,
-   "step_max_ps": null
-  },
-  "recovery": {
-   "run": "20261104-015025-bfa7-tb_cdac_track",
-   "reason": "Completed original jobs recovered after controller interruption; no resimulation",
-   "staged_inputs_equal": true,
-   "complete_samples": 256
+   "steps_accepted": 1187661,
+   "step_mean_ps": 2.19339,
+   "step_max_ps": 101.638
   },
   "files": {
    "tb/cdac/tb_cdac_track.scs": "f0938d832dbd4667",
    "design/behav/veriloga/adc_clkgen_va.va": "7fff1b9368bc1a20",
    "tb/common/veriloga/tb_sampler_va.va": "4092bc16170c588d",
    "design/behav/veriloga/adc_bootstrap_va.va": "12338aad16f4913b",
-   "design/xtor/adc_cdac/many-question-codex/adc_cdac.scs": "9b00f07143da7cc5"
+   "design/xtor/adc_cdac/many-question-codex/adc_cdac.scs": "13f9ef85f31580d6"
   },
   "arch": {
    "keys": [],
@@ -89,9 +84,21 @@
   },
   "provenance": {
    "spectrum": {
-    "estimator": "adctoolbox 0.9.1 @ cd72061 compute_spectrum",
-    "adctoolbox": "0.9.1",
-    "adctoolbox_commit": "cd72061"
+    "estimator": "adctoolbox 0.9.2 compute_spectrum",
+    "adctoolbox": "0.9.2"
+   }
+  },
+  "evidence": {
+   "run": "20261106-035325-c6cd-tb_cdac_track",
+   "archive_sha256": "39c6e122b82f20ba78332a4e32f8ee27eb5abb1c3f7a6c23a9233fa968b5dbc5",
+   "source_sha256": "42645fb6930b8f673c29fd3b62c26a79159669f27249987c21e2a6288b5cf281",
+   "staged_tb_sha256": "865eae78d39bb963ed436808e14d99d71ee502a50964ac570013197371ced276",
+   "overlay": "Output-only changes and 111 electrically unloaded control observers with cross-event breakpoints.",
+   "warnings_printed": {
+    "CMI-2753": 5,
+    "CMI-2755": 5,
+    "SFE-1131": 5,
+    "VACOMP-2435": 1
    }
   },
   "crosscheck": {
@@ -109,22 +116,37 @@
     "relref": "alllocal",
     "abstol_V": 1e-08,
     "vabstol": 1e-08,
-    "steps_accepted": 3396099,
-    "step_mean_ps": 0.767057,
+    "steps_accepted": 3507673,
+    "step_mean_ps": 0.742658,
     "step_max_ps": null
    },
    "rc": "0",
-   "sim_s": "9431",
+   "sim_s": "15338",
+   "evidence": {
+    "run": "20261106-071639-469b-tb_cdac_track",
+    "archive_sha256": "7588ed4b5f99f308a8765eec43e7deb2fb94d033bb1376eb1314fc843312921f",
+    "source_sha256": "42645fb6930b8f673c29fd3b62c26a79159669f27249987c21e2a6288b5cf281",
+    "staged_tb_sha256": "8223e9bef861cdc4a7f009ecab9cef7312175418069740009c57d37256783a90",
+    "overlay": "Output-only changes and 111 electrically unloaded control observers with cross-event breakpoints.",
+    "warnings_printed": {
+     "CMI-2753": 5,
+     "CMI-2755": 5,
+     "SFE-1131": 5,
+     "SPECTRE-16780": 5,
+     "SPECTRE-16881": 5,
+     "VACOMP-2435": 1
+    }
+   },
    "metrics": {
     "sfdr_dBc": {
-     "ref": 63.13693635648634,
-     "xcheck": 63.15042820517227,
-     "diff": 0.013491848685930563
+     "ref": 84.83006191384193,
+     "xcheck": 84.87257630425441,
+     "diff": 0.042514390412478065
     },
     "sndr_dB": {
-     "ref": 63.06129191895,
-     "xcheck": 63.07558468252367,
-     "diff": 0.014292763573671152
+     "ref": 82.97096596126921,
+     "xcheck": 83.06632519042445,
+     "diff": 0.09535922915523543
     }
    },
    "samples": {
@@ -132,9 +154,9 @@
     "n": 256,
     "n_ref": 256,
     "n_xcheck": 256,
-    "time_diff_max_ps": 0.0009999998977483753,
-    "diff_rms_uV": 5.764904977693819,
-    "diff_max_uV": 10.840659300015432
+    "time_diff_max_ps": 0.001000000321264849,
+    "diff_rms_uV": 4.1245955601958135,
+    "diff_max_uV": 7.529016100016328
    }
   }
  }

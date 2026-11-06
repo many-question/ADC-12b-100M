@@ -1,8 +1,12 @@
 # CDAC candidate
 
-## Active physical repair
+## Formal candidate and qualification
 
-The isolated 14 um / 40 nm LVT reset clears the hot spectrum limits in both numerical settings. With real peripheral switches, the Fig. 11(c) v3 transistor driver raises hot SFDR from 75.433 to 84.770 dBc. Lengthening the two largest reference output pairs gives 84.830 dBc SFDR and 82.971 dB SNDR in the hot primary, and 84.873 dBc / 83.066 dB in its same-source crosscheck. Both runs miss the 85 dBc SFDR limit with H5 as the largest spur. The candidate remains WIP with passing cold SOA endpoints and TT settling and loading checks. [Repair evidence and current status](reset-repair.md)
+The [formal source](adc_cdac.scs) uses a 14 um / 40 nm LVT reset driven by the independent Fig. 11(c) v3 booster, LVT / 40 nm main input switches and SVT / 40 nm reference output pairs on bits 12 and 11, and the original sharing sizes. It retains the XCAP and XSW partition. Both complete hot spectra meet the 84 dBc DAC-09 limit in spec 0.11.0. The official slow-corner RL12 and conversion-start failures keep the candidate WIP. [Qualification matrix and evidence](qualification.md) · [Physical repair experiments](reset-repair.md)
+
+## V29 and preceding experiments
+
+The records below describe the historical baseline and earlier circuit variants. The [V29 source and official records](https://github.com/many-question/ADC-12b-100M/tree/7fb3ce84ae0f7e8ea161cd7ec514895f8276ec20) are retained at their original commit.
 
 ## Completed reset mechanism isolation
 
@@ -22,15 +26,14 @@ are reviewed and archived. The canonical circuit remains WIP. See the
 The first independent finite-driver / real-NMOS cohort is complete: all three
 full256 hot spectra miss the targets, and dedicated cold SOA exposes supply/size
 limits. See the [results, mechanism and source patches](boosted-reset-experiment.md).
-V29 and its official failures stay frozen; the completed attribution results below
-are retained as history. This new diagnostic stage does not promote a candidate.
+The V29 attribution results below belong to that historical source.
 
 
-Current status (2026-11-05): resumed after the project resolved issue #125.
+V29 status (2026-11-05): resumed after the project resolved issue #125.
 DAC-12 is now 1.35 pC (#132); the new all-corner DAC-18 SOA test and
 transient-overvoltage rule (#137) apply. Candidate remains WIP.
 
-Current blockers (see [validation status and completed diagnostics](validation-status.md)): official track aborts at 60.1007 ns with
+V29 blockers (see [validation status and completed diagnostics](validation-status.md)): official track aborts at 60.1007 ns with
 SPECTRE-16928 (minstep approach count), only 2/256 samples; no valid spectrum.
 Dedicated SOA completes but fails 3 terminal pairs: MTP Vgd and MTD Vgs/Vgd,
 all the TOP-PHI_SB stress. SOA crosscheck confirms 126.906 ps above 1.1 V
@@ -69,7 +72,7 @@ See the validation status for the complete matrix and attribution limits.
 The canonical source and its official failures remain unchanged.
 
 
-V29 is the current baseline, migrated into the accepted XCAP/XSW
+V29 was migrated into the accepted XCAP/XSW
 functional partition. XCAP holds the 36 array MOM and 36 associated 5% Cp;
 the 26 AP delay loads and one SAMP_ON control load, with their own 5% Cp,
 remain inside the corresponding XSW control functions. There are still

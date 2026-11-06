@@ -1,5 +1,5 @@
 name: many-question-codex
-description: Physical MOM banks with series half units, midpoint initialization, split-supply drivers, charge sharing, pulsed VIN assistance, and one TOP dummy per half.
+description: Physical MOM banks with series half units, midpoint initialization, split-supply drivers, charge sharing, pulsed VIN assistance, and an independent transistor booster driving the LVT top-plate reset.
 status: wip
 acknowledged: [17, 37, 98, 114, 132, 137]
 authors:
