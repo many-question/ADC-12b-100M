@@ -6,6 +6,15 @@ import argparse
 import sys
 
 
+def _detach_args(s) -> None:
+    s.add_argument("--detach", action="store_true",
+                   help="return once the batch runs on the server; `adcflow collect <run_id>` records it later "
+                        "(default: wait for it, asking the server now and then, and record)")
+    s.add_argument("--adopt", metavar="RUN_ID",
+                   help="take over a run that a launcher of before `collect` started (no build/runs/<run_id>/manifest.json; "
+                        "stop that launcher first): give the run id and the run's own arguments")
+
+
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(prog="adcflow")
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -47,6 +56,7 @@ def main(argv: list[str] | None = None) -> int:
     s.add_argument("--crosscheck", action="store_true",
                    help="also run every job with the test's `crosscheck:` numerical settings and record "
                         "the differences in meta.crosscheck (docs/verification.md section 2)")
+    _detach_args(s)
 
     cd = sub.add_parser("candidates", help="leaderboard of the transistor-level candidates (scores from results)")
     cd.add_argument("--block")
@@ -64,6 +74,17 @@ def main(argv: list[str] | None = None) -> int:
     vf.add_argument("--jobs", type=int, help="parallel Spectre runs (default: sim.jobs of the site config, else 6)")
     vf.add_argument("--keep", action="store_true", help="keep the remote run directory")
     vf.add_argument("--dry-run", action="store_true", help="only check what would be verified (no simulation)")
+    _detach_args(vf)
+
+    co = sub.add_parser("collect", help="fetch, measure and record (or compare: verify) runs whose batch ended on the "
+                                        "server, then delete their server directory; a run still running is only "
+                                        "reported (docs/workflow.md section 3)")
+    co.add_argument("run_id", nargs="*", help="run id (build/runs/<run_id>/manifest.json)")
+    co.add_argument("--all", action="store_true", help="every run of build/runs that is not collected yet")
+    co.add_argument("--wait", action="store_true", help="wait until each run ended, then collect it")
+    co.add_argument("--discard", action="store_true",
+                    help="a run that ended (or stopped and will never end): fetch its files, record nothing, "
+                         "delete its server directory")
 
     mg = sub.add_parser("migrate-candidate", help="move the legacy view design/xtor/<block>/ and its xtor results "
                                                   "into a named candidate")
@@ -110,8 +131,12 @@ def main(argv: list[str] | None = None) -> int:
 
     cl = sub.add_parser("clean-remote", help="delete this project's run directories on the server")
     cl.add_argument("--older-than-h", type=float, default=0.0)
+    cl.add_argument("--unfetched", action="store_true",
+                    help="also delete run directories whose jobs ended but that were never fetched (collect needs them)")
 
     a = p.parse_args(argv)
+    if a.cmd == "collect" and not (a.run_id or a.all):
+        p.error("collect: give run ids or --all")
 
     if a.cmd == "budget":
         from .budget import main as budget_main
@@ -132,9 +157,13 @@ def main(argv: list[str] | None = None) -> int:
         return run_checks(a.what, strict=a.strict, base=a.base, author=a.author)
     elif a.cmd == "sim":
         from .remote import default_jobs
-        from .runner import run_test_cli
+        from .runner import RunRefused, run_test_cli
         a.jobs = a.jobs or default_jobs()
-        return run_test_cli(a)
+        try:
+            return run_test_cli(a)
+        except RunRefused as e:                  # --adopt of another run, or a tree that changed since staging
+            print(f"[adcflow] {e}", file=sys.stderr)
+            return 1
     elif a.cmd == "candidates":
         import json
 
@@ -143,8 +172,17 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps(rows, indent=1, default=float) if a.json else table(rows))
     elif a.cmd == "verify":
         from .remote import default_jobs
+        from .runner import RunRefused
         from .verify import verify
-        return verify(a.test, a.block, a.candidate, a.corners, a.mode, a.jobs or default_jobs(), a.keep, a.dry_run)
+        try:
+            return verify(a.test, a.block, a.candidate, a.corners, a.mode, a.jobs or default_jobs(), a.keep,
+                          a.dry_run, detach=a.detach, adopt=a.adopt)
+        except RunRefused as e:
+            print(f"[adcflow] {e}", file=sys.stderr)
+            return 1
+    elif a.cmd == "collect":
+        from .runner import collect_cli
+        return collect_cli(a)
     elif a.cmd == "migrate-candidate":
         from .candidates import migrate
         authors = [dict(zip(("github", "name"), x.split("=", 1))) for x in a.author]
@@ -175,7 +213,7 @@ def main(argv: list[str] | None = None) -> int:
         return report(a.block)
     elif a.cmd == "clean-remote":
         from .remote import clean_remote
-        return clean_remote(a.older_than_h)
+        return clean_remote(a.older_than_h, a.unfetched)
     return 0
 
 

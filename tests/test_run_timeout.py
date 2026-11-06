@@ -1,9 +1,9 @@
-"""remote.run_jobs and the runner: each job has its own time limit (the test's `timeout:`), a job that
+"""remote.launch and the runner: each job has its own time limit (the test's `timeout:`), a job that
 runs past it fails alone and is named as a timeout while the others are measured, the batch has a
 derived backstop that leaves nothing running on the server, and a capped compile step builds the
-shared Verilog-A library before all jobs start together."""
+shared Verilog-A library before all jobs start together. (How the detached batch is waited for and
+collected: test_detached_runs.py.)"""
 
-import shutil
 import subprocess
 
 import pytest
@@ -14,16 +14,18 @@ from adcflow.specs import find_test
 CFG = {"spectre": "spectre", "env_setup": ["source env"], "host": "h", "remote_root": "/r"}
 
 
-def _run(monkeypatch, rc: int, job_timeout: float = 3600, jobs=("a", "b", "c"), stdout: bytes = b""):
+def _run(monkeypatch, rc: int, job_timeout: float = 3600, jobs=("a", "b", "c"), soa_jobs=None):
     sent = {}
 
     def fake_ssh(script, timeout=None, stdin_bytes=None, check=True):
         sent.update(script=script, timeout=timeout, check=check)
-        return subprocess.CompletedProcess(["ssh"], rc, stdout, b"err")
+        if check and rc:
+            raise remote.RemoteError(f"remote script failed ({rc}): err")
+        return subprocess.CompletedProcess(["ssh"], rc, b"", b"err")
 
     monkeypatch.setattr(remote, "cfg", lambda: CFG)
     monkeypatch.setattr(remote, "ssh_script", fake_ssh)
-    remote.run_jobs("/r/run1", list(jobs), ["+aps"], 2, job_timeout)
+    sent["limit"] = remote.launch("/r/run1", list(jobs), ["+aps"], 2, job_timeout, soa_jobs=soa_jobs)
     return sent
 
 
@@ -41,8 +43,10 @@ def test_the_batch_backstop_is_derived_from_the_job_limit(monkeypatch):
     s = _run(monkeypatch, 0, job_timeout=3600)                          # 3 jobs, 2 at a time: 2 waves
     limit = remote.batch_limit(3, 2, 3600, True)
     assert limit == remote.COMPILE_CAP_S + 2 * (3600 + remote.KILL_AFTER_S) + remote.SERVER_MARGIN_S
-    assert f"timeout -k {remote.KILL_AFTER_S} {limit} bash $R/batch.sh $R" in s["script"]
-    assert s["timeout"] > limit + remote.KILL_AFTER_S                   # the ssh waits for the server
+    assert s["limit"] == limit
+    launch = _heredoc(s["script"], "$R/launch.sh", "EOL")
+    assert f"timeout -k {remote.KILL_AFTER_S} {limit} bash $R/batch.sh $R" in launch
+    assert s["timeout"] < 3600                                          # the ssh does not wait for the batch
 
 
 def test_backstop_scales_with_corners_and_jobs():
@@ -52,20 +56,36 @@ def test_backstop_scales_with_corners_and_jobs():
 
 
 def test_the_backstop_leaves_nothing_running(monkeypatch):
-    script = _run(monkeypatch, 0)["script"]
-    after = script.split("bash $R/batch.sh $R\n", 1)[1]
+    launch = _heredoc(_run(monkeypatch, 0)["script"], "$R/launch.sh", "EOL")
+    after = launch.split("bash $R/batch.sh $R\n", 1)[1]
     assert "[ $rc -eq 124 ] || [ $rc -eq 137 ]" in after and "kill -9" in after and '"$R"/*' in after
-    assert after.rstrip().endswith("exit $rc")
+    # the done marker (rc, start, end) comes last, after the kill
+    assert after.index("kill -9") < after.index(f'"$rc $start $(date +%s)" > $R/{remote.MARK_DONE}.tmp')
+    assert after.rstrip().endswith(f"mv $R/{remote.MARK_DONE}.tmp $R/{remote.MARK_DONE}")
 
 
-@pytest.mark.parametrize("rc", [124, 137])
-def test_a_batch_ended_by_the_backstop_raises_run_timeout(monkeypatch, rc):
-    with pytest.raises(remote.RunTimeout, match="backstop"):
-        _run(monkeypatch, rc)
+def test_the_batch_runs_detached_from_the_ssh_session(monkeypatch):
+    script = _run(monkeypatch, 0)["script"]
+    after = script.split("\nEOL\n", 1)[1]
+    assert f"rm -f $R/{remote.MARK_DONE} $R/{remote.MARK_FETCHED}" in after
+    assert f"setsid nohup bash $R/launch.sh $R > $R/{remote.BATCH_LOG} 2>&1 < /dev/null &" in after
+    assert f"[ -s $R/{remote.PID_FILE} ] && exit 0" in after              # returns once launch.sh runs
+    assert f"echo $$ > $R/{remote.PID_FILE}" in _heredoc(script, "$R/launch.sh", "EOL")
 
 
-def test_other_failures_stay_plain_errors(monkeypatch):
-    with pytest.raises(RuntimeError) as e:
+def test_the_soa_step_runs_on_the_server_after_a_normal_batch(monkeypatch):
+    s = _run(monkeypatch, 0, soa_jobs=["a", "c"])
+    assert "cat > $R/soa_jobs.list <<'EOF'\na\nc\nEOF" in s["script"]
+    launch = _heredoc(s["script"], "$R/launch.sh", "EOL")
+    soa = launch.split("elif [ $rc -eq 0 ]; then", 1)[1].split("\nfi\n", 1)[0]
+    assert f"timeout -k {remote.KILL_AFTER_S} {remote.SOA_TIMEOUT_S} xargs -P 2" in soa
+    assert "[ -f jobs/J/soa_rows.json ] || python3 soa_core.py jobs/J" in soa
+    assert launch.index("kill -9") < launch.index("elif [ $rc -eq 0 ]") < launch.index(remote.MARK_DONE)
+    assert "soa_core" not in _run(monkeypatch, 0)["script"]
+
+
+def test_a_failed_start_is_a_plain_error(monkeypatch):
+    with pytest.raises(remote.RemoteError) as e:
         _run(monkeypatch, 1)
     assert not isinstance(e.value, remote.RunTimeout)
 
@@ -96,12 +116,6 @@ def test_the_compile_step_is_capped_stops_its_spectre_and_cleans_up(monkeypatch)
     assert compile_va.rstrip().endswith("exit 0")                      # never fails the batch by itself
 
 
-def test_server_notes_reach_the_run_output(monkeypatch, capsys):
-    _run(monkeypatch, 0, stdout=b"noise\nadcflow: compile step stopped at its cap of 900 s\n")
-    out = capsys.readouterr().out
-    assert "[adcflow] compile step stopped at its cap of 900 s" in out and "noise" not in out
-
-
 @pytest.mark.parametrize("jobs,compile_step", [(("a",), False), (("a", "b"), True)])
 def test_a_single_job_needs_no_compile_step(monkeypatch, jobs, compile_step):
     batch = _heredoc(_run(monkeypatch, 0, jobs=jobs)["script"], "$R/batch.sh", "EOB")
@@ -120,7 +134,6 @@ def test_runner_fails_only_the_timed_out_job(monkeypatch, tmp_path):
     calls = {}
 
     def fake_fetch(rroot, patterns, run_dir, max_mb):
-        calls["run_dir"] = run_dir
         for i, staged in enumerate(sorted((run_dir / "stage" / "jobs").iterdir())):
             jd = run_dir / "jobs" / staged.name                        # what the real fetch brings back
             jd.mkdir(parents=True, exist_ok=True)
@@ -128,22 +141,20 @@ def test_runner_fails_only_the_timed_out_job(monkeypatch, tmp_path):
             (jd / "spectre.log").write_text("ok\n")
         return []
 
-    monkeypatch.setattr(runner, "require_toolbox", lambda: None, raising=False)
+    monkeypatch.setattr(runner, "RUNS", tmp_path)
     monkeypatch.setattr("adcflow.spectrum.require_toolbox", lambda: None)
     monkeypatch.setattr(remote, "cfg", lambda: {**CFG, "modes": {"aps": ["+aps"]}, "fetch": [], "fetch_max_mb": 50})
     monkeypatch.setattr(remote, "remote_root", lambda: "/r")
     monkeypatch.setattr(remote, "upload_tree", lambda *a: None)
-    monkeypatch.setattr(remote, "run_jobs", lambda *a, **k: calls.setdefault("run_jobs", a))
+    monkeypatch.setattr(remote, "launch", lambda *a, **k: calls.setdefault("launch", a) and 0)
+    monkeypatch.setattr(remote, "status", lambda rroot: remote.parse_status("exists 1\nlive 0\nended 3 0\ndone 0 1 2"))
     monkeypatch.setattr(remote, "fetch", fake_fetch)
+    monkeypatch.setattr(remote, "mark_fetched", lambda *a: None)
     monkeypatch.setattr(remote, "remove", lambda *a: None)
     monkeypatch.setattr(runner, "measure", lambda test, jd, ctx: {"ok": 1})
-    try:
-        rows = runner.run_test("tb_sarlogic_func", None, "tt_nom_27,ff_high_125,ss_low_m40", {}, {}, "aps", 3,
-                               False, False, timeout=3600)
-    finally:
-        if "run_dir" in calls:
-            shutil.rmtree(calls["run_dir"], ignore_errors=True)
-    assert calls["run_jobs"][4] == 3600                                 # the job limit reaches run_jobs
+    rows = runner.run_test("tb_sarlogic_func", None, "tt_nom_27,ff_high_125,ss_low_m40", {}, {}, "aps", 3,
+                           False, False, timeout=3600)
+    assert calls["launch"][4] == 3600                                   # the job limit reaches the batch
     bad = [r for r in rows if "error" in r["metrics"]]
     assert len(rows) == 3 and len(bad) == 1
     assert bad[0]["metrics"]["error"].startswith("timeout:") and bad[0]["rc"] == "124"
