@@ -126,7 +126,7 @@ The voltage comparisons use 60.085 to 60.098317928 ns, through the last regular 
 
 ### Cold numerical controls
 
-The same-source 95 ns study uses APS Gear2, normal DC, the full physical network, zero cmin and the same 55 voltage probes. The matched control uses effective reltol `1e-7`, vabstol `10 nV`, iabstol `1 pA`, lteratio 10 and an 800 ps maximum step. The table changes one control at a time. The source remains `42645fb6…cf281`.
+The same-source 95 ns study uses APS Gear2, normal DC, the full physical network, zero cmin and the same 55 voltage probes. The matched control uses effective reltol `1e-7`, vabstol `10 nV`, iabstol `1 pA`, lteratio 10 and an 800 ps maximum step. The combined trial pairs the two intermediate tolerance settings. The source hash is `42645fb6…cf281`.
 
 | Change | RC and last time | LTE / Newton rejects | Min step | Samples |
 | --- | --- | ---: | ---: | ---: |
@@ -136,8 +136,25 @@ The same-source 95 ns study uses APS Gear2, normal DC, the full physical network
 | Effective reltol `1e-6` `5b66` | 0 at 95 ns | 843 / 30 | 1.67e-16 s | 5 |
 | Vabstol 100 nV `b7b9` | 0 at 95 ns | 541 / 47 | 3.89e-16 s | 5 |
 | Lteratio 30 `0655` | 0 at 95 ns | 639 / 29 | 5.09e-16 s | 5 |
+| Lteratio 20 `e75e` | 0 at 95 ns | 560 / 29 | 3.51e-16 s | 5 |
+| Effective reltol `3e-7` `7fee` | 0 at 95 ns | 627 / 29 | 1.90e-16 s | 5 |
+| Lteratio 20 and effective reltol `3e-7` `6fd1` | 0 at 95 ns | 689 / 29 | 3.52e-16 s | 5 |
+| Maxiters 12 `d04b` | 1 at 30.0978 ns | 213 / 375 | 9.53e-22 s | 0 |
+| Tran pivot check enabled `d714` | 1 at 60.098333264 ns | 399 / 418 | 9.53e-22 s | 2 |
 
-All three RC1 cases end with SPECTRE-16928. A failed Newton trial immediately precedes the protection in the matched control. The protection extension advances the transient by about 13 as. The short lteratio 30 case retains the Newton tolerances and has the smallest two-sample RMS difference from the archived 61 ns Traponly case among the three RC0 cases (4.85 µV, versus 6.76 µV for 100 nV vabstol and 13.44 µV for effective reltol `1e-6`). That Traponly record is a limited reference. The 0.1 fF global shunt diagnostic `278b` ended at 60.097137255 ns with the same protection and two samples. The cmin trial and the 95 ns screen do not provide an acceptance spectrum. The longer Gear2/lteratio 30 and strict Traponly records are in progress.
+The RC1 cases end with SPECTRE-16928. A failed Newton trial immediately precedes the protection in the matched control. Doubling the approach budget advances the transient by about 13 as. The transient pivot check still reports a late VCM Jacobian warning and stops on the same edge. The combined relative and LTE change uses fewer accepted steps than either intermediate setting alone but increases the two-sample RMS difference from the archived 61 ns Traponly record to 14.01 µV. The lteratio 30 case differs by 4.85 µV and retains the Newton tolerances. The reference's two samples precede the collapse. The separate 0.1 fF global shunt diagnostic `278b` ends at 60.097137255 ns with the same protection and two samples.
+
+### Full-length cold numerical crosscheck
+
+Three same-source diagnostics complete 2.605 µs with 256 samples each. All use normal startup, effective reltol `1e-7`, vabstol 10 nV, iabstol 1 pA and the default minimum-step protections. The two Gear2 records keep the 800 ps step cap. The Traponly record uses a 1 ps cap and lteratio 10. The same pinned project estimator gives the results below.
+
+| Cold diagnostic | SFDR (dBc) | SNDR (dB) | THD (dBc) | Solver job wall | Verified ZIP SHA-256 |
+| --- | ---: | ---: | ---: | ---: | --- |
+| Gear2, lteratio 20, `0452` | 80.360118 | 78.597295 | -79.958151 | 2365 s | `a3e222272b6daf6d1217eeb94ee6b2138d6a5b7aaeac593084aae3afd5a85692` |
+| Gear2, lteratio 30, `ddd0` | 80.329202 | 78.576754 | -79.964778 | 2122 s | `ad6871421b12af014d7ed9da320a333e8cd2f2d55a1ac02aae29107d2bc27d4a` |
+| Traponly, 1 ps, `6421` | 80.277304 | 78.512213 | -79.873446 | 7497 s | `e18e016a78c1307cfd95560fbf62f5e63e0249d230b12c748899c099c90a5a1e` |
+
+The two Gear2 records differ by 2.30 µV RMS across all samples. Relative to Traponly, the Gear2 differences are 4.31 and 4.38 µV RMS with peaks of 9.15 and 10.79 µV. The printed sample time differences are at most 1 fs. Folded H5 at bin 113 is the largest spur in all three. The crosscheck spreads of 0.083 dB SFDR and 0.085 dB SNDR are small compared with the deficits to the 84 dBc and 80 dB limits. The finite-step Traponly run supplies an independent numerical comparison. Gear2 with lteratio 20 is the tighter of the tested LTE alternatives for continued diagnosis. The physical cause of the original collapse and the cold tracking distortion remain open. The official Gear2 baseline and the PVT matrix below retain their existing qualification status.
 
 ## PVT matrix
 
