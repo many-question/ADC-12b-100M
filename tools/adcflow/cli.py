@@ -157,9 +157,13 @@ def main(argv: list[str] | None = None) -> int:
         return run_checks(a.what, strict=a.strict, base=a.base, author=a.author)
     elif a.cmd == "sim":
         from .remote import default_jobs
-        from .runner import run_test_cli
+        from .runner import RunRefused, run_test_cli
         a.jobs = a.jobs or default_jobs()
-        return run_test_cli(a)
+        try:
+            return run_test_cli(a)
+        except RunRefused as e:                  # --adopt of another run, or a tree that changed since staging
+            print(f"[adcflow] {e}", file=sys.stderr)
+            return 1
     elif a.cmd == "candidates":
         import json
 
@@ -168,9 +172,14 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps(rows, indent=1, default=float) if a.json else table(rows))
     elif a.cmd == "verify":
         from .remote import default_jobs
+        from .runner import RunRefused
         from .verify import verify
-        return verify(a.test, a.block, a.candidate, a.corners, a.mode, a.jobs or default_jobs(), a.keep, a.dry_run,
-                      detach=a.detach, adopt=a.adopt)
+        try:
+            return verify(a.test, a.block, a.candidate, a.corners, a.mode, a.jobs or default_jobs(), a.keep,
+                          a.dry_run, detach=a.detach, adopt=a.adopt)
+        except RunRefused as e:
+            print(f"[adcflow] {e}", file=sys.stderr)
+            return 1
     elif a.cmd == "collect":
         from .runner import collect_cli
         return collect_cli(a)

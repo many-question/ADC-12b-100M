@@ -467,3 +467,9 @@ def test_clean_remote_keeps_running_and_uncollected_runs(monkeypatch):
     assert "kept (ended, not fetched" in s and f'[ -f "$R/{remote.MARK_DONE}" ]' in s and "[ 0 -eq 0 ]" in s
     assert "-mmin +720" in s
     assert "[ 1 -eq 0 ]" in _script(monkeypatch, remote.clean_remote, 12, True)[0]["script"]
+
+
+def test_cli_adopt_refusal_is_a_message(srv, capsys):
+    rroot, run_id = old_launcher_run(srv)
+    assert main(["sim", TEST, "--corners", "tt_nom_27", "--jobs", "2", "--adopt", run_id, "--detach"]) == 1
+    assert "not the run of these arguments in this tree" in capsys.readouterr().err
