@@ -93,6 +93,11 @@ def test_compare_metrics():
     m, probs, skipped = verify.compare_metrics(a, dict(a, sfdr_dBc=90.45, t_off_ps=18.9, soa_points=120,
                                                        soa_table=[{"max_V": 2}]))
     assert probs == [] and sorted(skipped) == ["soa_points", "soa_table"]
+    # a soa_table is a detail in either form (the packed table of soa.pack_table, the list of dicts before it)
+    packed = {"devices": [["XDUT.M1", "nch_ulvt_mac", "dut"]], "columns": ["device", "pair", "max_V"], "rows": [[0, "gs", 1.0]]}
+    for x, y in ((packed, packed), (packed, a["soa_table"]), (a["soa_table"], dict(packed, rows=[[0, "gs", 2.0]]))):
+        m, probs, skipped = verify.compare_metrics(dict(a, soa_table=x), dict(a, soa_table=y))
+        assert probs == [] and "soa_table" in skipped and "soa_table" not in m
     assert m["sfdr_dBc"]["ok"] and m["sfdr_dBc"]["tol"] == 0.5 and m["t_off_ps"]["tol"] == 1.0
     for change, what in (({"sfdr_dBc": 89.4}, "sfdr_dBc: 90 self-reported, 89.4 rerun"),
                          ({"t_off_ps": 19.5}, "t_off_ps"),

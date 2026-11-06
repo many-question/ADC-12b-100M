@@ -52,7 +52,7 @@ def dc(job_dir: Path, ctx: dict) -> dict:
     fg = sink_of(ctx)
     if fg:
         _fig_dc(fg, ctx, w, per_level, t_off, t_on, m)
-        if "soa_table" in m:
+        if soa.table_rows(m):
             soa.figure(fg, ctx, m, w)
         fig_cin(fg, ctx, cins, [("cin_phb_fF", "PHI_B", "cin_phb_fF"), ("cin_phbb_fF", "PHI_BB", "cin_phbb_fF")])
     return m

@@ -6,9 +6,9 @@ import re
 import numpy as np
 import pytest
 
-from adcflow import REPO_ROOT, psf, soa, soa_core
+from adcflow import REPO_ROOT, candidates, jsonio, psf, soa, soa_core
 from adcflow.corners import by_name
-from adcflow.runner import Job, make_deck, view_files
+from adcflow.runner import Job, _by_rows, _same, make_deck, view_files
 from adcflow.specs import blocks, find_test
 
 
@@ -61,7 +61,7 @@ def _one(device: str, nodes: dict[str, str], where: str = "dut") -> soa.Plan:
 
 
 def _rows(m: dict, bad: bool = True) -> list[tuple[str, str]]:
-    return [(r["device"], r["pair"]) for r in m["soa_table"] if r["pass"] != bad]
+    return [(r["device"], r["pair"]) for r in soa.table_rows(m) if r["pass"] != bad]
 
 
 # ------------------------------------------------------------------ plan
@@ -166,7 +166,7 @@ def test_clean_case(tmp_path):
     assert m["soa_devices"] == 4 and m["soa_devices_dut"] == 3 and m["soa_pairs"] == 12
     assert m["soa_skipped"] == ["XDUT.MT (nch_18_mac)"]
     assert m["soa_max_V"] == pytest.approx(0.5)            # |Vgs| of M1 and MEXT, |Vds| of MP
-    assert all(r["max_V"] <= 1.0 and r["pass"] for r in m["soa_table"])
+    assert all(r["max_V"] <= 1.0 and r["pass"] for r in soa.table_rows(m))
 
 
 def test_negative_vgs_violation():
@@ -175,7 +175,7 @@ def test_negative_vgs_violation():
     w = {"time": T, "D": np.full_like(T, 0.5), "G": np.zeros_like(T), "S": np.array([0, 0, 1.15, 1.15, 0, 0])}
     m = soa.check(p, w)
     assert m["soa_violations"] == 1 and _rows(m) == [("XDUT.M1", "gs")]
-    gs = m["soa_table"][0]
+    gs = soa.table_rows(m)[0]
     assert gs["signed_V"] == pytest.approx(-1.15) and gs["max_V"] == pytest.approx(1.15)
     assert gs["t_ns"] == pytest.approx(1.01)
     assert m["soa_worst"]["device"] == "XDUT.M1" and m["soa_worst"]["pair"] == "gs"
@@ -187,7 +187,7 @@ def test_vds_violation():
     m = soa.check(p, w)
     assert m["soa_violations"] == 1 and _rows(m) == [("XDUT.M2", "ds")]
     assert m["soa_max_V"] == pytest.approx(1.15)
-    assert m["soa_table"][2]["t_ns"] == pytest.approx(1.02)
+    assert soa.table_rows(m)[2]["t_ns"] == pytest.approx(1.02)
 
 
 def test_internal_device_violation(tmp_path):
@@ -197,7 +197,7 @@ def test_internal_device_violation(tmp_path):
     m = soa.check(_plan(tmp_path), w)
     assert sorted(_rows(m)) == [("XDUT.M1", "ds"), ("XDUT.X1.MN", "gs")]
     assert m["soa_violations"] == 2
-    assert all(r["where"] == "dut" for r in m["soa_table"] if not r["pass"])
+    assert all(r["where"] == "dut" for r in soa.table_rows(m) if not r["pass"])
     assert m["soa_worst"]["t_ns"] == pytest.approx(1.01)
 
 
@@ -240,7 +240,7 @@ def test_parsed_psf_sample(tmp_path):
     f = tmp_path / "tran.tran"
     f.write_text("\n".join(lines + ["END", ""]))
     m = soa.check(p, psf.read(f))
-    bad = {(r["device"], r["pair"]): r["signed_V"] for r in m["soa_table"] if not r["pass"]}
+    bad = {(r["device"], r["pair"]): r["signed_V"] for r in soa.table_rows(m) if not r["pass"]}
     assert bad == {("XDUT.X1.MP", "gs"): pytest.approx(-1.2)}
 
 
@@ -305,7 +305,7 @@ def test_time_above_the_limit_is_interpolated():
     p = _one("XDUT.M1", {"d": "D", "g": "G", "s": "0", "b": "0"})
     w = {"time": t, "D": np.array([0.0, 0.0, 1.2, 0.0, 0.0]), "G": np.array([0.0, 0.0, 0.99, 0.99, 0.0])}
     m = soa.check(p, w)
-    rows = {r["pair"]: r for r in m["soa_table"]}
+    rows = {r["pair"]: r for r in soa.table_rows(m)}
     assert rows["ds"]["t_over_ps"] == pytest.approx(1 / 3, abs=1e-3) and rows["ds"]["pass"]            # 1.2 V for 1/3 ps: within the transient rule
     assert rows["gs"]["t_over_ps"] == 0 and rows["gs"]["pass"]
     assert m["soa_violations"] == 0 and m["soa_worst"]["t_over_ps"] == pytest.approx(1 / 3, abs=1e-3)
@@ -317,7 +317,7 @@ def _gate(t_ps, v, limit=1.1):
     t = np.asarray(t_ps, dtype=float) * 1e-12
     pl = soa.Plan(scope="device", limit_V=limit, duts=["XDUT"],
                   devices=[soa.Device("XDUT.M1", "nch_ulvt_mac", "mos", "dut", {"d": "0", "g": "G", "s": "0", "b": "0"})])
-    return soa.check(pl, {"time": t, "G": np.asarray(v, dtype=float)})["soa_table"][0]
+    return soa.table_rows(soa.check(pl, {"time": t, "G": np.asarray(v, dtype=float)}))[0]
 
 
 def _pulse(start_ps, width_ps, v, edge_ps=0.001):
@@ -402,7 +402,7 @@ def test_worst_pair_reports_its_window_and_the_metrics_carry_the_rule():
 
 
 def _row(**kw):
-    return {"device": "XDUT.M1", "pair": "gs", "pass": True, **kw}
+    return {"device": "XDUT.M1", "master": "nch_ulvt_mac", "where": "dut", "pair": "gs", "pass": True, **kw}
 
 
 def test_violations_applies_the_rule_when_judging():
@@ -425,6 +425,25 @@ def test_results_recorded_before_the_rule_are_judged_by_their_total_time():
     # a window recorded for another length says nothing: the total time again
     assert soa.violations({"soa_limit_V": 1.1, "soa_window_ns": 20.0,
                            "soa_table": [_row(max_V=1.2, t_over_ps=400.0, t_window_ps=50.0)]}) == 1
+
+
+def _packed(m: dict) -> dict:
+    return {**m, "soa_table": soa.pack_table(m["soa_table"])}
+
+
+def test_violations_is_the_same_for_both_forms_of_the_table():
+    """The list of dicts of results recorded before pack_table and the packed table are judged alike,
+    also without the windows of a result recorded before the rule."""
+    base = {"soa_limit_V": 1.1, "soa_window_ns": 10.0, "soa_violations": 1}
+    for rows, want in (([_row(max_V=1.2, t_over_ps=500.0, t_window_ps=50.0), _row(max_V=1.0, t_over_ps=0.0, t_window_ps=0.0)], 0),
+                       ([_row(max_V=1.3, t_over_ps=1.0, t_window_ps=1.0)], 1),
+                       ([_row(max_V=1.2, t_over_ps=500.0, t_window_ps=150.0)], 1),
+                       ([_row(max_V=1.2, t_over_ps=40.0)], 0), ([_row(max_V=1.2, t_over_ps=400.0)], 1),
+                       ([_row(max_V=1.2)], 1)):
+        m = {**base, "soa_table": rows}
+        if "t_window_ps" not in rows[0]:
+            m.pop("soa_window_ns")
+        assert soa.violations(m) == soa.violations(_packed(m)) == want
 
 
 def test_block_verdict_uses_the_rule():
@@ -473,7 +492,7 @@ def test_server_check_gives_the_rows_of_a_local_check_and_thins_the_waveform(tmp
     pl, f = _psf_job(tmp_path)
     full = psf.read(f)
     local = soa.check(pl, full)
-    assert soa_core.reduce_job(tmp_path)["rows"] == local["soa_table"]
+    assert soa_core.reduce_job(tmp_path)["rows"] == soa.table_rows(local)
     thin = psf.read(f)
     assert sorted(thin) == sorted(["time", "CK", "XDUT.a<1>", "D"])          # OTHER is gone, the worst pair's nodes stay
     assert np.allclose(thin["XDUT.a<1>"], PSF_G) and np.allclose(thin["time"], PSF_T)
@@ -506,3 +525,139 @@ def test_a_behavioral_run_has_no_server_check():
 def test_core_runs_with_numpy_alone():
     text = (REPO_ROOT / "tools/adcflow/soa_core.py").read_text(encoding="utf-8")
     assert set(re.findall(r"^(?:from|import) (\S+)", text, re.M)) <= {"__future__", "json", "sys", "array", "pathlib", "numpy"}
+
+
+# ------------------------------------------------------------------ the recorded table: packed, lossless, small
+FIELDS = ["device", "master", "where", "pair", "max_V", "signed_V", "t_ns", "dt_ps", "t_over_ps", "t_window_ps", "pass"]
+
+
+def _pairs(n: int) -> list[dict]:
+    """n pairs like those of pair_rows: three per device, deep device names, a few above the limit."""
+    rng = np.random.default_rng(7)
+    rows = []
+    for i in range(-(-n // 3)):
+        name = f"XDUT.XSLICE{i % 12}.XCTRL.XGA{i // 12}.M{'PN'[i % 2]}{i}"
+        master = ("nch_ulvt_mac", "pch_ulvt_mac", "nch_lvt_mac")[i % 3]
+        for pair in ("gs", "gd", "ds"):
+            v = round(float(rng.uniform(0.0, 1.0)), 5) + (0.25 if i % 40 == 0 else 0.0)
+            over = round(float(rng.uniform(0.0, 80.0)), 3) if v > 1.1 else 0.0
+            rows.append({"device": name, "master": master, "where": "dut" if i % 50 else "external", "pair": pair,
+                         "max_V": v, "signed_V": round(float(-v if i % 2 else v), 5),
+                         "t_ns": round(float(rng.uniform(0.0, 160.0)), 4), "dt_ps": round(float(rng.uniform(0.1, 400.0)), 3),
+                         "t_over_ps": over, "t_window_ps": over, "pass": v <= 1.1 or over <= 100.0})
+    return rows[:n]
+
+
+@pytest.mark.parametrize("n", [5000, 10000])
+def test_packed_table_is_lossless_and_fits_in_a_result(n):
+    """Every field of every pair comes back, as it was written; the result stays below the size limit
+    (a list of dicts takes about 200 bytes a pair, the packed table 77 in a real result, 90 at most here)."""
+    rows = _pairs(n)
+    doc = {"block": "adc_sarlogic", "metrics": {"soa_violations": 0, "soa_pairs": n, "soa_table": soa.pack_table(rows)}}
+    text = jsonio.dumps(doc) + "\n"
+    assert len(text.encode()) < min(candidates.MAX_JSON_BYTES, 90 * n + 5000)       # random digits: more than a real table
+    old = jsonio.dumps({**doc, "metrics": {**doc["metrics"], "soa_table": rows}})
+    assert len(old) > 2 * len(text)
+    back = soa.table_rows(json.loads(text)["metrics"])
+    assert back == rows and [list(r) for r in back] == [FIELDS] * n
+    assert all(type(r["pass"]) is bool and type(r["max_V"]) is float for r in back)
+    assert soa.table_rows(json.loads(old)["metrics"]) == rows            # and the old form reads back the same
+
+
+def test_table_rows_reads_either_form_and_none():
+    rows = _pairs(30)
+    assert soa.table_rows({"soa_table": rows}) == rows
+    assert soa.table_rows({"soa_table": soa.pack_table(rows)}) == rows
+    assert soa.table_rows({"soa_table": []}) == soa.table_rows({"soa_table": soa.pack_table([])}) == []
+    assert soa.table_rows({}) == soa.table_rows({"soa_table": None}) == []
+    with pytest.raises(ValueError, match="not 'device'"):
+        soa.table_rows({"soa_table": {"devices": [], "columns": ["pair"], "rows": []}})
+
+
+def test_pack_table_factors_the_device_and_needs_uniform_rows():
+    rows = _pairs(9)
+    t = soa.pack_table(rows)
+    assert len(t["devices"]) == 3 and t["devices"][0] == [rows[0]["device"], rows[0]["master"], rows[0]["where"]]
+    assert t["columns"] == ["device", "pair", "max_V", "signed_V", "t_ns", "dt_ps", "t_over_ps", "t_window_ps", "pass"]
+    assert [r[0] for r in t["rows"]] == [0, 0, 0, 1, 1, 1, 2, 2, 2]
+    with pytest.raises(ValueError, match="same fields"):
+        soa.pack_table([rows[0], {k: v for k, v in rows[1].items() if k != "dt_ps"}])
+
+
+def test_check_records_the_packed_table(tmp_path):
+    m = soa.check(_plan(tmp_path), _clean())
+    t = m["soa_table"]
+    assert isinstance(t, dict) and sorted(t) == ["columns", "devices", "rows"]
+    assert len(t["devices"]) == m["soa_devices"] and len(t["rows"]) == m["soa_pairs"] == 12
+    rows = soa.table_rows(m)
+    assert [list(r) for r in rows] == [FIELDS] * 12
+    assert {(r["device"], r["master"], r["where"]) for r in rows} >= {("XDUT.M1", "nch_ulvt_mac", "dut"),
+                                                                       ("MEXT", "nch_ulvt_mac", "external")}
+    assert soa.violations(m) == m["soa_violations"] == 0
+
+
+def test_the_figure_reads_either_form(tmp_path, monkeypatch):
+    """soa.figure takes its rows through table_rows: a packed table and the list of dicts give the same bars."""
+    plan = _plan(tmp_path)
+    w = _clean()
+    m = soa.check(plan, w)
+    seen = []
+    monkeypatch.setattr(soa, "table_rows", lambda mm, f=soa.table_rows: seen.append(f(mm)) or seen[-1])
+
+    class Sink:                                          # stops the figure right after its rows are read
+        def new(self, *a, **k):
+            raise StopIteration
+
+    for metrics in (m, {**m, "soa_table": soa.table_rows(m)}):
+        with pytest.raises(StopIteration):
+            soa.figure(Sink(), {"soa": plan}, metrics, w)
+    assert seen[0] == seen[1] and len(seen[0]) == 12
+
+
+def test_remeasure_compares_the_pairs_not_the_form():
+    rows = _pairs(30)
+    old, new = {"soa_table": rows, "n": 1}, {"soa_table": soa.pack_table(rows), "n": 1}
+    assert _same(_by_rows(old)["soa_table"], _by_rows(new)["soa_table"])
+    assert not _same(_by_rows(old)["soa_table"], _by_rows({"soa_table": soa.pack_table(rows[:-1])})["soa_table"])
+    assert _by_rows({"n": 1}) == {"n": 1}
+
+
+def test_json_text_is_json_dumps_except_the_table_lines():
+    doc = {"a": 1, "b": [], "c": {}, "d": {"e": [1.5, None, True, "ü\n"], "f": {"g": [[1, 2], [3]]}},
+           "figures": [{"file": "x.png"}], "soa_table": [], "n": {"soa_table": [{"device": "D", "pair": "gs"}] * 3}}
+    assert jsonio.dumps(doc) == json.dumps(doc, indent=1, default=float)
+    num = {"x": np.float64(0.5), "y": float("nan")}
+    assert jsonio.dumps(num) == json.dumps(num, indent=1, default=float)
+    rows = _pairs(30)
+    packed = {"m": {"soa_table": soa.pack_table(rows), "z": [1, 2]}}
+    text = jsonio.dumps(packed)
+    lines = text.split("\n")
+    assert lines[:3] == ["{", ' "m": {', '  "soa_table": {']
+    assert lines[3] == '    "devices": [' and lines[4].startswith('      ["XDUT.XSLICE0.XCTRL.XGA0.MP0","nch_ulvt_mac","external"]')
+    assert sum(ln.startswith('      [0,"gs",') for ln in lines) == 1
+    assert sum(ln.startswith("      [") for ln in lines) == 10 + 30                      # one line per device and per pair
+    assert json.loads(text) == packed
+    # the list of dicts of a large old-form table goes one pair per line, a small one as json.dumps writes it
+    big = _pairs(jsonio.OLD_LINES_ABOVE + 3)
+    t = jsonio.dumps({"metrics": {"soa_table": big}})
+    assert t.count("\n") == len(big) + 5 and json.loads(t)["metrics"]["soa_table"] == big
+    small = {"metrics": {"soa_table": big[:jsonio.OLD_LINES_ABOVE]}}
+    assert jsonio.dumps(small) == json.dumps(small, indent=1, default=float)
+
+
+def test_recorded_results_stay_readable_in_either_form():
+    """A result of each directory that has a table: its pairs read back with every field, and packing
+    them loses nothing and does not change the verdict (existing results are not rewritten)."""
+    seen: set = set()
+    for f in sorted((REPO_ROOT / "results").glob("*/*/*/*.json")):
+        if f.parent in seen:
+            continue
+        m = json.loads(f.read_text(encoding="utf-8")).get("metrics") or {}
+        if not m.get("soa_table"):
+            continue
+        seen.add(f.parent)
+        rows = soa.table_rows(m)
+        assert rows and all(set(FIELDS) - {"t_window_ps"} <= set(r) for r in rows), f      # no window before the rule
+        packed = {**m, "soa_table": soa.pack_table(rows)}
+        assert soa.table_rows(packed) == rows and soa.violations(packed) == soa.violations(m), f
+    assert seen

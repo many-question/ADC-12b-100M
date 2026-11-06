@@ -3,7 +3,7 @@
 ## 1. 本地环境（一次性）
 
 ```bash
-pip install -e ".[analysis,dev]"          # adcflow 工具包 + adctoolbox（上游提交 cd72061，需要 git）+ pytest
+pip install -e ".[analysis,dev]"          # adcflow 工具包 + adctoolbox 0.9.2（PyPI）+ pytest
 git config core.hooksPath tools/hooks     # 提交前检查（hygiene / ports / 生成文件）
 ```
 
@@ -47,7 +47,7 @@ python -m adcflow clean-remote --older-than-h 12   # 清理服务器上本项目
 每次 `sim`：
 
 1. 在 `build/runs/<run_id>/` 生成仿真 deck（全局参数、工艺角模型段、各模块视图、Verilog-A、测试台）；
-2. 打包上传到服务器本地盘的 `<remote_root>/<run_id>/`，并行运行 Spectre（共享 Verilog-A 编译缓存）；
+2. 打包上传到服务器本地盘的 `<remote_root>/<run_id>/`，并行运行 Spectre：先用第一个 job 的 deck 把 Verilog-A 编译进共享库（约 1 min，到分析开始即停），再让全部 job 一起启动、只读共享库（`-ahdlshipdbdir`；库中没有的模块在 job 自己的目录里编译，不会两个 Spectre 同时写一个库）；
 3. 只取回小文件（监视器输出、日志、需要的波形，单文件默认 ≤ 50 MB），**随后删除服务器目录**；
 4. 调用度量函数，把指标与判定写入 `results/<block>/<test>/<view>/<corner>.json`，
    其中 `meta.files` 记录电路实际依赖的文件（测试台、它可达的网表与 Verilog-A 及其 include、做 SOA 检查时的 `specs/soa.yaml`）的哈希，
@@ -88,6 +88,7 @@ python -m adcflow clean-remote --older-than-h 12   # 清理服务器上本项目
   beh_speed vref_in cdac_behav` 由 deck 提供，测试台中不要声明（`cdac_behav` = 1 表示 `adc_cdac` 用行为级视图）。
 * 监视器写小文本文件（`tb/common/veriloga/`）；只在度量需要时保存波形（`save` 列出信号）。
 * 要求逐管 SOA（每个薄栅器件的 |Vgs|、|Vgd|、|Vds| ≤ `specs/soa.yaml` 的 `limit_V`，现为 1.1 V；或 ≤ 1.29 V 且任一 10 ns 窗口内超过 1.1 V 不到 100 ps，`specs/soa_rule.yaml`）的用例在规格中加 `soa:`：流程在 deck 中保存 DUT 内各器件的端口节点，度量函数调用 `soa.measure` / `soa.figure`，见 [`verification.md`](verification.md) §5。
+* 每个 job（一个工艺角）默认最多运行 4 h；单个 job 更慢的用例在规格中写 `timeout:`（秒，每个 job，与工艺角数和 `--jobs` 无关，例如 `tb_sarlogic_rand`、`tb_top_*`），取值宽松：它防的是卡死的运行，不是排程。超时的 job 连同其 Spectre 被结束，记为失败（`timeout: the job ran past its timeout: ...`），同批其它 job 照常度量、记录；整批另有由它推出的后备时限（编译上限 + 批数 × 单 job 时限 + 余量）。编译步骤最多 15 min，到时即停，各 job 自行编译共享库缺的模块。
 * 度量函数放在 `tools/adcflow/measure/<block>.py`，签名 `fn(job_dir, ctx) -> dict`，键名即规格中的 `metric`。
   `ctx["figs"]` 是图的接收器（`tools/adcflow/figures.py` 的 `FigureSink`）：新测试的度量函数用
   `sink_of(ctx)` 取得它，`fg.new(...)` 建图、`fg.save(fig, tag, caption)` 保存；规格线用

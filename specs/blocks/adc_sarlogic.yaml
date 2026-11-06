@@ -115,6 +115,7 @@ tests:
     netlist: tb/sarlogic/tb_sarlogic_func.scs
     measure: adcflow.measure.sarlogic:func
     params: {nconv: 1000, nowave: 1}
+    timeout: 43200   # s per job, a guard against hung runs: 1000 conversions take up to 6.2 h
     desc: >
       1000 random conversions without waveforms: bit-exact comparison with the
       emulator (and of the DAC level the emulator reads before each decision).

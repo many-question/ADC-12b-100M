@@ -39,6 +39,7 @@ from pathlib import Path
 
 from . import REPO_ROOT
 from . import arch as archmod
+from . import jsonio
 from .netlist import ENDS_RE, SUBCKT_RE, content_hash, logical_lines, parse
 
 STAGE_DIRS = ("design", "tb")
@@ -652,7 +653,7 @@ def rehash(block: str | None = None, test: str | None = None, view: str | None =
         if r.status == "rehashed" and not dry:
             doc = {k: v for k, v in d.items() if k != "_path"}
             doc["meta"] = r.meta
-            r.path.write_text(json.dumps(doc, indent=1, default=float) + "\n", encoding="utf-8", newline="\n")
+            r.path.write_text(jsonio.dumps(doc) + "\n", encoding="utf-8", newline="\n")
     n = {s: sum(r.status == s for r in out) for s in ("rehashed", "fresh", "stale")}
     print(f"[adcflow] rehash: {n['rehashed']} {'would be ' if dry else ''}rehashed, "
           f"{n['fresh']} already on their dependencies, {n['stale']} stale (re-run them)")

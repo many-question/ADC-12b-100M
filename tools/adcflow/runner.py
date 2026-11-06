@@ -42,7 +42,7 @@ import yaml
 
 from . import REPO_ROOT
 from . import arch as archmod
-from . import candidates, deps, numerics, remote, soa
+from . import candidates, deps, jsonio, numerics, remote, soa
 from .corners import Corner, by_name, corner_set, model_includes, vref_in
 from .netlist import parse, substitute_parameters
 from .specs import Block, blocks, find_test
@@ -263,6 +263,14 @@ def _spectre_errors(log: Path) -> list[str]:
     return errs[:10]
 
 
+def job_error(rc: str, errs: list[str], job_timeout: float) -> str:
+    """The recorded error of a job whose Spectre did not end with rc 0."""
+    if rc in remote.TIMEOUT_RCS:
+        return (f"timeout: the job ran past its `timeout:` of {job_timeout:.0f} s and was killed "
+                "(docs/workflow.md §4)")
+    return "; ".join(errs) or f"spectre rc={rc}"
+
+
 def measure(test: dict, job_dir: Path, ctx: dict) -> dict:
     mod_name, fn_name = test["measure"].split(":")
     fn = getattr(importlib.import_module(mod_name), fn_name)
@@ -290,7 +298,7 @@ def record(block: Block, test_id: str, viewsig: str, job: Job, metrics: dict, me
     out = result_dir(block, test_id, viewsig) / f"{job.name}.json"
     out.parent.mkdir(parents=True, exist_ok=True)
     doc = result_doc(block, test_id, viewsig, job, metrics, meta, figures)
-    out.write_text(json.dumps(doc, indent=1, default=float) + "\n", encoding="utf-8", newline="\n")
+    out.write_text(jsonio.dumps(doc) + "\n", encoding="utf-8", newline="\n")
     return out
 
 
@@ -301,7 +309,9 @@ def run_test(test_id: str, block_name: str | None = None, corners: str = "typ",
     """Run a test at the corners of `corners`; with `crosscheck` every job runs a second time
     with the test's `crosscheck:` settings (numerics.py) and only the first is recorded, with the
     differences in its meta.crosscheck. A test with `montecarlo:` runs its samples (mc_settings;
-    `mc` overrides its runs and seed). Returns one row per job: job, corner, rc, metrics, out (the
+    `mc` overrides its runs and seed). Each job runs at most `timeout` s (default: the test's
+    `timeout:`, else remote.JOB_TIMEOUT_S); a job ended by it fails, the others are measured as
+    usual. Returns one row per job: job, corner, rc, metrics, out (the
     recorded file, None without recording), params, globals and meta (as a result records them)."""
     from .figures import FigureSink          # matplotlib: only where figures are drawn, not for deps / checks
     from .spectrum import require_toolbox
@@ -355,11 +365,11 @@ def run_test(test_id: str, block_name: str | None = None, corners: str = "typ",
     if dry:
         return []
     mode_args = remote.cfg()["modes"][mode]
+    job_timeout = timeout or float(test.get("timeout", remote.JOB_TIMEOUT_S))
     t0 = time.time()
     try:
         remote.upload_tree(run_dir / "stage", rroot)
-        remote.run_jobs(rroot, [j.name for j in jobs], mode_args, parallel,
-                        timeout=timeout or float(test.get("timeout", 4 * 3600)))
+        remote.run_jobs(rroot, [j.name for j in jobs], mode_args, parallel, job_timeout)
         if on_server:
             remote.soa_reduce(rroot, on_server, parallel)
         skipped = remote.fetch(rroot, remote.cfg()["fetch"] + ["rc.txt"], run_dir,
@@ -400,7 +410,7 @@ def run_test(test_id: str, block_name: str | None = None, corners: str = "typ",
                 # the others count as failed (the run's error is recorded as well)
                 metrics = measure(test, jd, ctx) if rc[0] == "0" or mcset else {}
             if rc[0] != "0":
-                metrics["error"] = "; ".join(errs) or f"spectre rc={rc[0]}"
+                metrics["error"] = job_error(rc[0], errs, job_timeout)
             if "error" in metrics:                 # never record server (or local) paths
                 metrics["error"] = str(metrics["error"]).replace(rroot, "<run>").replace(str(run_dir), "<run>")
         except Exception as e:  # keep going, record the failure
@@ -490,6 +500,10 @@ def _same(a, b) -> bool:
     return a == b
 
 
+def _by_rows(metrics: dict) -> dict:
+    return {**metrics, "soa_table": soa.table_rows(metrics)} if "soa_table" in metrics else metrics
+
+
 def remeasure(test_id: str, run_dir: Path, block_name: str | None = None, views: dict | None = None,
               allow: tuple[str, ...] = ("sfdr",), dry: bool = False, redraw: bool = False) -> list[dict]:
     """Measure the fetched jobs of an earlier run again with the current measure code and
@@ -532,8 +546,10 @@ def remeasure(test_id: str, run_dir: Path, block_name: str | None = None, views:
                "soa": soa.plan(block.name, test, tb_text, view_files(views), views) if test.get("soa") else None}
         with archmod.track() as measure_keys:
             metrics = measure(test, jd, ctx)
-        changed = {k: [old["metrics"].get(k), v] for k, v in metrics.items() if not _same(old["metrics"].get(k), v)}
-        changed.update({k: [v, None] for k, v in old["metrics"].items() if k not in metrics})
+        was = _by_rows(old["metrics"])                # a soa_table recorded in either form compares by its pairs
+        now = _by_rows(metrics)
+        changed = {k: [was.get(k), v] for k, v in now.items() if not _same(was.get(k), v)}
+        changed.update({k: [v, None] for k, v in was.items() if k not in now})
         bad = sorted(k for k in changed if not any(a in k for a in allow))
         if bad:
             raise ValueError(f"{jd.name}: {bad} differ from the recorded result: not the same simulation data "
@@ -560,7 +576,7 @@ def remeasure(test_id: str, run_dir: Path, block_name: str | None = None, views:
         for e in figs.entries:
             shutil.copyfile(tmp / e["file"], rdir / e["file"])
         doc = result_doc(block, test_id, viewsig, job, old["metrics"] if redraw else metrics, meta, figs.entries)
-        path.write_text(json.dumps(doc, indent=1, default=float) + "\n", encoding="utf-8", newline="\n")
+        path.write_text(jsonio.dumps(doc) + "\n", encoding="utf-8", newline="\n")
     return out
 
 

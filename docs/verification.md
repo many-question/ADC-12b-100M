@@ -89,8 +89,8 @@
   TT 的参照：两种方法差 0.05 dB SFDR、0.01 dB SNDR，样本差 2.8 µV rms），否则结果不能作证据，先查明原因。
   行为级 TT 的交叉检查见 §3 后的表（#28 当时的设置）。
 * **频谱指标**：ENOB、SNDR、SFDR、SNR、THD 都由 ADCToolbox 的 `compute_spectrum` 计算（`tools/adcflow/spectrum.py`）。
-  `pyproject.toml` 把它固定到上游提交 `cd72061`：它的版本号仍是 0.9.1，而 PyPI 上的 0.9.1 没有这个修复（#36）。比较与依据见
-  [`docs/sfdr-estimator.md`](sfdr-estimator.md)；结果的 `meta.provenance.spectrum` 记录版本与提交。
+  `pyproject.toml` 把它固定到 PyPI 正式版 0.9.2，第一个含 SFDR 修复（#36）的正式版。比较与依据见
+  [`docs/sfdr-estimator.md`](sfdr-estimator.md)；结果的 `meta.provenance.spectrum` 记录版本（#96 之前的结果记录上游提交 `cd72061`，0.9.2 没有改指标的计算）。
   还有一个上游的限制：杂散碰到信号频点时 SNDR 约高 0.8 dB。注意：`compute_spectrum` 返回的 `plot_data.is_coherent`
   实际是参数 `coherent_averaging`（是否做了多次记录的相干平均），不是按频点偏差判断的相干性。不能用它判断输入频率是否相干，
   相干性看实际的 fin、N 与 k（#47）。
@@ -247,7 +247,7 @@
   是没有收敛的数值噪声，不是电路的性质。
 * `tb_cdac_track`：行为级 CDAC 的采样网络是理想的线性模型，显式设置下剩下的只有积分的数值误差（样本差 0.16 µV rms，
   约为 0.72 V 幅度的 −133 dB）。SFDR / SNDR 因此停在 130~150 dB 的数值底噪上，随设置跳动十几 dB，不是一个稳定的 dB 值；
-  收敛的结论是“> 130 dB，受数值精度限制”，两次都比 DAC-09/10 的限值（85 / 80 dB）高 45 dB 以上，判定不受影响。
+  收敛的结论是“> 130 dB，受数值精度限制”，两次都比 DAC-09/10 的限值（84 / 80 dB）高 45 dB 以上，判定不受影响。
   默认设置下的值同样是数值噪声：#32 前 97.9 / 91.2 dB，#32 只在 CDAC 的时钟输入上加了电容（与线性度无关）后变成
   109.3 / 101.8 dB。这一行为级数值只说明测试台与度量已收敛，不代表电路；晶体管级开关接入后，收敛判断以 dB 差相对余量和
   样本差为准。
@@ -315,7 +315,7 @@
 
 它取代了 #27 的“超限时间短也不能豁免”。满足平均占空比不够：一个窗口内超过 100 ps 就是违例，即使整段运行的平均很低。
 1.1 V 在 `specs/soa.yaml`（`limit_V`，改它结果会过期）；1.29 V、10 ns、100 ps 在 `specs/soa_rule.yaml`，和模块限值一样在判定时读取，
-不进结果的依赖哈希，改它只会重新判定。判定时由 `soa_table` 重新计算违例数（`soa.violations`）：规则之前记录的结果没有
+不进结果的依赖哈希，改它只会重新判定。判定时由 `soa_table` 的各对重新计算违例数（`soa.violations`，经 `soa.table_rows` 读，两种记录形式都行）：规则之前记录的结果没有
 `t_window_ps`，用总超限时间 `t_over_ps` 作上界，超不过规则就通过，否则仍算违例，直到重跑。main 上此前最高的是选定的
 `adc_bootstrap` 0.99868 V 和 `adc_clkgen` 0.99993 V，都低于 1.1 V，判定不变，不需要重跑。
 
@@ -383,11 +383,28 @@ PSF 读入器解析，器件与节点的对应关系由流程自己写出，可�
 
 **结果**：`soa_scope`（`device`：DUT 内的器件加边界器件；`external`：只有边界器件）、`soa_devices`、`soa_devices_dut`（检查的器件数）、
 `soa_pairs`、`soa_violations`、`soa_max_V`、`soa_window_max_ps`、`soa_worst`（器件、端口对、带符号的值、时刻、局部步长、超限时间）、`soa_points`、
-`soa_dt_max_ps`、`soa_skipped`、`soa_peak_V`、`soa_window_ns`、`soa_max_over_ps`（判定用的规则）、`soa_table`（每个器件每对端口的 `max_V`、`signed_V`、`t_ns`、`dt_ps`、`t_over_ps`、`t_window_ps`、`pass`）。
+`soa_dt_max_ps`、`soa_skipped`、`soa_peak_V`、`soa_window_ns`、`soa_max_over_ps`（判定用的规则）、`soa_table`（每个器件每对端口的 `device`、`master`、`where`、`pair`、`max_V`、`signed_V`、`t_ns`、`dt_ps`、`t_over_ps`、`t_window_ps`、`pass`，记录形式见下）。
 `t_ns` 是最大值首次出现的时间点（最大值是一段平台时取平台起点，容差 0.1 mV），`dt_ps` 是该点两侧较大的仿真步长，
 `signed_V` 是该点带符号的端电压。
 `t_over_ps` 是该对 |V| 超过 1.1 V 的累计时间，`t_window_ps` 是它最坏的 10 ns 窗口内的时间（相邻时间点之间按线性插值，两个极性相加；
 运行短于窗口时整段算一个窗口），后者进入判定。`soa_worst` 也带这两项。
+**`soa_table` 的记录形式**：结果文件限 1 MB（`candidates.MAX_JSON_BYTES`），一对一个字典要约 200 字节，约 4000 对的候选（`adc_sarlogic`）
+每个结果 0.84 MB，再大就记不下。所以结果里记的是压缩形式（`soa.pack_table`），每一对的每个字段都保留，不丢对、不丢精度：
+
+```json
+"soa_table": {
+  "devices": [["XDUT.XIN_CV.MN","nch_ulvt_mac","dut"], ...],
+  "columns": ["device","pair","max_V","signed_V","t_ns","dt_ps","t_over_ps","t_window_ps","pass"],
+  "rows": [[0,"gs",0.9,0.9,0.14,0.146,0.0,0.0,true], ...]
+}
+```
+
+`devices` 每个器件只写一次 `[device, master, where]`；`columns` 是一行的字段，第一列 `device` 是 `devices` 的下标；`rows` 一对一行，顺序同检查的顺序。
+每对约 77 字节（`adc_sarlogic` 的 4278 对：0.84 MB → 0.33 MB，约 1/2.5），1 MB 内可放约 12 900 对，`devices` 和 `rows` 在文件里一行一项
+（`jsonio.dumps`，所有写结果的地方都用它，改写结果时不会把它展开）。没有器件时 `soa_table` 仍是 `[]`。
+读表一律用 `soa.table_rows(metrics)`：它返回每对一个字典（含 `device`、`master`、`where`），两种形式都行——此前记录的结果里
+`soa_table` 是字典的列表，**不改写**，也不会因此过期（过期只看 `meta.files`、`meta.arch`、`meta.views`）。
+服务器端的规约（`soa_core.reduce_job`、`soa_rows.json`）仍是字典的列表，只有记录进结果的形式压缩了；`remeasure` 按各对比较新旧结果，重写时记新形式。
 证据图 `<stem>.soa.png`：各对的最大 |V| 对两条限值（超过 1.1 V 的标出最坏窗口内的时间）、最坏一对的全程波形、最坏峰值附近保存的时间点。
 
 **无法验证**：没有 SOA 计划、晶体管级 DUT 下找不到薄栅器件、未分类的 MOS 模型、所需节点没有波形、波形不从 t = 0 开始时，
@@ -495,10 +512,10 @@ python -m adcflow verify <test> --block <block> --candidate <name> [--corners <�
 | `*_lsb` | ±max(0.05 LSB, 5 %) | |
 | 其它数值 | ±2 % | |
 | `soa_points`、`soa_dt_max_ps` | 不比较 | 仿真器的时间步统计，不是电路的性质 |
-| `soa_peak_V`、`soa_window_ns`、`soa_max_over_ps`、`soa_window_max_ps` | 不比较 | 规则本身与 `soa_table` 的摘要；规则之前的结果没有这几项 |
+| `soa_peak_V`、`soa_window_ns`、`soa_max_over_ps`、`soa_window_max_ps` | 不比较 | 规则本身与 `soa_table`（各对，`soa.table_rows`）的摘要；规则之前的结果没有这几项 |
 | 标量的列表（蒙特卡洛的逐样本 `offsets_mV`、`sample_status`，`vgs_levels_V`、`weights_*` 等） | 逐个元素，按该指标的容差 | 长度必须相同 |
 | `p1`（`tb_comp_noise` 各电平的判决概率） | ±0.1 | 每电平 512 次判决的统计量 |
-| 元素不是标量的列表与字典（`soa_table`、`soa_worst`、`mc_fail_reasons` 等） | 不比较 | 明细；它们的标量摘要（`soa_max_V`、`soa_violations`、`mc_failed` 等）参与比较 |
+| 元素不是标量的列表与字典（`soa_table`、`soa_worst`、`mc_fail_reasons` 等） | 不比较 | 明细；它们的标量摘要（`soa_max_V`、`soa_violations`、`mc_failed` 等）参与比较。`soa_table` 无论是压缩形式（字典）还是此前的字典列表都不比较 |
 
 蒙特卡洛指标的判定按 `Spec.judge`（#68）：值在限值内，并且有效样本数够、没有失败的样本；两边的样本数不同即判定不同。
 此外：`meta.mc` 的样本数、种子、变化类型与统计模型段必须相同；`params` 必须完全相同（用例参数变了，旧结果就无法按现行用例复现）；两者都记录的 `globals` 必须相同，只有一方记录的全局参数

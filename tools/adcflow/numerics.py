@@ -196,7 +196,9 @@ def compare(ref: dict, alt: dict, metrics: list[str], ref_samples: Path | None, 
             out["metrics"][k] = {"ref": a, "xcheck": b, "diff": b - a}
         else:
             out["metrics"][k] = {"ref": a, "xcheck": b, "diff": None}
-    ta, tb = ref.get("soa_table"), alt.get("soa_table")
+    from .soa import table_rows
+
+    ta, tb = table_rows(ref), table_rows(alt)
     if ta and tb:                                        # per-device SOA: time resolution of the peaks
         peak = {(r["device"], r["pair"]): r["max_V"] for r in tb}
         d = [(r["device"], r["pair"], peak[(r["device"], r["pair"])] - r["max_V"]) for r in ta
