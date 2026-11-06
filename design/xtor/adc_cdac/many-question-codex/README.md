@@ -4,6 +4,8 @@
 
 The [formal source](adc_cdac.scs) uses a 14 um / 40 nm LVT reset driven by the independent Fig. 11(c) v3 booster, LVT / 40 nm main input switches and SVT / 40 nm reference output pairs on bits 12 and 11, and the original sharing sizes. It retains the XCAP and XSW partition. Both complete hot spectra meet the 84 dBc DAC-09 limit in spec 0.11.0. The official slow-corner RL12 and conversion-start failures keep the candidate WIP. [Qualification matrix and evidence](qualification.md) · [Physical repair experiments](reset-repair.md)
 
+Cold Gear2 still stops at 60.0983 ns on the formal bench. The voltage-only replay reproduces the failure. The paired local stack, driver and bottom-plate replays leave the full-circuit convergence mechanism unresolved. [Cold replay boundaries and archives](qualification.md#reduced-replay)
+
 ## V29 and preceding experiments
 
 The records below describe the historical baseline and earlier circuit variants. The [V29 source and official records](https://github.com/many-question/ADC-12b-100M/tree/7fb3ce84ae0f7e8ea161cd7ec514895f8276ec20) are retained at their original commit.

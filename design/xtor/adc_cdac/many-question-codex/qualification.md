@@ -89,7 +89,17 @@ The current-probe run reports sub-microamp BN terminal currents at the last regu
 
 The initial `162315-450e` and `162315-2e99` runs inherited an operating-system temporary directory outside job scratch. An escaping-only correction still left the `162655-f006` and `162655-c6d4` runs outside job scratch. The first formal run reproduced the current-probe failure at 40.098623121 ns. The other three were stopped after detecting the setting and their partial records were archived. The controls in the table use the corrected absolute job temporary directory, verified together with the Verilog-A build and library paths.
 
-To narrow the cause further, replay the measured gate and supply histories on the bit-12 transistor stack with the same PDK model and Gear2 tolerances. Compare the failing phase and a clean phase. Use the result to decide which reference or phase feedback path to restore next. Qualification requires the official 256-point Gear2 run, the prescribed convergence check and a separate passing RL12 result on the same source.
+### Reduced replay
+
+Three paired replays used the original PDK sections, device geometries, bulk connections and APS Gear2 at effective reltol `1e-7` and vabstol `10 nV`. The N-side normal edge at 40.010 ns and the failing edge at 60.010 ns were both placed at the same absolute time. Each replay drove the captured histories from 59.750 to 60.098317928 ns. This ends 15.3 fs before the observed collapse and holds the boundary values afterward. The 80 ns stop bounds the diagnostic and only the recorded interval is used to judge reproduction.
+
+| Replay circuit | Boundary kept ideal | Min step in the recorded interval, normal / failing history (s) | Printed LTE, normal / failing | Archive SHA-256 |
+| --- | --- | ---: | ---: | --- |
+| Two BN stack MOS, `164511` | EN, HIB and NOFF PWL | `8.28e-17` / `8.09e-17` | 5 / 5 | `598f3f0fb438d63676a9c3ce105bd8aaeb24f4c1739f2e5e1f69fd56087f2562` |
+| Full bit-12 reference driver with the AP load, `164815` | EN, ENB, HIB and BPL12 PWL, original ideal supply and reference | `8.09e-17` / `8.33e-17` | 1 / 5 | `f153fb433a46e4959c99f918e8f4db14f98d1cb8a59e606752eac9dfab31f9de` |
+| Same driver with the real L bottom-plate MOM, Cp and three connected switches, `165208` | EN, ENB, HIB, VIN, VG, EQBUS, APGATE, SAMP_ON and TOP PWL, original ideal supply and reference | `8.24e-17` / `8.34e-17` | 4 / 5 | `00fef112ebb49a436d72a0dd019b531d452a9710cd3825aabf100731e6c22b6a` |
+
+All six diagnostic jobs return RC0. The full driver reproduces the failing-history BN voltage within 0.012 uV RMS over the last 13.3 ps of recorded drive. With the bottom-plate feedback restored, BN and BPL12 reproduce that window within 0.010 uV and 0.774 uV RMS respectively. The minimum time steps are about five orders of magnitude above the formal collapse. The ideal replay boundaries omit the full circuit feedback, including VIN through the 50 ohm source, the phase generator and the two-sided array. PWL drive also changes the solver breakpoints and produces LTE warnings. The necessary reproduction conditions remain unresolved. The original Gear2 failure and voltage-only replay are the reproducible cases for lead and model review. Qualification still requires the official 256-point Gear2 run, the prescribed convergence check and a separate passing RL12 result on the same source.
 
 | Diagnostic archive | Run | SHA-256 |
 | --- | --- | --- |
