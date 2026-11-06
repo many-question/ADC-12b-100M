@@ -124,6 +124,21 @@ The voltage comparisons use 60.085 to 60.098317928 ns, through the last regular 
 | Formal source cold failure replay | `145009-b1d5` | `8b93556110d07984518cce739b2989e4736eceb71dd6060a43f0891b92e3d085` |
 | Finger-count trial cold failure | `145100-d9a7` | `e2eacc47dc62eda056374d7d080df4674519dbeb5b851dce3902fe02e20490cc` |
 
+### Cold numerical controls
+
+The same-source 95 ns study uses APS Gear2, normal DC, the full physical network, zero cmin and the same 55 voltage probes. The matched control uses effective reltol `1e-7`, vabstol `10 nV`, iabstol `1 pA`, lteratio 10 and an 800 ps maximum step. The table changes one control at a time. The source remains `42645fb6…cf281`.
+
+| Change | RC and last time | LTE / Newton rejects | Min step | Samples |
+| --- | --- | ---: | ---: | ---: |
+| Matched control `603c` | 1 at 60.098333266 ns | 395 / 426 | 9.53e-22 s | 2 |
+| Approach protection 300 → 600 `e2c3` | 1 at 60.098333279 ns | 408 / 758 | 9.53e-22 s | 2 |
+| Maxstep 1 ps `fdee` | 1 at 10.1018 ns | 90 / 415 | 9.50e-22 s | 0 |
+| Effective reltol `1e-6` `5b66` | 0 at 95 ns | 843 / 30 | 1.67e-16 s | 5 |
+| Vabstol 100 nV `b7b9` | 0 at 95 ns | 541 / 47 | 3.89e-16 s | 5 |
+| Lteratio 30 `0655` | 0 at 95 ns | 639 / 29 | 5.09e-16 s | 5 |
+
+All three RC1 cases end with SPECTRE-16928. A failed Newton trial immediately precedes the protection in the matched control. The protection extension advances the transient by about 13 as. The short lteratio 30 case retains the Newton tolerances and has the smallest two-sample RMS difference from the archived 61 ns Traponly case among the three RC0 cases (4.85 µV, versus 6.76 µV for 100 nV vabstol and 13.44 µV for effective reltol `1e-6`). That Traponly record is a limited reference. The 0.1 fF global shunt diagnostic `278b` ended at 60.097137255 ns with the same protection and two samples. The cmin trial and the 95 ns screen do not provide an acceptance spectrum. The longer Gear2/lteratio 30 and strict Traponly records are in progress.
+
 ## PVT matrix
 
 Pass and fail refer to applicable checks on this source. Pending cells require current-source results. The V29 results use a different source hash and remain in the historical record.
