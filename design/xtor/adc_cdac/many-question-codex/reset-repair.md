@@ -97,7 +97,11 @@ The physical length change is applied to both reference output polarities of bit
 
 The reference L40 v3 combination completes the 256-point hot primary at **84.830 dBc SFDR and 82.971 dB SNDR**, improving by 0.060 dB and 1.615 dB relative to the original reference lengths. H3 falls from 44.15 to 23.55 uV, while the largest spur remains H5 at 45.41 uV. SFDR is 0.170 dB below its limit and SNDR is 2.971 dB above its limit. The primary completes with no LTE relaxations and the same 16 visible warning categories and counts as the original v3 primary. The sample times agree within 1 fs and all 111 control sequences match.
 
-One same-source hot crosscheck for this candidate uses the prescribed traponly integrator, 1 ps maximum step, and effective 1e-7 and 10 nV tolerances. The sample and control observers are unchanged. The generated track test's `save=none` and `outputstart=tstop` retain the sample and edge text and solver provenance while omitting continuous waveform output. The wall guard is six hours based on the measured runtime of the original-sharing crosscheck.
+The same-source hot crosscheck completes in 4 h 15 min with all 256 samples and gives **84.873 dBc SFDR and 83.066 dB SNDR**. It uses the prescribed traponly integrator, 1 ps maximum step, and effective 1e-7 and 10 nV tolerances. The sample and control observers are unchanged. The generated track test's `save=none` and `outputstart=tstop` retain the sample and edge text and solver provenance while omitting continuous waveform output.
+
+Relative to the primary, SFDR changes by +0.043 dB and SNDR by +0.095 dB. All 111 control sequences match, with at most 1.62 fs edge shift and sample times within 1.01 fs. The paired nonfundamental difference is 1.16 uV RMS. H5 remains the largest spur at 45.14 uV in the crosscheck, versus 45.41 uV in the primary. The crosscheck is 0.127 dB below the SFDR limit. It logs five LTE relaxation messages with companion warnings at the same reported 2.41517 us control event. The next sample's paired residual magnitude is 0.46 uV, compared with a maximum of 5.02 uV.
+
+The repair remains WIP. The best physical combination clears the hot SNDR, two cold SOA endpoints and TT settling and loading checks. Its H5 exceeds the SFDR limit in both complete hot numerical runs. Model-range warnings for main-switch Vgb and booster M1 Vbd remain in both logs.
 
 ## Combined periphery and transistor booster
 
@@ -176,6 +180,7 @@ The reduced-sharing v3 combination gives **84.353 dBc SFDR and 82.128 dB SNDR** 
 | V3 and reference L40 cold low / high | `17029fe5c9e46a80ca3c6876e6cbce1bc67721894afa7d35957a2a3d67f9d210` / `99041a188583108c3da69bd4eaccf812fc35033b8fb279757c33608ca89f333b` |
 | V3 and reference L40 TT settle and loads | `dec1fcdba1edbdb6c87e542c82edae4c78c333b0779e06c87b6f97c4683a334f` |
 | V3 and reference L40 full hot primary | `39c6e122b82f20ba78332a4e32f8ee27eb5abb1c3f7a6c23a9233fa968b5dbc5` |
+| V3 and reference L40 full same-source hot crosscheck | `7588ed4b5f99f308a8765eec43e7deb2fb94d033bb1376eb1314fc843312921f` |
 | Fig. 11(c) v3 hot preflight | `254c7e07ac40b0cf1caa4aaef6c93911a7e4f5996e79dc21d43f863427bea13e` |
 | Fig. 11(c) v3 cold low / high | `776b6c1635fde392947a14db907ca5dd18590369c5cfb72a656f58cb125f7383` / `6dd3980c5e8430dffe5759336366effe7b3f36cf07efbf14a9e059eff25c514e` |
 | V3 and low-leakage main pairs hot preflight | `989f607749646215de54a1fee53003b95c070d35947a43be994381dae3f0724e` |

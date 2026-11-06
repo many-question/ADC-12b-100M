@@ -2,7 +2,7 @@
 
 ## Active physical repair
 
-The isolated 14 um / 40 nm LVT reset clears the hot spectrum limits in both numerical settings. With real peripheral switches, the Fig. 11(c) v3 transistor driver raises hot SFDR from 75.433 to 84.770 dBc. Lengthening the two largest reference output pairs gives 84.830 dBc SFDR and 82.971 dB SNDR with passing cold SOA and TT checks. H5 leaves a 0.170 dB SFDR shortfall in the primary. The same-source numerical crosscheck for this version is underway. [Repair evidence and current status](reset-repair.md)
+The isolated 14 um / 40 nm LVT reset clears the hot spectrum limits in both numerical settings. With real peripheral switches, the Fig. 11(c) v3 transistor driver raises hot SFDR from 75.433 to 84.770 dBc. Lengthening the two largest reference output pairs gives 84.830 dBc SFDR and 82.971 dB SNDR in the hot primary, and 84.873 dBc / 83.066 dB in its same-source crosscheck. Both runs miss the 85 dBc SFDR limit with H5 as the largest spur. The candidate remains WIP with passing cold SOA endpoints and TT settling and loading checks. [Repair evidence and current status](reset-repair.md)
 
 ## Completed reset mechanism isolation
 
