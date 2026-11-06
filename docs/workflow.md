@@ -31,7 +31,9 @@ git config core.hooksPath tools/hooks     # 提交前检查（hygiene / ports / 
 
 ```bash
 python -m adcflow sim <test> [--corners typ|quick|all|<name,...>] [--view <block>=xtor ...] \
-       [--param name=value ...] [--mode aps] [--jobs N] [--keep] [--no-record]
+       [--param name=value ...] [--mode aps] [--jobs N] [--keep] [--no-record] [--detach]
+python -m adcflow collect <run_id> ... | --all [--wait] [--discard]   # 取回已结束的运行，度量并记录（verify 的运行写复核记录），最后删服务器目录；未结束的只报告（见下「提交与收取」）
+python -m adcflow sim <原来的参数> --adopt <run_id> [--detach]   # 接管没有 manifest 的旧启动器留下的运行（verify 同样可加 --adopt）
 python -m adcflow report [--block adc_comp]     # 结果对照规格
 python -m adcflow candidates [--block adc_comp] [--json]   # 晶体管级候选的排行榜（docs/proposals/open-candidates.md §3）
 python -m adcflow verify <test> --block <block> --candidate <name> [--corners …] [--dry-run]   # 项目负责人在同一网表哈希上复跑候选的结果，写复核记录 verification/…（docs/verification.md §7）
@@ -47,9 +49,16 @@ python -m adcflow clean-remote --older-than-h 12   # 清理服务器上本项目
 每次 `sim`：
 
 1. 在 `build/runs/<run_id>/` 生成仿真 deck（全局参数、工艺角模型段、各模块视图、Verilog-A、测试台）；
-2. 打包上传到服务器本地盘的 `<remote_root>/<run_id>/`，并行运行 Spectre：先用第一个 job 的 deck 把 Verilog-A 编译进共享库（约 1 min，到分析开始即停），再让全部 job 一起启动、只读共享库（`-ahdlshipdbdir`；库中没有的模块在 job 自己的目录里编译，不会两个 Spectre 同时写一个库）；
-3. 只取回小文件（监视器输出、日志、需要的波形，单文件默认 ≤ 50 MB），**随后删除服务器目录**；
-4. 调用度量函数，把指标与判定写入 `results/<block>/<test>/<view>/<corner>.json`，
+2. 打包上传到服务器本地盘的 `<remote_root>/<run_id>/`，并行运行 Spectre：先用第一个 job 的 deck 把 Verilog-A 编译进共享库（约 1 min，到分析开始即停），再让全部 job 一起启动、只读共享库（`-ahdlshipdbdir`；库中没有的模块在 job 自己的目录里编译，不会两个 Spectre 同时写一个库）。
+   这一批作业在服务器上**独立运行**：一次短 ssh 用 `setsid nohup` 启动服务器上的 `launch.sh` 后即返回，`launch.sh` 在后备时限下运行它，
+   结束时写完成标记 `adcflow.done`（批作业的返回码与服务器上的起止时间）；本地写 `build/runs/<run_id>/manifest.json`（运行参数、服务器目录、
+   job 列表、单 job 时限、构建 deck 时的提交与工作区状态）；
+3. 默认本地等待：每隔一段时间（15 s 起，逐渐拉长到 5 min）用一次短 ssh 询问是否结束。ssh 失败（断网、电脑休眠、rc 255）只打印一行、稍后再问，
+   不中止、不删除任何东西；Ctrl-C 只停止等待，服务器上的运行照常，之后 `collect`。`--detach` 在启动后即返回；
+4. 结束后（收取，`collect`）：按 manifest 的参数重建 job、deck 与 SOA 计划，并与暂存的比对：deck、测试台、`prepare` 生成的文件不同，
+   或电路依赖的文件（`deps.run_reach`）现在与暂存时的内容不同，即拒绝、什么都不动（恢复这些文件后再收取）；然后只取回小文件
+   （监视器输出、日志、需要的波形，单文件默认 ≤ 50 MB）；
+5. 调用度量函数，把指标与判定写入 `results/<block>/<test>/<view>/<corner>.json`，
    其中 `meta.files` 记录电路实际依赖的文件（测试台、它可达的网表与 Verilog-A 及其 include、做 SOA 检查时的 `specs/soa.yaml`）的哈希，
    `meta.arch` 记录建作业与度量时读到的 `specs/arch.yaml` 键及其取值的哈希，`meta.views` 记录视图
    （何时过期见 [`verification.md`](verification.md) §2「结果过期」），`meta.git` 记录当时的提交，
@@ -57,7 +66,39 @@ python -m adcflow clean-remote --older-than-h 12   # 清理服务器上本项目
    被忽略的文件如 `site.local.yaml` 不算；`results/` 与 `verification/` 不算，因为成套重跑、复核时它们本身在变），不干净时
    `meta.git_dirty_paths` 列出这些路径（最多 20 个）。要提交的结果应先提交代码再仿真，使其为 `true`；度量函数同时用已读入的数据画证据图，
    写在 JSON 旁（`<corner>.<tag>.png`），清单记在 JSON 的 `figures`（见 [`verification.md`](verification.md) §4）。
-   重跑同一结果会先删除它旧的图。
+   重跑同一结果会先删除它旧的图。`meta.git`、`meta.git_clean` 是**提交时**（构建 deck 时）的提交与工作区状态，运行期间提交别的东西不影响它们；
+   `meta.date` 是记录时间，`meta.wall_s` 是服务器上批作业的起止时间加上传时间；
+6. 记录之后才删除服务器目录，而且只删已取回（`adcflow.fetched`）且没有任何进程在其中运行的目录；删不掉的（例如还有进程）下次 `collect` 再删。
+
+**提交与收取（长仿真）。** 顶层用例一个 job 要 26–40 h，本地不必一直等：
+
+```bash
+python -m adcflow sim tb_top_sine --view adc_sarlogic=xtor:<name> --corners quick --detach   # 启动后即返回，打印 run_id
+python -m adcflow collect <run_id>        # 未结束：报告已结束的 job 数，什么都不动；已结束：取回、度量、记录、删服务器目录
+python -m adcflow collect --all           # build/runs 下所有尚未收取的运行（含删除尚未成功的）；可以反复运行
+python -m adcflow collect --wait <run_id> # 等到结束再收取（与不加 --detach 的 sim 相同）
+```
+
+`collect` 可以重复执行：已收取的只报告；同一运行同时只允许一个 `collect`（`build/runs/<run_id>/collect.lock`）。
+`verify --detach` 同样只提交，收取时写复核记录。退出码：有错误结果、复核不符、拒绝或失败时为 1，其余（包括仍在运行）为 0。
+结束状态：
+
+* 批作业被后备时限结束（返回码 124/137）或以其它返回码失败：取回文件（便于查看）、什么都不记录、删服务器目录，报错；
+* 没有完成标记、目录里没有进程、却有 job 没写 `rc.txt`（批作业被外部停掉）：什么都不记录、不取回，报告 dead；
+  `collect --discard <run_id>` 取回现有文件、不记录、删服务器目录；
+* 服务器目录已不存在：报告 missing，`--discard` 使其不再列入 `--all`。
+
+**接管旧运行（`--adopt`）。** 这项改动之前的启动器在整批运行期间占着一个 ssh 会话，也不写 manifest。先结束该启动器的整个进程树
+（只结束本地进程，服务器上的批作业照常运行），再在**同一工作树**中用**原来的** `sim`（或 `verify`）参数加 `--adopt <run_id>`：
+
+```bash
+python -m adcflow sim tb_top_duty --view adc_sarlogic=xtor:<name> --corners ss_low_125 --jobs 1 --adopt <run_id> --detach
+python -m adcflow collect --all
+```
+
+它从 `build/runs/<run_id>/stage/` 与这些参数重建运行，要求 deck、测试台和电路依赖的文件与暂存的完全相同、服务器上的 `jobs.list`
+是同一组 job，否则拒绝；单 job 时限取自服务器上该运行自己的 `run_one.sh`。这样的运行没有完成标记：所有 job 都写了 `rc.txt` 且
+目录中没有进程即视为结束；逐管 SOA 在服务器上做的用例，收取时补做旧启动器没做的那一步。`--adopt --dry-run` 只检查重建，不连服务器。
 
 **旧结果迁到依赖集（`rehash`）。** 这次改动之前记录的结果列出了整个 deck 与整个 `arch.yaml`，任何一个模块或架构文件的改动
 都使它们过期。`python -m adcflow rehash` 不重仿真地逐个检查，只有同时满足下列三条的结果才改记为其依赖集，其余保持过期、需要重跑：
@@ -109,7 +150,9 @@ python -m adcflow clean-remote --older-than-h 12   # 清理服务器上本项目
 
 * 只在服务器本地盘的临时目录下仿真，不在 `/home` 下运行；
 * 服务器上的数据随时可能被清除：有用的数据仿真结束就取回，大文件只取需要的部分；
-* 每次运行结束自动删除服务器目录；异常退出后用 `clean-remote` 清理。
+* 每次运行收取（`collect`）并记录之后删除服务器目录；只删已取回且没有进程在其中运行的目录；
+* 遗留目录用 `clean-remote` 清理：它不删仍有进程在运行的目录，也不删已结束但尚未取回的目录（有完成标记，或每个 job 都有 `rc.txt`，
+  而没有 `adcflow.fetched`），后者先 `collect`（或 `--adopt`），确实不要时加 `--unfetched`。
 
 ## 7. 波形保存与本地保留
 

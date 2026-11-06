@@ -23,13 +23,26 @@ failed sample is recorded as failed (Spec.judge) and not lost with the run.
 
 A result records only what its circuit depends on (deps.py): the files the testbench reaches
 through the deck, and the arch.yaml values that its jobs' `prepare` and its measure read.
+
+A run is submitted, then collected (docs/workflow.md §3). submit stages it in build/runs/<run_id>/,
+uploads it, starts its batch on the server detached from ssh (remote.launch) and writes
+build/runs/<run_id>/manifest.json: its arguments (run_args), its server directory and jobs, the job
+limit, and the commit and tree the decks were built from. collect, in this process (wait) or in
+another one later (`adcflow collect`), rebuilds the jobs, decks and SOA plans from the arguments
+(prepare), checks them against the staged files (staged_differences), fetches the jobs once the
+batch ended, measures and records them (or writes the verification records, verify.finish), and
+deletes the server directory last. A run of a launcher of before the manifest is taken over with
+`adopt` from its own arguments.
 """
 
 from __future__ import annotations
 
+import contextlib
 import datetime as _dt
 import importlib
 import json
+import os
+import re
 import shutil
 import subprocess
 import time
@@ -44,7 +57,7 @@ from . import REPO_ROOT
 from . import arch as archmod
 from . import candidates, deps, jsonio, numerics, remote, soa
 from .corners import Corner, by_name, corner_set, model_includes, vref_in
-from .netlist import parse, substitute_parameters
+from .netlist import content_hash, parse, substitute_parameters
 from .specs import Block, blocks, find_test
 
 STAGE_DIRS, STAGE_EXT = deps.STAGE_DIRS, deps.STAGE_EXT
@@ -302,44 +315,76 @@ def record(block: Block, test_id: str, viewsig: str, job: Job, metrics: dict, me
     return out
 
 
-def run_test(test_id: str, block_name: str | None = None, corners: str = "typ",
-             views: dict | None = None, params: dict | None = None, mode: str = "ax",
-             parallel: int = 6, keep: bool = False, do_record: bool = True, dry: bool = False,
-             mc: dict | None = None, timeout: float | None = None, crosscheck: bool = False) -> list[dict]:
-    """Run a test at the corners of `corners`; with `crosscheck` every job runs a second time
-    with the test's `crosscheck:` settings (numerics.py) and only the first is recorded, with the
-    differences in its meta.crosscheck. A test with `montecarlo:` runs its samples (mc_settings;
-    `mc` overrides its runs and seed). Each job runs at most `timeout` s (default: the test's
-    `timeout:`, else remote.JOB_TIMEOUT_S); a job ended by it fails, the others are measured as
-    usual. Returns one row per job: job, corner, rc, metrics, out (the
-    recorded file, None without recording), params, globals and meta (as a result records them)."""
-    from .figures import FigureSink          # matplotlib: only where figures are drawn, not for deps / checks
-    from .spectrum import require_toolbox
-    if not dry:                                # before hours of simulation, not at the measure afterwards
-        require_toolbox()
-    views = views or {}
-    block, test = find_test(test_id, block_name)
-    cl = corner_set(corners)
+RUNS = REPO_ROOT / "build" / "runs"
+MANIFEST = "manifest.json"
+POLL_S = (15.0, 300.0)                     # wait: the first and the longest pause between two looks at the server
+SUBMITTED, COLLECTED, FAILED, DISCARDED = "submitted", "collected", "failed", "discarded"
+
+
+class RunRefused(RuntimeError):
+    """A run is not collected or adopted: its state cannot be rebuilt as it was staged."""
+
+
+class RunBusy(RuntimeError):
+    """Another process collects this run now."""
+
+
+@dataclass
+class Run:
+    """A run as its measurement needs it (prepare): rebuilt from its arguments `args` (run_args), it has
+    the jobs, decks and SOA plans that were staged."""
+    run_id: str
+    rroot: str                                 # its run directory on the server
+    args: dict
+    block: Block
+    test: dict
+    jobs: list[Job]
+    twins: dict[str, Job]                      # job -> its convergence cross-check twin
+    xc: dict
+    mcset: dict | None
+    needs_pdk: bool
+    decks: dict[str, str]
+    soa_plans: dict
+    remote_plans: dict[str, dict]              # job -> soa_plan.json of a job whose SOA check runs on the server
+
+    @property
+    def run_dir(self) -> Path:
+        return RUNS / self.run_id
+
+
+def run_args(test_id: str, block_name: str | None = None, corners: str = "typ", views: dict | None = None,
+             params: dict | None = None, mode: str = "ax", parallel: int = 6, keep: bool = False,
+             do_record: bool = True, mc: dict | None = None, timeout: float | None = None,
+             crosscheck: bool = False) -> dict:
+    """The arguments of a run (run_test's), as its manifest keeps them."""
+    return {"test": test_id, "block": block_name, "corners": corners, "views": dict(views or {}),
+            "params": dict(params or {}), "mode": mode, "parallel": parallel, "keep": keep,
+            "do_record": do_record, "mc": mc, "timeout": timeout, "crosscheck": crosscheck}
+
+
+def prepare(a: dict, run_id: str, rroot: str) -> Run:
+    """The jobs, decks and SOA plans of a run with arguments `a` (run_args) in the server directory
+    `rroot`: what submit stages, and what collect rebuilds the same way to measure it."""
+    views = a["views"]
+    block, test = find_test(a["test"], a["block"])
+    cl = corner_set(a["corners"])
     needs_pdk = bool(test.get("needs_pdk")) or any(v != "behav" for v in views.values())
-    mcset = mc_settings(block, test_id, test, cl, mc, params)
-    params = dict(params or {})
+    mcset = mc_settings(block, a["test"], test, cl, a["mc"], a["params"])
+    params = dict(a["params"])
     if mcset:
         params.update(mc_runs=mcset["runs"], mc_seed=mcset["seed"])
         if not needs_pdk:                      # no model sections: the testbench's own statistics only
             mcset["models"] = None
-    jobs = build_jobs(block, test_id, test, cl, views, params, needs_pdk)
+    jobs = build_jobs(block, a["test"], test, cl, views, params, needs_pdk)
     xc = dict(test.get("crosscheck") or {})
-    if crosscheck and not xc:
-        raise ValueError(f"{test_id}: no `crosscheck:` settings in its spec")
-    twins = {}                                 # job -> its convergence cross-check twin
-    if crosscheck:
+    if a["crosscheck"] and not xc:
+        raise ValueError(f"{a['test']}: no `crosscheck:` settings in its spec")
+    twins = {}
+    if a["crosscheck"]:
         settings = {k: v for k, v in xc.items() if k != "samples"}
         for j in list(jobs):
             twins[j.name] = replace(j, name=j.name + XCHECK, tb_text=numerics.apply(j.tb_text, settings))
             jobs.append(twins[j.name])
-    run_id = _dt.datetime.now().strftime("%Y%m%d-%H%M%S") + f"-{uuid.uuid4().hex[:4]}-{test_id}"
-    run_dir = REPO_ROOT / "build" / "runs" / run_id
-    rroot = "<R>" if dry else f"{remote.remote_root()}/{run_id}"
     decks, soa_plans = {}, {}
     for j in jobs:
         save = []
@@ -347,47 +392,370 @@ def run_test(test_id: str, block_name: str | None = None, corners: str = "typ",
             soa_plans[j.name] = soa.plan(block.name, test, j.tb_text, view_files(views), views)
             save = soa.deck_lines(soa_plans[j.name], j.tb_text)
         decks[j.name], _ = make_deck(j, rroot, views, needs_pdk, mcset and mcset["models"], save)
-    stage(run_dir, jobs, decks)
-    on_server = []                             # the SOA check runs where the waveforms are (soa_core.py)
+    remote_plans = {}                          # the SOA check runs where the waveforms are (soa_core.py)
     if isinstance(test.get("soa"), dict) and test["soa"].get("remote"):
         for j in jobs:
             plan = soa.remote_plan(soa_plans[j.name], j.tb_text)
             if plan:
-                (run_dir / "stage" / "jobs" / j.name / "soa_plan.json").write_text(json.dumps(plan), encoding="utf-8")
-                on_server.append(j.name)
-        if on_server:
-            shutil.copy2(Path(soa.__file__).with_name("soa_core.py"), run_dir / "stage" / "soa_core.py")
-    print(f"[adcflow] {test_id} ({block.name}): {len(jobs)} job(s), views={views or 'behav'}, "
-          f"pdk={'yes' if needs_pdk else 'no'}"
+                remote_plans[j.name] = plan
+    return Run(run_id, rroot, a, block, test, jobs, twins, xc, mcset, needs_pdk, decks, soa_plans, remote_plans)
+
+
+def _rel(p: Path) -> str:
+    try:
+        return str(p.relative_to(REPO_ROOT))
+    except ValueError:
+        return str(p)
+
+
+def stage_run(run: Run) -> None:
+    stage(run.run_dir, run.jobs, run.decks)
+    for name, plan in run.remote_plans.items():
+        (run.run_dir / "stage" / "jobs" / name / "soa_plan.json").write_text(json.dumps(plan), encoding="utf-8")
+    if run.remote_plans:
+        shutil.copy2(Path(soa.__file__).with_name("soa_core.py"), run.run_dir / "stage" / "soa_core.py")
+    mcset = run.mcset
+    print(f"[adcflow] {run.args['test']} ({run.block.name}): {len(run.jobs)} job(s), views={run.args['views'] or 'behav'}, "
+          f"pdk={'yes' if run.needs_pdk else 'no'}"
           + (f", Monte Carlo {mcset['runs']} samples (seed {mcset['seed']}, {mcset['variations']}"
-             f"{', models ' + mcset['models'] if needs_pdk else ', testbench stand-in'})" if mcset else "")
-          + f", staged in {run_dir.relative_to(REPO_ROOT)}")
+             f"{', models ' + mcset['models'] if run.needs_pdk else ', testbench stand-in'})" if mcset else "")
+          + f", staged in {_rel(run.run_dir)}")
+
+
+def staged_differences(run: Run) -> list[str]:
+    """What of a rebuilt run (prepare) differs from what was staged and simulated: the job
+    directories (testbench, deck, the files of `prepare`, the SOA plan) and every file the circuit
+    depends on (deps.run_reach) that is staged, as staged and as it is now. Empty: collect measures
+    and records the simulated circuit."""
+    st = run.run_dir / "stage"
+    staged = sorted(p.name for p in (st / "jobs").iterdir() if p.is_dir()) if (st / "jobs").is_dir() else []
+    if staged != sorted(j.name for j in run.jobs):
+        return [f"jobs: staged {staged}, rebuilt {sorted(j.name for j in run.jobs)}"]
+    out = []
+    for j in run.jobs:
+        jd = st / "jobs" / j.name
+        want = {"tb.scs": j.tb_text, "deck.scs": run.decks[j.name], **j.extra}
+        if j.name in run.remote_plans:
+            want["soa_plan.json"] = json.dumps(run.remote_plans[j.name])
+        have = {p.name for p in jd.iterdir() if p.is_file()}
+        out += [f"jobs/{j.name}/{f}" for f in sorted(have ^ set(want))]
+        out += [f"jobs/{j.name}/{f}" for f, text in want.items()
+                if f in have and (jd / f).read_bytes() != text.encode("utf-8")]
+    for f in deps.run_reach(run.test, run.args["views"]).files:
+        if f.split("/")[0] not in STAGE_DIRS:      # specs/soa.yaml: through the SOA plans above
+            continue
+        p = st / f
+        if not p.is_file() or content_hash(f, p.read_bytes()) != deps.file_hash(deps.DISK, f):
+            out.append(f)
+    return out
+
+
+# ------------------------------------------------------------------ the manifest of a run
+def manifest_path(run_id: str) -> Path:
+    return RUNS / run_id / MANIFEST
+
+
+def load_manifest(run_id: str) -> dict:
+    p = manifest_path(run_id)
+    if not p.is_file():
+        raise FileNotFoundError(f"{run_id}: no {_rel(p)}; a run that a launcher of before the manifest started "
+                                "is taken over with its own sim / verify command and --adopt <run_id>")
+    return json.loads(p.read_text(encoding="utf-8"))
+
+
+def save_manifest(man: dict) -> None:
+    p = manifest_path(man["run_id"])
+    tmp = p.with_suffix(".tmp")
+    tmp.write_text(json.dumps(man, indent=1) + "\n", encoding="utf-8", newline="\n")
+    tmp.replace(p)
+
+
+def _new_manifest(run: Run, verify: dict | None, job_timeout: float, adopted: bool = False) -> dict:
+    """What collect needs besides the staged run: its arguments, its server directory and jobs, the
+    job limit, and the commit and tree the decks were built from (meta.git, meta.git_clean)."""
+    return {"run_id": run.run_id, "state": SUBMITTED, "adopted": adopted,
+            "submitted": _dt.datetime.now().isoformat(timespec="seconds"),
+            "git": _git("rev-parse", "--short", "HEAD"), "git_state": git_state(), "args": run.args,
+            "verify": verify, "rroot": run.rroot, "jobs": [j.name for j in run.jobs], "job_timeout": job_timeout}
+
+
+@contextlib.contextmanager
+def _lock(run_dir: Path):
+    """One collect of a run at a time: an OS lock on <run>/collect.lock, which ends with its process."""
+    f = open(run_dir / "collect.lock", "a+b")
+    try:
+        f.seek(0)
+        try:
+            if os.name == "nt":
+                import msvcrt
+                msvcrt.locking(f.fileno(), msvcrt.LK_NBLCK, 1)
+            else:
+                import fcntl
+                fcntl.flock(f, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except OSError:
+            raise RunBusy(f"{run_dir.name}: another process collects it now") from None
+        yield
+    finally:
+        f.close()
+
+
+# ------------------------------------------------------------------ submit, wait, collect
+def submit(a: dict, verify: dict | None = None, dry: bool = False) -> str | None:
+    """Stage a run (run_args `a`), upload it and start its batch on the server (remote.launch), and
+    write its manifest; returns its run id (None for a dry run, which only stages). `verify`: what
+    collect needs to write the verification records (verify.verify)."""
+    if not dry:                                # before hours of simulation, not at the measure afterwards
+        from .spectrum import require_toolbox
+        require_toolbox()
+    run_id = _dt.datetime.now().strftime("%Y%m%d-%H%M%S") + f"-{uuid.uuid4().hex[:4]}-{a['test']}"
+    run = prepare(a, run_id, "<R>" if dry else f"{remote.remote_root()}/{run_id}")
+    stage_run(run)
     if dry:
-        return []
-    mode_args = remote.cfg()["modes"][mode]
-    job_timeout = timeout or float(test.get("timeout", remote.JOB_TIMEOUT_S))
+        return None
+    mode_args = remote.cfg()["modes"][a["mode"]]
+    job_timeout = a["timeout"] or float(run.test.get("timeout", remote.JOB_TIMEOUT_S))
+    man = _new_manifest(run, verify, job_timeout)
+    save_manifest(man)
     t0 = time.time()
     try:
-        remote.upload_tree(run_dir / "stage", rroot)
-        remote.run_jobs(rroot, [j.name for j in jobs], mode_args, parallel, job_timeout)
-        if on_server:
-            remote.soa_reduce(rroot, on_server, parallel)
-        skipped = remote.fetch(rroot, remote.cfg()["fetch"] + ["rc.txt"], run_dir,
+        remote.upload_tree(run.run_dir / "stage", run.rroot)
+        limit = remote.launch(run.rroot, man["jobs"], mode_args, a["parallel"], job_timeout,
+                              soa_jobs=list(run.remote_plans))
+    except BaseException:
+        print(f"[adcflow] {run_id}: starting it on the server failed; `python -m adcflow collect {run_id}` "
+              "tells whether it runs, `--discard` drops it")
+        raise
+    man.update(upload_s=round(time.time() - t0, 1), backstop_s=limit)
+    save_manifest(man)
+    print(f"[adcflow] {run_id}: runs on the server (each job at most {job_timeout:.0f} s, the batch {limit} s)")
+    return run_id
+
+
+def _staged_root(run_dir: Path, run_id: str) -> str:
+    """The server run directory that the staged decks of a run include from."""
+    for deck in sorted((run_dir / "stage" / "jobs").glob("*/deck.scs")):
+        m = re.search(r'^include "(.+)/jobs/[^/"]+/tb\.scs"$', deck.read_text(encoding="utf-8"), re.M)
+        if m and m.group(1).endswith("/" + run_id):
+            return m.group(1)
+    raise RunRefused(f"{run_id}: no staged deck in {_rel(run_dir / 'stage' / 'jobs')} includes its testbench "
+                     f"from a server directory .../{run_id}")
+
+
+def adopt(a: dict, run_id: str, verify: dict | None = None, dry: bool = False) -> str | None:
+    """Take over a run that a launcher of before the manifest started (it held one ssh session for the
+    whole batch) and that has no manifest: rebuild it from the same arguments `a` (run_args) in this
+    tree, check it against what it staged (staged_differences) and against its directory on the server
+    (the same jobs), and write its manifest, with the job limit of its own run_one.sh. It has no done
+    marker: collect takes it as ended once every job has its rc.txt and nothing runs in its
+    directory. Stop its old launcher first (the whole process tree), or both collect it.
+    With `dry` only the rebuild is checked (nothing on the server)."""
+    run_dir = RUNS / run_id
+    if manifest_path(run_id).exists():
+        raise RunRefused(f"{run_id} has a manifest already: python -m adcflow collect {run_id}")
+    if not dry:
+        from .spectrum import require_toolbox
+        require_toolbox()
+    run = prepare(a, run_id, _staged_root(run_dir, run_id))
+    diff = staged_differences(run)
+    if diff:
+        raise RunRefused(f"{run_id}: not the run of these arguments in this tree; differs from what it staged: "
+                         + ", ".join(diff[:10]) + (f" (+{len(diff) - 10})" if len(diff) > 10 else ""))
+    print(f"[adcflow] {run_id}: rebuilt as staged, {len(run.jobs)} job(s)")
+    if dry:
+        return None
+    st = remote.status(run.rroot)
+    if not st["exists"]:
+        raise RunRefused(f"{run_id}: its run directory is not on the server (collected already, or deleted)")
+    names = [j.name for j in run.jobs]
+    if st["jobs"] != names:
+        raise RunRefused(f"{run_id}: the server's jobs.list has {st['jobs']}, the rebuilt run {names}")
+    job_timeout = st["job_timeout"] or a["timeout"] or float(run.test.get("timeout", remote.JOB_TIMEOUT_S))
+    man = _new_manifest(run, verify, job_timeout, adopted=True)
+    save_manifest(man)
+    print(f"[adcflow] {run_id}: adopted ({st['ended']} of {len(names)} job(s) ended, {st['live']} process(es) "
+          f"running in it, each job at most {job_timeout:.0f} s)")
+    return run_id
+
+
+def _batch_state(st: dict, n_jobs: int) -> str:
+    """running | ended | dead of a run directory (remote.status): ended once its done marker is
+    there, or (a run adopted from a launcher that writes none) once every job has its rc.txt and
+    nothing runs in it; dead when nothing runs in it and jobs are left without rc.txt."""
+    if st["done"]:
+        return "ended"
+    if st["live"]:
+        return "running"
+    return "ended" if st["ended"] >= n_jobs else "dead"
+
+
+def _wall(man: dict, st: dict) -> float | None:
+    """meta.wall_s: the batch on the server (start to end, done marker) plus the upload; for an
+    adopted run, from its jobs.list to its latest rc.txt."""
+    if st["done"] and len(st["done"]) == 3:
+        return round(st["done"][2] - st["done"][1] + man.get("upload_s", 0.0), 1)
+    if st["start"] and st["last"]:
+        return round(float(st["last"] - st["start"]), 1)
+    return None
+
+
+def _remove(man: dict) -> None:
+    """Delete the run directory on the server (remote.remove: only fetched, with nothing running in it)."""
+    if man["args"]["keep"]:
+        return
+    try:
+        remote.remove(man["rroot"])
+        man["removed"] = True
+    except (RuntimeError, subprocess.TimeoutExpired) as e:
+        print(f"[adcflow] {man['run_id']}: not deleted on the server ({str(e)[-300:]}); "
+              f"a later `python -m adcflow collect {man['run_id']}` tries again")
+    save_manifest(man)
+
+
+def collect(run_id: str, discard: bool = False, quiet: bool = False) -> dict:
+    """Collect a run once its batch ended on the server: fetch its files, measure and record its
+    results (or write the verification records, verify.finish), then delete its run directory
+    there. Idempotent: a run that is still running is only reported; a collected one again is.
+
+    Returns {"state", "code", ...}: running (with `ended` and `jobs`), dead (nothing runs and jobs
+    never ended: nothing is recorded; `discard` drops it), missing (no run directory on the server),
+    collected (`summary`: the rows as run_test returns them; `code` 1 for an error result or a
+    mismatch), discarded. A batch ended by its backstop raises remote.RunTimeout and one that failed
+    otherwise RuntimeError, after its files are fetched (for a look) and nothing is recorded.
+
+    The rebuilt run must be as staged (staged_differences), else RunRefused and the run stays as it
+    is. Fetch and record come before the deletion, which never touches a directory where something
+    runs; a failed ssh raises remote.RemoteError and the run stays as it is, to be collected again."""
+    run_dir = RUNS / run_id
+    load_manifest(run_id)
+    with _lock(run_dir):
+        man = load_manifest(run_id)
+        a = man["args"]
+        if man["state"] != SUBMITTED:
+            if not man.get("removed") and not a["keep"]:
+                _remove(man)
+            if not quiet:
+                print(f"[adcflow] {run_id}: {man['state']} ({man.get('collected', '')})")
+            return {"state": man["state"], "code": man.get("code", 0), "summary": None}
+        st = remote.status(man["rroot"])
+        n = len(man["jobs"])
+        if not st["exists"]:
+            print(f"[adcflow] {run_id}: its run directory is not on the server; nothing to collect"
+                  + ("" if discard else f" (`python -m adcflow collect --discard {run_id}` forgets it)"))
+            if discard:
+                man.update(state=DISCARDED, collected=_now(), removed=True)
+                save_manifest(man)
+                return {"state": DISCARDED, "code": 0}
+            return {"state": "missing", "code": 1}
+        state = _batch_state(st, n)
+        if state == "running":
+            if not quiet or discard:
+                print(f"[adcflow] {run_id}: running, {st['ended']} of {n} job(s) ended"
+                      + (": not discarded" if discard else ""))
+            return {"state": "running", "code": 0, "ended": st["ended"], "jobs": n}
+        if state == "dead" and not discard:
+            print(f"[adcflow] {run_id}: nothing runs in it and {n - st['ended']} of {n} job(s) never ended "
+                  f"(the batch was stopped); nothing recorded. `python -m adcflow collect --discard {run_id}` drops it")
+            return {"state": "dead", "code": 1}
+        for note in st["notes"]:
+            print(f"[adcflow] {note}")
+        run = None
+        if not discard:
+            run = prepare(a, run_id, man["rroot"])
+            diff = staged_differences(run)
+            if diff:
+                raise RunRefused(f"{run_id}: this tree no longer builds the run that was simulated; changed since "
+                                 f"it was staged: {', '.join(diff[:10])}. Restore them and collect it again")
+            if run.remote_plans and not st["done"]:      # a launcher of before launch.sh: its SOA step
+                remote.soa_reduce(man["rroot"], list(run.remote_plans), a["parallel"])
+        skipped = remote.fetch(man["rroot"], remote.cfg()["fetch"] + ["rc.txt"], run_dir,
                                float(remote.cfg()["fetch_max_mb"]))
         if skipped:
             print("[adcflow] skipped large files:", *skipped, sep="\n  ")
-    finally:
-        if not keep:
-            remote.remove(rroot)
-    wall = time.time() - t0
+        remote.mark_fetched(man["rroot"])
+        rc = st["done"][0] if st["done"] else "0"
+        if discard or rc != "0":
+            man.update(state=DISCARDED if discard else FAILED, collected=_now(), batch_rc=rc)
+            save_manifest(man)
+            _remove(man)
+            if discard:
+                print(f"[adcflow] {run_id}: discarded, nothing recorded (its files are in {_rel(run_dir)})")
+                return {"state": DISCARDED, "code": 0}
+            if rc in remote.TIMEOUT_RCS:
+                raise remote.RunTimeout(f"the batch ran past its backstop on the server (jobs limited to "
+                                        f"{man['job_timeout']:.0f} s each) and was killed there, nothing recorded")
+            raise RuntimeError(f"the batch failed on the server (rc {rc}), nothing recorded")
+        summary = _measure(run, man, st)
+        code = 1 if any("error" in r["metrics"] for r in summary) else 0
+        if man.get("verify"):
+            from . import verify as vf
+            v = man["verify"]
+            code = vf.finish(a["test"], run.block.name, v["candidate"], vf.load_docs(v["docs"]), summary,
+                             _wall(man, st))
+        man.update(state=COLLECTED, collected=_now(), code=code)
+        save_manifest(man)
+        _remove(man)
+        return {"state": COLLECTED, "code": code, "summary": summary}
+
+
+def _now() -> str:
+    return _dt.datetime.now().isoformat(timespec="seconds")
+
+
+def wait(run_id: str) -> dict:
+    """Wait until the batch of a run ends on the server, then collect it (collect's result).
+
+    The server is asked every POLL_S (growing from the first to the second value), each time with one
+    short ssh call. One that fails is reported and asked again later: a lost connection, a sleeping
+    PC or an ssh timeout neither stops the batch nor deletes anything. Ctrl-C stops the waiting only."""
+    pause, seen = POLL_S[0], None
+    try:
+        while True:
+            try:
+                res = collect(run_id, quiet=True)
+            except RunBusy:                        # another process collects it: look again later
+                res = {"state": "running", "ended": seen, "jobs": None}
+            except (remote.RemoteError, subprocess.TimeoutExpired) as e:
+                print(f"[adcflow] {run_id}: no answer from the server ({str(e).strip()[-300:]}); "
+                      f"asking again in {pause:.0f} s", flush=True)
+                res = None
+            if res and res["state"] != "running":
+                return res
+            if res and res["ended"] != seen:
+                seen = res["ended"]
+                print(f"[adcflow] {run_id}: {seen} of {res['jobs']} job(s) ended", flush=True)
+            time.sleep(pause)
+            pause = min(pause * 1.5, POLL_S[1])
+    except KeyboardInterrupt:
+        print(f"\n[adcflow] stopped waiting; {run_id} goes on on the server: python -m adcflow collect {run_id}")
+        raise
+
+
+def pending() -> list[str]:
+    """Runs with a manifest that collect has more to do for: not collected yet, or not yet deleted on the server."""
+    out = []
+    for p in sorted(RUNS.glob(f"*/{MANIFEST}")):
+        m = json.loads(p.read_text(encoding="utf-8"))
+        if m["state"] == SUBMITTED or not (m.get("removed") or m["args"]["keep"]):
+            out.append(m["run_id"])
+    return out
+
+
+def _measure(run: Run, man: dict, st: dict) -> list[dict]:
+    """Measure the fetched jobs of a run and record their results (run_args do_record); the rows of run_test."""
+    from .figures import FigureSink          # matplotlib: only where figures are drawn, not for deps / checks
+    from .spectrum import require_toolbox
+    require_toolbox()
+    a, block, test, mcset = run.args, run.block, run.test, run.mcset
+    test_id, run_dir, rroot, do_record = a["test"], run.run_dir, run.rroot, a["do_record"]
+    jobs, twins, xc, soa_plans = run.jobs, run.twins, run.xc, run.soa_plans
     meta_base = {
-        "date": _dt.datetime.now().isoformat(timespec="seconds"),
-        "git": _git("rev-parse", "--short", "HEAD"),
-        **git_state(),
-        "mode": mode, "pdk": needs_pdk, "mc": mcset, "wall_s": round(wall, 1),
+        "date": _now(),
+        "git": man["git"],                     # the commit and tree the decks were built from
+        **man["git_state"],
+        "mode": a["mode"], "pdk": run.needs_pdk, "mc": mcset, "wall_s": _wall(man, st),
     }
     summary = []
-    viewsig = _viewsig(block, views)
+    viewsig = _viewsig(block, a["views"])
     done = {}
     for j in jobs:
         jd = run_dir / "jobs" / j.name
@@ -410,7 +778,7 @@ def run_test(test_id: str, block_name: str | None = None, corners: str = "typ",
                 # the others count as failed (the run's error is recorded as well)
                 metrics = measure(test, jd, ctx) if rc[0] == "0" or mcset else {}
             if rc[0] != "0":
-                metrics["error"] = job_error(rc[0], errs, job_timeout)
+                metrics["error"] = job_error(rc[0], errs, man["job_timeout"])
             if "error" in metrics:                 # never record server (or local) paths
                 metrics["error"] = str(metrics["error"]).replace(rroot, "<run>").replace(str(run_dir), "<run>")
         except Exception as e:  # keep going, record the failure
@@ -419,7 +787,7 @@ def run_test(test_id: str, block_name: str | None = None, corners: str = "typ",
         # what the simulated circuit depends on (deps.py): the files the testbench reaches and the
         # arch values read by `prepare` and the measure. The block spec is not hashed: limits are
         # re-judged at check time and the test parameters are recorded with the result.
-        meta.update(deps.record_meta(test, views, j.arch_keys | measure_keys))
+        meta.update(deps.record_meta(test, a["views"], j.arch_keys | measure_keys))
         if ctx.get("provenance"):                  # estimators the measure used (e.g. adcflow.spectrum)
             meta["provenance"] = ctx["provenance"]
         done[j.name] = (j, metrics, meta, figs.entries)
@@ -439,6 +807,35 @@ def run_test(test_id: str, block_name: str | None = None, corners: str = "typ",
     for name in twins:
         _print_crosscheck(name, done[name][2]["crosscheck"])
     return summary
+
+
+def run_test(test_id: str, block_name: str | None = None, corners: str = "typ",
+             views: dict | None = None, params: dict | None = None, mode: str = "ax",
+             parallel: int = 6, keep: bool = False, do_record: bool = True, dry: bool = False,
+             mc: dict | None = None, timeout: float | None = None, crosscheck: bool = False,
+             detach: bool = False, adopt_id: str | None = None) -> list[dict]:
+    """Run a test at the corners of `corners`; with `crosscheck` every job runs a second time
+    with the test's `crosscheck:` settings (numerics.py) and only the first is recorded, with the
+    differences in its meta.crosscheck. A test with `montecarlo:` runs its samples (mc_settings;
+    `mc` overrides its runs and seed). Each job runs at most `timeout` s (default: the test's
+    `timeout:`, else remote.JOB_TIMEOUT_S); a job ended by it fails, the others are measured as
+    usual. Returns one row per job: job, corner, rc, metrics, out (the
+    recorded file, None without recording), params, globals and meta (as a result records them).
+
+    The batch runs on the server by itself (submit); this waits for it and collects it (wait,
+    collect). With `detach` it returns [] once the batch is started (`adcflow collect` later);
+    `adopt_id` takes over a run that a launcher of before the manifest started (adopt)."""
+    a = run_args(test_id, block_name, corners, views, params, mode, parallel, keep, do_record, mc, timeout, crosscheck)
+    run_id = adopt(a, adopt_id, dry=dry) if adopt_id else submit(a, dry=dry)
+    if run_id is None:
+        return []
+    if detach:
+        print(f"[adcflow] {run_id}: `python -m adcflow collect {run_id}` records it once it ended")
+        return []
+    res = wait(run_id)
+    if res["state"] != COLLECTED:
+        raise RuntimeError(f"{run_id}: {res['state']}, nothing recorded")
+    return res["summary"] or []
 
 
 XCHECK = "__xcheck"
@@ -587,7 +984,34 @@ def run_test_cli(a) -> int:
         k, v = p.split("=", 1)
         params[k] = v
     mc = {"runs": a.mc_runs, "seed": a.mc_seed} if a.mc_runs is not None or a.mc_seed is not None else None
-    summary = run_test(a.test, a.block, a.corners, views, params, a.mode, a.jobs, a.keep,
-                       not a.no_record, a.dry_run, mc=mc, crosscheck=a.crosscheck)
-    bad = [r for r in summary if "error" in r["metrics"]]
-    return 1 if bad else 0
+    args = run_args(a.test, a.block, a.corners, views, params, a.mode, a.jobs, a.keep, not a.no_record, mc,
+                    crosscheck=a.crosscheck)
+    run_id = adopt(args, a.adopt, dry=a.dry_run) if a.adopt else submit(args, dry=a.dry_run)
+    if run_id is None:
+        return 0
+    if a.detach:
+        print(f"[adcflow] {run_id}: `python -m adcflow collect {run_id}` records it once it ended")
+        return 0
+    res = wait(run_id)
+    return res["code"] if res["state"] == COLLECTED else 1
+
+
+def collect_cli(a) -> int:
+    """`adcflow collect`: each run once (or, with --wait, once it ended); 1 when one failed, was
+    refused, or has an error result or a mismatch. A run still running is reported, not an error."""
+    ids = list(dict.fromkeys([*a.run_id, *(pending() if a.all else [])]))
+    if not ids:
+        print("[adcflow] collect: no run waits to be collected")
+        return 0
+    rc = 0
+    for run_id in ids:
+        try:
+            res = wait(run_id) if a.wait else collect(run_id, discard=a.discard)
+        except (FileNotFoundError, RunRefused, RunBusy, remote.RunTimeout, remote.RemoteError,
+                subprocess.TimeoutExpired, RuntimeError) as e:
+            print(f"[adcflow] {run_id}: {e}")
+            rc = 1
+            continue
+        if res["state"] != "running" and (res.get("code") or res["state"] in (FAILED, "dead", "missing")):
+            rc = 1
+    return rc
