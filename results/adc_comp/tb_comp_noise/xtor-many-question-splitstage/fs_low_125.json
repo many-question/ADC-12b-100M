@@ -1,0 +1,119 @@
+{
+ "block": "adc_comp",
+ "test": "tb_comp_noise",
+ "view": "xtor-many-question-splitstage",
+ "corner": "fs_low_125",
+ "params": {},
+ "globals": {
+  "vdd": 0.81,
+  "vdd18": 1.62,
+  "tempc": 125.0,
+  "noise_en": 1,
+  "devnoise": 1,
+  "beh_speed": 1.0,
+  "vref_in": 0.9,
+  "cdac_behav": 1,
+  "comp_behav": 0
+ },
+ "metrics": {
+  "p1": [
+   0.0039,
+   0.0137,
+   0.0352,
+   0.084,
+   0.127,
+   0.207,
+   0.291,
+   0.3574,
+   0.4609,
+   0.5996,
+   0.6992,
+   0.8066,
+   0.8828,
+   0.957,
+   0.9902,
+   0.9902,
+   1.0
+  ],
+  "n_per_level": 512,
+  "noise_uV": 325.0388413768936,
+  "noise_ci95_uV": [
+   314.06,
+   336.56
+  ],
+  "offset_abs_mV": 0.003407580757166038,
+  "offset_mV": -0.003407580757166038
+ },
+ "specs": {
+  "CMP-13": {
+   "metric": "noise_uV",
+   "value": 325.0388413768936,
+   "limit": "<= 240",
+   "pass": false
+  },
+  "CMP-02": {
+   "metric": "offset_abs_mV",
+   "value": 0.003407580757166038,
+   "limit": "<= 2",
+   "pass": true
+  }
+ },
+ "specs_na": {
+  "CMP-01": {
+   "metric": "noise_uV",
+   "value": 325.0388413768936,
+   "limit": "<= 200",
+   "corners": "typ"
+  }
+ },
+ "figures": [
+  {
+   "file": "fs_low_125.noise.png",
+   "caption": "Probability of OUTP = 1 against input difference with the binomial maximum-likelihood probit fit that gives the input-referred noise and offset, the 95 % interval of the noise and the curve at the noise limit; fit residuals against the binomial scatter."
+  }
+ ],
+ "meta": {
+  "date": "2026-11-01T11:52:17",
+  "git": "0e360b7",
+  "git_clean": true,
+  "mode": "aps",
+  "pdk": true,
+  "mc": null,
+  "wall_s": 972.031,
+  "rc": "0",
+  "sim_s": "855",
+  "numerics": {
+   "source": "spectre.log",
+   "reltol": 0.0001,
+   "maxstep_ps": 34817.0,
+   "method": "gear2only",
+   "errpreset": "conservative",
+   "lteratio": 10.0,
+   "relref": "alllocal",
+   "abstol_V": 1e-06,
+   "steps_accepted": 2451799,
+   "step_mean_ps": 1.42006,
+   "step_max_ps": null
+  },
+  "source_sha256": "8d300f399e0ff5b9f2273ba23c166ce6de63aa8218da1dd434ad4b2225d00621",
+  "output_only_diagnostics": {
+   "explicit_saves": 0,
+   "sampler_only": true,
+   "official_tb_sha256": "0581129395ea63c8ff1be866ad25f5200a9b6662e8e20a0f1392646833ec37dc",
+   "staged_tb_sha256": "bc81523f63d39646bf2b60903399edddeb6d15e6916c12980cdd243666317081",
+   "source_commit": "0e360b771b3e90912a711341289adf5d2cfb61c1"
+  },
+  "files": {
+   "tb/comp/tb_comp_noise.scs": "7f1b50d1b19a5653",
+   "tb/common/veriloga/tb_sampler_va.va": "4092bc16170c588d",
+   "design/xtor/adc_comp/many-question-splitstage/adc_comp.scs": "539043ed0964eba8"
+  },
+  "arch": {
+   "keys": [],
+   "sha": "44136fa355b3678a"
+  },
+  "views": {
+   "adc_comp": "xtor:many-question-splitstage"
+  }
+ }
+}
