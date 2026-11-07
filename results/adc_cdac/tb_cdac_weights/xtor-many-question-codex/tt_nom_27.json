@@ -1,0 +1,155 @@
+{
+ "block": "adc_cdac",
+ "test": "tb_cdac_weights",
+ "view": "xtor-many-question-codex",
+ "corner": "tt_nom_27",
+ "params": {},
+ "globals": {
+  "vdd": 0.9,
+  "vdd18": 1.8,
+  "tempc": 27.0,
+  "noise_en": 0,
+  "devnoise": 1,
+  "beh_speed": 1.0,
+  "vref_in": 0.9,
+  "cdac_behav": 0,
+  "comp_behav": 1
+ },
+ "metrics": {
+  "top_gain": 0.8958462594057499,
+  "weights_lsb": [
+   980.853,
+   560.4884,
+   318.2714,
+   180.158,
+   102.0869,
+   56.9524,
+   32.0282,
+   18.0155,
+   10.0085,
+   6.0051,
+   2.906,
+   2.0015,
+   0.9046
+  ],
+  "weight_err_max_pct": 9.609419301460198,
+  "h_l_asym_pct": 0.5163899034343222,
+  "fs_peak_V": 0.9936891054697262,
+  "cal_margin_lsb": 0.36925073409620507,
+  "cal_margin_per_decision_lsb": [
+   308.9835,
+   169.3457,
+   93.5977,
+   51.7682,
+   27.8944,
+   15.9826,
+   9.1297,
+   5.1774,
+   3.2122,
+   1.2378,
+   1.2588,
+   0.3693,
+   0.3839
+  ],
+  "enob_loss_cal_bit": 0.0006991620525269582,
+  "enob_loss_nom_bit": 0.23961705762095775,
+  "cs_pF": 2.06513483775
+ },
+ "specs": {
+  "DAC-01": {
+   "metric": "cs_pF",
+   "value": 2.06513483775,
+   "limit": "1.98 .. 2.12",
+   "pass": true
+  },
+  "DAC-02": {
+   "metric": "fs_peak_V",
+   "value": 0.9936891054697262,
+   "limit": ">= 0.97",
+   "pass": true
+  },
+  "DAC-03": {
+   "metric": "cal_margin_lsb",
+   "value": 0.36925073409620507,
+   "limit": ">= 0",
+   "pass": true
+  },
+  "DAC-14": {
+   "metric": "enob_loss_cal_bit",
+   "value": 0.0006991620525269582,
+   "limit": "<= 0.02",
+   "pass": true
+  },
+  "DAC-04": {
+   "metric": "top_gain",
+   "value": 0.8958462594057499,
+   "limit": ">= 0.78",
+   "pass": true
+  }
+ },
+ "figures": [
+  {
+   "file": "tt_nom_27.weights.png",
+   "caption": "tb_cdac_weights evidence for tt_nom_27 (weights)."
+  }
+ ],
+ "meta": {
+  "date": "2026-11-06T14:37:50",
+  "git": "82fa1098",
+  "git_clean": false,
+  "git_dirty_paths": [
+   "design/xtor/adc_cdac/many-question-codex/adc_cdac.scs"
+  ],
+  "mode": "aps",
+  "pdk": true,
+  "mc": null,
+  "wall_s": 57.1,
+  "rc": "0",
+  "sim_s": "51",
+  "numerics": {
+   "source": "spectre.log",
+   "reltol": 0.0001,
+   "maxstep_ps": 2910.0,
+   "method": "gear2only",
+   "errpreset": "conservative",
+   "lteratio": 10.0,
+   "relref": "alllocal",
+   "abstol_V": 1e-06,
+   "steps_accepted": 22021,
+   "step_mean_ps": 13.2147,
+   "step_max_ps": null
+  },
+  "files": {
+   "tb/cdac/tb_cdac_weights.scs": "d5b85b9c565bf8ea",
+   "design/behav/veriloga/adc_clkgen_va.va": "7fff1b9368bc1a20",
+   "tb/common/veriloga/tb_imeter_va.va": "d4be49aca417ad61",
+   "tb/common/veriloga/tb_sampler_va.va": "4092bc16170c588d",
+   "tb/common/veriloga/tb_cdac_seq_va.va": "800f16f07345b3b9",
+   "design/behav/veriloga/adc_bootstrap_va.va": "12338aad16f4913b",
+   "design/xtor/adc_cdac/many-question-codex/adc_cdac.scs": "13f9ef85f31580d6"
+  },
+  "arch": {
+   "keys": [
+    "*"
+   ],
+   "sha": "05899cd622401f94"
+  },
+  "views": {
+   "adc_cdac": "xtor:many-question-codex"
+  },
+  "evidence": {
+   "run": "20261106-143651-e022-tb_cdac_weights",
+   "archive_sha256": "11629791d7ce18c323e393a5abca023feb26d92a1c29933f6ec863abb99154ed",
+   "source_sha256": "42645fb6930b8f673c29fd3b62c26a79159669f27249987c21e2a6288b5cf281",
+   "staged_tb_sha256": "d134720a53789cc86ea29e598470551661ba05414ed09e3ab4abac67db8da22f",
+   "warnings_printed": {
+    "CMI-2751": 5,
+    "CMI-2753": 5,
+    "CMI-2754": 5,
+    "CMI-2755": 5,
+    "SFE-1131": 5,
+    "VACOMP-2435": 1
+   }
+  }
+ }
+}
