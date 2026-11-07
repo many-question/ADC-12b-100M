@@ -173,6 +173,10 @@ Both 256-point variants retain the two timing changes and use the same phase obs
 
 Verified private cold archives are `165643-f563` (`d5d7b0a1786a60c65eae8f36292bd4a8f5367e8b7f2479c4616ed0d259b0e240`) and `172042-6fd1` (`6871ec71712551cff0777279a4fcb302311bfdcfbc5e3350f1d9a8b322c9c122`).
 
+On the exact 3/2-finger source, the matched 44-point reset diagnostic adds 1/120 S from TOP to VCM during tracking and measures zero added current after 5.016 ns. Late-track TOP-to-VCM RMS falls 26% on both sides. Reset crossings shift at most 0.0134 ps, 90–10 fall time 0.0109 ps and signed gate charge 0.0065 fC. At 5.055 ns TOP and the bit-12 capacitor voltage proxy change by up to 1.09 and 2.56 mV. Reset drain terminal charge during release changes by up to 0.814 fC, including displacement current. The intervention therefore changes the initial electrical state seen by the original release circuit.
+
+In the full-record phase convention, the fixed 5.400 ns H5 projection moves from `(30.65, −63.59)` to `(18.86, −51.79)` µV. The final projection is 55.12 µV peak and the 44-point residual drops from 57.22 to 46.50 µV RMS. The sampler times differ by up to 1.2 fs, slightly outside the 1 fs comparison bound. The fixed-time result reproduces the sample vector change to within 0.001 µV. Fitted fundamental amplitude increases 0.55 mV and phase advances 0.350°. The final H5 misses the preregistered 45 µV screen, so no physical resize or further spectrum was triggered. These finite diagnostic projections provide no qualification credit. Verified runs `183028-06cb` and `183028-2931`.
+
 ## PVT matrix
 
 Pass and fail refer to applicable checks on this source. Pending cells require current-source results. The V29 results use a different source hash and remain in the historical record.
