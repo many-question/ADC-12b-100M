@@ -162,6 +162,8 @@ The private timing screen uses APS Gear2 with lteratio 20 and effective 1e-7 / 1
 
 The same combined source `4a2a3149…e7e1` gives RL12/start of 38.9/98.3 ps at hot SS and 38.6/86.7 ps at cold SS. The hot CONV load changes from 14.34 to 17.57 fF and measured VREFP charge from 1.976 to 1.977 pC. The combined source is a timing candidate pending joint cold H5, SOA and coverage verification. The official matrix continues to describe the current formal source.
 
+The formal-source phase observer records all 256 cycles. The TOP H5 magnitude is 50.3 µV at 5.040 ns within a cycle, 120.3 µV at 5.055 ns, 254.7 µV at 5.078 ns around reset and sharing release, 147.2 µV just before reference enable, and 76.8 µV after reference settling. The final sample is 77.1 µV. These are changes of a coherent vector at fixed phases. The observer changes the final sample residual by 1.78 µV RMS after removal of DC and the fundamental. Matched reference timing and input slew shifts affect transient peaks and move the final 20-point residual by 0.024 and 0.002 µV RMS respectively. Smaller top-two sharing devices lower the 32-point residual from 73.1 to 65.7 µV RMS on the timing candidate. That exact source retains 38.8/98.1 ps hot RL12/start and 38.5/86.5 ps cold. Full candidate spectrum is pending.
+
 ## PVT matrix
 
 Pass and fail refer to applicable checks on this source. Pending cells require current-source results. The V29 results use a different source hash and remain in the historical record.
