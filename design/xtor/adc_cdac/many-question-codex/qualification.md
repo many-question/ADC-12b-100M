@@ -156,6 +156,12 @@ Three same-source diagnostics complete 2.605 µs with 256 samples each. All use 
 
 The two Gear2 records differ by 2.30 µV RMS across all samples. Relative to Traponly, the Gear2 differences are 4.31 and 4.38 µV RMS with peaks of 9.15 and 10.79 µV. The printed sample time differences are at most 1 fs. Folded H5 at bin 113 is the largest spur in all three. The crosscheck spreads of 0.083 dB SFDR and 0.085 dB SNDR are small compared with the deficits to the 84 dBc and 80 dB limits. The finite-step Traponly run supplies an independent numerical comparison. Gear2 with lteratio 20 is the tighter of the tested LTE alternatives for continued diagnosis. The physical cause of the original collapse and the cold tracking distortion remain open. The official Gear2 baseline and the PVT matrix below retain their existing qualification status.
 
+### Local timing repair screen
+
+The private timing screen uses APS Gear2 with lteratio 20 and effective 1e-7 / 10 nV. The hot matched control measures RL12 at 43.3 ps and conversion start at 104.3 ps. The original formal settings give 43.3 and 103.7 ps. Changing only the lower bit-12 controller pull-down from 2 to 4 µm reduces RL12 to 38.9 ps. Changing only the shared enable predriver pull-down from 6 to 10 µm reduces hot start to 98.3 ps. Both use 30 nm ULVT NMOS with the original 2 µm finger width. The output devices keep their original geometry.
+
+The same combined source `4a2a3149…e7e1` gives RL12/start of 38.9/98.3 ps at hot SS and 38.6/86.7 ps at cold SS. The hot CONV load changes from 14.34 to 17.57 fF and measured VREFP charge from 1.976 to 1.977 pC. The combined source is a timing candidate pending joint cold H5, SOA and coverage verification. The official matrix continues to describe the current formal source.
+
 ## PVT matrix
 
 Pass and fail refer to applicable checks on this source. Pending cells require current-source results. The V29 results use a different source hash and remain in the historical record.

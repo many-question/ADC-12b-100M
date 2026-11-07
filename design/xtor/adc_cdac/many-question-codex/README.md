@@ -6,6 +6,8 @@ The [formal source](adc_cdac.scs) uses a 14 um / 40 nm LVT reset driven by the i
 
 Cold Gear2 still stops at 60.0983 ns on the formal bench. The voltage-only replay reproduces the failure. The paired local stack, driver and bottom-plate replays leave the full-circuit convergence mechanism unresolved. [Cold replay boundaries and archives](qualification.md#reduced-replay)
 
+The complete cold numerical crosscheck finds a consistent H5 deficit. A private combined predriver change passes the two SS timing screens. Cold H5 localization and joint verification are in progress. [Numerical crosscheck and timing screen](qualification.md#full-length-cold-numerical-crosscheck)
+
 ## V29 and preceding experiments
 
 The records below describe the historical baseline and earlier circuit variants. The [V29 source and official records](https://github.com/many-question/ADC-12b-100M/tree/7fb3ce84ae0f7e8ea161cd7ec514895f8276ec20) are retained at their original commit.
