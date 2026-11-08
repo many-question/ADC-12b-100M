@@ -6,7 +6,7 @@ The [formal source](adc_cdac.scs) uses a 14 um / 40 nm LVT reset driven by the i
 
 Cold Gear2 still stops at 60.0983 ns on the formal bench. The voltage-only replay reproduces the failure. The paired local stack, driver and bottom-plate replays leave the full-circuit convergence mechanism unresolved. [Cold replay boundaries and archives](qualification.md#reduced-replay)
 
-The private timing repair passes both SS screens. Its best physical variant gives 81.01 dBc SFDR and 79.75 dB SNDR at cold SS, below 84/80. The bit-12 charge estimate shows a quadrature H5 component during tracking that persists through release. [Cold crosscheck and charge budget](qualification.md#full-length-cold-numerical-crosscheck)
+The private timing repair passes both SS screens and gives 81.01 dBc SFDR and 79.75 dB SNDR at cold SS. A track-assist prototype lowers short-record H5 but fails both cold supply SOA gates. [Cold crosscheck and track assist](qualification.md#full-length-cold-numerical-crosscheck)
 
 ## V29 and preceding experiments
 
