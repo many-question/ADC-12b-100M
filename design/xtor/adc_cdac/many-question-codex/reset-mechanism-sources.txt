@@ -1,0 +1,464 @@
+Reproduction patches: normalize functional Spectre lines (strip comments, join continuations) first.
+No PDK content. Canonical and case SHA256 are in reset-mechanism.md.
+
+--- canonical-V29-functional
++++ B-all-others-ideal-N6
+@@ -28,8 +28,8 @@
+ MGPP (GP PCOND VREFP VREFP) pch_mac w=1.2e-05 l=3e-08 nf=6
+ MGNN (GN NOFF VREFN VSS) nch_ulvt_mac w=8e-06 l=3e-08 nf=4
+ MGNP (GN NOFF VREFP VREFP) pch_mac w=4e-06 l=3e-08 nf=2
+-MNOUT (BP GN VREFN VSS) nch_mac w=2.025e-05 l=3e-08 nf=10
+-MPOUT (BP GP VREFP VREFP) pch_mac w=4.05e-05 l=3e-08 nf=20
++IDIAG_MNOUT (BP VREFN GN VREFN VREFP VSS) cdac_diag_switch ron=30 roff=1e12 active_high=1 bootstrap=0 band=0.1
++IDIAG_MPOUT (BP VREFP GP VREFN VREFP VSS) cdac_diag_switch ron=30 roff=1e12 active_high=0 bootstrap=0 band=0.1
+ MNDAP (AP ENB VREFN VSS) nch_ulvt_mac w=1e-06 l=3e-08 nf=1
+ C_APLOAD (VSS AP) cfmom_2t w=5e-08 s=2.4e-07 nr=6 lr=1.69e-06 stm=2 spm=4 multi=50
+ CP_APLOAD (AP VSS) capacitor c=2.505725e-15
+@@ -48,8 +48,8 @@
+ MGPP (GP PCOND VREFP VREFP) pch_mac w=6.86e-06 l=3e-08 nf=4
+ MGNN (GN NOFF VREFN VSS) nch_mac w=4.575e-06 l=3e-08 nf=3
+ MGNP (GN NOFF VREFP VREFP) pch_mac w=2.29e-06 l=3e-08 nf=2
+-MNOUT (BP GN VREFN VSS) nch_mac w=1.158e-05 l=3e-08 nf=6
+-MPOUT (BP GP VREFP VREFP) pch_mac w=2.316e-05 l=3e-08 nf=12
++IDIAG_MNOUT (BP VREFN GN VREFN VREFP VSS) cdac_diag_switch ron=52.4611398964 roff=1e12 active_high=1 bootstrap=0 band=0.1
++IDIAG_MPOUT (BP VREFP GP VREFN VREFP VSS) cdac_diag_switch ron=52.4611398964 roff=1e12 active_high=0 bootstrap=0 band=0.1
+ MNDAP (AP ENB VREFN VSS) nch_ulvt_mac w=5.75e-07 l=3e-08 nf=1
+ C_APLOAD (VSS AP) cfmom_2t w=5e-08 s=2.4e-07 nr=6 lr=1.69e-06 stm=2 spm=4 multi=12
+ CP_APLOAD (AP VSS) capacitor c=6.01374e-16
+@@ -68,8 +68,8 @@
+ MGPP (GP PCOND VREFP VREFP) pch_mac w=3.89e-06 l=3e-08 nf=2
+ MGNN (GN NOFF VREFN VSS) nch_mac w=2.6e-06 l=3e-08 nf=2
+ MGNP (GN NOFF VREFP VREFP) pch_mac w=1.3e-06 l=3e-08 nf=1
+-MNOUT (BP GN VREFN VSS) nch_mac w=6.56e-06 l=3e-08 nf=4
+-MPOUT (BP GP VREFP VREFP) pch_mac w=1.3125e-05 l=3e-08 nf=7
++IDIAG_MNOUT (BP VREFN GN VREFN VREFP VSS) cdac_diag_switch ron=92.6067073171 roff=1e12 active_high=1 bootstrap=0 band=0.1
++IDIAG_MPOUT (BP VREFP GP VREFN VREFP VSS) cdac_diag_switch ron=92.5714285714 roff=1e12 active_high=0 bootstrap=0 band=0.1
+ MNDAP (AP ENB VREFN VSS) nch_ulvt_mac w=3.25e-07 l=3e-08 nf=1
+ C_APLOAD (VSS AP) cfmom_2t w=5e-08 s=2.4e-07 nr=6 lr=1.69e-06 stm=2 spm=4 multi=7
+ CP_APLOAD (AP VSS) capacitor c=3.508015e-16
+@@ -88,8 +88,8 @@
+ MGPP (GP PCOND VREFP VREFP) pch_mac w=2.2e-06 l=3e-08 nf=2
+ MGNN (GN NOFF VREFN VSS) nch_mac w=1.47e-06 l=3e-08 nf=1
+ MGNP (GN NOFF VREFP VREFP) pch_mac w=7.35e-07 l=3e-08 nf=1
+-MNOUT (BP GN VREFN VSS) nch_mac w=1.113e-05 l=3e-08 nf=6
+-MPOUT (BP GP VREFP VREFP) pch_mac w=2.226e-05 l=3e-08 nf=12
++IDIAG_MNOUT (BP VREFN GN VREFN VREFP VSS) cdac_diag_switch ron=54.5822102426 roff=1e12 active_high=1 bootstrap=0 band=0.1
++IDIAG_MPOUT (BP VREFP GP VREFN VREFP VSS) cdac_diag_switch ron=54.5822102426 roff=1e12 active_high=0 bootstrap=0 band=0.1
+ MNDAP (AP ENB VREFN VSS) nch_ulvt_mac w=1.85e-07 l=3e-08 nf=1
+ C_APLOAD (VSS AP) cfmom_2t w=5e-08 s=2.4e-07 nr=6 lr=1.69e-06 stm=2 spm=4 multi=4
+ CP_APLOAD (AP VSS) capacitor c=2.00458e-16
+@@ -108,8 +108,8 @@
+ MGPP (GP PCOND VREFP VREFP) pch_mac w=1.25e-06 l=3e-08 nf=1
+ MGNN (GN NOFF VREFN VSS) nch_mac w=8.35e-07 l=3e-08 nf=1
+ MGNP (GN NOFF VREFP VREFP) pch_mac w=4.15e-07 l=3e-08 nf=1
+-MNOUT (BP GN VREFN VSS) nch_mac w=2.11e-06 l=3e-08 nf=2
+-MPOUT (BP GP VREFP VREFP) pch_mac w=4.215e-06 l=3e-08 nf=3
++IDIAG_MNOUT (BP VREFN GN VREFN VREFP VSS) cdac_diag_switch ron=287.914691943 roff=1e12 active_high=1 bootstrap=0 band=0.1
++IDIAG_MPOUT (BP VREFP GP VREFN VREFP VSS) cdac_diag_switch ron=288.256227758 roff=1e12 active_high=0 bootstrap=0 band=0.1
+ MNDAP (AP ENB VREFN VSS) nch_ulvt_mac w=1.2e-07 l=3e-08 nf=1
+ C_APLOAD (VSS AP) cfmom_2t w=5e-08 s=2.4e-07 nr=6 lr=1.69e-06 stm=2 spm=4 multi=3
+ CP_APLOAD (AP VSS) capacitor c=1.503435e-16
+@@ -128,8 +128,8 @@
+ MGPP (GP PCOND VREFP VREFP) pch_mac w=7e-07 l=3e-08 nf=1
+ MGNN (GN NOFF VREFN VSS) nch_mac w=4.65e-07 l=3e-08 nf=1
+ MGNP (GN NOFF VREFP VREFP) pch_mac w=2.35e-07 l=3e-08 nf=1
+-MNOUT (BP GN VREFN VSS) nch_mac w=1.18e-06 l=3e-08 nf=1
+-MPOUT (BP GP VREFP VREFP) pch_mac w=2.36e-06 l=3e-08 nf=2
++IDIAG_MNOUT (BP VREFN GN VREFN VREFP VSS) cdac_diag_switch ron=514.830508475 roff=1e12 active_high=1 bootstrap=0 band=0.1
++IDIAG_MPOUT (BP VREFP GP VREFN VREFP VSS) cdac_diag_switch ron=514.830508475 roff=1e12 active_high=0 bootstrap=0 band=0.1
+ MNDAP (AP ENB VREFN VSS) nch_ulvt_mac w=1.2e-07 l=3e-08 nf=1
+ C_APLOAD (VSS AP) cfmom_2t w=5e-08 s=2.4e-07 nr=6 lr=1.69e-06 stm=2 spm=4 multi=2
+ CP_APLOAD (AP VSS) capacitor c=1.00229e-16
+@@ -148,8 +148,8 @@
+ MGPP (GP PCOND VREFP VREFP) pch_mac w=3.9e-07 l=3e-08 nf=1
+ MGNN (GN NOFF VREFN VSS) nch_mac w=2.6e-07 l=3e-08 nf=1
+ MGNP (GN NOFF VREFP VREFP) pch_mac w=1.3e-07 l=3e-08 nf=1
+-MNOUT (BP GN VREFN VSS) nch_mac w=1.98e-06 l=3e-08 nf=3
+-MPOUT (BP GP VREFP VREFP) pch_mac w=3.975e-06 l=3e-08 nf=3
++IDIAG_MNOUT (BP VREFN GN VREFN VREFP VSS) cdac_diag_switch ron=306.818181818 roff=1e12 active_high=1 bootstrap=0 band=0.1
++IDIAG_MPOUT (BP VREFP GP VREFN VREFP VSS) cdac_diag_switch ron=305.660377358 roff=1e12 active_high=0 bootstrap=0 band=0.1
+ MNDAP (AP ENB VREFN VSS) nch_ulvt_mac w=1.2e-07 l=3e-08 nf=1
+ C_APLOAD (VSS AP) cfmom_2t w=5e-08 s=2.4e-07 nr=6 lr=1.69e-06 stm=2 spm=4 multi=1
+ CP_APLOAD (AP VSS) capacitor c=5.01145e-17
+@@ -168,8 +168,8 @@
+ MGPP (GP PCOND VREFP VREFP) pch_mac w=3.6e-07 l=3e-08 nf=1
+ MGNN (GN NOFF VREFN VSS) nch_mac w=2.4e-07 l=3e-08 nf=1
+ MGNP (GN NOFF VREFP VREFP) pch_mac w=1.2e-07 l=3e-08 nf=1
+-MNOUT (BP GN VREFN VSS) nch_mac w=6.1e-07 l=3e-08 nf=1
+-MPOUT (BP GP VREFP VREFP) pch_mac w=1.215e-06 l=3e-08 nf=1
++IDIAG_MNOUT (BP VREFN GN VREFN VREFP VSS) cdac_diag_switch ron=995.901639344 roff=1e12 active_high=1 bootstrap=0 band=0.1
++IDIAG_MPOUT (BP VREFP GP VREFN VREFP VSS) cdac_diag_switch ron=1000 roff=1e12 active_high=0 bootstrap=0 band=0.1
+ MNDAP (AP ENB VREFN VSS) nch_ulvt_mac w=1.2e-07 l=3e-08 nf=1
+ C_APLOAD (VSS AP) cfmom_2t w=5e-08 s=2.4e-07 nr=6 lr=1.69e-06 stm=2 spm=4 multi=1
+ CP_APLOAD (AP VSS) capacitor c=5.01145e-17
+@@ -188,8 +188,8 @@
+ MGPP (GP PCOND VREFP VREFP) pch_mac w=3.6e-07 l=3e-08 nf=1
+ MGNN (GN NOFF VREFN VSS) nch_mac w=2.4e-07 l=3e-08 nf=1
+ MGNP (GN NOFF VREFP VREFP) pch_mac w=1.2e-07 l=3e-08 nf=1
+-MNOUT (BP GN VREFN VSS) nch_mac w=6.1e-07 l=3e-08 nf=1
+-MPOUT (BP GP VREFP VREFP) pch_mac w=1.215e-06 l=3e-08 nf=1
++IDIAG_MNOUT (BP VREFN GN VREFN VREFP VSS) cdac_diag_switch ron=995.901639344 roff=1e12 active_high=1 bootstrap=0 band=0.1
++IDIAG_MPOUT (BP VREFP GP VREFN VREFP VSS) cdac_diag_switch ron=1000 roff=1e12 active_high=0 bootstrap=0 band=0.1
+ MNDAP (AP ENB VREFN VSS) nch_ulvt_mac w=1.2e-07 l=3e-08 nf=1
+ C_APLOAD (VSS AP) cfmom_2t w=5e-08 s=2.4e-07 nr=6 lr=1.69e-06 stm=2 spm=4 multi=1
+ CP_APLOAD (AP VSS) capacitor c=5.01145e-17
+@@ -208,8 +208,8 @@
+ MGPP (GP PCOND VREFP VREFP) pch_mac w=3.6e-07 l=3e-08 nf=1
+ MGNN (GN NOFF VREFN VSS) nch_mac w=2.4e-07 l=3e-08 nf=1
+ MGNP (GN NOFF VREFP VREFP) pch_mac w=1.2e-07 l=3e-08 nf=1
+-MNOUT (BP GN VREFN VSS) nch_mac w=6.1e-07 l=3e-08 nf=1
+-MPOUT (BP GP VREFP VREFP) pch_mac w=1.215e-06 l=3e-08 nf=1
++IDIAG_MNOUT (BP VREFN GN VREFN VREFP VSS) cdac_diag_switch ron=995.901639344 roff=1e12 active_high=1 bootstrap=0 band=0.1
++IDIAG_MPOUT (BP VREFP GP VREFN VREFP VSS) cdac_diag_switch ron=1000 roff=1e12 active_high=0 bootstrap=0 band=0.1
+ MNDAP (AP ENB VREFN VSS) nch_ulvt_mac w=1.2e-07 l=3e-08 nf=1
+ C_APLOAD (VSS AP) cfmom_2t w=5e-08 s=2.4e-07 nr=6 lr=1.69e-06 stm=2 spm=4 multi=1
+ CP_APLOAD (AP VSS) capacitor c=5.01145e-17
+@@ -228,8 +228,8 @@
+ MGPP (GP PCOND VREFP VREFP) pch_mac w=3.6e-07 l=3e-08 nf=1
+ MGNN (GN NOFF VREFN VSS) nch_mac w=2.4e-07 l=3e-08 nf=1
+ MGNP (GN NOFF VREFP VREFP) pch_mac w=1.2e-07 l=3e-08 nf=1
+-MNOUT (BP GN VREFN VSS) nch_mac w=6.1e-07 l=3e-08 nf=1
+-MPOUT (BP GP VREFP VREFP) pch_mac w=1.215e-06 l=3e-08 nf=1
++IDIAG_MNOUT (BP VREFN GN VREFN VREFP VSS) cdac_diag_switch ron=995.901639344 roff=1e12 active_high=1 bootstrap=0 band=0.1
++IDIAG_MPOUT (BP VREFP GP VREFN VREFP VSS) cdac_diag_switch ron=1000 roff=1e12 active_high=0 bootstrap=0 band=0.1
+ MNDAP (AP ENB VREFN VSS) nch_ulvt_mac w=1.2e-07 l=3e-08 nf=1
+ C_APLOAD (VSS AP) cfmom_2t w=5e-08 s=2.4e-07 nr=6 lr=1.69e-06 stm=2 spm=4 multi=1
+ CP_APLOAD (AP VSS) capacitor c=5.01145e-17
+@@ -248,8 +248,8 @@
+ MGPP (GP PCOND VREFP VREFP) pch_mac w=3.6e-07 l=3e-08 nf=1
+ MGNN (GN NOFF VREFN VSS) nch_mac w=2.4e-07 l=3e-08 nf=1
+ MGNP (GN NOFF VREFP VREFP) pch_mac w=1.2e-07 l=3e-08 nf=1
+-MNOUT (BP GN VREFN VSS) nch_mac w=1.6e-07 l=3e-08 nf=1
+-MPOUT (BP GP VREFP VREFP) pch_mac w=3.25e-07 l=3e-08 nf=1
++IDIAG_MNOUT (BP VREFN GN VREFN VREFP VSS) cdac_diag_switch ron=3796.875 roff=1e12 active_high=1 bootstrap=0 band=0.1
++IDIAG_MPOUT (BP VREFP GP VREFN VREFP VSS) cdac_diag_switch ron=3738.46153846 roff=1e12 active_high=0 bootstrap=0 band=0.1
+ MNDAP (AP ENB VREFN VSS) nch_ulvt_mac w=1.2e-07 l=3e-08 nf=1
+ C_APLOAD (VSS AP) cfmom_2t w=5e-08 s=2.4e-07 nr=6 lr=1.69e-06 stm=2 spm=4 multi=1
+ CP_APLOAD (AP VSS) capacitor c=5.01145e-17
+@@ -268,8 +268,8 @@
+ MGPP (GP PCOND VREFP VREFP) pch_mac w=3.6e-07 l=3e-08 nf=1
+ MGNN (GN NOFF VREFN VSS) nch_mac w=2.4e-07 l=3e-08 nf=1
+ MGNP (GN NOFF VREFP VREFP) pch_mac w=1.2e-07 l=3e-08 nf=1
+-MNOUT (BP GN VREFN VSS) nch_mac w=1.6e-07 l=3e-08 nf=1
+-MPOUT (BP GP VREFP VREFP) pch_mac w=3.25e-07 l=3e-08 nf=1
++IDIAG_MNOUT (BP VREFN GN VREFN VREFP VSS) cdac_diag_switch ron=3796.875 roff=1e12 active_high=1 bootstrap=0 band=0.1
++IDIAG_MPOUT (BP VREFP GP VREFN VREFP VSS) cdac_diag_switch ron=3738.46153846 roff=1e12 active_high=0 bootstrap=0 band=0.1
+ MNDAP (AP ENB VREFN VSS) nch_ulvt_mac w=1.2e-07 l=3e-08 nf=1
+ C_APLOAD (VSS AP) cfmom_2t w=5e-08 s=2.4e-07 nr=6 lr=1.69e-06 stm=2 spm=4 multi=1
+ CP_APLOAD (AP VSS) capacitor c=5.01145e-17
+@@ -295,45 +295,44 @@
+ subckt adc_cdac (VIN VG TOP VCM VREFP VREFN PHI_S PHI_SB CONV DH12 DH11 DH10 DH9 DH8 DH7 DH6 DH5 DH4 DH3 DH2 DH1 DH0 RL12 RL11 RL10 RL9 RL8 RL7 RL6 RL5 RL4 RL3 RL2 RL1 RL0 DVDD VSS)
+ XSW (VIN VG VREFP VREFN PHI_S PHI_SB CONV DH12 DH11 DH10 DH9 DH8 DH7 DH6 DH5 DH4 DH3 DH2 DH1 DH0 RL12 RL11 RL10 RL9 RL8 RL7 RL6 RL5 RL4 RL3 RL2 RL1 RL0 DVDD VSS BPH12 BPL12 BPH11 BPL11 BPH10 BPL10 BPH9 BPL9 BPH8 BPL8 BPH7 BPL7 BPH6 BPL6 BPH5 BPL5 BPH4 BPL4 BPH3 BPL3 BPH2 BPL2 BPH1 BPL1 BPH0 BPL0 MIDH7 MIDL7 MIDH2 MIDL2 MIDH0 MIDL0) mq_cdac_switch_array
+ XCAP (TOP BPH12 BPL12 BPH11 BPL11 BPH10 BPL10 BPH9 BPL9 BPH8 BPL8 BPH7 BPL7 BPH6 BPL6 BPH5 BPL5 BPH4 BPL4 BPH3 BPL3 BPH2 BPL2 BPH1 BPL1 BPH0 BPL0 MIDH7 MIDL7 MIDH2 MIDL2 MIDH0 MIDL0 VSS) mq_cdac_cap_array
+-MTN (TOP PHI_S VCM VSS) nch_ulvt_mac w=1.2e-05 l=3e-08 nf=6
+-MTP (TOP PHI_SB VCM DVDD) pch_ulvt_mac w=4e-06 l=3e-08 nf=2
+-MTD (TOP PHI_SB TOP VSS) nch_ulvt_mac w=4e-06 l=3e-08 nf=2
++MTN (TOP GBST VCM VSS) nch_ulvt_mac w=6e-06 l=3e-08 nf=3
++XBOOST (PHI_SB GBST DVDD VCM VSS) mq_cdac_reset_booster k=0.9 vlo=0 td=2p tr=10p tf=10p rout=100
+ ends adc_cdac
+ subckt mq_cdac_sw12 (VIN VG DH RL EN ENB VREFP VREFN VSS DVDD EQBUS APGATE SAMP_ON BH BL)
+ XHCTL (DH HHIB DVDD VREFN VSS) mq_cdac_ctl_h
+ XLCTL (RL LHIB DVDD VREFN VSS) mq_cdac_ctl_l
+ XDH (HHIB EN ENB BH VREFP VREFN VSS DVDD) mq_cdac_drv12
+-MSH (BH VG VIN VSS) nch_ulvt_mac w=1.143e-05 l=3e-08 nf=6
++IDIAG_MSH (BH VIN VG VSS DVDD VIN) cdac_diag_switch ron=35 roff=1e12 active_high=1 bootstrap=1 band=0.1
+ XDL (LHIB EN ENB BL VREFP VREFN VSS DVDD) mq_cdac_drv12
+-MSL (BL VG VIN VSS) nch_ulvt_mac w=1.143e-05 l=3e-08 nf=6
+-MEQ1 (BH APGATE VIN VREFP) pch_ulvt_mac w=1.143e-05 l=3e-08 nf=6
+-MEQ2 (BL APGATE VIN VREFP) pch_ulvt_mac w=1.143e-05 l=3e-08 nf=6
+-MSHAREH (BH SAMP_ON EQBUS VSS) nch_ulvt_mac w=1.143e-05 l=3e-08 nf=6
+-MSHAREL (BL SAMP_ON EQBUS VSS) nch_ulvt_mac w=1.143e-05 l=3e-08 nf=6
++IDIAG_MSL (BL VIN VG VSS DVDD VIN) cdac_diag_switch ron=35 roff=1e12 active_high=1 bootstrap=1 band=0.1
++IDIAG_MEQ1 (BH VIN APGATE VSS VREFP VSS) cdac_diag_switch ron=57 roff=1e12 active_high=0 bootstrap=0 band=0.1
++IDIAG_MEQ2 (BL VIN APGATE VSS VREFP VSS) cdac_diag_switch ron=57 roff=1e12 active_high=0 bootstrap=0 band=0.1
++IDIAG_MSHAREH (BH EQBUS SAMP_ON VSS DVDD VSS) cdac_diag_switch ron=100 roff=1e12 active_high=1 bootstrap=0 band=0.1
++IDIAG_MSHAREL (BL EQBUS SAMP_ON VSS DVDD VSS) cdac_diag_switch ron=100 roff=1e12 active_high=1 bootstrap=0 band=0.1
+ ends mq_cdac_sw12
+ subckt mq_cdac_sw11 (VIN VG DH RL EN ENB VREFP VREFN VSS DVDD EQBUS APGATE SAMP_ON BH BL)
+ XHCTL (DH HHIB DVDD VREFN VSS) mq_cdac_ctl_h
+ XLCTL (RL LHIB DVDD VREFN VSS) mq_cdac_ctl_l
+ XDH (HHIB EN ENB BH VREFP VREFN VSS DVDD) mq_cdac_drv11
+-MSH (BH VG VIN VSS) nch_ulvt_mac w=6.54e-06 l=3e-08 nf=4
++IDIAG_MSH (BH VIN VG VSS DVDD VIN) cdac_diag_switch ron=61.1697247706 roff=1e12 active_high=1 bootstrap=1 band=0.1
+ XDL (LHIB EN ENB BL VREFP VREFN VSS DVDD) mq_cdac_drv11
+-MSL (BL VG VIN VSS) nch_ulvt_mac w=6.54e-06 l=3e-08 nf=4
+-MEQ1 (BH APGATE VIN VREFP) pch_ulvt_mac w=6.54e-06 l=3e-08 nf=4
+-MEQ2 (BL APGATE VIN VREFP) pch_ulvt_mac w=6.54e-06 l=3e-08 nf=4
+-MSHAREH (BH SAMP_ON EQBUS VSS) nch_ulvt_mac w=6.54e-06 l=3e-08 nf=4
+-MSHAREL (BL SAMP_ON EQBUS VSS) nch_ulvt_mac w=6.54e-06 l=3e-08 nf=4
++IDIAG_MSL (BL VIN VG VSS DVDD VIN) cdac_diag_switch ron=61.1697247706 roff=1e12 active_high=1 bootstrap=1 band=0.1
++IDIAG_MEQ1 (BH VIN APGATE VSS VREFP VSS) cdac_diag_switch ron=99.619266055 roff=1e12 active_high=0 bootstrap=0 band=0.1
++IDIAG_MEQ2 (BL VIN APGATE VSS VREFP VSS) cdac_diag_switch ron=99.619266055 roff=1e12 active_high=0 bootstrap=0 band=0.1
++IDIAG_MSHAREH (BH EQBUS SAMP_ON VSS DVDD VSS) cdac_diag_switch ron=174.770642202 roff=1e12 active_high=1 bootstrap=0 band=0.1
++IDIAG_MSHAREL (BL EQBUS SAMP_ON VSS DVDD VSS) cdac_diag_switch ron=174.770642202 roff=1e12 active_high=1 bootstrap=0 band=0.1
+ ends mq_cdac_sw11
+ subckt mq_cdac_sw10 (VIN VG DH RL EN ENB VREFP VREFN VSS DVDD EQBUS APGATE SAMP_ON BH BL)
+ XHCTL (DH HHIB DVDD VREFN VSS) mq_cdac_ctl_h
+ XLCTL (RL LHIB DVDD VREFN VSS) mq_cdac_ctl_l
+ XDH (HHIB EN ENB BH VREFP VREFN VSS DVDD) mq_cdac_drv10
+-MSH (BH VG VIN VSS) nch_ulvt_mac w=3.71e-06 l=3e-08 nf=2
++IDIAG_MSH (BH VIN VG VSS DVDD VIN) cdac_diag_switch ron=107.830188679 roff=1e12 active_high=1 bootstrap=1 band=0.1
+ XDL (LHIB EN ENB BL VREFP VREFN VSS DVDD) mq_cdac_drv10
+-MSL (BL VG VIN VSS) nch_ulvt_mac w=3.71e-06 l=3e-08 nf=2
+-MEQ1 (BH APGATE VIN VREFP) pch_ulvt_mac w=3.71e-06 l=3e-08 nf=2
+-MEQ2 (BL APGATE VIN VREFP) pch_ulvt_mac w=3.71e-06 l=3e-08 nf=2
+-MSHAREH (BH SAMP_ON EQBUS VSS) nch_ulvt_mac w=3.71e-06 l=3e-08 nf=2
+-MSHAREL (BL SAMP_ON EQBUS VSS) nch_ulvt_mac w=3.71e-06 l=3e-08 nf=2
++IDIAG_MSL (BL VIN VG VSS DVDD VIN) cdac_diag_switch ron=107.830188679 roff=1e12 active_high=1 bootstrap=1 band=0.1
++IDIAG_MEQ1 (BH VIN APGATE VSS VREFP VSS) cdac_diag_switch ron=175.60916442 roff=1e12 active_high=0 bootstrap=0 band=0.1
++IDIAG_MEQ2 (BL VIN APGATE VSS VREFP VSS) cdac_diag_switch ron=175.60916442 roff=1e12 active_high=0 bootstrap=0 band=0.1
++IDIAG_MSHAREH (BH EQBUS SAMP_ON VSS DVDD VSS) cdac_diag_switch ron=308.086253369 roff=1e12 active_high=1 bootstrap=0 band=0.1
++IDIAG_MSHAREL (BL EQBUS SAMP_ON VSS DVDD VSS) cdac_diag_switch ron=308.086253369 roff=1e12 active_high=1 bootstrap=0 band=0.1
+ ends mq_cdac_sw10
+ subckt mq_cdac_sw9 (DH RL EN ENB VREFP VREFN VSS DVDD BH BL)
+ XHCTL (DH HHIB DVDD VREFN VSS) mq_cdac_ctl_h
+@@ -345,29 +344,29 @@
+ XHCTL (DH HHIB DVDD VREFN VSS) mq_cdac_ctl_h
+ XLCTL (RL LHIB DVDD VREFN VSS) mq_cdac_ctl_l
+ XDH (HHIB EN ENB BH VREFP VREFN VSS DVDD) mq_cdac_drv8
+-MSH (BH VG VIN VSS) nch_ulvt_mac w=1.19e-06 l=3e-08 nf=1
++IDIAG_MSH (BH VIN VG VSS DVDD VIN) cdac_diag_switch ron=336.176470588 roff=1e12 active_high=1 bootstrap=1 band=0.1
+ XDL (LHIB EN ENB BL VREFP VREFN VSS DVDD) mq_cdac_drv8
+-MSL (BL VG VIN VSS) nch_ulvt_mac w=1.19e-06 l=3e-08 nf=1
+-MEQ1 (BH APGATE VIN VREFP) pch_ulvt_mac w=1.19e-06 l=3e-08 nf=1
+-MEQ2 (BL APGATE VIN VREFP) pch_ulvt_mac w=1.19e-06 l=3e-08 nf=1
+-MSHAREH (BH SAMP_ON EQBUS VSS) nch_ulvt_mac w=1.19e-06 l=3e-08 nf=1
+-MSHAREL (BL SAMP_ON EQBUS VSS) nch_ulvt_mac w=1.19e-06 l=3e-08 nf=1
++IDIAG_MSL (BL VIN VG VSS DVDD VIN) cdac_diag_switch ron=336.176470588 roff=1e12 active_high=1 bootstrap=1 band=0.1
++IDIAG_MEQ1 (BH VIN APGATE VSS VREFP VSS) cdac_diag_switch ron=547.487394958 roff=1e12 active_high=0 bootstrap=0 band=0.1
++IDIAG_MEQ2 (BL VIN APGATE VSS VREFP VSS) cdac_diag_switch ron=547.487394958 roff=1e12 active_high=0 bootstrap=0 band=0.1
++IDIAG_MSHAREH (BH EQBUS SAMP_ON VSS DVDD VSS) cdac_diag_switch ron=960.504201681 roff=1e12 active_high=1 bootstrap=0 band=0.1
++IDIAG_MSHAREL (BL EQBUS SAMP_ON VSS DVDD VSS) cdac_diag_switch ron=960.504201681 roff=1e12 active_high=1 bootstrap=0 band=0.1
+ ends mq_cdac_sw8
+ subckt mq_cdac_sw7 (VIN VG DH RL EN ENB VREFP VREFN VSS PHI_S DVDD AP_OFF EQBUS APGATE SAMP_ON BH BL MIDH MIDL)
+ XHCTL (DH HHIB DVDD VREFN VSS) mq_cdac_ctl_h
+ XLCTL (RL LHIB DVDD VREFN VSS) mq_cdac_ctl_l
+ XDH (HHIB EN ENB BH VREFP VREFN VSS DVDD) mq_cdac_drv7
+-MSH (BH VG VIN VSS) nch_ulvt_mac w=6.65e-07 l=3e-08 nf=1
++IDIAG_MSH (BH VIN VG VSS DVDD VIN) cdac_diag_switch ron=601.578947368 roff=1e12 active_high=1 bootstrap=1 band=0.1
+ XDL (LHIB EN ENB BL VREFP VREFN VSS DVDD) mq_cdac_drv7
+-MSL (BL VG VIN VSS) nch_ulvt_mac w=6.65e-07 l=3e-08 nf=1
+-MEQ1 (BH APGATE VIN VREFP) pch_ulvt_mac w=6.65e-07 l=3e-08 nf=1
+-MEQ2 (BL APGATE VIN VREFP) pch_ulvt_mac w=6.65e-07 l=3e-08 nf=1
+-MMIDNH (MIDH PHI_S VIN VSS) nch_ulvt_mac w=1.2e-07 l=3e-08 nf=1
+-MMIDPH (MIDH AP_OFF VIN VREFP) pch_mac w=1.2e-07 l=3e-08 nf=1
+-MMIDNL (MIDL PHI_S VIN VSS) nch_ulvt_mac w=1.2e-07 l=3e-08 nf=1
+-MMIDPL (MIDL AP_OFF VIN VREFP) pch_mac w=1.2e-07 l=3e-08 nf=1
+-MSHAREH (BH SAMP_ON EQBUS VSS) nch_ulvt_mac w=6.65e-07 l=3e-08 nf=1
+-MSHAREL (BL SAMP_ON EQBUS VSS) nch_ulvt_mac w=6.65e-07 l=3e-08 nf=1
++IDIAG_MSL (BL VIN VG VSS DVDD VIN) cdac_diag_switch ron=601.578947368 roff=1e12 active_high=1 bootstrap=1 band=0.1
++IDIAG_MEQ1 (BH VIN APGATE VSS VREFP VSS) cdac_diag_switch ron=979.714285714 roff=1e12 active_high=0 bootstrap=0 band=0.1
++IDIAG_MEQ2 (BL VIN APGATE VSS VREFP VSS) cdac_diag_switch ron=979.714285714 roff=1e12 active_high=0 bootstrap=0 band=0.1
++IDIAG_MMIDNH (MIDH VIN PHI_S VSS DVDD VSS) cdac_diag_switch ron=3333.75 roff=1e12 active_high=1 bootstrap=0 band=0.1
++IDIAG_MMIDPH (MIDH VIN AP_OFF VSS VREFP VSS) cdac_diag_switch ron=5429.25 roff=1e12 active_high=0 bootstrap=0 band=0.1
++IDIAG_MMIDNL (MIDL VIN PHI_S VSS DVDD VSS) cdac_diag_switch ron=3333.75 roff=1e12 active_high=1 bootstrap=0 band=0.1
++IDIAG_MMIDPL (MIDL VIN AP_OFF VSS VREFP VSS) cdac_diag_switch ron=5429.25 roff=1e12 active_high=0 bootstrap=0 band=0.1
++IDIAG_MSHAREH (BH EQBUS SAMP_ON VSS DVDD VSS) cdac_diag_switch ron=1718.79699248 roff=1e12 active_high=1 bootstrap=0 band=0.1
++IDIAG_MSHAREL (BL EQBUS SAMP_ON VSS DVDD VSS) cdac_diag_switch ron=1718.79699248 roff=1e12 active_high=1 bootstrap=0 band=0.1
+ ends mq_cdac_sw7
+ subckt mq_cdac_sw6 (DH RL EN ENB VREFP VREFN VSS DVDD BH BL)
+ XHCTL (DH HHIB DVDD VREFN VSS) mq_cdac_ctl_h
+@@ -379,81 +378,81 @@
+ XHCTL (DH HHIB DVDD VREFN VSS) mq_cdac_ctl_h
+ XLCTL (RL LHIB DVDD VREFN VSS) mq_cdac_ctl_l
+ XDH (HHIB EN ENB BH VREFP VREFN VSS DVDD) mq_cdac_drv5
+-MSH (BH VG VIN VSS) nch_ulvt_mac w=2.1e-07 l=3e-08 nf=1
++IDIAG_MSH (BH VIN VG VSS DVDD VIN) cdac_diag_switch ron=1905 roff=1e12 active_high=1 bootstrap=1 band=0.1
+ XDL (LHIB EN ENB BL VREFP VREFN VSS DVDD) mq_cdac_drv5
+-MSL (BL VG VIN VSS) nch_ulvt_mac w=2.1e-07 l=3e-08 nf=1
+-MEQ1 (BH APGATE VIN VREFP) pch_ulvt_mac w=2.1e-07 l=3e-08 nf=1
+-MEQ2 (BL APGATE VIN VREFP) pch_ulvt_mac w=2.1e-07 l=3e-08 nf=1
+-MSHAREH (BH SAMP_ON EQBUS VSS) nch_ulvt_mac w=2.1e-07 l=3e-08 nf=1
+-MSHAREL (BL SAMP_ON EQBUS VSS) nch_ulvt_mac w=2.1e-07 l=3e-08 nf=1
++IDIAG_MSL (BL VIN VG VSS DVDD VIN) cdac_diag_switch ron=1905 roff=1e12 active_high=1 bootstrap=1 band=0.1
++IDIAG_MEQ1 (BH VIN APGATE VSS VREFP VSS) cdac_diag_switch ron=3102.42857143 roff=1e12 active_high=0 bootstrap=0 band=0.1
++IDIAG_MEQ2 (BL VIN APGATE VSS VREFP VSS) cdac_diag_switch ron=3102.42857143 roff=1e12 active_high=0 bootstrap=0 band=0.1
++IDIAG_MSHAREH (BH EQBUS SAMP_ON VSS DVDD VSS) cdac_diag_switch ron=5442.85714286 roff=1e12 active_high=1 bootstrap=0 band=0.1
++IDIAG_MSHAREL (BL EQBUS SAMP_ON VSS DVDD VSS) cdac_diag_switch ron=5442.85714286 roff=1e12 active_high=1 bootstrap=0 band=0.1
+ ends mq_cdac_sw5
+ subckt mq_cdac_sw4 (VIN VG DH RL EN ENB VREFP VREFN VSS DVDD EQBUS APGATE SAMP_ON BH BL)
+ XHCTL (DH HHIB DVDD VREFN VSS) mq_cdac_ctl_h
+ XLCTL (RL LHIB DVDD VREFN VSS) mq_cdac_ctl_l
+ XDH (HHIB EN ENB BH VREFP VREFN VSS DVDD) mq_cdac_drv4
+-MSH (BH VG VIN VSS) nch_ulvt_mac w=1.2e-07 l=3e-08 nf=1
++IDIAG_MSH (BH VIN VG VSS DVDD VIN) cdac_diag_switch ron=3333.75 roff=1e12 active_high=1 bootstrap=1 band=0.1
+ XDL (LHIB EN ENB BL VREFP VREFN VSS DVDD) mq_cdac_drv4
+-MSL (BL VG VIN VSS) nch_ulvt_mac w=1.2e-07 l=3e-08 nf=1
+-MEQ1 (BH APGATE VIN VREFP) pch_ulvt_mac w=1.2e-07 l=3e-08 nf=1
+-MEQ2 (BL APGATE VIN VREFP) pch_ulvt_mac w=1.2e-07 l=3e-08 nf=1
+-MSHAREH (BH SAMP_ON EQBUS VSS) nch_ulvt_mac w=1.2e-07 l=3e-08 nf=1
+-MSHAREL (BL SAMP_ON EQBUS VSS) nch_ulvt_mac w=1.2e-07 l=3e-08 nf=1
++IDIAG_MSL (BL VIN VG VSS DVDD VIN) cdac_diag_switch ron=3333.75 roff=1e12 active_high=1 bootstrap=1 band=0.1
++IDIAG_MEQ1 (BH VIN APGATE VSS VREFP VSS) cdac_diag_switch ron=5429.25 roff=1e12 active_high=0 bootstrap=0 band=0.1
++IDIAG_MEQ2 (BL VIN APGATE VSS VREFP VSS) cdac_diag_switch ron=5429.25 roff=1e12 active_high=0 bootstrap=0 band=0.1
++IDIAG_MSHAREH (BH EQBUS SAMP_ON VSS DVDD VSS) cdac_diag_switch ron=9525 roff=1e12 active_high=1 bootstrap=0 band=0.1
++IDIAG_MSHAREL (BL EQBUS SAMP_ON VSS DVDD VSS) cdac_diag_switch ron=9525 roff=1e12 active_high=1 bootstrap=0 band=0.1
+ ends mq_cdac_sw4
+ subckt mq_cdac_sw3 (VIN VG DH RL EN ENB VREFP VREFN VSS DVDD EQBUS APGATE SAMP_ON BH BL)
+ XHCTL (DH HHIB DVDD VREFN VSS) mq_cdac_ctl_h
+ XLCTL (RL LHIB DVDD VREFN VSS) mq_cdac_ctl_l
+ XDH (HHIB EN ENB BH VREFP VREFN VSS DVDD) mq_cdac_drv3
+-MSH (BH VG VIN VSS) nch_ulvt_mac w=1.2e-07 l=3e-08 nf=1
++IDIAG_MSH (BH VIN VG VSS DVDD VIN) cdac_diag_switch ron=3333.75 roff=1e12 active_high=1 bootstrap=1 band=0.1
+ XDL (LHIB EN ENB BL VREFP VREFN VSS DVDD) mq_cdac_drv3
+-MSL (BL VG VIN VSS) nch_ulvt_mac w=1.2e-07 l=3e-08 nf=1
+-MEQ1 (BH APGATE VIN VREFP) pch_ulvt_mac w=1.2e-07 l=3e-08 nf=1
+-MEQ2 (BL APGATE VIN VREFP) pch_ulvt_mac w=1.2e-07 l=3e-08 nf=1
+-MSHAREH (BH SAMP_ON EQBUS VSS) nch_ulvt_mac w=1.2e-07 l=3e-08 nf=1
+-MSHAREL (BL SAMP_ON EQBUS VSS) nch_ulvt_mac w=1.2e-07 l=3e-08 nf=1
++IDIAG_MSL (BL VIN VG VSS DVDD VIN) cdac_diag_switch ron=3333.75 roff=1e12 active_high=1 bootstrap=1 band=0.1
++IDIAG_MEQ1 (BH VIN APGATE VSS VREFP VSS) cdac_diag_switch ron=5429.25 roff=1e12 active_high=0 bootstrap=0 band=0.1
++IDIAG_MEQ2 (BL VIN APGATE VSS VREFP VSS) cdac_diag_switch ron=5429.25 roff=1e12 active_high=0 bootstrap=0 band=0.1
++IDIAG_MSHAREH (BH EQBUS SAMP_ON VSS DVDD VSS) cdac_diag_switch ron=9525 roff=1e12 active_high=1 bootstrap=0 band=0.1
++IDIAG_MSHAREL (BL EQBUS SAMP_ON VSS DVDD VSS) cdac_diag_switch ron=9525 roff=1e12 active_high=1 bootstrap=0 band=0.1
+ ends mq_cdac_sw3
+ subckt mq_cdac_sw2 (VIN VG DH RL EN ENB VREFP VREFN VSS PHI_S DVDD AP_OFF EQBUS APGATE SAMP_ON BH BL MIDH MIDL)
+ XHCTL (DH HHIB DVDD VREFN VSS) mq_cdac_ctl_h
+ XLCTL (RL LHIB DVDD VREFN VSS) mq_cdac_ctl_l
+ XDH (HHIB EN ENB BH VREFP VREFN VSS DVDD) mq_cdac_drv2
+-MSH (BH VG VIN VSS) nch_ulvt_mac w=1.2e-07 l=3e-08 nf=1
++IDIAG_MSH (BH VIN VG VSS DVDD VIN) cdac_diag_switch ron=3333.75 roff=1e12 active_high=1 bootstrap=1 band=0.1
+ XDL (LHIB EN ENB BL VREFP VREFN VSS DVDD) mq_cdac_drv2
+-MSL (BL VG VIN VSS) nch_ulvt_mac w=1.2e-07 l=3e-08 nf=1
+-MEQ1 (BH APGATE VIN VREFP) pch_ulvt_mac w=1.2e-07 l=3e-08 nf=1
+-MEQ2 (BL APGATE VIN VREFP) pch_ulvt_mac w=1.2e-07 l=3e-08 nf=1
+-MMIDNH (MIDH PHI_S VIN VSS) nch_ulvt_mac w=1.2e-07 l=3e-08 nf=1
+-MMIDPH (MIDH AP_OFF VIN VREFP) pch_mac w=1.2e-07 l=3e-08 nf=1
+-MMIDNL (MIDL PHI_S VIN VSS) nch_ulvt_mac w=1.2e-07 l=3e-08 nf=1
+-MMIDPL (MIDL AP_OFF VIN VREFP) pch_mac w=1.2e-07 l=3e-08 nf=1
+-MSHAREH (BH SAMP_ON EQBUS VSS) nch_ulvt_mac w=1.2e-07 l=3e-08 nf=1
+-MSHAREL (BL SAMP_ON EQBUS VSS) nch_ulvt_mac w=1.2e-07 l=3e-08 nf=1
++IDIAG_MSL (BL VIN VG VSS DVDD VIN) cdac_diag_switch ron=3333.75 roff=1e12 active_high=1 bootstrap=1 band=0.1
++IDIAG_MEQ1 (BH VIN APGATE VSS VREFP VSS) cdac_diag_switch ron=5429.25 roff=1e12 active_high=0 bootstrap=0 band=0.1
++IDIAG_MEQ2 (BL VIN APGATE VSS VREFP VSS) cdac_diag_switch ron=5429.25 roff=1e12 active_high=0 bootstrap=0 band=0.1
++IDIAG_MMIDNH (MIDH VIN PHI_S VSS DVDD VSS) cdac_diag_switch ron=3333.75 roff=1e12 active_high=1 bootstrap=0 band=0.1
++IDIAG_MMIDPH (MIDH VIN AP_OFF VSS VREFP VSS) cdac_diag_switch ron=5429.25 roff=1e12 active_high=0 bootstrap=0 band=0.1
++IDIAG_MMIDNL (MIDL VIN PHI_S VSS DVDD VSS) cdac_diag_switch ron=3333.75 roff=1e12 active_high=1 bootstrap=0 band=0.1
++IDIAG_MMIDPL (MIDL VIN AP_OFF VSS VREFP VSS) cdac_diag_switch ron=5429.25 roff=1e12 active_high=0 bootstrap=0 band=0.1
++IDIAG_MSHAREH (BH EQBUS SAMP_ON VSS DVDD VSS) cdac_diag_switch ron=9525 roff=1e12 active_high=1 bootstrap=0 band=0.1
++IDIAG_MSHAREL (BL EQBUS SAMP_ON VSS DVDD VSS) cdac_diag_switch ron=9525 roff=1e12 active_high=1 bootstrap=0 band=0.1
+ ends mq_cdac_sw2
+ subckt mq_cdac_sw1 (VIN VG DH RL EN ENB VREFP VREFN VSS DVDD EQBUS APGATE SAMP_ON BH BL)
+ XHCTL (DH HHIB DVDD VREFN VSS) mq_cdac_ctl_h
+ XLCTL (RL LHIB DVDD VREFN VSS) mq_cdac_ctl_l
+ XDH (HHIB EN ENB BH VREFP VREFN VSS DVDD) mq_cdac_drv1
+-MSH (BH VG VIN VSS) nch_ulvt_mac w=1.2e-07 l=3e-08 nf=1
++IDIAG_MSH (BH VIN VG VSS DVDD VIN) cdac_diag_switch ron=3333.75 roff=1e12 active_high=1 bootstrap=1 band=0.1
+ XDL (LHIB EN ENB BL VREFP VREFN VSS DVDD) mq_cdac_drv1
+-MSL (BL VG VIN VSS) nch_ulvt_mac w=1.2e-07 l=3e-08 nf=1
+-MEQ1 (BH APGATE VIN VREFP) pch_ulvt_mac w=1.2e-07 l=3e-08 nf=1
+-MEQ2 (BL APGATE VIN VREFP) pch_ulvt_mac w=1.2e-07 l=3e-08 nf=1
+-MSHAREH (BH SAMP_ON EQBUS VSS) nch_ulvt_mac w=1.2e-07 l=3e-08 nf=1
+-MSHAREL (BL SAMP_ON EQBUS VSS) nch_ulvt_mac w=1.2e-07 l=3e-08 nf=1
++IDIAG_MSL (BL VIN VG VSS DVDD VIN) cdac_diag_switch ron=3333.75 roff=1e12 active_high=1 bootstrap=1 band=0.1
++IDIAG_MEQ1 (BH VIN APGATE VSS VREFP VSS) cdac_diag_switch ron=5429.25 roff=1e12 active_high=0 bootstrap=0 band=0.1
++IDIAG_MEQ2 (BL VIN APGATE VSS VREFP VSS) cdac_diag_switch ron=5429.25 roff=1e12 active_high=0 bootstrap=0 band=0.1
++IDIAG_MSHAREH (BH EQBUS SAMP_ON VSS DVDD VSS) cdac_diag_switch ron=9525 roff=1e12 active_high=1 bootstrap=0 band=0.1
++IDIAG_MSHAREL (BL EQBUS SAMP_ON VSS DVDD VSS) cdac_diag_switch ron=9525 roff=1e12 active_high=1 bootstrap=0 band=0.1
+ ends mq_cdac_sw1
+ subckt mq_cdac_sw0 (VIN VG DH RL EN ENB VREFP VREFN VSS PHI_S DVDD AP_OFF EQBUS APGATE SAMP_ON BH BL MIDH MIDL)
+ XHCTL (DH HHIB DVDD VREFN VSS) mq_cdac_ctl_h
+ XLCTL (RL LHIB DVDD VREFN VSS) mq_cdac_ctl_l
+ XDH (HHIB EN ENB BH VREFP VREFN VSS DVDD) mq_cdac_drv0
+-MSH (BH VG VIN VSS) nch_ulvt_mac w=1.2e-07 l=3e-08 nf=1
++IDIAG_MSH (BH VIN VG VSS DVDD VIN) cdac_diag_switch ron=3333.75 roff=1e12 active_high=1 bootstrap=1 band=0.1
+ XDL (LHIB EN ENB BL VREFP VREFN VSS DVDD) mq_cdac_drv0
+-MSL (BL VG VIN VSS) nch_ulvt_mac w=1.2e-07 l=3e-08 nf=1
+-MEQ1 (BH APGATE VIN VREFP) pch_ulvt_mac w=1.2e-07 l=3e-08 nf=1
+-MEQ2 (BL APGATE VIN VREFP) pch_ulvt_mac w=1.2e-07 l=3e-08 nf=1
+-MMIDNH (MIDH PHI_S VIN VSS) nch_ulvt_mac w=1.2e-07 l=3e-08 nf=1
+-MMIDPH (MIDH AP_OFF VIN VREFP) pch_mac w=1.2e-07 l=3e-08 nf=1
+-MMIDNL (MIDL PHI_S VIN VSS) nch_ulvt_mac w=1.2e-07 l=3e-08 nf=1
+-MMIDPL (MIDL AP_OFF VIN VREFP) pch_mac w=1.2e-07 l=3e-08 nf=1
+-MSHAREH (BH SAMP_ON EQBUS VSS) nch_ulvt_mac w=1.2e-07 l=3e-08 nf=1
+-MSHAREL (BL SAMP_ON EQBUS VSS) nch_ulvt_mac w=1.2e-07 l=3e-08 nf=1
++IDIAG_MSL (BL VIN VG VSS DVDD VIN) cdac_diag_switch ron=3333.75 roff=1e12 active_high=1 bootstrap=1 band=0.1
++IDIAG_MEQ1 (BH VIN APGATE VSS VREFP VSS) cdac_diag_switch ron=5429.25 roff=1e12 active_high=0 bootstrap=0 band=0.1
++IDIAG_MEQ2 (BL VIN APGATE VSS VREFP VSS) cdac_diag_switch ron=5429.25 roff=1e12 active_high=0 bootstrap=0 band=0.1
++IDIAG_MMIDNH (MIDH VIN PHI_S VSS DVDD VSS) cdac_diag_switch ron=3333.75 roff=1e12 active_high=1 bootstrap=0 band=0.1
++IDIAG_MMIDPH (MIDH VIN AP_OFF VSS VREFP VSS) cdac_diag_switch ron=5429.25 roff=1e12 active_high=0 bootstrap=0 band=0.1
++IDIAG_MMIDNL (MIDL VIN PHI_S VSS DVDD VSS) cdac_diag_switch ron=3333.75 roff=1e12 active_high=1 bootstrap=0 band=0.1
++IDIAG_MMIDPL (MIDL VIN AP_OFF VSS VREFP VSS) cdac_diag_switch ron=5429.25 roff=1e12 active_high=0 bootstrap=0 band=0.1
++IDIAG_MSHAREH (BH EQBUS SAMP_ON VSS DVDD VSS) cdac_diag_switch ron=9525 roff=1e12 active_high=1 bootstrap=0 band=0.1
++IDIAG_MSHAREL (BL EQBUS SAMP_ON VSS DVDD VSS) cdac_diag_switch ron=9525 roff=1e12 active_high=1 bootstrap=0 band=0.1
+ ends mq_cdac_sw0
+ subckt mq_cdac_cap_array (TOP BPH12 BPL12 BPH11 BPL11 BPH10 BPL10 BPH9 BPL9 BPH8 BPL8 BPH7 BPL7 BPH6 BPL6 BPH5 BPL5 BPH4 BPL4 BPH3 BPL3 BPH2 BPL2 BPH1 BPL1 BPH0 BPL0 MIDH7 MIDL7 MIDH2 MIDL2 MIDH0 MIDL0 VSS)
+ B12_CH (TOP BPH12) cfmom_2t w=5e-08 s=2.4e-07 nr=6 lr=1.69e-06 stm=2 spm=4 multi=490
+@@ -550,3 +549,8 @@
+ XSW1 (VIN VG DH1 RL1 EN ENB VREFP VREFN VSS DVDD EQBUS APGATE SAMP_ON BPH1 BPL1) mq_cdac_sw1
+ XSW0 (VIN VG DH0 RL0 EN ENB VREFP VREFN VSS PHI_S DVDD APGATE EQBUS APGATE SAMP_ON BPH0 BPL0 MIDH0 MIDL0) mq_cdac_sw0
+ ends mq_cdac_switch_array
++subckt mq_cdac_reset_booster (CLKB BST DVDD VB VSS)
++parameters k=0.9 vlo=0 td=2p tr=10p tf=10p rout=100
++ICMD (CLKB CMD DVDD VB VSS) mq_cdac_booster_va k=k vlo=vlo td=td tr=tr tf=tf
++ROUT (CMD BST) resistor r=rout
++ends mq_cdac_reset_booster
+
+--- B-all-others-ideal-N6
++++ a_all_ideal
+@@ -295,8 +295,9 @@
+ subckt adc_cdac (VIN VG TOP VCM VREFP VREFN PHI_S PHI_SB CONV DH12 DH11 DH10 DH9 DH8 DH7 DH6 DH5 DH4 DH3 DH2 DH1 DH0 RL12 RL11 RL10 RL9 RL8 RL7 RL6 RL5 RL4 RL3 RL2 RL1 RL0 DVDD VSS)
+ XSW (VIN VG VREFP VREFN PHI_S PHI_SB CONV DH12 DH11 DH10 DH9 DH8 DH7 DH6 DH5 DH4 DH3 DH2 DH1 DH0 RL12 RL11 RL10 RL9 RL8 RL7 RL6 RL5 RL4 RL3 RL2 RL1 RL0 DVDD VSS BPH12 BPL12 BPH11 BPL11 BPH10 BPL10 BPH9 BPL9 BPH8 BPL8 BPH7 BPL7 BPH6 BPL6 BPH5 BPL5 BPH4 BPL4 BPH3 BPL3 BPH2 BPL2 BPH1 BPL1 BPH0 BPL0 MIDH7 MIDL7 MIDH2 MIDL2 MIDH0 MIDL0) mq_cdac_switch_array
+ XCAP (TOP BPH12 BPL12 BPH11 BPL11 BPH10 BPL10 BPH9 BPL9 BPH8 BPL8 BPH7 BPL7 BPH6 BPL6 BPH5 BPL5 BPH4 BPL4 BPH3 BPL3 BPH2 BPL2 BPH1 BPL1 BPH0 BPL0 MIDH7 MIDL7 MIDH2 MIDL2 MIDH0 MIDL0 VSS) mq_cdac_cap_array
+-MTN (TOP GBST VCM VSS) nch_ulvt_mac w=6e-06 l=3e-08 nf=3
+-XBOOST (PHI_SB GBST DVDD VCM VSS) mq_cdac_reset_booster k=0.9 vlo=0 td=2p tr=10p tf=10p rout=100
++IRESET (TOP VCM GBST VSS DVDD VCM) cdac_diag_switch ron=100 roff=1e12 active_high=1 bootstrap=1 high_scale=0.9 band=0.1
++parameters gatefile="gate-P.txt"
++VREPLAY (GBST VSS) vsource type=pwl file=gatefile
+ ends adc_cdac
+ subckt mq_cdac_sw12 (VIN VG DH RL EN ENB VREFP VREFN VSS DVDD EQBUS APGATE SAMP_ON BH BL)
+ XHCTL (DH HHIB DVDD VREFN VSS) mq_cdac_ctl_h
+
+--- B-all-others-ideal-N6
++++ ref_v29_top
+@@ -295,8 +295,9 @@
+ subckt adc_cdac (VIN VG TOP VCM VREFP VREFN PHI_S PHI_SB CONV DH12 DH11 DH10 DH9 DH8 DH7 DH6 DH5 DH4 DH3 DH2 DH1 DH0 RL12 RL11 RL10 RL9 RL8 RL7 RL6 RL5 RL4 RL3 RL2 RL1 RL0 DVDD VSS)
+ XSW (VIN VG VREFP VREFN PHI_S PHI_SB CONV DH12 DH11 DH10 DH9 DH8 DH7 DH6 DH5 DH4 DH3 DH2 DH1 DH0 RL12 RL11 RL10 RL9 RL8 RL7 RL6 RL5 RL4 RL3 RL2 RL1 RL0 DVDD VSS BPH12 BPL12 BPH11 BPL11 BPH10 BPL10 BPH9 BPL9 BPH8 BPL8 BPH7 BPL7 BPH6 BPL6 BPH5 BPL5 BPH4 BPL4 BPH3 BPL3 BPH2 BPL2 BPH1 BPL1 BPH0 BPL0 MIDH7 MIDL7 MIDH2 MIDL2 MIDH0 MIDL0) mq_cdac_switch_array
+ XCAP (TOP BPH12 BPL12 BPH11 BPL11 BPH10 BPL10 BPH9 BPL9 BPH8 BPL8 BPH7 BPL7 BPH6 BPL6 BPH5 BPL5 BPH4 BPL4 BPH3 BPL3 BPH2 BPL2 BPH1 BPL1 BPH0 BPL0 MIDH7 MIDL7 MIDH2 MIDL2 MIDH0 MIDL0 VSS) mq_cdac_cap_array
+-MTN (TOP GBST VCM VSS) nch_ulvt_mac w=6e-06 l=3e-08 nf=3
+-XBOOST (PHI_SB GBST DVDD VCM VSS) mq_cdac_reset_booster k=0.9 vlo=0 td=2p tr=10p tf=10p rout=100
++MTN (TOP PHI_S VCM VSS) nch_ulvt_mac w=1.2e-05 l=3e-08 nf=6
++MTP (TOP PHI_SB VCM DVDD) pch_ulvt_mac w=4e-06 l=3e-08 nf=2
++MTD (TOP PHI_SB TOP VSS) nch_ulvt_mac w=4e-06 l=3e-08 nf=2
+ ends adc_cdac
+ subckt mq_cdac_sw12 (VIN VG DH RL EN ENB VREFP VREFN VSS DVDD EQBUS APGATE SAMP_ON BH BL)
+ XHCTL (DH HHIB DVDD VREFN VSS) mq_cdac_ctl_h
+@@ -549,8 +550,3 @@
+ XSW1 (VIN VG DH1 RL1 EN ENB VREFP VREFN VSS DVDD EQBUS APGATE SAMP_ON BPH1 BPL1) mq_cdac_sw1
+ XSW0 (VIN VG DH0 RL0 EN ENB VREFP VREFN VSS PHI_S DVDD APGATE EQBUS APGATE SAMP_ON BPH0 BPL0 MIDH0 MIDL0) mq_cdac_sw0
+ ends mq_cdac_switch_array
+-subckt mq_cdac_reset_booster (CLKB BST DVDD VB VSS)
+-parameters k=0.9 vlo=0 td=2p tr=10p tf=10p rout=100
+-ICMD (CLKB CMD DVDD VB VSS) mq_cdac_booster_va k=k vlo=vlo td=td tr=tr tf=tf
+-ROUT (CMD BST) resistor r=rout
+-ends mq_cdac_reset_booster
+
+Ideal switch model (top A high_scale=.9; other devices default1):
+// Private SFDR group attribution only; not a manufacturable device model.
+`include "constants.vams"
+`include "disciplines.vams"
+module cdac_diag_switch(A,B,G,R,H,X);
+  inout A,B,G,R,H,X;
+  electrical A,B,G,R,H,X;
+  parameter real ron=100 from (0:inf);
+  parameter real roff=1e12 from (0:inf);
+  parameter real band=0.1 from (0:1);
+  parameter integer active_high=1 from [0:1];
+  parameter integer bootstrap=0 from [0:1];
+  parameter real high_scale=1;
+  real level,u,x,a,g;
+  analog begin
+    level=high_scale*V(H,R)+bootstrap*V(X,R);
+    level=sqrt(level*level+1e-12);
+    u=V(G,R)/level;
+    if (active_high==0) u=1-u;
+    x=(u-(0.5-band/2))/band;
+    if (x<=0) a=0;
+    else if (x>=1) a=1;
+    else a=x*x*(3-2*x);
+    g=1/roff+(1/ron-1/roff)*a;
+    I(A,B) <+ g*V(A,B);
+  end
+endmodule
+
+A replay protocol: P and N PWL sources contain every accepted B GBST point from t=0 to stop. For XDACN set gatefile="gate-N.txt"; XDACP uses defaultgate-P.txt. Preserve official TB sources, caps and sampling. Input bootstrap normalized VG/(VIN+DVDD). Exact run sources and both PWL files are in verified archives.
