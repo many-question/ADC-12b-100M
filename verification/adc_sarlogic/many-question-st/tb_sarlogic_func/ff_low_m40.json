@@ -1,0 +1,404 @@
+{
+ "block": "adc_sarlogic",
+ "candidate": "many-question-st",
+ "test": "tb_sarlogic_func",
+ "view": "xtor-many-question-st",
+ "corner": "ff_low_m40",
+ "job": "ff_low_m40",
+ "status": "match",
+ "verifies": {
+  "result": "results/adc_sarlogic/tb_sarlogic_func/xtor-many-question-st/ff_low_m40.json",
+  "netlist": "design/xtor/adc_sarlogic/many-question-st/adc_sarlogic.scs",
+  "netlist_hash": "5ed50a025fd7d687",
+  "date": "2026-11-03T14:23:44",
+  "git": "fd5b149b",
+  "mode": "aps"
+ },
+ "params": {},
+ "globals": {
+  "vdd": 0.81,
+  "vdd18": 1.62,
+  "tempc": -40.0,
+  "noise_en": 0,
+  "devnoise": 1,
+  "beh_speed": 1.0,
+  "vref_in": 0.9,
+  "cdac_behav": 1,
+  "comp_behav": 1
+ },
+ "metrics": {
+  "func_errors": 0,
+  "bit_errors": 0,
+  "level_errors": 0,
+  "n_conversions": 60,
+  "t_conv_ns": 2.527691,
+  "t_conv_mean_ns": 2.466709633333333,
+  "t_start_ps": 92.3796948793779,
+  "t_start_max_ps": 92.3832379254881,
+  "t_start_min_ps": 92.31649962992466,
+  "t_bit_ps": 26.15337253619271,
+  "t_bit_max_ps": 27.076696388165956,
+  "t_bit_min_ps": 25.684068573276186,
+  "t_rst_ps": 22.514729498635354,
+  "t_rst_max_ps": 22.94367610392656,
+  "t_rst_min_ps": 22.066482607756512,
+  "t_dac_fast_ps": 41.0812894056797,
+  "t_dac_fast_max_ps": 46.62869431142544,
+  "t_dac_fast_min_ps": 36.61064228129485,
+  "t_dac_slow_ps": 81.76287907053609,
+  "t_dac_slow_max_ps": 83.87733557227513,
+  "t_dac_slow_min_ps": 78.34936061425161,
+  "t_dac_add_ps": {
+   "3": 6.47,
+   "4": 22.56,
+   "5": 21.66,
+   "6": 21.25,
+   "9": 20.61
+  },
+  "t_dac_add_err_pct": 35.33269849009103,
+  "t_setup_ps": 104.27670071690684,
+  "power_uW": 710.599516659,
+  "cin_conv_fF": 2.555163928601856,
+  "cin_outp_fF": 4.24892438192459,
+  "cin_outn_fF": 4.248899154191751,
+  "cin_cmp_fF": 4.24892438192459
+ },
+ "specs": {
+  "LOG-06": {
+   "metric": "t_dac_slow_ps",
+   "value": 81.76287907053609,
+   "limit": ">= 70",
+   "pass": true
+  },
+  "LOG-07": {
+   "metric": "t_start_ps",
+   "value": 92.3796948793779,
+   "limit": "80 .. 160",
+   "pass": true
+  },
+  "LOG-10": {
+   "metric": "t_setup_ps",
+   "value": 104.27670071690684,
+   "limit": ">= 100",
+   "pass": true
+  }
+ },
+ "specs_na": {
+  "LOG-02": {
+   "metric": "t_bit_ps",
+   "value": 26.15337253619271,
+   "limit": "<= 40",
+   "corners": "typ"
+  },
+  "LOG-03": {
+   "metric": "t_rst_ps",
+   "value": 22.514729498635354,
+   "limit": "<= 45",
+   "corners": "typ"
+  },
+  "LOG-04": {
+   "metric": "t_dac_fast_ps",
+   "value": 41.0812894056797,
+   "limit": "35 .. 60",
+   "corners": "typ"
+  },
+  "LOG-05": {
+   "metric": "t_dac_slow_ps",
+   "value": 81.76287907053609,
+   "limit": "70 .. 100",
+   "corners": "typ"
+  },
+  "LOG-08": {
+   "metric": "t_conv_ns",
+   "value": 2.527691,
+   "limit": "<= 2.75",
+   "corners": "typ"
+  },
+  "LOG-13": {
+   "metric": "power_uW",
+   "value": 710.599516659,
+   "limit": "reported",
+   "corners": "typ"
+  },
+  "LOG-14": {
+   "metric": "cin_conv_fF",
+   "value": 2.555163928601856,
+   "limit": "<= 40",
+   "corners": "typ"
+  },
+  "LOG-15": {
+   "metric": "cin_cmp_fF",
+   "value": 4.24892438192459,
+   "limit": "<= 7",
+   "corners": "typ"
+  },
+  "LOG-16": {
+   "metric": "t_dac_add_err_pct",
+   "value": 35.33269849009103,
+   "limit": "<= 20",
+   "corners": "typ"
+  }
+ },
+ "comparison": {
+  "ok": true,
+  "tolerances": "docs/verification.md \u00a77",
+  "problems": [],
+  "verdicts": {
+   "LOG-06": {
+    "self": true,
+    "rerun": true,
+    "ok": true
+   },
+   "LOG-07": {
+    "self": true,
+    "rerun": true,
+    "ok": true
+   },
+   "LOG-10": {
+    "self": true,
+    "rerun": true,
+    "ok": true
+   }
+  },
+  "metrics": {
+   "bit_errors": {
+    "self": 0,
+    "rerun": 0,
+    "ok": true
+   },
+   "cin_cmp_fF": {
+    "self": 4.24892438192459,
+    "rerun": 4.24892438192459,
+    "diff": 0.0,
+    "tol": 0.1,
+    "ok": true
+   },
+   "cin_conv_fF": {
+    "self": 2.555163928601856,
+    "rerun": 2.555163928601856,
+    "diff": 0.0,
+    "tol": 0.1,
+    "ok": true
+   },
+   "cin_outn_fF": {
+    "self": 4.248899154191751,
+    "rerun": 4.248899154191751,
+    "diff": 0.0,
+    "tol": 0.1,
+    "ok": true
+   },
+   "cin_outp_fF": {
+    "self": 4.24892438192459,
+    "rerun": 4.24892438192459,
+    "diff": 0.0,
+    "tol": 0.1,
+    "ok": true
+   },
+   "func_errors": {
+    "self": 0,
+    "rerun": 0,
+    "ok": true
+   },
+   "level_errors": {
+    "self": 0,
+    "rerun": 0,
+    "ok": true
+   },
+   "n_conversions": {
+    "self": 60,
+    "rerun": 60,
+    "ok": true
+   },
+   "power_uW": {
+    "self": 710.599516659,
+    "rerun": 710.599516659,
+    "diff": 0.0,
+    "tol": 14.21199033318,
+    "ok": true
+   },
+   "t_bit_max_ps": {
+    "self": 27.076696388165956,
+    "rerun": 27.076696388165956,
+    "diff": 0.0,
+    "tol": 1.0,
+    "ok": true
+   },
+   "t_bit_min_ps": {
+    "self": 25.684068573276186,
+    "rerun": 25.684068573276186,
+    "diff": 0.0,
+    "tol": 1.0,
+    "ok": true
+   },
+   "t_bit_ps": {
+    "self": 26.15337253619271,
+    "rerun": 26.15337253619271,
+    "diff": 0.0,
+    "tol": 1.0,
+    "ok": true
+   },
+   "t_conv_mean_ns": {
+    "self": 2.466709633333333,
+    "rerun": 2.466709633333333,
+    "diff": 0.0,
+    "tol": 0.049334192666666665,
+    "ok": true
+   },
+   "t_conv_ns": {
+    "self": 2.527691,
+    "rerun": 2.527691,
+    "diff": 0.0,
+    "tol": 0.05055382,
+    "ok": true
+   },
+   "t_dac_add_err_pct": {
+    "self": 35.33269849009103,
+    "rerun": 35.33269849009103,
+    "diff": 0.0,
+    "tol": 0.7066539698018207,
+    "ok": true
+   },
+   "t_dac_fast_max_ps": {
+    "self": 46.62869431142544,
+    "rerun": 46.62869431142544,
+    "diff": 0.0,
+    "tol": 1.0,
+    "ok": true
+   },
+   "t_dac_fast_min_ps": {
+    "self": 36.61064228129485,
+    "rerun": 36.61064228129485,
+    "diff": 0.0,
+    "tol": 1.0,
+    "ok": true
+   },
+   "t_dac_fast_ps": {
+    "self": 41.0812894056797,
+    "rerun": 41.0812894056797,
+    "diff": 0.0,
+    "tol": 1.0,
+    "ok": true
+   },
+   "t_dac_slow_max_ps": {
+    "self": 83.87733557227513,
+    "rerun": 83.87733557227513,
+    "diff": 0.0,
+    "tol": 1.6775467114455027,
+    "ok": true
+   },
+   "t_dac_slow_min_ps": {
+    "self": 78.34936061425161,
+    "rerun": 78.34936061425161,
+    "diff": 0.0,
+    "tol": 1.5669872122850321,
+    "ok": true
+   },
+   "t_dac_slow_ps": {
+    "self": 81.76287907053609,
+    "rerun": 81.76287907053609,
+    "diff": 0.0,
+    "tol": 1.6352575814107218,
+    "ok": true
+   },
+   "t_rst_max_ps": {
+    "self": 22.94367610392656,
+    "rerun": 22.94367610392656,
+    "diff": 0.0,
+    "tol": 1.0,
+    "ok": true
+   },
+   "t_rst_min_ps": {
+    "self": 22.066482607756512,
+    "rerun": 22.066482607756512,
+    "diff": 0.0,
+    "tol": 1.0,
+    "ok": true
+   },
+   "t_rst_ps": {
+    "self": 22.514729498635354,
+    "rerun": 22.514729498635354,
+    "diff": 0.0,
+    "tol": 1.0,
+    "ok": true
+   },
+   "t_setup_ps": {
+    "self": 104.27670071690684,
+    "rerun": 104.27670071690684,
+    "diff": 0.0,
+    "tol": 2.085534014338137,
+    "ok": true
+   },
+   "t_start_max_ps": {
+    "self": 92.3832379254881,
+    "rerun": 92.3832379254881,
+    "diff": 0.0,
+    "tol": 1.847664758509762,
+    "ok": true
+   },
+   "t_start_min_ps": {
+    "self": 92.31649962992466,
+    "rerun": 92.31649962992466,
+    "diff": 0.0,
+    "tol": 1.8463299925984933,
+    "ok": true
+   },
+   "t_start_ps": {
+    "self": 92.3796948793779,
+    "rerun": 92.3796948793779,
+    "diff": 0.0,
+    "tol": 1.8475938975875579,
+    "ok": true
+   }
+  },
+  "not_compared": [
+   "t_dac_add_ps"
+  ],
+  "notes": []
+ },
+ "meta": {
+  "date": "2026-11-09T22:36:20",
+  "git": "d8990f74",
+  "git_clean": true,
+  "mode": "aps",
+  "pdk": true,
+  "mc": null,
+  "wall_s": 1327.8,
+  "rc": "0",
+  "sim_s": "1282",
+  "numerics": {
+   "source": "spectre.log",
+   "reltol": 0.0001,
+   "maxstep_ps": 6011.2,
+   "method": "gear2only",
+   "errpreset": "conservative",
+   "lteratio": 10.0,
+   "relref": "alllocal",
+   "abstol_V": 1e-06,
+   "steps_accepted": 374870,
+   "step_mean_ps": 1.60354,
+   "step_max_ps": 800.657
+  },
+  "files": {
+   "tb/sarlogic/tb_sarlogic_func.scs": "bdf916a27d3ea9ca",
+   "tb/common/veriloga/tb_imeter_va.va": "d4be49aca417ad61",
+   "tb/common/veriloga/tb_capture_va.va": "1a05df990a1ef806",
+   "tb/common/veriloga/tb_qmeter_va.va": "fed84d572a912b39",
+   "tb/common/veriloga/tb_cmp_emu_va.va": "1173f23365da8b7f",
+   "design/xtor/adc_sarlogic/many-question-st/adc_sarlogic.scs": "5ed50a025fd7d687",
+   "design/behav/veriloga/adc_arch_func.vams": "8eac5dace781bffc",
+   "design/behav/veriloga/adc_arch.vams": "32d904828c5dbf67"
+  },
+  "arch": {
+   "keys": [
+    "cdac.cap_weights",
+    "conversion.n_decisions",
+    "conversion.out_weights",
+    "timing.t_dac_add"
+   ],
+   "sha": "57134622f32b5830"
+  },
+  "views": {
+   "adc_sarlogic": "xtor:many-question-st"
+  }
+ }
+}
