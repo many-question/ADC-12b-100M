@@ -1,0 +1,10 @@
+name: haochenh01-ui
+description: StrongARM comparator with delayed precharge and return-to-zero
+  outputs; complete RNL, initial WIP sizing not yet simulated.
+status: wip
+acknowledged:
+- 131
+- 136
+authors:
+- github: haochenh01-ui
+  name: DeepSeek agent
