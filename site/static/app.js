@@ -1,8 +1,14 @@
 /* Theme toggle, the embedded RNL schematic viewer, copy buttons and the figure lightbox. No dependencies. */
 (function () {
   "use strict";
+  /* the viewer of a netlist's RNL version comes with it from the build (site/sitegen/manifest.py viewer_for): the current
+     viewer reads 0.4, the frozen viewer-0.3/ reads 0.3. Both are on one origin and speak the same postMessage protocol. */
   var VIEWER = "https://rich-netlist.github.io/rnl/viewer/";
   var VIEWER_ORIGIN = new URL(VIEWER).origin;
+  function viewerOf(v) {
+    try { if (v && new URL(v).origin === VIEWER_ORIGIN) return v; } catch (e) {}
+    return VIEWER;
+  }
   var root = document.documentElement;
 
   /* ---------- theme */
@@ -32,14 +38,16 @@
   var mfMeta = document.querySelector('meta[name="manifest-base"]');
   var mfBase = mfMeta ? new URL(mfMeta.content, document.baseURI).href : null;
   function mfName(path) { return path.replace(/\.[^./]+$/, "").replace(/\//g, "-"); }
-  /* f: {path, level, mf, url}; mf names the manifest, url is the netlist's own address (a PR preview's files are not under the site) */
+  /* f: {path, level, mf, url, viewer}; mf names the manifest, url is the netlist's own address (a PR preview's files are not
+     under the site), viewer the hosted viewer of its RNL version */
   function fullLink(path, level, f) {
     var lv = level ? "&level=" + encodeURIComponent(level) : "";
-    if (mfBase) return VIEWER + "?manifest=" + encodeURIComponent(new URL(((f && f.mf) || mfName(path)) + ".json", mfBase).href) + lv;
-    return VIEWER + "?url=" + encodeURIComponent((f && f.url) || netlistUrl(path)) + lv;
+    var v = viewerOf(f && f.viewer);
+    if (mfBase) return v + "?manifest=" + encodeURIComponent(new URL(((f && f.mf) || mfName(path)) + ".json", mfBase).href) + lv;
+    return v + "?url=" + encodeURIComponent((f && f.url) || netlistUrl(path)) + lv;
   }
   document.querySelectorAll("[data-top-viewer]").forEach(function (a) {
-    a.href = fullLink("design/top/adc_top.scs", "adc_top");
+    a.href = fullLink("design/top/adc_top.scs", "adc_top", { viewer: a.dataset.viewer });
   });
 
   /* ---------- viewers */
@@ -62,7 +70,7 @@
     var lvlSel = lvlBox.querySelector("select");
     var activate = el.querySelector(".viewer-activate");
     var exitBtn = el.querySelector('[data-act="exit"]');
-    var ready = false, started = false, cur = 0, reqId = 0, timer = null, wantLevel = null;
+    var ready = false, started = false, cur = 0, reqId = 0, timer = null, wantLevel = null, frameViewer = null, frameFile = -1;
 
     function say(msg, cls) {
       status.textContent = msg;
@@ -73,7 +81,9 @@
       frame.contentWindow.postMessage(msg, VIEWER_ORIGIN);
     }
     function frameSrc(i) {
-      var u = new URL(VIEWER);
+      frameViewer = viewerOf(files[i].viewer);
+      frameFile = i;
+      var u = new URL(frameViewer);
       u.searchParams.set("embed", "1");
       u.searchParams.set("origin", location.origin);
       u.searchParams.set("background", theme());
@@ -91,7 +101,9 @@
       links(i);
       lvlBox.hidden = true;
       say("正在加载 " + files[i].label + " …");
-      if (ready) {
+      if (started && viewerOf(files[i].viewer) !== frameViewer) {
+        load(i);                                         // another RNL version: the frame reloads into that version's viewer
+      } else if (ready) {
         wantLevel = files[i].level;
         post({ type: "open", url: files[i].url || netlistUrl(files[i].path), requestId: "r" + (++reqId) });
       }
@@ -99,7 +111,12 @@
     function start() {
       if (started) return;
       started = true;
-      frame.src = frameSrc(cur);
+      load(cur);
+    }
+    function load(i) {
+      ready = false;
+      wantLevel = null;
+      frame.src = frameSrc(i);
       clearTimeout(timer);
       timer = setTimeout(function () {
         if (!ready) say("查看器没有响应：请检查网络，或点击右上角“完整查看器”在新标签页打开。", "err");
@@ -146,6 +163,7 @@
       var d = ev.data;
       if (d.type === "ready") {
         ready = true;
+        if (frameFile !== cur) select(cur);              // a tab chosen while the frame was still starting
       } else if (d.type === "loaded") {
         var n = (d.errors || 0), w = (d.warnings || 0);
         say(files[cur].label + (n || w ? " · " + n + " 个错误，" + w + " 个警告" : " · 已加载"), n ? "err" : "ok");

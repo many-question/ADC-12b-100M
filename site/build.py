@@ -6,7 +6,8 @@
     python site/build.py --serve           # build, then http://127.0.0.1:8000/
 
 The site is plain static files. The schematics are drawn by the hosted RNL web viewer
-(https://rich-netlist.github.io/rnl/viewer/), which fetches the netlists over HTTP: by default
+(https://rich-netlist.github.io/rnl/viewer/, or viewer-0.3/ for a netlist in RNL 0.3: sitegen/manifest.py),
+which fetches the netlists over HTTP: by default
 they are published next to the pages under `repo/` (same `design/` layout, so the relative
 `@USE-PACKAGE` paths resolve); `--netlist-base raw` points the viewer at commit-pinned
 raw.githubusercontent.com URLs instead.

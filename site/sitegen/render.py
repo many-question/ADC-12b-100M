@@ -13,10 +13,10 @@ from .data import (CONTRIBUTING_RAW, FALLBACK_REPO, PROCESS, REPORTED_TITLE, ROO
                    verdict_counts)
 from . import cands as candmod, livepanel
 from .live import Live, unavailable
-from .manifest import name_of
+from .manifest import name_of, rnl_version, viewer_for
 from .md import esc, slug
 
-VIEWER = "https://rich-netlist.github.io/rnl/viewer/"
+TOP = "design/top/adc_top.scs"
 STATUS_LABEL = {"behavioral": "行为级", "xtor-review": "晶体管级 · 待评审", "signoff": "签核"}
 STATUS_HINT = {"behavioral": "只有行为级视图（Verilog-A）", "xtor-review": "全部用例已跑，等待复核",
                "signoff": "全角通过并已复核"}
@@ -37,6 +37,7 @@ class Site:
         self.prov_scope = "本次构建"                            # what recorded inputs are compared with ("该 PR 的提交" in a preview)
         self.fig_prefix = ""                                   # where figures of the results shown live in the site ("preview/pr<N>/" for a PR)
         self.doc_ids: dict[str, set[str]] = {}      # doc slug -> heading ids, to link only anchors that exist
+        self._versions: dict[str, str | None] = {}  # netlist -> its RNL version (viewer_of)
 
     def gh(self, rel: str, is_dir: bool = False) -> str:
         ref = self.build.sha or "main"
@@ -54,26 +55,36 @@ class Site:
     def repo(self) -> str:
         return self.build.repo or FALLBACK_REPO
 
+    def viewer_of(self, rel: str) -> str:
+        """The hosted viewer that reads main's netlist `rel` (manifest.viewer_for its @VERSION)."""
+        if rel not in self._versions:
+            f = ROOT / rel
+            self._versions[rel] = rnl_version(f.read_bytes()) if f.is_file() else None
+        return viewer_for(self._versions[rel])
+
     def manifest_url(self, rel: str) -> str | None:
         """Absolute URL of the manifest whose entry is `rel`, when the site's own address is known at build time."""
         return f"{self.base_url}manifests/{name_of(rel)}.json" if self.manifests and self.base_url else None
 
-    def full_viewer_href(self, rel: str, level: str | None = None, mf_name: str | None = None, url: str | None = None) -> str:
+    def full_viewer_href(self, rel: str, level: str | None = None, mf_name: str | None = None, url: str | None = None,
+                         viewer: str | None = None) -> str:
         """The standalone viewer on the design through a manifest; without manifests, on the single netlist.
 
-        `mf_name` / `url` are for a netlist that is not main's (a PR preview): its manifest name and its own address.
-        When the address is not known at build time, app.js sets the real link from the page location."""
+        `mf_name` / `url` / `viewer` are for a netlist that is not main's (a PR preview): its manifest name, its own
+        address and the viewer of its RNL version. When the address is not known at build time, app.js sets the real
+        link from the page location."""
+        v = viewer or self.viewer_of(rel)
         lv = f"&level={quote(level)}" if level else ""
         if mf_name:
             m = f"{self.base_url}manifests/{mf_name}.json" if self.manifests and self.base_url else None
         else:
             m = self.manifest_url(rel)
         if m:
-            return f"{VIEWER}?manifest={quote(m, safe='')}{lv}"
+            return f"{v}?manifest={quote(m, safe='')}{lv}"
         if self.manifests:
-            return VIEWER
+            return v
         u = url or self.netlist_url(rel)
-        return f"{VIEWER}?url={quote(u, safe='')}{lv}" if u else VIEWER
+        return f"{v}?url={quote(u, safe='')}{lv}" if u else v
 
     def prs_url(self, block: str) -> str:
         """Open pull requests of a block: their titles start with [<block>]."""
@@ -121,7 +132,7 @@ def page(site: Site, *, title: str, body: str, active: str, root: str, desc: str
     b = site.build
     ver = f'<a href="{site.gh("", True)}commit/{b.sha}">{esc(b.short)}</a>' if b.sha and b.repo else esc(b.short)
     gh = f'<a class="gh" href="https://github.com/{b.repo}" rel="noopener" title="GitHub">GitHub ↗</a>' if b.repo else ""
-    top_href = site.full_viewer_href("design/top/adc_top.scs", "adc_top")
+    top_href = site.full_viewer_href(TOP, "adc_top")
     nl_base = site.netlist_base if site.netlist_base.startswith("http") else root + site.netlist_base   # relative to this page
     mf_href = site.base_url + "manifests/" if site.base_url else root + "manifests/"
     mf_base = f'<meta name="manifest-base" content="{esc(mf_href)}">' if site.manifests else ""
@@ -146,7 +157,7 @@ def page(site: Site, *, title: str, body: str, active: str, root: str, desc: str
   <a class="brand" href="{root}index.html"><span class="logo" aria-hidden="true"></span><b>ADC-12b-100M</b></a>
   <nav aria-label="主导航">{nav}</nav>
   <div class="tools">
-    <a class="btn small primary hide-sm" data-top-viewer href="{esc(top_href)}" target="_blank" rel="noopener">顶层原理图 ↗</a>
+    <a class="btn small primary hide-sm" data-top-viewer data-viewer="{esc(site.viewer_of(TOP))}" href="{esc(top_href)}" target="_blank" rel="noopener">顶层原理图 ↗</a>
     <button class="icon" id="theme" type="button" aria-label="切换明暗主题" title="切换明暗主题"></button>
   </div>
 </div></header>
@@ -299,8 +310,9 @@ def viewer(site: Site, files: list[dict], vid: str, height: int = 460, note: str
     if not files:
         return "<p class='empty'>该模块还没有可画的网表。</p>"
     data = [{"label": f["label"], "path": f["path"], "level": f.get("level"), "kind": f["kind"], "mf": f.get("mf") or name_of(f["path"]),
-             "url": f.get("url"), "src": site.gh(f["path"]),
-             "full": site.full_viewer_href(f["path"], f.get("level"), f.get("mf"), f.get("url"))} for f in files]
+             "url": f.get("url"), "src": site.gh(f["path"]), "viewer": f.get("viewer") or site.viewer_of(f["path"]),
+             "full": site.full_viewer_href(f["path"], f.get("level"), f.get("mf"), f.get("url"), f.get("viewer"))}
+            for f in files]
     tabs = "".join(f'<button type="button" role="tab" aria-selected="{"true" if i == 0 else "false"}" data-i="{i}">'
                    f'{esc(f["label"])}</button>' for i, f in enumerate(data))
     first = data[0]
@@ -744,13 +756,13 @@ def collaboration(site: Site, root: str) -> str:
 
 def design_library(site: Site) -> str:
     """Where the design itself is: the RNL library and the netlists on GitHub, and the whole design in the viewer."""
-    top = site.full_viewer_href("design/top/adc_top.scs", "adc_top")
+    top = site.full_viewer_href(TOP, "adc_top")
     return f"""<section class="design" id="design"><h2>设计库</h2>
 <p>设计数据全部是文本：<b>Spectre 网表</b>写电路，<b>RNL</b> 写在网表注释里，说明原理图怎么画（符号、位置、连线）。
 <code>design/rnl/</code> 是项目的 RNL 库：<code>adc28.rnl</code> 引入标准符号，另有由规格生成的模块符号和 Verilog-A 符号文件。
 下面的查看器链接用清单（manifest）把这些文件作为一个整体打开，整个设计的原理图可以逐层展开。</p>
 <div class="cta">
-<a class="btn primary" data-top-viewer href="{esc(top)}" target="_blank" rel="noopener">在查看器中打开完整设计（顶层 adc_top）↗</a>
+<a class="btn primary" data-top-viewer data-viewer="{esc(site.viewer_of(TOP))}" href="{esc(top)}" target="_blank" rel="noopener">在查看器中打开完整设计（顶层 adc_top）↗</a>
 <a class="btn" href="{esc(site.gh('design/rnl', True))}" target="_blank" rel="noopener">RNL 库 <code>design/rnl/</code> ↗</a>
 <a class="btn" href="{esc(site.gh('design', True))}" target="_blank" rel="noopener">网表 <code>design/</code> ↗</a>
 <a class="btn" href="{esc(site.gh('tb', True))}" target="_blank" rel="noopener">测试台 <code>tb/</code> ↗</a></div>
@@ -919,7 +931,7 @@ def overview(site: Site, data: dict[str, BlockData]) -> str:
     ]
     arch_html = "".join(f"<tr><th scope=row>{k}</th><td>{v}</td></tr>" for k, v in arch_rows)
     cards = "".join(block_card(site, bd, "") for bd in data.values())
-    top_href = site.full_viewer_href("design/top/adc_top.scs", "adc_top")
+    top_href = site.full_viewer_href(TOP, "adc_top")
     enob_figs = figure_strip(site, enob_doc, "") if enob_doc else ""
     collab_sec = collaboration(site, "") if has_doc("contributing") else ""
     body = f"""<section class="hero">
@@ -928,7 +940,7 @@ def overview(site: Site, data: dict[str, BlockData]) -> str:
 <p class="lead">100 MS/s、12 bit 级异步 SAR ADC。整个设计只有 <b>Spectre 网表 + RNL 原理图</b>、Verilog-A 行为级模型和 Python 流程，没有图形化原理图编辑器。
 这个网站由仓库自动生成，随每个 PR 更新。</p>
 <div class="cta">
-<a class="btn primary big" data-top-viewer href="{esc(top_href)}" target="_blank" rel="noopener">打开顶层原理图 adc_top ↗</a>
+<a class="btn primary big" data-top-viewer data-viewer="{esc(site.viewer_of(TOP))}" href="{esc(top_href)}" target="_blank" rel="noopener">打开顶层原理图 adc_top ↗</a>
 <a class="btn big" href="verification.html">验证结果</a><a class="btn big" href="progress.html">模块进展</a></div>
 </section>
 <section><h2 id="numbers">关键数字</h2><div class="stats">{stats}</div>{enob_figs}{health}</section>

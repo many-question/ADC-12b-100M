@@ -17,7 +17,6 @@ from __future__ import annotations
 
 import copy
 import dataclasses
-import hashlib
 import json
 import re
 import shutil
@@ -295,15 +294,13 @@ def _build(pv: Preview, site, out: Path, repo: Path, base: str) -> None:
     copy_figures(tree, docs, out, pr.number, pv.notes)
 
     # --- the netlist viewer: raw files at the head, through a manifest at that sha
-    entries = []
-    for rel in published:
-        data = texts[rel]
-        entries.append({"path": rel, "sha256": hashlib.sha256(data).hexdigest(), "size": len(data)})
+    entries = [mf.entry(rel, texts[rel]) for rel in published]
     raw = _raw_base(pv.head_repo, pr.sha)
     names = write_manifests(out, pr, pv.head_repo, entries, xtor)
     for rel in xtor:
         label = "晶体管级 xtor" + ("" if len(xtor) == 1 else f" · {PurePosixPath(rel).name}")
-        pv.viewer_files.append({"label": label, "kind": "xtor", "path": rel, "level": block, "url": raw + rel, "mf": names[rel]})
+        pv.viewer_files.append({"label": label, "kind": "xtor", "path": rel, "level": block, "url": raw + rel, "mf": names[rel],
+                                "viewer": mf.viewer_for(mf.rnl_version(texts[rel]))})
     if xtor:
         pv.xtor_change = last_commit(repo, pr.sha, f"design/xtor/{block}")
     pv.commits = commits
