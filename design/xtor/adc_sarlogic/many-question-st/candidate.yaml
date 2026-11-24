@@ -1,6 +1,6 @@
 name: many-question-st
 description: Static CMOS self-timed 14-step SAR controller with token-interlocked bit slices, per-step tapped DAC settling wait, parallel-reset timeout recovery, and glitch-free output register.
-status: wip
+status: ready
 acknowledged:
 - 61
 - 79

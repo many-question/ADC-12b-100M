@@ -618,31 +618,31 @@
 <g data-id="a usage of $JUNCTION"><circle cx="560.00" cy="2758.00" r="5.29" fill="#1d1d1f" stroke="none"/></g>
 <g data-id="#XCTRL::name"><text x="-406.00" y="-108.23" font-size="11.20" font-weight="bold" textLength="35.48" lengthAdjust="spacingAndGlyphs" fill="#276749" xml:space="preserve">XCTRL</text></g>
 <g data-id="#XS1::name"><text x="173.87" y="-75.82" font-size="10.50" font-weight="bold" textLength="19.33" lengthAdjust="spacingAndGlyphs" fill="#276749" xml:space="preserve">XS1</text></g>
-<g data-id="#XS1::sizes"><text x="264.43" y="-30.85" font-size="6.30" textLength="31.13" lengthAdjust="spacingAndGlyphs" fill="#276749" xml:space="preserve">240n/360n</text></g>
+<g data-id="#XS1::sizes"><text x="264.43" y="-30.85" font-size="6.30" textLength="31.13" lengthAdjust="spacingAndGlyphs" fill="#276749" xml:space="preserve">120n/180n</text></g>
 <g data-id="#XS2::name"><text x="173.87" y="148.18" font-size="10.50" font-weight="bold" textLength="19.33" lengthAdjust="spacingAndGlyphs" fill="#276749" xml:space="preserve">XS2</text></g>
-<g data-id="#XS2::sizes"><text x="264.43" y="193.15" font-size="6.30" textLength="31.13" lengthAdjust="spacingAndGlyphs" fill="#276749" xml:space="preserve">240n/360n</text></g>
+<g data-id="#XS2::sizes"><text x="264.43" y="193.15" font-size="6.30" textLength="31.13" lengthAdjust="spacingAndGlyphs" fill="#276749" xml:space="preserve">120n/180n</text></g>
 <g data-id="#XS3::name"><text x="173.87" y="372.18" font-size="10.50" font-weight="bold" textLength="19.33" lengthAdjust="spacingAndGlyphs" fill="#276749" xml:space="preserve">XS3</text></g>
-<g data-id="#XS3::sizes"><text x="260.95" y="417.15" font-size="6.30" textLength="38.10" lengthAdjust="spacingAndGlyphs" fill="#276749" xml:space="preserve">1.65u/2.475u</text></g>
+<g data-id="#XS3::sizes"><text x="260.95" y="417.15" font-size="6.30" textLength="38.10" lengthAdjust="spacingAndGlyphs" fill="#276749" xml:space="preserve">3.65u/5.475u</text></g>
 <g data-id="#XS4::name"><text x="173.87" y="596.18" font-size="10.50" font-weight="bold" textLength="19.33" lengthAdjust="spacingAndGlyphs" fill="#276749" xml:space="preserve">XS4</text></g>
-<g data-id="#XS4::sizes"><text x="266.20" y="641.15" font-size="6.30" textLength="27.61" lengthAdjust="spacingAndGlyphs" fill="#276749" xml:space="preserve">5.4u/8.1u</text></g>
+<g data-id="#XS4::sizes"><text x="259.20" y="641.15" font-size="6.30" textLength="41.59" lengthAdjust="spacingAndGlyphs" fill="#276749" xml:space="preserve">7.95u/11.925u</text></g>
 <g data-id="#XS5::name"><text x="173.87" y="820.18" font-size="10.50" font-weight="bold" textLength="19.33" lengthAdjust="spacingAndGlyphs" fill="#276749" xml:space="preserve">XS5</text></g>
-<g data-id="#XS5::sizes"><text x="266.20" y="865.15" font-size="6.30" textLength="27.61" lengthAdjust="spacingAndGlyphs" fill="#276749" xml:space="preserve">5.4u/8.1u</text></g>
+<g data-id="#XS5::sizes"><text x="264.45" y="865.15" font-size="6.30" textLength="31.10" lengthAdjust="spacingAndGlyphs" fill="#276749" xml:space="preserve">8.2u/12.3u</text></g>
 <g data-id="#XS6::name"><text x="173.87" y="1044.18" font-size="10.50" font-weight="bold" textLength="19.33" lengthAdjust="spacingAndGlyphs" fill="#276749" xml:space="preserve">XS6</text></g>
-<g data-id="#XS6::sizes"><text x="266.20" y="1089.15" font-size="6.30" textLength="27.61" lengthAdjust="spacingAndGlyphs" fill="#276749" xml:space="preserve">5.4u/8.1u</text></g>
+<g data-id="#XS6::sizes"><text x="259.20" y="1089.15" font-size="6.30" textLength="41.59" lengthAdjust="spacingAndGlyphs" fill="#276749" xml:space="preserve">7.25u/10.875u</text></g>
 <g data-id="#XS7::name"><text x="173.87" y="1268.18" font-size="10.50" font-weight="bold" textLength="19.33" lengthAdjust="spacingAndGlyphs" fill="#276749" xml:space="preserve">XS7</text></g>
-<g data-id="#XS7::sizes"><text x="264.45" y="1313.15" font-size="6.30" textLength="31.10" lengthAdjust="spacingAndGlyphs" fill="#276749" xml:space="preserve">8.6u/12.9u</text></g>
+<g data-id="#XS7::sizes"><text x="262.70" y="1313.15" font-size="6.30" textLength="34.60" lengthAdjust="spacingAndGlyphs" fill="#276749" xml:space="preserve">11.8u/17.7u</text></g>
 <g data-id="#XS8::name"><text x="173.87" y="1492.18" font-size="10.50" font-weight="bold" textLength="19.33" lengthAdjust="spacingAndGlyphs" fill="#276749" xml:space="preserve">XS8</text></g>
-<g data-id="#XS8::sizes"><text x="264.45" y="1537.15" font-size="6.30" textLength="31.10" lengthAdjust="spacingAndGlyphs" fill="#276749" xml:space="preserve">8.6u/12.9u</text></g>
+<g data-id="#XS8::sizes"><text x="262.70" y="1537.15" font-size="6.30" textLength="34.60" lengthAdjust="spacingAndGlyphs" fill="#276749" xml:space="preserve">11.8u/17.7u</text></g>
 <g data-id="#XS9::name"><text x="173.87" y="1716.18" font-size="10.50" font-weight="bold" textLength="19.33" lengthAdjust="spacingAndGlyphs" fill="#276749" xml:space="preserve">XS9</text></g>
-<g data-id="#XS9::sizes"><text x="262.70" y="1761.15" font-size="6.30" textLength="34.60" lengthAdjust="spacingAndGlyphs" fill="#276749" xml:space="preserve">12.0u/18.0u</text></g>
+<g data-id="#XS9::sizes"><text x="260.95" y="1761.15" font-size="6.30" textLength="38.10" lengthAdjust="spacingAndGlyphs" fill="#276749" xml:space="preserve">16.9u/25.35u</text></g>
 <g data-id="#XS10::name"><text x="167.67" y="1940.18" font-size="10.50" font-weight="bold" textLength="25.53" lengthAdjust="spacingAndGlyphs" fill="#276749" xml:space="preserve">XS10</text></g>
-<g data-id="#XS10::sizes"><text x="264.45" y="1985.15" font-size="6.30" textLength="31.10" lengthAdjust="spacingAndGlyphs" fill="#276749" xml:space="preserve">8.6u/12.9u</text></g>
+<g data-id="#XS10::sizes"><text x="262.70" y="1985.15" font-size="6.30" textLength="34.60" lengthAdjust="spacingAndGlyphs" fill="#276749" xml:space="preserve">11.8u/17.7u</text></g>
 <g data-id="#XS11::name"><text x="167.67" y="2164.18" font-size="10.50" font-weight="bold" textLength="25.53" lengthAdjust="spacingAndGlyphs" fill="#276749" xml:space="preserve">XS11</text></g>
-<g data-id="#XS11::sizes"><text x="264.45" y="2209.15" font-size="6.30" textLength="31.10" lengthAdjust="spacingAndGlyphs" fill="#276749" xml:space="preserve">8.6u/12.9u</text></g>
+<g data-id="#XS11::sizes"><text x="262.70" y="2209.15" font-size="6.30" textLength="34.60" lengthAdjust="spacingAndGlyphs" fill="#276749" xml:space="preserve">11.8u/17.7u</text></g>
 <g data-id="#XS12::name"><text x="167.67" y="2388.18" font-size="10.50" font-weight="bold" textLength="25.53" lengthAdjust="spacingAndGlyphs" fill="#276749" xml:space="preserve">XS12</text></g>
-<g data-id="#XS12::sizes"><text x="264.45" y="2433.15" font-size="6.30" textLength="31.10" lengthAdjust="spacingAndGlyphs" fill="#276749" xml:space="preserve">8.6u/12.9u</text></g>
+<g data-id="#XS12::sizes"><text x="262.70" y="2433.15" font-size="6.30" textLength="34.60" lengthAdjust="spacingAndGlyphs" fill="#276749" xml:space="preserve">11.8u/17.7u</text></g>
 <g data-id="#XS13::name"><text x="167.67" y="2612.18" font-size="10.50" font-weight="bold" textLength="25.53" lengthAdjust="spacingAndGlyphs" fill="#276749" xml:space="preserve">XS13</text></g>
-<g data-id="#XS13::sizes"><text x="264.45" y="2657.15" font-size="6.30" textLength="31.10" lengthAdjust="spacingAndGlyphs" fill="#276749" xml:space="preserve">8.6u/12.9u</text></g>
+<g data-id="#XS13::sizes"><text x="262.70" y="2657.15" font-size="6.30" textLength="34.60" lengthAdjust="spacingAndGlyphs" fill="#276749" xml:space="preserve">11.8u/17.7u</text></g>
 <g data-id="#XS14::name"><text x="167.67" y="2836.18" font-size="10.50" font-weight="bold" textLength="25.53" lengthAdjust="spacingAndGlyphs" fill="#276749" xml:space="preserve">XS14</text></g>
 <g data-id="%p_up"><circle cx="1019.20" cy="224.00" r="4.48" fill="none" stroke="#1d1d1f" stroke-width="3.36"/></g>
 <g data-id="%p_up"><path d="M1008.00,224.00 L1014.72,224.00" fill="none" stroke="#1d1d1f" stroke-width="4.48"/></g>
@@ -853,7 +853,7 @@
 <g data-id="a text"><text x="854.96" y="451.97" font-size="9.10" textLength="34.04" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">D&lt;13:0&gt;</text></g>
 <g data-id="a text"><text x="-616.00" y="-252.00" font-size="15.40" font-weight="bold" textLength="851.54" lengthAdjust="spacingAndGlyphs" fill="#1a365d" xml:space="preserve">adc_sarlogic (transistor view): 14-Step Self-Timed Asynchronous SAR Controller, CDAC Drivers &amp; Output Register</text></g>
 <g data-id="a text"><text x="-616.00" y="-221.20" font-size="10.50" transform="matrix(1 0 -0.25 1 -55.30 0)" textLength="708.88" lengthAdjust="spacingAndGlyphs" fill="#4a5568" xml:space="preserve">32 top-level subcircuit instances: 3 low-C input inverters + 1 central controller (XCTRL) + 14 bit slices (XS1..XS14) + 14 output latches (XDL13..XDL0)</text></g>
-<g data-id="a text"><text x="-616.00" y="-193.20" font-size="10.50" transform="matrix(1 0 -0.25 1 -48.30 0)" textLength="563.01" lengthAdjust="spacingAndGlyphs" fill="#4a5568" xml:space="preserve">All 16 spec items (LOG-01 .. LOG-16) verified across all 45 PVT corners (0 errors across 48,825 simulated conversions)</text></g>
+<g data-id="a text"><text x="-616.00" y="-193.20" font-size="10.50" transform="matrix(1 0 -0.25 1 -48.30 0)" textLength="507.75" lengthAdjust="spacingAndGlyphs" fill="#4a5568" xml:space="preserve">All 17 spec items (LOG-01 .. LOG-17) verified across all 45 PVT corners (369/369 passing, 0 SOA violations)</text></g>
 <g data-id="a text"><text x="-560.00" y="-133.00" font-size="11.90" font-weight="bold" textLength="183.52" lengthAdjust="spacingAndGlyphs" fill="#1a365d" xml:space="preserve">Input Buffers &amp; Loop Controller</text></g>
 <g data-id="a text"><text x="168.00" y="-133.00" font-size="11.90" font-weight="bold" textLength="283.87" lengthAdjust="spacingAndGlyphs" fill="#975a16" xml:space="preserve">14-Step Self-Timed Bit Slice Cascade (XS1..XS14)</text></g>
 <g data-id="a text"><text x="588.00" y="-147.00" font-size="11.90" font-weight="bold" textLength="176.49" lengthAdjust="spacingAndGlyphs" fill="#2c5282" xml:space="preserve">Output Latches (XDL13..XDL0)</text></g>
@@ -899,15 +899,15 @@
 <g data-id="a text"><text x="1155.00" y="295.78" font-size="7.70" textLength="46.06" lengthAdjust="spacingAndGlyphs" fill="#2d3748" xml:space="preserve">OUTP, OUTN</text></g>
 <g data-id="a text"><text x="1219.53" y="295.78" font-size="7.70" textLength="19.17" lengthAdjust="spacingAndGlyphs" fill="#2d3748" xml:space="preserve">input</text></g>
 <g data-id="a text"><text x="1275.12" y="295.78" font-size="7.70" textLength="22.78" lengthAdjust="spacingAndGlyphs" fill="#2d3748" xml:space="preserve">digital</text></g>
-<g data-id="a text"><text x="1321.78" y="295.78" font-size="7.70" textLength="229.09" lengthAdjust="spacingAndGlyphs" fill="#2d3748" xml:space="preserve">Comparator outputs (Cin = 4.22 fF &lt;= 7 fF, dC = 7.2%, LOG-15/16)</text></g>
+<g data-id="a text"><text x="1321.78" y="295.78" font-size="7.70" textLength="233.36" lengthAdjust="spacingAndGlyphs" fill="#2d3748" xml:space="preserve">Comparator outputs (Cin = 4.22 fF &lt;= 7 fF, dC = 11.2%, LOG-15/16)</text></g>
 <g data-id="a text"><text x="1155.00" y="311.95" font-size="7.70" textLength="18.98" lengthAdjust="spacingAndGlyphs" fill="#2d3748" xml:space="preserve">CLKC</text></g>
 <g data-id="a text"><text x="1219.53" y="311.95" font-size="7.70" textLength="24.59" lengthAdjust="spacingAndGlyphs" fill="#2d3748" xml:space="preserve">output</text></g>
 <g data-id="a text"><text x="1275.12" y="311.95" font-size="7.70" textLength="18.96" lengthAdjust="spacingAndGlyphs" fill="#2d3748" xml:space="preserve">clock</text></g>
-<g data-id="a text"><text x="1321.78" y="311.95" font-size="7.70" textLength="261.05" lengthAdjust="spacingAndGlyphs" fill="#2d3748" xml:space="preserve">Comparator clock: 14 pulses/conv, t_conv = 2.74 ns (tt) / &lt;= 3.71 ns (slow)</text></g>
+<g data-id="a text"><text x="1321.78" y="311.95" font-size="7.70" textLength="261.05" lengthAdjust="spacingAndGlyphs" fill="#2d3748" xml:space="preserve">Comparator clock: 14 pulses/conv, t_conv = 2.72 ns (tt) / &lt;= 3.69 ns (slow)</text></g>
 <g data-id="a text"><text x="1155.00" y="328.12" font-size="7.70" textLength="33.93" lengthAdjust="spacingAndGlyphs" fill="#2d3748" xml:space="preserve">UP&lt;12:0&gt;</text></g>
 <g data-id="a text"><text x="1219.53" y="328.12" font-size="7.70" textLength="24.59" lengthAdjust="spacingAndGlyphs" fill="#2d3748" xml:space="preserve">output</text></g>
 <g data-id="a text"><text x="1275.12" y="328.12" font-size="7.70" textLength="22.78" lengthAdjust="spacingAndGlyphs" fill="#2d3748" xml:space="preserve">digital</text></g>
-<g data-id="a text"><text x="1321.78" y="328.12" font-size="7.70" textLength="253.25" lengthAdjust="spacingAndGlyphs" fill="#2d3748" xml:space="preserve">CDAC positive switch drivers (steps 1..13 -&gt; UP12..UP0, t_bitd = 27.9 ps)</text></g>
+<g data-id="a text"><text x="1321.78" y="328.12" font-size="7.70" textLength="253.25" lengthAdjust="spacingAndGlyphs" fill="#2d3748" xml:space="preserve">CDAC positive switch drivers (steps 1..13 -&gt; UP12..UP0, t_bitd = 26.6 ps)</text></g>
 <g data-id="a text"><text x="1155.00" y="344.29" font-size="7.70" textLength="34.37" lengthAdjust="spacingAndGlyphs" fill="#2d3748" xml:space="preserve">DN&lt;12:0&gt;</text></g>
 <g data-id="a text"><text x="1219.53" y="344.29" font-size="7.70" textLength="24.59" lengthAdjust="spacingAndGlyphs" fill="#2d3748" xml:space="preserve">output</text></g>
 <g data-id="a text"><text x="1275.12" y="344.29" font-size="7.70" textLength="22.78" lengthAdjust="spacingAndGlyphs" fill="#2d3748" xml:space="preserve">digital</text></g>
@@ -923,7 +923,7 @@
 <g data-id="a text"><text x="1155.00" y="392.80" font-size="7.70" textLength="37.79" lengthAdjust="spacingAndGlyphs" fill="#2d3748" xml:space="preserve">DVDD, VSS</text></g>
 <g data-id="a text"><text x="1219.53" y="392.80" font-size="7.70" textLength="19.06" lengthAdjust="spacingAndGlyphs" fill="#2d3748" xml:space="preserve">inout</text></g>
 <g data-id="a text"><text x="1275.12" y="392.80" font-size="7.70" textLength="24.02" lengthAdjust="spacingAndGlyphs" fill="#2d3748" xml:space="preserve">supply</text></g>
-<g data-id="a text"><text x="1321.78" y="392.80" font-size="7.70" textLength="244.37" lengthAdjust="spacingAndGlyphs" fill="#2d3748" xml:space="preserve">0.9 V digital supply &amp; ground (Idd_avg = 928 uW @ 100 MS/s, LOG-13)</text></g>
+<g data-id="a text"><text x="1321.78" y="392.80" font-size="7.70" textLength="248.97" lengthAdjust="spacingAndGlyphs" fill="#2d3748" xml:space="preserve">0.9 V digital supply &amp; ground (Idd_avg = 1.06 mW @ 100 MS/s, LOG-13)</text></g>
 <g data-id="a text"><text x="1148.00" y="523.60" font-size="10.50" font-weight="bold" transform="matrix(1 0 -0.25 1 130.90 0)" textLength="215.86" lengthAdjust="spacingAndGlyphs" fill="#4a5568" xml:space="preserve">14-Step Redundant SAR Bit-Slice Mapping</text></g>
 <rect x="1148.00" y="532.00" width="545.93" height="129.36" fill="none" stroke="#a0aec0" stroke-width="2.24"/>
 <path d="M1148.00,548.17 L1693.93,548.17" fill="none" stroke="#a0aec0" stroke-width="2.24"/>
@@ -940,32 +940,32 @@
 <g data-id="a text"><text x="1223.99" y="559.61" font-size="7.70" textLength="24.39" lengthAdjust="spacingAndGlyphs" fill="#2d3748" xml:space="preserve">k = 1, 2</text></g>
 <g data-id="a text"><text x="1292.98" y="559.61" font-size="7.70" textLength="70.51" lengthAdjust="spacingAndGlyphs" fill="#2d3748" xml:space="preserve">UP12..11 / DN12..11</text></g>
 <g data-id="a text"><text x="1393.24" y="559.61" font-size="7.70" textLength="31.55" lengthAdjust="spacingAndGlyphs" fill="#2d3748" xml:space="preserve">D13, D12</text></g>
-<g data-id="a text"><text x="1453.30" y="559.61" font-size="7.70" textLength="171.58" lengthAdjust="spacingAndGlyphs" fill="#2d3748" xml:space="preserve">Weights 2048, 1024 | Fast Wait (48.2 ps, Group A)</text></g>
+<g data-id="a text"><text x="1453.30" y="559.61" font-size="7.70" textLength="171.58" lengthAdjust="spacingAndGlyphs" fill="#2d3748" xml:space="preserve">Weights 2048, 1024 | Fast Wait (47.8 ps, Group A)</text></g>
 <g data-id="a text"><text x="1155.00" y="575.78" font-size="7.70" textLength="13.27" lengthAdjust="spacingAndGlyphs" fill="#2d3748" xml:space="preserve">XS3</text></g>
 <g data-id="a text"><text x="1223.99" y="575.78" font-size="7.70" textLength="16.25" lengthAdjust="spacingAndGlyphs" fill="#2d3748" xml:space="preserve">k = 3</text></g>
 <g data-id="a text"><text x="1292.98" y="575.78" font-size="7.70" textLength="44.85" lengthAdjust="spacingAndGlyphs" fill="#2d3748" xml:space="preserve">UP10 / DN10</text></g>
 <g data-id="a text"><text x="1393.24" y="575.78" font-size="7.70" textLength="13.84" lengthAdjust="spacingAndGlyphs" fill="#2d3748" xml:space="preserve">D11</text></g>
-<g data-id="a text"><text x="1453.30" y="575.78" font-size="7.70" textLength="160.88" lengthAdjust="spacingAndGlyphs" fill="#2d3748" xml:space="preserve">Weight 512 | Fast + 15 ps Extra Wait (Group B)</text></g>
+<g data-id="a text"><text x="1453.30" y="575.78" font-size="7.70" textLength="160.88" lengthAdjust="spacingAndGlyphs" fill="#2d3748" xml:space="preserve">Weight 512 | Fast + 10 ps Extra Wait (Group B)</text></g>
 <g data-id="a text"><text x="1155.00" y="591.95" font-size="7.70" textLength="34.28" lengthAdjust="spacingAndGlyphs" fill="#2d3748" xml:space="preserve">XS4 .. XS6</text></g>
 <g data-id="a text"><text x="1223.99" y="591.95" font-size="7.70" textLength="28.25" lengthAdjust="spacingAndGlyphs" fill="#2d3748" xml:space="preserve">k = 4 .. 6</text></g>
 <g data-id="a text"><text x="1292.98" y="591.95" font-size="7.70" textLength="53.41" lengthAdjust="spacingAndGlyphs" fill="#2d3748" xml:space="preserve">UP9..7 / DN9..7</text></g>
 <g data-id="a text"><text x="1393.24" y="591.95" font-size="7.70" textLength="31.15" lengthAdjust="spacingAndGlyphs" fill="#2d3748" xml:space="preserve">D10 .. D8</text></g>
-<g data-id="a text"><text x="1453.30" y="591.95" font-size="7.70" textLength="173.12" lengthAdjust="spacingAndGlyphs" fill="#2d3748" xml:space="preserve">Weights 256, 128, 64 | Fast + 35 ps Wait (Group C)</text></g>
+<g data-id="a text"><text x="1453.30" y="591.95" font-size="7.70" textLength="173.12" lengthAdjust="spacingAndGlyphs" fill="#2d3748" xml:space="preserve">Weights 256, 128, 64 | Fast + 30 ps Wait (Group C)</text></g>
 <g data-id="a text"><text x="1155.00" y="608.12" font-size="7.70" textLength="30.42" lengthAdjust="spacingAndGlyphs" fill="#2d3748" xml:space="preserve">XS7, XS8</text></g>
 <g data-id="a text"><text x="1223.99" y="608.12" font-size="7.70" textLength="24.39" lengthAdjust="spacingAndGlyphs" fill="#2d3748" xml:space="preserve">k = 7, 8</text></g>
 <g data-id="a text"><text x="1292.98" y="608.12" font-size="7.70" textLength="53.41" lengthAdjust="spacingAndGlyphs" fill="#2d3748" xml:space="preserve">UP6..5 / DN6..5</text></g>
 <g data-id="a text"><text x="1393.24" y="608.12" font-size="7.70" textLength="23.01" lengthAdjust="spacingAndGlyphs" fill="#2d3748" xml:space="preserve">D7, D6</text></g>
-<g data-id="a text"><text x="1453.30" y="608.12" font-size="7.70" textLength="178.11" lengthAdjust="spacingAndGlyphs" fill="#2d3748" xml:space="preserve">Weights 64 (red.), 32 | Slow Wait (94.9 ps, Group A)</text></g>
+<g data-id="a text"><text x="1453.30" y="608.12" font-size="7.70" textLength="178.11" lengthAdjust="spacingAndGlyphs" fill="#2d3748" xml:space="preserve">Weights 64 (red.), 32 | Slow Wait (96.2 ps, Group A)</text></g>
 <g data-id="a text"><text x="1155.00" y="624.29" font-size="7.70" textLength="13.27" lengthAdjust="spacingAndGlyphs" fill="#2d3748" xml:space="preserve">XS9</text></g>
 <g data-id="a text"><text x="1223.99" y="624.29" font-size="7.70" textLength="16.25" lengthAdjust="spacingAndGlyphs" fill="#2d3748" xml:space="preserve">k = 9</text></g>
 <g data-id="a text"><text x="1292.98" y="624.29" font-size="7.70" textLength="36.31" lengthAdjust="spacingAndGlyphs" fill="#2d3748" xml:space="preserve">UP4 / DN4</text></g>
 <g data-id="a text"><text x="1393.24" y="624.29" font-size="7.70" textLength="9.57" lengthAdjust="spacingAndGlyphs" fill="#2d3748" xml:space="preserve">D5</text></g>
-<g data-id="a text"><text x="1453.30" y="624.29" font-size="7.70" textLength="159.37" lengthAdjust="spacingAndGlyphs" fill="#2d3748" xml:space="preserve">Weight 16 | Slow + 15 ps Extra Wait (Group D)</text></g>
+<g data-id="a text"><text x="1453.30" y="624.29" font-size="7.70" textLength="159.37" lengthAdjust="spacingAndGlyphs" fill="#2d3748" xml:space="preserve">Weight 16 | Slow + 25 ps Extra Wait (Group D)</text></g>
 <g data-id="a text"><text x="1155.00" y="640.46" font-size="7.70" textLength="42.83" lengthAdjust="spacingAndGlyphs" fill="#2d3748" xml:space="preserve">XS10 .. XS13</text></g>
 <g data-id="a text"><text x="1223.99" y="640.46" font-size="7.70" textLength="36.80" lengthAdjust="spacingAndGlyphs" fill="#2d3748" xml:space="preserve">k = 10 .. 13</text></g>
 <g data-id="a text"><text x="1292.98" y="640.46" font-size="7.70" textLength="53.41" lengthAdjust="spacingAndGlyphs" fill="#2d3748" xml:space="preserve">UP3..0 / DN3..0</text></g>
 <g data-id="a text"><text x="1393.24" y="640.46" font-size="7.70" textLength="26.87" lengthAdjust="spacingAndGlyphs" fill="#2d3748" xml:space="preserve">D4 .. D1</text></g>
-<g data-id="a text"><text x="1453.30" y="640.46" font-size="7.70" textLength="153.16" lengthAdjust="spacingAndGlyphs" fill="#2d3748" xml:space="preserve">Weights 8, 4, 4 (red.), 2 | Slow Wait (94.9 ps)</text></g>
+<g data-id="a text"><text x="1453.30" y="640.46" font-size="7.70" textLength="153.16" lengthAdjust="spacingAndGlyphs" fill="#2d3748" xml:space="preserve">Weights 8, 4, 4 (red.), 2 | Slow Wait (96.2 ps)</text></g>
 <g data-id="a text"><text x="1155.00" y="656.63" font-size="7.70" textLength="17.55" lengthAdjust="spacingAndGlyphs" fill="#2d3748" xml:space="preserve">XS14</text></g>
 <g data-id="a text"><text x="1223.99" y="656.63" font-size="7.70" textLength="20.52" lengthAdjust="spacingAndGlyphs" fill="#2d3748" xml:space="preserve">k = 14</text></g>
 <g data-id="a text"><text x="1292.98" y="656.63" font-size="7.70" textLength="23.53" lengthAdjust="spacingAndGlyphs" fill="#2d3748" xml:space="preserve">(none)</text></g>
