@@ -1,0 +1,17 @@
+`include "constants.vams"
+`include "disciplines.vams"
+// Diagnostic only: no charge-pump loss, input capacitance, bias load or supply current.
+// The resistor in the Spectre wrapper drives the real transistor gate capacitance.
+module mq_cdac_booster_va(CLKB,CMD,DVDD,VB,VSS);
+  inout CLKB,CMD,DVDD,VB,VSS;
+  electrical CLKB,CMD,DVDD,VB,VSS;
+  parameter real k=0.9 from (0:1];
+  parameter real vlo=0, td=2p from [0:inf), tr=10p from (0:inf), tf=10p from (0:inf);
+  integer active;
+  analog begin
+    @(initial_step) active=(V(CLKB,VSS)<0.5*V(DVDD,VSS));
+    @(cross(V(CLKB,VSS)-0.5*V(DVDD,VSS),+1,1f,1u)) active=0;
+    @(cross(V(CLKB,VSS)-0.5*V(DVDD,VSS),-1,1f,1u)) active=1;
+    V(CMD,VSS)<+vlo+transition(active,td,tr,tf)*(V(VB,VSS)+k*V(DVDD,VSS)-vlo);
+  end
+endmodule

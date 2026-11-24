@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1381" height="1383" viewBox="-397.12 -588.11 1380.89 1383.14" font-family="Noto Sans SC, Noto Sans CJK SC, Source Han Sans SC, sans-serif" style="font-kerning:none;font-variant-ligatures:none;text-spacing-trim:space-all;text-autospace:no-autospace">
+<rect class="backdrop" x="-397.12" y="-588.11" width="1380.89" height="1383.14" fill="#ffffff"/>
+<g data-id="#MTN"><path d="M456.06,-9.77 L476.00,-9.77 L476.00,-28.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MTN"><path d="M445.48,-13.43 L445.48,13.43 L449.55,13.43 L449.55,-13.43 L445.48,-13.43 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MTN"><path d="M452.80,-17.50 L452.80,17.50 L456.87,17.50 L456.87,-17.50 L452.80,-17.50 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MTN"><path d="M447.51,-0.00 L434.00,-0.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MTN"><path d="M454.84,9.77 L476.00,9.77 L476.00,28.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#MTN"><path d="M476.81,9.77 L463.79,4.07 L463.79,15.47 L476.81,9.77 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#XBOOST"><path d="M-140.00,490.00 L140.00,490.00 L140.00,294.00 L-140.00,294.00 L-140.00,490.00 Z" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#XBOOST"><path d="M-196.00,392.00 L-140.00,392.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#XBOOST"><path d="M140.00,392.00 L196.00,392.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#XBOOST"><path d="M-56.00,238.00 L-56.00,294.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#XBOOST"><path d="M56.00,238.00 L56.00,294.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#XBOOST"><path d="M0.00,546.00 L0.00,490.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#XBOOST"><text x="-126.00" y="398.10" font-size="14.00" textLength="34.78" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">CLKB</text></g>
+<g data-id="#XBOOST"><text x="100.07" y="398.10" font-size="14.00" textLength="25.93" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">BST</text></g>
+<g data-id="#XBOOST"><text x="-70.78" y="308.00" font-size="11.20" textLength="29.56" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">DVDD</text></g>
+<g data-id="#XBOOST"><text x="49.10" y="308.00" font-size="11.20" textLength="13.80" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">VB</text></g>
+<g data-id="#XBOOST"><text x="-9.90" y="476.00" font-size="11.20" textLength="19.79" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">VSS</text></g>
+<g data-id="#XBOOST"><text x="-30.71" y="350.00" font-size="16.80" textLength="61.42" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">Booster</text></g>
+<g data-id="#XBOOST"><text x="-33.18" y="434.00" font-size="12.60" textLength="66.35" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">ideal driver</text></g>
+<g data-id="%vg"><path d="M0.00,630.00 L0.00,644.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="%vg"><path d="M-8.95,644.00 L8.95,644.00" fill="none" stroke="#1d1d1f" stroke-width="4.07"/></g>
+<g data-id="%vg"><path d="M-5.70,652.14 L5.70,652.14" fill="none" stroke="#1d1d1f" stroke-width="4.07"/></g>
+<g data-id="%vg"><path d="M-3.26,659.47 L3.26,659.47" fill="none" stroke="#1d1d1f" stroke-width="4.07"/></g>
+<g data-id="%vd"><path d="M-56.00,154.00 L-56.00,128.10" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="%vd"><path d="M-70.00,124.77 L-42.00,124.77 L-42.00,129.30 L-70.00,129.30 L-70.00,124.77 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="a usage of $JUNCTION"><circle cx="476.00" cy="-280.00" r="5.29" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#MTN::name"><text x="483.00" y="-14.70" font-size="14.00" textLength="29.88" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">MTN</text></g>
+<g data-id="#XBOOST::name"><text x="-140.00" y="210.00" font-size="15.40" font-weight="bold" textLength="63.09" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">XBOOST</text></g>
+<g data-id="#MTN::model"><text x="497.00" y="14.00" font-size="14.00" textLength="101.04" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">ULVT 6.0u / 30n</text></g>
+<g data-id="a wire"><path d="M196.00,392.00 L434.00,392.00 L434.00,-0.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M476.00,28.00 L476.00,140.00 L672.00,140.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a text"><text x="677.60" y="146.10" font-size="14.00" textLength="28.35" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">VCM</text></g>
+<g data-id="a wire"><path d="M476.00,-280.00 L476.00,-28.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M476.00,-280.00 L910.00,-280.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a text"><text x="915.60" y="-272.68" font-size="16.80" textLength="33.16" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">TOP</text></g>
+<g data-id="a wire"><path d="M-196.00,392.00 L-308.00,392.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a text"><text x="-362.12" y="398.10" font-size="14.00" textLength="48.52" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">PHI_SB</text></g>
+<g data-id="%vd::name"><text x="-74.47" y="116.37" font-size="14.00" textLength="36.95" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">DVDD</text></g>
+<g data-id="a wire"><path d="M-56.00,238.00 L-56.00,154.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M56.00,238.00 L56.00,154.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a text"><text x="26.98" y="126.00" font-size="12.60" textLength="58.05" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">VCM -&gt; VB</text></g>
+<g data-id="a wire"><path d="M0.00,546.00 L0.00,630.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a text"><text x="-308.00" y="-532.00" font-size="18.20" font-weight="bold" textLength="357.63" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">Boosted real NMOS reset / experimental</text></g>
+<g data-id="a text"><text x="-308.00" y="756.00" font-size="14.00" textLength="363.52" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">MTN bulk=VSS. MTP removed. MTD removed in primary.</text></g>
+</svg>

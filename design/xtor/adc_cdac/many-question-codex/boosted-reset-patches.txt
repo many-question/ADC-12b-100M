@@ -1,0 +1,204 @@
+--- frozen-V29
++++ n6_k09
+@@ -1,7 +1,33 @@
+ // V29 layout hierarchy: pure MOM array and separate bottom switching array.
+ // @RNL(type="header") {
+ // @VERSION("0.3");
++// @DEVICE(name="*", model="mq_cdac_booster_va", terminals=["CLKB","CMD","DVDD","VB","VSS"]);
+ // @USE-PACKAGE(name="adc28", version="0.1", path="../../../rnl/adc28.rnl");
++// }
++// @RNL {
++// $BOOST = @DEFINE-SYMBOL {
++// @LINE {(-10,-7) (10,-7) (10,7) (-10,7) (-10,-7)};
++// (-14,0) @PIN(terminal=1, direction="left");
++// @LINE {(-14,0) (-10,0)};
++// (14,0) @PIN(terminal=2, direction="right");
++// @LINE {(10,0) (14,0)};
++// (-4,11) @PIN(terminal=3, direction="up");
++// @LINE {(-4,11) (-4,7)};
++// (4,11) @PIN(terminal=4, direction="up");
++// @LINE {(4,11) (4,7)};
++// (0,-11) @PIN(terminal=5, direction="down");
++// @LINE {(0,-11) (0,-7)};
++// (-9,0) @TEXT("CLKB", size=1, valign="middle");
++// (9,0) @TEXT("BST", size=1, halign="end", valign="middle");
++// (-4,6) @TEXT("DVDD", size=0.8, halign="middle");
++// (4,6) @TEXT("VB", size=0.8, halign="middle");
++// (0,-6) @TEXT("VSS", size=0.8, halign="middle");
++// (0,3) @TEXT("Booster", size=1.2, halign="middle");
++// (0,-3) @TEXT("ideal driver", size=0.9, halign="middle");
++// ? @TEXT("${name}", key="name", size=1.1, bold=true) => @PLACE(-10,13);
++// };
++// # @SELECT-INSTANCE(model="mq_cdac_reset_booster") => @SET-SYMBOL $BOOST;
++// # @SELECT-INSTANCE(model="mq_cdac_booster_va") => @SET-SYMBOL $BOOST;
+ // }
+ // @RNL {
+ // # @SELECT-INSTANCE(model="mq_cdac_ctl_l") => @SET-SYMBOL $INVERTER;
+@@ -4201,9 +4227,8 @@
+ subckt adc_cdac (VIN VG TOP VCM VREFP VREFN PHI_S PHI_SB CONV DH12 DH11 DH10 DH9 DH8 DH7 DH6 DH5 DH4 DH3 DH2 DH1 DH0 RL12 RL11 RL10 RL9 RL8 RL7 RL6 RL5 RL4 RL3 RL2 RL1 RL0 DVDD VSS)
+ XSW (VIN VG VREFP VREFN PHI_S PHI_SB CONV DH12 DH11 DH10 DH9 DH8 DH7 DH6 DH5 DH4 DH3 DH2 DH1 DH0 RL12 RL11 RL10 RL9 RL8 RL7 RL6 RL5 RL4 RL3 RL2 RL1 RL0 DVDD VSS BPH12 BPL12 BPH11 BPL11 BPH10 BPL10 BPH9 BPL9 BPH8 BPL8 BPH7 BPL7 BPH6 BPL6 BPH5 BPL5 BPH4 BPL4 BPH3 BPL3 BPH2 BPL2 BPH1 BPL1 BPH0 BPL0 MIDH7 MIDL7 MIDH2 MIDL2 MIDH0 MIDL0) mq_cdac_switch_array
+ XCAP (TOP BPH12 BPL12 BPH11 BPL11 BPH10 BPL10 BPH9 BPL9 BPH8 BPL8 BPH7 BPL7 BPH6 BPL6 BPH5 BPL5 BPH4 BPL4 BPH3 BPL3 BPH2 BPL2 BPH1 BPL1 BPH0 BPL0 MIDH7 MIDL7 MIDH2 MIDL2 MIDH0 MIDL0 VSS) mq_cdac_cap_array
+-MTN (TOP PHI_S VCM VSS) nch_ulvt_mac w=1.2e-05 l=3e-08 nf=6
+-MTP (TOP PHI_SB VCM DVDD) pch_ulvt_mac w=4e-06 l=3e-08 nf=2
+-MTD (TOP PHI_SB TOP VSS) nch_ulvt_mac w=4e-06 l=3e-08 nf=2
++MTN (TOP GBST VCM VSS) nch_ulvt_mac w=6e-06 l=3e-08 nf=3
++XBOOST (PHI_SB GBST DVDD VCM VSS) mq_cdac_reset_booster k=0.9 vlo=0 td=2p tr=10p tf=10p rout=100
+ // @RNL {
+ // {&VIN &VG &TOP &VCM &VREFP &VREFN &PHI_S &PHI_SB &CONV &DH12 &DH11 &DH10 &DH9 &DH8 &DH7 &DH6 &DH5 &DH4 &DH3 &DH2 &DH1 &DH0 &RL12 &RL11 &RL10 &RL9 &RL8 &RL7 &RL6 &RL5 &RL4 &RL3 &RL2 &RL1 &RL0 &DVDD &VSS} @REMOVE-FROM $PORT_FILL_SET;
+ // &VSS @ADD-TO $GROUND_NET_SET;
+@@ -4274,34 +4299,6 @@
+ // (46, -41) @TEXT("MIDH0", size=1.8);
+ // &MIDL0 @WIRE {#XSW:67 #XCAP:33};
+ // (46, -44) @TEXT("MIDL0", size=1.8);
+-// #MTN @PLACE(164, -4) => @ORIENT("R0");
+-// #MTN @SET-SYMBOL $NMOS;
+-// #MTN @TEXT("ULVT 12u", key="model", size=1.8, dx=1.5, dy=-1);
+-// #MTN @TEXT("MTN", key="name", size=1.8, dx=1.5, dy=1);
+-// #MTP @PLACE(190, -4) => @ORIENT("MX");
+-// #MTP @SET-SYMBOL $PMOS;
+-// #MTP @TEXT("ULVT 4u", key="model", size=1.8, dx=1.5, dy=-1);
+-// #MTP @TEXT("MTP", key="name", size=1.8, dx=1.5, dy=1);
+-// #MTD @PLACE(216, -4) => @ORIENT("R0");
+-// #MTD @SET-SYMBOL $NMOS;
+-// #MTD @TEXT("ULVT 4u", key="model", size=1.8, dx=1.5, dy=-1);
+-// #MTD @TEXT("MTD", key="name", size=1.8, dx=1.5, dy=1);
+-// %j1 = (164, 32);
+-// %j2 = (190, 32);
+-// %j3 = (216, 32);
+-// %j4 = (230, 32);
+-// &TOP @WIRE {#XCAP:1 %j1 %j2 %j3 %j4};
+-// (226, 34) @TEXT("TOP", size=1.8);
+-// &TOP @WIRE {%j1 #MTN:1};
+-// &TOP @WIRE {%j2 #MTP:1};
+-// &TOP @WIRE {%j3 #MTD:1};
+-// &TOP @WIRE {#MTD:3 (230, -6) %j4};
+-// &VCM @WIRE {#MTN:3 (164, -19) (190, -19) #MTP:3};
+-// (171, -22) @TEXT("VCM", size=1.8);
+-// (154, 45) @TEXT("Top reset / dummy", size=1.8);
+-// (42, 58) @TEXT("26 bottom plates + 6 series midpoints", size=1.8);
+-// (-25, -76) @TEXT("V29 electrical connections / device parameters preserved. External interface unchanged.", size=1.8);
+-// (-25, -80) @TEXT("j9 / j6 remain unsampled. 5% Cp remains in XCAP. WIP: prior results are stale.", size=1.8);
+ // &VIN @WIRE {#XSW:1 (-30, 48)};
+ // (-30.3, 48) @TEXT("VIN", size=1.8, halign="end", valign="middle");
+ // &VG @WIRE {#XSW:2 (-30, 45)};
+@@ -4374,16 +4371,31 @@
+ // &VSS @WIRE {#XSW:35 %t39:p};
+ // %t40 = $GROUND @ATTACH &VSS => @PLACE(112, -65);
+ // &VSS @WIRE {#XCAP:34 %t40:p};
+-// &PHI_S @WIRE {#MTN:2 (159, -4)};
+-// (158.7, -4) @TEXT("PHI_S", size=1.8, halign="end", valign="middle");
+-// &PHI_SB @WIRE {#MTP:2 (185, -4)};
+-// (184.7, -4) @TEXT("PHI_SB", size=1.8, halign="end", valign="middle");
+-// &PHI_SB @WIRE {#MTD:2 (211, -4)};
+-// (210.7, -4) @TEXT("PHI_SB", size=1.8, halign="end", valign="middle");
+-// $JUNCTION @ATTACH %j1;
+-// $JUNCTION @ATTACH %j2;
+-// $JUNCTION @ATTACH %j3;
+-// (-35, 76) @TEXT("V29 / WIP | separate capacitor and switch arrays", size=1.8, bold=true, textcolor="#17365d");
++// }
++// @RNL {
++// #XBOOST @PLACE(150,-28);
++// #MTN @PLACE(184,0) => @ORIENT("R0");
++// #MTN @SET-SYMBOL $NMOS;
++// #MTN @TEXT("ULVT 6.0u / 30n", key="model", size=1, dx=1.5, dy=-1);
++// &GBST @WIRE {#XBOOST:2 (181,-28) #MTN:2};
++// &VCM @WIRE {#MTN:3 (184,-10) (198,-10)};
++// (198.4,-10) @TEXT("VCM", size=1, valign="middle");
++// %jn = (184,20);
++// &TOP @WIRE {%jn #MTN:1};
++// &TOP @WIRE {%jn (215,20)};
++// (215.4,20) @TEXT("TOP", size=1.2, valign="middle");
++// $JUNCTION @ATTACH %jn;
++// &PHI_SB @WIRE {#XBOOST:1 (128,-28)};
++// (127.6,-28) @TEXT("PHI_SB", size=1, halign="end", valign="middle");
++// %vd = $SUPPLY @ATTACH &DVDD => @PLACE(146,-11);
++// &DVDD @WIRE {#XBOOST:3 %vd:p};
++// &VCM @WIRE {#XBOOST:4 (154,-11)};
++// (154,-9) @TEXT("VCM -> VB", size=0.9, halign="middle");
++// %vg = $GROUND @ATTACH &VSS => @PLACE(150,-45);
++// &VSS @WIRE {#XBOOST:5 %vg:p};
++// (128,38) @TEXT("Boosted real NMOS reset / experimental", size=1.3, bold=true);
++// (128,-54) @TEXT("MTN bulk=VSS. MTP removed. MTD removed in primary.", size=1);
++// &TOP @WIRE {#XCAP:1 (184,32) %jn};
+ // }
+ ends adc_cdac
+ subckt mq_cdac_sw12 (VIN VG DH RL EN ENB VREFP VREFN VSS DVDD EQBUS APGATE SAMP_ON BH BL)
+@@ -7357,3 +7369,28 @@
+ // (-24, 34) @TEXT("V29 / WIP | switch array | per-bit reference and sampling control", size=1.7, bold=true, textcolor="#17365d");
+ // }
+ ends mq_cdac_switch_array
++
++subckt mq_cdac_reset_booster (CLKB BST DVDD VB VSS)
++parameters k=0.9 vlo=0 td=2p tr=10p tf=10p rout=100
++ICMD (CLKB CMD DVDD VB VSS) mq_cdac_booster_va k=k vlo=vlo td=td tr=tr tf=tf
++ROUT (CMD BST) resistor r=rout
++// @RNL {
++// {&CLKB &BST &DVDD &VB &VSS} @REMOVE-FROM $PORT_FILL_SET;
++// #ICMD @PLACE(0,0);
++// #ROUT @PLACE(24,0) => @ORIENT("R90");
++// &CMD @WIRE {#ICMD:2 #ROUT:1};
++// &BST @WIRE {#ROUT:2 (36,0)};
++// (36.4,0) @TEXT("BST (real gate load)", size=1, valign="middle");
++// &CLKB @WIRE {#ICMD:1 (-24,0)};
++// (-24.4,0) @TEXT("CLKB", size=1, halign="end", valign="middle");
++// %vdd = $SUPPLY @ATTACH &DVDD => @PLACE(-4,17);
++// &DVDD @WIRE {#ICMD:3 %vdd:p};
++// %vb = $SUPPLY @ATTACH &VB => @PLACE(4,17);
++// &VB @WIRE {#ICMD:4 %vb:p};
++// %gnd = $GROUND @ATTACH &VSS => @PLACE(0,-17);
++// &VSS @WIRE {#ICMD:5 %gnd:p};
++// (-24,25) @TEXT("Independent booster wrapper / diagnostic VA", size=1.3, bold=true);
++// (-24,-25) @TEXT("High = VB + k*DVDD; low = 0; td=2ps; tr=tf=10ps; Rout=100 ohm", size=1);
++// (-24,-29) @TEXT("VB is connected to existing VCM. Driver supply power is not modeled.", size=1);
++// }
++ends mq_cdac_reset_booster
+
+# Variant delta: n6_k09 -> n12_k09
+--- n6_k09
++++ n12_k09
+@@ -4227,7 +4227,7 @@
+ subckt adc_cdac (VIN VG TOP VCM VREFP VREFN PHI_S PHI_SB CONV DH12 DH11 DH10 DH9 DH8 DH7 DH6 DH5 DH4 DH3 DH2 DH1 DH0 RL12 RL11 RL10 RL9 RL8 RL7 RL6 RL5 RL4 RL3 RL2 RL1 RL0 DVDD VSS)
+ XSW (VIN VG VREFP VREFN PHI_S PHI_SB CONV DH12 DH11 DH10 DH9 DH8 DH7 DH6 DH5 DH4 DH3 DH2 DH1 DH0 RL12 RL11 RL10 RL9 RL8 RL7 RL6 RL5 RL4 RL3 RL2 RL1 RL0 DVDD VSS BPH12 BPL12 BPH11 BPL11 BPH10 BPL10 BPH9 BPL9 BPH8 BPL8 BPH7 BPL7 BPH6 BPL6 BPH5 BPL5 BPH4 BPL4 BPH3 BPL3 BPH2 BPL2 BPH1 BPL1 BPH0 BPL0 MIDH7 MIDL7 MIDH2 MIDL2 MIDH0 MIDL0) mq_cdac_switch_array
+ XCAP (TOP BPH12 BPL12 BPH11 BPL11 BPH10 BPL10 BPH9 BPL9 BPH8 BPL8 BPH7 BPL7 BPH6 BPL6 BPH5 BPL5 BPH4 BPL4 BPH3 BPL3 BPH2 BPL2 BPH1 BPL1 BPH0 BPL0 MIDH7 MIDL7 MIDH2 MIDL2 MIDH0 MIDL0 VSS) mq_cdac_cap_array
+-MTN (TOP GBST VCM VSS) nch_ulvt_mac w=6e-06 l=3e-08 nf=3
++MTN (TOP GBST VCM VSS) nch_ulvt_mac w=1.2e-05 l=3e-08 nf=6
+ XBOOST (PHI_SB GBST DVDD VCM VSS) mq_cdac_reset_booster k=0.9 vlo=0 td=2p tr=10p tf=10p rout=100
+ // @RNL {
+ // {&VIN &VG &TOP &VCM &VREFP &VREFN &PHI_S &PHI_SB &CONV &DH12 &DH11 &DH10 &DH9 &DH8 &DH7 &DH6 &DH5 &DH4 &DH3 &DH2 &DH1 &DH0 &RL12 &RL11 &RL10 &RL9 &RL8 &RL7 &RL6 &RL5 &RL4 &RL3 &RL2 &RL1 &RL0 &DVDD &VSS} @REMOVE-FROM $PORT_FILL_SET;
+@@ -4376,7 +4376,7 @@
+ // #XBOOST @PLACE(150,-28);
+ // #MTN @PLACE(184,0) => @ORIENT("R0");
+ // #MTN @SET-SYMBOL $NMOS;
+-// #MTN @TEXT("ULVT 6.0u / 30n", key="model", size=1, dx=1.5, dy=-1);
++// #MTN @TEXT("ULVT 12.0u / 30n", key="model", size=1, dx=1.5, dy=-1);
+ // &GBST @WIRE {#XBOOST:2 (181,-28) #MTN:2};
+ // &VCM @WIRE {#MTN:3 (184,-10) (198,-10)};
+ // (198.4,-10) @TEXT("VCM", size=1, valign="middle");
+
+# Variant delta: n6_k09 -> n6_k09_d3
+--- n6_k09
++++ n6_k09_d3
+@@ -4229,6 +4229,7 @@
+ XCAP (TOP BPH12 BPL12 BPH11 BPL11 BPH10 BPL10 BPH9 BPL9 BPH8 BPL8 BPH7 BPL7 BPH6 BPL6 BPH5 BPL5 BPH4 BPL4 BPH3 BPL3 BPH2 BPL2 BPH1 BPL1 BPH0 BPL0 MIDH7 MIDL7 MIDH2 MIDL2 MIDH0 MIDL0 VSS) mq_cdac_cap_array
+ MTN (TOP GBST VCM VSS) nch_ulvt_mac w=6e-06 l=3e-08 nf=3
+ XBOOST (PHI_SB GBST DVDD VCM VSS) mq_cdac_reset_booster k=0.9 vlo=0 td=2p tr=10p tf=10p rout=100
++MTD (TOP PHI_SB TOP VSS) nch_ulvt_mac w=3e-06 l=3e-08 nf=2
+ // @RNL {
+ // {&VIN &VG &TOP &VCM &VREFP &VREFN &PHI_S &PHI_SB &CONV &DH12 &DH11 &DH10 &DH9 &DH8 &DH7 &DH6 &DH5 &DH4 &DH3 &DH2 &DH1 &DH0 &RL12 &RL11 &RL10 &RL9 &RL8 &RL7 &RL6 &RL5 &RL4 &RL3 &RL2 &RL1 &RL0 &DVDD &VSS} @REMOVE-FROM $PORT_FILL_SET;
+ // &VSS @ADD-TO $GROUND_NET_SET;
+@@ -4394,8 +4395,14 @@
+ // %vg = $GROUND @ATTACH &VSS => @PLACE(150,-45);
+ // &VSS @WIRE {#XBOOST:5 %vg:p};
+ // (128,38) @TEXT("Boosted real NMOS reset / experimental", size=1.3, bold=true);
+-// (128,-54) @TEXT("MTN bulk=VSS. MTP removed. MTD removed in primary.", size=1);
++// (128,-54) @TEXT("MTN bulk=VSS. MTP removed. MTD 3u comparison only.", size=1);
+ // &TOP @WIRE {#XCAP:1 (184,32) %jn};
++// #MTD @PLACE(210,0);
++// #MTD @SET-SYMBOL $NMOS;
++// &TOP @WIRE {%jn (210,20) #MTD:1};
++// &TOP @WIRE {#MTD:3 (218,-2) (218,20) (210,20)};
++// &PHI_SB @WIRE {#MTD:2 (202,0)};
++// (201.6,0) @TEXT("PHI_SB", size=0.8, halign="end");
+ // }
+ ends adc_cdac
+ subckt mq_cdac_sw12 (VIN VG DH RL EN ENB VREFP VREFN VSS DVDD EQBUS APGATE SAMP_ON BH BL)

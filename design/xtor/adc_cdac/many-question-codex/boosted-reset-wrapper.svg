@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1084" height="851" viewBox="-411.38 -406.11 1083.66 851.14" font-family="Noto Sans SC, Noto Sans CJK SC, Source Han Sans SC, sans-serif" style="font-kerning:none;font-variant-ligatures:none;text-spacing-trim:space-all;text-autospace:no-autospace">
+<rect class="backdrop" x="-411.38" y="-406.11" width="1083.66" height="851.14" fill="#ffffff"/>
+<g data-id="#ICMD"><path d="M-140.00,98.00 L140.00,98.00 L140.00,-98.00 L-140.00,-98.00 L-140.00,98.00 Z" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#ICMD"><path d="M-196.00,-0.00 L-140.00,-0.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#ICMD"><path d="M140.00,-0.00 L196.00,-0.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#ICMD"><path d="M-56.00,-154.00 L-56.00,-98.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#ICMD"><path d="M56.00,-154.00 L56.00,-98.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#ICMD"><path d="M0.00,154.00 L0.00,98.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="#ICMD"><text x="-126.00" y="6.10" font-size="14.00" textLength="34.78" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">CLKB</text></g>
+<g data-id="#ICMD"><text x="100.07" y="6.10" font-size="14.00" textLength="25.93" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">BST</text></g>
+<g data-id="#ICMD"><text x="-70.78" y="-84.00" font-size="11.20" textLength="29.56" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">DVDD</text></g>
+<g data-id="#ICMD"><text x="49.10" y="-84.00" font-size="11.20" textLength="13.80" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">VB</text></g>
+<g data-id="#ICMD"><text x="-9.90" y="84.00" font-size="11.20" textLength="19.79" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">VSS</text></g>
+<g data-id="#ICMD"><text x="-30.71" y="-42.00" font-size="16.80" textLength="61.42" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">Booster</text></g>
+<g data-id="#ICMD"><text x="-33.18" y="42.00" font-size="12.60" textLength="66.35" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">ideal driver</text></g>
+<g data-id="#ROUT"><path d="M308.00,-0.00 L323.79,-0.00 L327.05,-7.52 L330.30,6.45 L334.37,-7.52 L338.44,6.98 L342.51,-7.52 L346.58,6.45 L348.21,-0.00 L364.00,-0.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="%gnd"><path d="M0.00,238.00 L0.00,252.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="%gnd"><path d="M-8.95,252.00 L8.95,252.00" fill="none" stroke="#1d1d1f" stroke-width="4.07"/></g>
+<g data-id="%gnd"><path d="M-5.70,260.14 L5.70,260.14" fill="none" stroke="#1d1d1f" stroke-width="4.07"/></g>
+<g data-id="%gnd"><path d="M-3.26,267.47 L3.26,267.47" fill="none" stroke="#1d1d1f" stroke-width="4.07"/></g>
+<g data-id="%vdd"><path d="M-56.00,-238.00 L-56.00,-263.90" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="%vdd"><path d="M-70.00,-267.23 L-42.00,-267.23 L-42.00,-262.70 L-70.00,-262.70 L-70.00,-267.23 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="%vb"><path d="M56.00,-238.00 L56.00,-263.90" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="%vb"><path d="M42.00,-267.23 L70.00,-267.23 L70.00,-262.70 L42.00,-262.70 L42.00,-267.23 Z" fill="#1d1d1f" stroke="none"/></g>
+<g data-id="#ICMD::name"><text x="-140.00" y="-182.00" font-size="15.40" font-weight="bold" textLength="39.32" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">ICMD</text></g>
+<g data-id="#ROUT::name"><text x="332.50" y="-13.30" font-size="14.00" transform="rotate(-90 332.50 -13.30)" textLength="37.76" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">ROUT</text></g>
+<g data-id="#ROUT::value"><text x="349.30" y="-13.30" font-size="14.00" transform="rotate(-90 349.30 -13.30)" textLength="27.69" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">rout</text></g>
+<g data-id="a wire"><path d="M196.00,-0.00 L308.00,-0.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M364.00,-0.00 L504.00,-0.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a text"><text x="509.60" y="6.10" font-size="14.00" textLength="127.68" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">BST (real gate load)</text></g>
+<g data-id="a wire"><path d="M-196.00,-0.00 L-336.00,-0.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a text"><text x="-376.38" y="6.10" font-size="14.00" textLength="34.78" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">CLKB</text></g>
+<g data-id="%vdd::name"><text x="-74.47" y="-275.63" font-size="14.00" textLength="36.95" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">DVDD</text></g>
+<g data-id="a wire"><path d="M-56.00,-154.00 L-56.00,-238.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="%vb::name"><text x="47.38" y="-275.63" font-size="14.00" textLength="17.25" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">VB</text></g>
+<g data-id="a wire"><path d="M56.00,-154.00 L56.00,-238.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a wire"><path d="M0.00,154.00 L0.00,238.00" fill="none" stroke="#1d1d1f" stroke-width="2.24"/></g>
+<g data-id="a text"><text x="-336.00" y="-350.00" font-size="18.20" font-weight="bold" textLength="405.95" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">Independent booster wrapper / diagnostic VA</text></g>
+<g data-id="a text"><text x="-336.00" y="350.00" font-size="14.00" textLength="407.48" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">High = VB + k*DVDD; low = 0; td=2ps; tr=tf=10ps; Rout=100 ohm</text></g>
+<g data-id="a text"><text x="-336.00" y="406.00" font-size="14.00" textLength="447.71" lengthAdjust="spacingAndGlyphs" fill="#1d1d1f" xml:space="preserve">VB is connected to existing VCM. Driver supply power is not modeled.</text></g>
+</svg>
