@@ -221,7 +221,7 @@ def test_a_detached_rerun_is_compared_when_collected(root, monkeypatch):
 
     result(root)
     got = {}
-    monkeypatch.setattr(runner, "submit", lambda a, v=None, dry=False: got.update(a=a, v=v) or "RID")
+    monkeypatch.setattr(runner, "submit", lambda a, v=None, dry=False, **k: got.update(a=a, v=v) or "RID")
     assert verify.verify(TEST, B, NAME, "tt_nom_27", detach=True) == 0
     assert got["v"] == {"candidate": NAME, "docs": [f"results/{B}/{TEST}/xtor-{NAME}/tt_nom_27.json"]}
     assert got["a"] == runner.run_args(TEST, B, "tt_nom_27", {B: f"xtor:{NAME}"}, {}, "aps", 6, False, False)

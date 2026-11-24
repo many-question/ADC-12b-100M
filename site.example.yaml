@@ -3,12 +3,38 @@
 # names, server paths, shell-setup files and PDK locations stay out of git.
 
 sim:
+  jobs: <parallel Spectre runs>           # optional, default of --jobs (code default: 6)
+
+  # One simulation server (the form of before several hosts; still valid):
   host: <ssh-alias>                       # key-based ssh alias of the simulation server
   remote_root: <local-disk>/{user}/adc12b100m_runs   # scratch on a local disk of the server; {user} = remote login
   env_setup:                              # csh commands that make `spectre` available
     - source <cadence-cshrc>
   spectre: spectre                        # command (or absolute path)
-  jobs: <parallel Spectre runs>           # optional, default of --jobs (code default: 6)
+
+  # Several servers: list them under `hosts` (then `host` above is not used; a key a host leaves
+  # out, e.g. remote_root or threads, is taken from `sim`). Each launch probes them and runs on the
+  # one with the most room within its thread budget (`--host` picks, `--split` spreads a batch over
+  # several); `python -m adcflow hosts` shows what it sees. The FIRST host is the default: runs
+  # recorded before several hosts (no host in their manifest) are collected from it.
+  threads: <thread budget per host>       # optional: our Spectre runs may use at most this many threads of a host
+  spectre_args: ["+mt=<N>"]               # optional: appended to the mode's arguments; +mt=N replaces the mode's +mt
+  hosts:
+    - name: <name>                        # how runs record it (default: the ssh alias)
+      ssh: <ssh-alias>
+      remote_root: <local-disk>/{user}/adc12b100m_runs
+      env_setup:
+        - source <cadence-cshrc>
+      spectre: spectre
+      cpus: <taskset -c list>             # optional: pin every Spectre run (e.g. the CPUs of one socket)
+    - name: <name>                        # a host whose Spectre runs in a sandbox wrapper
+      ssh: <ssh-alias>
+      remote_root: <local-disk>/{user}/adc12b100m_runs   # local disk only (the wrapper refuses NFS)
+      spectre: <sandbox wrapper command>  # a command ending in -sandbox: no env_setup, --read-only dirs
+      model_cache: <local-disk>/{user}/adc12b100m_pdk    # local copy of pdk.model_dir there (made once, on the server)
+      venv: <local-disk>/{user}/adc12b100m_py            # optional: python venv with numpy for the SOA step
+      # optional per host: threads, job_threads (threads one run counts with; default the N of +mt=N, else 1),
+      # spectre_args, cpus, min_free_gb (default 20: a host with less free space is not chosen)
 
 pdk:
   model_dir: <directory of the Spectre model files on the server>

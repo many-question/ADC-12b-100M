@@ -211,7 +211,8 @@ def test_dry_run_passes_samples_and_seed_to_the_testbench(monkeypatch):
     staged, models = {}, []
     monkeypatch.setattr(runner, "stage", lambda run_dir, jobs, decks: staged.update(jobs=jobs, decks=decks))
     make_deck = runner.make_deck
-    monkeypatch.setattr(runner, "make_deck", lambda j, r, v, pdk, mc, extra: models.append(mc) or make_deck(j, r, v, pdk, mc, extra))
+    monkeypatch.setattr(runner, "make_deck", lambda j, r, v, pdk, mc, extra, **k: models.append(mc)
+                        or make_deck(j, r, v, pdk, mc, extra, **k))
     runner.run_test(TEST, dry=True, mc={"runs": 7, "seed": 11}, mode="aps")
     assert models == [None]                                              # behavioral: no statistical model sections
     (job,) = staged["jobs"]

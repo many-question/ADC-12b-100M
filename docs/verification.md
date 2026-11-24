@@ -343,7 +343,8 @@ tests:
 | `tb_cdac_soa` | `tb_cdac_settle` 的理想自举栅、相位与控制；VIN 轮流取满量程两端 0.45 ∓ 0.4965 V；转换 3（低）DH12、4（高）RL12、5（低）DH0、6（高）RL12…RL0 每 150 ps | 输入开关与上极板承受的电压都在输入两端最大；高输入之后全部 RL 把上极板推过任何真实码，比真实转换更严 | 70 ns |
 
 这三个用例写 `soa: {dut: [XDUT], remote: true}`：全部器件节点的 PSF-ASCII 波形太大，取不回来（SAR 逻辑约 1 GB，`fetch_max_mb` 是 50）。
-流程在服务器上用同一份计算（`tools/adcflow/soa_core.py`，只依赖 numpy，所以服务器要有 `python3` 和 numpy）做 SOA 检查，取回各对的结果
+流程在服务器上用同一份计算（`tools/adcflow/soa_core.py`，只依赖 numpy，所以服务器要有 `python3` 和 numpy，或站点配置中该机的 `venv`，
+见 [`workflow.md`](workflow.md) §3「多台仿真服务器」）做 SOA 检查，取回各对的结果
 `soa_rows.json`、测试台自己保存的信号和最坏一对的节点；原波形大小记在 `soa_waveform_MB`。服务器上检查失败时结果报错，不会报 0。
 `crosscheck` 与 `tb_clkgen_timing` 相同（下文“时钟”），用 `--crosscheck` 在有代表性的最坏工艺角运行，结果记入设计 PR。
 行为级基线的 `soa_scope` 是 `external`、`soa_pairs` 是 0，只说明测试台能跑通，不是器件证据。
