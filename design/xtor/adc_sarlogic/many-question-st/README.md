@@ -1,6 +1,6 @@
 # adc_sarlogic candidate many-question-st
 
-A 1,426-MOS static CMOS self-timed 14-step SAR controller (`adc_sarlogic`) with token-interlocked bit slices, per-step tapped DAC settling wait, inversion-to-depletion MOS varactor timeout compensation, and glitch-free output register in 28 nm HPC+. All 11 subcircuit RNL 0.3 schematic levels are completely drawn (`0 errors, 0 warnings, 0 hints`).
+A 1,426-MOS static CMOS self-timed 14-step SAR controller (`adc_sarlogic`) with token-interlocked bit slices, per-step tapped DAC settling wait, inversion-to-depletion MOS varactor timeout compensation, and glitch-free output register in 28 nm HPC+. All 11 subcircuit RNL 0.4 schematic levels are completely drawn (`rnl check`: `0 errors, 0 violations, 0 warnings`; layout hints only).
 
 - Top-level schematic: [schematic-top.svg](schematic-top.svg)
 - Central controller schematic: [schematic-ctrl.svg](schematic-ctrl.svg)
