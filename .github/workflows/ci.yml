@@ -7,7 +7,9 @@ on:
   workflow_dispatch:
 
 env:
-  RNL_VERSION: core-v0.5.2      # keep in step with tools/adcflow/checks.py RNL_PINNED
+  # the rnl command per RNL language a file declares; keep in step with tools/adcflow/checks.py RNL_PINNED
+  RNL_CORE_0_3: core-v0.5.2     # the last core that reads RNL 0.3
+  RNL_CORE_0_4: core-v0.6.2
 
 jobs:
   checks:
@@ -23,18 +25,21 @@ jobs:
           cache: pip
       - name: Install adcflow
         run: pip install -e ".[analysis,dev]"
-      - name: Install the rnl CLI (pinned, checksum verified)
+      - name: Install the rnl CLIs (one per RNL language, pinned, checksum verified)
         run: |
           set -eu
           a=rnl-x86_64-unknown-linux-musl.tar.gz
-          base=https://github.com/rich-netlist/rnl/releases/download/$RNL_VERSION
-          mkdir -p .rnl-cli && cd .rnl-cli
-          curl -fsSL -o "$a" "$base/$a"
-          curl -fsSL -o SHA256SUMS.txt "$base/SHA256SUMS.txt"
-          grep "  $a$" SHA256SUMS.txt | sha256sum --check -
-          tar -xzf "$a"
-          ./rnl --version
-          echo "$PWD" >> "$GITHUB_PATH"
+          for pair in "0.3 $RNL_CORE_0_3" "0.4 $RNL_CORE_0_4"; do
+            set -- $pair
+            base=https://github.com/rich-netlist/rnl/releases/download/$2
+            mkdir -p ".rnl-cli/$1"
+            ( cd ".rnl-cli/$1"
+              curl -fsSL -o "$a" "$base/$a"
+              curl -fsSL -o SHA256SUMS.txt "$base/SHA256SUMS.txt"
+              grep "  $a$" SHA256SUMS.txt | sha256sum --check -
+              tar -xzf "$a"
+              ./rnl --version )
+          done
       - name: Hygiene (no site data, model cards or large files)
         run: python -m adcflow check hygiene
       - name: Candidates (one candidate per PR, its author, its paths only; netlist and size rules)

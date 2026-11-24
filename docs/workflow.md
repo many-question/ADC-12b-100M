@@ -7,8 +7,18 @@ pip install -e ".[analysis,dev]"          # adcflow 工具包 + adctoolbox 0.9.2
 git config core.hooksPath tools/hooks     # 提交前检查（hygiene / ports / 生成文件）
 ```
 
-* **RNL 命令行**：安装与 CI 相同的版本 `core-v0.5.2`（见 rnl 项目的 Release 页，下载后核对 SHA256），
-  放到 `PATH` 中，`rnl --version` 应显示 0.5.2。
+* **RNL 命令行**：仓库里同时有 RNL 0.3 和 RNL 0.4 的文件（迁移期间），`python -m adcflow check rnl` 按每个文件
+  头部的 `@VERSION` 选命令行，两个都要装，版本与 CI 相同（`tools/adcflow/checks.py` 的 `RNL_PINNED`）：
+
+  | 文件的 `@VERSION` | 命令行 | 放在 |
+  |---|---|---|
+  | `"0.3"` | `core-v0.5.2`（读 0.3 的最后一版是 0.5.x） | `.rnl-cli/0.3/rnl`（Windows 上 `rnl.exe`） |
+  | `"0.4"` | `core-v0.6.2`（0.6 起只读 0.4） | `.rnl-cli/0.4/rnl` |
+
+  从 rnl 项目 Release 页 `releases/download/<tag>/` 下载对应平台的压缩包和 `SHA256SUMS.txt`，核对 SHA256 后解压到上表
+  的目录（`.rnl-cli/` 已被 git 忽略）。也可以放在 `PATH` 上，命名为 `rnl-0.3` / `rnl-0.4`，或者就叫 `rnl`：检查只用
+  `--version` 与固定版本一致的那个。0.3 的文件迁到 0.4 用 `core-v0.5.7` 的 `rnl upgrade`（只在迁移时用，不参与检查）。
+  RNL 0.4 的网表用 `design/rnl/0.4/` 下的包（`adc28` 0.2），0.3 的用 `design/rnl/` 下的（`adc28` 0.1）。
 * **站点配置**：复制 `site.example.yaml` 为 `site.local.yaml`（已被 git 忽略）或 `~/.adcflow/site.yaml`，
   填写仿真服务器的 ssh 别名、服务器本地盘上的临时目录、Spectre 环境脚本、PDK 模型目录与文件名。
   这些信息**绝不提交**。ssh 需要免密（`ssh -o BatchMode=yes <alias> true` 能通过）。
@@ -20,7 +30,8 @@ git config core.hooksPath tools/hooks     # 提交前检查（hygiene / ports / 
 
 | 文件 | 来源 |
 |---|---|
-| `design/rnl/adc28_blocks.rnl`、`design/rnl/adc28_va.rnl` | 模块端口、Verilog-A 模块端口 → DEVICE 与符号 |
+| `design/rnl/adc28_blocks.rnl`、`design/rnl/adc28_va.rnl` | 模块端口、Verilog-A 模块端口 → DEVICE 与符号（RNL 0.3） |
+| `design/rnl/0.4/adc28_blocks.rnl`、`design/rnl/0.4/adc28_va.rnl` | 同上，RNL 0.4（`gen.py` 的 `RNL_SETS`，同一来源） |
 | `design/behav/veriloga/adc_arch*.vams` | `specs/arch.yaml` 的权重、单位电容等常数 |
 | `design/behav/adc_cdac.scs` | 行为级 CDAC（26 个半电容 + 开关矩阵，含原理图） |
 | `design/top/adc_top.scs` | 顶层结构网表与原理图（`tools/adcflow/gen_top.py` 中的连接表） |
