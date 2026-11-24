@@ -516,6 +516,7 @@ python -m adcflow verify <test> --block <block> --candidate <name> [--corners <�
 | 其它数值 | ±2 % | |
 | `soa_points`、`soa_dt_max_ps` | 不比较 | 仿真器的时间步统计，不是电路的性质 |
 | `soa_peak_V`、`soa_window_ns`、`soa_max_over_ps`、`soa_window_max_ps` | 不比较 | 规则本身与 `soa_table`（各对，`soa.table_rows`）的摘要；规则之前的结果没有这几项 |
+| `soa_waveform_MB` | 不比较 | 在服务器上做 SOA 检查时的原波形大小，只有在服务器上读波形的记录才有；同一网表取回波形在本地检查时没有这一项 |
 | 标量的列表（蒙特卡洛的逐样本 `offsets_mV`、`sample_status`，`vgs_levels_V`、`weights_*` 等） | 逐个元素，按该指标的容差 | 长度必须相同 |
 | `p1`（`tb_comp_noise` 各电平的判决概率） | ±0.1 | 每电平 512 次判决的统计量 |
 | 元素不是标量的列表与字典（`soa_table`、`soa_worst`、`mc_fail_reasons` 等） | 不比较 | 明细；它们的标量摘要（`soa_max_V`、`soa_violations`、`mc_failed` 等）参与比较。`soa_table` 无论是压缩形式（字典）还是此前的字典列表都不比较 |
