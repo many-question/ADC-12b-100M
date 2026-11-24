@@ -1,7 +1,7 @@
 // adc_ref: native thick-oxide follower with a scaled replica servo
 // @RNL(type="header") {
-//   @VERSION("0.3");
-//   @USE-PACKAGE(name="adc28", version="0.1", path="../../../rnl/adc28.rnl")
+//   @VERSION("0.4");
+//   @USE-PACKAGE(name="adc28", version="0.2", path="../../../rnl/0.4/adc28.rnl")
 // }
 simulator lang=spectre
 
@@ -51,7 +51,7 @@ CGATE (VG VSS) cfmom_2t w=50n s=50n nr=80 lr=40u stm=1 spm=5 multi=16
 //   #CGATE @PLACE(40, 8) => @ORIENT("R0");
 //   %pin = $IO_PORT @ATTACH &VREF_IN => @PLACE(-30, 9) => @ORIENT("R0");
 //   %jin = (-24, 9); %jbias = (-12, 9); %jstart = (-24, -20); %jbr = (18, -34);
-//   &VREF_IN @WIRE {%pin:p %jin %jbias #XSERVO:INP};
+//   &VREF_IN @WIRE {%pin::pin %jin %jbias #XSERVO:INP};
 //   &VREF_IN @WIRE {%jbias (-12, 2) (-1, 2) #XSERVO:BIAS};
 //   &VREF_IN @WIRE {%jin %jstart (-24, -34) %jbr (43, -34) (43, -8) #MSINK:g};
 //   &VREF_IN @WIRE {%jstart #XSTART:REF};
@@ -73,7 +73,7 @@ CGATE (VG VSS) cfmom_2t w=50n s=50n nr=80 lr=40u stm=1 spm=5 multi=16
 //   %jo = (48, 0); %jc0 = (58, 0); %jc1 = (64, 0); %jph = (72, 0); %jch = (72, -3);
 //   %pout = $IO_PORT @ATTACH &VREFP => @PLACE(93, 0) => @ORIENT("MY");
 //   &VREFP @WIRE {#MDRV:s %jo #MSINK:d};
-//   &VREFP @WIRE {%jo %jc0 %jc1 %jph %pout:p};
+//   &VREFP @WIRE {%jo %jc0 %jc1 %jph %pout::pin};
 //   &VREFP @WIRE {%jc0 #CREF0:p};
 //   &VREFP @WIRE {%jc1 #CREF1:p};
 //   &VREFP @WIRE {%jph %jch #MCMH:s};
@@ -83,40 +83,59 @@ CGATE (VG VSS) cfmom_2t w=50n s=50n nr=80 lr=40u stm=1 spm=5 multi=16
 //   &VCM @WIRE {#MCMH:d %jcm %jcmb #MCML:s};
 //   &VCM @WIRE {%jcm (68, -12) (68, -6) #MCMH:g};
 //   &VCM @WIRE {%jcmb (76, -15) (76, -18) #MCML:b};
-//   &VCM @WIRE {%jcm %jccm %pcm:p};
+//   &VCM @WIRE {%jcm %jccm %pcm::pin};
 //   &VCM @WIRE {%jccm #CCM:p};
 //   %vh0 = $SUPPLY @ATTACH &AVDD18 => @PLACE(-1, 17) => @ORIENT("R0");
 //   %vh1 = $SUPPLY @ATTACH &AVDD18 => @PLACE(22, 17) => @ORIENT("R0");
 //   %vh2 = $SUPPLY @ATTACH &AVDD18 => @PLACE(48, 17) => @ORIENT("R0");
-//   &AVDD18 @WIRE {%vh0:p #XSERVO:AVDD18};
-//   &AVDD18 @WIRE {%vh1:p #MREP:d};
-//   &AVDD18 @WIRE {%vh2:p #MDRV:d};
+//   &AVDD18 @WIRE {%vh0::pin #XSERVO:AVDD18};
+//   &AVDD18 @WIRE {%vh1::pin #MREP:d};
+//   &AVDD18 @WIRE {%vh2::pin #MDRV:d};
 //   %gservo = $GROUND @ATTACH &VSS => @PLACE(5, 4) => @ORIENT("R0");
-//   &VSS @WIRE {#XSERVO:VSS %gservo:p};
+//   &VSS @WIRE {#XSERVO:VSS %gservo::pin};
 //   %gs0 = $GROUND @ATTACH &VSS => @PLACE(22, -13) => @ORIENT("R0");
 //   %gs1 = $GROUND @ATTACH &VSS => @PLACE(48, -13) => @ORIENT("R0");
-//   &VSS @WIRE {#MSREP:s %gs0:p};
-//   &VSS @WIRE {#MSINK:s %gs1:p};
+//   &VSS @WIRE {#MSREP:s %gs0::pin};
+//   &VSS @WIRE {#MSINK:s %gs1::pin};
 //   %gd0 = $GROUND @ATTACH &VSS => @PLACE(34, -25) => @ORIENT("R0");
 //   %gd1 = $GROUND @ATTACH &VSS => @PLACE(72, -25) => @ORIENT("R0");
 //   %jd0 = (34, -23); %jd1 = (72, -23);
-//   &VSS @WIRE {#MCRL:d %jd0 %gd0:p};
+//   &VSS @WIRE {#MCRL:d %jd0 %gd0::pin};
 //   &VSS @WIRE {#MCRL:g (29, -18) (29, -23) %jd0};
-//   &VSS @WIRE {#MCML:d %jd1 %gd1:p};
+//   &VSS @WIRE {#MCML:d %jd1 %gd1::pin};
 //   &VSS @WIRE {#MCML:g (67, -18) (67, -23) %jd1};
 //   %gc0 = $GROUND @ATTACH &VSS => @PLACE(58, -13) => @ORIENT("R0");
 //   %gc1 = $GROUND @ATTACH &VSS => @PLACE(64, -13) => @ORIENT("R0");
 //   %gcm = $GROUND @ATTACH &VSS => @PLACE(84, -25) => @ORIENT("R0");
-//   &VSS @WIRE {#CREF0:n %gc0:p};
-//   &VSS @WIRE {#CREF1:n %gc1:p};
-//   &VSS @WIRE {#CCM:n %gcm:p};
+//   &VSS @WIRE {#CREF0:n %gc0::pin};
+//   &VSS @WIRE {#CREF1:n %gc1::pin};
+//   &VSS @WIRE {#CCM:n %gcm::pin};
 //   %ggate = $GROUND @ATTACH &VSS => @PLACE(40, 4) => @ORIENT("R0");
-//   &VSS @WIRE {#CGATE:n %ggate:p};
+//   &VSS @WIRE {#CGATE:n %ggate::pin};
 //   %vstart = $SUPPLY @ATTACH &AVDD18 => @PLACE(-14, -3) => @ORIENT("R0");
-//   &AVDD18 @WIRE {%vstart:p #XSTART:AVDD18};
+//   &AVDD18 @WIRE {%vstart::pin #XSTART:AVDD18};
 //   %gstart = $GROUND @ATTACH &VSS => @PLACE(-2, -36) => @ORIENT("R0");
-//   &VSS @WIRE {#XSTART:VSS %gstart:p};
-//   $JUNCTION @ATTACH {%jin %jbias %jstart %jbr %jg %jgc %jr %jrh %jcmr %jcmrb %jo %jc0 %jc1 %jph %jch %jcm %jcmb %jccm %jd0 %jd1};
+//   &VSS @WIRE {#XSTART:VSS %gstart::pin};
+//   $JUNCTION @ATTACH %jin => @PLACE(-24, 9);
+//   $JUNCTION @ATTACH %jbias => @PLACE(-12, 9);
+//   $JUNCTION @ATTACH %jstart => @PLACE(-24, -20);
+//   $JUNCTION @ATTACH %jbr => @PLACE(18, -34);
+//   $JUNCTION @ATTACH %jg => @PLACE(12, 8);
+//   $JUNCTION @ATTACH %jgc => @PLACE(40, 12);
+//   $JUNCTION @ATTACH %jr => @PLACE(22, 0);
+//   $JUNCTION @ATTACH %jrh => @PLACE(34, -3);
+//   $JUNCTION @ATTACH %jcmr => @PLACE(34, -12);
+//   $JUNCTION @ATTACH %jcmrb => @PLACE(34, -15);
+//   $JUNCTION @ATTACH %jo => @PLACE(48, 0);
+//   $JUNCTION @ATTACH %jc0 => @PLACE(58, 0);
+//   $JUNCTION @ATTACH %jc1 => @PLACE(64, 0);
+//   $JUNCTION @ATTACH %jph => @PLACE(72, 0);
+//   $JUNCTION @ATTACH %jch => @PLACE(72, -3);
+//   $JUNCTION @ATTACH %jcm => @PLACE(72, -12);
+//   $JUNCTION @ATTACH %jcmb => @PLACE(72, -15);
+//   $JUNCTION @ATTACH %jccm => @PLACE(84, -12);
+//   $JUNCTION @ATTACH %jd0 => @PLACE(34, -23);
+//   $JUNCTION @ATTACH %jd1 => @PLACE(72, -23);
 //   #MREP @TEXT("64u/800n; nf32", key="size", dx=1, dy=-1.7, size=0.6, halign="start");
 //   #MDRV @TEXT("64u/800n; nf32; x28", key="size", dx=1, dy=-1.7, size=0.6, halign="start");
 //   #MSREP @TEXT("16u/500n; nf8", key="size", dx=1, dy=-1.7, size=0.6, halign="start");
@@ -156,8 +175,10 @@ CC2 (NZ OUT) cfmom_2t w=50n s=50n nr=80 lr=40u stm=1 spm=5
 // @RNL {
 //   &AVDD18 @ADD-TO $SUPPLY_NET_SET;
 //   &VSS @ADD-TO $GROUND_NET_SET;
-//   %dp = #MN1(in_p) #MN2(in_n) {#MTAIL}(tail) @AS $DIFFERENTIAL_PAIR;
-//   %mirror = {#MP2}(ref) {#MP1}(out) @AS $CURRENT_MIRROR;
+//   %dp = #MN1(left) #MN2(right) #MTAIL(tail) @AS $DIFFERENTIAL_PAIR_N => @PLACE(0, 0);
+//   %mirror = #MP2(ref) #MP1(out) @AS $CURRENT_MIRROR_P => @PLACE(0, 12);
+//   /* the own points of the structures, so that the drawing needs no solve */
+//   # @SELECT-USAGE $MIRRORED_LAYOUT => @PLACE(0, 0);
 //   {#MN1 #MN2} @AS $MATCHED;
 //   {#MP1 #MP2} @AS $MATCHED;
 //   {#MTAIL #MNOUT} @AS $MATCHED;
@@ -181,8 +202,8 @@ CC2 (NZ OUT) cfmom_2t w=50n s=50n nr=80 lr=40u stm=1 spm=5
 //   %pin = $IO_PORT @ATTACH &INN => @PLACE(18, 0) => @ORIENT("MY");
 //   %pout = $IO_PORT @ATTACH &OUT => @PLACE(44, 6) => @ORIENT("MY");
 //   %pb = $IO_PORT @ATTACH &BIAS => @PLACE(-18, -10) => @ORIENT("R0");
-//   &INP @WIRE {%pip:p #MN1:g};
-//   &INN @WIRE {%pin:p #MN2:g};
+//   &INP @WIRE {%pip::pin #MN1:g};
+//   &INN @WIRE {%pin::pin #MN2:g};
 //   %jnb = (-10, 6); %jna = (10, 6); %jmg = (0, 12); %jnb2 = (-16, 22);
 //   &NB @WIRE {#MP1:d %jnb #MN1:d};
 //   &NA @WIRE {#MP2:d %jna #MN2:d};
@@ -194,11 +215,11 @@ CC2 (NZ OUT) cfmom_2t w=50n s=50n nr=80 lr=40u stm=1 spm=5
 //   &TAIL @WIRE {#MN1:s (-10, -5) %jtail (10, -5) #MN2:s};
 //   &TAIL @WIRE {%jtail #MTAIL:d};
 //   %jbias = (-6, -10);
-//   &BIAS @WIRE {%pb:p %jbias #MTAIL:g};
+//   &BIAS @WIRE {%pb::pin %jbias #MTAIL:g};
 //   &BIAS @WIRE {%jbias (-6, -18) (28, -18) (28, -10) #MNOUT:g};
 //   %jo = (34, 6); %joc = (40, 6);
 //   &OUT @WIRE {#MPOUT:d %jo #MNOUT:d};
-//   &OUT @WIRE {%jo %joc %pout:p};
+//   &OUT @WIRE {%jo %joc %pout::pin};
 //   %jcl = (14, 28); %jcr = (28, 28); %jcl1 = (14, 34); %jcr1 = (28, 34);
 //   &NZ @WIRE {#MZERO:s %jcl #CC0:p};
 //   &NZ @WIRE {%jcl %jcl1 (14, 40) #CC2:p};
@@ -207,18 +228,30 @@ CC2 (NZ OUT) cfmom_2t w=50n s=50n nr=80 lr=40u stm=1 spm=5
 //   &OUT @WIRE {%jcr %jcr1 (28, 40) #CC2:n};
 //   &OUT @WIRE {%jcr1 #CC1:n};
 //   %gzero = $GROUND @ATTACH &VSS => @PLACE(-5, 33) => @ORIENT("R0");
-//   &VSS @WIRE {#MZERO:g (0, 35) (-5, 35) %gzero:p};
+//   &VSS @WIRE {#MZERO:g (0, 35) (-5, 35) %gzero::pin};
 //   %vh = $SUPPLY @ATTACH &AVDD18 => @PLACE(0, 18) => @ORIENT("R0");
 //   %jvh = (0, 17); %jvhr = (10, 17);
-//   &AVDD18 @WIRE {%vh:p %jvh};
+//   &AVDD18 @WIRE {%vh::pin %jvh};
 //   &AVDD18 @WIRE {#MP1:s (-10, 17) %jvh %jvhr #MP2:s};
 //   %vho = $SUPPLY @ATTACH &AVDD18 => @PLACE(34, 20) => @ORIENT("R0");
-//   &AVDD18 @WIRE {%vho:p #MPOUT:s};
+//   &AVDD18 @WIRE {%vho::pin #MPOUT:s};
 //   %gt = $GROUND @ATTACH &VSS => @PLACE(0, -14) => @ORIENT("R0");
 //   %go = $GROUND @ATTACH &VSS => @PLACE(34, -14) => @ORIENT("R0");
-//   &VSS @WIRE {#MTAIL:s %gt:p};
-//   &VSS @WIRE {#MNOUT:s %go:p};
-//   $JUNCTION @ATTACH {%jnb %jna %jmg %jnb2 %jtail %jbias %jo %joc %jcl %jcr %jcl1 %jcr1 %jvh};
+//   &VSS @WIRE {#MTAIL:s %gt::pin};
+//   &VSS @WIRE {#MNOUT:s %go::pin};
+//   $JUNCTION @ATTACH %jnb => @PLACE(-10, 6);
+//   $JUNCTION @ATTACH %jna => @PLACE(10, 6);
+//   $JUNCTION @ATTACH %jmg => @PLACE(0, 12);
+//   $JUNCTION @ATTACH %jnb2 => @PLACE(-16, 22);
+//   $JUNCTION @ATTACH %jtail => @PLACE(0, -5);
+//   $JUNCTION @ATTACH %jbias => @PLACE(-6, -10);
+//   $JUNCTION @ATTACH %jo => @PLACE(34, 6);
+//   $JUNCTION @ATTACH %joc => @PLACE(40, 6);
+//   $JUNCTION @ATTACH %jcl => @PLACE(14, 28);
+//   $JUNCTION @ATTACH %jcr => @PLACE(28, 28);
+//   $JUNCTION @ATTACH %jcl1 => @PLACE(14, 34);
+//   $JUNCTION @ATTACH %jcr1 => @PLACE(28, 34);
+//   $JUNCTION @ATTACH %jvh => @PLACE(0, 17);
 //   #MP1 @TEXT("MP1 / x4", key="name", dx=-1.1, dy=1.1, halign="end");
 //   #MP2 @TEXT("MP2 / x4", key="name");
 //   #MPOUT @TEXT("MPOUT", key="name");
@@ -246,7 +279,7 @@ CC2 (NZ OUT) cfmom_2t w=50n s=50n nr=80 lr=40u stm=1 spm=5
 //     ? @TEXT("${name}", key="name", size=0.8, halign="end") => @PLACE(-3, 5);
 //     (-2.5, -4) @TEXT("BIAS", size=0.65, halign="end")
 //   };
-//   # @SET-SYMBOL %servo_symbol
+//   # @SET-SYMBOL(terminals=["inp", "inn", "out", "BIAS", "AVDD18", "VSS"]) %servo_symbol
 // }
 ends adc_ref_servo
 
@@ -269,23 +302,27 @@ MCLAMP (OUT NST VSS VSS) nch_18_mac w=64u l=500n nf=32
 //   #MCLAMP @PLACE(26, -6) => @ORIENT("R0");
 //   %pref = $IO_PORT @ATTACH &REF => @PLACE(-10, 0) => @ORIENT("R0");
 //   %jref = (-5, 0);
-//   &REF @WIRE {%pref:p %jref (-5, 6) #MPUV:g};
+//   &REF @WIRE {%pref::pin %jref (-5, 6) #MPUV:g};
 //   &REF @WIRE {%jref (-5, -6) #MNUV:g};
 //   %jst = (0, 0); %jbl = (12, 0);
 //   &NST @WIRE {#MPUV:d %jst #MNUV:d};
 //   &NST @WIRE {%jst %jbl (21, 0) (21, -6) #MCLAMP:g};
 //   &NST @WIRE {%jbl #MNBL:d};
 //   %pout = $IO_PORT @ATTACH &OUT => @PLACE(36, 6) => @ORIENT("MY");
-//   &OUT @WIRE {#MCLAMP:d (26, 6) %pout:p};
+//   &OUT @WIRE {#MCLAMP:d (26, 6) %pout::pin};
 //   %vp = $SUPPLY @ATTACH &AVDD18 => @PLACE(0, 16) => @ORIENT("R0");
 //   %jvp = (0, 12);
-//   &AVDD18 @WIRE {#MPUV:s %jvp %vp:p};
+//   &AVDD18 @WIRE {#MPUV:s %jvp %vp::pin};
 //   &AVDD18 @WIRE {%jvp (18, 12) (18, -6) #MNBL:g};
 //   %gn = $GROUND @ATTACH &VSS => @PLACE(12, -14) => @ORIENT("R0");
 //   %jg = (12, -10);
 //   &VSS @WIRE {#MNUV:s (0, -10) %jg (26, -10) #MCLAMP:s};
-//   &VSS @WIRE {#MNBL:s %jg %gn:p};
-//   $JUNCTION @ATTACH {%jref %jst %jbl %jvp %jg};
+//   &VSS @WIRE {#MNBL:s %jg %gn::pin};
+//   $JUNCTION @ATTACH %jref => @PLACE(-5, 0);
+//   $JUNCTION @ATTACH %jst => @PLACE(0, 0);
+//   $JUNCTION @ATTACH %jbl => @PLACE(12, 0);
+//   $JUNCTION @ATTACH %jvp => @PLACE(0, 12);
+//   $JUNCTION @ATTACH %jg => @PLACE(12, -10);
 //   #MPUV @TEXT("8u/1u; nf4; x2", key="size", dx=1, dy=-1.7, size=0.65, halign="start");
 //   #MNUV @TEXT("64u/1u; nf32", key="size", dx=1, dy=-1.7, size=0.65, halign="start");
 //   #MNBL @TEXT("MNBL", key="name", dx=-1, dy=1.1, halign="end");
