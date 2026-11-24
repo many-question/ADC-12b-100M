@@ -26,7 +26,8 @@ from pathlib import Path
 from .data import ROOT
 
 ID = "adc-12b-100m"
-POOL = ["design/rnl/adc28.rnl", "design/rnl/adc28_blocks.rnl", "design/rnl/adc28_va.rnl"]
+POOL = ["design/rnl/adc28.rnl", "design/rnl/adc28_blocks.rnl", "design/rnl/adc28_va.rnl",      # RNL 0.3
+        "design/rnl/0.4/adc28.rnl", "design/rnl/0.4/adc28_blocks.rnl", "design/rnl/0.4/adc28_va.rnl"]   # RNL 0.4
 MAX_FILES, MAX_FILE_BYTES, MAX_BYTES = 300, 2 * 1024 * 1024, 20 * 1024 * 1024     # the viewer's limits
 PUBLISH = {"design": {".scs", ".rnl", ".va", ".vams"}, "tb": {".scs", ".va", ".vams"}}
 VIEWER = "https://rich-netlist.github.io/rnl/viewer/"                      # the current viewer: RNL 0.4
