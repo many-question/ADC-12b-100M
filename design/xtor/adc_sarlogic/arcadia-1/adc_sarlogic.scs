@@ -1,0 +1,3083 @@
+// adc_sarlogic, candidate arcadia-1: asynchronous SAR controller, transistor view
+//
+// Contract: specs/blocks/adc_sarlogic.yaml (0.5.0) and the behavioural reference
+// design/behav/veriloga/adc_sarlogic_va.va.
+//
+// Sequencing without a shift register. The UP/DN latches of a step are its token:
+// a step may be set only while its enable is high and it is not yet decided, and
+// the enable of the next step is a latch set by "decided" once the comparator has
+// reset and CLKC is low. The enables therefore cannot move while CLKC is high, so a
+// CLKC pulse can decide exactly one step.
+//
+// The DAC wait after decision k is chosen from the decided flags, which are stable
+// from the decision on: fast after 1-2, fast + 10 ps after 3, fast + 30 ps after
+// 4-6, slow after 7-8 and 10-13, slow + 25 ps after 9 (specs/arch.yaml t_dac_add).
+//
+// Delays are gate delays only, no capacitor devices. Every delay is a chain of
+// resettable pairs (ulvt NAND2 then NOR2 at L = 60 nm, whose loads are the next gate,
+// i.e. oxide capacitance, so the corner spread stays near 0.75 .. 1.40 of typical).
+// A chain times one edge of its start signal and clears within one gate when the
+// start signal drops, so a short CLKC phase never carries one wait into the next.
+
+// @RNL(type="header") {
+//   @VERSION("0.3");
+//   @USE-PACKAGE(name="adc28", version="0.1", path="../../../rnl/adc28.rnl");
+// }
+simulator lang=spectre
+
+// ---------------------------------------------------------------- primitives (lvt)
+subckt inv (a y vdd vss)
+  mp (y a vdd vdd) pch_lvt_mac w=0.4u l=30n nf=2
+  mn (y a vss vss) nch_lvt_mac w=0.2u l=30n nf=1
+// @RNL {
+//   &vdd @ADD-TO $SUPPLY_NET_SET; &vss @ADD-TO $GROUND_NET_SET;
+//   # @SET-SYMBOL $INVERTER;
+//   {#mp #mn} @GROUP; {#mp #mn} @TEXT("", key="model");
+//   #mp @PLACE(0,5) => @ORIENT("R0");
+//   #mn @PLACE(0,-5) => @ORIENT("R0");
+//   %p1=$IO_PORT @ATTACH &a => @PLACE(-10,0) => @ORIENT("R0");
+//   %p2=$IO_PORT @ATTACH &y => @PLACE(8,0) => @ORIENT("MY");
+//   %p3=$SUPPLY @ATTACH &vdd => @PLACE(0,12) => @ORIENT("R0");
+//   %p4=$GROUND @ATTACH &vss => @PLACE(0,-12) => @ORIENT("R0");
+//   %j1=(-6,0); $JUNCTION @ATTACH %j1;
+//   %j2=(0,0); $JUNCTION @ATTACH %j2;
+//   %j3=(0,10); $JUNCTION @ATTACH %j3;
+//   %j4=(0,-10); $JUNCTION @ATTACH %j4;
+//   &a @WIRE(mode="straight") {%p1:p %j1};
+//   &a @WIRE(mode="straight") {#mp:g (-6,5) %j1 (-6,-5) #mn:g};
+//   &y @WIRE(mode="straight") {#mp:d %j2 #mn:d};
+//   &y @WIRE(mode="straight") {%j2 %p2:p};
+//   &vdd @WIRE(mode="straight") {#mp:s %j3 %p3:p};
+//   &vdd @WIRE(mode="straight") {#mp:b (3,5) (3,10) %j3};
+//   &vss @WIRE(mode="straight") {#mn:s %j4 %p4:p};
+//   &vss @WIRE(mode="straight") {#mn:b (3,-5) (3,-10) %j4};
+//   (-10,16) @TEXT("inv", size=1.0, textcolor="#334155", bold=true, halign="start");
+//   (5,6) @TEXT("mp  pch_lvt  0.4u/30n  nf=2", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (5,-4.5) @TEXT("mn  nch_lvt  0.2u/30n  nf=1", size=0.75, textcolor="#334155", bold=false, halign="start");
+// }
+ends inv
+
+subckt invx4 (a y vdd vss)
+  mp (y a vdd vdd) pch_lvt_mac w=1.6u l=30n nf=8
+  mn (y a vss vss) nch_lvt_mac w=0.8u l=30n nf=4
+// @RNL {
+//   &vdd @ADD-TO $SUPPLY_NET_SET; &vss @ADD-TO $GROUND_NET_SET;
+//   # @SET-SYMBOL $INVERTER;
+//   {#mp #mn} @GROUP; {#mp #mn} @TEXT("", key="model");
+//   #mp @PLACE(0,5) => @ORIENT("R0");
+//   #mn @PLACE(0,-5) => @ORIENT("R0");
+//   %p1=$IO_PORT @ATTACH &a => @PLACE(-10,0) => @ORIENT("R0");
+//   %p2=$IO_PORT @ATTACH &y => @PLACE(8,0) => @ORIENT("MY");
+//   %p3=$SUPPLY @ATTACH &vdd => @PLACE(0,12) => @ORIENT("R0");
+//   %p4=$GROUND @ATTACH &vss => @PLACE(0,-12) => @ORIENT("R0");
+//   %j1=(-6,0); $JUNCTION @ATTACH %j1;
+//   %j2=(0,0); $JUNCTION @ATTACH %j2;
+//   %j3=(0,10); $JUNCTION @ATTACH %j3;
+//   %j4=(0,-10); $JUNCTION @ATTACH %j4;
+//   &a @WIRE(mode="straight") {%p1:p %j1};
+//   &a @WIRE(mode="straight") {#mp:g (-6,5) %j1 (-6,-5) #mn:g};
+//   &y @WIRE(mode="straight") {#mp:d %j2 #mn:d};
+//   &y @WIRE(mode="straight") {%j2 %p2:p};
+//   &vdd @WIRE(mode="straight") {#mp:s %j3 %p3:p};
+//   &vdd @WIRE(mode="straight") {#mp:b (3,5) (3,10) %j3};
+//   &vss @WIRE(mode="straight") {#mn:s %j4 %p4:p};
+//   &vss @WIRE(mode="straight") {#mn:b (3,-5) (3,-10) %j4};
+//   (-10,16) @TEXT("invx4", size=1.0, textcolor="#334155", bold=true, halign="start");
+//   (5,6) @TEXT("mp  pch_lvt  1.6u/30n  nf=8", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (5,-4.5) @TEXT("mn  nch_lvt  0.8u/30n  nf=4", size=0.75, textcolor="#334155", bold=false, halign="start");
+// }
+ends invx4
+
+subckt nand2 (a b y vdd vss)
+  mp1 (y a vdd vdd) pch_lvt_mac w=0.4u l=30n nf=2
+  mp2 (y b vdd vdd) pch_lvt_mac w=0.4u l=30n nf=2
+  mn1 (y a m1 vss) nch_lvt_mac w=0.4u l=30n nf=2
+  mn2 (m1 b vss vss) nch_lvt_mac w=0.4u l=30n nf=2
+// @RNL {
+//   &vdd @ADD-TO $SUPPLY_NET_SET; &vss @ADD-TO $GROUND_NET_SET;
+//   # @SET-SYMBOL $NAND_2INPUT;
+//   {#mp1 #mp2} @GROUP;
+//   {#mn1 #mn2} @GROUP;
+//   {#mp1 #mn1 #mp2 #mn2} @TEXT("", key="model");
+//   #mp1 @PLACE(0,8) => @ORIENT("R0");
+//   #mn1 @PLACE(0,0) => @ORIENT("R0");
+//   #mp2 @PLACE(8,8) => @ORIENT("R0");
+//   #mn2 @PLACE(0,-6) => @ORIENT("R0");
+//   %p1=$SUPPLY @ATTACH &vdd => @PLACE(12,13) => @ORIENT("R0");
+//   &vdd @WIRE(mode="straight") {(0,13) (2,13) (8,13) (10,13) %p1:p};
+//   &vdd @WIRE(mode="straight") {#mp1:s (0,13)};
+//   %j1=(2,13); $JUNCTION @ATTACH %j1;
+//   &vdd @WIRE(mode="straight") {#mp1:b (2,8) (2,13)};
+//   %j2=(8,13); $JUNCTION @ATTACH %j2;
+//   &vdd @WIRE(mode="straight") {#mp2:s (8,13)};
+//   %j3=(10,13); $JUNCTION @ATTACH %j3;
+//   &vdd @WIRE(mode="straight") {#mp2:b (10,8) (10,13)};
+//   %p2=$IO_PORT @ATTACH &y => @PLACE(14,4) => @ORIENT("MY");
+//   %j4=(0,4); $JUNCTION @ATTACH %j4;
+//   &y @WIRE(mode="straight") {#mp1:d (0,4) #mn1:d};
+//   &y @WIRE(mode="straight") {(0,4) (8,4) %p2:p};
+//   %j5=(8,4); $JUNCTION @ATTACH %j5;
+//   &y @WIRE(mode="straight") {#mp2:d (8,4)};
+//   &m1 @WIRE(mode="straight") {#mn1:s #mn2:d};
+//   %p3=$GROUND @ATTACH &vss => @PLACE(0,-10) => @ORIENT("R0");
+//   &vss @WIRE(mode="straight") {#mn2:s %p3:p};
+//   &vss @WIRE(mode="straight") {#mn1:b (3,0) (3,-6) (3,-10) %p3:p};
+//   %j6=(3,-6); $JUNCTION @ATTACH %j6;
+//   &vss @WIRE(mode="straight") {#mn2:b (3,-6)};
+//   %p4=$IO_PORT @ATTACH &a => @PLACE(-14,0) => @ORIENT("R0");
+//   %j7=(-6,0); $JUNCTION @ATTACH %j7;
+//   &a @WIRE(mode="straight") {%p4:p %j7 #mn1:g};
+//   &a @WIRE(mode="straight") {%j7 (-6,8) #mp1:g};
+//   %p5=$IO_PORT @ATTACH &b => @PLACE(-14,-6) => @ORIENT("R0");
+//   %j8=(-8,-6); $JUNCTION @ATTACH %j8;
+//   &b @WIRE(mode="straight") {%p5:p %j8 #mn2:g};
+//   &b @WIRE(mode="straight") {%j8 (-8,11) (3,11) (3,8) #mp2:g};
+//   (-14,17) @TEXT("nand2", size=1.0, textcolor="#334155", bold=true, halign="start");
+//   (16,10) @TEXT("mp1  pch_lvt  0.4u/30n  nf=2", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (16,8.6) @TEXT("mp2  pch_lvt  0.4u/30n  nf=2", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (16,7.2) @TEXT("mn1  nch_lvt  0.4u/30n  nf=2", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (16,5.8) @TEXT("mn2  nch_lvt  0.4u/30n  nf=2", size=0.75, textcolor="#334155", bold=false, halign="start");
+// }
+ends nand2
+
+subckt nand3 (a b c y vdd vss)
+  mp1 (y a vdd vdd) pch_lvt_mac w=0.4u l=30n nf=2
+  mp2 (y b vdd vdd) pch_lvt_mac w=0.4u l=30n nf=2
+  mp3 (y c vdd vdd) pch_lvt_mac w=0.4u l=30n nf=2
+  mn1 (y a m1 vss) nch_lvt_mac w=0.6u l=30n nf=2
+  mn2 (m1 b m2 vss) nch_lvt_mac w=0.6u l=30n nf=2
+  mn3 (m2 c vss vss) nch_lvt_mac w=0.6u l=30n nf=2
+// @RNL {
+//   &vdd @ADD-TO $SUPPLY_NET_SET; &vss @ADD-TO $GROUND_NET_SET;
+//   # @SET-SYMBOL $NAND_3INPUT;
+//   {#mp1 #mp2 #mp3} @GROUP;
+//   {#mn1 #mn2 #mn3} @GROUP;
+//   {#mp1 #mn1 #mp2 #mn2 #mp3 #mn3} @TEXT("", key="model");
+//   #mp1 @PLACE(0,8) => @ORIENT("R0");
+//   #mn1 @PLACE(0,0) => @ORIENT("R0");
+//   #mp2 @PLACE(8,8) => @ORIENT("R0");
+//   #mn2 @PLACE(0,-6) => @ORIENT("R0");
+//   #mp3 @PLACE(16,8) => @ORIENT("R0");
+//   #mn3 @PLACE(0,-12) => @ORIENT("R0");
+//   %p1=$SUPPLY @ATTACH &vdd => @PLACE(20,13) => @ORIENT("R0");
+//   &vdd @WIRE(mode="straight") {(0,13) (2,13) (8,13) (10,13) (16,13) (18,13) %p1:p};
+//   &vdd @WIRE(mode="straight") {#mp1:s (0,13)};
+//   %j1=(2,13); $JUNCTION @ATTACH %j1;
+//   &vdd @WIRE(mode="straight") {#mp1:b (2,8) (2,13)};
+//   %j2=(8,13); $JUNCTION @ATTACH %j2;
+//   &vdd @WIRE(mode="straight") {#mp2:s (8,13)};
+//   %j3=(10,13); $JUNCTION @ATTACH %j3;
+//   &vdd @WIRE(mode="straight") {#mp2:b (10,8) (10,13)};
+//   %j4=(16,13); $JUNCTION @ATTACH %j4;
+//   &vdd @WIRE(mode="straight") {#mp3:s (16,13)};
+//   %j5=(18,13); $JUNCTION @ATTACH %j5;
+//   &vdd @WIRE(mode="straight") {#mp3:b (18,8) (18,13)};
+//   %p2=$IO_PORT @ATTACH &y => @PLACE(22,4) => @ORIENT("MY");
+//   %j6=(0,4); $JUNCTION @ATTACH %j6;
+//   &y @WIRE(mode="straight") {#mp1:d (0,4) #mn1:d};
+//   &y @WIRE(mode="straight") {(0,4) (8,4) (16,4) %p2:p};
+//   %j7=(8,4); $JUNCTION @ATTACH %j7;
+//   &y @WIRE(mode="straight") {#mp2:d (8,4)};
+//   %j8=(16,4); $JUNCTION @ATTACH %j8;
+//   &y @WIRE(mode="straight") {#mp3:d (16,4)};
+//   &m1 @WIRE(mode="straight") {#mn1:s #mn2:d};
+//   &m2 @WIRE(mode="straight") {#mn2:s #mn3:d};
+//   %p3=$GROUND @ATTACH &vss => @PLACE(0,-16) => @ORIENT("R0");
+//   &vss @WIRE(mode="straight") {#mn3:s %p3:p};
+//   &vss @WIRE(mode="straight") {#mn1:b (3,0) (3,-6) (3,-12) (3,-16) %p3:p};
+//   %j9=(3,-6); $JUNCTION @ATTACH %j9;
+//   &vss @WIRE(mode="straight") {#mn2:b (3,-6)};
+//   %j10=(3,-12); $JUNCTION @ATTACH %j10;
+//   &vss @WIRE(mode="straight") {#mn3:b (3,-12)};
+//   %p4=$IO_PORT @ATTACH &a => @PLACE(-14,0) => @ORIENT("R0");
+//   %j11=(-6,0); $JUNCTION @ATTACH %j11;
+//   &a @WIRE(mode="straight") {%p4:p %j11 #mn1:g};
+//   &a @WIRE(mode="straight") {%j11 (-6,8) #mp1:g};
+//   %p5=$IO_PORT @ATTACH &b => @PLACE(-14,-6) => @ORIENT("R0");
+//   %j12=(-8,-6); $JUNCTION @ATTACH %j12;
+//   &b @WIRE(mode="straight") {%p5:p %j12 #mn2:g};
+//   &b @WIRE(mode="straight") {%j12 (-8,11) (3,11) (3,8) #mp2:g};
+//   %p6=$IO_PORT @ATTACH &c => @PLACE(-14,-12) => @ORIENT("R0");
+//   %j13=(-10,-12); $JUNCTION @ATTACH %j13;
+//   &c @WIRE(mode="straight") {%p6:p %j13 #mn3:g};
+//   &c @WIRE(mode="straight") {%j13 (-10,12) (11,12) (11,8) #mp3:g};
+//   (-14,17) @TEXT("nand3", size=1.0, textcolor="#334155", bold=true, halign="start");
+//   (24,10) @TEXT("mp1  pch_lvt  0.4u/30n  nf=2", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (24,8.6) @TEXT("mp2  pch_lvt  0.4u/30n  nf=2", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (24,7.2) @TEXT("mp3  pch_lvt  0.4u/30n  nf=2", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (24,5.8) @TEXT("mn1  nch_lvt  0.6u/30n  nf=2", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (24,4.4) @TEXT("mn2  nch_lvt  0.6u/30n  nf=2", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (24,3) @TEXT("mn3  nch_lvt  0.6u/30n  nf=2", size=0.75, textcolor="#334155", bold=false, halign="start");
+// }
+ends nand3
+
+subckt nor2 (a b y vdd vss)
+  mp1 (y a m1 vdd) pch_lvt_mac w=0.8u l=30n nf=4
+  mp2 (m1 b vdd vdd) pch_lvt_mac w=0.8u l=30n nf=4
+  mn1 (y a vss vss) nch_lvt_mac w=0.2u l=30n nf=1
+  mn2 (y b vss vss) nch_lvt_mac w=0.2u l=30n nf=1
+// @RNL {
+//   &vdd @ADD-TO $SUPPLY_NET_SET; &vss @ADD-TO $GROUND_NET_SET;
+//   # @SET-SYMBOL $NOR_2INPUT;
+//   {#mp1 #mp2} @GROUP;
+//   {#mn1 #mn2} @GROUP;
+//   {#mp1 #mn1 #mp2 #mn2} @TEXT("", key="model");
+//   #mp1 @PLACE(0,8) => @ORIENT("R0");
+//   #mn1 @PLACE(0,0) => @ORIENT("R0");
+//   #mp2 @PLACE(0,14) => @ORIENT("R0");
+//   #mn2 @PLACE(8,0) => @ORIENT("R0");
+//   &m1 @WIRE(mode="straight") {#mp1:s #mp2:d};
+//   %p1=$SUPPLY @ATTACH &vdd => @PLACE(0,19) => @ORIENT("R0");
+//   &vdd @WIRE(mode="straight") {#mp2:s %p1:p};
+//   &vdd @WIRE(mode="straight") {#mp1:b (3,8) (3,14) (3,19) %p1:p};
+//   %j1=(3,14); $JUNCTION @ATTACH %j1;
+//   &vdd @WIRE(mode="straight") {#mp2:b (3,14)};
+//   %p2=$IO_PORT @ATTACH &y => @PLACE(14,4) => @ORIENT("MY");
+//   %j2=(0,4); $JUNCTION @ATTACH %j2;
+//   &y @WIRE(mode="straight") {#mp1:d (0,4) #mn1:d};
+//   &y @WIRE(mode="straight") {(0,4) (8,4) %p2:p};
+//   %j3=(8,4); $JUNCTION @ATTACH %j3;
+//   &y @WIRE(mode="straight") {#mn2:d (8,4)};
+//   %p3=$GROUND @ATTACH &vss => @PLACE(12,-6) => @ORIENT("R0");
+//   &vss @WIRE(mode="straight") {(0,-6) (2,-6) (8,-6) (10,-6) %p3:p};
+//   &vss @WIRE(mode="straight") {#mn1:s (0,-6)};
+//   %j4=(2,-6); $JUNCTION @ATTACH %j4;
+//   &vss @WIRE(mode="straight") {#mn1:b (2,0) (2,-6)};
+//   %j5=(8,-6); $JUNCTION @ATTACH %j5;
+//   &vss @WIRE(mode="straight") {#mn2:s (8,-6)};
+//   %j6=(10,-6); $JUNCTION @ATTACH %j6;
+//   &vss @WIRE(mode="straight") {#mn2:b (10,0) (10,-6)};
+//   %p4=$IO_PORT @ATTACH &a => @PLACE(-14,8) => @ORIENT("R0");
+//   %j7=(-6,8); $JUNCTION @ATTACH %j7;
+//   &a @WIRE(mode="straight") {%p4:p %j7 #mp1:g};
+//   &a @WIRE(mode="straight") {%j7 (-6,0) #mn1:g};
+//   %p5=$IO_PORT @ATTACH &b => @PLACE(-14,14) => @ORIENT("R0");
+//   %j8=(-8,14); $JUNCTION @ATTACH %j8;
+//   &b @WIRE(mode="straight") {%p5:p %j8 #mp2:g};
+//   &b @WIRE(mode="straight") {%j8 (-8,-3) (3,-3) (3,0) #mn2:g};
+//   (-14,23) @TEXT("nor2", size=1.0, textcolor="#334155", bold=true, halign="start");
+//   (16,19) @TEXT("mp1  pch_lvt  0.8u/30n  nf=4", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (16,17.6) @TEXT("mp2  pch_lvt  0.8u/30n  nf=4", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (16,16.2) @TEXT("mn1  nch_lvt  0.2u/30n  nf=1", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (16,14.8) @TEXT("mn2  nch_lvt  0.2u/30n  nf=1", size=0.75, textcolor="#334155", bold=false, halign="start");
+// }
+ends nor2
+
+// three-input NOR with a strong pull-up: blc, read by the CLKC set gates and the enable buffer
+subckt nor3x2 (a b c y vdd vss)
+  mp1 (y a m1 vdd) pch_lvt_mac w=2.4u l=30n nf=12
+  mp2 (m1 b m2 vdd) pch_lvt_mac w=2.4u l=30n nf=12
+  mp3 (m2 c vdd vdd) pch_lvt_mac w=2.4u l=30n nf=12
+  mn1 (y a vss vss) nch_lvt_mac w=0.4u l=30n nf=2
+  mn2 (y b vss vss) nch_lvt_mac w=0.4u l=30n nf=2
+  mn3 (y c vss vss) nch_lvt_mac w=0.4u l=30n nf=2
+// @RNL {
+//   &vdd @ADD-TO $SUPPLY_NET_SET; &vss @ADD-TO $GROUND_NET_SET;
+//   # @SET-SYMBOL $NOR_3INPUT;
+//   {#mp1 #mp2 #mp3} @GROUP;
+//   {#mn1 #mn2 #mn3} @GROUP;
+//   {#mp1 #mn1 #mp2 #mn2 #mp3 #mn3} @TEXT("", key="model");
+//   #mp1 @PLACE(0,8) => @ORIENT("R0");
+//   #mn1 @PLACE(0,0) => @ORIENT("R0");
+//   #mp2 @PLACE(0,14) => @ORIENT("R0");
+//   #mn2 @PLACE(8,0) => @ORIENT("R0");
+//   #mp3 @PLACE(0,20) => @ORIENT("R0");
+//   #mn3 @PLACE(16,0) => @ORIENT("R0");
+//   &m1 @WIRE(mode="straight") {#mp1:s #mp2:d};
+//   &m2 @WIRE(mode="straight") {#mp2:s #mp3:d};
+//   %p1=$SUPPLY @ATTACH &vdd => @PLACE(0,25) => @ORIENT("R0");
+//   &vdd @WIRE(mode="straight") {#mp3:s %p1:p};
+//   &vdd @WIRE(mode="straight") {#mp1:b (3,8) (3,14) (3,20) (3,25) %p1:p};
+//   %j1=(3,14); $JUNCTION @ATTACH %j1;
+//   &vdd @WIRE(mode="straight") {#mp2:b (3,14)};
+//   %j2=(3,20); $JUNCTION @ATTACH %j2;
+//   &vdd @WIRE(mode="straight") {#mp3:b (3,20)};
+//   %p2=$IO_PORT @ATTACH &y => @PLACE(22,4) => @ORIENT("MY");
+//   %j3=(0,4); $JUNCTION @ATTACH %j3;
+//   &y @WIRE(mode="straight") {#mp1:d (0,4) #mn1:d};
+//   &y @WIRE(mode="straight") {(0,4) (8,4) (16,4) %p2:p};
+//   %j4=(8,4); $JUNCTION @ATTACH %j4;
+//   &y @WIRE(mode="straight") {#mn2:d (8,4)};
+//   %j5=(16,4); $JUNCTION @ATTACH %j5;
+//   &y @WIRE(mode="straight") {#mn3:d (16,4)};
+//   %p3=$GROUND @ATTACH &vss => @PLACE(20,-6) => @ORIENT("R0");
+//   &vss @WIRE(mode="straight") {(0,-6) (2,-6) (8,-6) (10,-6) (16,-6) (18,-6) %p3:p};
+//   &vss @WIRE(mode="straight") {#mn1:s (0,-6)};
+//   %j6=(2,-6); $JUNCTION @ATTACH %j6;
+//   &vss @WIRE(mode="straight") {#mn1:b (2,0) (2,-6)};
+//   %j7=(8,-6); $JUNCTION @ATTACH %j7;
+//   &vss @WIRE(mode="straight") {#mn2:s (8,-6)};
+//   %j8=(10,-6); $JUNCTION @ATTACH %j8;
+//   &vss @WIRE(mode="straight") {#mn2:b (10,0) (10,-6)};
+//   %j9=(16,-6); $JUNCTION @ATTACH %j9;
+//   &vss @WIRE(mode="straight") {#mn3:s (16,-6)};
+//   %j10=(18,-6); $JUNCTION @ATTACH %j10;
+//   &vss @WIRE(mode="straight") {#mn3:b (18,0) (18,-6)};
+//   %p4=$IO_PORT @ATTACH &a => @PLACE(-14,8) => @ORIENT("R0");
+//   %j11=(-6,8); $JUNCTION @ATTACH %j11;
+//   &a @WIRE(mode="straight") {%p4:p %j11 #mp1:g};
+//   &a @WIRE(mode="straight") {%j11 (-6,0) #mn1:g};
+//   %p5=$IO_PORT @ATTACH &b => @PLACE(-14,14) => @ORIENT("R0");
+//   %j12=(-8,14); $JUNCTION @ATTACH %j12;
+//   &b @WIRE(mode="straight") {%p5:p %j12 #mp2:g};
+//   &b @WIRE(mode="straight") {%j12 (-8,-3) (3,-3) (3,0) #mn2:g};
+//   %p6=$IO_PORT @ATTACH &c => @PLACE(-14,20) => @ORIENT("R0");
+//   %j13=(-10,20); $JUNCTION @ATTACH %j13;
+//   &c @WIRE(mode="straight") {%p6:p %j13 #mp3:g};
+//   &c @WIRE(mode="straight") {%j13 (-10,-3.5) (11,-3.5) (11,0) #mn3:g};
+//   (-14,29) @TEXT("nor3x2", size=1.0, textcolor="#334155", bold=true, halign="start");
+//   (24,25) @TEXT("mp1  pch_lvt  2.4u/30n  nf=12", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (24,23.6) @TEXT("mp2  pch_lvt  2.4u/30n  nf=12", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (24,22.2) @TEXT("mp3  pch_lvt  2.4u/30n  nf=12", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (24,20.8) @TEXT("mn1  nch_lvt  0.4u/30n  nf=2", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (24,19.4) @TEXT("mn2  nch_lvt  0.4u/30n  nf=2", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (24,18) @TEXT("mn3  nch_lvt  0.4u/30n  nf=2", size=0.75, textcolor="#334155", bold=false, halign="start");
+// }
+ends nor3x2
+
+subckt nand2x4 (a b y vdd vss)
+  mp1 (y a vdd vdd) pch_lvt_mac w=1.2u l=30n nf=6
+  mp2 (y b vdd vdd) pch_lvt_mac w=1.2u l=30n nf=6
+  mn1 (y a m1 vss) nch_lvt_mac w=1.2u l=30n nf=6
+  mn2 (m1 b vss vss) nch_lvt_mac w=1.2u l=30n nf=6
+// @RNL {
+//   &vdd @ADD-TO $SUPPLY_NET_SET; &vss @ADD-TO $GROUND_NET_SET;
+//   # @SET-SYMBOL $NAND_2INPUT;
+//   {#mp1 #mp2} @GROUP;
+//   {#mn1 #mn2} @GROUP;
+//   {#mp1 #mn1 #mp2 #mn2} @TEXT("", key="model");
+//   #mp1 @PLACE(0,8) => @ORIENT("R0");
+//   #mn1 @PLACE(0,0) => @ORIENT("R0");
+//   #mp2 @PLACE(8,8) => @ORIENT("R0");
+//   #mn2 @PLACE(0,-6) => @ORIENT("R0");
+//   %p1=$SUPPLY @ATTACH &vdd => @PLACE(12,13) => @ORIENT("R0");
+//   &vdd @WIRE(mode="straight") {(0,13) (2,13) (8,13) (10,13) %p1:p};
+//   &vdd @WIRE(mode="straight") {#mp1:s (0,13)};
+//   %j1=(2,13); $JUNCTION @ATTACH %j1;
+//   &vdd @WIRE(mode="straight") {#mp1:b (2,8) (2,13)};
+//   %j2=(8,13); $JUNCTION @ATTACH %j2;
+//   &vdd @WIRE(mode="straight") {#mp2:s (8,13)};
+//   %j3=(10,13); $JUNCTION @ATTACH %j3;
+//   &vdd @WIRE(mode="straight") {#mp2:b (10,8) (10,13)};
+//   %p2=$IO_PORT @ATTACH &y => @PLACE(14,4) => @ORIENT("MY");
+//   %j4=(0,4); $JUNCTION @ATTACH %j4;
+//   &y @WIRE(mode="straight") {#mp1:d (0,4) #mn1:d};
+//   &y @WIRE(mode="straight") {(0,4) (8,4) %p2:p};
+//   %j5=(8,4); $JUNCTION @ATTACH %j5;
+//   &y @WIRE(mode="straight") {#mp2:d (8,4)};
+//   &m1 @WIRE(mode="straight") {#mn1:s #mn2:d};
+//   %p3=$GROUND @ATTACH &vss => @PLACE(0,-10) => @ORIENT("R0");
+//   &vss @WIRE(mode="straight") {#mn2:s %p3:p};
+//   &vss @WIRE(mode="straight") {#mn1:b (3,0) (3,-6) (3,-10) %p3:p};
+//   %j6=(3,-6); $JUNCTION @ATTACH %j6;
+//   &vss @WIRE(mode="straight") {#mn2:b (3,-6)};
+//   %p4=$IO_PORT @ATTACH &a => @PLACE(-14,0) => @ORIENT("R0");
+//   %j7=(-6,0); $JUNCTION @ATTACH %j7;
+//   &a @WIRE(mode="straight") {%p4:p %j7 #mn1:g};
+//   &a @WIRE(mode="straight") {%j7 (-6,8) #mp1:g};
+//   %p5=$IO_PORT @ATTACH &b => @PLACE(-14,-6) => @ORIENT("R0");
+//   %j8=(-8,-6); $JUNCTION @ATTACH %j8;
+//   &b @WIRE(mode="straight") {%p5:p %j8 #mn2:g};
+//   &b @WIRE(mode="straight") {%j8 (-8,11) (3,11) (3,8) #mp2:g};
+//   (-14,17) @TEXT("nand2x4", size=1.0, textcolor="#334155", bold=true, halign="start");
+//   (16,10) @TEXT("mp1  pch_lvt  1.2u/30n  nf=6", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (16,8.6) @TEXT("mp2  pch_lvt  1.2u/30n  nf=6", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (16,7.2) @TEXT("mn1  nch_lvt  1.2u/30n  nf=6", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (16,5.8) @TEXT("mn2  nch_lvt  1.2u/30n  nf=6", size=0.75, textcolor="#334155", bold=false, halign="start");
+// }
+ends nand2x4
+
+subckt nand3x8 (a b c y vdd vss)
+  mp1 (y a vdd vdd) pch_lvt_mac w=4.8u l=30n nf=24
+  mp2 (y b vdd vdd) pch_lvt_mac w=4.8u l=30n nf=24
+  mp3 (y c vdd vdd) pch_lvt_mac w=4.8u l=30n nf=24
+  mn1 (y a m1 vss) nch_lvt_mac w=4.8u l=30n nf=24
+  mn2 (m1 b m2 vss) nch_lvt_mac w=4.8u l=30n nf=24
+  mn3 (m2 c vss vss) nch_lvt_mac w=4.8u l=30n nf=24
+// @RNL {
+//   &vdd @ADD-TO $SUPPLY_NET_SET; &vss @ADD-TO $GROUND_NET_SET;
+//   # @SET-SYMBOL $NAND_3INPUT;
+//   {#mp1 #mp2 #mp3} @GROUP;
+//   {#mn1 #mn2 #mn3} @GROUP;
+//   {#mp1 #mn1 #mp2 #mn2 #mp3 #mn3} @TEXT("", key="model");
+//   #mp1 @PLACE(0,8) => @ORIENT("R0");
+//   #mn1 @PLACE(0,0) => @ORIENT("R0");
+//   #mp2 @PLACE(8,8) => @ORIENT("R0");
+//   #mn2 @PLACE(0,-6) => @ORIENT("R0");
+//   #mp3 @PLACE(16,8) => @ORIENT("R0");
+//   #mn3 @PLACE(0,-12) => @ORIENT("R0");
+//   %p1=$SUPPLY @ATTACH &vdd => @PLACE(20,13) => @ORIENT("R0");
+//   &vdd @WIRE(mode="straight") {(0,13) (2,13) (8,13) (10,13) (16,13) (18,13) %p1:p};
+//   &vdd @WIRE(mode="straight") {#mp1:s (0,13)};
+//   %j1=(2,13); $JUNCTION @ATTACH %j1;
+//   &vdd @WIRE(mode="straight") {#mp1:b (2,8) (2,13)};
+//   %j2=(8,13); $JUNCTION @ATTACH %j2;
+//   &vdd @WIRE(mode="straight") {#mp2:s (8,13)};
+//   %j3=(10,13); $JUNCTION @ATTACH %j3;
+//   &vdd @WIRE(mode="straight") {#mp2:b (10,8) (10,13)};
+//   %j4=(16,13); $JUNCTION @ATTACH %j4;
+//   &vdd @WIRE(mode="straight") {#mp3:s (16,13)};
+//   %j5=(18,13); $JUNCTION @ATTACH %j5;
+//   &vdd @WIRE(mode="straight") {#mp3:b (18,8) (18,13)};
+//   %p2=$IO_PORT @ATTACH &y => @PLACE(22,4) => @ORIENT("MY");
+//   %j6=(0,4); $JUNCTION @ATTACH %j6;
+//   &y @WIRE(mode="straight") {#mp1:d (0,4) #mn1:d};
+//   &y @WIRE(mode="straight") {(0,4) (8,4) (16,4) %p2:p};
+//   %j7=(8,4); $JUNCTION @ATTACH %j7;
+//   &y @WIRE(mode="straight") {#mp2:d (8,4)};
+//   %j8=(16,4); $JUNCTION @ATTACH %j8;
+//   &y @WIRE(mode="straight") {#mp3:d (16,4)};
+//   &m1 @WIRE(mode="straight") {#mn1:s #mn2:d};
+//   &m2 @WIRE(mode="straight") {#mn2:s #mn3:d};
+//   %p3=$GROUND @ATTACH &vss => @PLACE(0,-16) => @ORIENT("R0");
+//   &vss @WIRE(mode="straight") {#mn3:s %p3:p};
+//   &vss @WIRE(mode="straight") {#mn1:b (3,0) (3,-6) (3,-12) (3,-16) %p3:p};
+//   %j9=(3,-6); $JUNCTION @ATTACH %j9;
+//   &vss @WIRE(mode="straight") {#mn2:b (3,-6)};
+//   %j10=(3,-12); $JUNCTION @ATTACH %j10;
+//   &vss @WIRE(mode="straight") {#mn3:b (3,-12)};
+//   %p4=$IO_PORT @ATTACH &a => @PLACE(-14,0) => @ORIENT("R0");
+//   %j11=(-6,0); $JUNCTION @ATTACH %j11;
+//   &a @WIRE(mode="straight") {%p4:p %j11 #mn1:g};
+//   &a @WIRE(mode="straight") {%j11 (-6,8) #mp1:g};
+//   %p5=$IO_PORT @ATTACH &b => @PLACE(-14,-6) => @ORIENT("R0");
+//   %j12=(-8,-6); $JUNCTION @ATTACH %j12;
+//   &b @WIRE(mode="straight") {%p5:p %j12 #mn2:g};
+//   &b @WIRE(mode="straight") {%j12 (-8,11) (3,11) (3,8) #mp2:g};
+//   %p6=$IO_PORT @ATTACH &c => @PLACE(-14,-12) => @ORIENT("R0");
+//   %j13=(-10,-12); $JUNCTION @ATTACH %j13;
+//   &c @WIRE(mode="straight") {%p6:p %j13 #mn3:g};
+//   &c @WIRE(mode="straight") {%j13 (-10,12) (11,12) (11,8) #mp3:g};
+//   (-14,17) @TEXT("nand3x8", size=1.0, textcolor="#334155", bold=true, halign="start");
+//   (24,10) @TEXT("mp1  pch_lvt  4.8u/30n  nf=24", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (24,8.6) @TEXT("mp2  pch_lvt  4.8u/30n  nf=24", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (24,7.2) @TEXT("mp3  pch_lvt  4.8u/30n  nf=24", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (24,5.8) @TEXT("mn1  nch_lvt  4.8u/30n  nf=24", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (24,4.4) @TEXT("mn2  nch_lvt  4.8u/30n  nf=24", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (24,3) @TEXT("mn3  nch_lvt  4.8u/30n  nf=24", size=0.75, textcolor="#334155", bold=false, halign="start");
+// }
+ends nand3x8
+
+subckt nand2x8 (a b y vdd vss)
+  mp1 (y a vdd vdd) pch_lvt_mac w=2.4u l=30n nf=12
+  mp2 (y b vdd vdd) pch_lvt_mac w=2.4u l=30n nf=12
+  mn1 (y a m1 vss) nch_lvt_mac w=2.4u l=30n nf=12
+  mn2 (m1 b vss vss) nch_lvt_mac w=2.4u l=30n nf=12
+// @RNL {
+//   &vdd @ADD-TO $SUPPLY_NET_SET; &vss @ADD-TO $GROUND_NET_SET;
+//   # @SET-SYMBOL $NAND_2INPUT;
+//   {#mp1 #mp2} @GROUP;
+//   {#mn1 #mn2} @GROUP;
+//   {#mp1 #mn1 #mp2 #mn2} @TEXT("", key="model");
+//   #mp1 @PLACE(0,8) => @ORIENT("R0");
+//   #mn1 @PLACE(0,0) => @ORIENT("R0");
+//   #mp2 @PLACE(8,8) => @ORIENT("R0");
+//   #mn2 @PLACE(0,-6) => @ORIENT("R0");
+//   %p1=$SUPPLY @ATTACH &vdd => @PLACE(12,13) => @ORIENT("R0");
+//   &vdd @WIRE(mode="straight") {(0,13) (2,13) (8,13) (10,13) %p1:p};
+//   &vdd @WIRE(mode="straight") {#mp1:s (0,13)};
+//   %j1=(2,13); $JUNCTION @ATTACH %j1;
+//   &vdd @WIRE(mode="straight") {#mp1:b (2,8) (2,13)};
+//   %j2=(8,13); $JUNCTION @ATTACH %j2;
+//   &vdd @WIRE(mode="straight") {#mp2:s (8,13)};
+//   %j3=(10,13); $JUNCTION @ATTACH %j3;
+//   &vdd @WIRE(mode="straight") {#mp2:b (10,8) (10,13)};
+//   %p2=$IO_PORT @ATTACH &y => @PLACE(14,4) => @ORIENT("MY");
+//   %j4=(0,4); $JUNCTION @ATTACH %j4;
+//   &y @WIRE(mode="straight") {#mp1:d (0,4) #mn1:d};
+//   &y @WIRE(mode="straight") {(0,4) (8,4) %p2:p};
+//   %j5=(8,4); $JUNCTION @ATTACH %j5;
+//   &y @WIRE(mode="straight") {#mp2:d (8,4)};
+//   &m1 @WIRE(mode="straight") {#mn1:s #mn2:d};
+//   %p3=$GROUND @ATTACH &vss => @PLACE(0,-10) => @ORIENT("R0");
+//   &vss @WIRE(mode="straight") {#mn2:s %p3:p};
+//   &vss @WIRE(mode="straight") {#mn1:b (3,0) (3,-6) (3,-10) %p3:p};
+//   %j6=(3,-6); $JUNCTION @ATTACH %j6;
+//   &vss @WIRE(mode="straight") {#mn2:b (3,-6)};
+//   %p4=$IO_PORT @ATTACH &a => @PLACE(-14,0) => @ORIENT("R0");
+//   %j7=(-6,0); $JUNCTION @ATTACH %j7;
+//   &a @WIRE(mode="straight") {%p4:p %j7 #mn1:g};
+//   &a @WIRE(mode="straight") {%j7 (-6,8) #mp1:g};
+//   %p5=$IO_PORT @ATTACH &b => @PLACE(-14,-6) => @ORIENT("R0");
+//   %j8=(-8,-6); $JUNCTION @ATTACH %j8;
+//   &b @WIRE(mode="straight") {%p5:p %j8 #mn2:g};
+//   &b @WIRE(mode="straight") {%j8 (-8,11) (3,11) (3,8) #mp2:g};
+//   (-14,17) @TEXT("nand2x8", size=1.0, textcolor="#334155", bold=true, halign="start");
+//   (16,10) @TEXT("mp1  pch_lvt  2.4u/30n  nf=12", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (16,8.6) @TEXT("mp2  pch_lvt  2.4u/30n  nf=12", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (16,7.2) @TEXT("mn1  nch_lvt  2.4u/30n  nf=12", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (16,5.8) @TEXT("mn2  nch_lvt  2.4u/30n  nf=12", size=0.75, textcolor="#334155", bold=false, halign="start");
+// }
+ends nand2x8
+
+// stronger versions for the CLKC control paths
+subckt nor2b (a b y vdd vss)
+  mp1 (y a m1 vdd) pch_lvt_mac w=1.8u l=30n nf=9
+  mp2 (m1 b vdd vdd) pch_lvt_mac w=1.8u l=30n nf=9
+  mn1 (y a vss vss) nch_lvt_mac w=0.6u l=30n nf=3
+  mn2 (y b vss vss) nch_lvt_mac w=0.6u l=30n nf=3
+// @RNL {
+//   &vdd @ADD-TO $SUPPLY_NET_SET; &vss @ADD-TO $GROUND_NET_SET;
+//   # @SET-SYMBOL $NOR_2INPUT;
+//   {#mp1 #mp2} @GROUP;
+//   {#mn1 #mn2} @GROUP;
+//   {#mp1 #mn1 #mp2 #mn2} @TEXT("", key="model");
+//   #mp1 @PLACE(0,8) => @ORIENT("R0");
+//   #mn1 @PLACE(0,0) => @ORIENT("R0");
+//   #mp2 @PLACE(0,14) => @ORIENT("R0");
+//   #mn2 @PLACE(8,0) => @ORIENT("R0");
+//   &m1 @WIRE(mode="straight") {#mp1:s #mp2:d};
+//   %p1=$SUPPLY @ATTACH &vdd => @PLACE(0,19) => @ORIENT("R0");
+//   &vdd @WIRE(mode="straight") {#mp2:s %p1:p};
+//   &vdd @WIRE(mode="straight") {#mp1:b (3,8) (3,14) (3,19) %p1:p};
+//   %j1=(3,14); $JUNCTION @ATTACH %j1;
+//   &vdd @WIRE(mode="straight") {#mp2:b (3,14)};
+//   %p2=$IO_PORT @ATTACH &y => @PLACE(14,4) => @ORIENT("MY");
+//   %j2=(0,4); $JUNCTION @ATTACH %j2;
+//   &y @WIRE(mode="straight") {#mp1:d (0,4) #mn1:d};
+//   &y @WIRE(mode="straight") {(0,4) (8,4) %p2:p};
+//   %j3=(8,4); $JUNCTION @ATTACH %j3;
+//   &y @WIRE(mode="straight") {#mn2:d (8,4)};
+//   %p3=$GROUND @ATTACH &vss => @PLACE(12,-6) => @ORIENT("R0");
+//   &vss @WIRE(mode="straight") {(0,-6) (2,-6) (8,-6) (10,-6) %p3:p};
+//   &vss @WIRE(mode="straight") {#mn1:s (0,-6)};
+//   %j4=(2,-6); $JUNCTION @ATTACH %j4;
+//   &vss @WIRE(mode="straight") {#mn1:b (2,0) (2,-6)};
+//   %j5=(8,-6); $JUNCTION @ATTACH %j5;
+//   &vss @WIRE(mode="straight") {#mn2:s (8,-6)};
+//   %j6=(10,-6); $JUNCTION @ATTACH %j6;
+//   &vss @WIRE(mode="straight") {#mn2:b (10,0) (10,-6)};
+//   %p4=$IO_PORT @ATTACH &a => @PLACE(-14,8) => @ORIENT("R0");
+//   %j7=(-6,8); $JUNCTION @ATTACH %j7;
+//   &a @WIRE(mode="straight") {%p4:p %j7 #mp1:g};
+//   &a @WIRE(mode="straight") {%j7 (-6,0) #mn1:g};
+//   %p5=$IO_PORT @ATTACH &b => @PLACE(-14,14) => @ORIENT("R0");
+//   %j8=(-8,14); $JUNCTION @ATTACH %j8;
+//   &b @WIRE(mode="straight") {%p5:p %j8 #mp2:g};
+//   &b @WIRE(mode="straight") {%j8 (-8,-3) (3,-3) (3,0) #mn2:g};
+//   (-14,23) @TEXT("nor2b", size=1.0, textcolor="#334155", bold=true, halign="start");
+//   (16,19) @TEXT("mp1  pch_lvt  1.8u/30n  nf=9", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (16,17.6) @TEXT("mp2  pch_lvt  1.8u/30n  nf=9", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (16,16.2) @TEXT("mn1  nch_lvt  0.6u/30n  nf=3", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (16,14.8) @TEXT("mn2  nch_lvt  0.6u/30n  nf=3", size=0.75, textcolor="#334155", bold=false, halign="start");
+// }
+ends nor2b
+
+// CLKC set gate: four inputs, wide series NMOS
+subckt nand4x (a b c d y vdd vss)
+  mp1 (y a vdd vdd) pch_lvt_mac w=0.8u l=30n nf=4
+  mp2 (y b vdd vdd) pch_lvt_mac w=0.8u l=30n nf=4
+  mp3 (y c vdd vdd) pch_lvt_mac w=0.8u l=30n nf=4
+  mp4 (y d vdd vdd) pch_lvt_mac w=0.8u l=30n nf=4
+  mn1 (y a m1 vss) nch_lvt_mac w=3.2u l=30n nf=16
+  mn2 (m1 b m2 vss) nch_lvt_mac w=3.2u l=30n nf=16
+  mn3 (m2 c m3 vss) nch_lvt_mac w=3.2u l=30n nf=16
+  mn4 (m3 d vss vss) nch_lvt_mac w=3.2u l=30n nf=16
+// @RNL {
+//   &vdd @ADD-TO $SUPPLY_NET_SET; &vss @ADD-TO $GROUND_NET_SET;
+//   # @SET-SYMBOL $NAND_4INPUT;
+//   {#mp1 #mp2 #mp3 #mp4} @GROUP;
+//   {#mn1 #mn2 #mn3 #mn4} @GROUP;
+//   {#mp1 #mn1 #mp2 #mn2 #mp3 #mn3 #mp4 #mn4} @TEXT("", key="model");
+//   #mp1 @PLACE(0,8) => @ORIENT("R0");
+//   #mn1 @PLACE(0,0) => @ORIENT("R0");
+//   #mp2 @PLACE(8,8) => @ORIENT("R0");
+//   #mn2 @PLACE(0,-6) => @ORIENT("R0");
+//   #mp3 @PLACE(16,8) => @ORIENT("R0");
+//   #mn3 @PLACE(0,-12) => @ORIENT("R0");
+//   #mp4 @PLACE(24,8) => @ORIENT("R0");
+//   #mn4 @PLACE(0,-18) => @ORIENT("R0");
+//   %p1=$SUPPLY @ATTACH &vdd => @PLACE(28,13) => @ORIENT("R0");
+//   &vdd @WIRE(mode="straight") {(0,13) (2,13) (8,13) (10,13) (16,13) (18,13) (24,13) (26,13) %p1:p};
+//   &vdd @WIRE(mode="straight") {#mp1:s (0,13)};
+//   %j1=(2,13); $JUNCTION @ATTACH %j1;
+//   &vdd @WIRE(mode="straight") {#mp1:b (2,8) (2,13)};
+//   %j2=(8,13); $JUNCTION @ATTACH %j2;
+//   &vdd @WIRE(mode="straight") {#mp2:s (8,13)};
+//   %j3=(10,13); $JUNCTION @ATTACH %j3;
+//   &vdd @WIRE(mode="straight") {#mp2:b (10,8) (10,13)};
+//   %j4=(16,13); $JUNCTION @ATTACH %j4;
+//   &vdd @WIRE(mode="straight") {#mp3:s (16,13)};
+//   %j5=(18,13); $JUNCTION @ATTACH %j5;
+//   &vdd @WIRE(mode="straight") {#mp3:b (18,8) (18,13)};
+//   %j6=(24,13); $JUNCTION @ATTACH %j6;
+//   &vdd @WIRE(mode="straight") {#mp4:s (24,13)};
+//   %j7=(26,13); $JUNCTION @ATTACH %j7;
+//   &vdd @WIRE(mode="straight") {#mp4:b (26,8) (26,13)};
+//   %p2=$IO_PORT @ATTACH &y => @PLACE(30,4) => @ORIENT("MY");
+//   %j8=(0,4); $JUNCTION @ATTACH %j8;
+//   &y @WIRE(mode="straight") {#mp1:d (0,4) #mn1:d};
+//   &y @WIRE(mode="straight") {(0,4) (8,4) (16,4) (24,4) %p2:p};
+//   %j9=(8,4); $JUNCTION @ATTACH %j9;
+//   &y @WIRE(mode="straight") {#mp2:d (8,4)};
+//   %j10=(16,4); $JUNCTION @ATTACH %j10;
+//   &y @WIRE(mode="straight") {#mp3:d (16,4)};
+//   %j11=(24,4); $JUNCTION @ATTACH %j11;
+//   &y @WIRE(mode="straight") {#mp4:d (24,4)};
+//   &m1 @WIRE(mode="straight") {#mn1:s #mn2:d};
+//   &m2 @WIRE(mode="straight") {#mn2:s #mn3:d};
+//   &m3 @WIRE(mode="straight") {#mn3:s #mn4:d};
+//   %p3=$GROUND @ATTACH &vss => @PLACE(0,-22) => @ORIENT("R0");
+//   &vss @WIRE(mode="straight") {#mn4:s %p3:p};
+//   &vss @WIRE(mode="straight") {#mn1:b (3,0) (3,-6) (3,-12) (3,-18) (3,-22) %p3:p};
+//   %j12=(3,-6); $JUNCTION @ATTACH %j12;
+//   &vss @WIRE(mode="straight") {#mn2:b (3,-6)};
+//   %j13=(3,-12); $JUNCTION @ATTACH %j13;
+//   &vss @WIRE(mode="straight") {#mn3:b (3,-12)};
+//   %j14=(3,-18); $JUNCTION @ATTACH %j14;
+//   &vss @WIRE(mode="straight") {#mn4:b (3,-18)};
+//   %p4=$IO_PORT @ATTACH &a => @PLACE(-14,0) => @ORIENT("R0");
+//   %j15=(-6,0); $JUNCTION @ATTACH %j15;
+//   &a @WIRE(mode="straight") {%p4:p %j15 #mn1:g};
+//   &a @WIRE(mode="straight") {%j15 (-6,8) #mp1:g};
+//   %p5=$IO_PORT @ATTACH &b => @PLACE(-14,-6) => @ORIENT("R0");
+//   %j16=(-8,-6); $JUNCTION @ATTACH %j16;
+//   &b @WIRE(mode="straight") {%p5:p %j16 #mn2:g};
+//   &b @WIRE(mode="straight") {%j16 (-8,11) (3,11) (3,8) #mp2:g};
+//   %p6=$IO_PORT @ATTACH &c => @PLACE(-14,-12) => @ORIENT("R0");
+//   %j17=(-10,-12); $JUNCTION @ATTACH %j17;
+//   &c @WIRE(mode="straight") {%p6:p %j17 #mn3:g};
+//   &c @WIRE(mode="straight") {%j17 (-10,12) (11,12) (11,8) #mp3:g};
+//   %p7=$IO_PORT @ATTACH &d => @PLACE(-14,-18) => @ORIENT("R0");
+//   %j18=(-12,-18); $JUNCTION @ATTACH %j18;
+//   &d @WIRE(mode="straight") {%p7:p %j18 #mn4:g};
+//   &d @WIRE(mode="straight") {%j18 (-12,13) (19,13) (19,8) #mp4:g};
+//   (-14,17) @TEXT("nand4x", size=1.0, textcolor="#334155", bold=true, halign="start");
+//   (32,10) @TEXT("mp1  pch_lvt  0.8u/30n  nf=4", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (32,8.6) @TEXT("mp2  pch_lvt  0.8u/30n  nf=4", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (32,7.2) @TEXT("mp3  pch_lvt  0.8u/30n  nf=4", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (32,5.8) @TEXT("mp4  pch_lvt  0.8u/30n  nf=4", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (32,4.4) @TEXT("mn1  nch_lvt  3.2u/30n  nf=16", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (32,3) @TEXT("mn2  nch_lvt  3.2u/30n  nf=16", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (32,1.6) @TEXT("mn3  nch_lvt  3.2u/30n  nf=16", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (32,0.2) @TEXT("mn4  nch_lvt  3.2u/30n  nf=16", size=0.75, textcolor="#334155", bold=false, halign="start");
+// }
+ends nand4x
+
+subckt nor4s (a b c d y vdd vss)
+  mp1 (y a m1 vdd) pch_lvt_mac w=1.6u l=30n nf=8
+  mp2 (m1 b m2 vdd) pch_lvt_mac w=1.6u l=30n nf=8
+  mp3 (m2 c m3 vdd) pch_lvt_mac w=1.6u l=30n nf=8
+  mp4 (m3 d vdd vdd) pch_lvt_mac w=1.6u l=30n nf=8
+  mn1 (y a vss vss) nch_lvt_mac w=1.0u l=30n nf=5
+  mn2 (y b vss vss) nch_lvt_mac w=1.0u l=30n nf=5
+  mn3 (y c vss vss) nch_lvt_mac w=1.0u l=30n nf=5
+  mn4 (y d vss vss) nch_lvt_mac w=1.0u l=30n nf=5
+// @RNL {
+//   &vdd @ADD-TO $SUPPLY_NET_SET; &vss @ADD-TO $GROUND_NET_SET;
+//   # @SET-SYMBOL $NOR_4INPUT;
+//   {#mp1 #mp2 #mp3 #mp4} @GROUP;
+//   {#mn1 #mn2 #mn3 #mn4} @GROUP;
+//   {#mp1 #mn1 #mp2 #mn2 #mp3 #mn3 #mp4 #mn4} @TEXT("", key="model");
+//   #mp1 @PLACE(0,8) => @ORIENT("R0");
+//   #mn1 @PLACE(0,0) => @ORIENT("R0");
+//   #mp2 @PLACE(0,14) => @ORIENT("R0");
+//   #mn2 @PLACE(8,0) => @ORIENT("R0");
+//   #mp3 @PLACE(0,20) => @ORIENT("R0");
+//   #mn3 @PLACE(16,0) => @ORIENT("R0");
+//   #mp4 @PLACE(0,26) => @ORIENT("R0");
+//   #mn4 @PLACE(24,0) => @ORIENT("R0");
+//   &m1 @WIRE(mode="straight") {#mp1:s #mp2:d};
+//   &m2 @WIRE(mode="straight") {#mp2:s #mp3:d};
+//   &m3 @WIRE(mode="straight") {#mp3:s #mp4:d};
+//   %p1=$SUPPLY @ATTACH &vdd => @PLACE(0,31) => @ORIENT("R0");
+//   &vdd @WIRE(mode="straight") {#mp4:s %p1:p};
+//   &vdd @WIRE(mode="straight") {#mp1:b (3,8) (3,14) (3,20) (3,26) (3,31) %p1:p};
+//   %j1=(3,14); $JUNCTION @ATTACH %j1;
+//   &vdd @WIRE(mode="straight") {#mp2:b (3,14)};
+//   %j2=(3,20); $JUNCTION @ATTACH %j2;
+//   &vdd @WIRE(mode="straight") {#mp3:b (3,20)};
+//   %j3=(3,26); $JUNCTION @ATTACH %j3;
+//   &vdd @WIRE(mode="straight") {#mp4:b (3,26)};
+//   %p2=$IO_PORT @ATTACH &y => @PLACE(30,4) => @ORIENT("MY");
+//   %j4=(0,4); $JUNCTION @ATTACH %j4;
+//   &y @WIRE(mode="straight") {#mp1:d (0,4) #mn1:d};
+//   &y @WIRE(mode="straight") {(0,4) (8,4) (16,4) (24,4) %p2:p};
+//   %j5=(8,4); $JUNCTION @ATTACH %j5;
+//   &y @WIRE(mode="straight") {#mn2:d (8,4)};
+//   %j6=(16,4); $JUNCTION @ATTACH %j6;
+//   &y @WIRE(mode="straight") {#mn3:d (16,4)};
+//   %j7=(24,4); $JUNCTION @ATTACH %j7;
+//   &y @WIRE(mode="straight") {#mn4:d (24,4)};
+//   %p3=$GROUND @ATTACH &vss => @PLACE(28,-6) => @ORIENT("R0");
+//   &vss @WIRE(mode="straight") {(0,-6) (2,-6) (8,-6) (10,-6) (16,-6) (18,-6) (24,-6) (26,-6) %p3:p};
+//   &vss @WIRE(mode="straight") {#mn1:s (0,-6)};
+//   %j8=(2,-6); $JUNCTION @ATTACH %j8;
+//   &vss @WIRE(mode="straight") {#mn1:b (2,0) (2,-6)};
+//   %j9=(8,-6); $JUNCTION @ATTACH %j9;
+//   &vss @WIRE(mode="straight") {#mn2:s (8,-6)};
+//   %j10=(10,-6); $JUNCTION @ATTACH %j10;
+//   &vss @WIRE(mode="straight") {#mn2:b (10,0) (10,-6)};
+//   %j11=(16,-6); $JUNCTION @ATTACH %j11;
+//   &vss @WIRE(mode="straight") {#mn3:s (16,-6)};
+//   %j12=(18,-6); $JUNCTION @ATTACH %j12;
+//   &vss @WIRE(mode="straight") {#mn3:b (18,0) (18,-6)};
+//   %j13=(24,-6); $JUNCTION @ATTACH %j13;
+//   &vss @WIRE(mode="straight") {#mn4:s (24,-6)};
+//   %j14=(26,-6); $JUNCTION @ATTACH %j14;
+//   &vss @WIRE(mode="straight") {#mn4:b (26,0) (26,-6)};
+//   %p4=$IO_PORT @ATTACH &a => @PLACE(-14,8) => @ORIENT("R0");
+//   %j15=(-6,8); $JUNCTION @ATTACH %j15;
+//   &a @WIRE(mode="straight") {%p4:p %j15 #mp1:g};
+//   &a @WIRE(mode="straight") {%j15 (-6,0) #mn1:g};
+//   %p5=$IO_PORT @ATTACH &b => @PLACE(-14,14) => @ORIENT("R0");
+//   %j16=(-8,14); $JUNCTION @ATTACH %j16;
+//   &b @WIRE(mode="straight") {%p5:p %j16 #mp2:g};
+//   &b @WIRE(mode="straight") {%j16 (-8,-3) (3,-3) (3,0) #mn2:g};
+//   %p6=$IO_PORT @ATTACH &c => @PLACE(-14,20) => @ORIENT("R0");
+//   %j17=(-10,20); $JUNCTION @ATTACH %j17;
+//   &c @WIRE(mode="straight") {%p6:p %j17 #mp3:g};
+//   &c @WIRE(mode="straight") {%j17 (-10,-3.5) (11,-3.5) (11,0) #mn3:g};
+//   %p7=$IO_PORT @ATTACH &d => @PLACE(-14,26) => @ORIENT("R0");
+//   %j18=(-12,26); $JUNCTION @ATTACH %j18;
+//   &d @WIRE(mode="straight") {%p7:p %j18 #mp4:g};
+//   &d @WIRE(mode="straight") {%j18 (-12,-4) (19,-4) (19,0) #mn4:g};
+//   (-14,35) @TEXT("nor4s", size=1.0, textcolor="#334155", bold=true, halign="start");
+//   (32,31) @TEXT("mp1  pch_lvt  1.6u/30n  nf=8", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (32,29.6) @TEXT("mp2  pch_lvt  1.6u/30n  nf=8", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (32,28.2) @TEXT("mp3  pch_lvt  1.6u/30n  nf=8", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (32,26.8) @TEXT("mp4  pch_lvt  1.6u/30n  nf=8", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (32,25.4) @TEXT("mn1  nch_lvt  1.0u/30n  nf=5", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (32,24) @TEXT("mn2  nch_lvt  1.0u/30n  nf=5", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (32,22.6) @TEXT("mn3  nch_lvt  1.0u/30n  nf=5", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (32,21.2) @TEXT("mn4  nch_lvt  1.0u/30n  nf=5", size=0.75, textcolor="#334155", bold=false, halign="start");
+// }
+ends nor4s
+
+// gates facing OUTP / OUTN: stronger pull-down or pull-up, still small inputs (LOG-15)
+subckt nor2s (a b y vdd vss)
+  mp1 (y a m1 vdd) pch_lvt_mac w=1.2u l=30n nf=6
+  mp2 (m1 b vdd vdd) pch_lvt_mac w=1.2u l=30n nf=6
+  mn1 (y a vss vss) nch_lvt_mac w=0.6u l=30n nf=3
+  mn2 (y b vss vss) nch_lvt_mac w=0.6u l=30n nf=3
+// @RNL {
+//   &vdd @ADD-TO $SUPPLY_NET_SET; &vss @ADD-TO $GROUND_NET_SET;
+//   # @SET-SYMBOL $NOR_2INPUT;
+//   {#mp1 #mp2} @GROUP;
+//   {#mn1 #mn2} @GROUP;
+//   {#mp1 #mn1 #mp2 #mn2} @TEXT("", key="model");
+//   #mp1 @PLACE(0,8) => @ORIENT("R0");
+//   #mn1 @PLACE(0,0) => @ORIENT("R0");
+//   #mp2 @PLACE(0,14) => @ORIENT("R0");
+//   #mn2 @PLACE(8,0) => @ORIENT("R0");
+//   &m1 @WIRE(mode="straight") {#mp1:s #mp2:d};
+//   %p1=$SUPPLY @ATTACH &vdd => @PLACE(0,19) => @ORIENT("R0");
+//   &vdd @WIRE(mode="straight") {#mp2:s %p1:p};
+//   &vdd @WIRE(mode="straight") {#mp1:b (3,8) (3,14) (3,19) %p1:p};
+//   %j1=(3,14); $JUNCTION @ATTACH %j1;
+//   &vdd @WIRE(mode="straight") {#mp2:b (3,14)};
+//   %p2=$IO_PORT @ATTACH &y => @PLACE(14,4) => @ORIENT("MY");
+//   %j2=(0,4); $JUNCTION @ATTACH %j2;
+//   &y @WIRE(mode="straight") {#mp1:d (0,4) #mn1:d};
+//   &y @WIRE(mode="straight") {(0,4) (8,4) %p2:p};
+//   %j3=(8,4); $JUNCTION @ATTACH %j3;
+//   &y @WIRE(mode="straight") {#mn2:d (8,4)};
+//   %p3=$GROUND @ATTACH &vss => @PLACE(12,-6) => @ORIENT("R0");
+//   &vss @WIRE(mode="straight") {(0,-6) (2,-6) (8,-6) (10,-6) %p3:p};
+//   &vss @WIRE(mode="straight") {#mn1:s (0,-6)};
+//   %j4=(2,-6); $JUNCTION @ATTACH %j4;
+//   &vss @WIRE(mode="straight") {#mn1:b (2,0) (2,-6)};
+//   %j5=(8,-6); $JUNCTION @ATTACH %j5;
+//   &vss @WIRE(mode="straight") {#mn2:s (8,-6)};
+//   %j6=(10,-6); $JUNCTION @ATTACH %j6;
+//   &vss @WIRE(mode="straight") {#mn2:b (10,0) (10,-6)};
+//   %p4=$IO_PORT @ATTACH &a => @PLACE(-14,8) => @ORIENT("R0");
+//   %j7=(-6,8); $JUNCTION @ATTACH %j7;
+//   &a @WIRE(mode="straight") {%p4:p %j7 #mp1:g};
+//   &a @WIRE(mode="straight") {%j7 (-6,0) #mn1:g};
+//   %p5=$IO_PORT @ATTACH &b => @PLACE(-14,14) => @ORIENT("R0");
+//   %j8=(-8,14); $JUNCTION @ATTACH %j8;
+//   &b @WIRE(mode="straight") {%p5:p %j8 #mp2:g};
+//   &b @WIRE(mode="straight") {%j8 (-8,-3) (3,-3) (3,0) #mn2:g};
+//   (-14,23) @TEXT("nor2s", size=1.0, textcolor="#334155", bold=true, halign="start");
+//   (16,19) @TEXT("mp1  pch_lvt  1.2u/30n  nf=6", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (16,17.6) @TEXT("mp2  pch_lvt  1.2u/30n  nf=6", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (16,16.2) @TEXT("mn1  nch_lvt  0.6u/30n  nf=3", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (16,14.8) @TEXT("mn2  nch_lvt  0.6u/30n  nf=3", size=0.75, textcolor="#334155", bold=false, halign="start");
+// }
+ends nor2s
+
+subckt nand2s (a b y vdd vss)
+  mp1 (y a vdd vdd) pch_lvt_mac w=0.6u l=30n nf=3
+  mp2 (y b vdd vdd) pch_lvt_mac w=0.6u l=30n nf=3
+  mn1 (y a m1 vss) nch_lvt_mac w=1.2u l=30n nf=6
+  mn2 (m1 b vss vss) nch_lvt_mac w=1.2u l=30n nf=6
+// @RNL {
+//   &vdd @ADD-TO $SUPPLY_NET_SET; &vss @ADD-TO $GROUND_NET_SET;
+//   # @SET-SYMBOL $NAND_2INPUT;
+//   {#mp1 #mp2} @GROUP;
+//   {#mn1 #mn2} @GROUP;
+//   {#mp1 #mn1 #mp2 #mn2} @TEXT("", key="model");
+//   #mp1 @PLACE(0,8) => @ORIENT("R0");
+//   #mn1 @PLACE(0,0) => @ORIENT("R0");
+//   #mp2 @PLACE(8,8) => @ORIENT("R0");
+//   #mn2 @PLACE(0,-6) => @ORIENT("R0");
+//   %p1=$SUPPLY @ATTACH &vdd => @PLACE(12,13) => @ORIENT("R0");
+//   &vdd @WIRE(mode="straight") {(0,13) (2,13) (8,13) (10,13) %p1:p};
+//   &vdd @WIRE(mode="straight") {#mp1:s (0,13)};
+//   %j1=(2,13); $JUNCTION @ATTACH %j1;
+//   &vdd @WIRE(mode="straight") {#mp1:b (2,8) (2,13)};
+//   %j2=(8,13); $JUNCTION @ATTACH %j2;
+//   &vdd @WIRE(mode="straight") {#mp2:s (8,13)};
+//   %j3=(10,13); $JUNCTION @ATTACH %j3;
+//   &vdd @WIRE(mode="straight") {#mp2:b (10,8) (10,13)};
+//   %p2=$IO_PORT @ATTACH &y => @PLACE(14,4) => @ORIENT("MY");
+//   %j4=(0,4); $JUNCTION @ATTACH %j4;
+//   &y @WIRE(mode="straight") {#mp1:d (0,4) #mn1:d};
+//   &y @WIRE(mode="straight") {(0,4) (8,4) %p2:p};
+//   %j5=(8,4); $JUNCTION @ATTACH %j5;
+//   &y @WIRE(mode="straight") {#mp2:d (8,4)};
+//   &m1 @WIRE(mode="straight") {#mn1:s #mn2:d};
+//   %p3=$GROUND @ATTACH &vss => @PLACE(0,-10) => @ORIENT("R0");
+//   &vss @WIRE(mode="straight") {#mn2:s %p3:p};
+//   &vss @WIRE(mode="straight") {#mn1:b (3,0) (3,-6) (3,-10) %p3:p};
+//   %j6=(3,-6); $JUNCTION @ATTACH %j6;
+//   &vss @WIRE(mode="straight") {#mn2:b (3,-6)};
+//   %p4=$IO_PORT @ATTACH &a => @PLACE(-14,0) => @ORIENT("R0");
+//   %j7=(-6,0); $JUNCTION @ATTACH %j7;
+//   &a @WIRE(mode="straight") {%p4:p %j7 #mn1:g};
+//   &a @WIRE(mode="straight") {%j7 (-6,8) #mp1:g};
+//   %p5=$IO_PORT @ATTACH &b => @PLACE(-14,-6) => @ORIENT("R0");
+//   %j8=(-8,-6); $JUNCTION @ATTACH %j8;
+//   &b @WIRE(mode="straight") {%p5:p %j8 #mn2:g};
+//   &b @WIRE(mode="straight") {%j8 (-8,11) (3,11) (3,8) #mp2:g};
+//   (-14,17) @TEXT("nand2s", size=1.0, textcolor="#334155", bold=true, halign="start");
+//   (16,10) @TEXT("mp1  pch_lvt  0.6u/30n  nf=3", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (16,8.6) @TEXT("mp2  pch_lvt  0.6u/30n  nf=3", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (16,7.2) @TEXT("mn1  nch_lvt  1.2u/30n  nf=6", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (16,5.8) @TEXT("mn2  nch_lvt  1.2u/30n  nf=6", size=0.75, textcolor="#334155", bold=false, halign="start");
+// }
+ends nand2s
+
+subckt nor2x8 (a b y vdd vss)
+  mp1 (y a m1 vdd) pch_lvt_mac w=6.4u l=30n nf=32
+  mp2 (m1 b vdd vdd) pch_lvt_mac w=6.4u l=30n nf=32
+  mn1 (y a vss vss) nch_lvt_mac w=1.2u l=30n nf=6
+  mn2 (y b vss vss) nch_lvt_mac w=1.2u l=30n nf=6
+// @RNL {
+//   &vdd @ADD-TO $SUPPLY_NET_SET; &vss @ADD-TO $GROUND_NET_SET;
+//   # @SET-SYMBOL $NOR_2INPUT;
+//   {#mp1 #mp2} @GROUP;
+//   {#mn1 #mn2} @GROUP;
+//   {#mp1 #mn1 #mp2 #mn2} @TEXT("", key="model");
+//   #mp1 @PLACE(0,8) => @ORIENT("R0");
+//   #mn1 @PLACE(0,0) => @ORIENT("R0");
+//   #mp2 @PLACE(0,14) => @ORIENT("R0");
+//   #mn2 @PLACE(8,0) => @ORIENT("R0");
+//   &m1 @WIRE(mode="straight") {#mp1:s #mp2:d};
+//   %p1=$SUPPLY @ATTACH &vdd => @PLACE(0,19) => @ORIENT("R0");
+//   &vdd @WIRE(mode="straight") {#mp2:s %p1:p};
+//   &vdd @WIRE(mode="straight") {#mp1:b (3,8) (3,14) (3,19) %p1:p};
+//   %j1=(3,14); $JUNCTION @ATTACH %j1;
+//   &vdd @WIRE(mode="straight") {#mp2:b (3,14)};
+//   %p2=$IO_PORT @ATTACH &y => @PLACE(14,4) => @ORIENT("MY");
+//   %j2=(0,4); $JUNCTION @ATTACH %j2;
+//   &y @WIRE(mode="straight") {#mp1:d (0,4) #mn1:d};
+//   &y @WIRE(mode="straight") {(0,4) (8,4) %p2:p};
+//   %j3=(8,4); $JUNCTION @ATTACH %j3;
+//   &y @WIRE(mode="straight") {#mn2:d (8,4)};
+//   %p3=$GROUND @ATTACH &vss => @PLACE(12,-6) => @ORIENT("R0");
+//   &vss @WIRE(mode="straight") {(0,-6) (2,-6) (8,-6) (10,-6) %p3:p};
+//   &vss @WIRE(mode="straight") {#mn1:s (0,-6)};
+//   %j4=(2,-6); $JUNCTION @ATTACH %j4;
+//   &vss @WIRE(mode="straight") {#mn1:b (2,0) (2,-6)};
+//   %j5=(8,-6); $JUNCTION @ATTACH %j5;
+//   &vss @WIRE(mode="straight") {#mn2:s (8,-6)};
+//   %j6=(10,-6); $JUNCTION @ATTACH %j6;
+//   &vss @WIRE(mode="straight") {#mn2:b (10,0) (10,-6)};
+//   %p4=$IO_PORT @ATTACH &a => @PLACE(-14,8) => @ORIENT("R0");
+//   %j7=(-6,8); $JUNCTION @ATTACH %j7;
+//   &a @WIRE(mode="straight") {%p4:p %j7 #mp1:g};
+//   &a @WIRE(mode="straight") {%j7 (-6,0) #mn1:g};
+//   %p5=$IO_PORT @ATTACH &b => @PLACE(-14,14) => @ORIENT("R0");
+//   %j8=(-8,14); $JUNCTION @ATTACH %j8;
+//   &b @WIRE(mode="straight") {%p5:p %j8 #mp2:g};
+//   &b @WIRE(mode="straight") {%j8 (-8,-3) (3,-3) (3,0) #mn2:g};
+//   (-14,23) @TEXT("nor2x8", size=1.0, textcolor="#334155", bold=true, halign="start");
+//   (16,19) @TEXT("mp1  pch_lvt  6.4u/30n  nf=32", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (16,17.6) @TEXT("mp2  pch_lvt  6.4u/30n  nf=32", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (16,16.2) @TEXT("mn1  nch_lvt  1.2u/30n  nf=6", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (16,14.8) @TEXT("mn2  nch_lvt  1.2u/30n  nf=6", size=0.75, textcolor="#334155", bold=false, halign="start");
+// }
+ends nor2x8
+
+subckt nand3s (a b c y vdd vss)
+  mp1 (y a vdd vdd) pch_lvt_mac w=0.4u l=30n nf=2
+  mp2 (y b vdd vdd) pch_lvt_mac w=0.4u l=30n nf=2
+  mp3 (y c vdd vdd) pch_lvt_mac w=0.4u l=30n nf=2
+  mn1 (y a m1 vss) nch_lvt_mac w=1.2u l=30n nf=6
+  mn2 (m1 b m2 vss) nch_lvt_mac w=1.2u l=30n nf=6
+  mn3 (m2 c vss vss) nch_lvt_mac w=1.2u l=30n nf=6
+// @RNL {
+//   &vdd @ADD-TO $SUPPLY_NET_SET; &vss @ADD-TO $GROUND_NET_SET;
+//   # @SET-SYMBOL $NAND_3INPUT;
+//   {#mp1 #mp2 #mp3} @GROUP;
+//   {#mn1 #mn2 #mn3} @GROUP;
+//   {#mp1 #mn1 #mp2 #mn2 #mp3 #mn3} @TEXT("", key="model");
+//   #mp1 @PLACE(0,8) => @ORIENT("R0");
+//   #mn1 @PLACE(0,0) => @ORIENT("R0");
+//   #mp2 @PLACE(8,8) => @ORIENT("R0");
+//   #mn2 @PLACE(0,-6) => @ORIENT("R0");
+//   #mp3 @PLACE(16,8) => @ORIENT("R0");
+//   #mn3 @PLACE(0,-12) => @ORIENT("R0");
+//   %p1=$SUPPLY @ATTACH &vdd => @PLACE(20,13) => @ORIENT("R0");
+//   &vdd @WIRE(mode="straight") {(0,13) (2,13) (8,13) (10,13) (16,13) (18,13) %p1:p};
+//   &vdd @WIRE(mode="straight") {#mp1:s (0,13)};
+//   %j1=(2,13); $JUNCTION @ATTACH %j1;
+//   &vdd @WIRE(mode="straight") {#mp1:b (2,8) (2,13)};
+//   %j2=(8,13); $JUNCTION @ATTACH %j2;
+//   &vdd @WIRE(mode="straight") {#mp2:s (8,13)};
+//   %j3=(10,13); $JUNCTION @ATTACH %j3;
+//   &vdd @WIRE(mode="straight") {#mp2:b (10,8) (10,13)};
+//   %j4=(16,13); $JUNCTION @ATTACH %j4;
+//   &vdd @WIRE(mode="straight") {#mp3:s (16,13)};
+//   %j5=(18,13); $JUNCTION @ATTACH %j5;
+//   &vdd @WIRE(mode="straight") {#mp3:b (18,8) (18,13)};
+//   %p2=$IO_PORT @ATTACH &y => @PLACE(22,4) => @ORIENT("MY");
+//   %j6=(0,4); $JUNCTION @ATTACH %j6;
+//   &y @WIRE(mode="straight") {#mp1:d (0,4) #mn1:d};
+//   &y @WIRE(mode="straight") {(0,4) (8,4) (16,4) %p2:p};
+//   %j7=(8,4); $JUNCTION @ATTACH %j7;
+//   &y @WIRE(mode="straight") {#mp2:d (8,4)};
+//   %j8=(16,4); $JUNCTION @ATTACH %j8;
+//   &y @WIRE(mode="straight") {#mp3:d (16,4)};
+//   &m1 @WIRE(mode="straight") {#mn1:s #mn2:d};
+//   &m2 @WIRE(mode="straight") {#mn2:s #mn3:d};
+//   %p3=$GROUND @ATTACH &vss => @PLACE(0,-16) => @ORIENT("R0");
+//   &vss @WIRE(mode="straight") {#mn3:s %p3:p};
+//   &vss @WIRE(mode="straight") {#mn1:b (3,0) (3,-6) (3,-12) (3,-16) %p3:p};
+//   %j9=(3,-6); $JUNCTION @ATTACH %j9;
+//   &vss @WIRE(mode="straight") {#mn2:b (3,-6)};
+//   %j10=(3,-12); $JUNCTION @ATTACH %j10;
+//   &vss @WIRE(mode="straight") {#mn3:b (3,-12)};
+//   %p4=$IO_PORT @ATTACH &a => @PLACE(-14,0) => @ORIENT("R0");
+//   %j11=(-6,0); $JUNCTION @ATTACH %j11;
+//   &a @WIRE(mode="straight") {%p4:p %j11 #mn1:g};
+//   &a @WIRE(mode="straight") {%j11 (-6,8) #mp1:g};
+//   %p5=$IO_PORT @ATTACH &b => @PLACE(-14,-6) => @ORIENT("R0");
+//   %j12=(-8,-6); $JUNCTION @ATTACH %j12;
+//   &b @WIRE(mode="straight") {%p5:p %j12 #mn2:g};
+//   &b @WIRE(mode="straight") {%j12 (-8,11) (3,11) (3,8) #mp2:g};
+//   %p6=$IO_PORT @ATTACH &c => @PLACE(-14,-12) => @ORIENT("R0");
+//   %j13=(-10,-12); $JUNCTION @ATTACH %j13;
+//   &c @WIRE(mode="straight") {%p6:p %j13 #mn3:g};
+//   &c @WIRE(mode="straight") {%j13 (-10,12) (11,12) (11,8) #mp3:g};
+//   (-14,17) @TEXT("nand3s", size=1.0, textcolor="#334155", bold=true, halign="start");
+//   (24,10) @TEXT("mp1  pch_lvt  0.4u/30n  nf=2", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (24,8.6) @TEXT("mp2  pch_lvt  0.4u/30n  nf=2", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (24,7.2) @TEXT("mp3  pch_lvt  0.4u/30n  nf=2", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (24,5.8) @TEXT("mn1  nch_lvt  1.2u/30n  nf=6", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (24,4.4) @TEXT("mn2  nch_lvt  1.2u/30n  nf=6", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (24,3) @TEXT("mn3  nch_lvt  1.2u/30n  nf=6", size=0.75, textcolor="#334155", bold=false, halign="start");
+// }
+ends nand3s
+
+// latch gate that is also the UP / DN output: strong pull-up into 15 fF
+subckt nand2up (a b y vdd vss)
+  mp1 (y a vdd vdd) pch_lvt_mac w=2.0u l=30n nf=10
+  mp2 (y b vdd vdd) pch_lvt_mac w=2.0u l=30n nf=10
+  mn1 (y a m1 vss) nch_lvt_mac w=1.6u l=30n nf=8
+  mn2 (m1 b vss vss) nch_lvt_mac w=1.6u l=30n nf=8
+// @RNL {
+//   &vdd @ADD-TO $SUPPLY_NET_SET; &vss @ADD-TO $GROUND_NET_SET;
+//   # @SET-SYMBOL $NAND_2INPUT;
+//   {#mp1 #mp2} @GROUP;
+//   {#mn1 #mn2} @GROUP;
+//   {#mp1 #mn1 #mp2 #mn2} @TEXT("", key="model");
+//   #mp1 @PLACE(0,8) => @ORIENT("R0");
+//   #mn1 @PLACE(0,0) => @ORIENT("R0");
+//   #mp2 @PLACE(8,8) => @ORIENT("R0");
+//   #mn2 @PLACE(0,-6) => @ORIENT("R0");
+//   %p1=$SUPPLY @ATTACH &vdd => @PLACE(12,13) => @ORIENT("R0");
+//   &vdd @WIRE(mode="straight") {(0,13) (2,13) (8,13) (10,13) %p1:p};
+//   &vdd @WIRE(mode="straight") {#mp1:s (0,13)};
+//   %j1=(2,13); $JUNCTION @ATTACH %j1;
+//   &vdd @WIRE(mode="straight") {#mp1:b (2,8) (2,13)};
+//   %j2=(8,13); $JUNCTION @ATTACH %j2;
+//   &vdd @WIRE(mode="straight") {#mp2:s (8,13)};
+//   %j3=(10,13); $JUNCTION @ATTACH %j3;
+//   &vdd @WIRE(mode="straight") {#mp2:b (10,8) (10,13)};
+//   %p2=$IO_PORT @ATTACH &y => @PLACE(14,4) => @ORIENT("MY");
+//   %j4=(0,4); $JUNCTION @ATTACH %j4;
+//   &y @WIRE(mode="straight") {#mp1:d (0,4) #mn1:d};
+//   &y @WIRE(mode="straight") {(0,4) (8,4) %p2:p};
+//   %j5=(8,4); $JUNCTION @ATTACH %j5;
+//   &y @WIRE(mode="straight") {#mp2:d (8,4)};
+//   &m1 @WIRE(mode="straight") {#mn1:s #mn2:d};
+//   %p3=$GROUND @ATTACH &vss => @PLACE(0,-10) => @ORIENT("R0");
+//   &vss @WIRE(mode="straight") {#mn2:s %p3:p};
+//   &vss @WIRE(mode="straight") {#mn1:b (3,0) (3,-6) (3,-10) %p3:p};
+//   %j6=(3,-6); $JUNCTION @ATTACH %j6;
+//   &vss @WIRE(mode="straight") {#mn2:b (3,-6)};
+//   %p4=$IO_PORT @ATTACH &a => @PLACE(-14,0) => @ORIENT("R0");
+//   %j7=(-6,0); $JUNCTION @ATTACH %j7;
+//   &a @WIRE(mode="straight") {%p4:p %j7 #mn1:g};
+//   &a @WIRE(mode="straight") {%j7 (-6,8) #mp1:g};
+//   %p5=$IO_PORT @ATTACH &b => @PLACE(-14,-6) => @ORIENT("R0");
+//   %j8=(-8,-6); $JUNCTION @ATTACH %j8;
+//   &b @WIRE(mode="straight") {%p5:p %j8 #mn2:g};
+//   &b @WIRE(mode="straight") {%j8 (-8,11) (3,11) (3,8) #mp2:g};
+//   (-14,17) @TEXT("nand2up", size=1.0, textcolor="#334155", bold=true, halign="start");
+//   (16,10) @TEXT("mp1  pch_lvt  2.0u/30n  nf=10", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (16,8.6) @TEXT("mp2  pch_lvt  2.0u/30n  nf=10", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (16,7.2) @TEXT("mn1  nch_lvt  1.6u/30n  nf=8", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (16,5.8) @TEXT("mn2  nch_lvt  1.6u/30n  nf=8", size=0.75, textcolor="#334155", bold=false, halign="start");
+// }
+ends nand2up
+
+// NOR set/reset latch, active-high inputs, reset dominant
+subckt srl (s r q qb vdd vss)
+  g1 (r qb q vdd vss) nor2
+  g2 (s q qb vdd vss) nor2
+// @RNL {
+//   &vdd @ADD-TO $SUPPLY_NET_SET; &vss @ADD-TO $GROUND_NET_SET;
+//   %srl = @DEFINE-SYMBOL(box=[-4, -2, 4, 2]) {
+//     @LINE(linewidth=0.24) {(-3, -2) (3, -2) (3, 2) (-3, 2) (-3, -2)};
+//     (-4, 1) @PIN(terminal=1, direction="left");
+//     @LINE {(-4, 1) (-3, 1)};
+//     (-2.7, 1) @TEXT("S", size=0.5, halign="start", valign="middle");
+//     (-4, -1) @PIN(terminal=2, direction="left");
+//     @LINE {(-4, -1) (-3, -1)};
+//     (-2.7, -1) @TEXT("R", size=0.5, halign="start", valign="middle");
+//     (4, 1) @PIN(terminal=3, direction="right");
+//     @LINE {(4, 1) (3, 1)};
+//     (2.7, 1) @TEXT("Q", size=0.5, halign="end", valign="middle");
+//     (4, -1) @PIN(terminal=4, direction="right");
+//     @LINE {(4, -1) (3, -1)};
+//     (2.7, -1) @TEXT("QB", size=0.5, halign="end", valign="middle");
+//     (0, 0) @TEXT("SR", size=0.8, bold=true, halign="middle", valign="middle");
+//   };
+//   # @SET-SYMBOL %srl;
+//   {#g1 #g2} @GROUP;
+//   #g1 @PLACE(0,4) => @ORIENT("R0");
+//   #g2 @PLACE(0,-4) => @ORIENT("R0");
+//   %p1=$IO_PORT @ATTACH &r => @PLACE(-10,5) => @ORIENT("R0");
+//   %p2=$IO_PORT @ATTACH &s => @PLACE(-10,-3) => @ORIENT("R0");
+//   %p3=$IO_PORT @ATTACH &q => @PLACE(11,4) => @ORIENT("MY");
+//   %p4=$IO_PORT @ATTACH &qb => @PLACE(11,-4) => @ORIENT("MY");
+//   &r @WIRE(mode="straight") {%p1:p #g1:a};
+//   &s @WIRE(mode="straight") {%p2:p #g2:a};
+//   %j1=(7,4); $JUNCTION @ATTACH %j1;
+//   %j2=(6,-4); $JUNCTION @ATTACH %j2;
+//   &q @WIRE(mode="straight") {#g1:y %j1 %p3:p};
+//   &q @WIRE(mode="straight") {%j1 (7,1) (-6,1) (-6,-5) #g2:b};
+//   &qb @WIRE(mode="straight") {#g2:y %j2 %p4:p};
+//   &qb @WIRE(mode="straight") {%j2 (6,-1) (-5,-1) (-5,3) #g1:b};
+//   (-10,9) @TEXT("srl: NOR set/reset latch, reset dominant", size=0.8, textcolor="#334155", bold=true, halign="start");
+// }
+ends srl
+
+// ------------------------------------------------------------ gate-delay chains
+subckt dnand2 (a b y vdd vss)
+  mp1 (y a vdd vdd) pch_ulvt_mac w=0.4u l=60n nf=1
+  mp2 (y b vdd vdd) pch_ulvt_mac w=0.4u l=60n nf=1
+  mn1 (y a m1 vss) nch_ulvt_mac w=0.4u l=60n nf=1
+  mn2 (m1 b vss vss) nch_ulvt_mac w=0.4u l=60n nf=1
+// @RNL {
+//   &vdd @ADD-TO $SUPPLY_NET_SET; &vss @ADD-TO $GROUND_NET_SET;
+//   # @SET-SYMBOL $NAND_2INPUT;
+//   {#mp1 #mp2} @GROUP;
+//   {#mn1 #mn2} @GROUP;
+//   {#mp1 #mn1 #mp2 #mn2} @TEXT("", key="model");
+//   #mp1 @PLACE(0,8) => @ORIENT("R0");
+//   #mn1 @PLACE(0,0) => @ORIENT("R0");
+//   #mp2 @PLACE(8,8) => @ORIENT("R0");
+//   #mn2 @PLACE(0,-6) => @ORIENT("R0");
+//   %p1=$SUPPLY @ATTACH &vdd => @PLACE(12,13) => @ORIENT("R0");
+//   &vdd @WIRE(mode="straight") {(0,13) (2,13) (8,13) (10,13) %p1:p};
+//   &vdd @WIRE(mode="straight") {#mp1:s (0,13)};
+//   %j1=(2,13); $JUNCTION @ATTACH %j1;
+//   &vdd @WIRE(mode="straight") {#mp1:b (2,8) (2,13)};
+//   %j2=(8,13); $JUNCTION @ATTACH %j2;
+//   &vdd @WIRE(mode="straight") {#mp2:s (8,13)};
+//   %j3=(10,13); $JUNCTION @ATTACH %j3;
+//   &vdd @WIRE(mode="straight") {#mp2:b (10,8) (10,13)};
+//   %p2=$IO_PORT @ATTACH &y => @PLACE(14,4) => @ORIENT("MY");
+//   %j4=(0,4); $JUNCTION @ATTACH %j4;
+//   &y @WIRE(mode="straight") {#mp1:d (0,4) #mn1:d};
+//   &y @WIRE(mode="straight") {(0,4) (8,4) %p2:p};
+//   %j5=(8,4); $JUNCTION @ATTACH %j5;
+//   &y @WIRE(mode="straight") {#mp2:d (8,4)};
+//   &m1 @WIRE(mode="straight") {#mn1:s #mn2:d};
+//   %p3=$GROUND @ATTACH &vss => @PLACE(0,-10) => @ORIENT("R0");
+//   &vss @WIRE(mode="straight") {#mn2:s %p3:p};
+//   &vss @WIRE(mode="straight") {#mn1:b (3,0) (3,-6) (3,-10) %p3:p};
+//   %j6=(3,-6); $JUNCTION @ATTACH %j6;
+//   &vss @WIRE(mode="straight") {#mn2:b (3,-6)};
+//   %p4=$IO_PORT @ATTACH &a => @PLACE(-14,0) => @ORIENT("R0");
+//   %j7=(-6,0); $JUNCTION @ATTACH %j7;
+//   &a @WIRE(mode="straight") {%p4:p %j7 #mn1:g};
+//   &a @WIRE(mode="straight") {%j7 (-6,8) #mp1:g};
+//   %p5=$IO_PORT @ATTACH &b => @PLACE(-14,-6) => @ORIENT("R0");
+//   %j8=(-8,-6); $JUNCTION @ATTACH %j8;
+//   &b @WIRE(mode="straight") {%p5:p %j8 #mn2:g};
+//   &b @WIRE(mode="straight") {%j8 (-8,11) (3,11) (3,8) #mp2:g};
+//   (-14,17) @TEXT("dnand2", size=1.0, textcolor="#334155", bold=true, halign="start");
+//   (16,10) @TEXT("mp1  pch_ulvt  0.4u/60n  nf=1", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (16,8.6) @TEXT("mp2  pch_ulvt  0.4u/60n  nf=1", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (16,7.2) @TEXT("mn1  nch_ulvt  0.4u/60n  nf=1", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (16,5.8) @TEXT("mn2  nch_ulvt  0.4u/60n  nf=1", size=0.75, textcolor="#334155", bold=false, halign="start");
+// }
+ends dnand2
+
+subckt dnor2 (a b y vdd vss)
+  mp1 (y a m1 vdd) pch_ulvt_mac w=0.8u l=60n nf=1
+  mp2 (m1 b vdd vdd) pch_ulvt_mac w=0.8u l=60n nf=1
+  mn1 (y a vss vss) nch_ulvt_mac w=0.2u l=60n nf=1
+  mn2 (y b vss vss) nch_ulvt_mac w=0.2u l=60n nf=1
+// @RNL {
+//   &vdd @ADD-TO $SUPPLY_NET_SET; &vss @ADD-TO $GROUND_NET_SET;
+//   # @SET-SYMBOL $NOR_2INPUT;
+//   {#mp1 #mp2} @GROUP;
+//   {#mn1 #mn2} @GROUP;
+//   {#mp1 #mn1 #mp2 #mn2} @TEXT("", key="model");
+//   #mp1 @PLACE(0,8) => @ORIENT("R0");
+//   #mn1 @PLACE(0,0) => @ORIENT("R0");
+//   #mp2 @PLACE(0,14) => @ORIENT("R0");
+//   #mn2 @PLACE(8,0) => @ORIENT("R0");
+//   &m1 @WIRE(mode="straight") {#mp1:s #mp2:d};
+//   %p1=$SUPPLY @ATTACH &vdd => @PLACE(0,19) => @ORIENT("R0");
+//   &vdd @WIRE(mode="straight") {#mp2:s %p1:p};
+//   &vdd @WIRE(mode="straight") {#mp1:b (3,8) (3,14) (3,19) %p1:p};
+//   %j1=(3,14); $JUNCTION @ATTACH %j1;
+//   &vdd @WIRE(mode="straight") {#mp2:b (3,14)};
+//   %p2=$IO_PORT @ATTACH &y => @PLACE(14,4) => @ORIENT("MY");
+//   %j2=(0,4); $JUNCTION @ATTACH %j2;
+//   &y @WIRE(mode="straight") {#mp1:d (0,4) #mn1:d};
+//   &y @WIRE(mode="straight") {(0,4) (8,4) %p2:p};
+//   %j3=(8,4); $JUNCTION @ATTACH %j3;
+//   &y @WIRE(mode="straight") {#mn2:d (8,4)};
+//   %p3=$GROUND @ATTACH &vss => @PLACE(12,-6) => @ORIENT("R0");
+//   &vss @WIRE(mode="straight") {(0,-6) (2,-6) (8,-6) (10,-6) %p3:p};
+//   &vss @WIRE(mode="straight") {#mn1:s (0,-6)};
+//   %j4=(2,-6); $JUNCTION @ATTACH %j4;
+//   &vss @WIRE(mode="straight") {#mn1:b (2,0) (2,-6)};
+//   %j5=(8,-6); $JUNCTION @ATTACH %j5;
+//   &vss @WIRE(mode="straight") {#mn2:s (8,-6)};
+//   %j6=(10,-6); $JUNCTION @ATTACH %j6;
+//   &vss @WIRE(mode="straight") {#mn2:b (10,0) (10,-6)};
+//   %p4=$IO_PORT @ATTACH &a => @PLACE(-14,8) => @ORIENT("R0");
+//   %j7=(-6,8); $JUNCTION @ATTACH %j7;
+//   &a @WIRE(mode="straight") {%p4:p %j7 #mp1:g};
+//   &a @WIRE(mode="straight") {%j7 (-6,0) #mn1:g};
+//   %p5=$IO_PORT @ATTACH &b => @PLACE(-14,14) => @ORIENT("R0");
+//   %j8=(-8,14); $JUNCTION @ATTACH %j8;
+//   &b @WIRE(mode="straight") {%p5:p %j8 #mp2:g};
+//   &b @WIRE(mode="straight") {%j8 (-8,-3) (3,-3) (3,0) #mn2:g};
+//   (-14,23) @TEXT("dnor2", size=1.0, textcolor="#334155", bold=true, halign="start");
+//   (16,19) @TEXT("mp1  pch_ulvt  0.8u/60n  nf=1", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (16,17.6) @TEXT("mp2  pch_ulvt  0.8u/60n  nf=1", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (16,16.2) @TEXT("mn1  nch_ulvt  0.2u/60n  nf=1", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (16,14.8) @TEXT("mn2  nch_ulvt  0.2u/60n  nf=1", size=0.75, textcolor="#334155", bold=false, halign="start");
+// }
+ends dnor2
+
+// One resettable pair: while s is high y follows a, two gate delays later; when s
+// falls, y goes low within one gate whatever a is doing.
+subckt rpair (a s sb y vdd vss)
+  g1 (a s m vdd vss) dnand2
+  g2 (m sb y vdd vss) dnor2
+// @RNL {
+//   &vdd @ADD-TO $SUPPLY_NET_SET; &vss @ADD-TO $GROUND_NET_SET;
+//   %rpair = @DEFINE-SYMBOL(box=[-4, -3, 4, 2]) {
+//     @LINE(linewidth=0.24) {(-3, -2) (3, -2) (3, 2) (-3, 2) (-3, -2)};
+//     (-4, 0) @PIN(terminal=1, direction="left");
+//     @LINE {(-4, 0) (-3, 0)};
+//     (-2.7, 0) @TEXT("in", size=0.5, halign="start", valign="middle");
+//     (-1, -3) @PIN(terminal=2, direction="down");
+//     @LINE {(-1, -3) (-1, -2)};
+//     (-1, -1.65) @TEXT("s", size=0.5, halign="middle", valign="bottom");
+//     (1, -3) @PIN(terminal=3, direction="down");
+//     @LINE {(1, -3) (1, -2)};
+//     (1, -1.65) @TEXT("sb", size=0.5, halign="middle", valign="bottom");
+//     (4, 0) @PIN(terminal=4, direction="right");
+//     @LINE {(4, 0) (3, 0)};
+//     (2.7, 0) @TEXT("out", size=0.5, halign="end", valign="middle");
+//     (0, 0.35) @TEXT("rpair", size=0.8, bold=true, halign="middle", valign="middle");
+//     (0, -0.75) @TEXT("ulvt L=60n, ~13 ps", size=0.45, halign="middle", valign="middle");
+//   };
+//   # @SET-SYMBOL %rpair;
+//   {#g1 #g2} @GROUP;
+//   #g1 @PLACE(0,0) => @ORIENT("R0");
+//   #g2 @PLACE(10,0) => @ORIENT("R0");
+//   %p1=$IO_PORT @ATTACH &a => @PLACE(-10,1) => @ORIENT("R0");
+//   %p2=$IO_PORT @ATTACH &s => @PLACE(-10,-1) => @ORIENT("R0");
+//   %p3=$IO_PORT @ATTACH &sb => @PLACE(-10,-4) => @ORIENT("R0");
+//   %p4=$IO_PORT @ATTACH &y => @PLACE(17,0) => @ORIENT("MY");
+//   &a @WIRE(mode="straight") {%p1:p #g1:a};
+//   &s @WIRE(mode="straight") {%p2:p #g1:b};
+//   &m @WIRE(mode="straight") {#g1:y (5,0) (5,1) #g2:a};
+//   &sb @WIRE(mode="straight") {%p3:p (6,-4) (6,-1) #g2:b};
+//   &y @WIRE(mode="straight") {#g2:y %p4:p};
+//   (-10,5) @TEXT("rpair: resettable delay pair (ulvt L=60n, ~13 ps)", size=0.8, textcolor="#334155", bold=true, halign="start");
+//   (-10,-7) @TEXT("s high: y follows a two gates later.  s low (sb high): y = 0 within one gate.", size=0.6, textcolor="#334155", bold=false, halign="start");
+// }
+ends rpair
+
+// ---------------------------------------------------------------- inverter delay pairs
+// Two plain inverters with a reset device on each node (m pulled high while s is low, y
+// pulled low while sb is high). The timing edge only passes plain inverters, with no
+// series stack, so the delay spreads less over PVT than in the NAND/NOR pairs, whose
+// timing edge crosses the series devices; the reset is as quick.
+subckt ipf (a s sb y vdd vss)            // about 6.8 ps at TT
+  mp1 (m a vdd vdd) pch_ulvt_mac w=0.8u l=30n nf=1
+  mn1 (m a vss vss) nch_ulvt_mac w=0.4u l=30n nf=1
+  mr1 (m s vdd vdd) pch_ulvt_mac w=1.6u l=30n nf=1
+  mp2 (y m vdd vdd) pch_ulvt_mac w=0.8u l=30n nf=1
+  mn2 (y m vss vss) nch_ulvt_mac w=0.4u l=30n nf=1
+  mr2 (y sb vss vss) nch_ulvt_mac w=0.8u l=30n nf=1
+// @RNL {
+//   &vdd @ADD-TO $SUPPLY_NET_SET; &vss @ADD-TO $GROUND_NET_SET;
+//   %ipf = @DEFINE-SYMBOL(box=[-4, -3, 4, 2]) {
+//     @LINE(linewidth=0.24) {(-3, -2) (3, -2) (3, 2) (-3, 2) (-3, -2)};
+//     (-4, 0) @PIN(terminal=1, direction="left");
+//     @LINE {(-4, 0) (-3, 0)};
+//     (-2.7, 0) @TEXT("in", size=0.5, halign="start", valign="middle");
+//     (-1, -3) @PIN(terminal=2, direction="down");
+//     @LINE {(-1, -3) (-1, -2)};
+//     (-1, -1.65) @TEXT("s", size=0.5, halign="middle", valign="bottom");
+//     (1, -3) @PIN(terminal=3, direction="down");
+//     @LINE {(1, -3) (1, -2)};
+//     (1, -1.65) @TEXT("sb", size=0.5, halign="middle", valign="bottom");
+//     (4, 0) @PIN(terminal=4, direction="right");
+//     @LINE {(4, 0) (3, 0)};
+//     (2.7, 0) @TEXT("out", size=0.5, halign="end", valign="middle");
+//     (0, 0.35) @TEXT("ipf", size=0.8, bold=true, halign="middle", valign="middle");
+//     (0, -0.75) @TEXT("inverters 30n, ~7 ps", size=0.45, halign="middle", valign="middle");
+//   };
+//   # @SET-SYMBOL %ipf;
+//   {#mp1 #mn1} @GROUP; {#mp2 #mn2} @GROUP;
+//   {#mp1 #mn1 #mr1 #mp2 #mn2 #mr2} @TEXT("", key="model");
+//   #mp1 @PLACE(0,5) => @ORIENT("R0");
+//   #mn1 @PLACE(0,-5) => @ORIENT("R0");
+//   #mr1 @PLACE(10,5) => @ORIENT("R0");
+//   #mp2 @PLACE(20,5) => @ORIENT("R0");
+//   #mn2 @PLACE(20,-5) => @ORIENT("R0");
+//   #mr2 @PLACE(28,-5) => @ORIENT("R0");
+//   %p1=$IO_PORT @ATTACH &a => @PLACE(-10,0) => @ORIENT("R0");
+//   %p2=$IO_PORT @ATTACH &s => @PLACE(-10,13) => @ORIENT("R0");
+//   %p3=$IO_PORT @ATTACH &sb => @PLACE(-10,-13) => @ORIENT("R0");
+//   %p4=$IO_PORT @ATTACH &y => @PLACE(34,0) => @ORIENT("MY");
+//   %j1=(-6,0); $JUNCTION @ATTACH %j1;
+//   &a @WIRE(mode="straight") {%p1:p %j1};
+//   &a @WIRE(mode="straight") {#mp1:g (-6,5) %j1 (-6,-5) #mn1:g};
+//   %j2=(0,0); $JUNCTION @ATTACH %j2;
+//   %j3=(10,0); $JUNCTION @ATTACH %j3;
+//   %j4=(14,0); $JUNCTION @ATTACH %j4;
+//   &m @WIRE(mode="straight") {#mp1:d %j2 #mn1:d};
+//   &m @WIRE(mode="straight") {%j2 %j3 %j4};
+//   &m @WIRE(mode="straight") {#mr1:d %j3};
+//   &m @WIRE(mode="straight") {#mp2:g (14,5) %j4 (14,-5) #mn2:g};
+//   %j5=(20,0); $JUNCTION @ATTACH %j5;
+//   %j6=(28,0); $JUNCTION @ATTACH %j6;
+//   &y @WIRE(mode="straight") {#mp2:d %j5 #mn2:d};
+//   &y @WIRE(mode="straight") {%j5 %j6 %p4:p};
+//   &y @WIRE(mode="straight") {#mr2:d %j6};
+//   &s @WIRE(mode="straight") {%p2:p (7,13) #mr1:g};
+//   &sb @WIRE(mode="straight") {%p3:p (25,-13) #mr2:g};
+//   %p5=$SUPPLY @ATTACH &vdd => @PLACE(0,9) => @ORIENT("R0");
+//   %j7=(0,8); $JUNCTION @ATTACH %j7;
+//   &vdd @WIRE(mode="straight") {#mp1:s %j7 %p5:p};
+//   &vdd @WIRE(mode="straight") {#mp1:b (2,5) (2,8) %j7};
+//   %p6=$SUPPLY @ATTACH &vdd => @PLACE(10,9) => @ORIENT("R0");
+//   %j8=(10,8); $JUNCTION @ATTACH %j8;
+//   &vdd @WIRE(mode="straight") {#mr1:s %j8 %p6:p};
+//   &vdd @WIRE(mode="straight") {#mr1:b (12,5) (12,8) %j8};
+//   %p7=$SUPPLY @ATTACH &vdd => @PLACE(20,9) => @ORIENT("R0");
+//   %j9=(20,8); $JUNCTION @ATTACH %j9;
+//   &vdd @WIRE(mode="straight") {#mp2:s %j9 %p7:p};
+//   &vdd @WIRE(mode="straight") {#mp2:b (22,5) (22,8) %j9};
+//   %p8=$GROUND @ATTACH &vss => @PLACE(0,-9) => @ORIENT("R0");
+//   %j10=(0,-8); $JUNCTION @ATTACH %j10;
+//   &vss @WIRE(mode="straight") {#mn1:s %j10 %p8:p};
+//   &vss @WIRE(mode="straight") {#mn1:b (2,-5) (2,-8) %j10};
+//   %p9=$GROUND @ATTACH &vss => @PLACE(20,-9) => @ORIENT("R0");
+//   %j11=(20,-8); $JUNCTION @ATTACH %j11;
+//   &vss @WIRE(mode="straight") {#mn2:s %j11 %p9:p};
+//   &vss @WIRE(mode="straight") {#mn2:b (22,-5) (22,-8) %j11};
+//   %p10=$GROUND @ATTACH &vss => @PLACE(28,-9) => @ORIENT("R0");
+//   %j12=(28,-8); $JUNCTION @ATTACH %j12;
+//   &vss @WIRE(mode="straight") {#mr2:s %j12 %p10:p};
+//   &vss @WIRE(mode="straight") {#mr2:b (30,-5) (30,-8) %j12};
+//   (-10,17) @TEXT("ipf: resettable inverter delay pair (inverters 30n, ~7 ps)", size=0.8, textcolor="#334155", bold=true, halign="start");
+//   (-10,-17) @TEXT("s high: y follows a through two plain inverters (no series stack on the timing edge).", size=0.6, textcolor="#334155", bold=false, halign="start");
+//   (-10,-18.4) @TEXT("s low, sb high: mr1 pulls m high and mr2 pulls y low.", size=0.6, textcolor="#334155", bold=false, halign="start");
+//   (38,8) @TEXT("mp1  pch_ulvt  0.8u/30n  nf=1", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (38,6.4) @TEXT("mn1  nch_ulvt  0.4u/30n  nf=1", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (38,4.8) @TEXT("mr1  pch_ulvt  1.6u/30n  nf=1", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (38,3.2) @TEXT("mp2  pch_ulvt  0.8u/30n  nf=1", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (38,1.6) @TEXT("mn2  nch_ulvt  0.4u/30n  nf=1", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (38,0) @TEXT("mr2  nch_ulvt  0.8u/30n  nf=1", size=0.75, textcolor="#334155", bold=false, halign="start");
+// }
+ends ipf
+
+subckt ipm (a s sb y vdd vss)            // about 10.9 ps at TT
+  mp1 (m a vdd vdd) pch_ulvt_mac w=0.4u l=60n nf=1
+  mn1 (m a vss vss) nch_ulvt_mac w=0.2u l=60n nf=1
+  mr1 (m s vdd vdd) pch_ulvt_mac w=0.4u l=30n nf=1
+  mp2 (y m vdd vdd) pch_ulvt_mac w=0.4u l=60n nf=1
+  mn2 (y m vss vss) nch_ulvt_mac w=0.2u l=60n nf=1
+  mr2 (y sb vss vss) nch_ulvt_mac w=0.2u l=30n nf=1
+// @RNL {
+//   &vdd @ADD-TO $SUPPLY_NET_SET; &vss @ADD-TO $GROUND_NET_SET;
+//   %ipm = @DEFINE-SYMBOL(box=[-4, -3, 4, 2]) {
+//     @LINE(linewidth=0.24) {(-3, -2) (3, -2) (3, 2) (-3, 2) (-3, -2)};
+//     (-4, 0) @PIN(terminal=1, direction="left");
+//     @LINE {(-4, 0) (-3, 0)};
+//     (-2.7, 0) @TEXT("in", size=0.5, halign="start", valign="middle");
+//     (-1, -3) @PIN(terminal=2, direction="down");
+//     @LINE {(-1, -3) (-1, -2)};
+//     (-1, -1.65) @TEXT("s", size=0.5, halign="middle", valign="bottom");
+//     (1, -3) @PIN(terminal=3, direction="down");
+//     @LINE {(1, -3) (1, -2)};
+//     (1, -1.65) @TEXT("sb", size=0.5, halign="middle", valign="bottom");
+//     (4, 0) @PIN(terminal=4, direction="right");
+//     @LINE {(4, 0) (3, 0)};
+//     (2.7, 0) @TEXT("out", size=0.5, halign="end", valign="middle");
+//     (0, 0.35) @TEXT("ipm", size=0.8, bold=true, halign="middle", valign="middle");
+//     (0, -0.75) @TEXT("inverters 60n, ~11 ps", size=0.45, halign="middle", valign="middle");
+//   };
+//   # @SET-SYMBOL %ipm;
+//   {#mp1 #mn1} @GROUP; {#mp2 #mn2} @GROUP;
+//   {#mp1 #mn1 #mr1 #mp2 #mn2 #mr2} @TEXT("", key="model");
+//   #mp1 @PLACE(0,5) => @ORIENT("R0");
+//   #mn1 @PLACE(0,-5) => @ORIENT("R0");
+//   #mr1 @PLACE(10,5) => @ORIENT("R0");
+//   #mp2 @PLACE(20,5) => @ORIENT("R0");
+//   #mn2 @PLACE(20,-5) => @ORIENT("R0");
+//   #mr2 @PLACE(28,-5) => @ORIENT("R0");
+//   %p1=$IO_PORT @ATTACH &a => @PLACE(-10,0) => @ORIENT("R0");
+//   %p2=$IO_PORT @ATTACH &s => @PLACE(-10,13) => @ORIENT("R0");
+//   %p3=$IO_PORT @ATTACH &sb => @PLACE(-10,-13) => @ORIENT("R0");
+//   %p4=$IO_PORT @ATTACH &y => @PLACE(34,0) => @ORIENT("MY");
+//   %j1=(-6,0); $JUNCTION @ATTACH %j1;
+//   &a @WIRE(mode="straight") {%p1:p %j1};
+//   &a @WIRE(mode="straight") {#mp1:g (-6,5) %j1 (-6,-5) #mn1:g};
+//   %j2=(0,0); $JUNCTION @ATTACH %j2;
+//   %j3=(10,0); $JUNCTION @ATTACH %j3;
+//   %j4=(14,0); $JUNCTION @ATTACH %j4;
+//   &m @WIRE(mode="straight") {#mp1:d %j2 #mn1:d};
+//   &m @WIRE(mode="straight") {%j2 %j3 %j4};
+//   &m @WIRE(mode="straight") {#mr1:d %j3};
+//   &m @WIRE(mode="straight") {#mp2:g (14,5) %j4 (14,-5) #mn2:g};
+//   %j5=(20,0); $JUNCTION @ATTACH %j5;
+//   %j6=(28,0); $JUNCTION @ATTACH %j6;
+//   &y @WIRE(mode="straight") {#mp2:d %j5 #mn2:d};
+//   &y @WIRE(mode="straight") {%j5 %j6 %p4:p};
+//   &y @WIRE(mode="straight") {#mr2:d %j6};
+//   &s @WIRE(mode="straight") {%p2:p (7,13) #mr1:g};
+//   &sb @WIRE(mode="straight") {%p3:p (25,-13) #mr2:g};
+//   %p5=$SUPPLY @ATTACH &vdd => @PLACE(0,9) => @ORIENT("R0");
+//   %j7=(0,8); $JUNCTION @ATTACH %j7;
+//   &vdd @WIRE(mode="straight") {#mp1:s %j7 %p5:p};
+//   &vdd @WIRE(mode="straight") {#mp1:b (2,5) (2,8) %j7};
+//   %p6=$SUPPLY @ATTACH &vdd => @PLACE(10,9) => @ORIENT("R0");
+//   %j8=(10,8); $JUNCTION @ATTACH %j8;
+//   &vdd @WIRE(mode="straight") {#mr1:s %j8 %p6:p};
+//   &vdd @WIRE(mode="straight") {#mr1:b (12,5) (12,8) %j8};
+//   %p7=$SUPPLY @ATTACH &vdd => @PLACE(20,9) => @ORIENT("R0");
+//   %j9=(20,8); $JUNCTION @ATTACH %j9;
+//   &vdd @WIRE(mode="straight") {#mp2:s %j9 %p7:p};
+//   &vdd @WIRE(mode="straight") {#mp2:b (22,5) (22,8) %j9};
+//   %p8=$GROUND @ATTACH &vss => @PLACE(0,-9) => @ORIENT("R0");
+//   %j10=(0,-8); $JUNCTION @ATTACH %j10;
+//   &vss @WIRE(mode="straight") {#mn1:s %j10 %p8:p};
+//   &vss @WIRE(mode="straight") {#mn1:b (2,-5) (2,-8) %j10};
+//   %p9=$GROUND @ATTACH &vss => @PLACE(20,-9) => @ORIENT("R0");
+//   %j11=(20,-8); $JUNCTION @ATTACH %j11;
+//   &vss @WIRE(mode="straight") {#mn2:s %j11 %p9:p};
+//   &vss @WIRE(mode="straight") {#mn2:b (22,-5) (22,-8) %j11};
+//   %p10=$GROUND @ATTACH &vss => @PLACE(28,-9) => @ORIENT("R0");
+//   %j12=(28,-8); $JUNCTION @ATTACH %j12;
+//   &vss @WIRE(mode="straight") {#mr2:s %j12 %p10:p};
+//   &vss @WIRE(mode="straight") {#mr2:b (30,-5) (30,-8) %j12};
+//   (-10,17) @TEXT("ipm: resettable inverter delay pair (inverters 60n, ~11 ps)", size=0.8, textcolor="#334155", bold=true, halign="start");
+//   (-10,-17) @TEXT("s high: y follows a through two plain inverters (no series stack on the timing edge).", size=0.6, textcolor="#334155", bold=false, halign="start");
+//   (-10,-18.4) @TEXT("s low, sb high: mr1 pulls m high and mr2 pulls y low.", size=0.6, textcolor="#334155", bold=false, halign="start");
+//   (38,8) @TEXT("mp1  pch_ulvt  0.4u/60n  nf=1", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (38,6.4) @TEXT("mn1  nch_ulvt  0.2u/60n  nf=1", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (38,4.8) @TEXT("mr1  pch_ulvt  0.4u/30n  nf=1", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (38,3.2) @TEXT("mp2  pch_ulvt  0.4u/60n  nf=1", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (38,1.6) @TEXT("mn2  nch_ulvt  0.2u/60n  nf=1", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (38,0) @TEXT("mr2  nch_ulvt  0.2u/30n  nf=1", size=0.75, textcolor="#334155", bold=false, halign="start");
+// }
+ends ipm
+
+subckt ipr (a s sb y vdd vss)            // about 12.2 ps at TT
+  mp1 (m a vdd vdd) pch_ulvt_mac w=0.4u l=60n nf=1
+  mn1 (m a vss vss) nch_ulvt_mac w=0.2u l=60n nf=1
+  mr1 (m s vdd vdd) pch_ulvt_mac w=0.8u l=30n nf=1
+  mp2 (y m vdd vdd) pch_ulvt_mac w=0.4u l=60n nf=1
+  mn2 (y m vss vss) nch_ulvt_mac w=0.2u l=60n nf=1
+  mr2 (y sb vss vss) nch_ulvt_mac w=0.4u l=30n nf=1
+// @RNL {
+//   &vdd @ADD-TO $SUPPLY_NET_SET; &vss @ADD-TO $GROUND_NET_SET;
+//   %ipr = @DEFINE-SYMBOL(box=[-4, -3, 4, 2]) {
+//     @LINE(linewidth=0.24) {(-3, -2) (3, -2) (3, 2) (-3, 2) (-3, -2)};
+//     (-4, 0) @PIN(terminal=1, direction="left");
+//     @LINE {(-4, 0) (-3, 0)};
+//     (-2.7, 0) @TEXT("in", size=0.5, halign="start", valign="middle");
+//     (-1, -3) @PIN(terminal=2, direction="down");
+//     @LINE {(-1, -3) (-1, -2)};
+//     (-1, -1.65) @TEXT("s", size=0.5, halign="middle", valign="bottom");
+//     (1, -3) @PIN(terminal=3, direction="down");
+//     @LINE {(1, -3) (1, -2)};
+//     (1, -1.65) @TEXT("sb", size=0.5, halign="middle", valign="bottom");
+//     (4, 0) @PIN(terminal=4, direction="right");
+//     @LINE {(4, 0) (3, 0)};
+//     (2.7, 0) @TEXT("out", size=0.5, halign="end", valign="middle");
+//     (0, 0.35) @TEXT("ipr", size=0.8, bold=true, halign="middle", valign="middle");
+//     (0, -0.75) @TEXT("inverters 60n, ~12 ps", size=0.45, halign="middle", valign="middle");
+//   };
+//   # @SET-SYMBOL %ipr;
+//   {#mp1 #mn1} @GROUP; {#mp2 #mn2} @GROUP;
+//   {#mp1 #mn1 #mr1 #mp2 #mn2 #mr2} @TEXT("", key="model");
+//   #mp1 @PLACE(0,5) => @ORIENT("R0");
+//   #mn1 @PLACE(0,-5) => @ORIENT("R0");
+//   #mr1 @PLACE(10,5) => @ORIENT("R0");
+//   #mp2 @PLACE(20,5) => @ORIENT("R0");
+//   #mn2 @PLACE(20,-5) => @ORIENT("R0");
+//   #mr2 @PLACE(28,-5) => @ORIENT("R0");
+//   %p1=$IO_PORT @ATTACH &a => @PLACE(-10,0) => @ORIENT("R0");
+//   %p2=$IO_PORT @ATTACH &s => @PLACE(-10,13) => @ORIENT("R0");
+//   %p3=$IO_PORT @ATTACH &sb => @PLACE(-10,-13) => @ORIENT("R0");
+//   %p4=$IO_PORT @ATTACH &y => @PLACE(34,0) => @ORIENT("MY");
+//   %j1=(-6,0); $JUNCTION @ATTACH %j1;
+//   &a @WIRE(mode="straight") {%p1:p %j1};
+//   &a @WIRE(mode="straight") {#mp1:g (-6,5) %j1 (-6,-5) #mn1:g};
+//   %j2=(0,0); $JUNCTION @ATTACH %j2;
+//   %j3=(10,0); $JUNCTION @ATTACH %j3;
+//   %j4=(14,0); $JUNCTION @ATTACH %j4;
+//   &m @WIRE(mode="straight") {#mp1:d %j2 #mn1:d};
+//   &m @WIRE(mode="straight") {%j2 %j3 %j4};
+//   &m @WIRE(mode="straight") {#mr1:d %j3};
+//   &m @WIRE(mode="straight") {#mp2:g (14,5) %j4 (14,-5) #mn2:g};
+//   %j5=(20,0); $JUNCTION @ATTACH %j5;
+//   %j6=(28,0); $JUNCTION @ATTACH %j6;
+//   &y @WIRE(mode="straight") {#mp2:d %j5 #mn2:d};
+//   &y @WIRE(mode="straight") {%j5 %j6 %p4:p};
+//   &y @WIRE(mode="straight") {#mr2:d %j6};
+//   &s @WIRE(mode="straight") {%p2:p (7,13) #mr1:g};
+//   &sb @WIRE(mode="straight") {%p3:p (25,-13) #mr2:g};
+//   %p5=$SUPPLY @ATTACH &vdd => @PLACE(0,9) => @ORIENT("R0");
+//   %j7=(0,8); $JUNCTION @ATTACH %j7;
+//   &vdd @WIRE(mode="straight") {#mp1:s %j7 %p5:p};
+//   &vdd @WIRE(mode="straight") {#mp1:b (2,5) (2,8) %j7};
+//   %p6=$SUPPLY @ATTACH &vdd => @PLACE(10,9) => @ORIENT("R0");
+//   %j8=(10,8); $JUNCTION @ATTACH %j8;
+//   &vdd @WIRE(mode="straight") {#mr1:s %j8 %p6:p};
+//   &vdd @WIRE(mode="straight") {#mr1:b (12,5) (12,8) %j8};
+//   %p7=$SUPPLY @ATTACH &vdd => @PLACE(20,9) => @ORIENT("R0");
+//   %j9=(20,8); $JUNCTION @ATTACH %j9;
+//   &vdd @WIRE(mode="straight") {#mp2:s %j9 %p7:p};
+//   &vdd @WIRE(mode="straight") {#mp2:b (22,5) (22,8) %j9};
+//   %p8=$GROUND @ATTACH &vss => @PLACE(0,-9) => @ORIENT("R0");
+//   %j10=(0,-8); $JUNCTION @ATTACH %j10;
+//   &vss @WIRE(mode="straight") {#mn1:s %j10 %p8:p};
+//   &vss @WIRE(mode="straight") {#mn1:b (2,-5) (2,-8) %j10};
+//   %p9=$GROUND @ATTACH &vss => @PLACE(20,-9) => @ORIENT("R0");
+//   %j11=(20,-8); $JUNCTION @ATTACH %j11;
+//   &vss @WIRE(mode="straight") {#mn2:s %j11 %p9:p};
+//   &vss @WIRE(mode="straight") {#mn2:b (22,-5) (22,-8) %j11};
+//   %p10=$GROUND @ATTACH &vss => @PLACE(28,-9) => @ORIENT("R0");
+//   %j12=(28,-8); $JUNCTION @ATTACH %j12;
+//   &vss @WIRE(mode="straight") {#mr2:s %j12 %p10:p};
+//   &vss @WIRE(mode="straight") {#mr2:b (30,-5) (30,-8) %j12};
+//   (-10,17) @TEXT("ipr: resettable inverter delay pair (inverters 60n, ~12 ps)", size=0.8, textcolor="#334155", bold=true, halign="start");
+//   (-10,-17) @TEXT("s high: y follows a through two plain inverters (no series stack on the timing edge).", size=0.6, textcolor="#334155", bold=false, halign="start");
+//   (-10,-18.4) @TEXT("s low, sb high: mr1 pulls m high and mr2 pulls y low.", size=0.6, textcolor="#334155", bold=false, halign="start");
+//   (38,8) @TEXT("mp1  pch_ulvt  0.4u/60n  nf=1", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (38,6.4) @TEXT("mn1  nch_ulvt  0.2u/60n  nf=1", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (38,4.8) @TEXT("mr1  pch_ulvt  0.8u/30n  nf=1", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (38,3.2) @TEXT("mp2  pch_ulvt  0.4u/60n  nf=1", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (38,1.6) @TEXT("mn2  nch_ulvt  0.2u/60n  nf=1", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (38,0) @TEXT("mr2  nch_ulvt  0.4u/30n  nf=1", size=0.75, textcolor="#334155", bold=false, halign="start");
+// }
+ends ipr
+
+subckt ipl (a s sb y vdd vss)            // ipm with half-size reset devices: a little quicker
+  mp1 (m a vdd vdd) pch_ulvt_mac w=0.4u l=60n nf=1
+  mn1 (m a vss vss) nch_ulvt_mac w=0.2u l=60n nf=1
+  mr1 (m s vdd vdd) pch_ulvt_mac w=0.2u l=30n nf=1
+  mp2 (y m vdd vdd) pch_ulvt_mac w=0.4u l=60n nf=1
+  mn2 (y m vss vss) nch_ulvt_mac w=0.2u l=60n nf=1
+  mr2 (y sb vss vss) nch_ulvt_mac w=0.1u l=30n nf=1
+// @RNL {
+//   &vdd @ADD-TO $SUPPLY_NET_SET; &vss @ADD-TO $GROUND_NET_SET;
+//   %ipl = @DEFINE-SYMBOL(box=[-4, -3, 4, 2]) {
+//     @LINE(linewidth=0.24) {(-3, -2) (3, -2) (3, 2) (-3, 2) (-3, -2)};
+//     (-4, 0) @PIN(terminal=1, direction="left");
+//     @LINE {(-4, 0) (-3, 0)};
+//     (-2.7, 0) @TEXT("in", size=0.5, halign="start", valign="middle");
+//     (-1, -3) @PIN(terminal=2, direction="down");
+//     @LINE {(-1, -3) (-1, -2)};
+//     (-1, -1.65) @TEXT("s", size=0.5, halign="middle", valign="bottom");
+//     (1, -3) @PIN(terminal=3, direction="down");
+//     @LINE {(1, -3) (1, -2)};
+//     (1, -1.65) @TEXT("sb", size=0.5, halign="middle", valign="bottom");
+//     (4, 0) @PIN(terminal=4, direction="right");
+//     @LINE {(4, 0) (3, 0)};
+//     (2.7, 0) @TEXT("out", size=0.5, halign="end", valign="middle");
+//     (0, 0.35) @TEXT("ipl", size=0.8, bold=true, halign="middle", valign="middle");
+//     (0, -0.75) @TEXT("inverters 60n, small reset, ~10 ps", size=0.45, halign="middle", valign="middle");
+//   };
+//   # @SET-SYMBOL %ipl;
+//   {#mp1 #mn1} @GROUP; {#mp2 #mn2} @GROUP;
+//   {#mp1 #mn1 #mr1 #mp2 #mn2 #mr2} @TEXT("", key="model");
+//   #mp1 @PLACE(0,5) => @ORIENT("R0");
+//   #mn1 @PLACE(0,-5) => @ORIENT("R0");
+//   #mr1 @PLACE(10,5) => @ORIENT("R0");
+//   #mp2 @PLACE(20,5) => @ORIENT("R0");
+//   #mn2 @PLACE(20,-5) => @ORIENT("R0");
+//   #mr2 @PLACE(28,-5) => @ORIENT("R0");
+//   %p1=$IO_PORT @ATTACH &a => @PLACE(-10,0) => @ORIENT("R0");
+//   %p2=$IO_PORT @ATTACH &s => @PLACE(-10,13) => @ORIENT("R0");
+//   %p3=$IO_PORT @ATTACH &sb => @PLACE(-10,-13) => @ORIENT("R0");
+//   %p4=$IO_PORT @ATTACH &y => @PLACE(34,0) => @ORIENT("MY");
+//   %j1=(-6,0); $JUNCTION @ATTACH %j1;
+//   &a @WIRE(mode="straight") {%p1:p %j1};
+//   &a @WIRE(mode="straight") {#mp1:g (-6,5) %j1 (-6,-5) #mn1:g};
+//   %j2=(0,0); $JUNCTION @ATTACH %j2;
+//   %j3=(10,0); $JUNCTION @ATTACH %j3;
+//   %j4=(14,0); $JUNCTION @ATTACH %j4;
+//   &m @WIRE(mode="straight") {#mp1:d %j2 #mn1:d};
+//   &m @WIRE(mode="straight") {%j2 %j3 %j4};
+//   &m @WIRE(mode="straight") {#mr1:d %j3};
+//   &m @WIRE(mode="straight") {#mp2:g (14,5) %j4 (14,-5) #mn2:g};
+//   %j5=(20,0); $JUNCTION @ATTACH %j5;
+//   %j6=(28,0); $JUNCTION @ATTACH %j6;
+//   &y @WIRE(mode="straight") {#mp2:d %j5 #mn2:d};
+//   &y @WIRE(mode="straight") {%j5 %j6 %p4:p};
+//   &y @WIRE(mode="straight") {#mr2:d %j6};
+//   &s @WIRE(mode="straight") {%p2:p (7,13) #mr1:g};
+//   &sb @WIRE(mode="straight") {%p3:p (25,-13) #mr2:g};
+//   %p5=$SUPPLY @ATTACH &vdd => @PLACE(0,9) => @ORIENT("R0");
+//   %j7=(0,8); $JUNCTION @ATTACH %j7;
+//   &vdd @WIRE(mode="straight") {#mp1:s %j7 %p5:p};
+//   &vdd @WIRE(mode="straight") {#mp1:b (2,5) (2,8) %j7};
+//   %p6=$SUPPLY @ATTACH &vdd => @PLACE(10,9) => @ORIENT("R0");
+//   %j8=(10,8); $JUNCTION @ATTACH %j8;
+//   &vdd @WIRE(mode="straight") {#mr1:s %j8 %p6:p};
+//   &vdd @WIRE(mode="straight") {#mr1:b (12,5) (12,8) %j8};
+//   %p7=$SUPPLY @ATTACH &vdd => @PLACE(20,9) => @ORIENT("R0");
+//   %j9=(20,8); $JUNCTION @ATTACH %j9;
+//   &vdd @WIRE(mode="straight") {#mp2:s %j9 %p7:p};
+//   &vdd @WIRE(mode="straight") {#mp2:b (22,5) (22,8) %j9};
+//   %p8=$GROUND @ATTACH &vss => @PLACE(0,-9) => @ORIENT("R0");
+//   %j10=(0,-8); $JUNCTION @ATTACH %j10;
+//   &vss @WIRE(mode="straight") {#mn1:s %j10 %p8:p};
+//   &vss @WIRE(mode="straight") {#mn1:b (2,-5) (2,-8) %j10};
+//   %p9=$GROUND @ATTACH &vss => @PLACE(20,-9) => @ORIENT("R0");
+//   %j11=(20,-8); $JUNCTION @ATTACH %j11;
+//   &vss @WIRE(mode="straight") {#mn2:s %j11 %p9:p};
+//   &vss @WIRE(mode="straight") {#mn2:b (22,-5) (22,-8) %j11};
+//   %p10=$GROUND @ATTACH &vss => @PLACE(28,-9) => @ORIENT("R0");
+//   %j12=(28,-8); $JUNCTION @ATTACH %j12;
+//   &vss @WIRE(mode="straight") {#mr2:s %j12 %p10:p};
+//   &vss @WIRE(mode="straight") {#mr2:b (30,-5) (30,-8) %j12};
+//   (-10,17) @TEXT("ipl: resettable inverter delay pair (inverters 60n, small reset, ~10 ps)", size=0.8, textcolor="#334155", bold=true, halign="start");
+//   (-10,-17) @TEXT("s high: y follows a through two plain inverters (no series stack on the timing edge).", size=0.6, textcolor="#334155", bold=false, halign="start");
+//   (-10,-18.4) @TEXT("s low, sb high: mr1 pulls m high and mr2 pulls y low.", size=0.6, textcolor="#334155", bold=false, halign="start");
+//   (38,8) @TEXT("mp1  pch_ulvt  0.4u/60n  nf=1", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (38,6.4) @TEXT("mn1  nch_ulvt  0.2u/60n  nf=1", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (38,4.8) @TEXT("mr1  pch_ulvt  0.2u/30n  nf=1", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (38,3.2) @TEXT("mp2  pch_ulvt  0.4u/60n  nf=1", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (38,1.6) @TEXT("mn2  nch_ulvt  0.2u/60n  nf=1", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (38,0) @TEXT("mr2  nch_ulvt  0.1u/30n  nf=1", size=0.75, textcolor="#334155", bold=false, halign="start");
+// }
+ends ipl
+
+subckt ich2 (a s sb y vdd vss)           // two ipr in a row
+  p1 (a  s sb y1 vdd vss) ipr
+  p2 (y1 s sb y  vdd vss) ipr
+// @RNL {
+//   &vdd @ADD-TO $SUPPLY_NET_SET; &vss @ADD-TO $GROUND_NET_SET;
+//   %ich2 = @DEFINE-SYMBOL(box=[-4, -3, 4, 2]) {
+//     @LINE(linewidth=0.24) {(-3, -2) (3, -2) (3, 2) (-3, 2) (-3, -2)};
+//     (-4, 0) @PIN(terminal=1, direction="left");
+//     @LINE {(-4, 0) (-3, 0)};
+//     (-2.7, 0) @TEXT("in", size=0.5, halign="start", valign="middle");
+//     (-1, -3) @PIN(terminal=2, direction="down");
+//     @LINE {(-1, -3) (-1, -2)};
+//     (-1, -1.65) @TEXT("s", size=0.5, halign="middle", valign="bottom");
+//     (1, -3) @PIN(terminal=3, direction="down");
+//     @LINE {(1, -3) (1, -2)};
+//     (1, -1.65) @TEXT("sb", size=0.5, halign="middle", valign="bottom");
+//     (4, 0) @PIN(terminal=4, direction="right");
+//     @LINE {(4, 0) (3, 0)};
+//     (2.7, 0) @TEXT("out", size=0.5, halign="end", valign="middle");
+//     (0, 0.35) @TEXT("ich2", size=0.8, bold=true, halign="middle", valign="middle");
+//     (0, -0.75) @TEXT("2 pairs", size=0.45, halign="middle", valign="middle");
+//   };
+//   # @SET-SYMBOL %ich2;
+//   {#p1 #p2} @GROUP;
+//   #p1 @PLACE(0,0) => @ORIENT("R0");
+//   #p2 @PLACE(10,0) => @ORIENT("R0");
+//   %p1=$IO_PORT @ATTACH &a => @PLACE(-10,0) => @ORIENT("R0");
+//   %p2=$IO_PORT @ATTACH &s => @PLACE(-10,-4) => @ORIENT("R0");
+//   %p3=$IO_PORT @ATTACH &sb => @PLACE(-10,-6) => @ORIENT("R0");
+//   %p4=$IO_PORT @ATTACH &y => @PLACE(18,0) => @ORIENT("MY");
+//   &a @WIRE(mode="straight") {%p1:p #p1:a};
+//   &y1 @WIRE(mode="straight") {#p1:y #p2:a};
+//   &y @WIRE(mode="straight") {#p2:y %p4:p};
+//   %j1=(-1,-4); $JUNCTION @ATTACH %j1;
+//   &s @WIRE(mode="straight") {%p2:p %j1 (9,-4) #p2:s};
+//   &s @WIRE(mode="straight") {#p1:s %j1};
+//   %j2=(1,-6); $JUNCTION @ATTACH %j2;
+//   &sb @WIRE(mode="straight") {%p3:p %j2 (11,-6) #p2:sb};
+//   &sb @WIRE(mode="straight") {#p1:sb %j2};
+//   (-10,4) @TEXT("ich2: two ipr in a row", size=0.8, textcolor="#334155", bold=true, halign="start");
+// }
+ends ich2
+
+subckt ich4 (a s sb y vdd vss)           // two ich2 in a row
+  p1 (a  s sb y1 vdd vss) ich2
+  p2 (y1 s sb y  vdd vss) ich2
+// @RNL {
+//   &vdd @ADD-TO $SUPPLY_NET_SET; &vss @ADD-TO $GROUND_NET_SET;
+//   %ich4 = @DEFINE-SYMBOL(box=[-4, -3, 4, 2]) {
+//     @LINE(linewidth=0.24) {(-3, -2) (3, -2) (3, 2) (-3, 2) (-3, -2)};
+//     (-4, 0) @PIN(terminal=1, direction="left");
+//     @LINE {(-4, 0) (-3, 0)};
+//     (-2.7, 0) @TEXT("in", size=0.5, halign="start", valign="middle");
+//     (-1, -3) @PIN(terminal=2, direction="down");
+//     @LINE {(-1, -3) (-1, -2)};
+//     (-1, -1.65) @TEXT("s", size=0.5, halign="middle", valign="bottom");
+//     (1, -3) @PIN(terminal=3, direction="down");
+//     @LINE {(1, -3) (1, -2)};
+//     (1, -1.65) @TEXT("sb", size=0.5, halign="middle", valign="bottom");
+//     (4, 0) @PIN(terminal=4, direction="right");
+//     @LINE {(4, 0) (3, 0)};
+//     (2.7, 0) @TEXT("out", size=0.5, halign="end", valign="middle");
+//     (0, 0.35) @TEXT("ich4", size=0.8, bold=true, halign="middle", valign="middle");
+//     (0, -0.75) @TEXT("4 pairs", size=0.45, halign="middle", valign="middle");
+//   };
+//   # @SET-SYMBOL %ich4;
+//   {#p1 #p2} @GROUP;
+//   #p1 @PLACE(0,0) => @ORIENT("R0");
+//   #p2 @PLACE(10,0) => @ORIENT("R0");
+//   %p1=$IO_PORT @ATTACH &a => @PLACE(-10,0) => @ORIENT("R0");
+//   %p2=$IO_PORT @ATTACH &s => @PLACE(-10,-4) => @ORIENT("R0");
+//   %p3=$IO_PORT @ATTACH &sb => @PLACE(-10,-6) => @ORIENT("R0");
+//   %p4=$IO_PORT @ATTACH &y => @PLACE(18,0) => @ORIENT("MY");
+//   &a @WIRE(mode="straight") {%p1:p #p1:a};
+//   &y1 @WIRE(mode="straight") {#p1:y #p2:a};
+//   &y @WIRE(mode="straight") {#p2:y %p4:p};
+//   %j1=(-1,-4); $JUNCTION @ATTACH %j1;
+//   &s @WIRE(mode="straight") {%p2:p %j1 (9,-4) #p2:s};
+//   &s @WIRE(mode="straight") {#p1:s %j1};
+//   %j2=(1,-6); $JUNCTION @ATTACH %j2;
+//   &sb @WIRE(mode="straight") {%p3:p %j2 (11,-6) #p2:sb};
+//   &sb @WIRE(mode="straight") {#p1:sb %j2};
+//   (-10,4) @TEXT("ich4: two ich2 in a row", size=0.8, textcolor="#334155", bold=true, halign="start");
+// }
+ends ich4
+
+// Wide 60 nm inverter pair for the timeout. Of the pairs tried it spreads least over PVT
+// (about 1.79 between ss_low_125 and ff_high_m40, against 2.0 for rpair), and its reset
+// devices still win against the inverters at every corner (reset under 11 ps).
+subckt ipw (a s sb y vdd vss)            // about 10.8 ps at TT
+  mp1 (m a vdd vdd) pch_ulvt_mac w=1.6u l=60n nf=1
+  mn1 (m a vss vss) nch_ulvt_mac w=0.8u l=60n nf=1
+  mr1 (m s vdd vdd) pch_ulvt_mac w=0.8u l=30n nf=1
+  mp2 (y m vdd vdd) pch_ulvt_mac w=1.6u l=60n nf=1
+  mn2 (y m vss vss) nch_ulvt_mac w=0.8u l=60n nf=1
+  mr2 (y sb vss vss) nch_ulvt_mac w=0.4u l=30n nf=1
+// @RNL {
+//   &vdd @ADD-TO $SUPPLY_NET_SET; &vss @ADD-TO $GROUND_NET_SET;
+//   %ipw = @DEFINE-SYMBOL(box=[-4, -3, 4, 2]) {
+//     @LINE(linewidth=0.24) {(-3, -2) (3, -2) (3, 2) (-3, 2) (-3, -2)};
+//     (-4, 0) @PIN(terminal=1, direction="left");
+//     @LINE {(-4, 0) (-3, 0)};
+//     (-2.7, 0) @TEXT("in", size=0.5, halign="start", valign="middle");
+//     (-1, -3) @PIN(terminal=2, direction="down");
+//     @LINE {(-1, -3) (-1, -2)};
+//     (-1, -1.65) @TEXT("s", size=0.5, halign="middle", valign="bottom");
+//     (1, -3) @PIN(terminal=3, direction="down");
+//     @LINE {(1, -3) (1, -2)};
+//     (1, -1.65) @TEXT("sb", size=0.5, halign="middle", valign="bottom");
+//     (4, 0) @PIN(terminal=4, direction="right");
+//     @LINE {(4, 0) (3, 0)};
+//     (2.7, 0) @TEXT("out", size=0.5, halign="end", valign="middle");
+//     (0, 0.35) @TEXT("ipw", size=0.8, bold=true, halign="middle", valign="middle");
+//     (0, -0.75) @TEXT("wide inverters 60n, ~11 ps", size=0.45, halign="middle", valign="middle");
+//   };
+//   # @SET-SYMBOL %ipw;
+//   {#mp1 #mn1} @GROUP; {#mp2 #mn2} @GROUP;
+//   {#mp1 #mn1 #mr1 #mp2 #mn2 #mr2} @TEXT("", key="model");
+//   #mp1 @PLACE(0,5) => @ORIENT("R0");
+//   #mn1 @PLACE(0,-5) => @ORIENT("R0");
+//   #mr1 @PLACE(10,5) => @ORIENT("R0");
+//   #mp2 @PLACE(20,5) => @ORIENT("R0");
+//   #mn2 @PLACE(20,-5) => @ORIENT("R0");
+//   #mr2 @PLACE(28,-5) => @ORIENT("R0");
+//   %p1=$IO_PORT @ATTACH &a => @PLACE(-10,0) => @ORIENT("R0");
+//   %p2=$IO_PORT @ATTACH &s => @PLACE(-10,13) => @ORIENT("R0");
+//   %p3=$IO_PORT @ATTACH &sb => @PLACE(-10,-13) => @ORIENT("R0");
+//   %p4=$IO_PORT @ATTACH &y => @PLACE(34,0) => @ORIENT("MY");
+//   %j1=(-6,0); $JUNCTION @ATTACH %j1;
+//   &a @WIRE(mode="straight") {%p1:p %j1};
+//   &a @WIRE(mode="straight") {#mp1:g (-6,5) %j1 (-6,-5) #mn1:g};
+//   %j2=(0,0); $JUNCTION @ATTACH %j2;
+//   %j3=(10,0); $JUNCTION @ATTACH %j3;
+//   %j4=(14,0); $JUNCTION @ATTACH %j4;
+//   &m @WIRE(mode="straight") {#mp1:d %j2 #mn1:d};
+//   &m @WIRE(mode="straight") {%j2 %j3 %j4};
+//   &m @WIRE(mode="straight") {#mr1:d %j3};
+//   &m @WIRE(mode="straight") {#mp2:g (14,5) %j4 (14,-5) #mn2:g};
+//   %j5=(20,0); $JUNCTION @ATTACH %j5;
+//   %j6=(28,0); $JUNCTION @ATTACH %j6;
+//   &y @WIRE(mode="straight") {#mp2:d %j5 #mn2:d};
+//   &y @WIRE(mode="straight") {%j5 %j6 %p4:p};
+//   &y @WIRE(mode="straight") {#mr2:d %j6};
+//   &s @WIRE(mode="straight") {%p2:p (7,13) #mr1:g};
+//   &sb @WIRE(mode="straight") {%p3:p (25,-13) #mr2:g};
+//   %p5=$SUPPLY @ATTACH &vdd => @PLACE(0,9) => @ORIENT("R0");
+//   %j7=(0,8); $JUNCTION @ATTACH %j7;
+//   &vdd @WIRE(mode="straight") {#mp1:s %j7 %p5:p};
+//   &vdd @WIRE(mode="straight") {#mp1:b (2,5) (2,8) %j7};
+//   %p6=$SUPPLY @ATTACH &vdd => @PLACE(10,9) => @ORIENT("R0");
+//   %j8=(10,8); $JUNCTION @ATTACH %j8;
+//   &vdd @WIRE(mode="straight") {#mr1:s %j8 %p6:p};
+//   &vdd @WIRE(mode="straight") {#mr1:b (12,5) (12,8) %j8};
+//   %p7=$SUPPLY @ATTACH &vdd => @PLACE(20,9) => @ORIENT("R0");
+//   %j9=(20,8); $JUNCTION @ATTACH %j9;
+//   &vdd @WIRE(mode="straight") {#mp2:s %j9 %p7:p};
+//   &vdd @WIRE(mode="straight") {#mp2:b (22,5) (22,8) %j9};
+//   %p8=$GROUND @ATTACH &vss => @PLACE(0,-9) => @ORIENT("R0");
+//   %j10=(0,-8); $JUNCTION @ATTACH %j10;
+//   &vss @WIRE(mode="straight") {#mn1:s %j10 %p8:p};
+//   &vss @WIRE(mode="straight") {#mn1:b (2,-5) (2,-8) %j10};
+//   %p9=$GROUND @ATTACH &vss => @PLACE(20,-9) => @ORIENT("R0");
+//   %j11=(20,-8); $JUNCTION @ATTACH %j11;
+//   &vss @WIRE(mode="straight") {#mn2:s %j11 %p9:p};
+//   &vss @WIRE(mode="straight") {#mn2:b (22,-5) (22,-8) %j11};
+//   %p10=$GROUND @ATTACH &vss => @PLACE(28,-9) => @ORIENT("R0");
+//   %j12=(28,-8); $JUNCTION @ATTACH %j12;
+//   &vss @WIRE(mode="straight") {#mr2:s %j12 %p10:p};
+//   &vss @WIRE(mode="straight") {#mr2:b (30,-5) (30,-8) %j12};
+//   (-10,17) @TEXT("ipw: resettable inverter delay pair (wide inverters 60n, ~11 ps)", size=0.8, textcolor="#334155", bold=true, halign="start");
+//   (-10,-17) @TEXT("s high: y follows a through two plain inverters (no series stack on the timing edge).", size=0.6, textcolor="#334155", bold=false, halign="start");
+//   (-10,-18.4) @TEXT("s low, sb high: mr1 pulls m high and mr2 pulls y low.", size=0.6, textcolor="#334155", bold=false, halign="start");
+//   (38,8) @TEXT("mp1  pch_ulvt  1.6u/60n  nf=1", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (38,6.4) @TEXT("mn1  nch_ulvt  0.8u/60n  nf=1", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (38,4.8) @TEXT("mr1  pch_ulvt  0.8u/30n  nf=1", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (38,3.2) @TEXT("mp2  pch_ulvt  1.6u/60n  nf=1", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (38,1.6) @TEXT("mn2  nch_ulvt  0.8u/60n  nf=1", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (38,0) @TEXT("mr2  nch_ulvt  0.4u/30n  nf=1", size=0.75, textcolor="#334155", bold=false, halign="start");
+// }
+ends ipw
+
+subckt wch2 (a s sb y vdd vss)           // two ipw in a row
+  p1 (a  s sb y1 vdd vss) ipw
+  p2 (y1 s sb y  vdd vss) ipw
+// @RNL {
+//   &vdd @ADD-TO $SUPPLY_NET_SET; &vss @ADD-TO $GROUND_NET_SET;
+//   %wch2 = @DEFINE-SYMBOL(box=[-4, -3, 4, 2]) {
+//     @LINE(linewidth=0.24) {(-3, -2) (3, -2) (3, 2) (-3, 2) (-3, -2)};
+//     (-4, 0) @PIN(terminal=1, direction="left");
+//     @LINE {(-4, 0) (-3, 0)};
+//     (-2.7, 0) @TEXT("in", size=0.5, halign="start", valign="middle");
+//     (-1, -3) @PIN(terminal=2, direction="down");
+//     @LINE {(-1, -3) (-1, -2)};
+//     (-1, -1.65) @TEXT("s", size=0.5, halign="middle", valign="bottom");
+//     (1, -3) @PIN(terminal=3, direction="down");
+//     @LINE {(1, -3) (1, -2)};
+//     (1, -1.65) @TEXT("sb", size=0.5, halign="middle", valign="bottom");
+//     (4, 0) @PIN(terminal=4, direction="right");
+//     @LINE {(4, 0) (3, 0)};
+//     (2.7, 0) @TEXT("out", size=0.5, halign="end", valign="middle");
+//     (0, 0.35) @TEXT("wch2", size=0.8, bold=true, halign="middle", valign="middle");
+//     (0, -0.75) @TEXT("2 pairs", size=0.45, halign="middle", valign="middle");
+//   };
+//   # @SET-SYMBOL %wch2;
+//   {#p1 #p2} @GROUP;
+//   #p1 @PLACE(0,0) => @ORIENT("R0");
+//   #p2 @PLACE(10,0) => @ORIENT("R0");
+//   %p1=$IO_PORT @ATTACH &a => @PLACE(-10,0) => @ORIENT("R0");
+//   %p2=$IO_PORT @ATTACH &s => @PLACE(-10,-4) => @ORIENT("R0");
+//   %p3=$IO_PORT @ATTACH &sb => @PLACE(-10,-6) => @ORIENT("R0");
+//   %p4=$IO_PORT @ATTACH &y => @PLACE(18,0) => @ORIENT("MY");
+//   &a @WIRE(mode="straight") {%p1:p #p1:a};
+//   &y1 @WIRE(mode="straight") {#p1:y #p2:a};
+//   &y @WIRE(mode="straight") {#p2:y %p4:p};
+//   %j1=(-1,-4); $JUNCTION @ATTACH %j1;
+//   &s @WIRE(mode="straight") {%p2:p %j1 (9,-4) #p2:s};
+//   &s @WIRE(mode="straight") {#p1:s %j1};
+//   %j2=(1,-6); $JUNCTION @ATTACH %j2;
+//   &sb @WIRE(mode="straight") {%p3:p %j2 (11,-6) #p2:sb};
+//   &sb @WIRE(mode="straight") {#p1:sb %j2};
+//   (-10,4) @TEXT("wch2: two ipw in a row", size=0.8, textcolor="#334155", bold=true, halign="start");
+// }
+ends wch2
+
+subckt wch4 (a s sb y vdd vss)           // two wch2 in a row
+  p1 (a  s sb y1 vdd vss) wch2
+  p2 (y1 s sb y  vdd vss) wch2
+// @RNL {
+//   &vdd @ADD-TO $SUPPLY_NET_SET; &vss @ADD-TO $GROUND_NET_SET;
+//   %wch4 = @DEFINE-SYMBOL(box=[-4, -3, 4, 2]) {
+//     @LINE(linewidth=0.24) {(-3, -2) (3, -2) (3, 2) (-3, 2) (-3, -2)};
+//     (-4, 0) @PIN(terminal=1, direction="left");
+//     @LINE {(-4, 0) (-3, 0)};
+//     (-2.7, 0) @TEXT("in", size=0.5, halign="start", valign="middle");
+//     (-1, -3) @PIN(terminal=2, direction="down");
+//     @LINE {(-1, -3) (-1, -2)};
+//     (-1, -1.65) @TEXT("s", size=0.5, halign="middle", valign="bottom");
+//     (1, -3) @PIN(terminal=3, direction="down");
+//     @LINE {(1, -3) (1, -2)};
+//     (1, -1.65) @TEXT("sb", size=0.5, halign="middle", valign="bottom");
+//     (4, 0) @PIN(terminal=4, direction="right");
+//     @LINE {(4, 0) (3, 0)};
+//     (2.7, 0) @TEXT("out", size=0.5, halign="end", valign="middle");
+//     (0, 0.35) @TEXT("wch4", size=0.8, bold=true, halign="middle", valign="middle");
+//     (0, -0.75) @TEXT("4 pairs", size=0.45, halign="middle", valign="middle");
+//   };
+//   # @SET-SYMBOL %wch4;
+//   {#p1 #p2} @GROUP;
+//   #p1 @PLACE(0,0) => @ORIENT("R0");
+//   #p2 @PLACE(10,0) => @ORIENT("R0");
+//   %p1=$IO_PORT @ATTACH &a => @PLACE(-10,0) => @ORIENT("R0");
+//   %p2=$IO_PORT @ATTACH &s => @PLACE(-10,-4) => @ORIENT("R0");
+//   %p3=$IO_PORT @ATTACH &sb => @PLACE(-10,-6) => @ORIENT("R0");
+//   %p4=$IO_PORT @ATTACH &y => @PLACE(18,0) => @ORIENT("MY");
+//   &a @WIRE(mode="straight") {%p1:p #p1:a};
+//   &y1 @WIRE(mode="straight") {#p1:y #p2:a};
+//   &y @WIRE(mode="straight") {#p2:y %p4:p};
+//   %j1=(-1,-4); $JUNCTION @ATTACH %j1;
+//   &s @WIRE(mode="straight") {%p2:p %j1 (9,-4) #p2:s};
+//   &s @WIRE(mode="straight") {#p1:s %j1};
+//   %j2=(1,-6); $JUNCTION @ATTACH %j2;
+//   &sb @WIRE(mode="straight") {%p3:p %j2 (11,-6) #p2:sb};
+//   &sb @WIRE(mode="straight") {#p1:sb %j2};
+//   (-10,4) @TEXT("wch4: two wch2 in a row", size=0.8, textcolor="#334155", bold=true, halign="start");
+// }
+ends wch4
+
+subckt wch8 (a s sb y vdd vss)           // two wch4 in a row
+  p1 (a  s sb y1 vdd vss) wch4
+  p2 (y1 s sb y  vdd vss) wch4
+// @RNL {
+//   &vdd @ADD-TO $SUPPLY_NET_SET; &vss @ADD-TO $GROUND_NET_SET;
+//   %wch8 = @DEFINE-SYMBOL(box=[-4, -3, 4, 2]) {
+//     @LINE(linewidth=0.24) {(-3, -2) (3, -2) (3, 2) (-3, 2) (-3, -2)};
+//     (-4, 0) @PIN(terminal=1, direction="left");
+//     @LINE {(-4, 0) (-3, 0)};
+//     (-2.7, 0) @TEXT("in", size=0.5, halign="start", valign="middle");
+//     (-1, -3) @PIN(terminal=2, direction="down");
+//     @LINE {(-1, -3) (-1, -2)};
+//     (-1, -1.65) @TEXT("s", size=0.5, halign="middle", valign="bottom");
+//     (1, -3) @PIN(terminal=3, direction="down");
+//     @LINE {(1, -3) (1, -2)};
+//     (1, -1.65) @TEXT("sb", size=0.5, halign="middle", valign="bottom");
+//     (4, 0) @PIN(terminal=4, direction="right");
+//     @LINE {(4, 0) (3, 0)};
+//     (2.7, 0) @TEXT("out", size=0.5, halign="end", valign="middle");
+//     (0, 0.35) @TEXT("wch8", size=0.8, bold=true, halign="middle", valign="middle");
+//     (0, -0.75) @TEXT("8 pairs", size=0.45, halign="middle", valign="middle");
+//   };
+//   # @SET-SYMBOL %wch8;
+//   {#p1 #p2} @GROUP;
+//   #p1 @PLACE(0,0) => @ORIENT("R0");
+//   #p2 @PLACE(10,0) => @ORIENT("R0");
+//   %p1=$IO_PORT @ATTACH &a => @PLACE(-10,0) => @ORIENT("R0");
+//   %p2=$IO_PORT @ATTACH &s => @PLACE(-10,-4) => @ORIENT("R0");
+//   %p3=$IO_PORT @ATTACH &sb => @PLACE(-10,-6) => @ORIENT("R0");
+//   %p4=$IO_PORT @ATTACH &y => @PLACE(18,0) => @ORIENT("MY");
+//   &a @WIRE(mode="straight") {%p1:p #p1:a};
+//   &y1 @WIRE(mode="straight") {#p1:y #p2:a};
+//   &y @WIRE(mode="straight") {#p2:y %p4:p};
+//   %j1=(-1,-4); $JUNCTION @ATTACH %j1;
+//   &s @WIRE(mode="straight") {%p2:p %j1 (9,-4) #p2:s};
+//   &s @WIRE(mode="straight") {#p1:s %j1};
+//   %j2=(1,-6); $JUNCTION @ATTACH %j2;
+//   &sb @WIRE(mode="straight") {%p3:p %j2 (11,-6) #p2:sb};
+//   &sb @WIRE(mode="straight") {#p1:sb %j2};
+//   (-10,4) @TEXT("wch8: two wch4 in a row", size=0.8, textcolor="#334155", bold=true, halign="start");
+// }
+ends wch8
+
+subckt rch2 (a s sb y vdd vss)
+  p1 (a  s sb y1 vdd vss) rpair
+  p2 (y1 s sb y  vdd vss) rpair
+// @RNL {
+//   &vdd @ADD-TO $SUPPLY_NET_SET; &vss @ADD-TO $GROUND_NET_SET;
+//   %rch2 = @DEFINE-SYMBOL(box=[-4, -3, 4, 2]) {
+//     @LINE(linewidth=0.24) {(-3, -2) (3, -2) (3, 2) (-3, 2) (-3, -2)};
+//     (-4, 0) @PIN(terminal=1, direction="left");
+//     @LINE {(-4, 0) (-3, 0)};
+//     (-2.7, 0) @TEXT("in", size=0.5, halign="start", valign="middle");
+//     (-1, -3) @PIN(terminal=2, direction="down");
+//     @LINE {(-1, -3) (-1, -2)};
+//     (-1, -1.65) @TEXT("s", size=0.5, halign="middle", valign="bottom");
+//     (1, -3) @PIN(terminal=3, direction="down");
+//     @LINE {(1, -3) (1, -2)};
+//     (1, -1.65) @TEXT("sb", size=0.5, halign="middle", valign="bottom");
+//     (4, 0) @PIN(terminal=4, direction="right");
+//     @LINE {(4, 0) (3, 0)};
+//     (2.7, 0) @TEXT("out", size=0.5, halign="end", valign="middle");
+//     (0, 0.35) @TEXT("rch2", size=0.8, bold=true, halign="middle", valign="middle");
+//     (0, -0.75) @TEXT("2 pairs", size=0.45, halign="middle", valign="middle");
+//   };
+//   # @SET-SYMBOL %rch2;
+//   {#p1 #p2} @GROUP;
+//   #p1 @PLACE(0,0) => @ORIENT("R0");
+//   #p2 @PLACE(10,0) => @ORIENT("R0");
+//   %p1=$IO_PORT @ATTACH &a => @PLACE(-10,0) => @ORIENT("R0");
+//   %p2=$IO_PORT @ATTACH &s => @PLACE(-10,-4) => @ORIENT("R0");
+//   %p3=$IO_PORT @ATTACH &sb => @PLACE(-10,-6) => @ORIENT("R0");
+//   %p4=$IO_PORT @ATTACH &y => @PLACE(18,0) => @ORIENT("MY");
+//   &a @WIRE(mode="straight") {%p1:p #p1:a};
+//   &y1 @WIRE(mode="straight") {#p1:y #p2:a};
+//   &y @WIRE(mode="straight") {#p2:y %p4:p};
+//   %j1=(-1,-4); $JUNCTION @ATTACH %j1;
+//   &s @WIRE(mode="straight") {%p2:p %j1 (9,-4) #p2:s};
+//   &s @WIRE(mode="straight") {#p1:s %j1};
+//   %j2=(1,-6); $JUNCTION @ATTACH %j2;
+//   &sb @WIRE(mode="straight") {%p3:p %j2 (11,-6) #p2:sb};
+//   &sb @WIRE(mode="straight") {#p1:sb %j2};
+//   (-10,4) @TEXT("rch2: two rpair in a row", size=0.8, textcolor="#334155", bold=true, halign="start");
+// }
+ends rch2
+
+subckt rch4 (a s sb y vdd vss)
+  p1 (a  s sb y1 vdd vss) rch2
+  p2 (y1 s sb y  vdd vss) rch2
+// @RNL {
+//   &vdd @ADD-TO $SUPPLY_NET_SET; &vss @ADD-TO $GROUND_NET_SET;
+//   %rch4 = @DEFINE-SYMBOL(box=[-4, -3, 4, 2]) {
+//     @LINE(linewidth=0.24) {(-3, -2) (3, -2) (3, 2) (-3, 2) (-3, -2)};
+//     (-4, 0) @PIN(terminal=1, direction="left");
+//     @LINE {(-4, 0) (-3, 0)};
+//     (-2.7, 0) @TEXT("in", size=0.5, halign="start", valign="middle");
+//     (-1, -3) @PIN(terminal=2, direction="down");
+//     @LINE {(-1, -3) (-1, -2)};
+//     (-1, -1.65) @TEXT("s", size=0.5, halign="middle", valign="bottom");
+//     (1, -3) @PIN(terminal=3, direction="down");
+//     @LINE {(1, -3) (1, -2)};
+//     (1, -1.65) @TEXT("sb", size=0.5, halign="middle", valign="bottom");
+//     (4, 0) @PIN(terminal=4, direction="right");
+//     @LINE {(4, 0) (3, 0)};
+//     (2.7, 0) @TEXT("out", size=0.5, halign="end", valign="middle");
+//     (0, 0.35) @TEXT("rch4", size=0.8, bold=true, halign="middle", valign="middle");
+//     (0, -0.75) @TEXT("4 pairs", size=0.45, halign="middle", valign="middle");
+//   };
+//   # @SET-SYMBOL %rch4;
+//   {#p1 #p2} @GROUP;
+//   #p1 @PLACE(0,0) => @ORIENT("R0");
+//   #p2 @PLACE(10,0) => @ORIENT("R0");
+//   %p1=$IO_PORT @ATTACH &a => @PLACE(-10,0) => @ORIENT("R0");
+//   %p2=$IO_PORT @ATTACH &s => @PLACE(-10,-4) => @ORIENT("R0");
+//   %p3=$IO_PORT @ATTACH &sb => @PLACE(-10,-6) => @ORIENT("R0");
+//   %p4=$IO_PORT @ATTACH &y => @PLACE(18,0) => @ORIENT("MY");
+//   &a @WIRE(mode="straight") {%p1:p #p1:a};
+//   &y1 @WIRE(mode="straight") {#p1:y #p2:a};
+//   &y @WIRE(mode="straight") {#p2:y %p4:p};
+//   %j1=(-1,-4); $JUNCTION @ATTACH %j1;
+//   &s @WIRE(mode="straight") {%p2:p %j1 (9,-4) #p2:s};
+//   &s @WIRE(mode="straight") {#p1:s %j1};
+//   %j2=(1,-6); $JUNCTION @ATTACH %j2;
+//   &sb @WIRE(mode="straight") {%p3:p %j2 (11,-6) #p2:sb};
+//   &sb @WIRE(mode="straight") {#p1:sb %j2};
+//   (-10,4) @TEXT("rch4: two rch2 in a row", size=0.8, textcolor="#334155", bold=true, halign="start");
+// }
+ends rch4
+
+// Negative pulse on a rising edge of a, one gate after the edge, about four pairs wide.
+subckt pulsen (a pn vdd vss)
+  ib (a ab vdd vss) inv
+  ch (a a ab y vdd vss) rch4
+  iy (y yb vdd vss) inv
+  g  (a yb pn vdd vss) nand2         // pn = NOT(a . NOT y)
+// @RNL {
+//   &vdd @ADD-TO $SUPPLY_NET_SET; &vss @ADD-TO $GROUND_NET_SET;
+//   %pulsen = @DEFINE-SYMBOL(box=[-4, -2, 4, 2]) {
+//     @LINE(linewidth=0.24) {(-3, -2) (3, -2) (3, 2) (-3, 2) (-3, -2)};
+//     (-4, 0) @PIN(terminal=1, direction="left");
+//     @LINE {(-4, 0) (-3, 0)};
+//     (-2.7, 0) @TEXT("a", size=0.5, halign="start", valign="middle");
+//     (4, 0) @PIN(terminal=2, direction="right");
+//     @LINE {(4, 0) (3, 0)};
+//     (2.7, 0) @TEXT("pn", size=0.5, halign="end", valign="middle");
+//     (0, 0.35) @TEXT("pulse", size=0.8, bold=true, halign="middle", valign="middle");
+//     (0, -0.75) @TEXT("low, on a rising", size=0.45, halign="middle", valign="middle");
+//   };
+//   # @SET-SYMBOL %pulsen;
+//   #ch @PLACE(6,0) => @ORIENT("R0");
+//   #ib @PLACE(-3,-9) => @ORIENT("R0");
+//   #iy @PLACE(15,0) => @ORIENT("R0");
+//   #g @PLACE(26,1) => @ORIENT("R0");
+//   %p1=$IO_PORT @ATTACH &a => @PLACE(-14,0) => @ORIENT("R0");
+//   %p2=$IO_PORT @ATTACH &pn => @PLACE(33,1) => @ORIENT("MY");
+//   %j1=(-8,0); $JUNCTION @ATTACH %j1;
+//   %j2=(-8,-5); $JUNCTION @ATTACH %j2;
+//   %j3=(7,-9); $JUNCTION @ATTACH %j3;
+//   &a @WIRE(mode="straight") {%p1:p %j1 #ch:a};
+//   &a @WIRE(mode="straight") {%j1 %j2 (5,-5) #ch:s};
+//   &a @WIRE(mode="straight") {%j2 (-8,-9) #ib:a};
+//   &a @WIRE(mode="straight") {%j1 (-8,5) (21,5) (21,2) #g:a};
+//   &ab @WIRE(mode="straight") {#ib:y %j3 #ch:sb};
+//   &y @WIRE(mode="straight") {#ch:y #iy:a};
+//   &yb @WIRE(mode="straight") {#iy:y #g:b};
+//   &pn @WIRE(mode="straight") {#g:y %p2:p};
+//   (-14,9) @TEXT("pulsen: pn = NOT(a AND NOT(a delayed by four pairs)), one gate after the edge", size=0.8, textcolor="#334155", bold=true, halign="start");
+// }
+ends pulsen
+
+// Positive pulse on a rising edge of a, four pairs wide.
+subckt pulse (a p vdd vss)
+  ib (a ab vdd vss) inv
+  ch (a a ab y vdd vss) rch4
+  g  (ab y p vdd vss) nor2           // p = a . NOT y
+// @RNL {
+//   &vdd @ADD-TO $SUPPLY_NET_SET; &vss @ADD-TO $GROUND_NET_SET;
+//   %pulse = @DEFINE-SYMBOL(box=[-4, -2, 4, 2]) {
+//     @LINE(linewidth=0.24) {(-3, -2) (3, -2) (3, 2) (-3, 2) (-3, -2)};
+//     (-4, 0) @PIN(terminal=1, direction="left");
+//     @LINE {(-4, 0) (-3, 0)};
+//     (-2.7, 0) @TEXT("a", size=0.5, halign="start", valign="middle");
+//     (4, 0) @PIN(terminal=2, direction="right");
+//     @LINE {(4, 0) (3, 0)};
+//     (2.7, 0) @TEXT("p", size=0.5, halign="end", valign="middle");
+//     (0, 0.35) @TEXT("pulse", size=0.8, bold=true, halign="middle", valign="middle");
+//     (0, -0.75) @TEXT("on a rising", size=0.45, halign="middle", valign="middle");
+//   };
+//   # @SET-SYMBOL %pulse;
+//   #ch @PLACE(6,0) => @ORIENT("R0");
+//   #ib @PLACE(-3,-9) => @ORIENT("R0");
+//   #g @PLACE(20,-4) => @ORIENT("R0");
+//   %p1=$IO_PORT @ATTACH &a => @PLACE(-14,0) => @ORIENT("R0");
+//   %p2=$IO_PORT @ATTACH &p => @PLACE(27,-4) => @ORIENT("MY");
+//   %j1=(-8,0); $JUNCTION @ATTACH %j1;
+//   %j2=(-8,-5); $JUNCTION @ATTACH %j2;
+//   %j3=(7,-9); $JUNCTION @ATTACH %j3;
+//   &a @WIRE(mode="straight") {%p1:p %j1 #ch:a};
+//   &a @WIRE(mode="straight") {%j1 %j2 (5,-5) #ch:s};
+//   &a @WIRE(mode="straight") {%j2 (-8,-9) #ib:a};
+//   &ab @WIRE(mode="straight") {#ib:y %j3 #ch:sb};
+//   &ab @WIRE(mode="straight") {%j3 (13,-9) (13,-3) #g:a};
+//   &y @WIRE(mode="straight") {#ch:y (15,0) (15,-5) #g:b};
+//   &p @WIRE(mode="straight") {#g:y %p2:p};
+//   (-14,5) @TEXT("pulse: p = a AND NOT(a delayed by four pairs)", size=0.8, textcolor="#334155", bold=true, halign="start");
+// }
+ends pulse
+
+// ------------------------------------------------------------------ one SAR step
+// Set only while enabled and not yet decided, so the set closes itself once the
+// latch has flipped and a later decision cannot reach this step again.
+subckt step (en gu gd clrb blc up dn upb dec eno vdd vss)
+  gdc (upb qbd dec vdd vss) nand2      // dec = up + dn
+  idc (dec decb vdd vss) inv
+  gsu (en gu decb sun vdd vss) nand3s
+  lu1 (sun upb up vdd vss) nand2up      // up is the latch node, driving 15 fF
+  lu2 (clrb up upb vdd vss) nand2       // upb = NOT up, read by the output register
+  gsd (en gd decb sdn vdd vss) nand3s
+  ld1 (sdn qbd dn vdd vss) nand2up
+  ld2 (clrb dn qbd vdd vss) nand2
+  gse (dec blc sen vdd vss) nand2      // enable the next step once reset with CLKC low
+  le1 (sen enb eno vdd vss) nand2
+  le2 (clrb eno enb vdd vss) nand2
+// @RNL {
+//   &vdd @ADD-TO $SUPPLY_NET_SET; &vss @ADD-TO $GROUND_NET_SET;
+//   %step = @DEFINE-SYMBOL(box=[-5, -7, 5, 7]) {
+//     @LINE(linewidth=0.24) {(-4, -6) (4, -6) (4, 6) (-4, 6) (-4, -6)};
+//     (0, 7) @PIN(terminal=1, direction="up");
+//     @LINE {(0, 7) (0, 6)};
+//     (0, 5.65) @TEXT("en", size=0.5, halign="middle", valign="top");
+//     (-5, 3) @PIN(terminal=2, direction="left");
+//     @LINE {(-5, 3) (-4, 3)};
+//     (-3.7, 3) @TEXT("gu", size=0.5, halign="start", valign="middle");
+//     (-5, 1) @PIN(terminal=3, direction="left");
+//     @LINE {(-5, 1) (-4, 1)};
+//     (-3.7, 1) @TEXT("gd", size=0.5, halign="start", valign="middle");
+//     (-5, -1) @PIN(terminal=4, direction="left");
+//     @LINE {(-5, -1) (-4, -1)};
+//     (-3.7, -1) @TEXT("clrb", size=0.5, halign="start", valign="middle");
+//     (-5, -3) @PIN(terminal=5, direction="left");
+//     @LINE {(-5, -3) (-4, -3)};
+//     (-3.7, -3) @TEXT("blc", size=0.5, halign="start", valign="middle");
+//     (5, 3) @PIN(terminal=6, direction="right");
+//     @LINE {(5, 3) (4, 3)};
+//     (3.7, 3) @TEXT("up", size=0.5, halign="end", valign="middle");
+//     (5, 1) @PIN(terminal=7, direction="right");
+//     @LINE {(5, 1) (4, 1)};
+//     (3.7, 1) @TEXT("dn", size=0.5, halign="end", valign="middle");
+//     (5, -1) @PIN(terminal=8, direction="right");
+//     @LINE {(5, -1) (4, -1)};
+//     (3.7, -1) @TEXT("upb", size=0.5, halign="end", valign="middle");
+//     (5, -3) @PIN(terminal=9, direction="right");
+//     @LINE {(5, -3) (4, -3)};
+//     (3.7, -3) @TEXT("dec", size=0.5, halign="end", valign="middle");
+//     (0, -7) @PIN(terminal=10, direction="down");
+//     @LINE {(0, -7) (0, -6)};
+//     (0, -5.65) @TEXT("eno", size=0.5, halign="middle", valign="bottom");
+//     (0, 0) @TEXT("STEP", size=0.8, bold=true, halign="middle", valign="middle");
+//   };
+//   # @SET-SYMBOL %step;
+//   {#gsu #lu1 #lu2} @GROUP; {#gsd #ld1 #ld2} @GROUP; {#gdc #idc #gse #le1 #le2} @GROUP;
+//   #gsu @PLACE(0,12) => @ORIENT("R0");
+//   #lu1 @PLACE(12,12) => @ORIENT("R0");
+//   #lu2 @PLACE(12,5) => @ORIENT("R0");
+//   #gsd @PLACE(0,-4) => @ORIENT("R0");
+//   #ld1 @PLACE(12,-4) => @ORIENT("R0");
+//   #ld2 @PLACE(12,-11) => @ORIENT("R0");
+//   #gdc @PLACE(28,0) => @ORIENT("R0");
+//   #idc @PLACE(38,-8) => @ORIENT("R0");
+//   #gse @PLACE(40,-20) => @ORIENT("R0");
+//   #le1 @PLACE(52,-20) => @ORIENT("R0");
+//   #le2 @PLACE(52,-27) => @ORIENT("R0");
+//   %p1=$IO_PORT @ATTACH &en => @PLACE(-14,15) => @ORIENT("R0");
+//   %p2=$IO_PORT @ATTACH &gu => @PLACE(-14,12) => @ORIENT("R0");
+//   %p3=$IO_PORT @ATTACH &gd => @PLACE(-14,-4) => @ORIENT("R0");
+//   %p4=$IO_PORT @ATTACH &clrb => @PLACE(-14,-24) => @ORIENT("R0");
+//   %p5=$IO_PORT @ATTACH &blc => @PLACE(-14,-21) => @ORIENT("R0");
+//   %p6=$IO_PORT @ATTACH &up => @PLACE(64,12) => @ORIENT("MY");
+//   %p7=$IO_PORT @ATTACH &upb => @PLACE(64,5) => @ORIENT("MY");
+//   %p8=$IO_PORT @ATTACH &dn => @PLACE(64,-4) => @ORIENT("MY");
+//   %p9=$IO_PORT @ATTACH &dec => @PLACE(64,0) => @ORIENT("MY");
+//   %p10=$IO_PORT @ATTACH &eno => @PLACE(64,-20) => @ORIENT("MY");
+//   %j1=(-7,13); $JUNCTION @ATTACH %j1;
+//   &en @WIRE(mode="straight") {%p1:p (-7,15) %j1 #gsu:a};
+//   &en @WIRE(mode="straight") {%j1 (-7,-3) #gsd:a};
+//   &gu @WIRE(mode="straight") {%p2:p #gsu:b};
+//   &gd @WIRE(mode="straight") {%p3:p #gsd:b};
+//   &sun @WIRE(mode="straight") {#gsu:y (6,12) (6,13) #lu1:a};
+//   %j2=(18,12); $JUNCTION @ATTACH %j2;
+//   &up @WIRE(mode="straight") {#lu1:y %j2 %p6:p};
+//   &up @WIRE(mode="straight") {%j2 (18,9) (7,9) (7,4) #lu2:b};
+//   %j3=(20,5); $JUNCTION @ATTACH %j3;
+//   %j4=(23,5); $JUNCTION @ATTACH %j4;
+//   &upb @WIRE(mode="straight") {#lu2:y %j3 %j4 %p7:p};
+//   &upb @WIRE(mode="straight") {%j3 (20,7) (6,7) (6,11) #lu1:b};
+//   &upb @WIRE(mode="straight") {%j4 (23,1) #gdc:a};
+//   &sdn @WIRE(mode="straight") {#gsd:y (6,-4) (6,-3) #ld1:a};
+//   %j5=(18,-4); $JUNCTION @ATTACH %j5;
+//   &dn @WIRE(mode="straight") {#ld1:y %j5 %p8:p};
+//   &dn @WIRE(mode="straight") {%j5 (18,-7) (7,-7) (7,-12) #ld2:b};
+//   %j6=(20,-11); $JUNCTION @ATTACH %j6;
+//   &qbd @WIRE(mode="straight") {#ld2:y %j6 (23,-11) (23,-1) #gdc:b};
+//   &qbd @WIRE(mode="straight") {%j6 (20,-9) (6,-9) (6,-5) #ld1:b};
+//   %j7=(33,0); $JUNCTION @ATTACH %j7;
+//   %j8=(33,-8); $JUNCTION @ATTACH %j8;
+//   &dec @WIRE(mode="straight") {#gdc:y %j7 %p9:p};
+//   &dec @WIRE(mode="straight") {%j7 %j8 (33,-19) #gse:a};
+//   &dec @WIRE(mode="straight") {%j8 #idc:a};
+//   %j9=(-5,-5); $JUNCTION @ATTACH %j9;
+//   &decb @WIRE(mode="straight") {#idc:y (42,-8) (42,-14) (-5,-14) %j9 (-5,11) #gsu:c};
+//   &decb @WIRE(mode="straight") {%j9 #gsd:c};
+//   &blc @WIRE(mode="straight") {%p5:p #gse:b};
+//   &sen @WIRE(mode="straight") {#gse:y (46,-20) (46,-19) #le1:a};
+//   %j10=(58,-20); $JUNCTION @ATTACH %j10;
+//   &eno @WIRE(mode="straight") {#le1:y %j10 %p10:p};
+//   &eno @WIRE(mode="straight") {%j10 (58,-23) (47,-23) (47,-28) #le2:b};
+//   &enb @WIRE(mode="straight") {#le2:y (60,-27) (60,-22) (48,-22) (48,-21) #le1:b};
+//   %j11=(-9,-24); $JUNCTION @ATTACH %j11;
+//   %j12=(-9,-10); $JUNCTION @ATTACH %j12;
+//   &clrb @WIRE(mode="straight") {%p4:p %j11 %j12 (-9,6) #lu2:a};
+//   &clrb @WIRE(mode="straight") {%j12 #ld2:a};
+//   &clrb @WIRE(mode="straight") {%j11 (45,-24) (45,-26) #le2:a};
+//   (-14,20) @TEXT("step: one SAR decision. The UP/DN latch is also the token; the next step is enabled", size=0.8, textcolor="#334155", bold=true, halign="start");
+//   (-14,18.6) @TEXT("only after this one is decided, CLKC is low and both strobes are closed (blc).", size=0.8, textcolor="#334155", bold=true, halign="start");
+//   (10,16) @TEXT("UP latch", size=0.7, textcolor="#334155", bold=false, halign="start");
+//   (10,0) @TEXT("DN latch", size=0.7, textcolor="#334155", bold=false, halign="start");
+//   (46,-15) @TEXT("next-step enable latch", size=0.7, textcolor="#334155", bold=false, halign="start");
+// }
+ends step
+
+// Weak keeper inverter of the output register latch.
+subckt kinv (a y vdd vss)
+  mp (y a vdd vdd) pch_mac w=0.1u l=150n nf=1
+  mn (y a vss vss) nch_mac w=0.1u l=150n nf=1
+// @RNL {
+//   &vdd @ADD-TO $SUPPLY_NET_SET; &vss @ADD-TO $GROUND_NET_SET;
+//   # @SET-SYMBOL $INVERTER;
+//   {#mp #mn} @GROUP; {#mp #mn} @TEXT("", key="model");
+//   #mp @PLACE(0,5) => @ORIENT("R0");
+//   #mn @PLACE(0,-5) => @ORIENT("R0");
+//   %p1=$IO_PORT @ATTACH &a => @PLACE(-10,0) => @ORIENT("R0");
+//   %p2=$IO_PORT @ATTACH &y => @PLACE(8,0) => @ORIENT("MY");
+//   %p3=$SUPPLY @ATTACH &vdd => @PLACE(0,12) => @ORIENT("R0");
+//   %p4=$GROUND @ATTACH &vss => @PLACE(0,-12) => @ORIENT("R0");
+//   %j1=(-6,0); $JUNCTION @ATTACH %j1;
+//   %j2=(0,0); $JUNCTION @ATTACH %j2;
+//   %j3=(0,10); $JUNCTION @ATTACH %j3;
+//   %j4=(0,-10); $JUNCTION @ATTACH %j4;
+//   &a @WIRE(mode="straight") {%p1:p %j1};
+//   &a @WIRE(mode="straight") {#mp:g (-6,5) %j1 (-6,-5) #mn:g};
+//   &y @WIRE(mode="straight") {#mp:d %j2 #mn:d};
+//   &y @WIRE(mode="straight") {%j2 %p2:p};
+//   &vdd @WIRE(mode="straight") {#mp:s %j3 %p3:p};
+//   &vdd @WIRE(mode="straight") {#mp:b (3,5) (3,10) %j3};
+//   &vss @WIRE(mode="straight") {#mn:s %j4 %p4:p};
+//   &vss @WIRE(mode="straight") {#mn:b (3,-5) (3,-10) %j4};
+//   (-10,16) @TEXT("kinv", size=1.0, textcolor="#334155", bold=true, halign="start");
+//   (5,6) @TEXT("mp  pch  0.1u/150n  nf=1", size=0.75, textcolor="#334155", bold=false, halign="start");
+//   (5,-4.5) @TEXT("mn  nch  0.1u/150n  nf=1", size=0.75, textcolor="#334155", bold=false, halign="start");
+// }
+ends kinv
+
+// ------------------------------------------------------ output register bit (50 fF)
+// db is the complement of the bit (the step latch's upb), so the stored node int is
+// NOT bit and the output is a single inverting driver.
+subckt regbit (db ld ldb q vdd vss)
+  tn (int ld  db vss) nch_lvt_mac w=0.4u l=30n nf=2
+  tp (int ldb db vdd) pch_lvt_mac w=0.8u l=30n nf=4
+  k1 (int intb vdd vss) inv
+  kf (intb int vdd vss) kinv                        // weak keeper, int = NOT intb
+  ob (int q vdd vss) invx4                           // q = NOT int = bit
+// @RNL {
+//   &vdd @ADD-TO $SUPPLY_NET_SET; &vss @ADD-TO $GROUND_NET_SET;
+//   %regbit = @DEFINE-SYMBOL(box=[-4, -2, 4, 2]) {
+//     @LINE(linewidth=0.24) {(-3, -2) (3, -2) (3, 2) (-3, 2) (-3, -2)};
+//     (-4, 1) @PIN(terminal=1, direction="left");
+//     @LINE {(-4, 1) (-3, 1)};
+//     (-2.7, 1) @TEXT("db", size=0.5, halign="start", valign="middle");
+//     (-4, 0) @PIN(terminal=2, direction="left");
+//     @LINE {(-4, 0) (-3, 0)};
+//     (-2.7, 0) @TEXT("ld", size=0.5, halign="start", valign="middle");
+//     (-4, -1) @PIN(terminal=3, direction="left");
+//     @LINE {(-4, -1) (-3, -1)};
+//     (-2.7, -1) @TEXT("ldb", size=0.5, halign="start", valign="middle");
+//     (4, 0) @PIN(terminal=4, direction="right");
+//     @LINE {(4, 0) (3, 0)};
+//     (2.7, 0) @TEXT("q", size=0.5, halign="end", valign="middle");
+//     (0, 0) @TEXT("REG", size=0.8, bold=true, halign="middle", valign="middle");
+//   };
+//   # @SET-SYMBOL %regbit;
+//   {#tn #tp} @GROUP; {#tn #tp} @TEXT("", key="model"); {#k1 #kf} @GROUP;
+//   #tn @PLACE(0,0) => @ORIENT("R0");
+//   #tp @PLACE(8,0) => @ORIENT("MX");
+//   #k1 @PLACE(18,4) => @ORIENT("R0");
+//   #kf @PLACE(18,-2) => @ORIENT("MY");
+//   #ob @PLACE(30,-7) => @ORIENT("R0");
+//   %p1=$IO_PORT @ATTACH &db => @PLACE(-12,-4) => @ORIENT("R0");
+//   %p2=$IO_PORT @ATTACH &ld => @PLACE(-12,0) => @ORIENT("R0");
+//   %p3=$IO_PORT @ATTACH &ldb => @PLACE(-12,-8) => @ORIENT("R0");
+//   %p4=$IO_PORT @ATTACH &q => @PLACE(36,-7) => @ORIENT("MY");
+//   %j1=(8,4); $JUNCTION @ATTACH %j1;
+//   %j2=(13,4); $JUNCTION @ATTACH %j2;
+//   %j3=(13,-2); $JUNCTION @ATTACH %j3;
+//   &int @WIRE(mode="straight") {#tn:d (0,4) %j1 %j2 #k1:a};
+//   &int @WIRE(mode="straight") {#tp:d %j1};
+//   &int @WIRE(mode="straight") {#kf:y %j3 %j2};
+//   &int @WIRE(mode="straight") {%j3 (13,-7) #ob:a};
+//   &intb @WIRE(mode="straight") {#k1:y (23,4) (23,-2) #kf:a};
+//   &q @WIRE(mode="straight") {#ob:y %p4:p};
+//   %j4=(0,-4); $JUNCTION @ATTACH %j4;
+//   &db @WIRE(mode="straight") {%p1:p %j4 (8,-4) #tp:s};
+//   &db @WIRE(mode="straight") {#tn:s %j4};
+//   &ld @WIRE(mode="straight") {%p2:p #tn:g};
+//   &ldb @WIRE(mode="straight") {%p3:p (5,-8) (5,0) #tp:g};
+//   %p5=$GROUND @ATTACH &vss => @PLACE(2,-10) => @ORIENT("R0");
+//   &vss @WIRE(mode="straight") {#tn:b (2,0) %p5:p};
+//   %p6=$SUPPLY @ATTACH &vdd => @PLACE(10,8) => @ORIENT("R0");
+//   &vdd @WIRE(mode="straight") {#tp:b (10,0) %p6:p};
+//   (-12,14) @TEXT("regbit: transparent latch, loaded while ld is high; stores NOT bit, q = bit", size=0.8, textcolor="#334155", bold=true, halign="start");
+//   (23,-2) @TEXT("kf: weak keeper (kinv)", size=0.6, textcolor="#334155", bold=false, halign="start");
+// }
+ends regbit
+
+// ==================================================================== top level
+subckt adc_sarlogic (CONV OUTP OUTN CLKC UP12 UP11 UP10 UP9 UP8 UP7 UP6 UP5 UP4 UP3 UP2 \
+        UP1 UP0 DN12 DN11 DN10 DN9 DN8 DN7 DN6 DN5 DN4 DN3 DN2 DN1 DN0 D13 D12 D11 D10 D9 \
+        D8 D7 D6 D5 D4 D3 D2 D1 D0 RDY DVDD VSS)
+
+  // ---- conversion window; the steps are cleared after CONV falls (late, after the
+  //      reload pulse) and released quickly when CONV rises
+  i_cb  (CONV convb DVDD VSS) invx4             // the only gate on the CONV pin
+  i_cv  (convb cv DVDD VSS) invx4               // buffered CONV for the inside
+  c_cl1 (convb convb cv cl_a DVDD VSS) rch4
+  c_cl2 (cl_a  convb cv clrn DVDD VSS) rch2     // rises 6 pairs after CONV falls
+  b_cl  (clrn clrb DVDD VSS) invx4
+
+  // ---- comparator outputs
+  g_bl  (OUTP OUTN bothlow DVDD VSS) nor2b
+  // CLKC itself only drives the comparator, the latch feedback and i_c1; everything
+  // else hangs on c2, a buffered copy two inverters later.
+  i_c1  (CLKC c1 DVDD VSS) inv
+  i_c2  (c1 c2 DVDD VSS) invx4
+  i_c3  (c2 clkcb_d DVDD VSS) invx4            // NOT CLKC, late: the strobes stay open until
+                                               // the step latch has flipped and holds itself
+  // The next step may be enabled only once CLKC is low and both strobes are closed,
+  // so the decision just taken cannot be written into the next step as well. blc
+  // stays high until the next CLKC rise, and that rise waits for blc (blcn, the
+  // active-high gate output, goes straight into the CLKC set gates), so the enable
+  // latch always gets the whole set time, whatever the corner.
+  g_blc (gu gd c2 blcn DVDD VSS) nor3x2
+  i_bl1 (blcn blcb DVDD VSS) inv
+  i_bl2 (blcb blc DVDD VSS) invx4
+
+  // ---- timeout: CLKC high for longer than t_timeout forces a decision of 1
+  i_tb (c2 tsb DVDD VSS) invx4                  // own copies of CLKC for the chain
+  i_ta (tsb ts DVDD VSS) invx4
+  c_t1 (ts  ts tsb t_a DVDD VSS) wch8
+  c_t2 (t_a ts tsb t_b DVDD VSS) wch8
+  c_t3 (t_b ts tsb t_c DVDD VSS) wch2
+  c_t4 (t_c ts tsb tod DVDD VSS) ipw             // 19 pairs
+  g_to (c2 tod TOB DVDD VSS) nand2
+  i_to (TOB TO DVDD VSS) inv
+
+  // ---- decision strobes: gu = (OUTP + TO) . CLKC, gd = OUTN . NOT TO . CLKC
+  g_up (OUTP TO upvn DVDD VSS) nor2s
+  g_gu (upvn clkcb_d gu DVDD VSS) nor2x8
+  g_dn (OUTN TOB gdn DVDD VSS) nand2s
+  g_gd (gdn clkcb_d gd DVDD VSS) nor2x8
+
+  // ---- the fourteen steps; decision k drives index j = 13 - k
+  s1 (cv gu gd clrb blc UP12 DN12 UP12b dec1 en2 DVDD VSS) step
+  s2 (en2 gu gd clrb blc UP11 DN11 UP11b dec2 en3 DVDD VSS) step
+  s3 (en3 gu gd clrb blc UP10 DN10 UP10b dec3 en4 DVDD VSS) step
+  s4 (en4 gu gd clrb blc UP9 DN9 UP9b dec4 en5 DVDD VSS) step
+  s5 (en5 gu gd clrb blc UP8 DN8 UP8b dec5 en6 DVDD VSS) step
+  s6 (en6 gu gd clrb blc UP7 DN7 UP7b dec6 en7 DVDD VSS) step
+  s7 (en7 gu gd clrb blc UP6 DN6 UP6b dec7 en8 DVDD VSS) step
+  s8 (en8 gu gd clrb blc UP5 DN5 UP5b dec8 en9 DVDD VSS) step
+  s9 (en9 gu gd clrb blc UP4 DN4 UP4b dec9 en10 DVDD VSS) step
+  s10 (en10 gu gd clrb blc UP3 DN3 UP3b dec10 en11 DVDD VSS) step
+  s11 (en11 gu gd clrb blc UP2 DN2 UP2b dec11 en12 DVDD VSS) step
+  s12 (en12 gu gd clrb blc UP1 DN1 UP1b dec12 en13 DVDD VSS) step
+  s13 (en13 gu gd clrb blc UP0 DN0 UP0b dec13 en14 DVDD VSS) step
+  s14 (en14 gu gd clrb blc b14u b14d b14ub dec14 en15 DVDD VSS) step   // no DAC step, EOC
+
+  // ---- DAC-wait timers: one chain started by CLKC falling, tapped. After decisions
+  //      1 and 2 there is no timer: the next CLKC follows the comparator reset (the
+  //      handshake floor), and the extra waits of 3..6 are timed against that floor.
+  i_tm  (c2 tms DVDD VSS) invx4                  // tms high while CLKC is low
+  i_tn  (tms tmsb DVDD VSS) invx4
+  w1  (tms  tms tmsb wx1   DVDD VSS) ipf
+  w1b (wx1  tms tmsb w_3   DVDD VSS) ipf         // fast + 10
+  w2  (w_3  tms tmsb wx2   DVDD VSS) ipm
+  w3  (wx2  tms tmsb w_456 DVDD VSS) ipf         // fast + 30
+  w4  (w_456 tms tmsb wx4  DVDD VSS) ipm
+  w5  (wx4  tms tmsb w_s   DVDD VSS) ipl         // slow
+  w6  (w_s  tms tmsb wx6   DVDD VSS) ipr
+  w7  (wx6  tms tmsb w_9   DVDD VSS) ipr         // slow + 25
+
+  // ---- which step was decided last (one-hot, stable through the wait)
+  i_d3  (dec3 dec3b DVDD VSS) inv
+  i_d4  (dec4 dec4b DVDD VSS) inv
+  i_d7  (dec7 dec7b DVDD VSS) inv
+  i_d9  (dec9 dec9b DVDD VSS) inv
+  g_s3   (dec3b dec4  sel3   DVDD VSS) nor2      // 3 only
+  g_s456 (dec4b dec7  sel456 DVDD VSS) nor2      // 4, 5, 6
+  g_s9   (dec9b dec10 sel9   DVDD VSS) nor2      // 9 only
+  g_ss   (dec7b sel9  sels   DVDD VSS) nor2      // 7, 8, 10 .. 13
+  i_3a  (w_3   w_3n DVDD VSS) inv                 // two plain inverters: the fine step
+  i_3b  (w_3n  w_3d DVDD VSS) inv                 // for decision 3 alone
+  n_3   (w_3d  sel3   wn_3   DVDD VSS) nand2
+  n_456 (w_456 sel456 wn_456 DVDD VSS) nand2
+  n_s   (w_s   sels   wn_s   DVDD VSS) nand2
+  n_9   (w_9   sel9   wn_9   DVDD VSS) nand2x4
+  g_wa  (dec3 wn_3 wn_456 w_a DVDD VSS) nand3    // the wait has elapsed (fast side)
+  g_wb  (wn_s wn_9 w_b DVDD VSS) nand2x4         // the wait has elapsed (slow side)
+
+  // ---- comparator clock. CLKC is the node of a NAND latch, so it rises two gates
+  //      after the comparator has reset and the next step is being enabled, and
+  //      falls three gates after the comparator decides.
+  c_s1 (cv cv convb s_a DVDD VSS) ipf            // t_start
+  c_s2 (s_a cv convb s_b DVDD VSS) ipf
+  c_s3 (s_b cv convb s_c DVDD VSS) ich2
+  c_s4 (s_c cv convb sd DVDD VSS) ipr
+  i_eb (dec14 eocb DVDD VSS) inv
+  g_en (sd cv eocb en_gon DVDD VSS) nand3
+  i_en (en_gon en_go DVDD VSS) inv               // started . CONV . not EOC
+  g_sa (blcn bothlow w_a en_go setn_a DVDD VSS) nand4x
+  g_sb (blcn bothlow w_b en_go setn_b DVDD VSS) nand4x
+  g_r  (OUTP OUTN TO convb rstn DVDD VSS) nor4s   // low on a decision, a timeout or CONV low
+  l_q  (setn_a setn_b ckqb CLKC DVDD VSS) nand3x8
+  l_qb (rstn CLKC ckqb DVDD VSS) nand2x8
+
+  // ---- output register: a pulse at EOC, and one when CONV falls (bits decided so
+  //      far, undecided = 0); both close before the steps are cleared
+  p_e  (dec14 pen DVDD VSS) pulsen
+  p_c  (convb pcn DVDD VSS) pulsen
+  g_ld (pen pcn ld DVDD VSS) nand2x4             // ld = either pulse
+  b_lb (ld ldb DVDD VSS) invx4
+  r13 (UP12b ld ldb D13 DVDD VSS) regbit
+  r12 (UP11b ld ldb D12 DVDD VSS) regbit
+  r11 (UP10b ld ldb D11 DVDD VSS) regbit
+  r10 (UP9b ld ldb D10 DVDD VSS) regbit
+  r9  (UP8b ld ldb D9  DVDD VSS) regbit
+  r8  (UP7b ld ldb D8  DVDD VSS) regbit
+  r7  (UP6b ld ldb D7  DVDD VSS) regbit
+  r6  (UP5b ld ldb D6  DVDD VSS) regbit
+  r5  (UP4b ld ldb D5  DVDD VSS) regbit
+  r4  (UP3b ld ldb D4  DVDD VSS) regbit
+  r3  (UP2b ld ldb D3  DVDD VSS) regbit
+  r2  (UP1b ld ldb D2  DVDD VSS) regbit
+  r1  (UP0b ld ldb D1  DVDD VSS) regbit
+  r0  (b14ub ld ldb D0  DVDD VSS) regbit
+
+  // ---- RDY: set >= 100 ps after D, falls quickly at the next CONV rising
+  p_r  (cv crise DVDD VSS) pulse
+  l_dn (ld crise dn_q dn_qb DVDD VSS) srl
+  c_r1 (dn_q dn_q dn_qb r_a DVDD VSS) ipr        // falls at once with DONE
+  c_r2 (r_a  dn_q dn_qb r_c2 DVDD VSS) ich4
+  c_r3 (r_c2 dn_q dn_qb r_c3 DVDD VSS) ich2
+  c_r4 (r_c3 dn_q dn_qb r_c4 DVDD VSS) ich2
+  c_r5 (r_c4 dn_q dn_qb r_b DVDD VSS) ipr
+  i_r  (r_b  r_c DVDD VSS) inv
+  b_r  (r_c  RDY DVDD VSS) invx4
+
+// @RNL {
+//   &DVDD @ADD-TO $SUPPLY_NET_SET; &VSS @ADD-TO $GROUND_NET_SET;
+//   $LABEL_TERMINAL_SET @TEXT("${net}", key="netname", size=0.55, textcolor="#9a3412");
+//   #s1 @PLACE(100,200) => @ORIENT("R0");
+//   #r13 @PLACE(125,198) => @ORIENT("R0");
+//   %j1=(94,203); $JUNCTION @ATTACH %j1;
+//   &gu @WIRE(mode="straight") {(94,203) #s1:gu};
+//   %j2=(92,201); $JUNCTION @ATTACH %j2;
+//   &gd @WIRE(mode="straight") {(92,201) #s1:gd};
+//   %j3=(90,199); $JUNCTION @ATTACH %j3;
+//   &clrb @WIRE(mode="straight") {(90,199) #s1:clrb};
+//   %j4=(88,197); $JUNCTION @ATTACH %j4;
+//   &blc @WIRE(mode="straight") {(88,197) #s1:blc};
+//   &en2 @WIRE(mode="straight") {#s1:eno #s2:en};
+//   %p1=$IO_PORT @ATTACH &UP12 => @PLACE(150,203) => @ORIENT("MY");
+//   &UP12 @WIRE(mode="straight") {#s1:up %p1:p};
+//   %p2=$IO_PORT @ATTACH &DN12 => @PLACE(150,201) => @ORIENT("MY");
+//   &DN12 @WIRE(mode="straight") {#s1:dn %p2:p};
+//   &UP12b @WIRE(mode="straight") {#s1:upb #r13:db};
+//   %j5=(116,198); $JUNCTION @ATTACH %j5;
+//   %j6=(118,197); $JUNCTION @ATTACH %j6;
+//   &ld @WIRE(mode="straight") {(116,198) #r13:ld};
+//   &ldb @WIRE(mode="straight") {(118,197) #r13:ldb};
+//   %p3=$IO_PORT @ATTACH &D13 => @PLACE(150,198) => @ORIENT("MY");
+//   &D13 @WIRE(mode="straight") {#r13:q %p3:p};
+//   #s2 @PLACE(100,182) => @ORIENT("R0");
+//   #r12 @PLACE(125,180) => @ORIENT("R0");
+//   %j7=(94,185); $JUNCTION @ATTACH %j7;
+//   &gu @WIRE(mode="straight") {(94,185) #s2:gu};
+//   %j8=(92,183); $JUNCTION @ATTACH %j8;
+//   &gd @WIRE(mode="straight") {(92,183) #s2:gd};
+//   %j9=(90,181); $JUNCTION @ATTACH %j9;
+//   &clrb @WIRE(mode="straight") {(90,181) #s2:clrb};
+//   %j10=(88,179); $JUNCTION @ATTACH %j10;
+//   &blc @WIRE(mode="straight") {(88,179) #s2:blc};
+//   &en3 @WIRE(mode="straight") {#s2:eno #s3:en};
+//   %p4=$IO_PORT @ATTACH &UP11 => @PLACE(150,185) => @ORIENT("MY");
+//   &UP11 @WIRE(mode="straight") {#s2:up %p4:p};
+//   %p5=$IO_PORT @ATTACH &DN11 => @PLACE(150,183) => @ORIENT("MY");
+//   &DN11 @WIRE(mode="straight") {#s2:dn %p5:p};
+//   &UP11b @WIRE(mode="straight") {#s2:upb #r12:db};
+//   %j11=(116,180); $JUNCTION @ATTACH %j11;
+//   %j12=(118,179); $JUNCTION @ATTACH %j12;
+//   &ld @WIRE(mode="straight") {(116,180) #r12:ld};
+//   &ldb @WIRE(mode="straight") {(118,179) #r12:ldb};
+//   %p6=$IO_PORT @ATTACH &D12 => @PLACE(150,180) => @ORIENT("MY");
+//   &D12 @WIRE(mode="straight") {#r12:q %p6:p};
+//   #s3 @PLACE(100,164) => @ORIENT("R0");
+//   #r11 @PLACE(125,162) => @ORIENT("R0");
+//   %j13=(94,167); $JUNCTION @ATTACH %j13;
+//   &gu @WIRE(mode="straight") {(94,167) #s3:gu};
+//   %j14=(92,165); $JUNCTION @ATTACH %j14;
+//   &gd @WIRE(mode="straight") {(92,165) #s3:gd};
+//   %j15=(90,163); $JUNCTION @ATTACH %j15;
+//   &clrb @WIRE(mode="straight") {(90,163) #s3:clrb};
+//   %j16=(88,161); $JUNCTION @ATTACH %j16;
+//   &blc @WIRE(mode="straight") {(88,161) #s3:blc};
+//   &en4 @WIRE(mode="straight") {#s3:eno #s4:en};
+//   %p7=$IO_PORT @ATTACH &UP10 => @PLACE(150,167) => @ORIENT("MY");
+//   &UP10 @WIRE(mode="straight") {#s3:up %p7:p};
+//   %p8=$IO_PORT @ATTACH &DN10 => @PLACE(150,165) => @ORIENT("MY");
+//   &DN10 @WIRE(mode="straight") {#s3:dn %p8:p};
+//   &UP10b @WIRE(mode="straight") {#s3:upb #r11:db};
+//   %j17=(116,162); $JUNCTION @ATTACH %j17;
+//   %j18=(118,161); $JUNCTION @ATTACH %j18;
+//   &ld @WIRE(mode="straight") {(116,162) #r11:ld};
+//   &ldb @WIRE(mode="straight") {(118,161) #r11:ldb};
+//   %p9=$IO_PORT @ATTACH &D11 => @PLACE(150,162) => @ORIENT("MY");
+//   &D11 @WIRE(mode="straight") {#r11:q %p9:p};
+//   #s4 @PLACE(100,146) => @ORIENT("R0");
+//   #r10 @PLACE(125,144) => @ORIENT("R0");
+//   %j19=(94,149); $JUNCTION @ATTACH %j19;
+//   &gu @WIRE(mode="straight") {(94,149) #s4:gu};
+//   %j20=(92,147); $JUNCTION @ATTACH %j20;
+//   &gd @WIRE(mode="straight") {(92,147) #s4:gd};
+//   %j21=(90,145); $JUNCTION @ATTACH %j21;
+//   &clrb @WIRE(mode="straight") {(90,145) #s4:clrb};
+//   %j22=(88,143); $JUNCTION @ATTACH %j22;
+//   &blc @WIRE(mode="straight") {(88,143) #s4:blc};
+//   &en5 @WIRE(mode="straight") {#s4:eno #s5:en};
+//   %p10=$IO_PORT @ATTACH &UP9 => @PLACE(150,149) => @ORIENT("MY");
+//   &UP9 @WIRE(mode="straight") {#s4:up %p10:p};
+//   %p11=$IO_PORT @ATTACH &DN9 => @PLACE(150,147) => @ORIENT("MY");
+//   &DN9 @WIRE(mode="straight") {#s4:dn %p11:p};
+//   &UP9b @WIRE(mode="straight") {#s4:upb #r10:db};
+//   %j23=(116,144); $JUNCTION @ATTACH %j23;
+//   %j24=(118,143); $JUNCTION @ATTACH %j24;
+//   &ld @WIRE(mode="straight") {(116,144) #r10:ld};
+//   &ldb @WIRE(mode="straight") {(118,143) #r10:ldb};
+//   %p12=$IO_PORT @ATTACH &D10 => @PLACE(150,144) => @ORIENT("MY");
+//   &D10 @WIRE(mode="straight") {#r10:q %p12:p};
+//   #s5 @PLACE(100,128) => @ORIENT("R0");
+//   #r9 @PLACE(125,126) => @ORIENT("R0");
+//   %j25=(94,131); $JUNCTION @ATTACH %j25;
+//   &gu @WIRE(mode="straight") {(94,131) #s5:gu};
+//   %j26=(92,129); $JUNCTION @ATTACH %j26;
+//   &gd @WIRE(mode="straight") {(92,129) #s5:gd};
+//   %j27=(90,127); $JUNCTION @ATTACH %j27;
+//   &clrb @WIRE(mode="straight") {(90,127) #s5:clrb};
+//   %j28=(88,125); $JUNCTION @ATTACH %j28;
+//   &blc @WIRE(mode="straight") {(88,125) #s5:blc};
+//   &en6 @WIRE(mode="straight") {#s5:eno #s6:en};
+//   %p13=$IO_PORT @ATTACH &UP8 => @PLACE(150,131) => @ORIENT("MY");
+//   &UP8 @WIRE(mode="straight") {#s5:up %p13:p};
+//   %p14=$IO_PORT @ATTACH &DN8 => @PLACE(150,129) => @ORIENT("MY");
+//   &DN8 @WIRE(mode="straight") {#s5:dn %p14:p};
+//   &UP8b @WIRE(mode="straight") {#s5:upb #r9:db};
+//   %j29=(116,126); $JUNCTION @ATTACH %j29;
+//   %j30=(118,125); $JUNCTION @ATTACH %j30;
+//   &ld @WIRE(mode="straight") {(116,126) #r9:ld};
+//   &ldb @WIRE(mode="straight") {(118,125) #r9:ldb};
+//   %p15=$IO_PORT @ATTACH &D9 => @PLACE(150,126) => @ORIENT("MY");
+//   &D9 @WIRE(mode="straight") {#r9:q %p15:p};
+//   #s6 @PLACE(100,110) => @ORIENT("R0");
+//   #r8 @PLACE(125,108) => @ORIENT("R0");
+//   %j31=(94,113); $JUNCTION @ATTACH %j31;
+//   &gu @WIRE(mode="straight") {(94,113) #s6:gu};
+//   %j32=(92,111); $JUNCTION @ATTACH %j32;
+//   &gd @WIRE(mode="straight") {(92,111) #s6:gd};
+//   %j33=(90,109); $JUNCTION @ATTACH %j33;
+//   &clrb @WIRE(mode="straight") {(90,109) #s6:clrb};
+//   %j34=(88,107); $JUNCTION @ATTACH %j34;
+//   &blc @WIRE(mode="straight") {(88,107) #s6:blc};
+//   &en7 @WIRE(mode="straight") {#s6:eno #s7:en};
+//   %p16=$IO_PORT @ATTACH &UP7 => @PLACE(150,113) => @ORIENT("MY");
+//   &UP7 @WIRE(mode="straight") {#s6:up %p16:p};
+//   %p17=$IO_PORT @ATTACH &DN7 => @PLACE(150,111) => @ORIENT("MY");
+//   &DN7 @WIRE(mode="straight") {#s6:dn %p17:p};
+//   &UP7b @WIRE(mode="straight") {#s6:upb #r8:db};
+//   %j35=(116,108); $JUNCTION @ATTACH %j35;
+//   %j36=(118,107); $JUNCTION @ATTACH %j36;
+//   &ld @WIRE(mode="straight") {(116,108) #r8:ld};
+//   &ldb @WIRE(mode="straight") {(118,107) #r8:ldb};
+//   %p18=$IO_PORT @ATTACH &D8 => @PLACE(150,108) => @ORIENT("MY");
+//   &D8 @WIRE(mode="straight") {#r8:q %p18:p};
+//   #s7 @PLACE(100,92) => @ORIENT("R0");
+//   #r7 @PLACE(125,90) => @ORIENT("R0");
+//   %j37=(94,95); $JUNCTION @ATTACH %j37;
+//   &gu @WIRE(mode="straight") {(94,95) #s7:gu};
+//   %j38=(92,93); $JUNCTION @ATTACH %j38;
+//   &gd @WIRE(mode="straight") {(92,93) #s7:gd};
+//   %j39=(90,91); $JUNCTION @ATTACH %j39;
+//   &clrb @WIRE(mode="straight") {(90,91) #s7:clrb};
+//   %j40=(88,89); $JUNCTION @ATTACH %j40;
+//   &blc @WIRE(mode="straight") {(88,89) #s7:blc};
+//   &en8 @WIRE(mode="straight") {#s7:eno #s8:en};
+//   %p19=$IO_PORT @ATTACH &UP6 => @PLACE(150,95) => @ORIENT("MY");
+//   &UP6 @WIRE(mode="straight") {#s7:up %p19:p};
+//   %p20=$IO_PORT @ATTACH &DN6 => @PLACE(150,93) => @ORIENT("MY");
+//   &DN6 @WIRE(mode="straight") {#s7:dn %p20:p};
+//   &UP6b @WIRE(mode="straight") {#s7:upb #r7:db};
+//   %j41=(116,90); $JUNCTION @ATTACH %j41;
+//   %j42=(118,89); $JUNCTION @ATTACH %j42;
+//   &ld @WIRE(mode="straight") {(116,90) #r7:ld};
+//   &ldb @WIRE(mode="straight") {(118,89) #r7:ldb};
+//   %p21=$IO_PORT @ATTACH &D7 => @PLACE(150,90) => @ORIENT("MY");
+//   &D7 @WIRE(mode="straight") {#r7:q %p21:p};
+//   #s8 @PLACE(100,74) => @ORIENT("R0");
+//   #r6 @PLACE(125,72) => @ORIENT("R0");
+//   %j43=(94,77); $JUNCTION @ATTACH %j43;
+//   &gu @WIRE(mode="straight") {(94,77) #s8:gu};
+//   %j44=(92,75); $JUNCTION @ATTACH %j44;
+//   &gd @WIRE(mode="straight") {(92,75) #s8:gd};
+//   %j45=(90,73); $JUNCTION @ATTACH %j45;
+//   &clrb @WIRE(mode="straight") {(90,73) #s8:clrb};
+//   %j46=(88,71); $JUNCTION @ATTACH %j46;
+//   &blc @WIRE(mode="straight") {(88,71) #s8:blc};
+//   &en9 @WIRE(mode="straight") {#s8:eno #s9:en};
+//   %p22=$IO_PORT @ATTACH &UP5 => @PLACE(150,77) => @ORIENT("MY");
+//   &UP5 @WIRE(mode="straight") {#s8:up %p22:p};
+//   %p23=$IO_PORT @ATTACH &DN5 => @PLACE(150,75) => @ORIENT("MY");
+//   &DN5 @WIRE(mode="straight") {#s8:dn %p23:p};
+//   &UP5b @WIRE(mode="straight") {#s8:upb #r6:db};
+//   %j47=(116,72); $JUNCTION @ATTACH %j47;
+//   %j48=(118,71); $JUNCTION @ATTACH %j48;
+//   &ld @WIRE(mode="straight") {(116,72) #r6:ld};
+//   &ldb @WIRE(mode="straight") {(118,71) #r6:ldb};
+//   %p24=$IO_PORT @ATTACH &D6 => @PLACE(150,72) => @ORIENT("MY");
+//   &D6 @WIRE(mode="straight") {#r6:q %p24:p};
+//   #s9 @PLACE(100,56) => @ORIENT("R0");
+//   #r5 @PLACE(125,54) => @ORIENT("R0");
+//   %j49=(94,59); $JUNCTION @ATTACH %j49;
+//   &gu @WIRE(mode="straight") {(94,59) #s9:gu};
+//   %j50=(92,57); $JUNCTION @ATTACH %j50;
+//   &gd @WIRE(mode="straight") {(92,57) #s9:gd};
+//   %j51=(90,55); $JUNCTION @ATTACH %j51;
+//   &clrb @WIRE(mode="straight") {(90,55) #s9:clrb};
+//   %j52=(88,53); $JUNCTION @ATTACH %j52;
+//   &blc @WIRE(mode="straight") {(88,53) #s9:blc};
+//   &en10 @WIRE(mode="straight") {#s9:eno #s10:en};
+//   %p25=$IO_PORT @ATTACH &UP4 => @PLACE(150,59) => @ORIENT("MY");
+//   &UP4 @WIRE(mode="straight") {#s9:up %p25:p};
+//   %p26=$IO_PORT @ATTACH &DN4 => @PLACE(150,57) => @ORIENT("MY");
+//   &DN4 @WIRE(mode="straight") {#s9:dn %p26:p};
+//   &UP4b @WIRE(mode="straight") {#s9:upb #r5:db};
+//   %j53=(116,54); $JUNCTION @ATTACH %j53;
+//   %j54=(118,53); $JUNCTION @ATTACH %j54;
+//   &ld @WIRE(mode="straight") {(116,54) #r5:ld};
+//   &ldb @WIRE(mode="straight") {(118,53) #r5:ldb};
+//   %p27=$IO_PORT @ATTACH &D5 => @PLACE(150,54) => @ORIENT("MY");
+//   &D5 @WIRE(mode="straight") {#r5:q %p27:p};
+//   #s10 @PLACE(100,38) => @ORIENT("R0");
+//   #r4 @PLACE(125,36) => @ORIENT("R0");
+//   %j55=(94,41); $JUNCTION @ATTACH %j55;
+//   &gu @WIRE(mode="straight") {(94,41) #s10:gu};
+//   %j56=(92,39); $JUNCTION @ATTACH %j56;
+//   &gd @WIRE(mode="straight") {(92,39) #s10:gd};
+//   %j57=(90,37); $JUNCTION @ATTACH %j57;
+//   &clrb @WIRE(mode="straight") {(90,37) #s10:clrb};
+//   %j58=(88,35); $JUNCTION @ATTACH %j58;
+//   &blc @WIRE(mode="straight") {(88,35) #s10:blc};
+//   &en11 @WIRE(mode="straight") {#s10:eno #s11:en};
+//   %p28=$IO_PORT @ATTACH &UP3 => @PLACE(150,41) => @ORIENT("MY");
+//   &UP3 @WIRE(mode="straight") {#s10:up %p28:p};
+//   %p29=$IO_PORT @ATTACH &DN3 => @PLACE(150,39) => @ORIENT("MY");
+//   &DN3 @WIRE(mode="straight") {#s10:dn %p29:p};
+//   &UP3b @WIRE(mode="straight") {#s10:upb #r4:db};
+//   %j59=(116,36); $JUNCTION @ATTACH %j59;
+//   %j60=(118,35); $JUNCTION @ATTACH %j60;
+//   &ld @WIRE(mode="straight") {(116,36) #r4:ld};
+//   &ldb @WIRE(mode="straight") {(118,35) #r4:ldb};
+//   %p30=$IO_PORT @ATTACH &D4 => @PLACE(150,36) => @ORIENT("MY");
+//   &D4 @WIRE(mode="straight") {#r4:q %p30:p};
+//   #s11 @PLACE(100,20) => @ORIENT("R0");
+//   #r3 @PLACE(125,18) => @ORIENT("R0");
+//   %j61=(94,23); $JUNCTION @ATTACH %j61;
+//   &gu @WIRE(mode="straight") {(94,23) #s11:gu};
+//   %j62=(92,21); $JUNCTION @ATTACH %j62;
+//   &gd @WIRE(mode="straight") {(92,21) #s11:gd};
+//   %j63=(90,19); $JUNCTION @ATTACH %j63;
+//   &clrb @WIRE(mode="straight") {(90,19) #s11:clrb};
+//   %j64=(88,17); $JUNCTION @ATTACH %j64;
+//   &blc @WIRE(mode="straight") {(88,17) #s11:blc};
+//   &en12 @WIRE(mode="straight") {#s11:eno #s12:en};
+//   %p31=$IO_PORT @ATTACH &UP2 => @PLACE(150,23) => @ORIENT("MY");
+//   &UP2 @WIRE(mode="straight") {#s11:up %p31:p};
+//   %p32=$IO_PORT @ATTACH &DN2 => @PLACE(150,21) => @ORIENT("MY");
+//   &DN2 @WIRE(mode="straight") {#s11:dn %p32:p};
+//   &UP2b @WIRE(mode="straight") {#s11:upb #r3:db};
+//   %j65=(116,18); $JUNCTION @ATTACH %j65;
+//   %j66=(118,17); $JUNCTION @ATTACH %j66;
+//   &ld @WIRE(mode="straight") {(116,18) #r3:ld};
+//   &ldb @WIRE(mode="straight") {(118,17) #r3:ldb};
+//   %p33=$IO_PORT @ATTACH &D3 => @PLACE(150,18) => @ORIENT("MY");
+//   &D3 @WIRE(mode="straight") {#r3:q %p33:p};
+//   #s12 @PLACE(100,2) => @ORIENT("R0");
+//   #r2 @PLACE(125,0) => @ORIENT("R0");
+//   %j67=(94,5); $JUNCTION @ATTACH %j67;
+//   &gu @WIRE(mode="straight") {(94,5) #s12:gu};
+//   %j68=(92,3); $JUNCTION @ATTACH %j68;
+//   &gd @WIRE(mode="straight") {(92,3) #s12:gd};
+//   %j69=(90,1); $JUNCTION @ATTACH %j69;
+//   &clrb @WIRE(mode="straight") {(90,1) #s12:clrb};
+//   %j70=(88,-1); $JUNCTION @ATTACH %j70;
+//   &blc @WIRE(mode="straight") {(88,-1) #s12:blc};
+//   &en13 @WIRE(mode="straight") {#s12:eno #s13:en};
+//   %p34=$IO_PORT @ATTACH &UP1 => @PLACE(150,5) => @ORIENT("MY");
+//   &UP1 @WIRE(mode="straight") {#s12:up %p34:p};
+//   %p35=$IO_PORT @ATTACH &DN1 => @PLACE(150,3) => @ORIENT("MY");
+//   &DN1 @WIRE(mode="straight") {#s12:dn %p35:p};
+//   &UP1b @WIRE(mode="straight") {#s12:upb #r2:db};
+//   %j71=(116,0); $JUNCTION @ATTACH %j71;
+//   %j72=(118,-1); $JUNCTION @ATTACH %j72;
+//   &ld @WIRE(mode="straight") {(116,0) #r2:ld};
+//   &ldb @WIRE(mode="straight") {(118,-1) #r2:ldb};
+//   %p36=$IO_PORT @ATTACH &D2 => @PLACE(150,0) => @ORIENT("MY");
+//   &D2 @WIRE(mode="straight") {#r2:q %p36:p};
+//   #s13 @PLACE(100,-16) => @ORIENT("R0");
+//   #r1 @PLACE(125,-18) => @ORIENT("R0");
+//   %j73=(94,-13); $JUNCTION @ATTACH %j73;
+//   &gu @WIRE(mode="straight") {(94,-13) #s13:gu};
+//   %j74=(92,-15); $JUNCTION @ATTACH %j74;
+//   &gd @WIRE(mode="straight") {(92,-15) #s13:gd};
+//   %j75=(90,-17); $JUNCTION @ATTACH %j75;
+//   &clrb @WIRE(mode="straight") {(90,-17) #s13:clrb};
+//   %j76=(88,-19); $JUNCTION @ATTACH %j76;
+//   &blc @WIRE(mode="straight") {(88,-19) #s13:blc};
+//   &en14 @WIRE(mode="straight") {#s13:eno #s14:en};
+//   %p37=$IO_PORT @ATTACH &UP0 => @PLACE(150,-13) => @ORIENT("MY");
+//   &UP0 @WIRE(mode="straight") {#s13:up %p37:p};
+//   %p38=$IO_PORT @ATTACH &DN0 => @PLACE(150,-15) => @ORIENT("MY");
+//   &DN0 @WIRE(mode="straight") {#s13:dn %p38:p};
+//   &UP0b @WIRE(mode="straight") {#s13:upb #r1:db};
+//   %j77=(116,-18); $JUNCTION @ATTACH %j77;
+//   %j78=(118,-19); $JUNCTION @ATTACH %j78;
+//   &ld @WIRE(mode="straight") {(116,-18) #r1:ld};
+//   &ldb @WIRE(mode="straight") {(118,-19) #r1:ldb};
+//   %p39=$IO_PORT @ATTACH &D1 => @PLACE(150,-18) => @ORIENT("MY");
+//   &D1 @WIRE(mode="straight") {#r1:q %p39:p};
+//   #s14 @PLACE(100,-34) => @ORIENT("R0");
+//   #r0 @PLACE(125,-36) => @ORIENT("R0");
+//   %j79=(94,-31); $JUNCTION @ATTACH %j79;
+//   &gu @WIRE(mode="straight") {(94,-31) #s14:gu};
+//   %j80=(92,-33); $JUNCTION @ATTACH %j80;
+//   &gd @WIRE(mode="straight") {(92,-33) #s14:gd};
+//   %j81=(90,-35); $JUNCTION @ATTACH %j81;
+//   &clrb @WIRE(mode="straight") {(90,-35) #s14:clrb};
+//   %j82=(88,-37); $JUNCTION @ATTACH %j82;
+//   &blc @WIRE(mode="straight") {(88,-37) #s14:blc};
+//   &b14ub @WIRE(mode="straight") {#s14:upb #r0:db};
+//   %j83=(116,-36); $JUNCTION @ATTACH %j83;
+//   %j84=(118,-37); $JUNCTION @ATTACH %j84;
+//   &ld @WIRE(mode="straight") {(116,-36) #r0:ld};
+//   &ldb @WIRE(mode="straight") {(118,-37) #r0:ldb};
+//   %p40=$IO_PORT @ATTACH &D0 => @PLACE(150,-36) => @ORIENT("MY");
+//   &D0 @WIRE(mode="straight") {#r0:q %p40:p};
+//   (86,212) @TEXT("fourteen SAR steps (s1 .. s14) and the output register (r13 .. r0)", size=1.2, textcolor="#334155", bold=true, halign="start");
+//   &gu @WIRE(mode="straight") {(94,203) (94,185) (94,167) (94,149) (94,131) (94,113) (94,95) (94,77) (94,59) (94,41) (94,23) (94,5) (94,-13) (94,-31) (94,-99)};
+//   &gd @WIRE(mode="straight") {(92,201) (92,183) (92,165) (92,147) (92,129) (92,111) (92,93) (92,75) (92,57) (92,39) (92,21) (92,3) (92,-15) (92,-33) (92,-107)};
+//   &clrb @WIRE(mode="straight") {(90,199) (90,181) (90,163) (90,145) (90,127) (90,109) (90,91) (90,73) (90,55) (90,37) (90,19) (90,1) (90,-17) (90,-35) (90,-60)};
+//   &blc @WIRE(mode="straight") {(88,197) (88,179) (88,161) (88,143) (88,125) (88,107) (88,89) (88,71) (88,53) (88,35) (88,17) (88,-1) (88,-19) (88,-37) (88,-80)};
+//   (0,-52) @TEXT("CONV buffers and step clear", size=1.0, textcolor="#334155", bold=true, halign="start");
+//   %p41=$IO_PORT @ATTACH &CONV => @PLACE(-4,-60) => @ORIENT("R0");
+//   #i_cb @PLACE(6,-60) => @ORIENT("R0");
+//   #i_cv @PLACE(16,-60) => @ORIENT("R0");
+//   &CONV @WIRE(mode="straight") {%p41:p #i_cb:a};
+//   %j85=(11,-60); $JUNCTION @ATTACH %j85;
+//   &convb @WIRE(mode="straight") {#i_cb:y %j85 #i_cv:a};
+//   #c_cl1 @PLACE(30,-60) => @ORIENT("R0");
+//   #c_cl2 @PLACE(42,-60) => @ORIENT("R0");
+//   #b_cl @PLACE(54,-60) => @ORIENT("R0");
+//   &cl_a @WIRE(mode="straight") {#c_cl1:y #c_cl2:a};
+//   &clrn @WIRE(mode="straight") {#c_cl2:y #b_cl:a};
+//   &clrb @WIRE(mode="straight") {#b_cl:y (90,-60)};
+//   (0,-72) @TEXT("comparator: reset detect, decision strobes, next-step gate", size=1.0, textcolor="#334155", bold=true, halign="start");
+//   %p42=$IO_PORT @ATTACH &OUTP => @PLACE(-4,-79) => @ORIENT("R0");
+//   %p43=$IO_PORT @ATTACH &OUTN => @PLACE(-4,-81) => @ORIENT("R0");
+//   #g_bl @PLACE(10,-80) => @ORIENT("R0");
+//   &OUTP @WIRE(mode="straight") {%p42:p #g_bl:a};
+//   &OUTN @WIRE(mode="straight") {%p43:p #g_bl:b};
+//   #g_blc @PLACE(30,-80) => @ORIENT("R0");
+//   #i_bl1 @PLACE(40,-80) => @ORIENT("R0");
+//   #i_bl2 @PLACE(50,-80) => @ORIENT("R0");
+//   &blcn @WIRE(mode="straight") {#g_blc:y #i_bl1:a};
+//   &blcb @WIRE(mode="straight") {#i_bl1:y #i_bl2:a};
+//   &blc @WIRE(mode="straight") {#i_bl2:y (88,-80)};
+//   #g_up @PLACE(10,-98) => @ORIENT("R0");
+//   #g_gu @PLACE(22,-99) => @ORIENT("R0");
+//   &upvn @WIRE(mode="straight") {#g_up:y (16,-98) #g_gu:a};
+//   &gu @WIRE(mode="straight") {#g_gu:y (94,-99)};
+//   #g_dn @PLACE(10,-106) => @ORIENT("R0");
+//   #g_gd @PLACE(22,-107) => @ORIENT("R0");
+//   &gdn @WIRE(mode="straight") {#g_dn:y (16,-106) #g_gd:a};
+//   &gd @WIRE(mode="straight") {#g_gd:y (92,-107)};
+//   (0,-114) @TEXT("CLKC: NAND latch, its node drives CLKC; set needs blc (next step being enabled), bothlow, the wait and en_go", size=1.0, textcolor="#334155", bold=true, halign="start");
+//   #g_sa @PLACE(10,-122) => @ORIENT("R0");
+//   #g_sb @PLACE(10,-130) => @ORIENT("R0");
+//   #l_q @PLACE(24,-125) => @ORIENT("R0");
+//   #l_qb @PLACE(24,-133) => @ORIENT("R0");
+//   #g_r @PLACE(10,-140) => @ORIENT("R0");
+//   &setn_a @WIRE(mode="straight") {#g_sa:y (17,-122) (17,-124) #l_q:a};
+//   &setn_b @WIRE(mode="straight") {#g_sb:y (18,-130) (18,-125) #l_q:b};
+//   &ckqb @WIRE(mode="straight") {#l_qb:y (29,-133) (29,-128) (19,-128) (19,-126) #l_q:c};
+//   %j86=(31,-125); $JUNCTION @ATTACH %j86;
+//   %j87=(33,-125); $JUNCTION @ATTACH %j87;
+//   %p44=$IO_PORT @ATTACH &CLKC => @PLACE(46,-125) => @ORIENT("MY");
+//   &CLKC @WIRE(mode="straight") {#l_q:y %j86 %j87 %p44:p};
+//   &CLKC @WIRE(mode="straight") {%j86 (31,-136) (20,-136) (20,-134) #l_qb:b};
+//   #i_c1 @PLACE(38,-118) => @ORIENT("R0");
+//   #i_c2 @PLACE(46,-118) => @ORIENT("R0");
+//   #i_c3 @PLACE(54,-118) => @ORIENT("R0");
+//   &CLKC @WIRE(mode="straight") {%j87 (33,-118) #i_c1:a};
+//   &c1 @WIRE(mode="straight") {#i_c1:y #i_c2:a};
+//   %j88=(50,-118); $JUNCTION @ATTACH %j88;
+//   &c2 @WIRE(mode="straight") {#i_c2:y %j88 #i_c3:a};
+//   &rstn @WIRE(mode="straight") {#g_r:y (16,-140) (16,-132) #l_qb:a};
+//   (0,-150) @TEXT("t_start and run enable", size=1.0, textcolor="#334155", bold=true, halign="start");
+//   #c_s1 @PLACE(10,-158) => @ORIENT("R0");
+//   #c_s2 @PLACE(22,-158) => @ORIENT("R0");
+//   &s_a @WIRE(mode="straight") {#c_s1:y #c_s2:a};
+//   #c_s3 @PLACE(34,-158) => @ORIENT("R0");
+//   &s_b @WIRE(mode="straight") {#c_s2:y #c_s3:a};
+//   #c_s4 @PLACE(46,-158) => @ORIENT("R0");
+//   &s_c @WIRE(mode="straight") {#c_s3:y #c_s4:a};
+//   %j89=(9,-163); $JUNCTION @ATTACH %j89;
+//   %j90=(21,-163); $JUNCTION @ATTACH %j90;
+//   %j91=(33,-163); $JUNCTION @ATTACH %j91;
+//   &cv @WIRE(mode="straight") {(9,-163) (21,-163) (33,-163) (45,-163)};
+//   &cv @WIRE(mode="straight") {#c_s1:s (9,-163)};
+//   &cv @WIRE(mode="straight") {#c_s2:s (21,-163)};
+//   &cv @WIRE(mode="straight") {#c_s3:s (33,-163)};
+//   &cv @WIRE(mode="straight") {#c_s4:s (45,-163)};
+//   %j92=(11,-165); $JUNCTION @ATTACH %j92;
+//   %j93=(23,-165); $JUNCTION @ATTACH %j93;
+//   %j94=(35,-165); $JUNCTION @ATTACH %j94;
+//   &convb @WIRE(mode="straight") {(11,-165) (23,-165) (35,-165) (47,-165)};
+//   &convb @WIRE(mode="straight") {#c_s1:sb (11,-165)};
+//   &convb @WIRE(mode="straight") {#c_s2:sb (23,-165)};
+//   &convb @WIRE(mode="straight") {#c_s3:sb (35,-165)};
+//   &convb @WIRE(mode="straight") {#c_s4:sb (47,-165)};
+//   (46,-163) @TEXT("cv", size=0.6, textcolor="#334155", bold=false, halign="start");
+//   (48,-165) @TEXT("convb", size=0.6, textcolor="#334155", bold=false, halign="start");
+//   #g_en @PLACE(60,-159) => @ORIENT("R0");
+//   #i_en @PLACE(70,-159) => @ORIENT("R0");
+//   #i_eb @PLACE(50,-170) => @ORIENT("R0");
+//   &sd @WIRE(mode="straight") {#c_s4:y (54,-158) #g_en:a};
+//   &eocb @WIRE(mode="straight") {#i_eb:y (55,-170) (55,-160) #g_en:c};
+//   &en_gon @WIRE(mode="straight") {#g_en:y #i_en:a};
+//   (0,-180) @TEXT("DAC-wait timers (one tapped chain started by CLKC falling) and the selection of the wait", size=1.0, textcolor="#334155", bold=true, halign="start");
+//   #i_tm @PLACE(6,-190) => @ORIENT("R0");
+//   #i_tn @PLACE(16,-196) => @ORIENT("R0");
+//   %j95=(10,-190); $JUNCTION @ATTACH %j95;
+//   #w1 @PLACE(30,-190) => @ORIENT("R0");
+//   #w1b @PLACE(44,-190) => @ORIENT("R0");
+//   &wx1 @WIRE(mode="straight") {#w1:y #w1b:a};
+//   #w2 @PLACE(58,-190) => @ORIENT("R0");
+//   &w_3 @WIRE(mode="straight") {#w1b:y #w2:a};
+//   #w3 @PLACE(72,-190) => @ORIENT("R0");
+//   &wx2 @WIRE(mode="straight") {#w2:y #w3:a};
+//   #w4 @PLACE(86,-190) => @ORIENT("R0");
+//   &w_456 @WIRE(mode="straight") {#w3:y #w4:a};
+//   #w5 @PLACE(100,-190) => @ORIENT("R0");
+//   &wx4 @WIRE(mode="straight") {#w4:y #w5:a};
+//   #w6 @PLACE(114,-190) => @ORIENT("R0");
+//   &w_s @WIRE(mode="straight") {#w5:y #w6:a};
+//   #w7 @PLACE(128,-190) => @ORIENT("R0");
+//   &wx6 @WIRE(mode="straight") {#w6:y #w7:a};
+//   %j96=(29,-195); $JUNCTION @ATTACH %j96;
+//   %j97=(43,-195); $JUNCTION @ATTACH %j97;
+//   %j98=(57,-195); $JUNCTION @ATTACH %j98;
+//   %j99=(71,-195); $JUNCTION @ATTACH %j99;
+//   %j100=(85,-195); $JUNCTION @ATTACH %j100;
+//   %j101=(99,-195); $JUNCTION @ATTACH %j101;
+//   %j102=(113,-195); $JUNCTION @ATTACH %j102;
+//   &tms @WIRE(mode="straight") {(29,-195) (43,-195) (57,-195) (71,-195) (85,-195) (99,-195) (113,-195) (127,-195)};
+//   &tms @WIRE(mode="straight") {#w1:s (29,-195)};
+//   &tms @WIRE(mode="straight") {#w1b:s (43,-195)};
+//   &tms @WIRE(mode="straight") {#w2:s (57,-195)};
+//   &tms @WIRE(mode="straight") {#w3:s (71,-195)};
+//   &tms @WIRE(mode="straight") {#w4:s (85,-195)};
+//   &tms @WIRE(mode="straight") {#w5:s (99,-195)};
+//   &tms @WIRE(mode="straight") {#w6:s (113,-195)};
+//   &tms @WIRE(mode="straight") {#w7:s (127,-195)};
+//   %j103=(31,-197); $JUNCTION @ATTACH %j103;
+//   %j104=(45,-197); $JUNCTION @ATTACH %j104;
+//   %j105=(59,-197); $JUNCTION @ATTACH %j105;
+//   %j106=(73,-197); $JUNCTION @ATTACH %j106;
+//   %j107=(87,-197); $JUNCTION @ATTACH %j107;
+//   %j108=(101,-197); $JUNCTION @ATTACH %j108;
+//   %j109=(115,-197); $JUNCTION @ATTACH %j109;
+//   &tmsb @WIRE(mode="straight") {(31,-197) (45,-197) (59,-197) (73,-197) (87,-197) (101,-197) (115,-197) (129,-197)};
+//   &tmsb @WIRE(mode="straight") {#w1:sb (31,-197)};
+//   &tmsb @WIRE(mode="straight") {#w1b:sb (45,-197)};
+//   &tmsb @WIRE(mode="straight") {#w2:sb (59,-197)};
+//   &tmsb @WIRE(mode="straight") {#w3:sb (73,-197)};
+//   &tmsb @WIRE(mode="straight") {#w4:sb (87,-197)};
+//   &tmsb @WIRE(mode="straight") {#w5:sb (101,-197)};
+//   &tmsb @WIRE(mode="straight") {#w6:sb (115,-197)};
+//   &tmsb @WIRE(mode="straight") {#w7:sb (129,-197)};
+//   &tms @WIRE(mode="straight") {#i_tm:y %j95 #w1:a};
+//   &tms @WIRE(mode="straight") {%j95 (10,-196) #i_tn:a};
+//   (130,-195) @TEXT("tms (CLKC low)", size=0.6, textcolor="#334155", bold=false, halign="start");
+//   (130,-197) @TEXT("tmsb", size=0.6, textcolor="#334155", bold=false, halign="start");
+//   #i_d3 @PLACE(10,-212) => @ORIENT("R0");
+//   #i_d4 @PLACE(20,-212) => @ORIENT("R0");
+//   #i_d7 @PLACE(30,-212) => @ORIENT("R0");
+//   #i_d9 @PLACE(40,-212) => @ORIENT("R0");
+//   #g_s3 @PLACE(56,-212) => @ORIENT("R0");
+//   #g_s456 @PLACE(68,-212) => @ORIENT("R0");
+//   #g_s9 @PLACE(80,-212) => @ORIENT("R0");
+//   #g_ss @PLACE(92,-212) => @ORIENT("R0");
+//   #n_3 @PLACE(56,-224) => @ORIENT("R0");
+//   #n_456 @PLACE(68,-224) => @ORIENT("R0");
+//   #n_s @PLACE(80,-224) => @ORIENT("R0");
+//   #n_9 @PLACE(92,-224) => @ORIENT("R0");
+//   #g_wa @PLACE(110,-224) => @ORIENT("R0");
+//   #g_wb @PLACE(110,-232) => @ORIENT("R0");
+//   #i_3a @PLACE(38,-223) => @ORIENT("R0");
+//   #i_3b @PLACE(46,-223) => @ORIENT("R0");
+//   &w_3n @WIRE(mode="straight") {#i_3a:y #i_3b:a};
+//   &w_3d @WIRE(mode="straight") {#i_3b:y #n_3:a};
+//   (0,-244) @TEXT("timeout: CLKC high for longer than the chain forces a decision of 1", size=1.0, textcolor="#334155", bold=true, halign="start");
+//   #i_tb @PLACE(6,-252) => @ORIENT("R0");
+//   #i_ta @PLACE(16,-258) => @ORIENT("R0");
+//   %j110=(10,-252); $JUNCTION @ATTACH %j110;
+//   &tsb @WIRE(mode="straight") {#i_tb:y %j110 (10,-258) #i_ta:a};
+//   #c_t1 @PLACE(30,-252) => @ORIENT("R0");
+//   #c_t2 @PLACE(44,-252) => @ORIENT("R0");
+//   &t_a @WIRE(mode="straight") {#c_t1:y #c_t2:a};
+//   #c_t3 @PLACE(58,-252) => @ORIENT("R0");
+//   &t_b @WIRE(mode="straight") {#c_t2:y #c_t3:a};
+//   #c_t4 @PLACE(72,-252) => @ORIENT("R0");
+//   &t_c @WIRE(mode="straight") {#c_t3:y #c_t4:a};
+//   %j111=(29,-257); $JUNCTION @ATTACH %j111;
+//   %j112=(43,-257); $JUNCTION @ATTACH %j112;
+//   %j113=(57,-257); $JUNCTION @ATTACH %j113;
+//   &ts @WIRE(mode="straight") {(29,-257) (43,-257) (57,-257) (71,-257)};
+//   &ts @WIRE(mode="straight") {#c_t1:s (29,-257)};
+//   &ts @WIRE(mode="straight") {#c_t2:s (43,-257)};
+//   &ts @WIRE(mode="straight") {#c_t3:s (57,-257)};
+//   &ts @WIRE(mode="straight") {#c_t4:s (71,-257)};
+//   %j114=(31,-259); $JUNCTION @ATTACH %j114;
+//   %j115=(45,-259); $JUNCTION @ATTACH %j115;
+//   %j116=(59,-259); $JUNCTION @ATTACH %j116;
+//   &tsb @WIRE(mode="straight") {(31,-259) (45,-259) (59,-259) (73,-259)};
+//   &tsb @WIRE(mode="straight") {#c_t1:sb (31,-259)};
+//   &tsb @WIRE(mode="straight") {#c_t2:sb (45,-259)};
+//   &tsb @WIRE(mode="straight") {#c_t3:sb (59,-259)};
+//   &tsb @WIRE(mode="straight") {#c_t4:sb (73,-259)};
+//   (72,-257) @TEXT("ts", size=0.6, textcolor="#334155", bold=false, halign="start");
+//   (74,-259) @TEXT("tsb", size=0.6, textcolor="#334155", bold=false, halign="start");
+//   &ts @WIRE(mode="straight") {#i_ta:y (22,-258) (22,-252) #c_t1:a};
+//   #g_to @PLACE(90,-253) => @ORIENT("R0");
+//   #i_to @PLACE(100,-253) => @ORIENT("R0");
+//   &tod @WIRE(mode="straight") {#c_t4:y (84,-252) (84,-254) #g_to:b};
+//   %j117=(95,-253); $JUNCTION @ATTACH %j117;
+//   &TOB @WIRE(mode="straight") {#g_to:y %j117 #i_to:a};
+//   (100,-50) @TEXT("output register load and RDY", size=1.0, textcolor="#334155", bold=true, halign="start");
+//   #p_e @PLACE(104,-58) => @ORIENT("R0");
+//   #p_c @PLACE(104,-66) => @ORIENT("R0");
+//   #g_ld @PLACE(113,-62) => @ORIENT("R0");
+//   #b_lb @PLACE(124,-70) => @ORIENT("R0");
+//   &pen @WIRE(mode="straight") {#p_e:pn (108,-58) (108,-61) #g_ld:a};
+//   &pcn @WIRE(mode="straight") {#p_c:pn (108,-66) (108,-63) #g_ld:b};
+//   %j118=(116,-62); $JUNCTION @ATTACH %j118;
+//   &ld @WIRE(mode="straight") {#g_ld:y %j118 (116,-70) #b_lb:a};
+//   &ld @WIRE(mode="straight") {%j118 (116,-36)};
+//   &ldb @WIRE(mode="straight") {#b_lb:y (128,-70) (128,-74) (118,-74) (118,-37)};
+//   &ld @WIRE(mode="straight") {(116,198) (116,180) (116,162) (116,144) (116,126) (116,108) (116,90) (116,72) (116,54) (116,36) (116,18) (116,0) (116,-18) (116,-36)};
+//   &ldb @WIRE(mode="straight") {(118,197) (118,179) (118,161) (118,143) (118,125) (118,107) (118,89) (118,71) (118,53) (118,35) (118,17) (118,-1) (118,-19) (118,-37)};
+//   #p_r @PLACE(140,-86) => @ORIENT("R0");
+//   #l_dn @PLACE(152,-85) => @ORIENT("R0");
+//   &crise @WIRE(mode="straight") {#p_r:p (146,-86) #l_dn:r};
+//   #c_r1 @PLACE(170,-84) => @ORIENT("R0");
+//   #c_r2 @PLACE(182,-84) => @ORIENT("R0");
+//   &r_a @WIRE(mode="straight") {#c_r1:y #c_r2:a};
+//   #c_r3 @PLACE(194,-84) => @ORIENT("R0");
+//   &r_c2 @WIRE(mode="straight") {#c_r2:y #c_r3:a};
+//   #c_r4 @PLACE(206,-84) => @ORIENT("R0");
+//   &r_c3 @WIRE(mode="straight") {#c_r3:y #c_r4:a};
+//   #c_r5 @PLACE(218,-84) => @ORIENT("R0");
+//   &r_c4 @WIRE(mode="straight") {#c_r4:y #c_r5:a};
+//   %j119=(169,-89); $JUNCTION @ATTACH %j119;
+//   %j120=(181,-89); $JUNCTION @ATTACH %j120;
+//   %j121=(193,-89); $JUNCTION @ATTACH %j121;
+//   %j122=(205,-89); $JUNCTION @ATTACH %j122;
+//   &dn_q @WIRE(mode="straight") {(169,-89) (181,-89) (193,-89) (205,-89) (217,-89)};
+//   &dn_q @WIRE(mode="straight") {#c_r1:s (169,-89)};
+//   &dn_q @WIRE(mode="straight") {#c_r2:s (181,-89)};
+//   &dn_q @WIRE(mode="straight") {#c_r3:s (193,-89)};
+//   &dn_q @WIRE(mode="straight") {#c_r4:s (205,-89)};
+//   &dn_q @WIRE(mode="straight") {#c_r5:s (217,-89)};
+//   %j123=(171,-91); $JUNCTION @ATTACH %j123;
+//   %j124=(183,-91); $JUNCTION @ATTACH %j124;
+//   %j125=(195,-91); $JUNCTION @ATTACH %j125;
+//   %j126=(207,-91); $JUNCTION @ATTACH %j126;
+//   &dn_qb @WIRE(mode="straight") {(171,-91) (183,-91) (195,-91) (207,-91) (219,-91)};
+//   &dn_qb @WIRE(mode="straight") {#c_r1:sb (171,-91)};
+//   &dn_qb @WIRE(mode="straight") {#c_r2:sb (183,-91)};
+//   &dn_qb @WIRE(mode="straight") {#c_r3:sb (195,-91)};
+//   &dn_qb @WIRE(mode="straight") {#c_r4:sb (207,-91)};
+//   &dn_qb @WIRE(mode="straight") {#c_r5:sb (219,-91)};
+//   (218,-89) @TEXT("dn_q", size=0.6, textcolor="#334155", bold=false, halign="start");
+//   (220,-91) @TEXT("dn_qb", size=0.6, textcolor="#334155", bold=false, halign="start");
+//   &dn_q @WIRE(mode="straight") {#l_dn:q #c_r1:a};
+//   #i_r @PLACE(232,-84) => @ORIENT("R0");
+//   #b_r @PLACE(242,-84) => @ORIENT("R0");
+//   &r_b @WIRE(mode="straight") {#c_r5:y #i_r:a};
+//   &r_c @WIRE(mode="straight") {#i_r:y #b_r:a};
+//   %p45=$IO_PORT @ATTACH &RDY => @PLACE(250,-84) => @ORIENT("MY");
+//   &RDY @WIRE(mode="straight") {#b_r:y %p45:p};
+//   #i_cv:y @TEXT("cv", key="netname", size=0.55, textcolor="#9a3412", dx=0.4, dy=0, halign="start", valign="middle");
+//   #c_cl1:a @TEXT("convb", key="netname", size=0.55, textcolor="#9a3412", dx=-0.4, dy=0, halign="end", valign="middle");
+//   #c_cl1:s @TEXT("convb", key="netname", size=0.55, textcolor="#9a3412", dx=0, dy=-0.4, halign="middle", valign="top");
+//   #c_cl1:sb @TEXT("cv", key="netname", size=0.55, textcolor="#9a3412", dx=0, dy=-0.4, halign="middle", valign="top");
+//   #c_cl2:s @TEXT("convb", key="netname", size=0.55, textcolor="#9a3412", dx=0, dy=-0.4, halign="middle", valign="top");
+//   #c_cl2:sb @TEXT("cv", key="netname", size=0.55, textcolor="#9a3412", dx=0, dy=-0.4, halign="middle", valign="top");
+//   #g_bl:y @TEXT("bothlow", key="netname", size=0.55, textcolor="#9a3412", dx=0.4, dy=0, halign="start", valign="middle");
+//   #i_c3:y @TEXT("clkcb_d", key="netname", size=0.55, textcolor="#9a3412", dx=0.4, dy=0, halign="start", valign="middle");
+//   #g_blc:a @TEXT("gu", key="netname", size=0.55, textcolor="#9a3412", dx=-0.4, dy=0, halign="end", valign="middle");
+//   #g_blc:b @TEXT("gd", key="netname", size=0.55, textcolor="#9a3412", dx=-0.4, dy=0, halign="end", valign="middle");
+//   #g_blc:c @TEXT("c2", key="netname", size=0.55, textcolor="#9a3412", dx=-0.4, dy=0, halign="end", valign="middle");
+//   #i_tb:a @TEXT("c2", key="netname", size=0.55, textcolor="#9a3412", dx=-0.4, dy=0, halign="end", valign="middle");
+//   #g_to:a @TEXT("c2", key="netname", size=0.55, textcolor="#9a3412", dx=-0.4, dy=0, halign="end", valign="middle");
+//   #i_to:y @TEXT("TO", key="netname", size=0.55, textcolor="#9a3412", dx=0.4, dy=0, halign="start", valign="middle");
+//   #g_up:a @TEXT("OUTP", key="netname", size=0.55, textcolor="#9a3412", dx=-0.4, dy=0, halign="end", valign="middle");
+//   #g_up:b @TEXT("TO", key="netname", size=0.55, textcolor="#9a3412", dx=-0.4, dy=0, halign="end", valign="middle");
+//   #g_gu:b @TEXT("clkcb_d", key="netname", size=0.55, textcolor="#9a3412", dx=-0.4, dy=0, halign="end", valign="middle");
+//   #g_dn:a @TEXT("OUTN", key="netname", size=0.55, textcolor="#9a3412", dx=-0.4, dy=0, halign="end", valign="middle");
+//   #g_dn:b @TEXT("TOB", key="netname", size=0.55, textcolor="#9a3412", dx=-0.4, dy=0, halign="end", valign="middle");
+//   #g_gd:b @TEXT("clkcb_d", key="netname", size=0.55, textcolor="#9a3412", dx=-0.4, dy=0, halign="end", valign="middle");
+//   #s1:en @TEXT("cv", key="netname", size=0.55, textcolor="#9a3412", dx=0, dy=0.4, halign="middle", valign="bottom");
+//   $NO_CONNECT @ATTACH #s1:dec;
+//   $NO_CONNECT @ATTACH #s2:dec;
+//   #s3:dec @TEXT("dec3", key="netname", size=0.55, textcolor="#9a3412", dx=0.4, dy=0, halign="start", valign="middle");
+//   #s4:dec @TEXT("dec4", key="netname", size=0.55, textcolor="#9a3412", dx=0.4, dy=0, halign="start", valign="middle");
+//   $NO_CONNECT @ATTACH #s5:dec;
+//   $NO_CONNECT @ATTACH #s6:dec;
+//   #s7:dec @TEXT("dec7", key="netname", size=0.55, textcolor="#9a3412", dx=0.4, dy=0, halign="start", valign="middle");
+//   $NO_CONNECT @ATTACH #s8:dec;
+//   #s9:dec @TEXT("dec9", key="netname", size=0.55, textcolor="#9a3412", dx=0.4, dy=0, halign="start", valign="middle");
+//   #s10:dec @TEXT("dec10", key="netname", size=0.55, textcolor="#9a3412", dx=0.4, dy=0, halign="start", valign="middle");
+//   $NO_CONNECT @ATTACH #s11:dec;
+//   $NO_CONNECT @ATTACH #s12:dec;
+//   $NO_CONNECT @ATTACH #s13:dec;
+//   $NO_CONNECT @ATTACH #s14:up;
+//   $NO_CONNECT @ATTACH #s14:dn;
+//   #s14:dec @TEXT("dec14", key="netname", size=0.55, textcolor="#9a3412", dx=0.4, dy=0, halign="start", valign="middle");
+//   $NO_CONNECT @ATTACH #s14:eno;
+//   #i_tm:a @TEXT("c2", key="netname", size=0.55, textcolor="#9a3412", dx=-0.4, dy=0, halign="end", valign="middle");
+//   #i_tn:y @TEXT("tmsb", key="netname", size=0.55, textcolor="#9a3412", dx=0.4, dy=0, halign="start", valign="middle");
+//   #i_d3:a @TEXT("dec3", key="netname", size=0.55, textcolor="#9a3412", dx=-0.4, dy=0, halign="end", valign="middle");
+//   #i_d3:y @TEXT("dec3b", key="netname", size=0.55, textcolor="#9a3412", dx=0.4, dy=0, halign="start", valign="middle");
+//   #i_d4:a @TEXT("dec4", key="netname", size=0.55, textcolor="#9a3412", dx=-0.4, dy=0, halign="end", valign="middle");
+//   #i_d4:y @TEXT("dec4b", key="netname", size=0.55, textcolor="#9a3412", dx=0.4, dy=0, halign="start", valign="middle");
+//   #i_d7:a @TEXT("dec7", key="netname", size=0.55, textcolor="#9a3412", dx=-0.4, dy=0, halign="end", valign="middle");
+//   #i_d7:y @TEXT("dec7b", key="netname", size=0.55, textcolor="#9a3412", dx=0.4, dy=0, halign="start", valign="middle");
+//   #i_d9:a @TEXT("dec9", key="netname", size=0.55, textcolor="#9a3412", dx=-0.4, dy=0, halign="end", valign="middle");
+//   #i_d9:y @TEXT("dec9b", key="netname", size=0.55, textcolor="#9a3412", dx=0.4, dy=0, halign="start", valign="middle");
+//   #g_s3:a @TEXT("dec3b", key="netname", size=0.55, textcolor="#9a3412", dx=-0.4, dy=0, halign="end", valign="middle");
+//   #g_s3:b @TEXT("dec4", key="netname", size=0.55, textcolor="#9a3412", dx=-0.4, dy=0, halign="end", valign="middle");
+//   #g_s3:y @TEXT("sel3", key="netname", size=0.55, textcolor="#9a3412", dx=0.4, dy=0, halign="start", valign="middle");
+//   #g_s456:a @TEXT("dec4b", key="netname", size=0.55, textcolor="#9a3412", dx=-0.4, dy=0, halign="end", valign="middle");
+//   #g_s456:b @TEXT("dec7", key="netname", size=0.55, textcolor="#9a3412", dx=-0.4, dy=0, halign="end", valign="middle");
+//   #g_s456:y @TEXT("sel456", key="netname", size=0.55, textcolor="#9a3412", dx=0.4, dy=0, halign="start", valign="middle");
+//   #g_s9:a @TEXT("dec9b", key="netname", size=0.55, textcolor="#9a3412", dx=-0.4, dy=0, halign="end", valign="middle");
+//   #g_s9:b @TEXT("dec10", key="netname", size=0.55, textcolor="#9a3412", dx=-0.4, dy=0, halign="end", valign="middle");
+//   #g_s9:y @TEXT("sel9", key="netname", size=0.55, textcolor="#9a3412", dx=0.4, dy=0, halign="start", valign="middle");
+//   #g_ss:a @TEXT("dec7b", key="netname", size=0.55, textcolor="#9a3412", dx=-0.4, dy=0, halign="end", valign="middle");
+//   #g_ss:b @TEXT("sel9", key="netname", size=0.55, textcolor="#9a3412", dx=-0.4, dy=0, halign="end", valign="middle");
+//   #g_ss:y @TEXT("sels", key="netname", size=0.55, textcolor="#9a3412", dx=0.4, dy=0, halign="start", valign="middle");
+//   #i_3a:a @TEXT("w_3", key="netname", size=0.55, textcolor="#9a3412", dx=-0.4, dy=0, halign="end", valign="middle");
+//   #n_3:b @TEXT("sel3", key="netname", size=0.55, textcolor="#9a3412", dx=-0.4, dy=0, halign="end", valign="middle");
+//   #n_3:y @TEXT("wn_3", key="netname", size=0.55, textcolor="#9a3412", dx=0.4, dy=0, halign="start", valign="middle");
+//   #n_456:a @TEXT("w_456", key="netname", size=0.55, textcolor="#9a3412", dx=-0.4, dy=0, halign="end", valign="middle");
+//   #n_456:b @TEXT("sel456", key="netname", size=0.55, textcolor="#9a3412", dx=-0.4, dy=0, halign="end", valign="middle");
+//   #n_456:y @TEXT("wn_456", key="netname", size=0.55, textcolor="#9a3412", dx=0.4, dy=0, halign="start", valign="middle");
+//   #n_s:a @TEXT("w_s", key="netname", size=0.55, textcolor="#9a3412", dx=-0.4, dy=0, halign="end", valign="middle");
+//   #n_s:b @TEXT("sels", key="netname", size=0.55, textcolor="#9a3412", dx=-0.4, dy=0, halign="end", valign="middle");
+//   #n_s:y @TEXT("wn_s", key="netname", size=0.55, textcolor="#9a3412", dx=0.4, dy=0, halign="start", valign="middle");
+//   #n_9:a @TEXT("w_9", key="netname", size=0.55, textcolor="#9a3412", dx=-0.4, dy=0, halign="end", valign="middle");
+//   #n_9:b @TEXT("sel9", key="netname", size=0.55, textcolor="#9a3412", dx=-0.4, dy=0, halign="end", valign="middle");
+//   #n_9:y @TEXT("wn_9", key="netname", size=0.55, textcolor="#9a3412", dx=0.4, dy=0, halign="start", valign="middle");
+//   #g_wa:a @TEXT("dec3", key="netname", size=0.55, textcolor="#9a3412", dx=-0.4, dy=0, halign="end", valign="middle");
+//   #g_wa:b @TEXT("wn_3", key="netname", size=0.55, textcolor="#9a3412", dx=-0.4, dy=0, halign="end", valign="middle");
+//   #g_wa:c @TEXT("wn_456", key="netname", size=0.55, textcolor="#9a3412", dx=-0.4, dy=0, halign="end", valign="middle");
+//   #g_wa:y @TEXT("w_a", key="netname", size=0.55, textcolor="#9a3412", dx=0.4, dy=0, halign="start", valign="middle");
+//   #g_wb:a @TEXT("wn_s", key="netname", size=0.55, textcolor="#9a3412", dx=-0.4, dy=0, halign="end", valign="middle");
+//   #g_wb:b @TEXT("wn_9", key="netname", size=0.55, textcolor="#9a3412", dx=-0.4, dy=0, halign="end", valign="middle");
+//   #g_wb:y @TEXT("w_b", key="netname", size=0.55, textcolor="#9a3412", dx=0.4, dy=0, halign="start", valign="middle");
+//   #i_eb:a @TEXT("dec14", key="netname", size=0.55, textcolor="#9a3412", dx=-0.4, dy=0, halign="end", valign="middle");
+//   #g_en:b @TEXT("cv", key="netname", size=0.55, textcolor="#9a3412", dx=-0.4, dy=0, halign="end", valign="middle");
+//   #i_en:y @TEXT("en_go", key="netname", size=0.55, textcolor="#9a3412", dx=0.4, dy=0, halign="start", valign="middle");
+//   #g_sa:a @TEXT("blcn", key="netname", size=0.55, textcolor="#9a3412", dx=-0.4, dy=0, halign="end", valign="middle");
+//   #g_sa:b @TEXT("bothlow", key="netname", size=0.55, textcolor="#9a3412", dx=-0.4, dy=0, halign="end", valign="middle");
+//   #g_sa:c @TEXT("w_a", key="netname", size=0.55, textcolor="#9a3412", dx=-0.4, dy=0, halign="end", valign="middle");
+//   #g_sa:d @TEXT("en_go", key="netname", size=0.55, textcolor="#9a3412", dx=-0.4, dy=0, halign="end", valign="middle");
+//   #g_sb:a @TEXT("blcn", key="netname", size=0.55, textcolor="#9a3412", dx=-0.4, dy=0, halign="end", valign="middle");
+//   #g_sb:b @TEXT("bothlow", key="netname", size=0.55, textcolor="#9a3412", dx=-0.4, dy=0, halign="end", valign="middle");
+//   #g_sb:c @TEXT("w_b", key="netname", size=0.55, textcolor="#9a3412", dx=-0.4, dy=0, halign="end", valign="middle");
+//   #g_sb:d @TEXT("en_go", key="netname", size=0.55, textcolor="#9a3412", dx=-0.4, dy=0, halign="end", valign="middle");
+//   #g_r:a @TEXT("OUTP", key="netname", size=0.55, textcolor="#9a3412", dx=-0.4, dy=0, halign="end", valign="middle");
+//   #g_r:b @TEXT("OUTN", key="netname", size=0.55, textcolor="#9a3412", dx=-0.4, dy=0, halign="end", valign="middle");
+//   #g_r:c @TEXT("TO", key="netname", size=0.55, textcolor="#9a3412", dx=-0.4, dy=0, halign="end", valign="middle");
+//   #g_r:d @TEXT("convb", key="netname", size=0.55, textcolor="#9a3412", dx=-0.4, dy=0, halign="end", valign="middle");
+//   #p_e:a @TEXT("dec14", key="netname", size=0.55, textcolor="#9a3412", dx=-0.4, dy=0, halign="end", valign="middle");
+//   #p_c:a @TEXT("convb", key="netname", size=0.55, textcolor="#9a3412", dx=-0.4, dy=0, halign="end", valign="middle");
+//   #p_r:a @TEXT("cv", key="netname", size=0.55, textcolor="#9a3412", dx=-0.4, dy=0, halign="end", valign="middle");
+//   #l_dn:s @TEXT("ld", key="netname", size=0.55, textcolor="#9a3412", dx=-0.4, dy=0, halign="end", valign="middle");
+//   #l_dn:qb @TEXT("dn_qb", key="netname", size=0.55, textcolor="#9a3412", dx=0.4, dy=0, halign="start", valign="middle");
+// }
+ends adc_sarlogic

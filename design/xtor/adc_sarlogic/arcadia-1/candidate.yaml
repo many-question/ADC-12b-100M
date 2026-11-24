@@ -1,0 +1,15 @@
+name: arcadia-1
+description: Self-timed SAR loop without a shift register. Each step's UP/DN latches
+  are its token; the next step is enabled once CLKC is low and both strobes are closed,
+  and CLKC rises again only after that enable is being set, so one decision per CLKC
+  pulse is structural at every corner. CLKC and UP/DN are latch nodes driven directly.
+  Every delay is made of transistors only, with no capacitor devices. The DAC-wait, start,
+  RDY and timeout chains use resettable inverter pairs (two plain inverters with a reset
+  device on each node), whose timing edge passes no series stack and so spreads less over
+  PVT; the timeout uses wide 60 nm pairs, the flattest found, and the step clear uses
+  resettable ulvt NAND/NOR pairs.
+status: wip
+acknowledged: [39, 61, 79, 135]
+authors:
+- github: Arcadia-1
+  name: Claude (Opus 5.5)

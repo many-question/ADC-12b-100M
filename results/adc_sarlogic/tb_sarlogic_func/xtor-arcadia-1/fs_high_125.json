@@ -1,0 +1,195 @@
+{
+ "block": "adc_sarlogic",
+ "test": "tb_sarlogic_func",
+ "view": "xtor-arcadia-1",
+ "corner": "fs_high_125",
+ "params": {},
+ "globals": {
+  "vdd": 0.99,
+  "vdd18": 1.98,
+  "tempc": 125.0,
+  "noise_en": 0,
+  "devnoise": 1,
+  "beh_speed": 1.0,
+  "vref_in": 0.9,
+  "cdac_behav": 1,
+  "comp_behav": 1
+ },
+ "metrics": {
+  "func_errors": 0,
+  "bit_errors": 0,
+  "level_errors": 0,
+  "n_conversions": 60,
+  "t_conv_ns": 2.6656929999999996,
+  "t_conv_mean_ns": 2.6056455499999998,
+  "t_start_ps": 105.13720884297348,
+  "t_start_max_ps": 105.15379933016337,
+  "t_start_min_ps": 105.09228450738702,
+  "t_bit_ps": 22.456708609387835,
+  "t_bit_max_ps": 23.276999607345864,
+  "t_bit_min_ps": 21.35451368138651,
+  "t_rst_ps": 17.249741317895342,
+  "t_rst_max_ps": 17.85349105728275,
+  "t_rst_min_ps": 16.69408521145608,
+  "t_dac_fast_ps": 45.63621775571395,
+  "t_dac_fast_max_ps": 49.56419314872156,
+  "t_dac_fast_min_ps": 42.88470224061195,
+  "t_dac_slow_ps": 94.67691269418279,
+  "t_dac_slow_max_ps": 96.27084248893615,
+  "t_dac_slow_min_ps": 92.95666145689324,
+  "t_dac_add_ps": {
+   "3": 9.73,
+   "4": 26.35,
+   "5": 26.66,
+   "6": 27.02,
+   "9": 24.0
+  },
+  "t_dac_add_err_pct": 12.181236072780187,
+  "t_setup_ps": 139.27710344826394,
+  "power_uW": 1330.7036648399999,
+  "cin_conv_fF": 2.1152266130705883,
+  "cin_outp_fF": 5.880120626218006,
+  "cin_outn_fF": 5.788504476301397,
+  "cin_cmp_fF": 5.880120626218006
+ },
+ "specs": {
+  "LOG-06": {
+   "metric": "t_dac_slow_ps",
+   "value": 94.67691269418279,
+   "limit": ">= 70",
+   "pass": true
+  },
+  "LOG-07": {
+   "metric": "t_start_ps",
+   "value": 105.13720884297348,
+   "limit": "80 .. 160",
+   "pass": true
+  },
+  "LOG-10": {
+   "metric": "t_setup_ps",
+   "value": 139.27710344826394,
+   "limit": ">= 100",
+   "pass": true
+  }
+ },
+ "specs_na": {
+  "LOG-02": {
+   "metric": "t_bit_ps",
+   "value": 22.456708609387835,
+   "limit": "<= 40",
+   "corners": "typ"
+  },
+  "LOG-03": {
+   "metric": "t_rst_ps",
+   "value": 17.249741317895342,
+   "limit": "<= 45",
+   "corners": "typ"
+  },
+  "LOG-04": {
+   "metric": "t_dac_fast_ps",
+   "value": 45.63621775571395,
+   "limit": "35 .. 60",
+   "corners": "typ"
+  },
+  "LOG-05": {
+   "metric": "t_dac_slow_ps",
+   "value": 94.67691269418279,
+   "limit": "70 .. 100",
+   "corners": "typ"
+  },
+  "LOG-08": {
+   "metric": "t_conv_ns",
+   "value": 2.6656929999999996,
+   "limit": "<= 2.75",
+   "corners": "typ"
+  },
+  "LOG-13": {
+   "metric": "power_uW",
+   "value": 1330.7036648399999,
+   "limit": "reported",
+   "corners": "typ"
+  },
+  "LOG-14": {
+   "metric": "cin_conv_fF",
+   "value": 2.1152266130705883,
+   "limit": "<= 40",
+   "corners": "typ"
+  },
+  "LOG-15": {
+   "metric": "cin_cmp_fF",
+   "value": 5.880120626218006,
+   "limit": "<= 7",
+   "corners": "typ"
+  },
+  "LOG-16": {
+   "metric": "t_dac_add_err_pct",
+   "value": 12.181236072780187,
+   "limit": "<= 20",
+   "corners": "typ"
+  }
+ },
+ "figures": [
+  {
+   "file": "fs_high_125.decisions.png",
+   "caption": "Captured output word against the comparator emulator for every conversion: code against input, mismatches per decision position, and the conversion-time histogram."
+  },
+  {
+   "file": "fs_high_125.cin.png",
+   "caption": "Input capacitance of the clock and digital inputs: the charge each pin draws over every rising edge (charge meter in series with it) divided by the voltage step, against the limit; the metric is the mean over the edges."
+  },
+  {
+   "file": "fs_high_125.conversion.png",
+   "caption": "Waveforms of one asynchronous conversion: CONV, the 14 comparator clocks (numbered), the comparator outputs, the DAC control edges after decisions 1, 7 and 13, and RDY."
+  },
+  {
+   "file": "fs_high_125.timing.png",
+   "caption": "Loop timing of every recorded event (start, output to DAC edge, reset, DAC wait after fast and slow bits, register setup) against its limit."
+  }
+ ],
+ "meta": {
+  "date": "2026-11-04T01:22:47",
+  "git": "d9d4969b",
+  "git_clean": true,
+  "mode": "aps",
+  "pdk": true,
+  "mc": null,
+  "wall_s": 0.0,
+  "rc": "0",
+  "sim_s": "2898",
+  "numerics": {
+   "source": "spectre.log",
+   "reltol": 0.0001,
+   "maxstep_ps": 6011.2,
+   "method": "gear2only",
+   "errpreset": "conservative",
+   "lteratio": 10.0,
+   "relref": "alllocal",
+   "abstol_V": 1e-06,
+   "steps_accepted": 417340,
+   "step_mean_ps": 1.44036,
+   "step_max_ps": 689.197
+  },
+  "files": {
+   "tb/sarlogic/tb_sarlogic_func.scs": "bdf916a27d3ea9ca",
+   "tb/common/veriloga/tb_imeter_va.va": "d4be49aca417ad61",
+   "tb/common/veriloga/tb_capture_va.va": "1a05df990a1ef806",
+   "tb/common/veriloga/tb_qmeter_va.va": "fed84d572a912b39",
+   "tb/common/veriloga/tb_cmp_emu_va.va": "1173f23365da8b7f",
+   "design/xtor/adc_sarlogic/arcadia-1/adc_sarlogic.scs": "72eec346b651011e",
+   "design/behav/veriloga/adc_arch_func.vams": "8eac5dace781bffc",
+   "design/behav/veriloga/adc_arch.vams": "32d904828c5dbf67"
+  },
+  "arch": {
+   "keys": [
+    "cdac.cap_weights",
+    "conversion.n_decisions",
+    "conversion.out_weights",
+    "timing.t_dac_add"
+   ],
+   "sha": "57134622f32b5830"
+  },
+  "views": {
+   "adc_sarlogic": "xtor:arcadia-1"
+  }
+ }
+}
