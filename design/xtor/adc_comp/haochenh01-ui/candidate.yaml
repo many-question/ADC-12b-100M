@@ -1,7 +1,8 @@
 name: haochenh01-ui
 description: StrongARM comparator with delayed precharge and return-to-zero
-  outputs; complete RNL, initial WIP sizing not yet simulated.
-status: wip
+  outputs; complete RNL, all adc_comp tests simulated with aps across all
+  corners (see results/adc_comp).
+status: ready
 acknowledged:
 - 131
 - 136

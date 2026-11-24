@@ -1,8 +1,9 @@
 // adc_comp, candidate haochenh01-ui: StrongARM latched comparator with delayed
 // precharge (CKR = CLKC delayed by two inverter stages) and return-to-zero
 // output inverters. INP > INN asserts OUTP; CLKC low resets, CLKC rising
-// evaluates. WIP: initial sizing, not yet simulated (see candidate.yaml and
-// NOTES.md); widths are total channel widths with explicit finger counts.
+// evaluates. Iteration 2 (2026-11-23): core sizing matched to the project
+// reference strongarm with larger CDP/CDN integration caps for all-corner
+// noise margin; widths are total channel widths with explicit finger counts.
 // @RNL(type="header") {
 //   @VERSION("0.3");
 //   @USE-PACKAGE(name="adc28", version="0.1", path="../../../rnl/adc28.rnl")
@@ -12,27 +13,27 @@ simulator lang=spectre
 subckt adc_comp (INP INN CLKC OUTP OUTN AVDD VSS)
 // Input pair, tail switch, delayed-precharge resets, regenerative latch and
 // RTZ output inverters; CDP/CDN integrate the decision for lower noise.
-MINP (DP INP TAIL VSS) nch_ulvt_mac l=30n w=52u nf=52
-MINN (DN INN TAIL VSS) nch_ulvt_mac l=30n w=52u nf=52
-MTAIL (TAIL CLKC VSS VSS) nch_ulvt_mac l=30n w=3.3u nf=3
-MRDP (DP CKR AVDD AVDD) pch_ulvt_mac l=30n w=3.6u nf=4
-MRDN (DN CKR AVDD AVDD) pch_ulvt_mac l=30n w=3.6u nf=4
-MLNP (QP QN DP VSS) nch_ulvt_mac l=30n w=10u nf=10
-MLNN (QN QP DN VSS) nch_ulvt_mac l=30n w=10u nf=10
-MLPP (QP QN AVDD AVDD) pch_ulvt_mac l=30n w=7.2u nf=8
-MLPN (QN QP AVDD AVDD) pch_ulvt_mac l=30n w=7.2u nf=8
-MRQP (QP CKR AVDD AVDD) pch_ulvt_mac l=30n w=13.6u nf=16
-MRQN (QN CKR AVDD AVDD) pch_ulvt_mac l=30n w=13.6u nf=16
-MOPN (OUTP QP VSS VSS) nch_ulvt_mac l=30n w=2.2u nf=2
-MOPP (OUTP QP AVDD AVDD) pch_ulvt_mac l=30n w=4.4u nf=4
-MONN (OUTN QN VSS VSS) nch_ulvt_mac l=30n w=2.2u nf=2
-MONP (OUTN QN AVDD AVDD) pch_ulvt_mac l=30n w=4.4u nf=4
-MCKN (CKB CLKC VSS VSS) nch_ulvt_mac l=30n w=2.2u nf=2
-MCKP (CKB CLKC AVDD AVDD) pch_ulvt_mac l=30n w=4.4u nf=4
+MINP (DP INP TAIL VSS) nch_ulvt_mac l=30n w=56u nf=56
+MINN (DN INN TAIL VSS) nch_ulvt_mac l=30n w=56u nf=56
+MTAIL (TAIL CLKC VSS VSS) nch_ulvt_mac l=30n w=3.5u nf=3
+MRDP (DP CKR AVDD AVDD) pch_ulvt_mac l=30n w=4.0u nf=4
+MRDN (DN CKR AVDD AVDD) pch_ulvt_mac l=30n w=4.0u nf=4
+MLNP (QP QN DP VSS) nch_ulvt_mac l=30n w=14u nf=14
+MLNN (QN QP DN VSS) nch_ulvt_mac l=30n w=14u nf=14
+MLPP (QP QN AVDD AVDD) pch_ulvt_mac l=30n w=10u nf=10
+MLPN (QN QP AVDD AVDD) pch_ulvt_mac l=30n w=10u nf=10
+MRQP (QP CKR AVDD AVDD) pch_ulvt_mac l=30n w=16u nf=16
+MRQN (QN CKR AVDD AVDD) pch_ulvt_mac l=30n w=16u nf=16
+MOPN (OUTP QP VSS VSS) nch_ulvt_mac l=30n w=2.0u nf=2
+MOPP (OUTP QP AVDD AVDD) pch_ulvt_mac l=30n w=4.0u nf=4
+MONN (OUTN QN VSS VSS) nch_ulvt_mac l=30n w=2.0u nf=2
+MONP (OUTN QN AVDD AVDD) pch_ulvt_mac l=30n w=4.0u nf=4
+MCKN (CKB CLKC VSS VSS) nch_ulvt_mac l=30n w=2.0u nf=2
+MCKP (CKB CLKC AVDD AVDD) pch_ulvt_mac l=30n w=4.0u nf=4
 MCK2N (CKR CKB VSS VSS) nch_ulvt_mac l=30n w=4.4u nf=4
 MCK2P (CKR CKB AVDD AVDD) pch_ulvt_mac l=30n w=8.8u nf=8
-CDP (DP VSS) cfmom_2t nr=48 lr=1u w=50n s=50n stm=1 spm=3 multi=1
-CDN (DN VSS) cfmom_2t nr=48 lr=1u w=50n s=50n stm=1 spm=3 multi=1
+CDP (DP VSS) cfmom_2t nr=88 lr=1u w=50n s=50n stm=1 spm=3 multi=1
+CDN (DN VSS) cfmom_2t nr=88 lr=1u w=50n s=50n stm=1 spm=3 multi=1
 // @RNL {
 //   &AVDD @ADD-TO $SUPPLY_NET_SET;
 //   &VSS @ADD-TO $GROUND_NET_SET;
@@ -111,12 +112,12 @@ CDN (DN VSS) cfmom_2t nr=48 lr=1u w=50n s=50n stm=1 spm=3 multi=1
 //   %s_avdd = $SUPPLY @ATTACH &AVDD => @PLACE(-50, 62) => @ORIENT("R0");
 //   %g_vss = $GROUND @ATTACH &VSS => @PLACE(-50, -74) => @ORIENT("R0");
 //   /* --- annotations --- */
-//   (-78, 70) @TEXT("adc_comp | candidate haochenh01-ui (WIP)", size=1.5, bold=true);
-//   (-78, 65) @TEXT("StrongARM, delayed precharge (CKR), RTZ outputs; initial sizing, not yet simulated", size=0.9);
+//   (-78, 70) @TEXT("adc_comp | candidate haochenh01-ui (iter 2)", size=1.5, bold=true);
+//   (-78, 65) @TEXT("StrongARM, delayed precharge (CKR), RTZ outputs; reference core sizing + CDP/CDN nr=72", size=0.9);
 //   (-50, -27) @TEXT("Two-stage reset clock buffer: CLKC -> CKB -> CKR", size=0.8);
 //   (-90, -34) @TEXT("CDP/CDN: integration caps on DP/DN; bodies implicit (NMOS to VSS, PMOS to AVDD)", size=0.75);
 // }
-// @RNL(type="generated", priority="high", author="rnl-solver 0.1", hash="sig2:99be077eeff7b6fb.ffc36700559c31e7", numbering="bc5e910d96742476") {
+// @RNL(type="generated", priority="high", author="rnl-solver 0.1", hash="sig2:b92ad401288e5e8a.ffc36700559c31e7", numbering="6ef23fc6006ad848") {
 //   %ground_stub_MINP_b = $GROUND_STUB @ATTACH(gap=2) #MINP:b;
 //   %ground_stub_MINN_b = $GROUND_STUB @ATTACH(gap=2) #MINN:b;
 //   %ground_stub_MTAIL_s = $GROUND_STUB @ATTACH(gap=2) #MTAIL:s;
