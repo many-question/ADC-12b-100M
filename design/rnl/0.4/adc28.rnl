@@ -53,13 +53,14 @@
   # @SELECT-INSTANCE(model="*moscap*", recursive=true) => @SET-SYMBOL $CAPACITOR;
 
   /* ---- bus port: one port tag for a group of port nets, such as D13 .. D0 drawn as D<13:0>.
-     Applied on the point of its pin: %bp = (x, y)(p) {&D13 ... &D0}(nets) @AS $BUS_PORT, and
-     wired as {&D13 ... &D0} @WIRE {... %bp:p}. Its nets get no port tag of their own from
-     rnl-std-fill. The tag shows the text with the key name: write the bus name there,
+     Placed at its pin: %bp = {&D13 ... &D0}(nets) @AS $BUS_PORT => @PLACE(x, y), and wired as
+     {&D13 ... &D0} @WIRE {... %bp::pin}. The pin binds no role (a pin of a usage stands on one
+     net), so the bus wire ends there by the pin's name. Its nets get no port tag of their own
+     from the fill. The tag shows the text with the key name: write the bus name there,
      %bp @TEXT("D<13:0>", key="name"), else it lists the nets. ---- */
-  $BUS_PORT = @DEFINE(roles=[["p", "point"], ["{nets}", "net"]]) { ?nets @REMOVE-FROM $PORT_FILL_SET };
+  $BUS_PORT = @DEFINE(roles=[["{nets}", "net"]]) { ?nets @REMOVE-FROM $PORT_FILL_SET };
   $BUS_PORT_SYMBOL = @DEFINE-SYMBOL(box=[-1.4, -0.7, 0, 0.7]) {
-    (0, 0) @PIN(terminal="p", direction="right");
+    %pin = (0, 0) @PIN(direction="right");
     (-0.8, 0) @CIRCLE(radius=0.32, linewidth=0.24);
     @LINE(linewidth=0.32) {(0, 0) (-0.48, 0)};
     ? @TEXT("${nets}", key="name", halign="end", valign="middle") => @PLACE(-1.35, 0)

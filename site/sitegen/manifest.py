@@ -42,7 +42,8 @@ def rnl_version(data: bytes) -> str | None:
 
 
 def viewer_for(version: str | None) -> str:
-    """The hosted viewer that reads RNL `version`; the current one for 0.4, a newer or an undeclared version."""
+    """The hosted viewer that reads RNL `version`; the current one for 0.4, a newer or an undeclared version
+    (an undeclared one is the current language, as for `adcflow check rnl`: checks.RNL_CURRENT)."""
     return VIEWERS.get(version or "", VIEWER)
 
 

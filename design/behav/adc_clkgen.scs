@@ -1,7 +1,7 @@
 // adc_clkgen, behavioral view: sampling phase generator
 // @RNL(type="header") {
-//   @VERSION("0.3");
-//   @USE-PACKAGE(name="adc28", version="0.1", path="../rnl/adc28.rnl")
+//   @VERSION("0.4");
+//   @USE-PACKAGE(name="adc28", version="0.2", path="../rnl/0.4/adc28.rnl")
 // }
 simulator lang=spectre
 
@@ -18,21 +18,21 @@ I0 (CLK PHI_S PHI_SB PHI_B PHI_BB CONV AVDD VSS) adc_clkgen_va \
 //   /* --- placement and wires --- */
 //   #I0 @PLACE(0, 0);
 //   %p_clk = $IO_PORT @ATTACH &CLK => @PLACE(-10, 0) => @ORIENT("R0");
-//   &CLK @WIRE {%p_clk:p #I0:CLK};
+//   &CLK @WIRE {%p_clk::pin #I0:CLK};
 //   %p_phi_s = $IO_PORT @ATTACH &PHI_S => @PLACE(10, 4) => @ORIENT("MY");
-//   &PHI_S @WIRE {#I0:PHI_S %p_phi_s:p};
+//   &PHI_S @WIRE {#I0:PHI_S %p_phi_s::pin};
 //   %p_phi_sb = $IO_PORT @ATTACH &PHI_SB => @PLACE(10, 2) => @ORIENT("MY");
-//   &PHI_SB @WIRE {#I0:PHI_SB %p_phi_sb:p};
+//   &PHI_SB @WIRE {#I0:PHI_SB %p_phi_sb::pin};
 //   %p_phi_b = $IO_PORT @ATTACH &PHI_B => @PLACE(10, 0) => @ORIENT("MY");
-//   &PHI_B @WIRE {#I0:PHI_B %p_phi_b:p};
+//   &PHI_B @WIRE {#I0:PHI_B %p_phi_b::pin};
 //   %p_phi_bb = $IO_PORT @ATTACH &PHI_BB => @PLACE(10, -2) => @ORIENT("MY");
-//   &PHI_BB @WIRE {#I0:PHI_BB %p_phi_bb:p};
+//   &PHI_BB @WIRE {#I0:PHI_BB %p_phi_bb::pin};
 //   %p_conv = $IO_PORT @ATTACH &CONV => @PLACE(10, -4) => @ORIENT("MY");
-//   &CONV @WIRE {#I0:CONV %p_conv:p};
+//   &CONV @WIRE {#I0:CONV %p_conv::pin};
 //   %s1 = $SUPPLY @ATTACH &AVDD => @PLACE(0, 9);
-//   &AVDD @WIRE {#I0:AVDD %s1:p};
+//   &AVDD @WIRE {#I0:AVDD %s1::pin};
 //   %g1 = $GROUND @ATTACH &VSS => @PLACE(0, -9);
-//   &VSS @WIRE {#I0:VSS %g1:p};
+//   &VSS @WIRE {#I0:VSS %g1::pin};
 //   /* --- annotations --- */
 //   (-12, 15.5) @TEXT("adc_clkgen (behavioral): CLK fall -> PHI_S fall -> PHI_B fall -> CONV rise", halign="start") => @SET-STYLE $title_style;
 //   (-12, 14) @TEXT("CLK rise -> CONV fall -> PHI_B, PHI_S rise (break before make); delays scaled by beh_speed", halign="start") => @SET-STYLE $note_style;

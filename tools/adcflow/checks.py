@@ -172,11 +172,15 @@ def check_ports() -> Report:
 _RNL_VERSION = re.compile(r'@VERSION\(\s*"([0-9]+\.[0-9]+)"\s*\)')
 
 
+RNL_CURRENT = "0.4"        # the language of a file that declares none, as for the site (sitegen.manifest.viewer_for)
+
+
 def rnl_language(path: Path) -> str:
-    """The RNL language a file declares in its header (@VERSION); a file without one is read as 0.3,
-    the language every file of the repository was written in before RNL 0.4."""
+    """The RNL language a file declares in its header (@VERSION); a file without one is read in the
+    current language, RNL_CURRENT, as the current core and viewer read it. Every file of 0.3 in the
+    repository declares its version."""
     m = _RNL_VERSION.search(path.read_text(encoding="utf-8", errors="replace"))
-    return m.group(1) if m else "0.3"
+    return m.group(1) if m else RNL_CURRENT
 
 
 def _cli_version(exe: str) -> str | None:

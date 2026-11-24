@@ -75,11 +75,14 @@ def test_manifest_lists_only_files_of_its_entrys_version():
     assert [f["path"] for f in cand["files"]] == ["design/xtor/b/n/b.scs", "design/behav/veriloga/m.va"] and cand["pool"] == []
 
 
-def test_main_netlists_in_rnl_0_3_open_in_viewer_0_3(tmp_path):
+def test_the_top_and_behavioral_views_open_in_the_current_viewer(tmp_path):
+    """The top, the behavioral views and the testbenches are written in RNL 0.4 (gen.NETLIST_RNL): no page
+    opens them in viewer-0.3/, which is left to candidates still in 0.3."""
     assert _build_module().build(tmp_path / "site", "pages", "https://o.github.io/r/", use_live=False) == []
     html = (tmp_path / "site" / "index.html").read_text(encoding="utf-8")
-    assert 'data-viewer="https://rich-netlist.github.io/rnl/viewer-0.3/"' in html
-    assert "https://rich-netlist.github.io/rnl/viewer-0.3/?manifest=" in html
-    page = next((tmp_path / "site" / "blocks").glob("adc_*.html")).read_text(encoding="utf-8")
-    assert "&quot;viewer&quot;: &quot;https://rich-netlist.github.io/rnl/viewer-0.3/&quot;" in page
-    assert "rnl/viewer/?" not in page and "rnl/viewer/?" not in html
+    assert 'data-viewer="https://rich-netlist.github.io/rnl/viewer/"' in html
+    assert "viewer-0.3" not in html
+    for page in ("adc_top", "adc_cdac", "adc_clkgen", "adc_ref"):     # no 0.3 candidate on these pages
+        text = (tmp_path / "site" / "blocks" / f"{page}.html").read_text(encoding="utf-8")
+        assert "&quot;viewer&quot;: &quot;https://rich-netlist.github.io/rnl/viewer/&quot;" in text, page
+        assert "viewer-0.3" not in text, page

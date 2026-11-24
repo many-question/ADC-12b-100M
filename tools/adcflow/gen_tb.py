@@ -22,7 +22,7 @@ from dataclasses import dataclass, field
 
 from . import REPO_ROOT, numerics
 from .arch import Arch
-from .gen import GEN_HEADER, block_symbols, va_symbols, va_ports
+from .gen import GEN_HEADER, block_symbols, netlist_header, va_symbols, va_ports
 from .rnldraw import STD_PINS, Sheet
 from .corners import supply_envelope
 from .specs import blocks
@@ -153,14 +153,20 @@ def draw(tb: TBDef) -> list[str]:
         col, row = divmod(i, 6)
         placed[e.name] = s.place(e.name, pins, dut_box[0] - 16 - 12 * col, dut_box[3] - 9 * row)
     for e in tb.elements:
-        if e.master in LOCAL:
-            s.emit(f"#{e.name} @SET-SYMBOL {LOCAL[e.master]};")
-    # monitors: column right of the DUT
+        if e.master in LOCAL:       # its ports P N to the pins p n of the standard symbol
+            s.emit(f'#{e.name} @SET-SYMBOL(terminals=[[1, "p"], [2, "n"]]) {LOCAL[e.master]};')
+        elif e.master == "relay":   # 0.4 draws a relay controlled from ground with another symbol
+            s.emit(f"#{e.name} @SET-SYMBOL $VOLTAGE_CONTROLLED_SWITCH;")
+    # monitors: column right of the DUT, and clear of the row of loads below it
+    x_mon = dut_box[2] + 16
+    if groups["load"]:
+        x_load = dut_box[0] + 8 * (len(groups["load"]) - 1) + max(_extent(_pins_and_sides(e.master)[0])[2] for e in groups["load"])
+        x_mon = max(x_mon, x_load + 8)
     ymon = dut_box[3]
     for e in groups["mon"]:
         pins, _, _ = _pins_and_sides(e.master)
         x0, y0, x1, y1 = _extent(pins)
-        placed[e.name] = s.place(e.name, pins, dut_box[2] + 16 - x0, ymon - y1)
+        placed[e.name] = s.place(e.name, pins, x_mon - x0, ymon - y1)
         ymon -= (y1 - y0) + 10
     # loads: row below the DUT
     for i, e in enumerate(groups["load"]):
@@ -211,13 +217,8 @@ def _wrap(nodes: list[str], prefix: str, suffix: str) -> list[str]:
 
 
 def render(tb: TBDef) -> str:
-    depth = tb.path.count("/")
-    up = "../" * depth
     L = [f"// {tb.title}",
-         '// @RNL(type="header") {',
-         '//   @VERSION("0.3");',
-         f'//   @USE-PACKAGE(name="adc28", version="0.1", path="{up}design/rnl/adc28.rnl")',
-         "// }",
+         *netlist_header(tb.path),
          f"// {GEN_HEADER} (tools/adcflow/gen_tb.py)",
          "// Globals vdd, vdd18, tempc, noise_en, devnoise, beh_speed, vref_in come from the run deck.",
          "simulator lang=spectre"]
@@ -375,9 +376,9 @@ def tb_comp() -> list[TBDef]:
                "// @RNL {",
                "//   #V0 @PLACE(0, 0);",
                '//   %p = $IO_PORT @ATTACH &P => @PLACE(0, 5) => @ORIENT("R270");',
-               "//   &P @WIRE {#V0:1 %p:p};",
+               "//   &P @WIRE {#V0:1 %p::pin};",
                '//   %n = $IO_PORT @ATTACH &N => @PLACE(0, -5) => @ORIENT("R90");',
-               "//   &N @WIRE {#V0:2 %n:p}",
+               "//   &N @WIRE {#V0:2 %n::pin}",
                "// }",
                "ends tb_mm_vos",
                "// (continuation lines: the drawing tools read the statistics block as one statement)",
