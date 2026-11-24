@@ -489,12 +489,17 @@ def _site_literals() -> list[tuple[str, str]]:
         return []
     vals = []
     sim, pdk = s.get("sim") or {}, s.get("pdk") or {}
-    if sim.get("host"):
-        vals.append(str(sim["host"]))
-    if sim.get("remote_root"):
-        vals.append(str(sim["remote_root"]).split("{")[0].rstrip("/"))
-    for cmd in sim.get("env_setup") or []:
-        vals += [w for w in str(cmd).split() if "/" in w]
+    for h in [sim, *[x for x in sim.get("hosts") or [] if isinstance(x, dict)]]:   # single-host form, sim.hosts
+        for k in ("host", "ssh", "name"):
+            if h.get(k):
+                vals.append(str(h[k]))
+        for k in ("remote_root", "model_cache", "venv"):
+            if h.get(k):
+                vals.append(str(h[k]).split("{")[0].rstrip("/"))
+        if "/" in str(h.get("spectre") or ""):
+            vals.append(str(h["spectre"]))
+        for cmd in h.get("env_setup") or []:
+            vals += [w for w in str(cmd).split() if "/" in w]
     for k in ("model_dir", "core_file", "hv_file"):
         if pdk.get(k):
             vals.append(str(pdk[k]))

@@ -17,7 +17,7 @@ CFG = {"spectre": "spectre", "env_setup": ["source env"], "host": "h", "remote_r
 def _run(monkeypatch, rc: int, job_timeout: float = 3600, jobs=("a", "b", "c"), soa_jobs=None):
     sent = {}
 
-    def fake_ssh(script, timeout=None, stdin_bytes=None, check=True):
+    def fake_ssh(script, timeout=None, stdin_bytes=None, check=True, host=None):
         sent.update(script=script, timeout=timeout, check=check)
         if check and rc:
             raise remote.RemoteError(f"remote script failed ({rc}): err")
@@ -133,7 +133,7 @@ def test_runner_fails_only_the_timed_out_job(monkeypatch, tmp_path):
     """Three corners, the second ended by its time limit: it alone is an error, the others are measured."""
     calls = {}
 
-    def fake_fetch(rroot, patterns, run_dir, max_mb):
+    def fake_fetch(rroot, patterns, run_dir, max_mb, host=None):
         for i, staged in enumerate(sorted((run_dir / "stage" / "jobs").iterdir())):
             jd = run_dir / "jobs" / staged.name                        # what the real fetch brings back
             jd.mkdir(parents=True, exist_ok=True)
@@ -144,13 +144,14 @@ def test_runner_fails_only_the_timed_out_job(monkeypatch, tmp_path):
     monkeypatch.setattr(runner, "RUNS", tmp_path)
     monkeypatch.setattr("adcflow.spectrum.require_toolbox", lambda: None)
     monkeypatch.setattr(remote, "cfg", lambda: {**CFG, "modes": {"aps": ["+aps"]}, "fetch": [], "fetch_max_mb": 50})
-    monkeypatch.setattr(remote, "remote_root", lambda: "/r")
-    monkeypatch.setattr(remote, "upload_tree", lambda *a: None)
+    monkeypatch.setattr(remote, "remote_root", lambda host=None: "/r")
+    monkeypatch.setattr(remote, "upload_tree", lambda *a, **k: None)
     monkeypatch.setattr(remote, "launch", lambda *a, **k: calls.setdefault("launch", a) and 0)
-    monkeypatch.setattr(remote, "status", lambda rroot: remote.parse_status("exists 1\nlive 0\nended 3 0\ndone 0 1 2"))
+    monkeypatch.setattr(remote, "status",
+                        lambda rroot, host=None: remote.parse_status("exists 1\nlive 0\nended 3 0\ndone 0 1 2"))
     monkeypatch.setattr(remote, "fetch", fake_fetch)
-    monkeypatch.setattr(remote, "mark_fetched", lambda *a: None)
-    monkeypatch.setattr(remote, "remove", lambda *a: None)
+    monkeypatch.setattr(remote, "mark_fetched", lambda *a, **k: None)
+    monkeypatch.setattr(remote, "remove", lambda *a, **k: None)
     monkeypatch.setattr(runner, "measure", lambda test, jd, ctx: {"ok": 1})
     rows = runner.run_test("tb_sarlogic_func", None, "tt_nom_27,ff_high_125,ss_low_m40", {}, {}, "aps", 3,
                            False, False, timeout=3600)
