@@ -2,15 +2,23 @@
 
 * design/rnl/adc28_blocks.rnl            DEVICE + block symbol of every block (specs/blocks; drawn in symbols.py)
 * design/rnl/adc28_va.rnl                DEVICE + symbol of every Verilog-A module (specs/va_modules.yaml)
+* design/rnl/0.4/adc28_blocks.rnl        the same two packages in RNL 0.4 (RNL_SETS)
+* design/rnl/0.4/adc28_va.rnl
 * design/behav/veriloga/adc_arch.vams    architecture constants for the Verilog-A models
 * design/behav/veriloga/adc_arch_func.vams
 * design/behav/adc_cdac.scs              behavioral CDAC, placed and wired from specs/arch.yaml
+* design/behav/adc_*.scs                 the block symbol record of the hand-written behavioral views
 * design/top/adc_top.scs                 structural top level, placed and wired
+* tb/*/*.scs                             testbenches (gen_tb.py)
+
+The netlists are written in RNL 0.4 (NETLIST_RNL) and read adc28 from design/rnl/0.4/; the
+packages are written for both 0.3 and 0.4 (RNL_SETS).
 """
 
 from __future__ import annotations
 
 import difflib
+import os
 import re
 import sys
 from dataclasses import dataclass, field
@@ -172,42 +180,88 @@ def _device(model: str, terms: list[str]) -> str:
     return f'  @DEVICE(name="*", model="{model}", terminals=[{", ".join(chr(34) + t + chr(34) for t in terms)}])'
 
 
-def gen_rnl_blocks() -> str:
+@dataclass(frozen=True)
+class RnlSet:
+    """One set of the project's RNL package files, in one language version (docs/workflow.md §2).
+
+    The packages are generated from the same sources (symbols.py, specs/) for each version: RNL 0.3
+    in design/rnl/ (what every netlist of 0.3 reads, contributors' too) and RNL 0.4 in
+    design/rnl/0.4/. Only the header and the selections differ: a package of 0.4 names the standard
+    collection it uses, and a selection reaches the levels below only with recursive=true."""
+    language: str          # @VERSION of the files
+    package: str           # version of the packages adc28, adc28-blocks and adc28-va
+    dir: str               # repository-relative directory of the files
+    std: str               # the standard collection of the version, as a USE-PACKAGE (named in a 0.4 header)
+
+    @property
+    def note(self) -> str:
+        return "" if self.language == "0.3" else f" (RNL {self.language})"
+
+    def header(self, name: str) -> list[str]:
+        out = ['@RNL(type="header") {', f'  @VERSION("{self.language}");', f'  @PACKAGE(name="{name}", version="{self.package}");']
+        if self.language != "0.3":
+            out.append(f"  {self.std};")
+        return out
+
+    def select(self, what: str, args: str = "") -> str:
+        """`# @SELECT-<what>(args)` of a package rule: in 0.4 a rule reaches the subcircuits only when recursive."""
+        if self.language != "0.3":
+            args = f"{args}, recursive=true" if args else "recursive=true"
+        return f"# @SELECT-{what}({args})" if args else f"# @SELECT-{what}"
+
+    def path(self, name: str):
+        return REPO_ROOT / self.dir / name
+
+
+Q = '"'                    # a quote inside the f-strings of the rules
+RNL_SETS = {
+    "0.3": RnlSet("0.3", "0.1", "design/rnl", '@USE-PACKAGE(name="rnl-std-full", version="0.3")'),
+    "0.4": RnlSet("0.4", "0.2", "design/rnl/0.4", '@USE-PACKAGE(name="rnl-std-all", version="0.4")'),
+}
+NETLIST_RNL = RNL_SETS["0.4"]          # the RNL of the netlists written here: top, behavioral views, testbenches
+
+
+def netlist_header(rel: str) -> list[str]:
+    """The header record of the netlist `rel` (repository-relative): NETLIST_RNL's version and
+    the package adc28 by its path from the netlist's directory."""
+    rs = NETLIST_RNL
+    pkg = os.path.relpath(REPO_ROOT / rs.dir / "adc28.rnl", (REPO_ROOT / rel).parent).replace(os.sep, "/")
+    return ['// @RNL(type="header") {', f'//   @VERSION("{rs.language}");',
+            f'//   @USE-PACKAGE(name="adc28", version="{rs.package}", path="{pkg}")', "// }"]
+
+
+def gen_rnl_blocks(rs: RnlSet = RNL_SETS["0.3"]) -> str:
     bl = blocks()
     syms = block_symbols()
-    out = [f"/* adc28-blocks 0.1: {GEN_HEADER}.",
+    out = [f"/* adc28-blocks {rs.package}{rs.note}: {GEN_HEADER}.",
            "   One DEVICE declaration (terminal order = subckt port order) and one block",
            "   symbol per block of specs/blocks/*.yaml, drawn in tools/adcflow/symbols.py.",
            "   Pins bind by terminal number; a bus (UP12 .. UP0) is one bus pin, drawn bold",
            "   with its width. */",
-           '@RNL(type="header") {',
-           '  @VERSION("0.3");',
-           '  @PACKAGE(name="adc28-blocks", version="0.1");',
+           *rs.header("adc28-blocks"),
            ";\n".join(_device(b.name, b.port_names) for b in bl.values()),
            "}", "", "@RNL {",
            ";\n\n".join(syms[b].text for b in bl) + ";", ""]
-    out.append(";\n".join(f'  # @SELECT-INSTANCE(model="{b}") => @SET-SYMBOL {syms[b].name}' for b in bl))
+    out.append(";\n".join(f'  {rs.select("INSTANCE", f"model={Q}{b}{Q}")} => @SET-SYMBOL {syms[b].name}' for b in bl))
     out.append("}")
     return "\n".join(out) + "\n"
 
 
-def gen_rnl_va() -> str:
+def gen_rnl_va(rs: RnlSet = RNL_SETS["0.3"]) -> str:
     cfg = {m: c for m, c in _va_cfg().items() if c.get("symbol") != "generated"}
     syms = va_symbols()
     sw, sw_order = cdac_sw_symbol()
     devs = [_device(m, [p for p, _ in va_ports(m)]) for m in cfg]
     devs.append(_device("adc_cdac_sw_va", sw_order))
     own = [syms[m].text for m in cfg if "symbol_of" not in cfg[m]] + [sw.text]
-    rules = [f'  # @SELECT-INSTANCE(model="{m}") => @SET-SYMBOL {syms[m].name}' for m in cfg]
-    rules.append('  # @SELECT-INSTANCE(model="adc_cdac_sw_va") => @SET-SYMBOL $ADC_CDAC_SW_VA_SYM')
-    out = [f"/* adc28-va 0.1: {GEN_HEADER}.",
+    rules = [f'  {rs.select("INSTANCE", f"model={Q}{m}{Q}")} => @SET-SYMBOL {syms[m].name}' for m in cfg]
+    rules.append(f'  {rs.select("INSTANCE", f"model={Q}adc_cdac_sw_va{Q}")} => @SET-SYMBOL $ADC_CDAC_SW_VA_SYM')
+    out = [f"/* adc28-va {rs.package}{rs.note}: {GEN_HEADER}.",
            "   DEVICE declarations and symbols of the Verilog-A modules of the behavioral",
            "   views and testbenches (specs/va_modules.yaml), drawn in tools/adcflow/symbols.py.",
            "   Modules with the ports of a block reuse that block's symbol. */",
-           '@RNL(type="header") {',
-           '  @VERSION("0.3");',
-           '  @PACKAGE(name="adc28-va", version="0.1");',
-           '  @USE-PACKAGE(name="adc28-blocks", version="0.1", path="adc28_blocks.rnl");',
+           *rs.header("adc28-va"),
+           f'  @USE-PACKAGE(name="adc28-blocks", version="{rs.package}", path="adc28_blocks.rnl");',
            ";\n".join(devs), "}", "", "@RNL {",
            ";\n\n".join(own) + ";", "", ";\n".join(rules), "}"]
     return "\n".join(out) + "\n"
@@ -289,10 +343,7 @@ def gen_behav_cdac() -> str:
     halves = [(f"B{t}{j}", f"C{t}{j}", j, t) for j in js for t in "HL"]
     wsum = int(a.w.sum())
     L = ["// adc_cdac, behavioral view: one side of the split-capacitor redundant CDAC",
-         "// @RNL(type=\"header\") {",
-         "//   @VERSION(\"0.3\");",
-         "//   @USE-PACKAGE(name=\"adc28\", version=\"0.1\", path=\"../rnl/adc28.rnl\")",
-         "// }",
+         *netlist_header("design/behav/adc_cdac.scs"),
          f"// {GEN_HEADER} (specs/arch.yaml, cdac section)",
          "// Uses the deck globals noise_en and tempc.",
          "simulator lang=spectre",
@@ -335,7 +386,7 @@ def gen_behav_cdac() -> str:
         s.emit(f"{{#CH{j} #CL{j}}} @AS $MATCHED;")
         s.emit(f"{{#CH{j} #CL{j}}} @GROUP;")
     s.emit("/* the top plate: the array, its parasitic, the reset switch and the sampled kT/C noise */")
-    s.emit('{#CP #STOP #IKTC} @AS(direction="left-to-right") $FLOW;')
+    s.emit("{#CP #STOP #IKTC} @AS $SIGNAL_FLOW;")
     s.emit("/* --- placement: switch matrix at the bottom, each half above its bottom-plate pin --- */")
     isw = s.place("ISW", sw.pins, 0, 0)
     top_y = isw.pin(halves[0][0])[1] + 8                     # the top-plate line
@@ -347,6 +398,7 @@ def gen_behav_cdac() -> str:
     cp = s.place("CP", {"p": (0, 2), "n": (0, -2)}, x_cp, top_y - 4)
     stop = s.place("STOP", dict(zip(("TOP", "NK", "PHI_S", "VSS"),
                                     STD_PINS["$VOLTAGE_CONTROLLED_SWITCH"].values())), x_cp + 10, top_y)
+    s.emit("#STOP @SET-SYMBOL $VOLTAGE_CONTROLLED_SWITCH;    /* 0.4 draws a relay controlled from ground otherwise */")
     ktc_pins = va_symbols()["adc_ktc_va"].pins
     ktc = s.place("IKTC", ktc_pins, x_cp + 20, top_y - 8)
     x_in = isw.pin("VIN")[0] - 18                             # clock input capacitors left of the input ports
@@ -367,8 +419,7 @@ def gen_behav_cdac() -> str:
     ptop = s.point("ttop", x_cp + 4, top_y, junction=True)
     s.wire("TOP", *pts, pcp, ptop, "#STOP:1")
     s.wire("TOP", pcp, "#CP:1")
-    s.port("TOP", x_cp + 4, top_y + 4, facing="down")
-    s.wire("TOP", "%p_top:p", ptop)
+    s.wire("TOP", s.port("TOP", x_cp + 4, top_y + 4, facing="down"), ptop)
     kx, ky = ktc.pin("P")
     s.wire("NK", "#STOP:2", (kx, top_y), "#IKTC:1")
     s.emit("/* --- sampling phase and VCM --- */")
@@ -376,13 +427,11 @@ def gen_behav_cdac() -> str:
     qx, qy = ktc.pin("PHI")
     phs = s.point("phs", px - 2, qy, junction=True)
     phc = s.point("phc", px - 2, qy - 2, junction=True)
-    s.port("PHI_S", px - 2, qy - 5, facing="up")
-    s.wire("PHI_S", "%p_phi_s:p", phc, phs, (px - 2, py), "#STOP:3")
+    s.wire("PHI_S", s.port("PHI_S", px - 2, qy - 5, facing="up"), phc, phs, (px - 2, py), "#STOP:3")
     s.wire("PHI_S", phs, "#IKTC:3")
     s.wire("PHI_S", phc, (cphs.pin("p")[0], qy - 2), "#CPHS:1")
     nx, ny = ktc.pin("N")
-    s.port("VCM", nx, ny - 4, facing="up")
-    s.wire("VCM", "%p_vcm:p", "#IKTC:2")
+    s.wire("VCM", s.port("VCM", nx, ny - 4, facing="up"), "#IKTC:2")
     s.emit("/* --- grounds --- */")
     x, y = cp.pin("n")
     s.wire("VSS", "#CP:2", s.ground("VSS", x, y - 2, "g_cp"))
@@ -398,16 +447,13 @@ def gen_behav_cdac() -> str:
     s.emit("/* --- inputs and references on the left --- */")
     for p in ("VREFP", "VIN", "VREFN", "VG"):
         x, y = isw.pin(p)
-        s.port(p, x - 4, y)
-        s.wire(p, f"%p_{p.lower()}:p", f"#ISW:{p}")
+        s.wire(p, s.port(p, x - 4, y), f"#ISW:{p}")
     s.emit("/* CONV and PHI_SB with their input capacitances; DVDD is not used by the behavioral view */")
     x, y = isw.pin("CONV")
     jcv = s.point("jconv", x_in + 3, y, junction=True)
-    s.port("CONV", x_in, y)
-    s.wire("CONV", "%p_conv:p", jcv, "#ISW:CONV")
+    s.wire("CONV", s.port("CONV", x_in, y), jcv, "#ISW:CONV")
     s.wire("CONV", jcv, "#CCONV:1")
-    s.port("PHI_SB", x_in, top_y - 2)
-    s.wire("PHI_SB", "%p_phi_sb:p", (x_in + 3, top_y - 2), "#CPHSB:1")
+    s.wire("PHI_SB", s.port("PHI_SB", x_in, top_y - 2), (x_in + 3, top_y - 2), "#CPHSB:1")
     s.port("DVDD", isw.pin("VIN")[0] - 4, top_y)
     s.emit("/* --- control buses: each control pin taps the DH or the RL bus below the matrix --- */")
     for c, dy in (("DH", 3), ("RL", 5)):
@@ -446,8 +492,8 @@ def gen_behav_cdac() -> str:
 
 
 TARGETS = {
-    "rnl": [(REPO_ROOT / "design" / "rnl" / "adc28_blocks.rnl", gen_rnl_blocks),
-            (REPO_ROOT / "design" / "rnl" / "adc28_va.rnl", gen_rnl_va)]
+    "rnl": [(rs.path(name), lambda rs=rs, fn=fn: fn(rs))
+            for rs in RNL_SETS.values() for name, fn in (("adc28_blocks.rnl", gen_rnl_blocks), ("adc28_va.rnl", gen_rnl_va))]
            + [_hand_view(b) for b in HAND_VIEWS],
     "va-params": [(REPO_ROOT / "design" / "behav" / "veriloga" / "adc_arch.vams", gen_va_params),
                   (REPO_ROOT / "design" / "behav" / "veriloga" / "adc_arch_func.vams", gen_va_funcs),

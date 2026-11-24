@@ -18,7 +18,6 @@ candidate is scored on a temporary tree of its own files, which holds no records
 from __future__ import annotations
 
 import functools
-import hashlib
 import json
 import re
 import tempfile
@@ -228,7 +227,7 @@ def pr_candidates(site, data: dict[str, BlockData], live: Live, pr: PR, block: s
             raise pv.PreviewError(f"{rel}: 不是 UTF-8 文本") from None
 
     main_block = data[block].b
-    entries = [{"path": p, "sha256": hashlib.sha256(texts[p]).hexdigest(), "size": len(texts[p])} for p in published]
+    entries = [mf.entry(p, texts[p]) for p in published]
     netlists = [f"design/xtor/{block}/{n}/{block}.scs" for n in names if f"design/xtor/{block}/{n}/{block}.scs" in texts]
     manifests = pv.write_manifests(out, pr, head_repo, entries, netlists)
     raw = pv._raw_base(head_repo, pr.sha)                                     # noqa: SLF001
@@ -271,7 +270,8 @@ def pr_candidates(site, data: dict[str, BlockData], live: Live, pr: PR, block: s
         pv.copy_figures(tree, cand.bd.docs, out, pr.number, cand.notes)
         rel = f"design/xtor/{block}/{cand.name}/{block}.scs"
         if rel in manifests:
-            cand.viewer_files = [viewer_entry(block, cand.name, url=raw + rel, mf=manifests[rel])]
+            cand.viewer_files = [viewer_entry(block, cand.name, url=raw + rel, mf=manifests[rel],
+                                              viewer=mf.viewer_for(mf.rnl_version(texts[rel])))]
             cand.xtor_change = pv.last_commit(repo, pr.sha, f"design/xtor/{block}/{cand.name}")
         cand.commits = commits
     return cands

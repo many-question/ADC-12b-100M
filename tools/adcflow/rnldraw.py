@@ -5,6 +5,11 @@ named junction points, Manhattan wires, bus wires and bus ports (Sheet), and
 the body of a DEFINE-SYMBOL with pins, leads and pin names (SymBuilder). Pin
 geometry of the standard symbols comes from `rnl catalog`; the block and
 Verilog-A symbols are drawn in symbols.py.
+
+Sheet writes RNL 0.4: the pin of a port, ground or supply is `%tag::pin`, and
+every junction dot and bus port is placed (a usage is drawn at its own point,
+which nothing else places in a fixed drawing). SymBuilder writes bodies that
+read the same in 0.3 and 0.4 (the packages of both, gen.RNL_SETS).
 """
 
 from __future__ import annotations
@@ -12,15 +17,16 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass, field
 
-# pin positions at R0 (terminal -> (x, y)) of the standard symbols used here
+# pin positions at R0 (terminal -> (x, y)) of the standard symbols of 0.4 used here; the bulk
+# pin of a MOS symbol is at (0, 0) since 0.4 (at (1, 0) in 0.3)
 STD_PINS: dict[str, dict] = {
     "$CAPACITOR": {1: (0, 2), 2: (0, -2)},
     "$RESISTOR": {1: (0, 2), 2: (0, -2)},
     "$VOLTAGE_SOURCE": {1: (0, 2), 2: (0, -2)},
     "$CURRENT_SOURCE": {1: (0, 2), 2: (0, -2)},
     "$VOLTAGE_CONTROLLED_SWITCH": {1: (-2, 0), 2: (2, 0), 3: (-2, -3), 4: (2, -3)},
-    "$NMOS_4TERM": {1: (0, 2), 2: (-3, 0), 3: (0, -2), 4: (1, 0)},
-    "$PMOS_4TERM": {1: (0, -2), 2: (-3, 0), 3: (0, 2), 4: (1, 0)},
+    "$NMOS_4TERM": {1: (0, 2), 2: (-3, 0), 3: (0, -2), 4: (0, 0)},
+    "$PMOS_4TERM": {1: (0, -2), 2: (-3, 0), 3: (0, 2), 4: (0, 0)},
     "$IO_PORT_SYMBOL": {1: (0, 0)},
 }
 
@@ -96,7 +102,6 @@ class Sheet:
     insts: dict[str, Inst] = field(default_factory=dict)
     wired: set = field(default_factory=set)
     buses: dict = field(default_factory=dict)     # (inst, pin) -> nets given so far to a bus pin
-    net_labels: bool = False                      # the label fill of rnl-std-fill is used
     n_stub: int = 0
 
     LABEL = {"left": ("end", -1, 0, 0), "right": ("start", 1, 0, 0),
@@ -104,11 +109,10 @@ class Sheet:
 
     def label_stub(self, inst: str, term: str, net: str, side: str, length: float = 2.0) -> None:
         """Connect an unwired pin by the name of its net (side: where the pin points).
-        The pin stays unwired and gets the net-name label of rnl-std-fill
-        ($LABEL_TERMINAL_SET, opted in by record()); this only places that label, attached to
-        the terminal, beside the end of the pin. Terminals that share one pin (a bus pin) get one
-        bus stub of `length` instead, its label NAME<msb:lsb> attached to the bus wire; it is drawn
-        once all of them are given (or at record())."""
+        The pin stays unwired and gets a text of its net, ${net}, attached to the terminal beside
+        the end of the pin (the fill's net-label stubs are off, record()). Terminals that share
+        one pin (a bus pin) get one bus stub of `length` instead, its label NAME<msb:lsb> attached
+        to the bus wire; it is drawn once all of them are given (or at record())."""
         pins = self.insts[inst].pins
         members = [t for t, p in pins.items() if p == pins[term]]
         if len(members) > 1:
@@ -120,8 +124,7 @@ class Sheet:
         self.net_label(inst, term, side)
 
     def net_label(self, inst: str, term, side: str, gap: float = 0.4) -> None:
-        """Place the fill label ${net} of an unwired terminal beside its pin."""
-        self.net_labels = True
+        """The label ${net} of an unwired terminal, beside its pin."""
         ha, ux, uy, rot = self.LABEL[side]
         r = f", rotate={rot}" if rot else ""
         self.emit(f'#{inst}:{term} @TEXT("${{net}}", key="netname", size=0.6, halign="{ha}", '
@@ -175,22 +178,22 @@ class Sheet:
     def point(self, name: str, x: float, y: float, junction: bool = False) -> str:
         self.emit(f"%{name} = ({_fmt(x)}, {_fmt(y)});")
         if junction:
-            self.emit(f"$JUNCTION @ATTACH %{name};")
+            self.emit(f"$JUNCTION @ATTACH %{name} => @PLACE({_fmt(x)}, {_fmt(y)});")
         return f"%{name}"
 
     def port(self, net: str, x: float, y: float, facing: str = "right") -> str:
         """IO port tag whose pin is at (x, y); facing = direction the wire leaves."""
         tag = f"p_{net.lower()}"
         self.emit(f'%{tag} = $IO_PORT @ATTACH &{net} => @PLACE({_fmt(x)}, {_fmt(y)}) => @ORIENT("{FACING[facing]}");')
-        return f"%{tag}:p"
+        return f"%{tag}::pin"
 
     def bus_port(self, tag: str, nets: list[str], x: float, y: float, facing: str = "right",
                  label: str | None = None) -> str:
         """One port tag for a group of port nets ($BUS_PORT of adc28.rnl); its pin is at (x, y)."""
-        self.emit(f"%{tag} = {_pt((x, y))}(p) {self.netset(nets)}(nets) @AS $BUS_PORT"
+        self.emit(f"%{tag} = {self.netset(nets)}(nets) @AS $BUS_PORT => @PLACE{_pt((x, y))}"
                   f' => @ORIENT("{FACING[facing]}");')
         self.emit(f'%{tag} @TEXT("{label or bus_label(nets)}", key="name");')
-        return f"%{tag}:p"
+        return f"%{tag}::pin"
 
     @staticmethod
     def netset(nets: list[str]) -> str:
@@ -198,11 +201,11 @@ class Sheet:
 
     def ground(self, net: str, x: float, y: float, tag: str) -> str:
         self.emit(f"%{tag} = $GROUND @ATTACH &{net} => @PLACE({_fmt(x)}, {_fmt(y)});")
-        return f"%{tag}:p"
+        return f"%{tag}::pin"
 
     def supply(self, net: str, x: float, y: float, tag: str) -> str:
         self.emit(f"%{tag} = $SUPPLY @ATTACH &{net} => @PLACE({_fmt(x)}, {_fmt(y)});")
-        return f"%{tag}:p"
+        return f"%{tag}::pin"
 
     def _items(self, pts) -> str:
         items = []
@@ -213,7 +216,7 @@ class Sheet:
         return " ".join(items)
 
     def wire(self, net: str, *pts, mode: str | None = None) -> None:
-        """pts: '#X:t', '%p', '%tag:p' references or (x, y) tuples."""
+        """pts: '#X:t', '%p', '%tag::pin' references or (x, y) tuples."""
         m = f'(mode="{mode}")' if mode else ""
         self.emit(f"&{net} @WIRE{m} {{{self._items(pts)}}};")
 
@@ -233,11 +236,8 @@ class Sheet:
     def record(self, comment: str = "//") -> list[str]:
         for inst, at in list(self.buses):
             self._bus_stub(inst, at)
-        body = list(self.lines)
-        if self.net_labels:
-            body[:0] = ["/* pins connected by net name: the net-name label of rnl-std-fill on every unwired pin,"
-                        " placed below by its key netname */",
-                        '$LABEL_TERMINAL_SET @TEXT("${net}", key="netname", size=0.6);']
+        body = ["/* every pin is wired here or labelled with its net: no net-label stubs from the fill */",
+                "# @SELECT-PIN => @REMOVE-FROM $LABEL_FILL_SET;"] + self.lines
         body = [ln for b in body for ln in b.splitlines()]
         if body:
             body[-1] = body[-1].rstrip(";")

@@ -7,8 +7,11 @@ ports    every view and every candidate (design/xtor/<block>/<name>/) of every
          has that many terminals; Verilog-A module headers match
          specs/va_modules.yaml.
 rnl      `rnl check` on every netlist and package (candidates included, design/
-         is walked recursively): no errors, no warnings; netlists under design/
-         and tb/ must be completely drawn (no hints).
+         is walked recursively), each with the pinned rnl command of the RNL
+         version it declares (RNL_PINNED): no errors, no violations, no warnings;
+         netlists under design/ and tb/ must be completely drawn (RNL 0.3: no
+         hints; RNL 0.4: no object left to a solver and no unsolved constraint,
+         layout hints are only reported).
 results  recorded results (results/**.json) are re-judged with the current
          limits; a result is stale when something its simulated circuit depends
          on changed since the simulation (deps.py: a file the testbench reaches,
@@ -57,7 +60,10 @@ from .corners import corner_set
 from .netlist import parse
 from .specs import blocks
 
-RNL_PINNED = "core-v0.5.2"
+# the rnl command that checks a file, by the RNL language it declares (@VERSION); keep in step with
+# RNL_CORE_0_3 / RNL_CORE_0_4 of .github/workflows/ci.yml. Core 0.6 reads only RNL 0.4, and core
+# 0.5.x is the last that reads 0.3.
+RNL_PINNED = {"0.3": "core-v0.5.2", "0.4": "core-v0.6.2"}
 
 
 class Report:
@@ -163,40 +169,105 @@ def check_ports() -> Report:
 
 
 # ------------------------------------------------------------------ rnl
-def rnl_exe() -> str | None:
-    for cand in ("rnl", str(REPO_ROOT / ".rnl-cli" / "rnl")):
-        if shutil.which(cand):
-            return shutil.which(cand)
-    return None
+_RNL_VERSION = re.compile(r'@VERSION\(\s*"([0-9]+\.[0-9]+)"\s*\)')
+
+
+RNL_CURRENT = "0.4"        # the language of a file that declares none, as for the site (sitegen.manifest.viewer_for)
+
+
+def rnl_language(path: Path) -> str:
+    """The RNL language a file declares in its header (@VERSION); a file without one is read in the
+    current language, RNL_CURRENT, as the current core and viewer read it. Every file of 0.3 in the
+    repository declares its version."""
+    m = _RNL_VERSION.search(path.read_text(encoding="utf-8", errors="replace"))
+    return m.group(1) if m else RNL_CURRENT
+
+
+def _cli_version(exe: str) -> str | None:
+    p = subprocess.run([exe, "--version"], capture_output=True, text=True)
+    m = re.search(r"\brnl (\d+\.\d+\.\d+)", p.stdout + p.stderr)
+    return m.group(1) if m else None
+
+
+def rnl_exe(language: str = "0.3") -> tuple[str | None, str]:
+    """The pinned `rnl` command for files of RNL `language` and, when there is none, why.
+
+    Looked for in .rnl-cli/<language>/ (where CI installs both), then as rnl-<language> and as
+    rnl on the PATH; a command is taken only when its version is the pinned one."""
+    want = RNL_PINNED[language].removeprefix("core-v")
+    seen = []
+    local = [str(REPO_ROOT / ".rnl-cli" / language / name) for name in ("rnl", "rnl.exe")]
+    for cand in (*local, f"rnl-{language}", "rnl", str(REPO_ROOT / ".rnl-cli" / "rnl")):
+        exe = shutil.which(cand)
+        if not exe:
+            continue
+        got = _cli_version(exe)
+        if got == want:
+            return exe, ""
+        seen.append(f"{exe} is {got}")
+    why = f"no rnl {want} for RNL {language} files (install {RNL_PINNED[language]}, see docs/workflow.md)"
+    return None, why + (f"; {'; '.join(seen)}" if seen else "")
+
+
+def _rnl_counts(summary: str) -> tuple[int, int, int] | None:
+    """(errors and violations, warnings, hints) of the last line of `rnl check`, as core 0.5 or 0.6 writes it."""
+    m = re.search(r"(\d+) errors?, (?:(\d+) violations?, )?(\d+) warnings?, (\d+) hints?", summary)
+    if not m:
+        return None
+    e, v, w, h = m.groups()
+    return int(e) + int(v or 0), int(w), int(h)
+
+
+# hints that a netlist of RNL 0.4 is not completely drawn: objects left to a solver; the others
+# (RNL7xxx: crossings, texts over texts, ports inside the drawing) are only about its layout
+RNL_INCOMPLETE = ("RNL9404",)
 
 
 def check_rnl() -> Report:
     r = Report("rnl")
-    exe = rnl_exe()
-    if exe is None:
-        r.err(f"rnl command not found (install {RNL_PINNED}, see docs/workflow.md)")
-        return r
-    files = sorted((REPO_ROOT / "design" / "rnl").glob("*.rnl")) + _netlists()
+    files = sorted((REPO_ROOT / "design" / "rnl").rglob("*.rnl")) + _netlists()
+    exes: dict[str, str | None] = {}
     for f in files:
+        rel = f.relative_to(REPO_ROOT).as_posix()
+        lang = rnl_language(f)
+        if lang not in RNL_PINNED:
+            r.err(f"{rel}: RNL {lang} has no pinned rnl command (RNL_PINNED: {', '.join(RNL_PINNED)})")
+            continue
+        if lang not in exes:
+            exes[lang], why = rnl_exe(lang)
+            if exes[lang] is None:
+                r.err(why)
+        exe = exes[lang]
+        if exe is None:
+            continue
         p = subprocess.run([exe, "check", str(f)], cwd=REPO_ROOT, capture_output=True, text=True)
         out = (p.stdout + p.stderr).strip().splitlines()
         summary = out[-1] if out else ""
-        m = re.search(r"(\d+) errors, (\d+) warnings, (\d+) hints", summary)
-        rel = f.relative_to(REPO_ROOT).as_posix()
-        if not m:
+        counts = _rnl_counts(summary)
+        if counts is None:
             r.err(f"{rel}: unexpected rnl output: {summary}")
             continue
-        e, w, h = map(int, m.groups())
+        e, w, h = counts
         if e or w:
             r.err(f"{rel}: {summary}")
             for line in out:
-                if line.startswith(("error", "warning")):
+                if line.startswith(("error", "violation", "warning")):
                     r.err(f"  {line}")
-        elif h and f.suffix == ".scs":
+            continue
+        if not h or f.suffix != ".scs":
+            continue
+        hints = [line for line in out if line.startswith("hint")]
+        if lang == "0.3":                         # core 0.5 gives hints only for what is not drawn
             r.err(f"{rel}: {h} hint(s): every netlist must be completely drawn")
-            for line in out:
-                if line.startswith("hint"):
-                    r.err(f"  {line}")
+            r.errors += [f"  {line}" for line in hints]
+            continue
+        bad = [line for line in hints if any(f" {c} " in line for c in RNL_INCOMPLETE)]
+        bad += [line for line in out if line.startswith("status ")]    # constraints a solver would still have to meet
+        if bad:
+            r.err(f"{rel}: not completely drawn: every netlist must be")
+            r.errors += [f"  {line}" for line in bad]
+        elif hints:
+            r.warn(f"{rel}: {len(hints)} layout hint(s), see `rnl check {rel}`")
     return r
 
 

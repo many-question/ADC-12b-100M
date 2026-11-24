@@ -31,7 +31,13 @@ python site/build.py --serve                  # 构建并在 http://127.0.0.1:80
 ## 原理图
 
 原理图由托管的 RNL 网页查看器（<https://rich-netlist.github.io/rnl/viewer/>）绘制：页面里嵌入 `viewer/?embed=1&url=<网表地址>`，
-切换网表用 `postMessage`；“完整查看器”按钮用清单打开整个设计（见下）。查看器是从浏览器里去取网表的，所以网表必须能被
+切换网表用 `postMessage`；“完整查看器”按钮用清单打开整个设计（见下）。
+
+查看器按网表声明的 RNL 版本选择（`site/sitegen/manifest.py` 的 `viewer_for`）：`@VERSION("0.3")` 的网表用冻结的
+<https://rich-netlist.github.io/rnl/viewer-0.3/>，0.4（以及没有声明版本的）用当前的 `viewer/`，后者只读 0.4。两个查看器
+同源，查询参数和 `postMessage` 协议相同；嵌入的查看器在不同版本的网表之间切换时会重新加载到对应的查看器。
+一个清单只列入口网表那个版本的文件和不含 RNL 的文件（Verilog-A）：层次里混有两个版本时（例如 0.3 的 `adc_top`
+下接 0.4 的候选），由入口决定，另一个版本的部分不在清单里，查看器里这些子电路显示为未定义。PR 预览按 PR 里文件的版本选择。查看器是从浏览器里去取网表的，所以网表必须能被
 浏览器通过 HTTPS 访问，并允许跨域（CORS）；`@USE-PACKAGE(path="../rnl/adc28.rnl")` 这类相对路径要求保持 `design/` 的目录结构。
 
 | `--netlist-base` | 网表位置 | 用途 |
