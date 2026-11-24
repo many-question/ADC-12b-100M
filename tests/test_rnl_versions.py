@@ -30,6 +30,26 @@ def test_every_declared_version_has_a_pinned_command():
     assert checks.rnl_language(RNL / "0.4" / "adc28.rnl") == "0.4"
 
 
+def test_a_file_without_a_version_is_read_in_the_current_language(tmp_path):
+    import sys
+    sys.path.insert(0, str(REPO_ROOT / "site"))
+    from sitegen import manifest
+
+    f = tmp_path / "x.scs"
+    f.write_text("// @RNL { #R1 @PLACE(0, 0) }\n", encoding="utf-8")
+    assert checks.rnl_language(f) == checks.RNL_CURRENT
+    assert manifest.viewer_for(None) == manifest.viewer_for(checks.RNL_CURRENT) == manifest.VIEWER
+
+
+def test_the_projects_netlists_are_written_in_the_current_language():
+    assert gen.NETLIST_RNL.language == checks.RNL_CURRENT
+    for rel in ("design/top/adc_top.scs", "design/behav/adc_cdac.scs", "tb/comp/tb_comp_delay.scs"):
+        head = "\n".join(gen.netlist_header(rel))
+        assert '@VERSION("0.4")' in head and 'version="0.2"' in head
+        pkg = re.search(r'path="([^"]+)"', head).group(1)
+        assert ((REPO_ROOT / rel).parent / pkg).resolve() == (RNL / "0.4" / "adc28.rnl").resolve()
+
+
 def test_packages_of_both_versions_declare_the_same_devices():
     old, new = _devices(RNL / "adc28.rnl"), _devices(RNL / "0.4" / "adc28.rnl")
     assert [(m, t) for m, t, _ in old] == [(m, t) for m, t, _ in new]

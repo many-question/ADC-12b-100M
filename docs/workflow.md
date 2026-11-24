@@ -7,8 +7,9 @@ pip install -e ".[analysis,dev]"          # adcflow 工具包 + adctoolbox 0.9.2
 git config core.hooksPath tools/hooks     # 提交前检查（hygiene / ports / 生成文件）
 ```
 
-* **RNL 命令行**：仓库里同时有 RNL 0.3 和 RNL 0.4 的文件（迁移期间），`python -m adcflow check rnl` 按每个文件
-  头部的 `@VERSION` 选命令行，两个都要装，版本与 CI 相同（`tools/adcflow/checks.py` 的 `RNL_PINNED`）：
+* **RNL 命令行**：项目的网表（顶层、行为级视图、测试台）用 RNL 0.4；迁移期间还有一些 0.3 的文件（尚未转换的候选、
+  `adc_comp/many-question-miyahara/` 下的 `.txt` 变体存档、贡献者的 0.3 PR）。`python -m adcflow check rnl` 按每个文件
+  头部的 `@VERSION` 选命令行（没写的按当前的 0.4），两个都要装，版本与 CI 相同（`tools/adcflow/checks.py` 的 `RNL_PINNED`）：
 
   | 文件的 `@VERSION` | 命令行 | 放在 |
   |---|---|---|
@@ -34,6 +35,7 @@ git config core.hooksPath tools/hooks     # 提交前检查（hygiene / ports / 
 | `design/rnl/0.4/adc28_blocks.rnl`、`design/rnl/0.4/adc28_va.rnl` | 同上，RNL 0.4（`gen.py` 的 `RNL_SETS`，同一来源） |
 | `design/behav/veriloga/adc_arch*.vams` | `specs/arch.yaml` 的权重、单位电容等常数 |
 | `design/behav/adc_cdac.scs` | 行为级 CDAC（26 个半电容 + 开关矩阵，含原理图） |
+| 其余 `design/behav/adc_*.scs` 里 `author="adcflow gen"` 的记录 | 模块符号（`symbols.py`）；网表其余部分手写 |
 | `design/top/adc_top.scs` | 顶层结构网表与原理图（`tools/adcflow/gen_top.py` 中的连接表） |
 | `tb/**/*.scs` | 验收测试台（`tools/adcflow/gen_tb.py`） |
 | `docs/specs.md` | 模块规格表 |
