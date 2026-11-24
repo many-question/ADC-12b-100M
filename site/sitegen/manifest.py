@@ -7,12 +7,19 @@ package files (`design/rnl/adc28.rnl` and the generated block and Verilog-A symb
 all in the viewer's pool, so a netlist draws with its symbols the same way wherever it is opened.
 
 Format and limits: apps/web/README.md of https://github.com/rich-netlist/rnl ("External manifests").
+
+Versions: the hosted viewer at VIEWER reads RNL 0.4 only; RNL 0.3 files open in the frozen VIEWERS["0.3"]
+(same query and postMessage protocol, same origin). Each netlist opens in the viewer of its own
+`@VERSION`, and a manifest lists only the files its entry's viewer can read: those of the entry's
+version and files without RNL (Verilog-A). In a hierarchy that mixes versions (a 0.4 candidate under
+the 0.3 top) the entry decides, and the parts in the other version are not in its manifest.
 """
 
 from __future__ import annotations
 
 import hashlib
 import json
+import re
 import subprocess
 from pathlib import Path
 
@@ -22,6 +29,25 @@ ID = "adc-12b-100m"
 POOL = ["design/rnl/adc28.rnl", "design/rnl/adc28_blocks.rnl", "design/rnl/adc28_va.rnl"]
 MAX_FILES, MAX_FILE_BYTES, MAX_BYTES = 300, 2 * 1024 * 1024, 20 * 1024 * 1024     # the viewer's limits
 PUBLISH = {"design": {".scs", ".rnl", ".va", ".vams"}, "tb": {".scs", ".va", ".vams"}}
+VIEWER = "https://rich-netlist.github.io/rnl/viewer/"                      # the current viewer: RNL 0.4
+VIEWERS = {"0.3": "https://rich-netlist.github.io/rnl/viewer-0.3/"}       # frozen viewers of older versions
+_VERSION = re.compile(rb'@VERSION\(\s*"([0-9]+\.[0-9]+)"\s*\)')
+
+
+def rnl_version(data: bytes) -> str | None:
+    """The RNL version a file declares (its header's @VERSION), None for a file without one (Verilog-A)."""
+    m = _VERSION.search(data)
+    return m.group(1).decode() if m else None
+
+
+def viewer_for(version: str | None) -> str:
+    """The hosted viewer that reads RNL `version`; the current one for 0.4, a newer or an undeclared version."""
+    return VIEWERS.get(version or "", VIEWER)
+
+
+def readable(files: list[dict], version: str | None) -> list[dict]:
+    """The files a manifest of an entry in RNL `version` lists: that version's, and those without RNL."""
+    return [f for f in files if f.get("version") in (None, version)]
 
 
 def netlist_files() -> list[str]:
@@ -50,8 +76,13 @@ def file_entries(commit: str, from_git: bool) -> list[dict]:
         data = (_blob(commit, rel) if from_git else None)
         if data is None:
             data = (ROOT / rel).read_bytes()
-        out.append({"path": rel, "sha256": hashlib.sha256(data).hexdigest(), "size": len(data)})
+        out.append(entry(rel, data))
     return out
+
+
+def entry(rel: str, data: bytes) -> dict:
+    """A file of a manifest; `version` (rnl_version) only chooses the files and is not written (manifest)."""
+    return {"path": rel, "sha256": hashlib.sha256(data).hexdigest(), "size": len(data), "version": rnl_version(data)}
 
 
 def check_limits(files: list[dict]) -> list[str]:
@@ -67,6 +98,10 @@ def check_limits(files: list[dict]) -> list[str]:
 
 
 def manifest(entry: str, files: list[dict], base: str, repo: str, commit: str, level: str | None = None) -> dict:
+    """The manifest of `entry`: only the files of its RNL version (readable), with its pool among them."""
+    version = next((f.get("version") for f in files if f["path"] == entry), None)
+    files = readable(files, version)
+    have = {f["path"] for f in files}
     owner = repo.split("/")[0] if repo else ""
     doc: dict = {
         "format": 1,
@@ -78,7 +113,8 @@ def manifest(entry: str, files: list[dict], base: str, repo: str, commit: str, l
         doc["author"] = [{"name": owner, "url": f"https://github.com/{owner}"}]
     if repo and commit:
         doc["source"] = {"repo": repo, "commit": commit, "url": f"https://github.com/{repo}/tree/{commit}/design"}
-    doc.update({"base": base, "entry": entry, "files": files, "pool": POOL})
+    doc.update({"base": base, "entry": entry, "files": [{k: f[k] for k in ("path", "sha256", "size")} for f in files],
+                "pool": [p for p in POOL if p in have]})
     if level:
         doc["level"] = level
     return doc
