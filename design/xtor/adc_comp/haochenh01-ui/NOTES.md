@@ -22,6 +22,11 @@ StrongARM dynamic latched comparator:
 during the evaluate window (kickback), and the caps lower the input-referred
 noise.
 
+The netlist is RNL 0.4 (`adc28` 0.2). Its drawing is the 0.4 solver's placement
+(`rnl 0.6.2`), so `rnl check` on it reports layout hints only; the drawing is
+comment-only and none of the committed results depend on it (the content hash
+is unchanged across the 0.3 → 0.4 migration).
+
 ## Sizing history
 
 Iteration 1 (initial WIP): input pair 52 µm/52 fingers, tail 3.3 µm, latch
