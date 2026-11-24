@@ -106,6 +106,10 @@ def test_compare_metrics():
                          ({"cal_independent": 1}, "cal_independent")):
         _, probs, _ = verify.compare_metrics(a, dict(a, **change))
         assert len(probs) == 1 and probs[0].startswith(what), probs
+    # soa_waveform_MB is written only by a check made on the server: a record without it matches one with it
+    for x, y in (({}, {"soa_waveform_MB": 3.1}), ({"soa_waveform_MB": 3.1}, {}), ({"soa_waveform_MB": 3.1}, {"soa_waveform_MB": 900.0})):
+        m, probs, skipped = verify.compare_metrics({**a, **x}, {**a, **y})
+        assert probs == [] and "soa_waveform_MB" in skipped and "soa_waveform_MB" not in m
     _, probs, _ = verify.compare_metrics(a, {**a, "error": "spectre rc=1"})
     assert probs == ["error: not self-reported"]
     _, probs, _ = verify.compare_metrics({**a, "extra_ps": 1.0}, a)
@@ -217,7 +221,7 @@ def test_a_detached_rerun_is_compared_when_collected(root, monkeypatch):
 
     result(root)
     got = {}
-    monkeypatch.setattr(runner, "submit", lambda a, v=None, dry=False: got.update(a=a, v=v) or "RID")
+    monkeypatch.setattr(runner, "submit", lambda a, v=None, dry=False, **k: got.update(a=a, v=v) or "RID")
     assert verify.verify(TEST, B, NAME, "tt_nom_27", detach=True) == 0
     assert got["v"] == {"candidate": NAME, "docs": [f"results/{B}/{TEST}/xtor-{NAME}/tt_nom_27.json"]}
     assert got["a"] == runner.run_args(TEST, B, "tt_nom_27", {B: f"xtor:{NAME}"}, {}, "aps", 6, False, False)

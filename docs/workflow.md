@@ -21,7 +21,8 @@ git config core.hooksPath tools/hooks     # 提交前检查（hygiene / ports / 
   `--version` 与固定版本一致的那个。0.3 的文件迁到 0.4 用 `core-v0.5.7` 的 `rnl upgrade`（只在迁移时用，不参与检查）。
   RNL 0.4 的网表用 `design/rnl/0.4/` 下的包（`adc28` 0.2），0.3 的用 `design/rnl/` 下的（`adc28` 0.1）。
 * **站点配置**：复制 `site.example.yaml` 为 `site.local.yaml`（已被 git 忽略）或 `~/.adcflow/site.yaml`，
-  填写仿真服务器的 ssh 别名、服务器本地盘上的临时目录、Spectre 环境脚本、PDK 模型目录与文件名。
+  填写仿真服务器的 ssh 别名、服务器本地盘上的临时目录、Spectre 环境脚本、PDK 模型目录与文件名；有几台服务器时列在
+  `sim.hosts` 下，各有自己的设置（见 §3「多台仿真服务器」）。
   这些信息**绝不提交**。ssh 需要免密（`ssh -o BatchMode=yes <alias> true` 能通过）。
 * MATLAB 版 ADCToolbox 可选，用于 `analysis/` 中的交互分析；CI 与验收只用 Python 版。
 
@@ -44,7 +45,8 @@ git config core.hooksPath tools/hooks     # 提交前检查（hygiene / ports / 
 
 ```bash
 python -m adcflow sim <test> [--corners typ|quick|all|<name,...>] [--view <block>=xtor ...] \
-       [--param name=value ...] [--mode aps] [--jobs N] [--keep] [--no-record] [--detach]
+       [--param name=value ...] [--mode aps] [--jobs N] [--host NAME ...] [--split] [--keep] [--no-record] [--detach]
+python -m adcflow hosts [--host NAME ...] [--prepare]   # 各仿真服务器的负载、我们的运行、余量与剩余空间；--prepare 一次性准备模型副本与 SOA 用的 venv
 python -m adcflow collect <run_id> ... | --all [--wait] [--discard]   # 取回已结束的运行，度量并记录（verify 的运行写复核记录），最后删服务器目录；未结束的只报告（见下「提交与收取」）
 python -m adcflow sim <原来的参数> --adopt <run_id> [--detach]   # 接管没有 manifest 的旧启动器留下的运行（verify 同样可加 --adopt）
 python -m adcflow report [--block adc_comp]     # 结果对照规格
@@ -56,7 +58,7 @@ python -m adcflow remeasure <test> --run build/runs/<run_id> [--dry-run]   # 不
 python -m adcflow remeasure <test> --run build/runs/<run_id> --redraw     # 只重画证据图：任何指标变化即中止，结果中写 meta.redrawn（#47）
 python -m adcflow rehash [--block <block>] [--test <test>] [--view xtor-<name>] [--dry-run] [-v]   # 不重仿真，把结果的记录换成其电路实际依赖的文件与 arch 取值（见下）
 python -m adcflow corners all                   # 45 个工艺角名称
-python -m adcflow clean-remote --older-than-h 12   # 清理服务器上本项目的遗留目录
+python -m adcflow clean-remote --older-than-h 12 [--host NAME ...]   # 清理各服务器上本项目的遗留目录（默认全部服务器）
 ```
 
 每次 `sim`：
@@ -100,6 +102,30 @@ python -m adcflow collect --wait <run_id> # 等到结束再收取（与不加 --
 * 没有完成标记、目录里没有进程、却有 job 没写 `rc.txt`（批作业被外部停掉）：什么都不记录、不取回，报告 dead；
   `collect --discard <run_id>` 取回现有文件、不记录、删服务器目录；
 * 服务器目录已不存在：报告 missing，`--discard` 使其不再列入 `--all`。
+
+**多台仿真服务器。** 站点配置的 `sim.hosts` 列出几台服务器，每台有自己的 ssh 别名、`remote_root`、Spectre 命令与环境、
+线程预算 `threads`（我们的 Spectre 在该机最多用的线程数；不写取 `sim.threads`，再不写则不限）、每个运行计的线程数 `job_threads`
+（默认取 `spectre_args` 中 `+mt=N` 的 N，否则 1）、可选的 CPU 绑定 `cpus`（`taskset -c`）、额外参数 `spectre_args`
+（接在模式参数之后；其中的 `+mt=N` 取代模式自带的 `+mt`），格式见 `site.example.yaml`。旧的单台写法（`sim.host` 等）照常可用。
+
+* **选机**：每次启动用一个短 ssh 同时询问各台（负载、线程数、我们正在跑的 Spectre 个数、`remote_root` 下的剩余空间），
+  选余量最大的一台：余量 = min(线程预算 − 我们的占用, 线程数 − 别人的负载 − 我们的占用) ÷ `job_threads`；
+  剩余空间不足 `min_free_gb`（默认 20 GB）或无应答的不选。并行数为 `--jobs`，但不超过该机线程预算在我们其它运行之外剩下的
+  （至少 1）。`--host NAME`（可重复）或环境变量 `ADCFLOW_HOST` 限定候选；`python -m adcflow hosts` 显示它看到的情况。
+* **分到几台（`--split`）**：最空的一台放不下 `--jobs` 个并行运行时，按各台余量依次分配并行名额，job 按名额比例分成几份，
+  每份在自己那台的 `<remote_root>/<run_id>/` 里作为一批运行（交叉核对的孪生 job 与原 job 在同一台）。
+* **记录在哪台**：manifest 的 `parts` 记下每份的服务器、目录、job、并行数与模型目录；`collect`、删除都回到那台；全部各份结束才算结束，
+  任何一份失败即整次失败。没有记录服务器的旧运行（这项改动之前提交的）属于默认服务器，即 `sim.hosts` 的第一台（单台写法时就是那一台）。
+* **沙箱服务器**：Spectre 命令以 `-sandbox` 结尾（或 `sandbox: true`）的服务器不用 csh 环境，Spectre 在沙箱里运行：只有 job
+  自己的目录可写，其它要读的目录逐个以 `--read-only` 传入（运行目录中暂存的 `design/`、`tb/` 等，以及模型目录），而且都必须在本地盘
+  （NFS 上的拒绝）。所以：
+  * PDK 模型目录在服务器上复制一次到该机的 `model_cache`（本地盘，`hosts --prepare` 或第一次需要时；整份复制、核对文件数与字节数后
+    才启用；只在服务器之间复制，不经过本机），deck 从这份副本 include；
+  * 只读的 Verilog-A 共享库 Spectre 不读（当作正在被写），所以编译步骤在自己的目录里建库，再移到 `$R/ahdl_lib`，每个 job 开始时
+    得到它的硬链接副本，不重新编译；
+  * 逐管 SOA 检查（`soa_core.py`）在沙箱外用该机的 `venv`（本地盘上的 python venv，含 numpy；服务器自己连不上 PyPI 时由本机
+    pip 下载 numpy 的 wheel 再装进去）；
+  * 时限与清理照旧：`timeout` 结束沙箱进程，按工作目录统计、结束进程（`/proc/<pid>/cwd`）对沙箱里的 Spectre 同样有效。
 
 **接管旧运行（`--adopt`）。** 这项改动之前的启动器在整批运行期间占着一个 ssh 会话，也不写 manifest。先结束该启动器的整个进程树
 （只结束本地进程，服务器上的批作业照常运行），再在**同一工作树**中用**原来的** `sim`（或 `verify`）参数加 `--adopt <run_id>`：
@@ -161,7 +187,8 @@ python -m adcflow collect --all
 
 ## 6. 服务器使用规则
 
-* 只在服务器本地盘的临时目录下仿真，不在 `/home` 下运行；
+* 只在服务器本地盘的临时目录下仿真，不在 `/home` 下运行（`remote_root`、`model_cache`、`venv` 都不得在 `/home` 下）；
+* 每台服务器上我们最多用到站点配置的线程预算（`threads`，例如一半的线程），启动时自动按它限制并行数；
 * 服务器上的数据随时可能被清除：有用的数据仿真结束就取回，大文件只取需要的部分；
 * 每次运行收取（`collect`）并记录之后删除服务器目录；只删已取回且没有进程在其中运行的目录；
 * 遗留目录用 `clean-remote` 清理：它不删仍有进程在运行的目录，也不删已结束但尚未取回的目录（有完成标记，或每个 job 都有 `rc.txt`，

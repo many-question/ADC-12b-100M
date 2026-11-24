@@ -6,6 +6,14 @@ import argparse
 import sys
 
 
+def _host_args(s) -> None:
+    s.add_argument("--host", action="append", default=[], metavar="NAME",
+                   help="run on this simulation host (repeat: choose among these); default: the configured "
+                        "host with the most room (`adcflow hosts`)")
+    s.add_argument("--split", action="store_true",
+                   help="spread the jobs over several hosts, as many on each as it has room for")
+
+
 def _detach_args(s) -> None:
     s.add_argument("--detach", action="store_true",
                    help="return once the batch runs on the server; `adcflow collect <run_id>` records it later "
@@ -56,6 +64,7 @@ def main(argv: list[str] | None = None) -> int:
     s.add_argument("--crosscheck", action="store_true",
                    help="also run every job with the test's `crosscheck:` numerical settings and record "
                         "the differences in meta.crosscheck (docs/verification.md section 2)")
+    _host_args(s)
     _detach_args(s)
 
     cd = sub.add_parser("candidates", help="leaderboard of the transistor-level candidates (scores from results)")
@@ -74,6 +83,7 @@ def main(argv: list[str] | None = None) -> int:
     vf.add_argument("--jobs", type=int, help="parallel Spectre runs (default: sim.jobs of the site config, else 6)")
     vf.add_argument("--keep", action="store_true", help="keep the remote run directory")
     vf.add_argument("--dry-run", action="store_true", help="only check what would be verified (no simulation)")
+    _host_args(vf)
     _detach_args(vf)
 
     co = sub.add_parser("collect", help="fetch, measure and record (or compare: verify) runs whose batch ended on the "
@@ -129,7 +139,16 @@ def main(argv: list[str] | None = None) -> int:
     r = sub.add_parser("report", help="summarise recorded results against specs")
     r.add_argument("--block")
 
-    cl = sub.add_parser("clean-remote", help="delete this project's run directories on the server")
+    hs = sub.add_parser("hosts", help="the simulation hosts of the site config: their load, our runs on them, "
+                                      "their room and free space (what a launch chooses by)")
+    hs.add_argument("--host", action="append", default=[], metavar="NAME", help="only this host (repeat)")
+    hs.add_argument("--prepare", action="store_true",
+                    help="also make what runs there need once: the local copy of the PDK models (model_cache) "
+                         "and the python venv of the SOA step (venv)")
+
+    cl = sub.add_parser("clean-remote", help="delete this project's run directories on the servers")
+    cl.add_argument("--host", action="append", default=[], metavar="NAME",
+                    help="only this host (repeat; default: every configured host)")
     cl.add_argument("--older-than-h", type=float, default=0.0)
     cl.add_argument("--unfetched", action="store_true",
                     help="also delete run directories whose jobs ended but that were never fetched (collect needs them)")
@@ -176,7 +195,7 @@ def main(argv: list[str] | None = None) -> int:
         from .verify import verify
         try:
             return verify(a.test, a.block, a.candidate, a.corners, a.mode, a.jobs or default_jobs(), a.keep,
-                          a.dry_run, detach=a.detach, adopt=a.adopt)
+                          a.dry_run, detach=a.detach, adopt=a.adopt, hosts=a.host or None, split=a.split)
         except RunRefused as e:
             print(f"[adcflow] {e}", file=sys.stderr)
             return 1
@@ -211,9 +230,12 @@ def main(argv: list[str] | None = None) -> int:
     elif a.cmd == "report":
         from .results import report
         return report(a.block)
+    elif a.cmd == "hosts":
+        from .remote import show_hosts
+        return show_hosts(a.host or None, a.prepare)
     elif a.cmd == "clean-remote":
         from .remote import clean_remote
-        return clean_remote(a.older_than_h, a.unfetched)
+        return clean_remote(a.older_than_h, a.unfetched, a.host or None)
     return 0
 
 
