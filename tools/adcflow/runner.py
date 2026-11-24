@@ -564,13 +564,14 @@ def submit(a: dict, verify: dict | None = None, dry: bool = False, hosts: list[s
     t0 = time.time()
     limits = []
     try:
-        for part in run.parts:
+        for part in run.parts:                 # the upload first: it reserves the host's room (remote.choose)
+            remote.upload_tree(run.run_dir / "stage", part["rroot"], host=part["host"], jobs=part["jobs"],
+                               reserve=part["parallel"])
             if part["models"]:
                 remote.ensure_models(part["host"])
             soa_jobs = [n for n in part["jobs"] if n in run.remote_plans]
             if soa_jobs:
                 remote.ensure_python(part["host"])
-            remote.upload_tree(run.run_dir / "stage", part["rroot"], host=part["host"], jobs=part["jobs"])
             limits.append(remote.launch(part["rroot"], part["jobs"], mode_args, part["parallel"], job_timeout,
                                         soa_jobs=soa_jobs, host=part["host"], models=part["models"]))
             print(f"[adcflow] {run_id}: {len(part['jobs'])} job(s) on {part['host']}, {part['parallel']} at a time")
