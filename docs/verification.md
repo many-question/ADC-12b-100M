@@ -343,7 +343,8 @@ tests:
 | `tb_cdac_soa` | `tb_cdac_settle` 的理想自举栅、相位与控制；VIN 轮流取满量程两端 0.45 ∓ 0.4965 V；转换 3（低）DH12、4（高）RL12、5（低）DH0、6（高）RL12…RL0 每 150 ps | 输入开关与上极板承受的电压都在输入两端最大；高输入之后全部 RL 把上极板推过任何真实码，比真实转换更严 | 70 ns |
 
 这三个用例写 `soa: {dut: [XDUT], remote: true}`：全部器件节点的 PSF-ASCII 波形太大，取不回来（SAR 逻辑约 1 GB，`fetch_max_mb` 是 50）。
-流程在服务器上用同一份计算（`tools/adcflow/soa_core.py`，只依赖 numpy，所以服务器要有 `python3` 和 numpy）做 SOA 检查，取回各对的结果
+流程在服务器上用同一份计算（`tools/adcflow/soa_core.py`，只依赖 numpy，所以服务器要有 `python3` 和 numpy，或站点配置中该机的 `venv`，
+见 [`workflow.md`](workflow.md) §3「多台仿真服务器」）做 SOA 检查，取回各对的结果
 `soa_rows.json`、测试台自己保存的信号和最坏一对的节点；原波形大小记在 `soa_waveform_MB`。服务器上检查失败时结果报错，不会报 0。
 `crosscheck` 与 `tb_clkgen_timing` 相同（下文“时钟”），用 `--crosscheck` 在有代表性的最坏工艺角运行，结果记入设计 PR。
 行为级基线的 `soa_scope` 是 `external`、`soa_pairs` 是 0，只说明测试台能跑通，不是器件证据。
@@ -516,6 +517,7 @@ python -m adcflow verify <test> --block <block> --candidate <name> [--corners <�
 | 其它数值 | ±2 % | |
 | `soa_points`、`soa_dt_max_ps` | 不比较 | 仿真器的时间步统计，不是电路的性质 |
 | `soa_peak_V`、`soa_window_ns`、`soa_max_over_ps`、`soa_window_max_ps` | 不比较 | 规则本身与 `soa_table`（各对，`soa.table_rows`）的摘要；规则之前的结果没有这几项 |
+| `soa_waveform_MB` | 不比较 | 在服务器上做 SOA 检查时的原波形大小，只有在服务器上读波形的记录才有；同一网表取回波形在本地检查时没有这一项 |
 | 标量的列表（蒙特卡洛的逐样本 `offsets_mV`、`sample_status`，`vgs_levels_V`、`weights_*` 等） | 逐个元素，按该指标的容差 | 长度必须相同 |
 | `p1`（`tb_comp_noise` 各电平的判决概率） | ±0.1 | 每电平 512 次判决的统计量 |
 | 元素不是标量的列表与字典（`soa_table`、`soa_worst`、`mc_fail_reasons` 等） | 不比较 | 明细；它们的标量摘要（`soa_max_V`、`soa_violations`、`mc_failed` 等）参与比较。`soa_table` 无论是压缩形式（字典）还是此前的字典列表都不比较 |

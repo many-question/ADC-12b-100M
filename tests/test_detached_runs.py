@@ -37,12 +37,13 @@ class FakeServer:
     def what(self) -> list[str]:
         return [c[0] for c in self.calls]
 
-    def upload_tree(self, local_dir, rroot):
+    def upload_tree(self, local_dir, rroot, host=None, jobs=None):
         self._net("upload", rroot)
         self.dirs[rroot] = {"jobs": sorted(p.name for p in (local_dir / "jobs").iterdir()), "rc": {}, "done": None,
                             "live": 0, "fetched": False, "limit": None, "notes": []}
 
-    def launch(self, rroot, jobs, mode_args, parallel, job_timeout=3600, compile_first=True, soa_jobs=None):
+    def launch(self, rroot, jobs, mode_args, parallel, job_timeout=3600, compile_first=True, soa_jobs=None,
+               host=None, models=None):
         self._net("launch", rroot)
         d = self.dirs[rroot]
         assert d["jobs"] == sorted(jobs)
@@ -55,7 +56,7 @@ class FakeServer:
         d.update(rc={j: (rcs or {}).get(j, "0 10") for j in d["jobs"]}, live=0,
                  done=f"{batch_rc} 1000 1100" if marker else None)
 
-    def status(self, rroot):
+    def status(self, rroot, host=None):
         if self.on_status:
             self.on_status(self)
         self._net("status", rroot)
@@ -70,7 +71,7 @@ class FakeServer:
         lines += ["parallel xargs -P 2"] + [f"note adcflow: {n}" for n in d["notes"]]
         return remote.parse_status("\n".join(lines) + "\n")
 
-    def fetch(self, rroot, patterns, local_dir, max_mb):
+    def fetch(self, rroot, patterns, local_dir, max_mb, host=None):
         self._net("fetch", rroot)
         for j, rc in self.dirs[rroot]["rc"].items():
             jd = local_dir / "jobs" / j
@@ -79,18 +80,18 @@ class FakeServer:
             (jd / "spectre.log").write_text("ok\n")
         return []
 
-    def mark_fetched(self, rroot):
+    def mark_fetched(self, rroot, host=None):
         self._net("mark_fetched", rroot)
         self.dirs[rroot]["fetched"] = True
 
-    def remove(self, rroot):
+    def remove(self, rroot, host=None):
         self._net("remove", rroot)
         d = self.dirs[rroot]
         if not d["fetched"] or d["live"]:                  # the guard of remote.remove's script
             raise remote.RemoteBusy(f"{rroot} stays on the server")
         del self.dirs[rroot]
 
-    def soa_reduce(self, rroot, jobs, parallel):
+    def soa_reduce(self, rroot, jobs, parallel, host=None):
         self._net("soa_reduce", rroot)
 
 
@@ -100,7 +101,7 @@ def srv(monkeypatch, tmp_path):
     for name in ("upload_tree", "launch", "status", "fetch", "mark_fetched", "remove", "soa_reduce"):
         monkeypatch.setattr(remote, name, getattr(s, name))
     monkeypatch.setattr(remote, "cfg", lambda: CFG)
-    monkeypatch.setattr(remote, "remote_root", lambda: "/r")
+    monkeypatch.setattr(remote, "remote_root", lambda host=None: "/r")
     monkeypatch.setattr(runner, "RUNS", tmp_path / "runs")
     monkeypatch.setattr(runner, "POLL_S", (0.0, 0.0))
     monkeypatch.setattr("adcflow.spectrum.require_toolbox", lambda: None)
@@ -200,7 +201,7 @@ def test_a_failed_fetch_changes_nothing_and_collect_tries_again(srv, monkeypatch
     rroot, run_id = the_run(srv)
     srv.end(rroot)
 
-    def lost(*a):
+    def lost(*a, **k):
         raise remote.RemoteError("scp of results failed: lost connection")
 
     monkeypatch.setattr(remote, "fetch", lost)
@@ -216,7 +217,8 @@ def test_a_directory_that_cannot_be_deleted_yet_is_tried_again(srv, monkeypatch,
     detach()
     rroot, run_id = the_run(srv)
     srv.end(rroot)
-    monkeypatch.setattr(remote, "remove", lambda r: (_ for _ in ()).throw(remote.RemoteBusy(f"{r}: 1 process")))
+    monkeypatch.setattr(remote, "remove",
+                        lambda r, host=None: (_ for _ in ()).throw(remote.RemoteBusy(f"{r}: 1 process")))
     assert runner.collect(run_id)["state"] == "collected" and rroot in srv.dirs
     assert "not deleted on the server" in capsys.readouterr().out
     assert runner.pending() == [run_id] and not runner.load_manifest(run_id).get("removed")
@@ -421,14 +423,15 @@ def test_cli_collect_reports_a_failure(srv):
 def _script(monkeypatch, fn, *args, rc=0, out=b""):
     sent = {}
 
-    def fake(script, timeout=None, stdin_bytes=None, check=True):
+    def fake(script, timeout=None, stdin_bytes=None, check=True, host=None):
         sent.update(script=script, timeout=timeout)
         if check and rc:
             raise remote.RemoteError(f"remote script failed ({rc})")
         return subprocess.CompletedProcess(["ssh"], rc, out, b"")
 
     monkeypatch.setattr(remote, "ssh_script", fake)
-    monkeypatch.setattr(remote, "remote_root", lambda: "/r")
+    monkeypatch.setattr(remote, "remote_root", lambda host=None: "/r")
+    monkeypatch.setattr(remote, "cfg", lambda: CFG)
     return sent, fn(*args)
 
 

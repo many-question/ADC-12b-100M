@@ -65,7 +65,9 @@ TOLERANCES: list[tuple[str, float, float]] = [
 DEFAULT_TOL = (0.02, 0.0)                        # any other number: 2 %
 # simulator time-step statistics (they follow the simulator's step control, not the circuit)
 # soa_peak_V .. soa_window_max_ps: the rule and a summary of soa_table, not in results recorded before the rule
-NOT_COMPARED = {"soa_points", "soa_dt_max_ps", "soa_peak_V", "soa_window_ns", "soa_max_over_ps", "soa_window_max_ps"}
+# soa_waveform_MB: size of the waveforms of a check made on the server (soa.check), only in records that read them there
+NOT_COMPARED = {"soa_points", "soa_dt_max_ps", "soa_peak_V", "soa_window_ns", "soa_max_over_ps", "soa_window_max_ps",
+                "soa_waveform_MB"}
 
 
 def tolerance(metric: str) -> tuple[float, float]:
@@ -384,14 +386,15 @@ def load_docs(paths: list[str]) -> list[dict]:
 
 def verify(test_id: str, block: str | None, name: str, corners: str | None = None, mode: str = "aps",
            parallel: int = 6, keep: bool = False, dry: bool = False, run=None, detach: bool = False,
-           adopt: str | None = None) -> int:
+           adopt: str | None = None, hosts: list[str] | None = None, split: bool = False) -> int:
     """Rerun a candidate's self-reported results of a test and write their verification records.
 
     0 when every record matches; 1 when anything was refused (nothing simulated) or a record is a
     mismatch (written with status mismatch). The rerun is a run of the runner (runner.submit, or
     runner.adopt of `adopt`, a run of a launcher of before the manifest) whose manifest names the
     results it verifies: whoever collects it (runner.wait here, or `adcflow collect` after `detach`)
-    writes the records (finish). `run` replaces all that with a stand-in of runner.run_test (tests)."""
+    writes the records (finish). `run` replaces all that with a stand-in of runner.run_test (tests).
+    `hosts` and `split`: where it runs (runner.submit)."""
     from .specs import find_test
 
     b, _ = find_test(test_id, block)
@@ -417,7 +420,7 @@ def verify(test_id: str, block: str | None, name: str, corners: str | None = Non
     from . import runner
     a = runner.run_args(*args, mc=mc)
     v = {"candidate": name, "docs": [Path(d["_path"]).relative_to(cand.ROOT).as_posix() for d in docs]}
-    run_id = runner.adopt(a, adopt, v, dry) if adopt else runner.submit(a, v)
+    run_id = runner.adopt(a, adopt, v, dry) if adopt else runner.submit(a, v, hosts=hosts, split=split)
     if run_id is None:
         return 0
     if detach:

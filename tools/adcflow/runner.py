@@ -224,9 +224,10 @@ def mc_settings(block: Block, test_id: str, test: dict, corners: list[Corner], o
 
 
 def make_deck(job: Job, rroot: str, views: dict, needs_pdk: bool, mc: str | None,
-              extra: list[str] | None = None) -> tuple[str, list[Path]]:
+              extra: list[str] | None = None, model_dir: str | None = None) -> tuple[str, list[Path]]:
     """The run deck of a job; `extra` lines (the saves of the SOA check) come after the testbench;
-    `mc` names the statistical model sections of a Monte Carlo run (pdk.mc_sections)."""
+    `mc` names the statistical model sections of a Monte Carlo run (pdk.mc_sections); `model_dir`
+    replaces pdk.model_dir (a host's local copy of the models)."""
     vfiles = view_files(views)
     va = needed_va(vfiles, job.tb_text)
     L = [f"// adcflow deck: job={job.name} views={views or 'all behav'}",
@@ -235,7 +236,7 @@ def make_deck(job: Job, rroot: str, views: dict, needs_pdk: bool, mc: str | None
          "parameters " + " ".join(f"{k}={v}" for k, v in job.globals_.items()),
          f"adcflow_opts options temp={job.corner.temp:g} tnom=27"]
     if needs_pdk:
-        L.append(model_includes(job.corner, mc=mc))
+        L.append(model_includes(job.corner, mc=mc, model_dir=model_dir))
     for p in va:
         L.append(f'ahdl_include "{rroot}/{p.relative_to(REPO_ROOT).as_posix()}"')
     for p in vfiles:
@@ -269,8 +270,10 @@ def stage(run_dir: Path, jobs: list[Job], decks: dict[str, str]) -> None:
 
 
 def _spectre_errors(log: Path) -> list[str]:
-    if not log.exists():
-        return ["no spectre.log"]
+    if not log.exists():                     # Spectre never started: what its command said (a sandbox refusal)
+        out = log.with_name("spectre.stdout.log")
+        last = out.read_text(errors="replace").strip().splitlines()[-1:] if out.exists() else []
+        return ["no spectre.log" + (f" ({last[0].strip()[:300]})" if last else "")]
     lines = log.read_text(errors="replace").splitlines()
     errs = [ln.strip() for i, ln in enumerate(lines) if "ERROR" in ln]
     return errs[:10]
@@ -334,7 +337,7 @@ class Run:
     """A run as its measurement needs it (prepare): rebuilt from its arguments `args` (run_args), it has
     the jobs, decks and SOA plans that were staged."""
     run_id: str
-    rroot: str                                 # its run directory on the server
+    rroot: str                                 # its run directory on the server (of its first part)
     args: dict
     block: Block
     test: dict
@@ -346,6 +349,7 @@ class Run:
     decks: dict[str, str]
     soa_plans: dict
     remote_plans: dict[str, dict]              # job -> soa_plan.json of a job whose SOA check runs on the server
+    parts: list[dict] = field(default_factory=list)   # where its jobs run: host, rroot, jobs, parallel, models
 
     @property
     def run_dir(self) -> Path:
@@ -362,9 +366,12 @@ def run_args(test_id: str, block_name: str | None = None, corners: str = "typ", 
             "do_record": do_record, "mc": mc, "timeout": timeout, "crosscheck": crosscheck}
 
 
-def prepare(a: dict, run_id: str, rroot: str) -> Run:
-    """The jobs, decks and SOA plans of a run with arguments `a` (run_args) in the server directory
-    `rroot`: what submit stages, and what collect rebuilds the same way to measure it."""
+def prepare(a: dict, run_id: str, where) -> Run:
+    """The jobs, decks and SOA plans of a run with arguments `a` (run_args): what submit stages, and
+    what collect rebuilds the same way to measure it. `where` places its jobs: a server directory
+    (one part on the default host, the models of pdk.model_dir), the parts of its manifest (each
+    {host, rroot, jobs, parallel, models}: its jobs run in rroot on host and include the PDK models
+    from `models`, None for pdk.model_dir), or a function (job names, needs_pdk) -> such parts."""
     views = a["views"]
     block, test = find_test(a["test"], a["block"])
     cl = corner_set(a["corners"])
@@ -385,20 +392,31 @@ def prepare(a: dict, run_id: str, rroot: str) -> Run:
         for j in list(jobs):
             twins[j.name] = replace(j, name=j.name + XCHECK, tb_text=numerics.apply(j.tb_text, settings))
             jobs.append(twins[j.name])
+    names = [j.name for j in jobs]
+    if isinstance(where, str):
+        parts = [{"host": None, "rroot": where, "jobs": names, "parallel": a["parallel"], "models": None}]
+    else:
+        parts = where(names, needs_pdk) if callable(where) else where
+    at = {n: p for p in parts for n in p["jobs"]}
+    if sorted(at) != sorted(names):
+        raise RunRefused(f"{run_id}: its parts place the jobs {sorted(at)}, the run has {sorted(names)}")
     decks, soa_plans = {}, {}
     for j in jobs:
         save = []
         if test.get("soa"):                    # per-device SOA check: save the device terminal nodes
             soa_plans[j.name] = soa.plan(block.name, test, j.tb_text, view_files(views), views)
             save = soa.deck_lines(soa_plans[j.name], j.tb_text)
-        decks[j.name], _ = make_deck(j, rroot, views, needs_pdk, mcset and mcset["models"], save)
+        p = at[j.name]
+        decks[j.name], _ = make_deck(j, p["rroot"], views, needs_pdk, mcset and mcset["models"], save,
+                                     model_dir=p.get("models"))
     remote_plans = {}                          # the SOA check runs where the waveforms are (soa_core.py)
     if isinstance(test.get("soa"), dict) and test["soa"].get("remote"):
         for j in jobs:
             plan = soa.remote_plan(soa_plans[j.name], j.tb_text)
             if plan:
                 remote_plans[j.name] = plan
-    return Run(run_id, rroot, a, block, test, jobs, twins, xc, mcset, needs_pdk, decks, soa_plans, remote_plans)
+    return Run(run_id, parts[0]["rroot"], a, block, test, jobs, twins, xc, mcset, needs_pdk, decks, soa_plans,
+               remote_plans, parts)
 
 
 def _rel(p: Path) -> str:
@@ -460,7 +478,11 @@ def load_manifest(run_id: str) -> dict:
     if not p.is_file():
         raise FileNotFoundError(f"{run_id}: no {_rel(p)}; a run that a launcher of before the manifest started "
                                 "is taken over with its own sim / verify command and --adopt <run_id>")
-    return json.loads(p.read_text(encoding="utf-8"))
+    man = json.loads(p.read_text(encoding="utf-8"))
+    if not man.get("parts"):                   # a run of before several hosts: one part on the default host
+        man["parts"] = [{"host": man.get("host"), "rroot": man["rroot"], "jobs": man["jobs"],
+                         "parallel": man["args"]["parallel"], "models": None}]
+    return man
 
 
 def save_manifest(man: dict) -> None:
@@ -471,12 +493,32 @@ def save_manifest(man: dict) -> None:
 
 
 def _new_manifest(run: Run, verify: dict | None, job_timeout: float, adopted: bool = False) -> dict:
-    """What collect needs besides the staged run: its arguments, its server directory and jobs, the
+    """What collect needs besides the staged run: its arguments, its parts (the host, server directory,
+    jobs, parallel and PDK model directory of each; `host` and `rroot` are those of the first), the
     job limit, and the commit and tree the decks were built from (meta.git, meta.git_clean)."""
     return {"run_id": run.run_id, "state": SUBMITTED, "adopted": adopted,
             "submitted": _dt.datetime.now().isoformat(timespec="seconds"),
             "git": _git("rev-parse", "--short", "HEAD"), "git_state": git_state(), "args": run.args,
-            "verify": verify, "rroot": run.rroot, "jobs": [j.name for j in run.jobs], "job_timeout": job_timeout}
+            "verify": verify, "host": run.parts[0]["host"], "rroot": run.rroot, "jobs": [j.name for j in run.jobs],
+            "parts": [dict(p) for p in run.parts], "job_timeout": job_timeout}
+
+
+def _placer(run_id: str, parallel: int, hosts: list[str] | None, split: bool):
+    """prepare's `where` of a new run: the host(s) the batch runs on (remote.choose; with `split`
+    spread over several, a job and its cross-check twin together), each part in its own run
+    directory <remote_root>/<run_id> there, with the host's copy of the PDK models if it keeps one."""
+    def place(names: list[str], needs_pdk: bool) -> list[dict]:
+        units = list(dict.fromkeys(n.removesuffix(XCHECK) for n in names))
+        chosen = remote.choose(len(units), parallel, split, hosts)
+        groups = remote.spread(units, [par for _, par in chosen]) if len(chosen) > 1 else [units]
+        parts = []
+        for (h, par), group in zip(chosen, groups):
+            jobs = [n for n in names if n.removesuffix(XCHECK) in set(group)]
+            parts.append({"host": h.name, "rroot": f"{remote.remote_root(h)}/{run_id}", "jobs": jobs,
+                          "parallel": max(min(par, len(jobs)), 1),
+                          "models": remote.model_dir(h) if needs_pdk and h.model_cache else None})
+        return parts
+    return place
 
 
 @contextlib.contextmanager
@@ -500,15 +542,18 @@ def _lock(run_dir: Path):
 
 
 # ------------------------------------------------------------------ submit, wait, collect
-def submit(a: dict, verify: dict | None = None, dry: bool = False) -> str | None:
+def submit(a: dict, verify: dict | None = None, dry: bool = False, hosts: list[str] | None = None,
+           split: bool = False) -> str | None:
     """Stage a run (run_args `a`), upload it and start its batch on the server (remote.launch), and
     write its manifest; returns its run id (None for a dry run, which only stages). `verify`: what
-    collect needs to write the verification records (verify.verify)."""
+    collect needs to write the verification records (verify.verify). The batch runs on the host
+    with the most room (remote.choose; of `hosts` if given), or with `split` on several, one part
+    each; the manifest names them, and collect goes back to them."""
     if not dry:                                # before hours of simulation, not at the measure afterwards
         from .spectrum import require_toolbox
         require_toolbox()
     run_id = _dt.datetime.now().strftime("%Y%m%d-%H%M%S") + f"-{uuid.uuid4().hex[:4]}-{a['test']}"
-    run = prepare(a, run_id, "<R>" if dry else f"{remote.remote_root()}/{run_id}")
+    run = prepare(a, run_id, "<R>" if dry else _placer(run_id, a["parallel"], hosts, split))
     stage_run(run)
     if dry:
         return None
@@ -517,14 +562,23 @@ def submit(a: dict, verify: dict | None = None, dry: bool = False) -> str | None
     man = _new_manifest(run, verify, job_timeout)
     save_manifest(man)
     t0 = time.time()
+    limits = []
     try:
-        remote.upload_tree(run.run_dir / "stage", run.rroot)
-        limit = remote.launch(run.rroot, man["jobs"], mode_args, a["parallel"], job_timeout,
-                              soa_jobs=list(run.remote_plans))
+        for part in run.parts:
+            if part["models"]:
+                remote.ensure_models(part["host"])
+            soa_jobs = [n for n in part["jobs"] if n in run.remote_plans]
+            if soa_jobs:
+                remote.ensure_python(part["host"])
+            remote.upload_tree(run.run_dir / "stage", part["rroot"], host=part["host"], jobs=part["jobs"])
+            limits.append(remote.launch(part["rroot"], part["jobs"], mode_args, part["parallel"], job_timeout,
+                                        soa_jobs=soa_jobs, host=part["host"], models=part["models"]))
+            print(f"[adcflow] {run_id}: {len(part['jobs'])} job(s) on {part['host']}, {part['parallel']} at a time")
     except BaseException:
         print(f"[adcflow] {run_id}: starting it on the server failed; `python -m adcflow collect {run_id}` "
               "tells whether it runs, `--discard` drops it")
         raise
+    limit = max(limits)
     man.update(upload_s=round(time.time() - t0, 1), backstop_s=limit)
     save_manifest(man)
     print(f"[adcflow] {run_id}: runs on the server (each job at most {job_timeout:.0f} s, the batch {limit} s)")
@@ -577,6 +631,28 @@ def adopt(a: dict, run_id: str, verify: dict | None = None, dry: bool = False) -
     return run_id
 
 
+def _status(man: dict) -> tuple[dict, list[dict]]:
+    """remote.status of every part of a run, and their combination: it exists when every part does;
+    its done marker once every part has one (the first rc that is not 0, the first start, the last
+    end); live, ended and the jobs summed over the parts."""
+    sts = [remote.status(p["rroot"], host=p["host"]) for p in man["parts"]]
+    if len(sts) == 1:
+        return sts[0], sts
+    st = {"exists": all(s["exists"] for s in sts), "fetched": all(s["fetched"] for s in sts),
+          "jobs": [j for s in sts for j in s["jobs"]], "ended": sum(s["ended"] for s in sts),
+          "live": sum(s["live"] for s in sts), "start": min((s["start"] for s in sts if s["start"]), default=None),
+          "last": max((s["last"] for s in sts if s["last"]), default=None),
+          "job_timeout": next((s["job_timeout"] for s in sts if s["job_timeout"]), None),
+          "parallel": sum(s["parallel"] or 0 for s in sts) or None,
+          "notes": [f"{p['host']}: {n}" for p, s in zip(man["parts"], sts) for n in s["notes"]], "done": None}
+    if all(s["done"] for s in sts):
+        rcs = [s["done"][0] for s in sts]
+        full = [s["done"] for s in sts if len(s["done"]) == 3]
+        st["done"] = (next((r for r in rcs if r != "0"), "0"),
+                      *((min(d[1] for d in full), max(d[2] for d in full)) if len(full) == len(sts) else ()))
+    return st, sts
+
+
 def _batch_state(st: dict, n_jobs: int) -> str:
     """running | ended | dead of a run directory (remote.status): ended once its done marker is
     there, or (a run adopted from a launcher that writes none) once every job has its rc.txt and
@@ -599,15 +675,19 @@ def _wall(man: dict, st: dict) -> float | None:
 
 
 def _remove(man: dict) -> None:
-    """Delete the run directory on the server (remote.remove: only fetched, with nothing running in it)."""
+    """Delete the run directories on the servers (remote.remove: only fetched, with nothing running in it)."""
     if man["args"]["keep"]:
         return
-    try:
-        remote.remove(man["rroot"])
-        man["removed"] = True
-    except (RuntimeError, subprocess.TimeoutExpired) as e:
-        print(f"[adcflow] {man['run_id']}: not deleted on the server ({str(e)[-300:]}); "
-              f"a later `python -m adcflow collect {man['run_id']}` tries again")
+    for part in man["parts"]:
+        if part.get("removed"):
+            continue
+        try:
+            remote.remove(part["rroot"], host=part["host"])
+            part["removed"] = True
+        except (RuntimeError, subprocess.TimeoutExpired) as e:
+            print(f"[adcflow] {man['run_id']}: not deleted on the server ({str(e)[-300:]}); "
+                  f"a later `python -m adcflow collect {man['run_id']}` tries again")
+    man["removed"] = all(p.get("removed") for p in man["parts"])
     save_manifest(man)
 
 
@@ -636,10 +716,12 @@ def collect(run_id: str, discard: bool = False, quiet: bool = False) -> dict:
             if not quiet:
                 print(f"[adcflow] {run_id}: {man['state']} ({man.get('collected', '')})")
             return {"state": man["state"], "code": man.get("code", 0), "summary": None}
-        st = remote.status(man["rroot"])
+        st, sts = _status(man)
         n = len(man["jobs"])
         if not st["exists"]:
-            print(f"[adcflow] {run_id}: its run directory is not on the server; nothing to collect"
+            gone = [p["host"] or "the default host" for p, s in zip(man["parts"], sts) if not s["exists"]]
+            where = f" (its part on {', '.join(gone)})" if len(sts) > 1 else ""
+            print(f"[adcflow] {run_id}: its run directory is not on the server{where}; nothing to collect"
                   + ("" if discard else f" (`python -m adcflow collect --discard {run_id}` forgets it)"))
             if discard:
                 man.update(state=DISCARDED, collected=_now(), removed=True)
@@ -660,18 +742,23 @@ def collect(run_id: str, discard: bool = False, quiet: bool = False) -> dict:
             print(f"[adcflow] {note}")
         run = None
         if not discard:
-            run = prepare(a, run_id, man["rroot"])
+            run = prepare(a, run_id, man["parts"])
             diff = staged_differences(run)
             if diff:
                 raise RunRefused(f"{run_id}: this tree no longer builds the run that was simulated; changed since "
                                  f"it was staged: {', '.join(diff[:10])}. Restore them and collect it again")
             if run.remote_plans and not st["done"]:      # a launcher of before launch.sh: its SOA step
-                remote.soa_reduce(man["rroot"], list(run.remote_plans), a["parallel"])
-        skipped = remote.fetch(man["rroot"], remote.cfg()["fetch"] + ["rc.txt"], run_dir,
-                               float(remote.cfg()["fetch_max_mb"]))
+                for part in man["parts"]:
+                    remote.soa_reduce(part["rroot"], [n for n in part["jobs"] if n in run.remote_plans],
+                                      a["parallel"], host=part["host"])
+        skipped = []
+        for part in man["parts"]:
+            skipped += remote.fetch(part["rroot"], remote.cfg()["fetch"] + ["rc.txt"], run_dir,
+                                    float(remote.cfg()["fetch_max_mb"]), host=part["host"])
         if skipped:
             print("[adcflow] skipped large files:", *skipped, sep="\n  ")
-        remote.mark_fetched(man["rroot"])
+        for part in man["parts"]:
+            remote.mark_fetched(part["rroot"], host=part["host"])
         rc = st["done"][0] if st["done"] else "0"
         if discard or rc != "0":
             man.update(state=DISCARDED if discard else FAILED, collected=_now(), batch_rc=rc)
@@ -746,7 +833,7 @@ def _measure(run: Run, man: dict, st: dict) -> list[dict]:
     from .spectrum import require_toolbox
     require_toolbox()
     a, block, test, mcset = run.args, run.block, run.test, run.mcset
-    test_id, run_dir, rroot, do_record = a["test"], run.run_dir, run.rroot, a["do_record"]
+    test_id, run_dir, do_record = a["test"], run.run_dir, a["do_record"]
     jobs, twins, xc, soa_plans = run.jobs, run.twins, run.xc, run.soa_plans
     meta_base = {
         "date": _now(),
@@ -780,7 +867,10 @@ def _measure(run: Run, man: dict, st: dict) -> list[dict]:
             if rc[0] != "0":
                 metrics["error"] = job_error(rc[0], errs, man["job_timeout"])
             if "error" in metrics:                 # never record server (or local) paths
-                metrics["error"] = str(metrics["error"]).replace(rroot, "<run>").replace(str(run_dir), "<run>")
+                err = str(metrics["error"]).replace(str(run_dir), "<run>")
+                for part in run.parts:
+                    err = err.replace(part["rroot"], "<run>").replace(part.get("models") or "<run>", "<models>")
+                metrics["error"] = err
         except Exception as e:  # keep going, record the failure
             traceback.print_exc()
             metrics = {"error": f"measure failed: {e}"}
@@ -813,7 +903,8 @@ def run_test(test_id: str, block_name: str | None = None, corners: str = "typ",
              views: dict | None = None, params: dict | None = None, mode: str = "ax",
              parallel: int = 6, keep: bool = False, do_record: bool = True, dry: bool = False,
              mc: dict | None = None, timeout: float | None = None, crosscheck: bool = False,
-             detach: bool = False, adopt_id: str | None = None) -> list[dict]:
+             detach: bool = False, adopt_id: str | None = None, hosts: list[str] | None = None,
+             split: bool = False) -> list[dict]:
     """Run a test at the corners of `corners`; with `crosscheck` every job runs a second time
     with the test's `crosscheck:` settings (numerics.py) and only the first is recorded, with the
     differences in its meta.crosscheck. A test with `montecarlo:` runs its samples (mc_settings;
@@ -824,9 +915,10 @@ def run_test(test_id: str, block_name: str | None = None, corners: str = "typ",
 
     The batch runs on the server by itself (submit); this waits for it and collects it (wait,
     collect). With `detach` it returns [] once the batch is started (`adcflow collect` later);
-    `adopt_id` takes over a run that a launcher of before the manifest started (adopt)."""
+    `adopt_id` takes over a run that a launcher of before the manifest started (adopt); `hosts` and
+    `split`: where it runs (submit)."""
     a = run_args(test_id, block_name, corners, views, params, mode, parallel, keep, do_record, mc, timeout, crosscheck)
-    run_id = adopt(a, adopt_id, dry=dry) if adopt_id else submit(a, dry=dry)
+    run_id = adopt(a, adopt_id, dry=dry) if adopt_id else submit(a, dry=dry, hosts=hosts, split=split)
     if run_id is None:
         return []
     if detach:
@@ -986,7 +1078,8 @@ def run_test_cli(a) -> int:
     mc = {"runs": a.mc_runs, "seed": a.mc_seed} if a.mc_runs is not None or a.mc_seed is not None else None
     args = run_args(a.test, a.block, a.corners, views, params, a.mode, a.jobs, a.keep, not a.no_record, mc,
                     crosscheck=a.crosscheck)
-    run_id = adopt(args, a.adopt, dry=a.dry_run) if a.adopt else submit(args, dry=a.dry_run)
+    run_id = (adopt(args, a.adopt, dry=a.dry_run) if a.adopt
+              else submit(args, dry=a.dry_run, hosts=a.host or None, split=a.split))
     if run_id is None:
         return 0
     if a.detach:

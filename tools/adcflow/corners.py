@@ -73,15 +73,16 @@ def supply_envelope(key: str = "vdd18") -> tuple[float, float]:
     return min(vals), max(vals)
 
 
-def model_includes(corner: Corner, mc: str | None = None) -> str:
+def model_includes(corner: Corner, mc: str | None = None, model_dir: str | None = None) -> str:
     """Spectre include lines for the corner (server paths from the site config; nothing is copied).
+    `model_dir` replaces pdk.model_dir (a host's local copy of it, remote.ensure_models).
 
     With `mc` (the `models` of a test's `montecarlo:`) the statistical sections pdk.mc_sections.<mc>
     ({mos, res, mom}) of this file replace the corner sections."""
     from .site import get
 
     pdk = _cfg()["pdk"]
-    d = get("pdk", "model_dir")
+    d = model_dir or get("pdk", "model_dir")
     if mc:
         secs = (pdk.get("mc_sections") or {}).get(mc)
         if not isinstance(secs, dict) or not all(secs.get(k) for k in ("mos", "res", "mom")):
