@@ -2,6 +2,8 @@
 
 * design/rnl/adc28_blocks.rnl            DEVICE + block symbol of every block (specs/blocks; drawn in symbols.py)
 * design/rnl/adc28_va.rnl                DEVICE + symbol of every Verilog-A module (specs/va_modules.yaml)
+* design/rnl/0.4/adc28_blocks.rnl        the same two packages in RNL 0.4 (RNL_SETS)
+* design/rnl/0.4/adc28_va.rnl
 * design/behav/veriloga/adc_arch.vams    architecture constants for the Verilog-A models
 * design/behav/veriloga/adc_arch_func.vams
 * design/behav/adc_cdac.scs              behavioral CDAC, placed and wired from specs/arch.yaml
@@ -172,48 +174,83 @@ def _device(model: str, terms: list[str]) -> str:
     return f'  @DEVICE(name="*", model="{model}", terminals=[{", ".join(chr(34) + t + chr(34) for t in terms)}])'
 
 
-def gen_rnl_blocks() -> str:
+@dataclass(frozen=True)
+class RnlSet:
+    """One set of the project's RNL package files, in one language version (docs/workflow.md §2).
+
+    The packages are generated from the same sources (symbols.py, specs/) for each version: RNL 0.3
+    in design/rnl/ (what every netlist of 0.3 reads, contributors' too) and RNL 0.4 in
+    design/rnl/0.4/. Only the header and the selections differ: a package of 0.4 names the standard
+    collection it uses, and a selection reaches the levels below only with recursive=true."""
+    language: str          # @VERSION of the files
+    package: str           # version of the packages adc28, adc28-blocks and adc28-va
+    dir: str               # repository-relative directory of the files
+    std: str               # the standard collection of the version, as a USE-PACKAGE (named in a 0.4 header)
+
+    @property
+    def note(self) -> str:
+        return "" if self.language == "0.3" else f" (RNL {self.language})"
+
+    def header(self, name: str) -> list[str]:
+        out = ['@RNL(type="header") {', f'  @VERSION("{self.language}");', f'  @PACKAGE(name="{name}", version="{self.package}");']
+        if self.language != "0.3":
+            out.append(f"  {self.std};")
+        return out
+
+    def select(self, what: str, args: str = "") -> str:
+        """`# @SELECT-<what>(args)` of a package rule: in 0.4 a rule reaches the subcircuits only when recursive."""
+        if self.language != "0.3":
+            args = f"{args}, recursive=true" if args else "recursive=true"
+        return f"# @SELECT-{what}({args})" if args else f"# @SELECT-{what}"
+
+    def path(self, name: str):
+        return REPO_ROOT / self.dir / name
+
+
+Q = '"'                    # a quote inside the f-strings of the rules
+RNL_SETS = {
+    "0.3": RnlSet("0.3", "0.1", "design/rnl", '@USE-PACKAGE(name="rnl-std-full", version="0.3")'),
+    "0.4": RnlSet("0.4", "0.2", "design/rnl/0.4", '@USE-PACKAGE(name="rnl-std-all", version="0.4")'),
+}
+
+
+def gen_rnl_blocks(rs: RnlSet = RNL_SETS["0.3"]) -> str:
     bl = blocks()
     syms = block_symbols()
-    out = [f"/* adc28-blocks 0.1: {GEN_HEADER}.",
+    out = [f"/* adc28-blocks {rs.package}{rs.note}: {GEN_HEADER}.",
            "   One DEVICE declaration (terminal order = subckt port order) and one block",
            "   symbol per block of specs/blocks/*.yaml, drawn in tools/adcflow/symbols.py.",
            "   Pins bind by terminal number; a bus (UP12 .. UP0) is one bus pin, drawn bold",
            "   with its width. */",
-           '@RNL(type="header") {',
-           '  @VERSION("0.3");',
-           '  @PACKAGE(name="adc28-blocks", version="0.1");',
+           *rs.header("adc28-blocks"),
            ";\n".join(_device(b.name, b.port_names) for b in bl.values()),
            "}", "", "@RNL {",
            ";\n\n".join(syms[b].text for b in bl) + ";", ""]
-    out.append(";\n".join(f'  # @SELECT-INSTANCE(model="{b}") => @SET-SYMBOL {syms[b].name}' for b in bl))
+    out.append(";\n".join(f'  {rs.select("INSTANCE", f"model={Q}{b}{Q}")} => @SET-SYMBOL {syms[b].name}' for b in bl))
     out.append("}")
     return "\n".join(out) + "\n"
 
 
-def gen_rnl_va() -> str:
+def gen_rnl_va(rs: RnlSet = RNL_SETS["0.3"]) -> str:
     cfg = {m: c for m, c in _va_cfg().items() if c.get("symbol") != "generated"}
     syms = va_symbols()
     sw, sw_order = cdac_sw_symbol()
     devs = [_device(m, [p for p, _ in va_ports(m)]) for m in cfg]
     devs.append(_device("adc_cdac_sw_va", sw_order))
     own = [syms[m].text for m in cfg if "symbol_of" not in cfg[m]] + [sw.text]
-    rules = [f'  # @SELECT-INSTANCE(model="{m}") => @SET-SYMBOL {syms[m].name}' for m in cfg]
-    rules.append('  # @SELECT-INSTANCE(model="adc_cdac_sw_va") => @SET-SYMBOL $ADC_CDAC_SW_VA_SYM')
-    out = [f"/* adc28-va 0.1: {GEN_HEADER}.",
+    rules = [f'  {rs.select("INSTANCE", f"model={Q}{m}{Q}")} => @SET-SYMBOL {syms[m].name}' for m in cfg]
+    rules.append(f'  {rs.select("INSTANCE", f"model={Q}adc_cdac_sw_va{Q}")} => @SET-SYMBOL $ADC_CDAC_SW_VA_SYM')
+    out = [f"/* adc28-va {rs.package}{rs.note}: {GEN_HEADER}.",
            "   DEVICE declarations and symbols of the Verilog-A modules of the behavioral",
            "   views and testbenches (specs/va_modules.yaml), drawn in tools/adcflow/symbols.py.",
            "   Modules with the ports of a block reuse that block's symbol. */",
-           '@RNL(type="header") {',
-           '  @VERSION("0.3");',
-           '  @PACKAGE(name="adc28-va", version="0.1");',
-           '  @USE-PACKAGE(name="adc28-blocks", version="0.1", path="adc28_blocks.rnl");',
+           *rs.header("adc28-va"),
+           f'  @USE-PACKAGE(name="adc28-blocks", version="{rs.package}", path="adc28_blocks.rnl");',
            ";\n".join(devs), "}", "", "@RNL {",
            ";\n\n".join(own) + ";", "", ";\n".join(rules), "}"]
     return "\n".join(out) + "\n"
 
 
-# ---------------------------------------------------------------- VA constants
 def gen_va_params() -> str:
     a = Arch.load()
     w = [int(x) for x in a.w]
@@ -446,8 +483,8 @@ def gen_behav_cdac() -> str:
 
 
 TARGETS = {
-    "rnl": [(REPO_ROOT / "design" / "rnl" / "adc28_blocks.rnl", gen_rnl_blocks),
-            (REPO_ROOT / "design" / "rnl" / "adc28_va.rnl", gen_rnl_va)]
+    "rnl": [(rs.path(name), lambda rs=rs, fn=fn: fn(rs))
+            for rs in RNL_SETS.values() for name, fn in (("adc28_blocks.rnl", gen_rnl_blocks), ("adc28_va.rnl", gen_rnl_va))]
            + [_hand_view(b) for b in HAND_VIEWS],
     "va-params": [(REPO_ROOT / "design" / "behav" / "veriloga" / "adc_arch.vams", gen_va_params),
                   (REPO_ROOT / "design" / "behav" / "veriloga" / "adc_arch_func.vams", gen_va_funcs),
