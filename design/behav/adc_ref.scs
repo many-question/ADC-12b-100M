@@ -1,7 +1,7 @@
 // adc_ref, behavioral view: reference driver and VCM
 // @RNL(type="header") {
-//   @VERSION("0.3");
-//   @USE-PACKAGE(name="adc28", version="0.1", path="../rnl/adc28.rnl")
+//   @VERSION("0.4");
+//   @USE-PACKAGE(name="adc28", version="0.2", path="../rnl/0.4/adc28.rnl")
 // }
 simulator lang=spectre
 
@@ -18,7 +18,8 @@ CCM (VCM VSS) capacitor c=ccm
 //   {&AVDD &AVDD18} @ADD-TO $SUPPLY_NET_SET;
 //   &VSS @ADD-TO $GROUND_NET_SET;
 //   /* the decoupling of VREFP: capacitor and its ESR in one branch */
-//   {#CDEC #RESR} @AS $BRANCH;
+//   /* a series branch, CDEC over RESR; its own point placed with them (0.4) */
+//   %branch = {#CDEC #RESR} @AS $BRANCH => @PLACE(19, -3);
 //   /* --- placement --- */
 //   #I0 @PLACE(0, 0);
 //   #CDEC @PLACE(19, -3);
@@ -26,30 +27,30 @@ CCM (VCM VSS) capacitor c=ccm
 //   #CCM @PLACE(15, -6);
 //   /* --- reference in, VREFP out with its decoupling --- */
 //   %p_vref_in = $IO_PORT @ATTACH &VREF_IN => @PLACE(-10, 0) => @ORIENT("R0");
-//   &VREF_IN @WIRE {%p_vref_in:p #I0:VREF_IN};
+//   &VREF_IN @WIRE {%p_vref_in::pin #I0:VREF_IN};
 //   %jref = (19, 0);
-//   $JUNCTION @ATTACH %jref;
+//   $JUNCTION @ATTACH %jref => @PLACE(19, 0);
 //   %p_vrefp = $IO_PORT @ATTACH &VREFP => @PLACE(23, 0) => @ORIENT("MY");
-//   &VREFP @WIRE {#I0:VREFP %jref %p_vrefp:p};
+//   &VREFP @WIRE {#I0:VREFP %jref %p_vrefp::pin};
 //   &VREFP @WIRE {%jref #CDEC:1};
 //   &NDEC @WIRE {#CDEC:2 #RESR:1};
 //   %g1 = $GROUND @ATTACH &VSS => @PLACE(19, -12);
-//   &VSS @WIRE {#RESR:2 %g1:p};
+//   &VSS @WIRE {#RESR:2 %g1::pin};
 //   /* --- VCM with its capacitor; the port below --- */
 //   %jcm = (12, -4);
-//   $JUNCTION @ATTACH %jcm;
+//   $JUNCTION @ATTACH %jcm => @PLACE(12, -4);
 //   %p_vcm = $IO_PORT @ATTACH &VCM => @PLACE(12, -8) => @ORIENT("R90");
-//   &VCM @WIRE {#I0:VCM %jcm %p_vcm:p};
+//   &VCM @WIRE {#I0:VCM %jcm %p_vcm::pin};
 //   &VCM @WIRE {%jcm (15, -4) #CCM:1};
 //   %g2 = $GROUND @ATTACH &VSS => @PLACE(15, -10);
-//   &VSS @WIRE {#CCM:2 %g2:p};
+//   &VSS @WIRE {#CCM:2 %g2::pin};
 //   /* --- supplies --- */
 //   %s1 = $SUPPLY @ATTACH &AVDD18 => @PLACE(-3, 7);
-//   &AVDD18 @WIRE {#I0:AVDD18 %s1:p};
+//   &AVDD18 @WIRE {#I0:AVDD18 %s1::pin};
 //   %s2 = $SUPPLY @ATTACH &AVDD => @PLACE(1, 7);
-//   &AVDD @WIRE {#I0:AVDD %s2:p};
+//   &AVDD @WIRE {#I0:AVDD %s2::pin};
 //   %g3 = $GROUND @ATTACH &VSS => @PLACE(0, -7);
-//   &VSS @WIRE {#I0:VSS %g3:p};
+//   &VSS @WIRE {#I0:VSS %g3::pin};
 //   /* --- annotations --- */
 //   (-12, 13.5) @TEXT("adc_ref (behavioral): open-loop NMOS follower from AVDD18 (EKV, ibias at ic), gate = VREF_IN + Vgs (ideal replica)", halign="start") => @SET-STYLE $title_style;
 //   (-12, 12) @TEXT("small on-chip decoupling CDEC (6 pF) with ESR; VCM = VREFP / 2 through rcm with CCM", halign="start") => @SET-STYLE $note_style;

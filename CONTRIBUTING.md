@@ -137,7 +137,7 @@ python -m adcflow check candidates --base origin/main --author <你的登录名>
 ```
 
 候选目录的限制：只能有 `<block>.scs`、`candidate.yaml` 和 `.md` / `.png` / `.svg` / `.txt` 文件，不能有子目录，总共 ≤ 2 MB，
-每个 PNG ≤ 200 kB。网表里只能有子电路内部的实例，器件只能是 PDK 器件（`design/rnl/adc28.rnl` 里的模型，以及 SOA 配置里的 MOS）、
+每个 PNG ≤ 200 kB。网表里只能有子电路内部的实例，器件只能是 PDK 器件（`design/rnl/0.4/adc28.rnl` 里的模型，以及 SOA 配置里的 MOS）、
 `resistor` / `capacitor` / `inductor` 或自己的子电路，不得含 `include` / `ahdl_include`。结果目录里只放 `.json`（≤ 1 MB，
 `block` / `test` / `view` 与路径一致）和 `.png`（≤ 200 kB）；结果目录不能脱离它的候选目录单独存在。
 
@@ -150,8 +150,20 @@ python -m adcflow check candidates --base origin/main --author <你的登录名>
 * **只用网表 + RNL**：晶体管级设计写成 `design/xtor/<block>/<name>/<block>.scs`（Spectre 语法），带**完整**的 RNL 原理图
   （精确的 PLACE / ORIENT / WIRE）和高层语义（差分对、电流镜、`MATCHED`、`GROUP` 等）。不要提交 Virtuoso 原理图、
   版图或其它图形化工具的文件。RNL 语法与画法可参考仓库里已有的网表，以及 [RNL 项目](https://github.com/rich-netlist/rnl)。
+* **RNL 用 0.4**：网表开头写头部记录，使用项目的包 `adc28` 0.2（它带上 RNL 0.4 的标准包）：
+
+  ```
+  // @RNL(type="header") {
+  //   @VERSION("0.4");
+  //   @USE-PACKAGE(name="adc28", version="0.2", path="../../../rnl/0.4/adc28.rnl")
+  // }
+  ```
+
+  固定画法里每个对象都要有位置：结点圆点写 `$JUNCTION @ATTACH %j => @PLACE(x, y)`，差分对、电流镜等结构的自身点也要
+  PLACE，否则 `check rnl` 报未放置或 `unsolved`。已开的 RNL 0.3 PR 照旧可以通过检查（`design/rnl/` 下的 0.3 包保留到
+  迁移结束）；0.3 的文件可以用 `core-v0.5.7` 的 `rnl upgrade` 转换，见 `docs/workflow.md`。
 * **子电路名和端口顺序与规格完全一致**（`python -m adcflow check ports` 检查）；不得修改端口。
-* **只用 PDK 器件**（`design/rnl/adc28.rnl` 里列出的 MOS、`cfmom_2t`、MOS 电容等）。理想元件只在 `docs/handoff.md`
+* **只用 PDK 器件**（`design/rnl/0.4/adc28.rnl` 里列出的 MOS、`cfmom_2t`、MOS 电容等）。理想元件只在 `docs/handoff.md`
   允许的情形使用，并需事先在 issue 中得到同意。
 * **PDK 数据与模型绝不进入 git**：不提交模型文件、从模型中提取的参数表、模型卡片片段。网表里只写实例参数。
 * **不要写工艺厂商名**：全仓库只称 “28 nm HPC+”，也不要写 PDK 产品代号。
@@ -167,7 +179,8 @@ pip install -e ".[analysis,dev]"          # adcflow 工具包 + pytest
 git config core.hooksPath tools/hooks     # 提交前检查（hygiene / ports / 生成文件）
 ```
 
-* 安装与 CI 相同版本的 RNL 命令行（`core-v0.5.2`，核对 SHA256），见 `docs/workflow.md`。
+* 安装与 CI 相同版本的 RNL 命令行（RNL 0.4 用 `core-v0.6.2`；还要检查 0.3 的文件时另装 `core-v0.5.2`；都核对 SHA256），
+  见 `docs/workflow.md`。
 * 复制 `site.example.yaml` 为 `site.local.yaml`（已被 git 忽略，**绝不提交**），按注释填写**你自己的**仿真环境。
 * 提交信息用 [Conventional Commits](https://www.conventionalcommits.org/)：`feat(comp): StrongARM with preamp`，
   `type` ∈ `feat fix docs refactor test ci chore perf`，`scope` 为模块名。禁止对 `main` 强推。

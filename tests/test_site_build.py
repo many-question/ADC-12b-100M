@@ -16,7 +16,7 @@ pytest.importorskip("markdown_it")
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "site"))
 
-from sitegen import render  # noqa: E402
+from sitegen import manifest, render  # noqa: E402
 
 
 def _build_module():
@@ -53,3 +53,36 @@ def test_overview_accepts_any_list_valued_timing_field(tmp_path, monkeypatch):
     assert _build_module().build(tmp_path / "site", "pages", "", use_live=False) == []
     assert render.extra_waits([0, 0, 1e-11]) == " · 附加 DAC 等待 +10 ps（判决 3 之后）"
     assert render.extra_waits(None) == ""
+
+
+def test_viewer_follows_the_rnl_version():
+    assert manifest.rnl_version(b'// @RNL(type="header") {\n//   @VERSION("0.3");\n// }\n') == "0.3"
+    assert manifest.rnl_version(b'* @RNL(type="header") { @VERSION( "0.4" )}\n') == "0.4"
+    assert manifest.rnl_version(b"module m; endmodule\n") is None
+    assert manifest.viewer_for("0.3") == "https://rich-netlist.github.io/rnl/viewer-0.3/"
+    assert manifest.viewer_for("0.4") == manifest.viewer_for(None) == "https://rich-netlist.github.io/rnl/viewer/"
+
+
+def test_manifest_lists_only_files_of_its_entrys_version():
+    """A hierarchy that mixes versions: the entry decides, and files only the other viewer reads are left out."""
+    files = [manifest.entry(p, d) for p, d in [
+        ("design/rnl/adc28.rnl", b'@VERSION("0.3")'), ("design/top/adc_top.scs", b'@VERSION("0.3")'),
+        ("design/xtor/b/n/b.scs", b'@VERSION("0.4")'), ("design/behav/veriloga/m.va", b"module m; endmodule")]]
+    top = manifest.manifest("design/top/adc_top.scs", files, "https://x/", "o/r", "c" * 40)
+    assert [f["path"] for f in top["files"]] == ["design/rnl/adc28.rnl", "design/top/adc_top.scs", "design/behav/veriloga/m.va"]
+    assert top["pool"] == ["design/rnl/adc28.rnl"] and all(set(f) == {"path", "sha256", "size"} for f in top["files"])
+    cand = manifest.manifest("design/xtor/b/n/b.scs", files, "https://x/", "o/r", "c" * 40)
+    assert [f["path"] for f in cand["files"]] == ["design/xtor/b/n/b.scs", "design/behav/veriloga/m.va"] and cand["pool"] == []
+
+
+def test_the_top_and_behavioral_views_open_in_the_current_viewer(tmp_path):
+    """The top, the behavioral views and the testbenches are written in RNL 0.4 (gen.NETLIST_RNL): no page
+    opens them in viewer-0.3/, which is left to candidates still in 0.3."""
+    assert _build_module().build(tmp_path / "site", "pages", "https://o.github.io/r/", use_live=False) == []
+    html = (tmp_path / "site" / "index.html").read_text(encoding="utf-8")
+    assert 'data-viewer="https://rich-netlist.github.io/rnl/viewer/"' in html
+    assert "viewer-0.3" not in html
+    for page in ("adc_top", "adc_cdac", "adc_clkgen", "adc_ref"):     # no 0.3 candidate on these pages
+        text = (tmp_path / "site" / "blocks" / f"{page}.html").read_text(encoding="utf-8")
+        assert "&quot;viewer&quot;: &quot;https://rich-netlist.github.io/rnl/viewer/&quot;" in text, page
+        assert "viewer-0.3" not in text, page

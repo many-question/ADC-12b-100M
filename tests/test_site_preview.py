@@ -125,6 +125,21 @@ def test_preview_of_a_clean_passed_head(tmp_path):
     assert vf["url"] == doc["base"] + NETLIST and vf["mf"] == mf.stem
 
 
+def test_preview_opens_each_netlist_in_the_viewer_of_its_rnl_version(tmp_path):
+    """A 0.4 candidate opens in the current viewer, a 0.3 one in viewer-0.3; files without a version stay in either manifest."""
+    v04 = '// @RNL(type="header") {\n//   @VERSION("0.4");\n// }\n' + SCS
+    pv, out, _ = make(tmp_path, netlist=v04)
+    assert pv.ok, pv.reason
+    (vf,) = pv.viewer_files
+    assert vf["viewer"] == "https://rich-netlist.github.io/rnl/viewer/"
+    doc = json.loads(next((out / "manifests").glob("pr7-*.json")).read_text())
+    assert {f["path"] for f in doc["files"]} == {NETLIST, "design/top/adc_top.scs"}    # the PR's top declares no version
+    v03 = v04.replace('"0.4"', '"0.3"')
+    (tmp_path / "b").mkdir()
+    pv, out, _ = make(tmp_path / "b", netlist=v03)
+    assert pv.viewer_files[0]["viewer"] == "https://rich-netlist.github.io/rnl/viewer-0.3/"
+
+
 def test_fork_pr_uses_the_fork_for_links_and_fetches_the_pull_ref(tmp_path):
     pv, out, calls = make(tmp_path, fork="mallory/fork")
     assert pv.ok and calls == [(7, pv.pr.sha)]

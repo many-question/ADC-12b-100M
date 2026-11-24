@@ -7,7 +7,7 @@ instance's terminal list is produced in the port order of specs/blocks.
 from __future__ import annotations
 
 from .arch import Arch
-from .gen import GEN_HEADER, block_symbol_record, block_symbols, io_rows
+from .gen import GEN_HEADER, block_symbol_record, block_symbols, io_rows, netlist_header
 from .rnldraw import Sheet, turn
 from .specs import blocks
 
@@ -53,10 +53,7 @@ def gen_top() -> str:
     top = blocks()["adc_top"]
     syms = block_symbols()
     L = ["// adc_top: 12-bit-class 100 MS/s asynchronous SAR ADC, structural top level",
-         "// @RNL(type=\"header\") {",
-         "//   @VERSION(\"0.3\");",
-         "//   @USE-PACKAGE(name=\"adc28\", version=\"0.1\", path=\"../rnl/adc28.rnl\")",
-         "// }",
+         *netlist_header("design/top/adc_top.scs"),
          f"// {GEN_HEADER} (tools/adcflow/gen_top.py)",
          "// The same file is used with any mix of block views (behav / xtor).",
          "simulator lang=spectre",
@@ -104,8 +101,8 @@ def _draw(s: Sheet, syms: dict) -> None:
     s.emit("{#XBSP #XDACP} @GROUP;")
     s.emit("{#XBSN #XDACN} @GROUP;")
     s.emit("/* the signal path: bootstrap and CDAC of each side, comparator, SAR logic */")
-    s.emit('{#XBSP #XDACP #XCMP #XLOG} @AS(direction="left-to-right") $FLOW;')
-    s.emit('{#XBSN #XDACN #XCMP #XLOG} @AS(direction="left-to-right") $FLOW;')
+    s.emit("{#XBSP #XDACP #XCMP #XLOG} @AS $SIGNAL_FLOW;")
+    s.emit("{#XBSN #XDACN #XCMP #XLOG} @AS $SIGNAL_FLOW;")
     s.emit("/* --- placement --- */")
     P = {
         "XDACP": s.place("XDACP", syms["adc_cdac"].pins, 0, P_Y, "MX"),
@@ -127,8 +124,7 @@ def _draw(s: Sheet, syms: dict) -> None:
         dx, dy = pin(dac, "VIN")
         bx, by = pin(bs, "VIN")
         j = s.point(f"jvin{side.lower()}", X_L + 8, dy, junction=True)
-        s.port(vin, X_L, dy)
-        s.wire(vin, f"%p_{vin.lower()}:p", j, f"#{dac}:VIN")
+        s.wire(vin, s.port(vin, X_L, dy), j, f"#{dac}:VIN")
         s.wire(vin, j, (X_L + 8, by), f"#{bs}:VIN")
         gx, gy = pin(bs, "VG")
         vx, vy = pin(dac, "VG")
@@ -136,8 +132,7 @@ def _draw(s: Sheet, syms: dict) -> None:
         s.wire(f"VG{side}", f"#{bs}:VG", *bend, f"#{dac}:VG")
     s.emit("/* --- reference channel: VREFP and VCM from XREF, VREFN tied to VSS --- */")
     rx, ry = pin("XREF", "VREF_IN")
-    s.port("VREF_IN", X_L, ry)
-    s.wire("VREF_IN", "%p_vref_in:p", "#XREF:VREF_IN")
+    s.wire("VREF_IN", s.port("VREF_IN", X_L, ry), "#XREF:VREF_IN")
     for net, tag in (("VCM", "jvcm"), ("VREFP", "jvrp")):
         x = pin("XDACN", net)[0]
         j = s.point(tag, x, pin("XREF", net)[1], junction=True)
@@ -180,8 +175,7 @@ def _draw(s: Sheet, syms: dict) -> None:
     s.wire("RDY", "#XLOG:RDY", s.port("RDY", x, y - 4, facing="up"))
     s.emit("/* --- sampling clock --- */")
     clx, cly = pin("XCLK", "CLK")
-    s.port("CLK", X_L, cly)
-    s.wire("CLK", "%p_clk:p", "#XCLK:CLK")
+    s.wire("CLK", s.port("CLK", X_L, cly), "#XCLK:CLK")
     s.emit("/* --- supplies and grounds --- */")
     k = 0
     for inst, (blk, _) in _conn().items():

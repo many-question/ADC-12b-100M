@@ -1,7 +1,7 @@
 // adc_clkgen transistor view: static CMOS, loaded-output interlocks.
 // @RNL(type="header") {
-//   @VERSION("0.3");
-//   @USE-PACKAGE(name="adc28", version="0.1", path="../../../rnl/adc28.rnl");
+//   @VERSION("0.4");
+//   @USE-PACKAGE(name="adc28", version="0.2", path="../../../rnl/0.4/adc28.rnl");
 // }
 simulator lang=spectre
 
@@ -13,7 +13,7 @@ MN (Y A VSS VSS) nch_ulvt_mac w=wn l=ln nf=nn
 MP (Y A VDD VDD) pch_ulvt_mac w=wp l=lp nf=np
 // @RNL {
 //   &VDD @ADD-TO $SUPPLY_NET_SET; &VSS @ADD-TO $GROUND_NET_SET;
-//   # @SET-SYMBOL $INVERTER;
+//   # @SET-SYMBOL(terminals=["a", "y"]) $INVERTER;
 //   #MP @SET-SYMBOL $PMOS; #MN @SET-SYMBOL $NMOS;
 //   {#MN #MP} @GROUP; {#MN #MP} @TEXT("", key="model");
 //   #MP @PLACE(0,5) => @ORIENT("R0");
@@ -26,19 +26,19 @@ MP (Y A VDD VDD) pch_ulvt_mac w=wp l=lp nf=np
 //   %y=$IO_PORT @ATTACH &Y => @PLACE(8,0) => @ORIENT("MY");
 //   %v=$SUPPLY @ATTACH &VDD => @PLACE(0,12) => @ORIENT("R0");
 //   %g=$GROUND @ATTACH &VSS => @PLACE(0,-12) => @ORIENT("R0");
-//   &A @WIRE(mode="straight") {%a:p %ga};
+//   &A @WIRE(mode="straight") {%a::pin %ga};
 //   &A @WIRE(mode="straight") {#MP:g (-6,5) %ga (-6,-5) #MN:g};
 //   &Y @WIRE(mode="straight") {#MP:d %out #MN:d};
-//   &Y @WIRE(mode="straight") {%out %y:p};
-//   &VDD @WIRE(mode="straight") {#MP:s %vp %v:p};
-//   &VSS @WIRE(mode="straight") {#MN:s %vn %g:p};
+//   &Y @WIRE(mode="straight") {%out %y::pin};
+//   &VDD @WIRE(mode="straight") {#MP:s %vp %v::pin};
+//   &VSS @WIRE(mode="straight") {#MN:s %vn %g::pin};
 //   (-10,20) @TEXT("adc_clkgen_inv", size=1.2, textcolor="#334155", bold=true, halign="start");
 //   (-10,18) @TEXT("Y = NOT A; PMOS above, NMOS below", size=0.8, textcolor="#334155", bold=false, halign="start");
 //   (-10,-21) @TEXT("Implicit bodies: MP to VDD; MN to VSS.", size=0.7, textcolor="#334155", bold=false, halign="start");
 //   (-10,-17) @TEXT("MP: pch_ulvt_mac; W=wp, L=lp, nf=np", size=0.7, textcolor="#334155", bold=false, halign="start");
 //   (-10,-19) @TEXT("MN: nch_ulvt_mac; W=wn, L=ln, nf=nn", size=0.7, textcolor="#334155", bold=false, halign="start");
-//   $JUNCTION @ATTACH %ga;
-//   $JUNCTION @ATTACH %out;
+//   $JUNCTION @ATTACH %ga => @PLACE(-6, 0);
+//   $JUNCTION @ATTACH %out => @PLACE(0, 0);
 // }
 ends adc_clkgen_inv
 
@@ -50,7 +50,7 @@ MPA (Y A VDD VDD) pch_ulvt_mac w=wp l=30n nf=np
 MPB (Y B VDD VDD) pch_ulvt_mac w=wp l=30n nf=np
 // @RNL {
 //   &VDD @ADD-TO $SUPPLY_NET_SET; &VSS @ADD-TO $GROUND_NET_SET;
-//   # @SET-SYMBOL $NAND_2INPUT;
+//   # @SET-SYMBOL(terminals=["a", "b", "y"]) $NAND_2INPUT;
 //   {#MPA #MPB} @SET-SYMBOL $PMOS; {#MNA #MNB} @SET-SYMBOL $NMOS;
 //   {#MNA #MNB} @AS $MATCHED; {#MPA #MPB} @AS $MATCHED;
 //   {#MNA #MNB #MPA #MPB} @GROUP; {#MNA #MNB #MPA #MPB} @TEXT("", key="model");
@@ -73,27 +73,27 @@ MPB (Y B VDD VDD) pch_ulvt_mac w=wp l=30n nf=np
 //   %y=$IO_PORT @ATTACH &Y => @PLACE(16,2) => @ORIENT("MY");
 //   %v=$SUPPLY @ATTACH &VDD => @PLACE(0,16) => @ORIENT("R0");
 //   %g=$GROUND @ATTACH &VSS => @PLACE(0,-18) => @ORIENT("R0");
-//   &A @WIRE(mode="straight") {%a:p %a1 #MPA:g};
+//   &A @WIRE(mode="straight") {%a::pin %a1 #MPA:g};
 //   &A @WIRE(mode="straight") {%a1 (-10,-10) #MNB:g};
-//   &B @WIRE(mode="straight") {%b:p %b1 #MNA:g};
+//   &B @WIRE(mode="straight") {%b::pin %b1 #MNA:g};
 //   &B @WIRE(mode="straight") {%b1 (-12,11) (3,11) #MPB:g};
-//   &Y @WIRE(mode="straight") {#MPA:d %yp %y1 %yb %y:p};
+//   &Y @WIRE(mode="straight") {#MPA:d %yp %y1 %yb %y::pin};
 //   &Y @WIRE(mode="straight") {#MPB:d %yb};
 //   &Y @WIRE(mode="straight") {%y1 #MNA:d};
 //   &nx @WIRE(mode="straight") {#MNA:s #MNB:d};
 //   &VDD @WIRE(mode="straight") {#MPA:s %vp %v0 %vb #MPB:s};
-//   &VDD @WIRE(mode="straight") {%v0 %v:p};
-//   &VSS @WIRE(mode="straight") {#MNB:s %g1 %g:p};
+//   &VDD @WIRE(mode="straight") {%v0 %v::pin};
+//   &VSS @WIRE(mode="straight") {#MNB:s %g1 %g::pin};
 //   (-17,24) @TEXT("adc_clkgen_nand2", size=1.2, textcolor="#334155", bold=true, halign="start");
 //   (-17,22) @TEXT("Y = NOT (A AND B); A controls the lower NMOS", size=0.8, textcolor="#334155", bold=false, halign="start");
 //   (-17,-23) @TEXT("MPA/MPB: pch_ulvt_mac; W=wp, L=30n, nf=np", size=0.7, textcolor="#334155", bold=false, halign="start");
 //   (-17,-25) @TEXT("MNA/MNB: nch_ulvt_mac; W=wn, L=30n, nf=nn", size=0.7, textcolor="#334155", bold=false, halign="start");
 //   (-17,-28) @TEXT("Implicit bodies: pMOS to VDD; nMOS to VSS, including stacked MNA.", size=0.7, textcolor="#334155", bold=false, halign="start");
-//   $JUNCTION @ATTACH %a1;
-//   $JUNCTION @ATTACH %b1;
-//   $JUNCTION @ATTACH %y1;
-//   $JUNCTION @ATTACH %yb;
-//   $JUNCTION @ATTACH %v0;
+//   $JUNCTION @ATTACH %a1 => @PLACE(-10, 6);
+//   $JUNCTION @ATTACH %b1 => @PLACE(-12, -2);
+//   $JUNCTION @ATTACH %y1 => @PLACE(0, 2);
+//   $JUNCTION @ATTACH %yb => @PLACE(6, 2);
+//   $JUNCTION @ATTACH %v0 => @PLACE(0, 13);
 // }
 ends adc_clkgen_nand2
 
@@ -105,7 +105,7 @@ MPA (px A VDD VDD) pch_ulvt_mac w=wp l=30n nf=np
 MPB (Y B px VDD) pch_ulvt_mac w=wp l=30n nf=np
 // @RNL {
 //   &VDD @ADD-TO $SUPPLY_NET_SET; &VSS @ADD-TO $GROUND_NET_SET;
-//   # @SET-SYMBOL $NOR_2INPUT;
+//   # @SET-SYMBOL(terminals=["a", "b", "y"]) $NOR_2INPUT;
 //   {#MPA #MPB} @SET-SYMBOL $PMOS; {#MNA #MNB} @SET-SYMBOL $NMOS;
 //   {#MNA #MNB} @AS $MATCHED; {#MPA #MPB} @AS $MATCHED;
 //   {#MNA #MNB #MPA #MPB} @GROUP; {#MNA #MNB #MPA #MPB} @TEXT("", key="model");
@@ -130,28 +130,28 @@ MPB (Y B px VDD) pch_ulvt_mac w=wp l=30n nf=np
 //   %y=$IO_PORT @ATTACH &Y => @PLACE(16,-2) => @ORIENT("MY");
 //   %v=$SUPPLY @ATTACH &VDD => @PLACE(0,17) => @ORIENT("R0");
 //   %g=$GROUND @ATTACH &VSS => @PLACE(0,-16) => @ORIENT("R0");
-//   &A @WIRE(mode="straight") {%a:p %a1 #MPA:g};
+//   &A @WIRE(mode="straight") {%a::pin %a1 #MPA:g};
 //   &A @WIRE(mode="straight") {%a1 (-12,-7) #MNA:g};
-//   &B @WIRE(mode="straight") {%b:p %b1 #MPB:g};
+//   &B @WIRE(mode="straight") {%b::pin %b1 #MPB:g};
 //   &B @WIRE(mode="straight") {%b1 (-6,-1) (3,-1) (3,-7) #MNB:g};
 //   &px @WIRE(mode="straight") {#MPA:d #MPB:s};
-//   &Y @WIRE(mode="straight") {#MPB:d %y1 %yb %y:p};
+//   &Y @WIRE(mode="straight") {#MPB:d %y1 %yb %y::pin};
 //   &Y @WIRE(mode="straight") {#MNA:d %ya %y1};
 //   &Y @WIRE(mode="straight") {%yb #MNB:d};
-//   &VDD @WIRE(mode="straight") {#MPA:s %v1 %v:p};
+//   &VDD @WIRE(mode="straight") {#MPA:s %v1 %v::pin};
 //   &VSS @WIRE(mode="straight") {#MNA:s %ga %g0 %gb};
 //   &VSS @WIRE(mode="straight") {#MNB:s %gb};
-//   &VSS @WIRE(mode="straight") {%g0 %g:p};
+//   &VSS @WIRE(mode="straight") {%g0 %g::pin};
 //   (-17,25) @TEXT("adc_clkgen_nor2", size=1.2, textcolor="#334155", bold=true, halign="start");
 //   (-17,23) @TEXT("Y = NOT (A OR B); series PMOS, parallel NMOS", size=0.8, textcolor="#334155", bold=false, halign="start");
 //   (-17,-21) @TEXT("MPA/MPB: pch_ulvt_mac; W=wp, L=30n, nf=np", size=0.7, textcolor="#334155", bold=false, halign="start");
 //   (-17,-23) @TEXT("MNA/MNB: nch_ulvt_mac; W=wn, L=30n, nf=nn", size=0.7, textcolor="#334155", bold=false, halign="start");
 //   (-17,-26) @TEXT("Implicit bodies: pMOS to VDD, including stacked MPB; nMOS to VSS.", size=0.7, textcolor="#334155", bold=false, halign="start");
-//   $JUNCTION @ATTACH %a1;
-//   $JUNCTION @ATTACH %b1;
-//   $JUNCTION @ATTACH %y1;
-//   $JUNCTION @ATTACH %yb;
-//   $JUNCTION @ATTACH %g0;
+//   $JUNCTION @ATTACH %a1 => @PLACE(-12, 10);
+//   $JUNCTION @ATTACH %b1 => @PLACE(-6, 2);
+//   $JUNCTION @ATTACH %y1 => @PLACE(0, -2);
+//   $JUNCTION @ATTACH %yb => @PLACE(7, -2);
+//   $JUNCTION @ATTACH %g0 => @PLACE(0, -13);
 // }
 ends adc_clkgen_nor2
 
@@ -193,11 +193,11 @@ MP (VDD A VDD VDD) pch_ulvt_mac w=wp l=lp nf=np
 //   %a=$IO_PORT @ATTACH &A => @PLACE(-10,0) => @ORIENT("R0");
 //   %v=$SUPPLY @ATTACH &VDD => @PLACE(0,12) => @ORIENT("R0");
 //   %g=$GROUND @ATTACH &VSS => @PLACE(0,-12) => @ORIENT("R0");
-//   &A @WIRE(mode="straight") {%a:p %ga};
+//   &A @WIRE(mode="straight") {%a::pin %ga};
 //   &A @WIRE(mode="straight") {#MP:g (-6,5) %ga (-6,-5) #MN:g};
-//   &VDD @WIRE(mode="straight") {#MP:s %vp %v:p};
+//   &VDD @WIRE(mode="straight") {#MP:s %vp %v::pin};
 //   &VDD @WIRE(mode="straight") {#MP:d (4,3) %pb (4,10) %vp};
-//   &VSS @WIRE(mode="straight") {#MN:s %vn %g:p};
+//   &VSS @WIRE(mode="straight") {#MN:s %vn %g::pin};
 //   &VSS @WIRE(mode="straight") {#MN:d (4,-3) %nb (4,-10) %vn};
 //   #MN @TEXT("${name}", key="name", dx=5, dy=1, halign="start");
 //   (-10,22) @TEXT("adc_clkgen_gatecap", size=1.2, textcolor="#334155", bold=true, halign="start");
@@ -206,9 +206,9 @@ MP (VDD A VDD VDD) pch_ulvt_mac w=wp l=lp nf=np
 //   (-10,-22) @TEXT("Implicit bodies: MP to VDD; MN to VSS. Both gates connect to A.", size=0.7, textcolor="#334155", bold=false, halign="start");
 //   (-10,-17) @TEXT("MP: pch_ulvt_mac; W=wp, L=lp, nf=np", size=0.7, textcolor="#334155", bold=false, halign="start");
 //   (-10,-19) @TEXT("MN: nch_ulvt_mac; W=wn, L=ln, nf=nn", size=0.7, textcolor="#334155", bold=false, halign="start");
-//   $JUNCTION @ATTACH %ga;
-//   $JUNCTION @ATTACH %vp;
-//   $JUNCTION @ATTACH %vn;
+//   $JUNCTION @ATTACH %ga => @PLACE(-6, 0);
+//   $JUNCTION @ATTACH %vp => @PLACE(0, 10);
+//   $JUNCTION @ATTACH %vn => @PLACE(0, -10);
 // }
 ends adc_clkgen_gatecap
 
@@ -251,7 +251,7 @@ XCE2 (ce AVDD VSS) adc_clkgen_gatecap wn=400n wp=600n nn=2 np=2
 //   $clk_route = @DEFINE-STYLE(linecolor="#2563a6", textcolor="#2563a6") {};
 //   $feedback_route = @DEFINE-STYLE(linecolor="#a75b13", textcolor="#a75b13") {};
 //   $gate_ink = @DEFINE-STYLE(linecolor="#243b53", textcolor="#243b53") {};
-//   # @SELECT-INSTANCE => @SET-STYLE $gate_ink;
+//   # @SELECT-INSTANCE(recursive=true) => @SET-STYLE $gate_ink;
 //   {#XS1 #XS2 #XS3 #XSB1 #XSB2} @GROUP; {#XB1 #XB2 #XB3 #XB4 #XBB1 #XBB2} @GROUP;
 //   {#XSG #XOFF} @GROUP; {#XCG #XC1 #XC2} @GROUP; {#XS3 #XSB2} @AS $MATCHED;
 //   {#XCS1 #XCS2 #XCS3 #XCS4} @GROUP; {#XCB1 #XCB2} @GROUP; {#XCE1 #XCE2 #XCC1 #XCC2} @GROUP; {#XCO1 #XCO2} @GROUP;
@@ -306,63 +306,63 @@ XCE2 (ce AVDD VSS) adc_clkgen_gatecap wn=400n wp=600n nn=2 np=2
 //   #XCO1 @PLACE(-12,20) => @ORIENT("R0");
 //   %v_XCO1=$SUPPLY @ATTACH &AVDD => @PLACE(-12,28) => @ORIENT("R0");
 //   %g_XCO1=$GROUND @ATTACH &VSS => @PLACE(-12,12) => @ORIENT("R0");
-//   &AVDD @WIRE(mode="straight") {#XCO1:VDD %v_XCO1:p};
-//   &VSS @WIRE(mode="straight") {#XCO1:VSS %g_XCO1:p};
+//   &AVDD @WIRE(mode="straight") {#XCO1:VDD %v_XCO1::pin};
+//   &VSS @WIRE(mode="straight") {#XCO1:VSS %g_XCO1::pin};
 //   #XCO2 @PLACE(-3,20) => @ORIENT("R0");
 //   %v_XCO2=$SUPPLY @ATTACH &AVDD => @PLACE(-3,28) => @ORIENT("R0");
 //   %g_XCO2=$GROUND @ATTACH &VSS => @PLACE(-3,12) => @ORIENT("R0");
-//   &AVDD @WIRE(mode="straight") {#XCO2:VDD %v_XCO2:p};
-//   &VSS @WIRE(mode="straight") {#XCO2:VSS %g_XCO2:p};
+//   &AVDD @WIRE(mode="straight") {#XCO2:VDD %v_XCO2::pin};
+//   &VSS @WIRE(mode="straight") {#XCO2:VSS %g_XCO2::pin};
 //   #XCS1 @PLACE(14,20) => @ORIENT("R0");
 //   %v_XCS1=$SUPPLY @ATTACH &AVDD => @PLACE(14,28) => @ORIENT("R0");
 //   %g_XCS1=$GROUND @ATTACH &VSS => @PLACE(14,12) => @ORIENT("R0");
-//   &AVDD @WIRE(mode="straight") {#XCS1:VDD %v_XCS1:p};
-//   &VSS @WIRE(mode="straight") {#XCS1:VSS %g_XCS1:p};
+//   &AVDD @WIRE(mode="straight") {#XCS1:VDD %v_XCS1::pin};
+//   &VSS @WIRE(mode="straight") {#XCS1:VSS %g_XCS1::pin};
 //   #XCS2 @PLACE(24,20) => @ORIENT("R0");
 //   %v_XCS2=$SUPPLY @ATTACH &AVDD => @PLACE(24,28) => @ORIENT("R0");
 //   %g_XCS2=$GROUND @ATTACH &VSS => @PLACE(24,12) => @ORIENT("R0");
-//   &AVDD @WIRE(mode="straight") {#XCS2:VDD %v_XCS2:p};
-//   &VSS @WIRE(mode="straight") {#XCS2:VSS %g_XCS2:p};
+//   &AVDD @WIRE(mode="straight") {#XCS2:VDD %v_XCS2::pin};
+//   &VSS @WIRE(mode="straight") {#XCS2:VSS %g_XCS2::pin};
 //   #XCS3 @PLACE(34,20) => @ORIENT("R0");
 //   %v_XCS3=$SUPPLY @ATTACH &AVDD => @PLACE(34,28) => @ORIENT("R0");
 //   %g_XCS3=$GROUND @ATTACH &VSS => @PLACE(34,12) => @ORIENT("R0");
-//   &AVDD @WIRE(mode="straight") {#XCS3:VDD %v_XCS3:p};
-//   &VSS @WIRE(mode="straight") {#XCS3:VSS %g_XCS3:p};
+//   &AVDD @WIRE(mode="straight") {#XCS3:VDD %v_XCS3::pin};
+//   &VSS @WIRE(mode="straight") {#XCS3:VSS %g_XCS3::pin};
 //   #XCS4 @PLACE(44,20) => @ORIENT("R0");
 //   %v_XCS4=$SUPPLY @ATTACH &AVDD => @PLACE(44,28) => @ORIENT("R0");
 //   %g_XCS4=$GROUND @ATTACH &VSS => @PLACE(44,12) => @ORIENT("R0");
-//   &AVDD @WIRE(mode="straight") {#XCS4:VDD %v_XCS4:p};
-//   &VSS @WIRE(mode="straight") {#XCS4:VSS %g_XCS4:p};
+//   &AVDD @WIRE(mode="straight") {#XCS4:VDD %v_XCS4::pin};
+//   &VSS @WIRE(mode="straight") {#XCS4:VSS %g_XCS4::pin};
 //   #XCB1 @PLACE(70,20) => @ORIENT("R0");
 //   %v_XCB1=$SUPPLY @ATTACH &AVDD => @PLACE(70,28) => @ORIENT("R0");
 //   %g_XCB1=$GROUND @ATTACH &VSS => @PLACE(70,12) => @ORIENT("R0");
-//   &AVDD @WIRE(mode="straight") {#XCB1:VDD %v_XCB1:p};
-//   &VSS @WIRE(mode="straight") {#XCB1:VSS %g_XCB1:p};
+//   &AVDD @WIRE(mode="straight") {#XCB1:VDD %v_XCB1::pin};
+//   &VSS @WIRE(mode="straight") {#XCB1:VSS %g_XCB1::pin};
 //   #XCB2 @PLACE(82,20) => @ORIENT("R0");
 //   %v_XCB2=$SUPPLY @ATTACH &AVDD => @PLACE(82,28) => @ORIENT("R0");
 //   %g_XCB2=$GROUND @ATTACH &VSS => @PLACE(82,12) => @ORIENT("R0");
-//   &AVDD @WIRE(mode="straight") {#XCB2:VDD %v_XCB2:p};
-//   &VSS @WIRE(mode="straight") {#XCB2:VSS %g_XCB2:p};
+//   &AVDD @WIRE(mode="straight") {#XCB2:VDD %v_XCB2::pin};
+//   &VSS @WIRE(mode="straight") {#XCB2:VSS %g_XCB2::pin};
 //   #XCE1 @PLACE(120,20) => @ORIENT("R0");
 //   %v_XCE1=$SUPPLY @ATTACH &AVDD => @PLACE(120,28) => @ORIENT("R0");
 //   %g_XCE1=$GROUND @ATTACH &VSS => @PLACE(120,12) => @ORIENT("R0");
-//   &AVDD @WIRE(mode="straight") {#XCE1:VDD %v_XCE1:p};
-//   &VSS @WIRE(mode="straight") {#XCE1:VSS %g_XCE1:p};
+//   &AVDD @WIRE(mode="straight") {#XCE1:VDD %v_XCE1::pin};
+//   &VSS @WIRE(mode="straight") {#XCE1:VSS %g_XCE1::pin};
 //   #XCE2 @PLACE(129,20) => @ORIENT("R0");
 //   %v_XCE2=$SUPPLY @ATTACH &AVDD => @PLACE(129,28) => @ORIENT("R0");
 //   %g_XCE2=$GROUND @ATTACH &VSS => @PLACE(129,12) => @ORIENT("R0");
-//   &AVDD @WIRE(mode="straight") {#XCE2:VDD %v_XCE2:p};
-//   &VSS @WIRE(mode="straight") {#XCE2:VSS %g_XCE2:p};
+//   &AVDD @WIRE(mode="straight") {#XCE2:VDD %v_XCE2::pin};
+//   &VSS @WIRE(mode="straight") {#XCE2:VSS %g_XCE2::pin};
 //   #XCC1 @PLACE(141,20) => @ORIENT("R0");
 //   %v_XCC1=$SUPPLY @ATTACH &AVDD => @PLACE(141,28) => @ORIENT("R0");
 //   %g_XCC1=$GROUND @ATTACH &VSS => @PLACE(141,12) => @ORIENT("R0");
-//   &AVDD @WIRE(mode="straight") {#XCC1:VDD %v_XCC1:p};
-//   &VSS @WIRE(mode="straight") {#XCC1:VSS %g_XCC1:p};
+//   &AVDD @WIRE(mode="straight") {#XCC1:VDD %v_XCC1::pin};
+//   &VSS @WIRE(mode="straight") {#XCC1:VSS %g_XCC1::pin};
 //   #XCC2 @PLACE(150,20) => @ORIENT("R0");
 //   %v_XCC2=$SUPPLY @ATTACH &AVDD => @PLACE(150,28) => @ORIENT("R0");
 //   %g_XCC2=$GROUND @ATTACH &VSS => @PLACE(150,12) => @ORIENT("R0");
-//   &AVDD @WIRE(mode="straight") {#XCC2:VDD %v_XCC2:p};
-//   &VSS @WIRE(mode="straight") {#XCC2:VSS %g_XCC2:p};
+//   &AVDD @WIRE(mode="straight") {#XCC2:VDD %v_XCC2::pin};
+//   &VSS @WIRE(mode="straight") {#XCC2:VSS %g_XCC2::pin};
 //   %clk=(-24,1);
 //   %coff=(-18,6);
 //   %sbar=(14,0);
@@ -381,9 +381,9 @@ XCE2 (ce AVDD VSS) adc_clkgen_gatecap wn=400n wp=600n nn=2 np=2
 //   %pbb=$IO_PORT @ATTACH &PHI_BB => @PLACE(128,-12) => @ORIENT("MY");
 //   %pc=$IO_PORT @ATTACH &CONV => @PLACE(164,0) => @ORIENT("MY");
 //   %pb=$IO_PORT @ATTACH &PHI_B => @PLACE(104,6) => @ORIENT("R0");
-//   &CLK @WIRE(mode="straight") {%pclk:p %clk #XSG:A} => @SET-STYLE $clk_route;
+//   &CLK @WIRE(mode="straight") {%pclk::pin %clk #XSG:A} => @SET-STYLE $clk_route;
 //   &CLK @WIRE(mode="straight") {%clk (-24,49) (114,49) (114,1) #XCG:A} => @SET-STYLE $clk_route;
-//   &CONV @WIRE(mode="straight") {#XC2:Y %conv %pc:p} => @SET-STYLE $feedback_route;
+//   &CONV @WIRE(mode="straight") {#XC2:Y %conv %pc::pin} => @SET-STYLE $feedback_route;
 //   &CONV @WIRE(mode="straight") {%conv (156,41) #XOFF:A} => @SET-STYLE $feedback_route;
 //   &coff @WIRE(mode="straight") {#XOFF:Y (-18,41) %coff (-18,-1) #XSG:B} => @SET-STYLE $feedback_route;
 //   &sbar @WIRE(mode="straight") {#XSG:Y %sbar #XS1:A};
@@ -392,16 +392,16 @@ XCE2 (ce AVDD VSS) adc_clkgen_gatecap wn=400n wp=600n nn=2 np=2
 //   &s2 @WIRE(mode="straight") {#XS2:Y #XS3:A};
 //   &sb1 @WIRE(mode="straight") {#XSB1:Y #XSB2:A};
 //   &PHI_S @WIRE(mode="straight") {#XS3:Y %s #XB1:A};
-//   &PHI_S @WIRE(mode="straight") {%s (52,6) %ps:p};
-//   &PHI_SB @WIRE(mode="straight") {#XSB2:Y %psb:p};
+//   &PHI_S @WIRE(mode="straight") {%s (52,6) %ps::pin};
+//   &PHI_SB @WIRE(mode="straight") {#XSB2:Y %psb::pin};
 //   &b1 @WIRE(mode="straight") {#XB1:Y %b1 #XB2:A};
 //   &b2 @WIRE(mode="straight") {#XB2:Y %b2 #XB3:A};
 //   &b3 @WIRE(mode="straight") {#XB3:Y %b3 #XB4:A};
 //   &b3 @WIRE(mode="straight") {%b3 (94,-12) #XBB1:A};
 //   &bb1 @WIRE(mode="straight") {#XBB1:Y #XBB2:A};
 //   &PHI_B @WIRE(mode="straight") {#XB4:Y %b (114,0) (114,-1) #XCG:B};
-//   &PHI_B @WIRE(mode="straight") {%b (108,6) %pb:p};
-//   &PHI_BB @WIRE(mode="straight") {#XBB2:Y %pbb:p};
+//   &PHI_B @WIRE(mode="straight") {%b (108,6) %pb::pin};
+//   &PHI_BB @WIRE(mode="straight") {#XBB2:Y %pbb::pin};
 //   &ce @WIRE(mode="straight") {#XCG:Y %ce #XC1:A};
 //   &cb @WIRE(mode="straight") {#XC1:Y %cb #XC2:A};
 //   %tap_XCO1=(-16,6);
@@ -447,23 +447,23 @@ XCE2 (ce AVDD VSS) adc_clkgen_gatecap wn=400n wp=600n nn=2 np=2
 //   (-28,-20) @TEXT("Logic-gate supplies: VDD=AVDD, VSS=VSS. All drawn pMOS bodies connect to AVDD; all nMOS bodies connect to VSS.", size=0.9, textcolor="#334155", bold=false, halign="start");
 //   (-28,-23) @TEXT("Below each gate: total Wn/Wp; L=30n. Each load shows its real MP/MN, common A, and D/S supply ties; L=90n.", size=0.9, textcolor="#334155", bold=false, halign="start");
 //   (-28,-26) @TEXT("Load Wn/Wp=2u/3u, except XCS4, XCO1, XCO2, XCE2=400n/600n. Dots appear only at real T or cross junctions.", size=0.9, textcolor="#334155", bold=false, halign="start");
-//   $JUNCTION @ATTACH %clk;
-//   $JUNCTION @ATTACH %coff;
-//   $JUNCTION @ATTACH %sbar;
-//   $JUNCTION @ATTACH %s1;
-//   $JUNCTION @ATTACH %s;
-//   $JUNCTION @ATTACH %b1;
-//   $JUNCTION @ATTACH %b2;
-//   $JUNCTION @ATTACH %b3;
-//   $JUNCTION @ATTACH %b;
-//   $JUNCTION @ATTACH %ce;
-//   $JUNCTION @ATTACH %cb;
-//   $JUNCTION @ATTACH %conv;
-//   $JUNCTION @ATTACH %tap_XCO1;
-//   $JUNCTION @ATTACH %bank_s1;
-//   $JUNCTION @ATTACH %tap_XCS2;
-//   $JUNCTION @ATTACH %tap_XCS3;
-//   $JUNCTION @ATTACH %tap_XCE2;
-//   $JUNCTION @ATTACH %bank_cb;
+//   $JUNCTION @ATTACH %clk => @PLACE(-24, 1);
+//   $JUNCTION @ATTACH %coff => @PLACE(-18, 6);
+//   $JUNCTION @ATTACH %sbar => @PLACE(14, 0);
+//   $JUNCTION @ATTACH %s1 => @PLACE(26, 0);
+//   $JUNCTION @ATTACH %s => @PLACE(52, 0);
+//   $JUNCTION @ATTACH %b1 => @PLACE(70, 0);
+//   $JUNCTION @ATTACH %b2 => @PLACE(82, 0);
+//   $JUNCTION @ATTACH %b3 => @PLACE(94, 0);
+//   $JUNCTION @ATTACH %b => @PLACE(108, 0);
+//   $JUNCTION @ATTACH %ce => @PLACE(126, 0);
+//   $JUNCTION @ATTACH %cb => @PLACE(138, 0);
+//   $JUNCTION @ATTACH %conv => @PLACE(156, 0);
+//   $JUNCTION @ATTACH %tap_XCO1 => @PLACE(-16, 6);
+//   $JUNCTION @ATTACH %bank_s1 => @PLACE(26, 6);
+//   $JUNCTION @ATTACH %tap_XCS2 => @PLACE(20, 6);
+//   $JUNCTION @ATTACH %tap_XCS3 => @PLACE(30, 6);
+//   $JUNCTION @ATTACH %tap_XCE2 => @PLACE(125, 6);
+//   $JUNCTION @ATTACH %bank_cb => @PLACE(138, 6);
 // }
 ends adc_clkgen

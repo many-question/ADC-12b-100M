@@ -1,7 +1,7 @@
 // adc_sarlogic, behavioral view: asynchronous SAR controller
 // @RNL(type="header") {
-//   @VERSION("0.3");
-//   @USE-PACKAGE(name="adc28", version="0.1", path="../rnl/adc28.rnl")
+//   @VERSION("0.4");
+//   @USE-PACKAGE(name="adc28", version="0.2", path="../rnl/0.4/adc28.rnl")
 // }
 simulator lang=spectre
 
@@ -33,43 +33,43 @@ COUTN (OUTN VSS) capacitor c=cin_cmp
 //   #COUTN @PLACE(-15, -5);
 //   /* inputs, each with its input capacitance */
 //   %jconv = (-36, 5);
-//   $JUNCTION @ATTACH %jconv;
+//   $JUNCTION @ATTACH %jconv => @PLACE(-36, 5);
 //   %p_conv = $IO_PORT @ATTACH &CONV => @PLACE(-38, 5) => @ORIENT("R0");
-//   &CONV @WIRE {%p_conv:p %jconv #I0:CONV};
+//   &CONV @WIRE {%p_conv::pin %jconv #I0:CONV};
 //   &CONV @WIRE {%jconv #CCONV:1};
 //   %joutp = (-24, 1);
-//   $JUNCTION @ATTACH %joutp;
+//   $JUNCTION @ATTACH %joutp => @PLACE(-24, 1);
 //   %p_outp = $IO_PORT @ATTACH &OUTP => @PLACE(-26, 1) => @ORIENT("R0");
-//   &OUTP @WIRE {%p_outp:p %joutp #I0:OUTP};
+//   &OUTP @WIRE {%p_outp::pin %joutp #I0:OUTP};
 //   &OUTP @WIRE {%joutp #COUTP:1};
 //   %joutn = (-15, -1);
-//   $JUNCTION @ATTACH %joutn;
+//   $JUNCTION @ATTACH %joutn => @PLACE(-15, -1);
 //   %p_outn = $IO_PORT @ATTACH &OUTN => @PLACE(-17, -1) => @ORIENT("R0");
-//   &OUTN @WIRE {%p_outn:p %joutn #I0:OUTN};
+//   &OUTN @WIRE {%p_outn::pin %joutn #I0:OUTN};
 //   &OUTN @WIRE {%joutn #COUTN:1};
 //   %g2 = $GROUND @ATTACH &VSS => @PLACE(-36, -3);
-//   &VSS @WIRE {#CCONV:2 %g2:p};
+//   &VSS @WIRE {#CCONV:2 %g2::pin};
 //   %g3 = $GROUND @ATTACH &VSS => @PLACE(-24, -7);
-//   &VSS @WIRE {#COUTP:2 %g3:p};
+//   &VSS @WIRE {#COUTP:2 %g3::pin};
 //   %g4 = $GROUND @ATTACH &VSS => @PLACE(-15, -9);
-//   &VSS @WIRE {#COUTN:2 %g4:p};
+//   &VSS @WIRE {#COUTN:2 %g4::pin};
 //   %p_clkc = $IO_PORT @ATTACH &CLKC => @PLACE(-9, -10) => @ORIENT("R90");
-//   &CLKC @WIRE {%p_clkc:p (-9, -5) #I0:CLKC};
-//   %p_up = (13, 3)(p) {&UP12 &UP11 &UP10 &UP9 &UP8 &UP7 &UP6 &UP5 &UP4 &UP3 &UP2 &UP1 &UP0}(nets) @AS $BUS_PORT => @ORIENT("MY");
+//   &CLKC @WIRE {%p_clkc::pin (-9, -5) #I0:CLKC};
+//   %p_up = {&UP12 &UP11 &UP10 &UP9 &UP8 &UP7 &UP6 &UP5 &UP4 &UP3 &UP2 &UP1 &UP0}(nets) @AS $BUS_PORT => @PLACE(13, 3) => @ORIENT("MY");
 //   %p_up @TEXT("UP<12:0>", key="name");
-//   %bus_up = {&UP12 &UP11 &UP10 &UP9 &UP8 &UP7 &UP6 &UP5 &UP4 &UP3 &UP2 &UP1 &UP0} @WIRE {#I0:UP12 %p_up:p};
-//   %p_dn = (13, -3)(p) {&DN12 &DN11 &DN10 &DN9 &DN8 &DN7 &DN6 &DN5 &DN4 &DN3 &DN2 &DN1 &DN0}(nets) @AS $BUS_PORT => @ORIENT("MY");
+//   %bus_up = {&UP12 &UP11 &UP10 &UP9 &UP8 &UP7 &UP6 &UP5 &UP4 &UP3 &UP2 &UP1 &UP0} @WIRE {#I0:UP12 %p_up::pin};
+//   %p_dn = {&DN12 &DN11 &DN10 &DN9 &DN8 &DN7 &DN6 &DN5 &DN4 &DN3 &DN2 &DN1 &DN0}(nets) @AS $BUS_PORT => @PLACE(13, -3) => @ORIENT("MY");
 //   %p_dn @TEXT("DN<12:0>", key="name");
-//   %bus_dn = {&DN12 &DN11 &DN10 &DN9 &DN8 &DN7 &DN6 &DN5 &DN4 &DN3 &DN2 &DN1 &DN0} @WIRE {#I0:DN12 %p_dn:p};
-//   %p_d = (-2, -13)(p) {&D13 &D12 &D11 &D10 &D9 &D8 &D7 &D6 &D5 &D4 &D3 &D2 &D1 &D0}(nets) @AS $BUS_PORT => @ORIENT("R90");
+//   %bus_dn = {&DN12 &DN11 &DN10 &DN9 &DN8 &DN7 &DN6 &DN5 &DN4 &DN3 &DN2 &DN1 &DN0} @WIRE {#I0:DN12 %p_dn::pin};
+//   %p_d = {&D13 &D12 &D11 &D10 &D9 &D8 &D7 &D6 &D5 &D4 &D3 &D2 &D1 &D0}(nets) @AS $BUS_PORT => @PLACE(-2, -13) => @ORIENT("R90");
 //   %p_d @TEXT("D<13:0>", key="name");
-//   %bus_d = {&D13 &D12 &D11 &D10 &D9 &D8 &D7 &D6 &D5 &D4 &D3 &D2 &D1 &D0} @WIRE {#I0:D13 %p_d:p};
+//   %bus_d = {&D13 &D12 &D11 &D10 &D9 &D8 &D7 &D6 &D5 &D4 &D3 &D2 &D1 &D0} @WIRE {#I0:D13 %p_d::pin};
 //   %p_rdy = $IO_PORT @ATTACH &RDY => @PLACE(2, -12) => @ORIENT("R90");
-//   &RDY @WIRE {#I0:RDY %p_rdy:p};
+//   &RDY @WIRE {#I0:RDY %p_rdy::pin};
 //   %g1 = $GROUND @ATTACH &VSS => @PLACE(5, -10);
-//   &VSS @WIRE {#I0:VSS %g1:p};
+//   &VSS @WIRE {#I0:VSS %g1::pin};
 //   %s1 = $SUPPLY @ATTACH &DVDD => @PLACE(0, 10);
-//   &DVDD @WIRE {#I0:DVDD %s1:p};
+//   &DVDD @WIRE {#I0:DVDD %s1::pin};
 //   /* --- annotations --- */
 //   (-38, 16) @TEXT("adc_sarlogic (behavioral): asynchronous SAR controller, bit and output registers", halign="start") => @SET-STYLE $title_style;
 //   (-38, 14.5) @TEXT("decision k -> UP/DN<13-k>, D<14-k>; DAC wait 40 ps (steps 1-6) / 75 ps; timeout 250 ps forces 1; all delays scaled by beh_speed", halign="start") => @SET-STYLE $note_style;
