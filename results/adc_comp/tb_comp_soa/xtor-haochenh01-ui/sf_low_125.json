@@ -1,0 +1,184 @@
+{
+ "block": "adc_comp",
+ "test": "tb_comp_soa",
+ "view": "xtor-haochenh01-ui",
+ "corner": "sf_low_125",
+ "params": {},
+ "globals": {
+  "vdd": 0.81,
+  "vdd18": 1.62,
+  "tempc": 125.0,
+  "noise_en": 0,
+  "devnoise": 1,
+  "beh_speed": 1.0,
+  "vref_in": 0.9,
+  "cdac_behav": 1,
+  "comp_behav": 0
+ },
+ "metrics": {
+  "soa_scope": "device",
+  "soa_limit_V": 1.1,
+  "soa_peak_V": 1.29,
+  "soa_window_ns": 10.0,
+  "soa_max_over_ps": 100.0,
+  "soa_devices": 19,
+  "soa_devices_dut": 19,
+  "soa_pairs": 57,
+  "soa_violations": 0,
+  "soa_max_V": 0.87936,
+  "soa_window_max_ps": 0.0,
+  "soa_worst": {
+   "device": "XDUT.MINP",
+   "pair": "gs",
+   "signed_V": 0.87931,
+   "t_ns": 0.3034,
+   "dt_ps": 1.09,
+   "t_over_ps": 0.0,
+   "t_window_ps": 0.0
+  },
+  "soa_points": 6632,
+  "soa_dt_max_ps": 48.16,
+  "soa_table": {
+    "devices": [
+      ["XDUT.MINP","nch_ulvt_mac","dut"],
+      ["XDUT.MINN","nch_ulvt_mac","dut"],
+      ["XDUT.MTAIL","nch_ulvt_mac","dut"],
+      ["XDUT.MRDP","pch_ulvt_mac","dut"],
+      ["XDUT.MRDN","pch_ulvt_mac","dut"],
+      ["XDUT.MLNP","nch_ulvt_mac","dut"],
+      ["XDUT.MLNN","nch_ulvt_mac","dut"],
+      ["XDUT.MLPP","pch_ulvt_mac","dut"],
+      ["XDUT.MLPN","pch_ulvt_mac","dut"],
+      ["XDUT.MRQP","pch_ulvt_mac","dut"],
+      ["XDUT.MRQN","pch_ulvt_mac","dut"],
+      ["XDUT.MOPN","nch_ulvt_mac","dut"],
+      ["XDUT.MOPP","pch_ulvt_mac","dut"],
+      ["XDUT.MONN","nch_ulvt_mac","dut"],
+      ["XDUT.MONP","pch_ulvt_mac","dut"],
+      ["XDUT.MCKN","nch_ulvt_mac","dut"],
+      ["XDUT.MCKP","pch_ulvt_mac","dut"],
+      ["XDUT.MCK2N","nch_ulvt_mac","dut"],
+      ["XDUT.MCK2P","pch_ulvt_mac","dut"]
+    ],
+    "columns": ["device","pair","max_V","signed_V","t_ns","dt_ps","t_over_ps","t_window_ps","pass"],
+    "rows": [
+      [0,"gs",0.87936,0.87931,0.3034,1.09,0.0,0.0,true],
+      [0,"gd",0.87869,0.87865,0.3034,1.09,0.0,0.0,true],
+      [0,"ds",0.71059,0.71058,3.7856,6.564,0.0,0.0,true],
+      [1,"gs",0.87933,0.87924,0.7023,1.09,0.0,0.0,true],
+      [1,"gd",0.87866,0.87866,0.7034,1.09,0.0,0.0,true],
+      [1,"ds",0.71088,0.71088,3.3838,6.59,0.0,0.0,true],
+      [2,"gs",0.81,0.81,0.11,0.159,0.0,0.0,true],
+      [2,"gd",0.79693,-0.79693,0.0,12.04,0.0,0.0,true],
+      [2,"ds",0.79816,0.79814,0.1016,0.357,0.0,0.0,true],
+      [3,"gs",0.81379,-0.81376,0.108,0.214,0.0,0.0,true],
+      [3,"gd",0.83983,-0.83982,0.89,1.859,0.0,0.0,true],
+      [3,"ds",0.80434,-0.80434,10.9423,0.386,0.0,0.0,true],
+      [4,"gs",0.81379,-0.81376,0.108,0.214,0.0,0.0,true],
+      [4,"gd",0.86663,-0.86663,3.69,0.172,0.0,0.0,true],
+      [4,"ds",0.79624,-0.79624,1.5108,0.432,0.0,0.0,true],
+      [5,"gs",0.79448,0.79442,1.1055,0.64,0.0,0.0,true],
+      [5,"gd",0.79236,-0.79233,1.5067,0.646,0.0,0.0,true],
+      [5,"ds",0.79527,0.7952,1.5055,0.64,0.0,0.0,true],
+      [6,"gs",0.79467,0.79461,1.5055,0.64,0.0,0.0,true],
+      [6,"gd",0.79236,0.79233,1.5067,0.646,0.0,0.0,true],
+      [6,"ds",0.79508,0.79501,1.1055,0.64,0.0,0.0,true],
+      [7,"gs",0.7974,-0.7974,1.5108,0.432,0.0,0.0,true],
+      [7,"gd",0.79236,-0.79233,1.5067,0.646,0.0,0.0,true],
+      [7,"ds",0.79722,-0.79722,1.1108,0.432,0.0,0.0,true],
+      [8,"gs",0.79722,-0.79722,1.1108,0.432,0.0,0.0,true],
+      [8,"gd",0.79236,0.79233,1.5067,0.646,0.0,0.0,true],
+      [8,"ds",0.7974,-0.7974,1.5108,0.432,0.0,0.0,true],
+      [9,"gs",0.81379,-0.81376,0.108,0.214,0.0,0.0,true],
+      [9,"gd",0.81362,-0.81354,0.108,0.214,0.0,0.0,true],
+      [9,"ds",0.79722,-0.79722,1.1108,0.432,0.0,0.0,true],
+      [10,"gs",0.81379,-0.81376,0.108,0.214,0.0,0.0,true],
+      [10,"gd",0.81356,-0.81348,0.108,0.214,0.0,0.0,true],
+      [10,"ds",0.7974,-0.7974,1.5108,0.432,0.0,0.0,true],
+      [11,"gs",0.8763,0.8762,0.9199,0.511,0.0,0.0,true],
+      [11,"gd",0.87383,0.87376,0.9204,0.503,0.0,0.0,true],
+      [11,"ds",0.81907,0.81903,9.8267,0.447,0.0,0.0,true],
+      [12,"gs",0.79722,-0.79722,1.1108,0.432,0.0,0.0,true],
+      [12,"gd",0.87383,0.87376,0.9204,0.503,0.0,0.0,true],
+      [12,"ds",0.81235,-0.81234,0.1247,0.912,0.0,0.0,true],
+      [13,"gs",0.87307,0.87306,4.1195,0.578,0.0,0.0,true],
+      [13,"gd",0.87056,0.87056,4.12,0.485,0.0,0.0,true],
+      [13,"ds",0.81768,0.81768,9.9667,0.82,0.0,0.0,true],
+      [14,"gs",0.7974,-0.7974,1.5108,0.432,0.0,0.0,true],
+      [14,"gd",0.87056,0.87056,4.12,0.485,0.0,0.0,true],
+      [14,"ds",0.81234,-0.81234,0.5244,0.973,0.0,0.0,true],
+      [15,"gs",0.81,0.81,0.11,0.159,0.0,0.0,true],
+      [15,"gd",0.80978,-0.80971,0.0,12.04,0.0,0.0,true],
+      [15,"ds",0.8222,0.82214,0.5023,0.883,0.0,0.0,true],
+      [16,"gs",0.81,-0.81,0.0,12.04,0.0,0.0,true],
+      [16,"gd",0.80978,-0.80971,0.0,12.04,0.0,0.0,true],
+      [16,"ds",0.81709,-0.81709,9.1017,1.23,0.0,0.0,true],
+      [17,"gs",0.8222,0.82214,0.5023,0.883,0.0,0.0,true],
+      [17,"gd",0.81936,0.81932,1.3023,0.883,0.0,0.0,true],
+      [17,"ds",0.82343,0.82339,0.3074,0.652,0.0,0.0,true],
+      [18,"gs",0.81709,-0.81709,9.1017,1.23,0.0,0.0,true],
+      [18,"gd",0.81936,0.81932,1.3023,0.883,0.0,0.0,true],
+      [18,"ds",0.81379,-0.81376,0.108,0.214,0.0,0.0,true]
+    ]
+  }
+ },
+ "specs": {
+  "CMP-17": {
+   "metric": "soa_violations",
+   "value": 0,
+   "limit": "<= 0",
+   "pass": true
+  }
+ },
+ "figures": [
+  {
+   "file": "sf_low_125.stimulus.png",
+   "caption": "Stimulus of the SOA test over the whole transient (scope device, 57 pairs)."
+  },
+  {
+   "file": "sf_low_125.soa.png",
+   "caption": "Largest |Vgs|, |Vgd|, |Vds| of every checked device against the 1.1 V limit and the 1.29 V transient limit (at most 100 ps above 1.1 V in any 10 ns window; scope: device), the worst pair over the whole run, and the saved time points around the time of its maximum, which set the time resolution."
+  }
+ ],
+ "meta": {
+  "date": "2026-11-23T21:39:23",
+  "git": "3c053f0",
+  "git_clean": false,
+  "git_dirty_paths": [
+   "design/xtor/adc_comp/haochenh01-ui/NOTES.md",
+   "design/xtor/adc_comp/haochenh01-ui/adc_comp.scs",
+   "design/xtor/adc_comp/haochenh01-ui/candidate.yaml"
+  ],
+  "mode": "aps",
+  "pdk": true,
+  "mc": null,
+  "wall_s": 139.3,
+  "rc": "0",
+  "sim_s": "16",
+  "numerics": {
+   "source": "spectre.log",
+   "reltol": 0.0001,
+   "maxstep_ps": 120.4,
+   "method": "gear2only",
+   "errpreset": "conservative",
+   "lteratio": 10.0,
+   "relref": "alllocal",
+   "abstol_V": 1e-06,
+   "steps_accepted": 6631,
+   "step_mean_ps": 1.81571,
+   "step_max_ps": 48.16
+  },
+  "files": {
+   "tb/comp/tb_comp_soa.scs": "8f4b84b8526b6d05",
+   "design/xtor/adc_comp/haochenh01-ui/adc_comp.scs": "92a17245a3ee3d0e",
+   "specs/soa.yaml": "b6213fc39b550c11"
+  },
+  "arch": {
+   "keys": [],
+   "sha": "44136fa355b3678a"
+  },
+  "views": {
+   "adc_comp": "xtor:haochenh01-ui"
+  }
+ }
+}

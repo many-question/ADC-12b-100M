@@ -1,0 +1,189 @@
+{
+ "block": "adc_comp",
+ "test": "tb_comp_delay",
+ "view": "xtor-haochenh01-ui",
+ "corner": "ff_high_27",
+ "params": {},
+ "globals": {
+  "vdd": 0.99,
+  "vdd18": 1.98,
+  "tempc": 27.0,
+  "noise_en": 0,
+  "devnoise": 1,
+  "beh_speed": 1.0,
+  "vref_in": 0.9,
+  "cdac_behav": 1,
+  "comp_behav": 0
+ },
+ "metrics": {
+  "wrong_decisions": 0,
+  "tdelay_1mV_ps": 45.47177977627238,
+  "tdelay_30mV_ps": 35.848952971348446,
+  "tau_reg_ps": 2.4064536012367324,
+  "treset_ps": 18.210860979220325,
+  "validity_violations": 0,
+  "loser_peak_pct": 15.951794632780647,
+  "validity": {
+   "rule": "each CLKC rise .. fall: exactly one output >= 0.5 VDD, the other < 0.3 VDD",
+   "dt_max_ps": 21.2047,
+   "cycles": 36,
+   "decided": 36,
+   "worst": {
+    "cycle": 36,
+    "vd_uV": -10.0,
+    "output": "OUTP",
+    "t_ps": 48.915
+   },
+   "violations": [],
+   "undecided": [],
+   "loser_peaks_pct": [
+    0.332,
+    0.327,
+    0.42,
+    0.419,
+    1.501,
+    1.491,
+    4.433,
+    4.429,
+    7.339,
+    7.371,
+    10.233,
+    10.201,
+    12.393,
+    12.395,
+    14.423,
+    14.447,
+    15.926,
+    15.93,
+    0.322,
+    0.324,
+    0.416,
+    0.418,
+    1.501,
+    1.49,
+    4.408,
+    4.429,
+    7.345,
+    7.329,
+    10.206,
+    10.202,
+    12.393,
+    12.394,
+    14.423,
+    14.452,
+    15.916,
+    15.952
+   ]
+  },
+  "energy_fJ": 297.9167941728
+ },
+ "specs": {
+  "CMP-05": {
+   "metric": "tdelay_1mV_ps",
+   "value": 45.47177977627238,
+   "limit": "<= 120",
+   "pass": true
+  },
+  "CMP-07": {
+   "metric": "tau_reg_ps",
+   "value": 2.4064536012367324,
+   "limit": "<= 15",
+   "pass": true
+  },
+  "CMP-08": {
+   "metric": "treset_ps",
+   "value": 18.210860979220325,
+   "limit": "<= 45",
+   "pass": true
+  },
+  "CMP-09": {
+   "metric": "wrong_decisions",
+   "value": 0,
+   "limit": "<= 0",
+   "pass": true
+  },
+  "CMP-15": {
+   "metric": "validity_violations",
+   "value": 0,
+   "limit": "<= 0",
+   "pass": true
+  },
+  "CMP-16": {
+   "metric": "loser_peak_pct",
+   "value": 15.951794632780647,
+   "limit": "reported",
+   "pass": null
+  }
+ },
+ "specs_na": {
+  "CMP-04": {
+   "metric": "tdelay_1mV_ps",
+   "value": 45.47177977627238,
+   "limit": "<= 80",
+   "corners": "typ"
+  },
+  "CMP-06": {
+   "metric": "tdelay_30mV_ps",
+   "value": 35.848952971348446,
+   "limit": "<= 50",
+   "corners": "typ"
+  },
+  "CMP-10": {
+   "metric": "energy_fJ",
+   "value": 297.9167941728,
+   "limit": "reported",
+   "corners": "typ"
+  }
+ },
+ "figures": [
+  {
+   "file": "ff_high_27.delay.png",
+   "caption": "Comparator delay versus input difference with the log fit and limits, the +1 mV decision with its delay marked, and the reset to 10 % VDD."
+  },
+  {
+   "file": "ff_high_27.validity.png",
+   "caption": "Output validity (CMP-15): the peak of the losing output from each CLKC rise to the CLKC fall against the 30 % VDD limit, with violations and undecided cycles marked, and the transient of the cycle with the largest losing peak."
+  }
+ ],
+ "meta": {
+  "date": "2026-11-23T21:30:51",
+  "git": "3c053f0",
+  "git_clean": false,
+  "git_dirty_paths": [
+   "design/xtor/adc_comp/haochenh01-ui/NOTES.md",
+   "design/xtor/adc_comp/haochenh01-ui/adc_comp.scs",
+   "design/xtor/adc_comp/haochenh01-ui/candidate.yaml"
+  ],
+  "mode": "aps",
+  "pdk": true,
+  "mc": null,
+  "wall_s": 135.0,
+  "rc": "0",
+  "sim_s": "13",
+  "numerics": {
+   "source": "spectre.log",
+   "reltol": 0.0001,
+   "maxstep_ps": 145.0,
+   "method": "gear2only",
+   "errpreset": "conservative",
+   "lteratio": 10.0,
+   "relref": "alllocal",
+   "abstol_V": 1e-06,
+   "steps_accepted": 6667,
+   "step_mean_ps": 2.17489,
+   "step_max_ps": 56.5
+  },
+  "files": {
+   "tb/comp/tb_comp_delay.scs": "d2d5d695c2a3ce22",
+   "tb/common/veriloga/tb_imeter_va.va": "d4be49aca417ad61",
+   "design/xtor/adc_comp/haochenh01-ui/adc_comp.scs": "92a17245a3ee3d0e"
+  },
+  "arch": {
+   "keys": [],
+   "sha": "44136fa355b3678a"
+  },
+  "views": {
+   "adc_comp": "xtor:haochenh01-ui"
+  }
+ }
+}

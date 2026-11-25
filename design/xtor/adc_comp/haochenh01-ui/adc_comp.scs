@@ -1,0 +1,315 @@
+// adc_comp, candidate haochenh01-ui: StrongARM latched comparator with delayed
+// precharge (CKR = CLKC delayed by two inverter stages) and return-to-zero
+// output inverters. INP > INN asserts OUTP; CLKC low resets, CLKC rising
+// evaluates. Iteration 2 (2026-11-23): core sizing matched to the project
+// reference strongarm with larger CDP/CDN integration caps for all-corner
+// noise margin; widths are total channel widths with explicit finger counts.
+// The drawing below the netlist is the RNL 0.4 solver's placement (rnl 0.6.2);
+// it carries no electrical meaning and no result depends on it.
+// @RNL(type="header") {
+//   @VERSION("0.4");
+//   @USE-PACKAGE(name="adc28", version="0.2", path="../../../rnl/0.4/adc28.rnl")
+// }
+simulator lang=spectre
+
+subckt adc_comp (INP INN CLKC OUTP OUTN AVDD VSS)
+MINP (DP INP TAIL VSS) nch_ulvt_mac l=30n w=56u nf=56
+MINN (DN INN TAIL VSS) nch_ulvt_mac l=30n w=56u nf=56
+MTAIL (TAIL CLKC VSS VSS) nch_ulvt_mac l=30n w=3.5u nf=3
+MRDP (DP CKR AVDD AVDD) pch_ulvt_mac l=30n w=4.0u nf=4
+MRDN (DN CKR AVDD AVDD) pch_ulvt_mac l=30n w=4.0u nf=4
+MLNP (QP QN DP VSS) nch_ulvt_mac l=30n w=14u nf=14
+MLNN (QN QP DN VSS) nch_ulvt_mac l=30n w=14u nf=14
+MLPP (QP QN AVDD AVDD) pch_ulvt_mac l=30n w=10u nf=10
+MLPN (QN QP AVDD AVDD) pch_ulvt_mac l=30n w=10u nf=10
+MRQP (QP CKR AVDD AVDD) pch_ulvt_mac l=30n w=16u nf=16
+MRQN (QN CKR AVDD AVDD) pch_ulvt_mac l=30n w=16u nf=16
+MOPN (OUTP QP VSS VSS) nch_ulvt_mac l=30n w=2.0u nf=2
+MOPP (OUTP QP AVDD AVDD) pch_ulvt_mac l=30n w=4.0u nf=4
+MONN (OUTN QN VSS VSS) nch_ulvt_mac l=30n w=2.0u nf=2
+MONP (OUTN QN AVDD AVDD) pch_ulvt_mac l=30n w=4.0u nf=4
+MCKN (CKB CLKC VSS VSS) nch_ulvt_mac l=30n w=2.0u nf=2
+MCKP (CKB CLKC AVDD AVDD) pch_ulvt_mac l=30n w=4.0u nf=4
+MCK2N (CKR CKB VSS VSS) nch_ulvt_mac l=30n w=4.4u nf=4
+MCK2P (CKR CKB AVDD AVDD) pch_ulvt_mac l=30n w=8.8u nf=8
+CDP (DP VSS) cfmom_2t nr=88 lr=1u w=50n s=50n stm=1 spm=3 multi=1
+CDN (DN VSS) cfmom_2t nr=88 lr=1u w=50n s=50n stm=1 spm=3 multi=1
+// @RNL(type="generated", priority="high", author="rnl-solver 0.1", hash="sig2:52c95f736453c11a.7fd639661a4bd61f") {
+//   %net_label_stub_MINP_g = $NET_LABEL_STUB @ATTACH #MINP::g;
+//   %net_label_stub_MINN_g = $NET_LABEL_STUB @ATTACH #MINN::g;
+//   %net_label_stub_MTAIL_g = $NET_LABEL_STUB @ATTACH #MTAIL::g;
+//   %net_label_stub_MCKN_g = $NET_LABEL_STUB @ATTACH #MCKN::g;
+//   %net_label_stub_MCKP_g = $NET_LABEL_STUB @ATTACH #MCKP::g;
+//   %net_label_stub_MOPN_d = $NET_LABEL_STUB @ATTACH #MOPN::d;
+//   %net_label_stub_MOPP_d = $NET_LABEL_STUB @ATTACH #MOPP::d;
+//   %net_label_stub_MONN_d = $NET_LABEL_STUB @ATTACH #MONN::d;
+//   %net_label_stub_MONP_d = $NET_LABEL_STUB @ATTACH #MONP::d;
+//   %net_label_stub_MRDP_s = $NET_LABEL_STUB @ATTACH #MRDP::s;
+//   %net_label_stub_MRDP_b = $NET_LABEL_STUB @ATTACH #MRDP::b;
+//   %net_label_stub_MRDN_s = $NET_LABEL_STUB @ATTACH #MRDN::s;
+//   %net_label_stub_MRDN_b = $NET_LABEL_STUB @ATTACH #MRDN::b;
+//   %net_label_stub_MLPP_s = $NET_LABEL_STUB @ATTACH #MLPP::s;
+//   %net_label_stub_MLPP_b = $NET_LABEL_STUB @ATTACH #MLPP::b;
+//   %net_label_stub_MLPN_s = $NET_LABEL_STUB @ATTACH #MLPN::s;
+//   %net_label_stub_MLPN_b = $NET_LABEL_STUB @ATTACH #MLPN::b;
+//   %net_label_stub_MRQP_s = $NET_LABEL_STUB @ATTACH #MRQP::s;
+//   %net_label_stub_MRQP_b = $NET_LABEL_STUB @ATTACH #MRQP::b;
+//   %net_label_stub_MRQN_s = $NET_LABEL_STUB @ATTACH #MRQN::s;
+//   %net_label_stub_MRQN_b = $NET_LABEL_STUB @ATTACH #MRQN::b;
+//   %net_label_stub_MOPP_s = $NET_LABEL_STUB @ATTACH #MOPP::s;
+//   %net_label_stub_MOPP_b = $NET_LABEL_STUB @ATTACH #MOPP::b;
+//   %net_label_stub_MONP_s = $NET_LABEL_STUB @ATTACH #MONP::s;
+//   %net_label_stub_MONP_b = $NET_LABEL_STUB @ATTACH #MONP::b;
+//   %net_label_stub_MCKP_s = $NET_LABEL_STUB @ATTACH #MCKP::s;
+//   %net_label_stub_MCKP_b = $NET_LABEL_STUB @ATTACH #MCKP::b;
+//   %net_label_stub_MCK2P_s = $NET_LABEL_STUB @ATTACH #MCK2P::s;
+//   %net_label_stub_MCK2P_b = $NET_LABEL_STUB @ATTACH #MCK2P::b;
+//   %net_label_stub_MINP_b = $NET_LABEL_STUB @ATTACH #MINP::b;
+//   %net_label_stub_MINN_b = $NET_LABEL_STUB @ATTACH #MINN::b;
+//   %net_label_stub_MTAIL_s = $NET_LABEL_STUB @ATTACH #MTAIL::s;
+//   %net_label_stub_MTAIL_b = $NET_LABEL_STUB @ATTACH #MTAIL::b;
+//   %net_label_stub_MLNP_b = $NET_LABEL_STUB @ATTACH #MLNP::b;
+//   %net_label_stub_MLNN_b = $NET_LABEL_STUB @ATTACH #MLNN::b;
+//   %net_label_stub_MOPN_s = $NET_LABEL_STUB @ATTACH #MOPN::s;
+//   %net_label_stub_MOPN_b = $NET_LABEL_STUB @ATTACH #MOPN::b;
+//   %net_label_stub_MONN_s = $NET_LABEL_STUB @ATTACH #MONN::s;
+//   %net_label_stub_MONN_b = $NET_LABEL_STUB @ATTACH #MONN::b;
+//   %net_label_stub_MCKN_s = $NET_LABEL_STUB @ATTACH #MCKN::s;
+//   %net_label_stub_MCKN_b = $NET_LABEL_STUB @ATTACH #MCKN::b;
+//   %net_label_stub_MCK2N_s = $NET_LABEL_STUB @ATTACH #MCK2N::s;
+//   %net_label_stub_MCK2N_b = $NET_LABEL_STUB @ATTACH #MCK2N::b;
+//   %net_label_stub_CDP_n = $NET_LABEL_STUB @ATTACH #CDP::n;
+//   %net_label_stub_CDN_n = $NET_LABEL_STUB @ATTACH #CDN::n;
+//   %net_label_stub_MINP_d = $NET_LABEL_STUB @ATTACH #MINP::d;
+//   %net_label_stub_MRDP_d = $NET_LABEL_STUB @ATTACH #MRDP::d;
+//   %net_label_stub_MLNP_s = $NET_LABEL_STUB @ATTACH #MLNP::s;
+//   %net_label_stub_CDP_p = $NET_LABEL_STUB @ATTACH #CDP::p;
+//   %net_label_stub_MINP_s = $NET_LABEL_STUB @ATTACH #MINP::s;
+//   %net_label_stub_MINN_s = $NET_LABEL_STUB @ATTACH #MINN::s;
+//   %net_label_stub_MTAIL_d = $NET_LABEL_STUB @ATTACH #MTAIL::d;
+//   %net_label_stub_MINN_d = $NET_LABEL_STUB @ATTACH #MINN::d;
+//   %net_label_stub_MRDN_d = $NET_LABEL_STUB @ATTACH #MRDN::d;
+//   %net_label_stub_MLNN_s = $NET_LABEL_STUB @ATTACH #MLNN::s;
+//   %net_label_stub_CDN_p = $NET_LABEL_STUB @ATTACH #CDN::p;
+//   %net_label_stub_MRDP_g = $NET_LABEL_STUB @ATTACH #MRDP::g;
+//   %net_label_stub_MRDN_g = $NET_LABEL_STUB @ATTACH #MRDN::g;
+//   %net_label_stub_MRQP_g = $NET_LABEL_STUB @ATTACH #MRQP::g;
+//   %net_label_stub_MRQN_g = $NET_LABEL_STUB @ATTACH #MRQN::g;
+//   %net_label_stub_MCK2N_d = $NET_LABEL_STUB @ATTACH #MCK2N::d;
+//   %net_label_stub_MCK2P_d = $NET_LABEL_STUB @ATTACH #MCK2P::d;
+//   %net_label_stub_MLNP_d = $NET_LABEL_STUB @ATTACH #MLNP::d;
+//   %net_label_stub_MLNN_g = $NET_LABEL_STUB @ATTACH #MLNN::g;
+//   %net_label_stub_MLPP_d = $NET_LABEL_STUB @ATTACH #MLPP::d;
+//   %net_label_stub_MLPN_g = $NET_LABEL_STUB @ATTACH #MLPN::g;
+//   %net_label_stub_MRQP_d = $NET_LABEL_STUB @ATTACH #MRQP::d;
+//   %net_label_stub_MOPN_g = $NET_LABEL_STUB @ATTACH #MOPN::g;
+//   %net_label_stub_MOPP_g = $NET_LABEL_STUB @ATTACH #MOPP::g;
+//   %net_label_stub_MLNP_g = $NET_LABEL_STUB @ATTACH #MLNP::g;
+//   %net_label_stub_MLNN_d = $NET_LABEL_STUB @ATTACH #MLNN::d;
+//   %net_label_stub_MLPP_g = $NET_LABEL_STUB @ATTACH #MLPP::g;
+//   %net_label_stub_MLPN_d = $NET_LABEL_STUB @ATTACH #MLPN::d;
+//   %net_label_stub_MRQN_d = $NET_LABEL_STUB @ATTACH #MRQN::d;
+//   %net_label_stub_MONN_g = $NET_LABEL_STUB @ATTACH #MONN::g;
+//   %net_label_stub_MONP_g = $NET_LABEL_STUB @ATTACH #MONP::g;
+//   %net_label_stub_MCKN_d = $NET_LABEL_STUB @ATTACH #MCKN::d;
+//   %net_label_stub_MCKP_d = $NET_LABEL_STUB @ATTACH #MCKP::d;
+//   %net_label_stub_MCK2N_g = $NET_LABEL_STUB @ATTACH #MCK2N::g;
+//   %net_label_stub_MCK2P_g = $NET_LABEL_STUB @ATTACH #MCK2P::g;
+//   %io_port_INP = $IO_PORT @ATTACH &INP;
+//   %io_port_INN = $IO_PORT @ATTACH &INN;
+//   %io_port_CLKC = $IO_PORT @ATTACH &CLKC;
+//   %io_port_OUTP = $IO_PORT @ATTACH &OUTP;
+//   %io_port_OUTN = $IO_PORT @ATTACH &OUTN;
+//   %io_port_AVDD = $IO_PORT @ATTACH &AVDD;
+//   %io_port_VSS = $IO_PORT @ATTACH &VSS;
+//   #MINP @PLACE(6, 4) => @ORIENT("R0");
+//   #MINN @PLACE(15, 4) => @ORIENT("R0");
+//   #MTAIL @PLACE(24, 4) => @ORIENT("R0");
+//   #MRDP @PLACE(33, 4) => @ORIENT("R0");
+//   #MRDN @PLACE(42, 4) => @ORIENT("R0");
+//   #MLNP @PLACE(51, 4) => @ORIENT("R0");
+//   #MLNN @PLACE(60, 4) => @ORIENT("R0");
+//   #MLPP @PLACE(69, 4) => @ORIENT("R0");
+//   #MLPN @PLACE(78, 4) => @ORIENT("R0");
+//   #MRQP @PLACE(87, 4) => @ORIENT("R0");
+//   #MRQN @PLACE(96, 4) => @ORIENT("R0");
+//   #MOPN @PLACE(105, 4) => @ORIENT("R0");
+//   #MOPP @PLACE(114, 4) => @ORIENT("R0");
+//   #MONN @PLACE(123, 4) => @ORIENT("R0");
+//   #MONP @PLACE(132, 4) => @ORIENT("R0");
+//   #MCKN @PLACE(141, 4) => @ORIENT("R0");
+//   #MCKP @PLACE(150, 4) => @ORIENT("R0");
+//   #MCK2N @PLACE(159, 4) => @ORIENT("R0");
+//   #MCK2P @PLACE(169, 4) => @ORIENT("R0");
+//   #CDP @PLACE(178, 4) => @ORIENT("R0");
+//   #CDN @PLACE(186, 4) => @ORIENT("R0");
+//   %net_label_stub_MINP_g @PLACE(0, 0);
+//   %net_label_stub_MINP_g::l @PLACE(3, 4) => @ORIENT("R0");
+//   %net_label_stub_MINN_g @PLACE(0, 0);
+//   %net_label_stub_MINN_g::l @PLACE(12, 4) => @ORIENT("R0");
+//   %net_label_stub_MTAIL_g @PLACE(0, 0);
+//   %net_label_stub_MTAIL_g::l @PLACE(21, 4) => @ORIENT("R0");
+//   %net_label_stub_MCKN_g @PLACE(0, 0);
+//   %net_label_stub_MCKN_g::l @PLACE(138, 4) => @ORIENT("R0");
+//   %net_label_stub_MCKP_g @PLACE(0, 0);
+//   %net_label_stub_MCKP_g::l @PLACE(147, 4) => @ORIENT("R0");
+//   %net_label_stub_MOPN_d @PLACE(0, 0);
+//   %net_label_stub_MOPN_d::l @PLACE(105, 6) => @ORIENT("R270");
+//   %net_label_stub_MOPP_d @PLACE(0, 0);
+//   %net_label_stub_MOPP_d::l @PLACE(114, 2) => @ORIENT("R90");
+//   %net_label_stub_MONN_d @PLACE(0, 0);
+//   %net_label_stub_MONN_d::l @PLACE(123, 6) => @ORIENT("R270");
+//   %net_label_stub_MONP_d @PLACE(0, 0);
+//   %net_label_stub_MONP_d::l @PLACE(132, 2) => @ORIENT("R90");
+//   %net_label_stub_MRDP_s @PLACE(0, 0);
+//   %net_label_stub_MRDP_s::l @PLACE(33, 6) => @ORIENT("R270");
+//   %net_label_stub_MRDP_b @PLACE(0, 0);
+//   %net_label_stub_MRDP_b::l @PLACE(33, 4) => @ORIENT("MY");
+//   %net_label_stub_MRDN_s @PLACE(0, 0);
+//   %net_label_stub_MRDN_s::l @PLACE(42, 6) => @ORIENT("R270");
+//   %net_label_stub_MRDN_b @PLACE(0, 0);
+//   %net_label_stub_MRDN_b::l @PLACE(42, 4) => @ORIENT("MY");
+//   %net_label_stub_MLPP_s @PLACE(0, 0);
+//   %net_label_stub_MLPP_s::l @PLACE(69, 6) => @ORIENT("R270");
+//   %net_label_stub_MLPP_b @PLACE(0, 0);
+//   %net_label_stub_MLPP_b::l @PLACE(69, 4) => @ORIENT("MY");
+//   %net_label_stub_MLPN_s @PLACE(0, 0);
+//   %net_label_stub_MLPN_s::l @PLACE(78, 6) => @ORIENT("R270");
+//   %net_label_stub_MLPN_b @PLACE(0, 0);
+//   %net_label_stub_MLPN_b::l @PLACE(78, 4) => @ORIENT("MY");
+//   %net_label_stub_MRQP_s @PLACE(0, 0);
+//   %net_label_stub_MRQP_s::l @PLACE(87, 6) => @ORIENT("R270");
+//   %net_label_stub_MRQP_b @PLACE(0, 0);
+//   %net_label_stub_MRQP_b::l @PLACE(87, 4) => @ORIENT("MY");
+//   %net_label_stub_MRQN_s @PLACE(0, 0);
+//   %net_label_stub_MRQN_s::l @PLACE(96, 6) => @ORIENT("R270");
+//   %net_label_stub_MRQN_b @PLACE(0, 0);
+//   %net_label_stub_MRQN_b::l @PLACE(96, 4) => @ORIENT("MY");
+//   %net_label_stub_MOPP_s @PLACE(0, 0);
+//   %net_label_stub_MOPP_s::l @PLACE(114, 6) => @ORIENT("R270");
+//   %net_label_stub_MOPP_b @PLACE(0, 0);
+//   %net_label_stub_MOPP_b::l @PLACE(114, 4) => @ORIENT("MY");
+//   %net_label_stub_MONP_s @PLACE(0, 0);
+//   %net_label_stub_MONP_s::l @PLACE(132, 6) => @ORIENT("R270");
+//   %net_label_stub_MONP_b @PLACE(0, 0);
+//   %net_label_stub_MONP_b::l @PLACE(132, 4) => @ORIENT("MY");
+//   %net_label_stub_MCKP_s @PLACE(0, 0);
+//   %net_label_stub_MCKP_s::l @PLACE(150, 6) => @ORIENT("R270");
+//   %net_label_stub_MCKP_b @PLACE(0, 0);
+//   %net_label_stub_MCKP_b::l @PLACE(150, 4) => @ORIENT("MY");
+//   %net_label_stub_MCK2P_s @PLACE(0, 0);
+//   %net_label_stub_MCK2P_s::l @PLACE(169, 6) => @ORIENT("R270");
+//   %net_label_stub_MCK2P_b @PLACE(0, 0);
+//   %net_label_stub_MCK2P_b::l @PLACE(169, 4) => @ORIENT("MY");
+//   %net_label_stub_MINP_b @PLACE(0, 0);
+//   %net_label_stub_MINP_b::l @PLACE(6, 4) => @ORIENT("MY");
+//   %net_label_stub_MINN_b @PLACE(0, 0);
+//   %net_label_stub_MINN_b::l @PLACE(15, 4) => @ORIENT("MY");
+//   %net_label_stub_MTAIL_s @PLACE(0, 0);
+//   %net_label_stub_MTAIL_s::l @PLACE(24, 2) => @ORIENT("R90");
+//   %net_label_stub_MTAIL_b @PLACE(0, 0);
+//   %net_label_stub_MTAIL_b::l @PLACE(24, 4) => @ORIENT("MY");
+//   %net_label_stub_MLNP_b @PLACE(0, 0);
+//   %net_label_stub_MLNP_b::l @PLACE(51, 4) => @ORIENT("MY");
+//   %net_label_stub_MLNN_b @PLACE(0, 0);
+//   %net_label_stub_MLNN_b::l @PLACE(60, 4) => @ORIENT("MY");
+//   %net_label_stub_MOPN_s @PLACE(0, 0);
+//   %net_label_stub_MOPN_s::l @PLACE(105, 2) => @ORIENT("R90");
+//   %net_label_stub_MOPN_b @PLACE(0, 0);
+//   %net_label_stub_MOPN_b::l @PLACE(105, 4) => @ORIENT("MY");
+//   %net_label_stub_MONN_s @PLACE(0, 0);
+//   %net_label_stub_MONN_s::l @PLACE(123, 2) => @ORIENT("R90");
+//   %net_label_stub_MONN_b @PLACE(0, 0);
+//   %net_label_stub_MONN_b::l @PLACE(123, 4) => @ORIENT("MY");
+//   %net_label_stub_MCKN_s @PLACE(0, 0);
+//   %net_label_stub_MCKN_s::l @PLACE(141, 2) => @ORIENT("R90");
+//   %net_label_stub_MCKN_b @PLACE(0, 0);
+//   %net_label_stub_MCKN_b::l @PLACE(141, 4) => @ORIENT("MY");
+//   %net_label_stub_MCK2N_s @PLACE(0, 0);
+//   %net_label_stub_MCK2N_s::l @PLACE(159, 2) => @ORIENT("R90");
+//   %net_label_stub_MCK2N_b @PLACE(0, 0);
+//   %net_label_stub_MCK2N_b::l @PLACE(159, 4) => @ORIENT("MY");
+//   %net_label_stub_CDP_n @PLACE(0, 0);
+//   %net_label_stub_CDP_n::l @PLACE(178, 2) => @ORIENT("R90");
+//   %net_label_stub_CDN_n @PLACE(0, 0);
+//   %net_label_stub_CDN_n::l @PLACE(186, 2) => @ORIENT("R90");
+//   %net_label_stub_MINP_d @PLACE(0, 0);
+//   %net_label_stub_MINP_d::l @PLACE(6, 6) => @ORIENT("R270");
+//   %net_label_stub_MRDP_d @PLACE(0, 0);
+//   %net_label_stub_MRDP_d::l @PLACE(33, 2) => @ORIENT("R90");
+//   %net_label_stub_MLNP_s @PLACE(0, 0);
+//   %net_label_stub_MLNP_s::l @PLACE(51, 2) => @ORIENT("R90");
+//   %net_label_stub_CDP_p @PLACE(0, 0);
+//   %net_label_stub_CDP_p::l @PLACE(178, 6) => @ORIENT("R270");
+//   %net_label_stub_MINP_s @PLACE(0, 0);
+//   %net_label_stub_MINP_s::l @PLACE(6, 2) => @ORIENT("R90");
+//   %net_label_stub_MINN_s @PLACE(0, 0);
+//   %net_label_stub_MINN_s::l @PLACE(15, 2) => @ORIENT("R90");
+//   %net_label_stub_MTAIL_d @PLACE(0, 0);
+//   %net_label_stub_MTAIL_d::l @PLACE(24, 6) => @ORIENT("R270");
+//   %net_label_stub_MINN_d @PLACE(0, 0);
+//   %net_label_stub_MINN_d::l @PLACE(15, 6) => @ORIENT("R270");
+//   %net_label_stub_MRDN_d @PLACE(0, 0);
+//   %net_label_stub_MRDN_d::l @PLACE(42, 2) => @ORIENT("R90");
+//   %net_label_stub_MLNN_s @PLACE(0, 0);
+//   %net_label_stub_MLNN_s::l @PLACE(60, 2) => @ORIENT("R90");
+//   %net_label_stub_CDN_p @PLACE(0, 0);
+//   %net_label_stub_CDN_p::l @PLACE(186, 6) => @ORIENT("R270");
+//   %net_label_stub_MRDP_g @PLACE(0, 0);
+//   %net_label_stub_MRDP_g::l @PLACE(30, 4) => @ORIENT("R0");
+//   %net_label_stub_MRDN_g @PLACE(0, 0);
+//   %net_label_stub_MRDN_g::l @PLACE(39, 4) => @ORIENT("R0");
+//   %net_label_stub_MRQP_g @PLACE(0, 0);
+//   %net_label_stub_MRQP_g::l @PLACE(84, 4) => @ORIENT("R0");
+//   %net_label_stub_MRQN_g @PLACE(0, 0);
+//   %net_label_stub_MRQN_g::l @PLACE(93, 4) => @ORIENT("R0");
+//   %net_label_stub_MCK2N_d @PLACE(0, 0);
+//   %net_label_stub_MCK2N_d::l @PLACE(159, 6) => @ORIENT("R270");
+//   %net_label_stub_MCK2P_d @PLACE(0, 0);
+//   %net_label_stub_MCK2P_d::l @PLACE(169, 2) => @ORIENT("R90");
+//   %net_label_stub_MLNP_d @PLACE(0, 0);
+//   %net_label_stub_MLNP_d::l @PLACE(51, 6) => @ORIENT("R270");
+//   %net_label_stub_MLNN_g @PLACE(0, 0);
+//   %net_label_stub_MLNN_g::l @PLACE(57, 4) => @ORIENT("R0");
+//   %net_label_stub_MLPP_d @PLACE(0, 0);
+//   %net_label_stub_MLPP_d::l @PLACE(69, 2) => @ORIENT("R90");
+//   %net_label_stub_MLPN_g @PLACE(0, 0);
+//   %net_label_stub_MLPN_g::l @PLACE(75, 4) => @ORIENT("R0");
+//   %net_label_stub_MRQP_d @PLACE(0, 0);
+//   %net_label_stub_MRQP_d::l @PLACE(87, 2) => @ORIENT("R90");
+//   %net_label_stub_MOPN_g @PLACE(0, 0);
+//   %net_label_stub_MOPN_g::l @PLACE(102, 4) => @ORIENT("R0");
+//   %net_label_stub_MOPP_g @PLACE(0, 0);
+//   %net_label_stub_MOPP_g::l @PLACE(111, 4) => @ORIENT("R0");
+//   %net_label_stub_MLNP_g @PLACE(0, 0);
+//   %net_label_stub_MLNP_g::l @PLACE(48, 4) => @ORIENT("R0");
+//   %net_label_stub_MLNN_d @PLACE(0, 0);
+//   %net_label_stub_MLNN_d::l @PLACE(60, 6) => @ORIENT("R270");
+//   %net_label_stub_MLPP_g @PLACE(0, 0);
+//   %net_label_stub_MLPP_g::l @PLACE(66, 4) => @ORIENT("R0");
+//   %net_label_stub_MLPN_d @PLACE(0, 0);
+//   %net_label_stub_MLPN_d::l @PLACE(78, 2) => @ORIENT("R90");
+//   %net_label_stub_MRQN_d @PLACE(0, 0);
+//   %net_label_stub_MRQN_d::l @PLACE(96, 2) => @ORIENT("R90");
+//   %net_label_stub_MONN_g @PLACE(0, 0);
+//   %net_label_stub_MONN_g::l @PLACE(120, 4) => @ORIENT("R0");
+//   %net_label_stub_MONP_g @PLACE(0, 0);
+//   %net_label_stub_MONP_g::l @PLACE(129, 4) => @ORIENT("R0");
+//   %net_label_stub_MCKN_d @PLACE(0, 0);
+//   %net_label_stub_MCKN_d::l @PLACE(141, 6) => @ORIENT("R270");
+//   %net_label_stub_MCKP_d @PLACE(0, 0);
+//   %net_label_stub_MCKP_d::l @PLACE(150, 2) => @ORIENT("R90");
+//   %net_label_stub_MCK2N_g @PLACE(0, 0);
+//   %net_label_stub_MCK2N_g::l @PLACE(156, 4) => @ORIENT("R0");
+//   %net_label_stub_MCK2P_g @PLACE(0, 0);
+//   %net_label_stub_MCK2P_g::l @PLACE(166, 4) => @ORIENT("R0");
+//   %io_port_INP @PLACE(0, -1) => @ORIENT("R0");
+//   %io_port_INN @PLACE(0, -5) => @ORIENT("R0");
+//   %io_port_CLKC @PLACE(0, -9) => @ORIENT("R0");
+//   %io_port_OUTP @PLACE(0, -13) => @ORIENT("R0");
+//   %io_port_OUTN @PLACE(0, -17) => @ORIENT("R0");
+//   %io_port_AVDD @PLACE(0, -21) => @ORIENT("R0");
+//   %io_port_VSS @PLACE(0, -25) => @ORIENT("R0")
+// }
+ends adc_comp
+// @RNL(type="generated", priority="high", author="rnl-solver 0.1", hash="sig2:10ec5019194a04ed.1f28584bb8486237") {}

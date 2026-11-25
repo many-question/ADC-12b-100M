@@ -1,0 +1,189 @@
+{
+ "block": "adc_comp",
+ "test": "tb_comp_delay",
+ "view": "xtor-haochenh01-ui",
+ "corner": "ss_nom_27",
+ "params": {},
+ "globals": {
+  "vdd": 0.9,
+  "vdd18": 1.8,
+  "tempc": 27.0,
+  "noise_en": 0,
+  "devnoise": 1,
+  "beh_speed": 1.0,
+  "vref_in": 0.9,
+  "cdac_behav": 1,
+  "comp_behav": 0
+ },
+ "metrics": {
+  "wrong_decisions": 0,
+  "tdelay_1mV_ps": 80.56055149072924,
+  "tdelay_30mV_ps": 62.22658256513148,
+  "tau_reg_ps": 3.6173983533601626,
+  "treset_ps": 25.269639451399968,
+  "validity_violations": 0,
+  "loser_peak_pct": 10.140556479647426,
+  "validity": {
+   "rule": "each CLKC rise .. fall: exactly one output >= 0.5 VDD, the other < 0.3 VDD",
+   "dt_max_ps": 14.1206,
+   "cycles": 36,
+   "decided": 36,
+   "worst": {
+    "cycle": 35,
+    "vd_uV": 10.0,
+    "output": "OUTN",
+    "t_ps": 87.565
+   },
+   "violations": [],
+   "undecided": [],
+   "loser_peaks_pct": [
+    0.353,
+    0.352,
+    0.356,
+    0.356,
+    0.359,
+    0.359,
+    0.78,
+    0.78,
+    1.9,
+    1.899,
+    4.04,
+    4.033,
+    5.986,
+    5.986,
+    8.215,
+    8.217,
+    10.14,
+    10.14,
+    0.35,
+    0.349,
+    0.356,
+    0.356,
+    0.359,
+    0.359,
+    0.78,
+    0.78,
+    1.9,
+    1.899,
+    4.04,
+    4.033,
+    5.987,
+    5.987,
+    8.215,
+    8.224,
+    10.141,
+    10.14
+   ]
+  },
+  "energy_fJ": 226.123853112
+ },
+ "specs": {
+  "CMP-05": {
+   "metric": "tdelay_1mV_ps",
+   "value": 80.56055149072924,
+   "limit": "<= 120",
+   "pass": true
+  },
+  "CMP-07": {
+   "metric": "tau_reg_ps",
+   "value": 3.6173983533601626,
+   "limit": "<= 15",
+   "pass": true
+  },
+  "CMP-08": {
+   "metric": "treset_ps",
+   "value": 25.269639451399968,
+   "limit": "<= 45",
+   "pass": true
+  },
+  "CMP-09": {
+   "metric": "wrong_decisions",
+   "value": 0,
+   "limit": "<= 0",
+   "pass": true
+  },
+  "CMP-15": {
+   "metric": "validity_violations",
+   "value": 0,
+   "limit": "<= 0",
+   "pass": true
+  },
+  "CMP-16": {
+   "metric": "loser_peak_pct",
+   "value": 10.140556479647426,
+   "limit": "reported",
+   "pass": null
+  }
+ },
+ "specs_na": {
+  "CMP-04": {
+   "metric": "tdelay_1mV_ps",
+   "value": 80.56055149072924,
+   "limit": "<= 80",
+   "corners": "typ"
+  },
+  "CMP-06": {
+   "metric": "tdelay_30mV_ps",
+   "value": 62.22658256513148,
+   "limit": "<= 50",
+   "corners": "typ"
+  },
+  "CMP-10": {
+   "metric": "energy_fJ",
+   "value": 226.123853112,
+   "limit": "reported",
+   "corners": "typ"
+  }
+ },
+ "figures": [
+  {
+   "file": "ss_nom_27.delay.png",
+   "caption": "Comparator delay versus input difference with the log fit and limits, the +1 mV decision with its delay marked, and the reset to 10 % VDD."
+  },
+  {
+   "file": "ss_nom_27.validity.png",
+   "caption": "Output validity (CMP-15): the peak of the losing output from each CLKC rise to the CLKC fall against the 30 % VDD limit, with violations and undecided cycles marked, and the transient of the cycle with the largest losing peak."
+  }
+ ],
+ "meta": {
+  "date": "2026-11-23T21:30:51",
+  "git": "3c053f0",
+  "git_clean": false,
+  "git_dirty_paths": [
+   "design/xtor/adc_comp/haochenh01-ui/NOTES.md",
+   "design/xtor/adc_comp/haochenh01-ui/adc_comp.scs",
+   "design/xtor/adc_comp/haochenh01-ui/candidate.yaml"
+  ],
+  "mode": "aps",
+  "pdk": true,
+  "mc": null,
+  "wall_s": 135.0,
+  "rc": "0",
+  "sim_s": "14",
+  "numerics": {
+   "source": "spectre.log",
+   "reltol": 0.0001,
+   "maxstep_ps": 145.0,
+   "method": "gear2only",
+   "errpreset": "conservative",
+   "lteratio": 10.0,
+   "relref": "alllocal",
+   "abstol_V": 1e-06,
+   "steps_accepted": 6713,
+   "step_mean_ps": 2.15999,
+   "step_max_ps": 30.8699
+  },
+  "files": {
+   "tb/comp/tb_comp_delay.scs": "d2d5d695c2a3ce22",
+   "tb/common/veriloga/tb_imeter_va.va": "d4be49aca417ad61",
+   "design/xtor/adc_comp/haochenh01-ui/adc_comp.scs": "92a17245a3ee3d0e"
+  },
+  "arch": {
+   "keys": [],
+   "sha": "44136fa355b3678a"
+  },
+  "views": {
+   "adc_comp": "xtor:haochenh01-ui"
+  }
+ }
+}
