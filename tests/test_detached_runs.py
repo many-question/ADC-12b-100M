@@ -37,7 +37,7 @@ class FakeServer:
     def what(self) -> list[str]:
         return [c[0] for c in self.calls]
 
-    def upload_tree(self, local_dir, rroot, host=None, jobs=None):
+    def upload_tree(self, local_dir, rroot, host=None, jobs=None, reserve=None):
         self._net("upload", rroot)
         self.dirs[rroot] = {"jobs": sorted(p.name for p in (local_dir / "jobs").iterdir()), "rc": {}, "done": None,
                             "live": 0, "fetched": False, "limit": None, "notes": []}

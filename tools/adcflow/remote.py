@@ -53,6 +53,11 @@ BATCH_LOG = "batch.log"                          # what launch.sh and the batch 
 MODELS_DONE = ".adcflow_complete"                # the copy of the PDK models in a host's model_cache is whole
 MIN_FREE_GB = 20.0                               # a host with less free space under remote_root is not chosen
 PROBE_TIMEOUT_S = 90                             # the probe of a host before a launch
+RESERVED = "adcflow.reserved"                    # "<parallel> <jobs>" of a batch being uploaded, not yet launched
+RESERVE_S = 1800                                 # a reservation older than this (its launch failed) counts no more
+ROOM_POLL_S = 60                                 # every host at its thread budget: probe again after this
+ROOM_WAIT_MAX_S = 12 * 3600                      # ... and give up after this
+_clock, _sleep = time.monotonic, time.sleep     # (tests replace them)
 
 # `live <dir>`: the number of processes of this account whose cwd is <dir> or below it, plus one while
 # the run's detached launch.sh lives (from the moment it is started, before it reaches $R itself)
@@ -65,6 +70,42 @@ LIVE_FN = r"""live() {
   if [ -n "$pid" ] && tr '\0' ' ' < /proc/$pid/cmdline 2>/dev/null | grep -qF "$1/launch.sh"; then n=$((n+1)); fi
   echo $n
 }"""
+
+
+# `pending <root>`: the Spectre runs that our batches under <root> (run dirs at depth 1 and 2, e.g. the
+# runs of another design area in <root>/<area>/) will take while they go on, launched or not yet started
+# Spectre: a batch whose launch.sh lives and that has no done marker counts min(its xargs -P, its jobs
+# without rc.txt); a batch still being uploaded (RESERVED younger than RESERVE_S, no PID_FILE yet)
+# counts min(<parallel>, <jobs>) of its reservation. Live processes alone miss the gap before Spectre
+# starts, the compile step (one Spectre) and the queued slots of xargs.
+PENDING_FN = r"""pending() {
+  local n=0 now R p left j pid
+  now=$(date +%s)
+  for R in "$1"/*/ "$1"/*/*/; do
+    R=${R%/}
+    [ -f "$R/@DONE@" ] && continue
+    p=""; left=""
+    if [ -s "$R/@PID@" ]; then
+      pid=$(cat "$R/@PID@")
+      tr '\0' ' ' < /proc/$pid/cmdline 2>/dev/null | grep -qF "$R/launch.sh" || continue
+      p=$(grep -o 'xargs -P [0-9]*' "$R/batch.sh" 2>/dev/null | head -1 | tr -dc 0-9)
+      if [ -f "$R/jobs.list" ]; then
+        left=0
+        while read -r j; do [ -z "$j" ] || [ -f "$R/jobs/$j/rc.txt" ] || left=$((left+1)); done < "$R/jobs.list"
+      fi
+    elif [ -f "$R/@RESERVED@" ]; then
+      [ $(( now - $(stat -c %Y "$R/@RESERVED@") )) -lt @RESERVE_S@ ] || continue
+      read -r p left < "$R/@RESERVED@"
+    else
+      continue
+    fi
+    p=${p:-1}; left=${left:-$p}
+    [ "$left" -lt "$p" ] && p=$left
+    n=$((n + p))
+  done
+  echo $n
+}""".replace("@DONE@", MARK_DONE).replace("@PID@", PID_FILE).replace("@RESERVED@", RESERVED) \
+    .replace("@RESERVE_S@", str(RESERVE_S))
 
 
 class RunTimeout(RuntimeError):
@@ -338,17 +379,19 @@ rm -rf "$W"
 
 
 # ------------------------------------------------------------------ choosing hosts
-PROBE_FIELDS = ("user", "load", "nproc", "ours", "disk_mb")
+PROBE_FIELDS = ("user", "load", "nproc", "ours", "disk_mb")   # and "pending" (0 if absent)
 
 
 def _probe_script(h: Host) -> str:
     root = h.remote_root.replace("{user}", "${u}")
     return f"""
+{PENDING_FN}
 u=$(id -un)
 echo "user $u"
 echo "load $(cut -d' ' -f1 /proc/loadavg)"
 echo "nproc $(nproc)"
 echo "ours $(pgrep -u "$u" -x spectre | wc -l)"
+echo "pending $(pending "{root}")"
 d="{root}"
 while [ ! -d "$d" ] && [ "$d" != / ]; do d=$(dirname "$d"); done
 echo "disk_mb $(df -BM --output=avail "$d" | tail -1 | tr -dc 0-9)"
@@ -359,26 +402,30 @@ def parse_probe(text: str) -> dict:
     out = {}
     for line in text.splitlines():
         k, _, v = line.partition(" ")
-        if k in PROBE_FIELDS and v.strip():
+        if (k in PROBE_FIELDS or k == "pending") and v.strip():
             out[k] = v.strip() if k == "user" else float(v)
     missing = [k for k in PROBE_FIELDS if k not in out]
     if missing:
         raise RemoteError(f"probe: no {', '.join(missing)} in {text[-300:]!r}")
+    out.setdefault("pending", 0.0)
     return out
 
 
 def capacity(h: Host, p: dict) -> dict:
     """What a probed host can take: `budget_jobs` more Spectre runs within its thread budget (`threads`,
     else all its threads) beside our runs there, and `free_jobs`, as many as also fit beside the load
-    of the others (load average minus our runs). A host with less than min_free_gb under remote_root
-    takes none (`usable` False)."""
+    of the others (load average minus our running Spectre). A host with less than min_free_gb under
+    remote_root takes none (`usable` False). Our runs (`runs`) are the more of the Spectre processes of
+    our account (`ours`: also those of other sessions and of launchers that write no PID_FILE) and what
+    our launched or reserved batches under remote_root will run (`pending`, PENDING_FN)."""
     jt = max(h.job_threads, 1)
-    ours = p["ours"] * jt
-    others = max(p["load"] - ours, 0.0)
+    runs = max(p["ours"], p.get("pending", 0.0))
+    ours = runs * jt
+    others = max(p["load"] - p["ours"] * jt, 0.0)
     budget = (h.threads or p["nproc"]) - ours
     idle = p["nproc"] - others - ours
     usable = p["disk_mb"] >= h.min_free_gb * 1024
-    return {**p, "budget_jobs": max(int(budget // jt), 0) if usable else 0,
+    return {**p, "runs": runs, "budget_jobs": max(int(budget // jt), 0) if usable else 0,
             "free_jobs": max(int(min(budget, idle) // jt), 0) if usable else 0, "usable": usable}
 
 
@@ -401,7 +448,8 @@ def probe(hs: list[Host]) -> dict[str, dict]:
 def describe(h: Host, c: dict) -> str:
     if "error" in c:
         return f"{h.name}: no answer ({c['error']})"
-    return (f"{h.name}: load {c['load']:.1f} of {c['nproc']:.0f} threads, our runs {c['ours']:.0f}, "
+    runs = f"our runs {c['runs']:.0f}" + (f" ({c['ours']:.0f} running now)" if c["runs"] > c["ours"] else "")
+    return (f"{h.name}: load {c['load']:.1f} of {c['nproc']:.0f} threads, {runs}, "
             f"room for {c['free_jobs']} run(s) (budget {c['budget_jobs']}), "
             f"{c['disk_mb'] / 1024:.0f} GB free" + ("" if c["usable"] else f" (< {h.min_free_gb:g} GB: not used)"))
 
@@ -412,22 +460,41 @@ def choose(n_jobs: int, parallel: int, split: bool = False, only: list[str] | No
     The hosts (`only`, else ADCFLOW_HOST, else every configured host) are probed at once (probe) and the
     one with the most room is chosen (free_jobs, then the lower load, then the order of the config).
     Its parallel is `parallel`, at most what its thread budget leaves beside our other runs there
-    (at least 1). With `split` the jobs are spread over several hosts: each takes as many of the
-    `parallel` slots as it has room for, the roomiest first. A single host without a thread budget is
-    taken as it is, without a probe."""
+    (capacity: running, launched and reserved). While every host is at its budget, it waits (probes
+    again every ROOM_POLL_S, at most ROOM_WAIT_MAX_S). With `split` the jobs are spread over several
+    hosts: each takes as many of the `parallel` slots as it has room for, the roomiest first. A single
+    host without a thread budget is taken as it is, without a probe."""
     env = os.environ.get("ADCFLOW_HOST") if cfg().get("hosts") else None
     names = only or ([env] if env else None)
     hs = [get_host(n) for n in names] if names else hosts()
     if len(hs) == 1 and not hs[0].threads:
         return [(hs[0], parallel)]
-    caps = probe(hs)
-    for h in hs:
-        print(f"[adcflow] {describe(h, caps[h.name])}", flush=True)
-    ok = [h for h in hs if caps[h.name].get("usable")]
-    if not ok:
-        raise RemoteError("no simulation host can take the batch: " + "; ".join(describe(h, caps[h.name]) for h in hs))
+    t0, waited = _clock(), False
+    while True:
+        caps = probe(hs)
+        if not waited:
+            for h in hs:
+                print(f"[adcflow] {describe(h, caps[h.name])}", flush=True)
+        ok = [h for h in hs if caps[h.name].get("usable")]
+        if not ok:
+            raise RemoteError("no simulation host can take the batch: "
+                              + "; ".join(describe(h, caps[h.name]) for h in hs))
+        if any(caps[h.name]["budget_jobs"] > 0 for h in ok):
+            break
+        if _clock() - t0 > ROOM_WAIT_MAX_S:
+            raise RemoteError(f"every simulation host stayed at its thread budget for {ROOM_WAIT_MAX_S} s: "
+                              + "; ".join(describe(h, caps[h.name]) for h in ok))
+        if not waited:
+            print(f"[adcflow] every host is at its thread budget with our runs: waiting for room "
+                  f"(probing every {ROOM_POLL_S} s)", flush=True)
+            waited = True
+        _sleep(ROOM_POLL_S)
+    if waited:
+        print(f"[adcflow] room after {_clock() - t0:.0f} s: "
+              + "; ".join(describe(h, caps[h.name]) for h in ok), flush=True)
     order = {h.name: i for i, h in enumerate(hs)}
-    ok.sort(key=lambda h: (-caps[h.name]["free_jobs"], caps[h.name]["load"], order[h.name]))
+    ok.sort(key=lambda h: (-caps[h.name]["free_jobs"], caps[h.name]["budget_jobs"] == 0, caps[h.name]["load"],
+                           order[h.name]))
     if split and n_jobs > 1:
         out, left = [], min(parallel, n_jobs)
         for h in ok:
@@ -438,7 +505,7 @@ def choose(n_jobs: int, parallel: int, split: bool = False, only: list[str] | No
         if len(out) > 1:
             return out
     best = ok[0]
-    par = max(min(parallel, caps[best.name]["budget_jobs"]), 1)
+    par = max(min(parallel, caps[best.name]["budget_jobs"]), 1)          # budget_jobs >= 1 here
     if par < parallel:
         print(f"[adcflow] {best.name}: {par} parallel run(s), not {parallel}: its thread budget "
               f"({best.threads or 'all'} threads, {best.job_threads} per run) beside our other runs there")
@@ -487,8 +554,11 @@ def spread(jobs: list[str], slots: list[int]) -> list[list[str]]:
     return out
 
 
-def upload_tree(local_dir: Path, remote_dir: str, host=None, jobs: list[str] | None = None) -> None:
-    """Upload a staged run; with `jobs`, of its job directories only these (the part of a host)."""
+def upload_tree(local_dir: Path, remote_dir: str, host=None, jobs: list[str] | None = None,
+                reserve: int | None = None) -> None:
+    """Upload a staged run; with `jobs`, of its job directories only these (the part of a host). With
+    `reserve` (its parallel) the run directory first gets RESERVED, so that the probes of other
+    launches count the batch from now on, before it is launched (PENDING_FN)."""
     buf = io.BytesIO()
     keep = None if jobs is None else set(jobs)
     with tarfile.open(fileobj=buf, mode="w:gz") as tf:
@@ -501,7 +571,10 @@ def upload_tree(local_dir: Path, remote_dir: str, host=None, jobs: list[str] | N
                 info.mtime = int(time.time()) - 600   # avoid "time stamp in the future" noise
                 with open(p, "rb") as f:
                     tf.addfile(info, f)
-    ssh_pipe(f"mkdir -p {shlex.quote(remote_dir)} && tar xzf - -C {shlex.quote(remote_dir)} 2>/dev/null",
+    rd = shlex.quote(remote_dir)
+    n_jobs = len(jobs) if jobs is not None else len([p for p in (local_dir / "jobs").glob("*") if p.is_dir()])
+    mark = f" && echo '{int(reserve)} {n_jobs}' > {rd}/{RESERVED}" if reserve else ""
+    ssh_pipe(f"mkdir -p {rd}{mark} && tar xzf - -C {rd} 2>/dev/null",
              data=buf.getvalue(), timeout=600, host=host)
 
 

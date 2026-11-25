@@ -4,7 +4,9 @@ the run's manifest names its host(s) and every later call goes back there; a run
 hosts belongs to the default host. A host whose Spectre is a sandbox wrapper gets --read-only
 directories, a hard-linked copy of the Verilog-A library and its local copy of the PDK models."""
 
+import shutil
 import subprocess
+import textwrap
 
 import pytest
 
@@ -31,13 +33,15 @@ def multi(monkeypatch):
 
 
 def caps(**hosts):
-    """probe results: name -> (load, our runs, free GB) or an error text."""
+    """probe results: name -> (load, our running Spectre, free GB[, runs of our pending batches]) or an
+    error text."""
     def probe(hs):
         out = {}
         for h in hs:
             v = hosts[h.name]
             out[h.name] = {"error": v} if isinstance(v, str) else remote.capacity(
-                h, {"user": "u", "load": v[0], "nproc": 64.0, "ours": v[1], "disk_mb": v[2] * 1024.0})
+                h, {"user": "u", "load": v[0], "nproc": 64.0, "ours": v[1], "disk_mb": v[2] * 1024.0,
+                    "pending": v[3] if len(v) > 3 else 0.0})
         return out
     return probe
 
@@ -99,8 +103,73 @@ def test_the_thread_budget_limits_the_parallel_runs(multi, monkeypatch, capsys):
     ((h, par),) = remote.choose(30, 20)
     assert h.name == "b" and par == 6                    # 32 threads - 10 runs x 2 = 12 threads: 6 runs
     assert "6 parallel run(s), not 20" in capsys.readouterr().out
-    monkeypatch.setattr(remote, "probe", caps(a="down", b=(40.0, 16, 300), c="down"))
-    assert remote.choose(3, 4)[0][1] == 1                # no budget left: one at a time, still runs
+
+
+def test_launched_batches_count_before_their_spectre_runs(multi, monkeypatch, capsys):
+    # b: one Spectre runs (the compile step of a batch of 16 at a time), c: nothing launched
+    monkeypatch.setattr(remote, "probe", caps(a="down", b=(2.0, 1, 300, 16), c=(4.0, 0, 300)))
+    ((h, par),) = remote.choose(24, 16)
+    assert h.name == "c" and par == 16                   # b's budget is taken by its batch: 16 runs x 2 threads
+    assert "b: load 2.0 of 64 threads, our runs 16 (1 running now), room for 0 run(s) (budget 0)" in \
+        capsys.readouterr().out
+    c = remote.capacity(remote.get_host("b"), {"user": "u", "load": 10.0, "nproc": 64.0, "ours": 5.0,
+                                               "disk_mb": 1e6, "pending": 2.0})
+    assert c["runs"] == 5 and c["budget_jobs"] == 11     # other sessions' Spectre count when they are more
+
+
+class Server:
+    """Hosts whose probe answers from their batches: (parallel, jobs left); a batch has one Spectre
+    running (its compile step) until it ends, the rest of its runs not started yet."""
+
+    def __init__(self, names):
+        self.batches = {n: [] for n in names}
+
+    def probe(self, hs):
+        out = {}
+        for h in hs:
+            bs = self.batches[h.name]
+            out[h.name] = remote.capacity(h, {"user": "u", "load": 2.0 * len(bs), "nproc": 64.0, "ours": len(bs),
+                                              "disk_mb": 300 * 1024.0,
+                                              "pending": sum(min(p, n) for p, n in bs)})
+        return out
+
+    def submit(self, n_jobs, parallel, **k):
+        got = remote.choose(n_jobs, parallel, **k)
+        for h, par in got:
+            self.batches[h.name].append((par, n_jobs))
+        return [(h.name, par) for h, par in got]
+
+    def runs(self, name):
+        return sum(min(p, n) for p, n in self.batches[name])
+
+
+def test_back_to_back_launches_stay_within_the_budget(multi, monkeypatch, capsys):
+    srv = Server(["a", "b", "c"])
+    monkeypatch.setattr(remote, "probe", srv.probe)
+    slept = []
+
+    def sleep(s):                                        # while it waits, the first batch ends
+        slept.append(s)
+        srv.batches["b"].pop(0)
+    monkeypatch.setattr(remote, "_sleep", sleep)
+    assert srv.submit(24, 16, only=["b", "c"]) == [("b", 16)]
+    assert srv.submit(24, 16, only=["b", "c"]) == [("c", 16)]   # not b again: its batch has not started Spectre
+    assert srv.submit(8, 4, only=["b", "c"]) == [("b", 4)]      # both full: it waits for room, does not exceed
+    assert slept == [remote.ROOM_POLL_S] and "waiting for room" in capsys.readouterr().out
+    assert srv.submit(10, 16, only=["b"]) == [("b", 12)]        # 16 - 4 runs: what the budget leaves
+    assert srv.runs("b") <= 16 and srv.runs("c") <= 16
+    srv.batches["b"].clear()
+    srv.batches["c"] = [(16, 2)]                                # a batch with 2 jobs left takes 2 runs
+    assert srv.submit(40, 30, only=["b", "c"], split=True) == [("b", 16), ("c", 14)]
+
+
+def test_it_gives_up_when_no_room_comes(multi, monkeypatch):
+    monkeypatch.setattr(remote, "probe", caps(a="down", b=(4.0, 2, 300, 16), c="down"))
+    clock = iter(range(0, 10 ** 6, 5000))
+    monkeypatch.setattr(remote, "_clock", lambda: next(clock))
+    monkeypatch.setattr(remote, "_sleep", lambda s: None)
+    with pytest.raises(remote.RemoteError, match="stayed at its thread budget"):
+        remote.choose(3, 4)
 
 
 def test_hosts_without_answer_or_space_are_not_chosen(multi, monkeypatch):
@@ -137,10 +206,61 @@ def test_spread_keeps_the_order_in_proportion_to_the_slots():
 def test_the_probe_is_one_short_script():
     s = remote._probe_script(remote.Host("b", "alias-b", "/scratch/{user}/runs"))
     assert 'pgrep -u "$u" -x spectre' in s and "/proc/loadavg" in s and 'd="/scratch/${u}/runs"' in s
+    assert 'echo "pending $(pending "/scratch/${u}/runs")"' in s
     p = remote.parse_probe("user u\nload 1.5\nnproc 64\nours 3\ndisk_mb 1000\n")
-    assert p == {"user": "u", "load": 1.5, "nproc": 64.0, "ours": 3.0, "disk_mb": 1000.0}
+    assert p == {"user": "u", "load": 1.5, "nproc": 64.0, "ours": 3.0, "disk_mb": 1000.0, "pending": 0.0}
+    assert remote.parse_probe("user u\nload 1\nnproc 4\nours 0\npending 7\ndisk_mb 9\n")["pending"] == 7.0
     with pytest.raises(remote.RemoteError, match="nproc"):
         remote.parse_probe("user u\nload 1\n")
+
+
+def _bash():
+    b = shutil.which("bash")
+    if not b or subprocess.run([b, "-c", "[ -r /proc/$$/cmdline ]"]).returncode:
+        pytest.skip("no bash with /proc")
+    return b
+
+
+def test_pending_counts_launched_and_reserved_batches(tmp_path):
+    """PENDING_FN on a tree like a host's remote_root: launched batches whose launch.sh lives (also one
+    level down, the runs of another design area), a reservation of a batch being uploaded; not a batch
+    that ended, one whose launch.sh is gone (its pid now another process's) or an old reservation."""
+    script = remote.PENDING_FN + textwrap.dedent("""
+        T=$(pwd)/root
+        batch() {   # dir parallel jobs ended: a launched batch with a live launch.sh
+          mkdir -p $1/jobs; printf 'cat $R/jobs.list | xargs -P %s -I{} run\n' $2 > $1/batch.sh
+          for i in $(seq $3); do echo j$i >> $1/jobs.list; mkdir -p $1/jobs/j$i; done
+          for i in $(seq $4); do echo 0 > $1/jobs/j$i/rc.txt; done
+          printf 'sleep 30; true\n' > $1/launch.sh
+          bash $1/launch.sh & echo $! > $1/adcflow.pid
+        }
+        batch $T/r1 4 6 1                      # 5 jobs left, 4 at a time: 4
+        batch $T/area/r2 8 3 0                 # one level down, 3 jobs: 3
+        batch $T/r3 4 6 0; echo "0 1 2" > $T/r3/adcflow.done    # ended: 0
+        mkdir -p $T/r4; cp $T/r1/batch.sh $T/r1/jobs.list $T/r4/; cp $T/r1/adcflow.pid $T/r4/   # not its launch.sh: 0
+        mkdir -p $T/r5; echo "6 2" > $T/r5/adcflow.reserved       # being uploaded, 2 jobs: 2
+        mkdir -p $T/r6; echo "6 10" > $T/r6/adcflow.reserved; touch -d '2 hours ago' $T/r6/adcflow.reserved   # 0
+        mkdir -p $T/r7/jobs                    # never launched: 0
+        sleep 0.5
+        echo "pending $(pending "$T")"
+        echo "none $(pending "$T/nothing")"
+        kill $(jobs -p) 2>/dev/null
+    """)
+    p = subprocess.run([_bash(), "-s"], input=script.encode(), cwd=tmp_path, capture_output=True, timeout=60)
+    out = p.stdout.decode()
+    assert "pending 9\n" in out and "none 0\n" in out, (out, p.stderr.decode())
+
+
+def test_the_upload_reserves_the_room_and_the_runner_uploads_first(monkeypatch, tmp_path):
+    (tmp_path / "jobs" / "j1").mkdir(parents=True)
+    (tmp_path / "jobs" / "j2").mkdir()
+    sent = []
+    monkeypatch.setattr(remote, "ssh_pipe", lambda cmd, data=None, timeout=None, host=None: sent.append(cmd))
+    remote.upload_tree(tmp_path, "/scratch/u/runs/r1", jobs=["j2"], reserve=6)
+    remote.upload_tree(tmp_path, "/scratch/u/runs/r2", reserve=4)
+    remote.upload_tree(tmp_path, "/scratch/u/runs/r3")
+    assert sent[0].startswith("mkdir -p /scratch/u/runs/r1 && echo '6 1' > /scratch/u/runs/r1/adcflow.reserved && tar")
+    assert "echo '4 2' > /scratch/u/runs/r2/adcflow.reserved" in sent[1] and "reserved" not in sent[2]
 
 
 # ------------------------------------------------------------------ the scripts of a host
@@ -229,7 +349,7 @@ class Hosts:
     def __init__(self):
         self.dirs, self.calls = {}, []
 
-    def upload_tree(self, local_dir, rroot, host=None, jobs=None):
+    def upload_tree(self, local_dir, rroot, host=None, jobs=None, reserve=None):
         self.calls.append(("upload", host, rroot, sorted(jobs)))
         self.dirs[rroot] = {"host": host, "jobs": list(jobs), "done": None, "fetched": False}
 
